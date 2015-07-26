@@ -6,7 +6,7 @@ project(chen)
 
 # include path
 #include_directories(${Boost_INCLUDE_DIR})
-include_directories(../)
+include_directories(./)
 
 # source codes
 aux_source_directory(./tool SRC_TOOL)

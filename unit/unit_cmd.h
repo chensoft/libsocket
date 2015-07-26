@@ -7,7 +7,7 @@
 #pragma once
 
 #include "unit_base.h"
-#include <chen/tool/cmd.h>
+#include "tool/cmd.h"
 
 namespace chen
 {
