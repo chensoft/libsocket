@@ -38,19 +38,19 @@ namespace chen
 
             try
             {
-                flag.define<bool>("bool", "b", "test bool", false, true);
-                flag.define<short>("short", "s", "test short", 0, true);
-                flag.define<int>("int", "i", "test int", 0, true);
-                flag.define<long>("long", "l", "test long");
-                flag.define<long long>("long long", "ll", "test long long");
-                flag.define<unsigned int>("uint", "ui", "test unsigned int");
-                flag.define<unsigned long>("ulong", "ul", "test unsigned long");
-                flag.define<unsigned long long>("ulonglong", "ull", "test unsigned long long");
-                flag.define<float>("float", "f", "test float");
-                flag.define<double>("double", "d", "test double");
-                flag.define<long double>("ldouble", "ld", "test long double");
-                flag.define<char>("char", "c", "test char");
-                flag.define<std::string>("string", "str", "test std::string");
+                flag.define<bool>("bool", "b", false, "test bool");
+                flag.define<short>("short", "s", 0, "test short");
+                flag.define<int>("int", "i", 0, "test int");
+                flag.define<long>("long", "l", 0, "test long");
+                flag.define<long long>("long long", "ll", 0, "test long long");
+                flag.define<unsigned int>("uint", "ui", 0, "test unsigned int");
+                flag.define<unsigned long>("ulong", "ul", 0, "test unsigned long");
+                flag.define<unsigned long long>("ulonglong", "ull", 0, "test unsigned long long");
+                flag.define<float>("float", "f", 0.0, "test float");
+                flag.define<double>("double", "d", 0.0, "test double");
+                flag.define<long double>("ldouble", "ld", 0.0, "test long double");
+                flag.define<char>("char", "c", '\0', "test char");
+                flag.define<std::string>("string", "str", "", "test std::string");
             }
             catch (const std::exception &e)
             {
