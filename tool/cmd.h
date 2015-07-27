@@ -103,10 +103,12 @@ namespace chen
         cmd_option(const std::string &name,
                    const std::string &alias,
                    const std::string &desc,
-                   const T &def)
+                   const T &def,
+                   bool must)
         : cmd_option_base(name, alias, desc)
         , _def(def)
         , _val(T())
+        , _must(must)
         {
 
         }
@@ -131,6 +133,8 @@ namespace chen
     private:
         T _def;
         T _val;
+
+        bool _must = false;
     };
 
 
@@ -138,12 +142,14 @@ namespace chen
      * Option specialization
      */
     template <>
-    void cmd_option<bool>::setValue(const std::string &value)
+    inline void cmd_option<bool>::setValue(const std::string &value)
     {
         // The following options are considered true
         // program -h
         // program -h=true
-        if (value.empty() || (value == "true"))
+        if (value.empty())
+            this->_val = this->_must ? this->_def : true;
+        else if (value == "true")
             this->_val = true;
         else if (value == "false")
             this->_val = false;
@@ -152,14 +158,14 @@ namespace chen
     }
 
     template <>
-    void cmd_option<short>::setValue(const std::string &value)
+    inline void cmd_option<short>::setValue(const std::string &value)
     {
         // check range overflow
         int val = 0;
 
         try
         {
-            val = std::stoi(value);
+            val = (value.empty() && this->_must) ? this->_def : std::stoi(value);
         }
         catch (...)
         {
@@ -173,11 +179,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<int>::setValue(const std::string &value)
+    inline void cmd_option<int>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stoi(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stoi(value);
         }
         catch (...)
         {
@@ -186,11 +192,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<long>::setValue(const std::string &value)
+    inline void cmd_option<long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stol(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stol(value);
         }
         catch (...)
         {
@@ -199,11 +205,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<long long>::setValue(const std::string &value)
+    inline void cmd_option<long long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stoll(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stoll(value);
         }
         catch (...)
         {
@@ -212,13 +218,13 @@ namespace chen
     }
 
     template <>
-    void cmd_option<unsigned int>::setValue(const std::string &value)
+    inline void cmd_option<unsigned int>::setValue(const std::string &value)
     {
         unsigned long val = 0;
 
         try
         {
-            val = std::stoul(value);
+            val = (value.empty() && this->_must) ? this->_def : std::stoul(value);
         }
         catch (...)
         {
@@ -232,11 +238,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<unsigned long>::setValue(const std::string &value)
+    inline void cmd_option<unsigned long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stoul(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stoul(value);
         }
         catch (...)
         {
@@ -245,11 +251,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<unsigned long long>::setValue(const std::string &value)
+    inline void cmd_option<unsigned long long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stoull(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stoull(value);
         }
         catch (...)
         {
@@ -258,11 +264,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<float>::setValue(const std::string &value)
+    inline void cmd_option<float>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stof(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stof(value);
         }
         catch (...)
         {
@@ -271,11 +277,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<double>::setValue(const std::string &value)
+    inline void cmd_option<double>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stod(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stod(value);
         }
         catch (...)
         {
@@ -284,11 +290,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<long double>::setValue(const std::string &value)
+    inline void cmd_option<long double>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = std::stold(value);
+            this->_val = (value.empty() && this->_must) ? this->_def : std::stold(value);
         }
         catch (...)
         {
@@ -297,11 +303,11 @@ namespace chen
     }
 
     template <>
-    void cmd_option<char>::setValue(const std::string &value)
+    inline void cmd_option<char>::setValue(const std::string &value)
     {
         // char's type is decide by compiler, maybe signed or unsigned
         if (value.empty())
-            this->_val = char();
+            this->_val = this->_must ? this->_def : char();
         else if (value.size() == 1)
             this->_val = value[0];
         else
@@ -309,9 +315,9 @@ namespace chen
     }
 
     template <>
-    void cmd_option<std::string>::setValue(const std::string &value)
+    inline void cmd_option<std::string>::setValue(const std::string &value)
     {
-        this->_val = value;
+        this->_val = (value.empty() && this->_must) ? this->_def : value;
     }
 
 
@@ -340,7 +346,8 @@ namespace chen
         void define(const std::string &name,
                     const std::string &alias = "",
                     const std::string &desc = "",
-                    const T &def = T())
+                    const T &def = T(),
+                    bool must = false)
         {
             // name can't be null
             if (name.empty())
@@ -352,10 +359,10 @@ namespace chen
 
             // alias must be unique
             if (this->_alias.count(alias))
-                throw std::runtime_error("cmd: alias is not unique: " + alias);
+                throw std::runtime_error("cmd: alias is not unique: " + alias + ", name: " + name);
 
             // insert into store
-            this->_store[name] = new cmd_option<T>(name, alias, desc, def);
+            this->_store[name] = new cmd_option<T>(name, alias, desc, def, must);
 
             // set alias name
             this->_alias[alias] = name;
@@ -365,7 +372,7 @@ namespace chen
         /**
          * Parse command line argv
          */
-        void parse(int argc, char *argv[])
+        void parse(int argc, const char *argv[])
         {
             // clear
             this->clear();
