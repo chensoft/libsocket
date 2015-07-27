@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include <sstream>
 #include <string>
 #include <map>
 
@@ -42,9 +43,9 @@ namespace chen
         cmd_option_base(const std::string &name,
                         const std::string &alias,
                         const std::string &desc)
-        : _name(name)
-        , _alias(alias)
-        , _desc(desc)
+                : _name(name)
+                , _alias(alias)
+                , _desc(desc)
         {
 
         }
@@ -72,7 +73,7 @@ namespace chen
         }
 
     public:
-        virtual void setValue(const std::string &value, bool exist) = 0;
+        virtual void setValue(const std::string &value) = 0;
 
         void setParse(bool parse)
         {
@@ -104,15 +105,15 @@ namespace chen
                    const std::string &alias,
                    const T &def,
                    const std::string &desc)
-        : cmd_option_base(name, alias, desc)
-        , _def(def)
-        , _val(T())
+                : cmd_option_base(name, alias, desc)
+                , _def(def)
+                , _val(T())
         {
 
         }
 
     public:
-        virtual void setValue(const std::string &value, bool exist) override;
+        virtual void setValue(const std::string &value) override;
 
     public:
         T def() const
@@ -122,6 +123,7 @@ namespace chen
 
         T val() const
         {
+            // if user provided option (even no argument), should use val, otherwise use def
             return this->_parse ? this->_val : this->_def;
         }
 
@@ -138,14 +140,12 @@ namespace chen
      * Option specialization
      */
     template <>
-    inline void cmd_option<bool>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<bool>::setValue(const std::string &value)
     {
         // The following options are considered true
         // program -h
         // program -h=true
-        if (value.empty())
-            this->_val = !exist ? this->_def : true;
-        else if (value == "true")
+        if (value.empty() || (value == "true"))
             this->_val = true;
         else if (value == "false")
             this->_val = false;
@@ -154,14 +154,14 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<short>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<short>::setValue(const std::string &value)
     {
         // check range overflow
         int val = 0;
 
         try
         {
-            val = !exist ? this->_def : std::stoi(value);
+            val = std::stoi(value);
         }
         catch (...)
         {
@@ -175,11 +175,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<int>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<int>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stoi(value);
+            this->_val = std::stoi(value);
         }
         catch (...)
         {
@@ -188,11 +188,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<long>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stol(value);
+            this->_val = std::stol(value);
         }
         catch (...)
         {
@@ -201,11 +201,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<long long>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<long long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stoll(value);
+            this->_val = std::stoll(value);
         }
         catch (...)
         {
@@ -214,13 +214,13 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<unsigned int>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<unsigned int>::setValue(const std::string &value)
     {
         unsigned long val = 0;
 
         try
         {
-            val = !exist ? this->_def : std::stoul(value);
+            val = std::stoul(value);
         }
         catch (...)
         {
@@ -234,11 +234,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<unsigned long>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<unsigned long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stoul(value);
+            this->_val = std::stoul(value);
         }
         catch (...)
         {
@@ -247,11 +247,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<unsigned long long>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<unsigned long long>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stoull(value);
+            this->_val = std::stoull(value);
         }
         catch (...)
         {
@@ -260,11 +260,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<float>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<float>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stof(value);
+            this->_val = std::stof(value);
         }
         catch (...)
         {
@@ -273,11 +273,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<double>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<double>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stod(value);
+            this->_val = std::stod(value);
         }
         catch (...)
         {
@@ -286,11 +286,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<long double>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<long double>::setValue(const std::string &value)
     {
         try
         {
-            this->_val = !exist ? this->_def : std::stold(value);
+            this->_val = std::stold(value);
         }
         catch (...)
         {
@@ -299,11 +299,11 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<char>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<char>::setValue(const std::string &value)
     {
         // char's type is decide by compiler, maybe signed or unsigned
         if (value.empty())
-            this->_val = !exist ? this->_def : char();
+            this->_val = char();
         else if (value.size() == 1)
             this->_val = value[0];
         else
@@ -311,9 +311,9 @@ namespace chen
     }
 
     template <>
-    inline void cmd_option<std::string>::setValue(const std::string &value, bool exist)
+    inline void cmd_option<std::string>::setValue(const std::string &value)
     {
-        this->_val = !exist ? this->_def : value;
+        this->_val = value;
     }
 
 
@@ -330,8 +330,8 @@ namespace chen
 
         ~cmd()
         {
-            for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
-                delete it->second;
+            for (auto &it : this->_store)
+                delete it.second;
         }
 
     public:
@@ -367,7 +367,7 @@ namespace chen
         /**
          * Parse command line argv
          */
-        void parse(int argc, const char *argv[])
+        void parse(int argc, const char *const argv[])
         {
             // clear
             this->clear();
@@ -380,7 +380,6 @@ namespace chen
                 std::string name;
                 std::string value;
 
-                bool exist = false;
                 bool mixed = false;
 
                 if (text[0] != '-')
@@ -401,7 +400,6 @@ namespace chen
                             // :-) program --option=<argument>
                             name  = text.substr(2, find - 2);
                             value = text.substr(find + 1);
-                            exist = true;
                         }
                         else
                         {
@@ -410,10 +408,7 @@ namespace chen
 
                             if (((idx + 1) < argc) && (argv[idx + 1][0] != '-'))
                             {
-                                value = argv[idx + 1];
-                                exist = true;
-
-                                ++idx;  // already parsed
+                                value = argv[++idx];  // forward
                             }
                         }
                     }
@@ -427,7 +422,6 @@ namespace chen
                             // :-) program -option=<argument>
                             name  = text.substr(1, find - 1);
                             value = text.substr(find + 1);
-                            exist = true;
                         }
                         else
                         {
@@ -435,10 +429,7 @@ namespace chen
                             {
                                 // :-) program -option <argument>
                                 name  = text.substr(1);
-                                value = argv[idx + 1];
-                                exist = true;
-
-                                ++idx;  // already parsed
+                                value = argv[++idx];  // forward
                             }
                             else
                             {
@@ -456,18 +447,18 @@ namespace chen
                     // try full name first
                     try
                     {
-                        this->update(text, name, "", exist);
+                        this->update(text, name, "");
                     }
                     catch (...)
                     {
                         // split to single chars
                         for (std::string::size_type i = 0, len = name.size(); i < len; ++i)
-                            this->update(text, std::string(1, name[i]), "", exist);
+                            this->update(text, std::string(1, name[i]), "");
                     }
                 }
                 else
                 {
-                    this->update(text, name, value, exist);
+                    this->update(text, name, value);
                 }
 
                 // increase idx
@@ -478,9 +469,55 @@ namespace chen
         /**
          * Print options info
          */
-        void usage()
+        std::string usage()
         {
-            ;
+            std::stringstream ss;
+
+            ss << "Options:" << std::endl;
+
+            // find the maximum indent
+            std::string::size_type indent = 0;
+
+            for (auto &it : this->_store)
+            {
+                auto name  = it.second->name();
+                auto alias = it.second->alias();
+                auto desc  = it.second->desc();
+
+                if (alias.empty())
+                    indent = std::max(indent, name.size() + 4);  // e.g: "  --addr"
+                else
+                    indent = std::max(indent, name.size() + alias.size() + 7);  // e.g: "  -a, --addr"
+            }
+
+            // plus two space indent
+            indent += 2;
+
+            // print the options
+            for (auto it = this->_store.begin();;)
+            {
+                auto name  = it->second->name();
+                auto alias = it->second->alias();
+                auto desc  = it->second->desc();
+
+                if (alias.empty())
+                    ss << "  --" << name << std::string(indent - name.size() - 4, ' ');
+                else
+                    ss << "  -" << alias << ", --" << name << std::string(indent - name.size() - alias.size() - 7, ' ');
+
+                if (++it != this->_store.end())
+                {
+                    ss << desc << std::endl;
+                }
+                else
+                {
+                    // last
+                    ss << desc;
+                    break;
+                }
+            }
+
+            return ss.str();
         }
 
         /**
@@ -488,15 +525,15 @@ namespace chen
          */
         void clear()
         {
-            for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
-                it->second->setParse(false);
+            for (auto &it : this->_store)
+                it.second->setParse(false);
         }
 
     protected:
         /**
          * Update value in store
          */
-        void update(const std::string &text, const std::string &name, const std::string &value, bool exist)
+        void update(const std::string &text, const std::string &name, const std::string &value)
         {
             std::string alias;
 
@@ -510,11 +547,11 @@ namespace chen
             auto it_store = this->_store.find(alias);
 
             if (it_store == this->_store.end())
-                throw std::runtime_error("cmd: parse option but not defined: " + text);
+                throw std::runtime_error("cmd: parse option but not defined: " + text + ", name: " + name);
 
             try
             {
-                it_store->second->setValue(value, exist);
+                it_store->second->setValue(value);
                 it_store->second->setParse(true);
             }
             catch (const std::exception &e)

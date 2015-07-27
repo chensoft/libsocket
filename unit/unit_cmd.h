@@ -38,7 +38,8 @@ namespace chen
 
             try
             {
-                flag.define<bool>("bool", "b", false, "test bool");
+                flag.define<bool>("bool1", "b", false, "test bool 1");
+                flag.define<bool>("bool2", "z", false, "test bool 2");
                 flag.define<short>("short", "s", 0, "test short");
                 flag.define<int>("int", "i", 0, "test int");
                 flag.define<long>("long", "l", 0, "test long");
@@ -85,7 +86,7 @@ namespace chen
             {
                 const char *argv[] = {
                         "program",
-                        "bool"
+                        "bool1"
                 };
 
                 flag.parse(2, argv);
@@ -107,7 +108,7 @@ namespace chen
             {
                 const char *argv[] = {
                         "program",
-                        "-bsi"
+                        "-bz"
                 };
 
                 flag.parse(2, argv);
