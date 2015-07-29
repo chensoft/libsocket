@@ -9,11 +9,12 @@
 #pragma once
 
 #include <string>
+#include "str.h"
 
 // macro
-#define PILogD(fmt, ...) chen::log::standard().debug(chen::log::format(fmt, ##__VA_ARGS__))
-#define PILogE(fmt, ...) chen::log::standard().error(chen::log::format(fmt, ##__VA_ARGS__))
-#define PILogF(fmt, ...) chen::log::standard().fatal(chen::log::format(fmt, ##__VA_ARGS__))
+#define PILogD(fmt, ...) chen::log::standard().debug(chen::str::format(fmt, ##__VA_ARGS__))
+#define PILogE(fmt, ...) chen::log::standard().error(chen::str::format(fmt, ##__VA_ARGS__))
+#define PILogF(fmt, ...) chen::log::standard().fatal(chen::str::format(fmt, ##__VA_ARGS__))
 
 
 // log
@@ -48,21 +49,5 @@ namespace chen
          * Final output
          */
         virtual void flush(const std::string &text);
-
-    public:
-        /**
-         * Date string
-         */
-        static std::string date(const std::string &sep = "-", bool gmt = true);
-
-        /**
-         * Time string
-         */
-        static std::string time(const std::string &sep = ":", bool gmt = true, bool milliseconds = false);
-
-        /**
-         * Format string using std::vsnprintf
-         */
-        static std::string format(const char *fmt, ...);
     };
 }
