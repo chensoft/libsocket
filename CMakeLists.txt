@@ -12,7 +12,7 @@ include_directories(./)
 aux_source_directory(./tool SRC_TOOL)
 
 # unit test
-if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_UNIT_TEST STREQUAL "true"))
+if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_UNIT STREQUAL "true"))
   message("-- Unit enabled")
   aux_source_directory(./unit SRC_UNIT)
 endif()

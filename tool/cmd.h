@@ -41,10 +41,10 @@ namespace chen
 
     protected:
         cmd_option_base(const std::string &name,
-                        const std::string &alias,
+                        const std::string &tiny,
                         const std::string &desc)
                 : _name(name)
-                , _alias(alias)
+                , _tiny(tiny)
                 , _desc(desc)
         {
 
@@ -62,9 +62,9 @@ namespace chen
             return this->_name;
         }
 
-        std::string alias() const
+        std::string tiny() const
         {
-            return this->_alias;
+            return this->_tiny;
         }
 
         std::string desc() const
@@ -85,7 +85,7 @@ namespace chen
 
     protected:
         std::string _name;
-        std::string _alias;
+        std::string _tiny;
         std::string _desc;
 
         bool _parse = false;
@@ -102,10 +102,10 @@ namespace chen
 
     protected:
         cmd_option(const std::string &name,
-                   const std::string &alias,
+                   const std::string &tiny,
                    const T &def,
                    const std::string &desc)
-                : cmd_option_base(name, alias, desc)
+                : cmd_option_base(name, tiny, desc)
                 , _def(def)
                 , _val(T())
         {
@@ -340,7 +340,7 @@ namespace chen
          */
         template <class T>
         void define(const std::string &name,
-                    const std::string &alias = "",
+                    const std::string &tiny = "",
                     const T &def = T(),
                     const std::string &desc = "")
         {
@@ -352,15 +352,16 @@ namespace chen
             if (this->_store.count(name))
                 throw std::runtime_error("cmd: option is not unique: " + name);
 
-            // alias must be unique
-            if (this->_alias.count(alias))
-                throw std::runtime_error("cmd: alias is not unique: " + alias + ", name: " + name);
+            // tiny must be unique
+            if (!tiny.empty() && this->_tiny.count(tiny))
+                throw std::runtime_error("cmd: tiny is not unique: " + tiny + ", name: " + name);
 
             // insert into store
-            this->_store[name] = new cmd_option<T>(name, alias, def, desc);
+            this->_store[name] = new cmd_option<T>(name, tiny, def, desc);
 
-            // set alias name
-            this->_alias[alias] = name;
+            // set tiny name
+            if (!tiny.empty())
+                this->_tiny[tiny] = name;
         }
 
     public:
@@ -481,13 +482,13 @@ namespace chen
             for (auto &it : this->_store)
             {
                 auto name  = it.second->name();
-                auto alias = it.second->alias();
+                auto tiny = it.second->tiny();
                 auto desc  = it.second->desc();
 
-                if (alias.empty())
-                    indent = std::max(indent, name.size() + 4);  // e.g: "  --addr"
+                if (tiny.empty())
+                    indent = std::max(indent, name.size() + 8);  // e.g: "      --addr"
                 else
-                    indent = std::max(indent, name.size() + alias.size() + 7);  // e.g: "  -a, --addr"
+                    indent = std::max(indent, tiny.size() + name.size() + 7);  // e.g: "  -a, --addr"
             }
 
             // plus two space indent
@@ -497,13 +498,13 @@ namespace chen
             for (auto it = this->_store.begin();;)
             {
                 auto name  = it->second->name();
-                auto alias = it->second->alias();
+                auto tiny = it->second->tiny();
                 auto desc  = it->second->desc();
 
-                if (alias.empty())
-                    ss << "  --" << name << std::string(indent - name.size() - 4, ' ');
+                if (tiny.empty())
+                    ss << "      --" << name << std::string(indent - name.size() - 8, ' ');
                 else
-                    ss << "  -" << alias << ", --" << name << std::string(indent - name.size() - alias.size() - 7, ' ');
+                    ss << "  -" << tiny << ", --" << name << std::string(indent - tiny.size() - name.size() - 7, ' ');
 
                 if (++it != this->_store.end())
                 {
@@ -535,16 +536,16 @@ namespace chen
          */
         void update(const std::string &text, const std::string &name, const std::string &value)
         {
-            std::string alias;
+            std::string tiny;
 
-            auto it_alias = this->_alias.find(name);
+            auto it_tiny = this->_tiny.find(name);
 
-            if (it_alias != this->_alias.end())
-                alias = it_alias->second;
+            if (it_tiny != this->_tiny.end())
+                tiny = it_tiny->second;
             else
-                alias = name;
+                tiny = name;
 
-            auto it_store = this->_store.find(alias);
+            auto it_store = this->_store.find(tiny);
 
             if (it_store == this->_store.end())
                 throw std::runtime_error("cmd: parse option but not defined: " + text + ", name: " + name);
@@ -567,30 +568,30 @@ namespace chen
         template <class T>
         T get(const std::string &name) const
         {
-            std::string alias;
+            std::string tiny;
 
-            auto it_alias = this->_alias.find(name);
+            auto it_tiny = this->_tiny.find(name);
 
-            if (it_alias != this->_alias.end())
-                alias = it_alias->second;
+            if (it_tiny != this->_tiny.end())
+                tiny = it_tiny->second;
             else
-                alias = name;
+                tiny = name;
 
-            auto it_store = this->_store.find(alias);
+            auto it_store = this->_store.find(tiny);
 
             if (it_store == this->_store.end())
-                throw std::runtime_error("cmd: option not defined: " + alias);
+                throw std::runtime_error("cmd: option not defined: " + tiny);
 
             auto *p = dynamic_cast<cmd_option<T> *>(it_store->second);
 
             if (!p)
-                throw std::runtime_error("cmd: option defined but type is wrong: " + alias);
+                throw std::runtime_error("cmd: option defined but type is wrong: " + tiny);
 
             return p->val();
         }
 
     protected:
         std::map<std::string, cmd_option_base*> _store;
-        std::map<std::string, std::string> _alias;
+        std::map<std::string, std::string> _tiny;
     };
 }
