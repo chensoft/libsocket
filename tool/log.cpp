@@ -35,7 +35,7 @@ log& log::standard()
 
 void log::flush(const std::string &text)
 {
-    std::string prefix(chen::str::date() + " " + chen::str::time(":", true, true) + " ");
+    std::string prefix(chen::str::date() + " " + chen::str::time(":", true, true) + " UTC ");
 
     std::cout << prefix << text << std::endl;
 }

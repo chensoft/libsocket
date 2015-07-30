@@ -16,12 +16,12 @@ namespace chen
         /**
          * Date string
          */
-        static std::string date(const std::string &sep = "-", bool gmt = true);
+        static std::string date(const std::string &sep = "-", bool utc = true);
 
         /**
          * Time string
          */
-        static std::string time(const std::string &sep = ":", bool gmt = true, bool milliseconds = false);
+        static std::string time(const std::string &sep = ":", bool utc = true, bool milliseconds = false);
 
         /**
          * Format string using std::vsnprintf

@@ -15,10 +15,10 @@ using namespace chen;
 #pragma mark -
 #pragma mark Tool
 
-std::string str::date(const std::string &sep, bool gmt)
+std::string str::date(const std::string &sep, bool utc)
 {
     std::time_t time = std::time(nullptr);
-    struct tm   *now = gmt ? std::gmtime(&time) : std::localtime(&time);
+    struct tm   *now = utc ? std::gmtime(&time) : std::localtime(&time);
 
     auto year  = now->tm_year + 1900;
     auto month = now->tm_mon  + 1;
@@ -27,13 +27,13 @@ std::string str::date(const std::string &sep, bool gmt)
     return str::format("%d%s%02d%s%02d", year, sep.c_str(), month, sep.c_str(), day);
 }
 
-std::string str::time(const std::string &sep, bool gmt, bool milliseconds)
+std::string str::time(const std::string &sep, bool utc, bool milliseconds)
 {
     auto high = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     auto last = high - high / 1000 * 1000;
 
     std::time_t time = (time_t)(high / 1000);
-    struct tm   *now = gmt ? std::gmtime(&time) : std::localtime(&time);
+    struct tm   *now = utc ? std::gmtime(&time) : std::localtime(&time);
 
     auto hour   = now->tm_hour;
     auto minute = now->tm_min;
