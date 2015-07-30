@@ -26,30 +26,16 @@ log::~log()
 
 log& log::standard()
 {
-    static log instance;
-    return instance;
+    static log inst;
+    return inst;
 }
 
 #pragma mark -
 #pragma mark Trace
 
-void log::debug(const std::string &text)
-{
-    this->flush("[DEBUG] " + text);
-}
-
-void log::error(const std::string &text)
-{
-    this->flush("[ERROR] " + text);
-}
-
-void log::fatal(const std::string &text)
-{
-    this->flush("[FATAL] " + text);
-    exit(EXIT_FAILURE);
-}
-
 void log::flush(const std::string &text)
 {
-    std::cout << text << std::endl;
+    std::string prefix(chen::str::date() + " " + chen::str::time(":", true, true) + " ");
+
+    std::cout << prefix << text << std::endl;
 }

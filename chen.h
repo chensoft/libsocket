@@ -17,5 +17,6 @@
 
 #include "tool/log.h"
 #include "tool/cmd.h"
+#include "tool/str.h"
 
 #include "unit/unit.h"

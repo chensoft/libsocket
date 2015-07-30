@@ -8,13 +8,13 @@
  */
 #pragma once
 
-#include <string>
 #include "str.h"
+#include <cstdlib>
 
 // macro
-#define PILogD(FMT, ...) (chen::log::standard().debug(chen::str::format(FMT, ##__VA_ARGS__)))
-#define PILogE(FMT, ...) (chen::log::standard().error(chen::str::format(FMT, ##__VA_ARGS__)))
-#define PILogF(FMT, ...) (chen::log::standard().fatal(chen::str::format(FMT, ##__VA_ARGS__)))
+#define PILogD(FORMAT, ...) (chen::log::standard().debug(FORMAT, ##__VA_ARGS__))
+#define PILogE(FORMAT, ...) (chen::log::standard().error(FORMAT, ##__VA_ARGS__))
+#define PILogF(FORMAT, ...) (chen::log::standard().fatal(FORMAT, ##__VA_ARGS__))
 
 
 // log
@@ -33,17 +33,31 @@ namespace chen
         /**
          * Debug trace
          */
-        virtual void debug(const std::string &text);
+        template <class ... Args>
+        void debug(const char *format, Args ... args)
+        {
+            this->flush("[DEBUG] " + chen::str::format(format, args...));
+        }
 
         /**
          * Error trace
          */
-        virtual void error(const std::string &text);
+        template <class ... Args>
+        void error(const char *format, Args ... args)
+        {
+            this->flush("[ERROR] " + chen::str::format(format, args...));
+        }
 
         /**
          * Fatal trace
          */
-        virtual void fatal(const std::string &text);
+        template <class ... Args>
+        void fatal(const char *format, Args ... args)
+        {
+            this->flush("[FATAL] " + chen::str::format(format, args...));
+
+            std::exit(EXIT_FAILURE);
+        }
 
         /**
          * Final output
