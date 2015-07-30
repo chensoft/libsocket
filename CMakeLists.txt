@@ -9,6 +9,7 @@ project(chen)
 include_directories(./)
 
 # source codes
+aux_source_directory(./data SRC_DATA)
 aux_source_directory(./sync SRC_SYNC)
 aux_source_directory(./tool SRC_TOOL)
 
@@ -19,7 +20,7 @@ if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CH
 endif()
 
 # generate lib
-add_library(chen STATIC ${SRC_SYNC} ${SRC_TOOL} ${SRC_UNIT})
+add_library(chen STATIC ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_UNIT})
 
 # link library
 #target_link_libraries(chen ${Boost_LIBRARIES})

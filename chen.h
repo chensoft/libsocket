@@ -8,6 +8,10 @@
  */
 #pragma once
 
+#include "data/json.h"
+#include "data/plist.h"
+#include "data/xml.h"
+
 #include "sync/semaphore.h"
 #include "sync/threadpool.h"
 
