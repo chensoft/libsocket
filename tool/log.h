@@ -12,9 +12,9 @@
 #include "str.h"
 
 // macro
-#define PILogD(fmt, ...) chen::log::standard().debug(chen::str::format(fmt, ##__VA_ARGS__))
-#define PILogE(fmt, ...) chen::log::standard().error(chen::str::format(fmt, ##__VA_ARGS__))
-#define PILogF(fmt, ...) chen::log::standard().fatal(chen::str::format(fmt, ##__VA_ARGS__))
+#define PILogD(FMT, ...) (chen::log::standard().debug(chen::str::format(FMT, ##__VA_ARGS__)))
+#define PILogE(FMT, ...) (chen::log::standard().error(chen::str::format(FMT, ##__VA_ARGS__)))
+#define PILogF(FMT, ...) (chen::log::standard().fatal(chen::str::format(FMT, ##__VA_ARGS__)))
 
 
 // log
