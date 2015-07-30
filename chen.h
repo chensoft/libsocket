@@ -8,6 +8,9 @@
  */
 #pragma once
 
+#include "sync/semaphore.h"
+#include "sync/threadpool.h"
+
 #include "tool/log.h"
 #include "tool/cmd.h"
 
