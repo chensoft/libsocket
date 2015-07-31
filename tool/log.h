@@ -10,6 +10,7 @@
 
 #include "str.h"
 #include <cstdlib>
+#include <mutex>
 
 // macro
 #define PILogD(FORMAT, ...) (chen::log::standard().debug(FORMAT, ##__VA_ARGS__))
@@ -63,5 +64,8 @@ namespace chen
          * Final output
          */
         virtual void flush(const std::string &text);
+
+    protected:
+        static std::mutex _mutex;
     };
 }

@@ -14,6 +14,8 @@ using namespace chen;
 #pragma mark -
 #pragma mark log
 
+std::mutex log::_mutex;
+
 log::log()
 {
 
@@ -35,7 +37,8 @@ log& log::standard()
 
 void log::flush(const std::string &text)
 {
-    std::string prefix(chen::str::date() + " " + chen::str::time(":", true, true) + " UTC ");
+    std::lock_guard<std::mutex> lock(log::_mutex);
 
+    std::string prefix(chen::str::date() + " " + chen::str::time(":", true, true) + " UTC ");
     std::cout << prefix << text << std::endl;
 }
