@@ -28,6 +28,7 @@
 
 #include <sstream>
 #include <string>
+#include <memory>
 #include <map>
 
 namespace chen
@@ -323,16 +324,8 @@ namespace chen
     class cmd
     {
     public:
-        cmd()
-        {
-
-        }
-
-        ~cmd()
-        {
-            for (auto &it : this->_store)
-                delete it.second;
-        }
+        cmd() = default;
+        ~cmd() = default;
 
     public:
         /**
@@ -357,7 +350,7 @@ namespace chen
                 throw std::runtime_error("cmd: tiny is not unique: " + tiny + ", name: " + name);
 
             // insert into store
-            this->_store[name] = new cmd_option<T>(name, tiny, def, desc);
+            this->_store[name] = std::unique_ptr<cmd_option_base>(new cmd_option<T>(name, tiny, def, desc));
 
             // set tiny name
             if (!tiny.empty())
@@ -582,7 +575,7 @@ namespace chen
             if (it_store == this->_store.end())
                 throw std::runtime_error("cmd: option not defined: " + tiny);
 
-            auto *p = dynamic_cast<cmd_option<T> *>(it_store->second);
+            auto *p = dynamic_cast<cmd_option<T> *>(it_store->second.get());
 
             if (!p)
                 throw std::runtime_error("cmd: option defined but type is wrong: " + tiny);
@@ -591,7 +584,7 @@ namespace chen
         }
 
     protected:
-        std::map<std::string, cmd_option_base*> _store;
+        std::map<std::string, std::unique_ptr<cmd_option_base>> _store;
         std::map<std::string, std::string> _tiny;
     };
 }

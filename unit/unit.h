@@ -9,6 +9,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include <functional>
 
@@ -33,7 +34,7 @@ namespace chen
         void bench();
 
     private:
-        std::map<std::string, unit_base*> _store;
+        std::map<std::string, std::unique_ptr<unit_base>> _store;
 
     private:
         unit();

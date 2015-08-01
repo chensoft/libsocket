@@ -23,14 +23,12 @@ unit& unit::instance()
 unit::unit()
 {
     // register all unit test
-    this->_store["cmd"] = new unit_cmd;
+    this->_store["cmd"] = std::unique_ptr<unit_base>(new unit_cmd);
 }
 
 unit::~unit()
 {
-    // delete all unit test
-    for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
-        delete it->second;
+
 }
 
 void unit::check()
