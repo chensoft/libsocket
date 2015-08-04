@@ -12,6 +12,7 @@
 #include "data/plist.h"
 #include "data/xml.h"
 
+#include "sync/routine.h"
 #include "sync/semaphore.h"
 #include "sync/threadpool.h"
 
