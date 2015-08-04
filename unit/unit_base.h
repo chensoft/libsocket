@@ -11,10 +11,7 @@ namespace chen
     class unit_base
     {
     public:
-        virtual ~unit_base()
-        {
-
-        }
+        virtual ~unit_base() = default;
 
     public:
         /**

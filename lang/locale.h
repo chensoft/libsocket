@@ -21,9 +21,13 @@ namespace chen
         static locale& standard();
 
     public:
+        locale() = default;
+        virtual ~locale() = default;
+
+    public:
         /**
          * Translate text to another language
          */
-        std::string translate(const std::string &text);
+        virtual std::string translate(const std::string &text);
     };
 }

@@ -17,7 +17,7 @@ namespace chen
 {
     class unit_base;
 
-    class unit
+    class unit final
     {
     public:
         static unit& instance();
@@ -38,14 +38,14 @@ namespace chen
 
     private:
         unit();
-        ~unit();
+        ~unit() = default;
 
         /**
          * Prevent the following situation
          * chen::unit &a = chen::unit::instance();
          * chen::unit *b = new chen::unit(a);
          */
-        unit(unit const&)           = delete;
-        void operator=(unit const&) = delete;
+        unit(const unit&) = delete;
+        unit& operator=(const unit&) = delete;
     };
 }

@@ -26,11 +26,6 @@ unit::unit()
     this->_store["cmd"] = std::unique_ptr<unit_base>(new unit_cmd);
 }
 
-unit::~unit()
-{
-
-}
-
 void unit::check()
 {
     for (auto it = this->_store.begin(); it != this->_store.end(); ++it)

@@ -24,11 +24,11 @@ namespace chen
     class log
     {
     public:
-        log();
-        virtual ~log();
+        static log& standard();
 
     public:
-        static log& standard();
+        log();
+        virtual ~log();
 
     public:
         /**

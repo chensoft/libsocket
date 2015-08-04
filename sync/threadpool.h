@@ -18,7 +18,7 @@ namespace chen
     class threadpool final
     {
     public:
-        typedef std::function<void ()> type_func;
+        typedef std::function<void ()> job_type;
 
     public:
         threadpool(unsigned int count = 0);
@@ -29,16 +29,20 @@ namespace chen
         /**
          * Put a job into queue
          */
-        void async(const type_func &job);
+        void async(const job_type &job);
 
     protected:
         void run();
 
     private:
+        threadpool(const threadpool&) = delete;
+        threadpool& operator=(const threadpool&) = delete;
+
+    private:
         bool _destroy = false;  // is wait for destroy
 
-        std::mutex _mutex;              // queue lock
-        std::vector<type_func> _queue;  // queue job
+        std::mutex _mutex;             // queue lock
+        std::vector<job_type> _queue;  // queue job
 
         std::vector<std::thread> _pool;  // thread
         chen::semaphore _semaphore;      // semaphore

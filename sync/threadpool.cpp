@@ -33,7 +33,7 @@ threadpool::~threadpool()
         thread.join();
 }
 
-void threadpool::async(const type_func &job)
+void threadpool::async(const job_type &job)
 {
     {
         std::lock_guard<std::mutex> lock(this->_mutex);
@@ -48,7 +48,7 @@ void threadpool::run()
     while (!this->_destroy)
     {
         // check job
-        type_func job;
+        job_type job;
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);

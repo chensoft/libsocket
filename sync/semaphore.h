@@ -15,8 +15,16 @@ namespace chen
     class semaphore final
     {
     public:
+        semaphore() = default;
+        ~semaphore() = default;
+
+    public:
         void wake();
         void wait();
+
+    private:
+        semaphore(const semaphore&) = delete;
+        semaphore& operator=(const semaphore&) = delete;
 
     private:
         int _count = 0;
