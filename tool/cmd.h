@@ -33,6 +33,61 @@
 
 namespace chen
 {
+    class cmd_option_base;
+
+    /**
+     * Command line parser
+     */
+    class cmd
+    {
+    public:
+        cmd() = default;
+        ~cmd() = default;
+
+    public:
+        /**
+         * Define an option with default value
+         */
+        template <typename T>
+        void define(const std::string &name,
+                    const std::string &tiny = "",
+                    const T &def = T(),
+                    const std::string &desc = "");
+
+    public:
+        /**
+         * Parse command line argv
+         */
+        void parse(int argc, const char *const argv[]);
+
+        /**
+         * Print options info
+         */
+        std::string usage();
+
+        /**
+         * Clear all options
+         */
+        void clear();
+
+    protected:
+        /**
+         * Update value in store
+         */
+        void update(const std::string &text, const std::string &name, const std::string &value);
+
+    public:
+        /**
+         * Get value of an option
+         */
+        template <typename T>
+        T get(const std::string &name) const;
+
+    protected:
+        std::map<std::string, std::unique_ptr<cmd_option_base>> _store;
+        std::map<std::string, std::string> _tiny;
+    };
+
     /**
      * Option base class (internal use)
      */
@@ -48,38 +103,19 @@ namespace chen
                 , _tiny(tiny)
                 , _desc(desc)
         {
-
         }
 
     public:
-        virtual ~cmd_option_base()
-        {
-
-        }
+        virtual ~cmd_option_base() = default;
 
     public:
-        std::string name() const
-        {
-            return this->_name;
-        }
-
-        std::string tiny() const
-        {
-            return this->_tiny;
-        }
-
-        std::string desc() const
-        {
-            return this->_desc;
-        }
+        std::string name() const;
+        std::string tiny() const;
+        std::string desc() const;
 
     public:
+        virtual void setParse(bool parse);
         virtual void setValue(const std::string &value) = 0;
-
-        void setParse(bool parse)
-        {
-            this->_parse = parse;
-        }
 
     private:
         cmd_option_base() = delete;
@@ -96,7 +132,7 @@ namespace chen
     /**
      * Option template class (internal use)
      */
-    template <class T>
+    template <typename T>
     class cmd_option : public cmd_option_base
     {
         friend class cmd;
@@ -117,16 +153,8 @@ namespace chen
         virtual void setValue(const std::string &value) override;
 
     public:
-        T def() const
-        {
-            return this->_def;
-        }
-
-        T val() const
-        {
-            // if user provided option (even no argument), should use val, otherwise use def
-            return this->_parse ? this->_val : this->_def;
-        }
+        T def() const;
+        T val() const;
 
     private:
         cmd_option() = delete;
@@ -135,7 +163,26 @@ namespace chen
         T _def;
         T _val;
     };
+}
 
+
+namespace chen
+{
+    /**
+     * Option
+     */
+    template <typename T>
+    T cmd_option<T>::def() const
+    {
+        return this->_def;
+    }
+
+    template <typename T>
+    T cmd_option<T>::val() const
+    {
+        // if user provided option (even no argument), should use val, otherwise use def
+        return this->_parse ? this->_val : this->_def;
+    }
 
     /**
      * Option specialization
@@ -317,274 +364,57 @@ namespace chen
         this->_val = value;
     }
 
-
     /**
-     * Command line parser
+     * Cmd
      */
-    class cmd
+    template <typename T>
+    void cmd::define(const std::string &name,
+                     const std::string &tiny,
+                     const T &def,
+                     const std::string &desc)
     {
-    public:
-        cmd() = default;
-        ~cmd() = default;
+        // name can't be null
+        if (name.empty())
+            throw std::invalid_argument("cmd: option is null");
 
-    public:
-        /**
-         * Define an option with default value
-         */
-        template <class T>
-        void define(const std::string &name,
-                    const std::string &tiny = "",
-                    const T &def = T(),
-                    const std::string &desc = "")
-        {
-            // name can't be null
-            if (name.empty())
-                throw std::invalid_argument("cmd: option is null");
+        // name must be unique
+        if (this->_store.count(name))
+            throw std::runtime_error("cmd: option is not unique: " + name);
 
-            // name must be unique
-            if (this->_store.count(name))
-                throw std::runtime_error("cmd: option is not unique: " + name);
+        // tiny must be unique
+        if (!tiny.empty() && this->_tiny.count(tiny))
+            throw std::runtime_error("cmd: tiny is not unique: " + tiny + ", name: " + name);
 
-            // tiny must be unique
-            if (!tiny.empty() && this->_tiny.count(tiny))
-                throw std::runtime_error("cmd: tiny is not unique: " + tiny + ", name: " + name);
+        // insert into store
+        this->_store[name] = std::unique_ptr<cmd_option_base>(new cmd_option<T>(name, tiny, def, desc));
 
-            // insert into store
-            this->_store[name] = std::unique_ptr<cmd_option_base>(new cmd_option<T>(name, tiny, def, desc));
+        // set tiny name
+        if (!tiny.empty())
+            this->_tiny[tiny] = name;
+    }
 
-            // set tiny name
-            if (!tiny.empty())
-                this->_tiny[tiny] = name;
-        }
+    template <typename T>
+    T cmd::get(const std::string &name) const
+    {
+        std::string tiny;
 
-    public:
-        /**
-         * Parse command line argv
-         */
-        void parse(int argc, const char *const argv[])
-        {
-            // clear
-            this->clear();
+        auto it_tiny = this->_tiny.find(name);
 
-            int idx = 1;  // skip the program itself
+        if (it_tiny != this->_tiny.end())
+            tiny = it_tiny->second;
+        else
+            tiny = name;
 
-            while (idx < argc)
-            {
-                std::string text(argv[idx]);
-                std::string name;
-                std::string value;
+        auto it_store = this->_store.find(tiny);
 
-                bool mixed = false;
+        if (it_store == this->_store.end())
+            throw std::runtime_error("cmd: option not defined: " + tiny);
 
-                if (text[0] != '-')
-                {
-                    // :-) program command
-                    name  = text;
-                    value = "";
-                }
-                else
-                {
-                    auto find = text.find_first_of("=");
+        auto *p = dynamic_cast<cmd_option<T> *>(it_store->second.get());
 
-                    if ((text.size() > 1) && (text[1] == '-'))
-                    {
-                        // long option
-                        if (find != std::string::npos)
-                        {
-                            // :-) program --option=<argument>
-                            name  = text.substr(2, find - 2);
-                            value = text.substr(find + 1);
-                        }
-                        else
-                        {
-                            // :-) program --option <argument>
-                            name = text.substr(2);
+        if (!p)
+            throw std::runtime_error("cmd: option defined but type is wrong: " + tiny);
 
-                            if (((idx + 1) < argc) && (argv[idx + 1][0] != '-'))
-                            {
-                                value = argv[++idx];  // forward
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // short option
-                        // if option has argument then the name if full
-                        // if no argument, the name may be mixed, e.g: "ls -al" is equal to "ls -a -l"
-                        if (find != std::string::npos)
-                        {
-                            // :-) program -option=<argument>
-                            name  = text.substr(1, find - 1);
-                            value = text.substr(find + 1);
-                        }
-                        else
-                        {
-                            if (((idx + 1) < argc) && (argv[idx + 1][0] != '-'))
-                            {
-                                // :-) program -option <argument>
-                                name  = text.substr(1);
-                                value = argv[++idx];  // forward
-                            }
-                            else
-                            {
-                                // :-) program -abc
-                                name  = text.substr(1);
-                                mixed = true;
-                            }
-                        }
-                    }
-                }
-
-                // handle name & value
-                if (mixed)
-                {
-                    // try full name first
-                    try
-                    {
-                        this->update(text, name, "");
-                    }
-                    catch (...)
-                    {
-                        // split to single chars
-                        for (std::string::size_type i = 0, len = name.size(); i < len; ++i)
-                            this->update(text, std::string(1, name[i]), "");
-                    }
-                }
-                else
-                {
-                    this->update(text, name, value);
-                }
-
-                // increase idx
-                ++idx;
-            }
-        }
-
-        /**
-         * Print options info
-         */
-        std::string usage()
-        {
-            std::stringstream ss;
-
-            ss << "Options:" << std::endl;
-
-            // find the maximum indent
-            std::string::size_type indent = 0;
-
-            for (auto &it : this->_store)
-            {
-                auto name  = it.second->name();
-                auto tiny = it.second->tiny();
-                auto desc  = it.second->desc();
-
-                if (tiny.empty())
-                    indent = std::max(indent, name.size() + 8);  // e.g: "      --addr"
-                else
-                    indent = std::max(indent, tiny.size() + name.size() + 7);  // e.g: "  -a, --addr"
-            }
-
-            // plus two space indent
-            indent += 2;
-
-            // print the options
-            for (auto it = this->_store.begin();;)
-            {
-                auto name  = it->second->name();
-                auto tiny = it->second->tiny();
-                auto desc  = it->second->desc();
-
-                if (tiny.empty())
-                    ss << "      --" << name << std::string(indent - name.size() - 8, ' ');
-                else
-                    ss << "  -" << tiny << ", --" << name << std::string(indent - tiny.size() - name.size() - 7, ' ');
-
-                if (++it != this->_store.end())
-                {
-                    ss << desc << std::endl;
-                }
-                else
-                {
-                    // last
-                    ss << desc;
-                    break;
-                }
-            }
-
-            return ss.str();
-        }
-
-        /**
-         * Clear all options
-         */
-        void clear()
-        {
-            for (auto &it : this->_store)
-                it.second->setParse(false);
-        }
-
-    protected:
-        /**
-         * Update value in store
-         */
-        void update(const std::string &text, const std::string &name, const std::string &value)
-        {
-            std::string tiny;
-
-            auto it_tiny = this->_tiny.find(name);
-
-            if (it_tiny != this->_tiny.end())
-                tiny = it_tiny->second;
-            else
-                tiny = name;
-
-            auto it_store = this->_store.find(tiny);
-
-            if (it_store == this->_store.end())
-                throw std::runtime_error("cmd: parse option but not defined: " + text + ", name: " + name);
-
-            try
-            {
-                it_store->second->setValue(value);
-                it_store->second->setParse(true);
-            }
-            catch (const std::exception &e)
-            {
-                throw std::runtime_error(e.what() + std::string(": ") + text);
-            }
-        }
-
-    public:
-        /**
-         * Get value of an option
-         */
-        template <class T>
-        T get(const std::string &name) const
-        {
-            std::string tiny;
-
-            auto it_tiny = this->_tiny.find(name);
-
-            if (it_tiny != this->_tiny.end())
-                tiny = it_tiny->second;
-            else
-                tiny = name;
-
-            auto it_store = this->_store.find(tiny);
-
-            if (it_store == this->_store.end())
-                throw std::runtime_error("cmd: option not defined: " + tiny);
-
-            auto *p = dynamic_cast<cmd_option<T> *>(it_store->second.get());
-
-            if (!p)
-                throw std::runtime_error("cmd: option defined but type is wrong: " + tiny);
-
-            return p->val();
-        }
-
-    protected:
-        std::map<std::string, std::unique_ptr<cmd_option_base>> _store;
-        std::map<std::string, std::string> _tiny;
-    };
+        return p->val();
+    }
 }

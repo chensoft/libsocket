@@ -27,38 +27,27 @@ namespace chen
         static log& standard();
 
     public:
-        log();
-        virtual ~log();
+        log() = default;
+        virtual ~log() = default;
 
     public:
         /**
          * Debug trace
          */
-        template <class ... Args>
-        void debug(const char *format, Args ... args)
-        {
-            this->flush("[DEBUG] " + chen::str::format(format, args...));
-        }
+        template <typename ... Args>
+        void debug(const char *format, Args ... args);
 
         /**
          * Error trace
          */
-        template <class ... Args>
-        void error(const char *format, Args ... args)
-        {
-            this->flush("[ERROR] " + chen::str::format(format, args...));
-        }
+        template <typename ... Args>
+        void error(const char *format, Args ... args);
 
         /**
          * Fatal trace
          */
-        template <class ... Args>
-        void fatal(const char *format, Args ... args)
-        {
-            this->flush("[FATAL] " + chen::str::format(format, args...));
-
-            std::exit(EXIT_FAILURE);
-        }
+        template <typename ... Args>
+        void fatal(const char *format, Args ... args);
 
         /**
          * Final output
@@ -68,4 +57,31 @@ namespace chen
     protected:
         static std::mutex _mutex;
     };
+}
+
+
+namespace chen
+{
+    /**
+     * Log
+     */
+    template <typename ... Args>
+    void log::debug(const char *format, Args ... args)
+    {
+        this->flush("[DEBUG] " + chen::str::format(format, args...));
+    }
+
+    template <typename ... Args>
+    void log::error(const char *format, Args ... args)
+    {
+        this->flush("[ERROR] " + chen::str::format(format, args...));
+    }
+
+    template <typename ... Args>
+    void log::fatal(const char *format, Args ... args)
+    {
+        this->flush("[FATAL] " + chen::str::format(format, args...));
+
+        std::exit(EXIT_FAILURE);
+    }
 }

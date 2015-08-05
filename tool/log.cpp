@@ -16,16 +16,6 @@ using namespace chen;
 
 std::mutex log::_mutex;
 
-log::log()
-{
-
-}
-
-log::~log()
-{
-
-}
-
 log& log::standard()
 {
     static log inst;

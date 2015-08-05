@@ -15,6 +15,9 @@ namespace chen
     class routine final
     {
     public:
+        /**
+         * Async run a job
+         */
         static void async(const std::function<void ()> &job);
 
     private:
