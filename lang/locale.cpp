@@ -19,7 +19,6 @@ locale& locale::standard()
     return inst;
 }
 
-#pragma mark -
 #pragma mark Translate
 
 std::string translate(const std::string &text)

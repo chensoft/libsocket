@@ -22,7 +22,6 @@ log& log::standard()
     return inst;
 }
 
-#pragma mark -
 #pragma mark Trace
 
 void log::flush(const std::string &text)
