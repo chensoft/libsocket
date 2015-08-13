@@ -11,18 +11,13 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // log
-#pragma mark -
-#pragma mark log
-
 std::mutex log::_mutex;
 
-log& log::standard()
+chen::log& log::standard()
 {
     static log inst;
     return inst;
 }
-
-#pragma mark Trace
 
 void log::flush(const std::string &text)
 {

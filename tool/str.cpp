@@ -6,15 +6,13 @@
  */
 #include "str.h"
 #include <ctime>
+#include <cstdarg>
 #include <chrono>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // str
-#pragma mark -
-#pragma mark Tool
-
 std::string str::date(const std::string &sep, bool utc)
 {
     std::time_t time = std::time(nullptr);

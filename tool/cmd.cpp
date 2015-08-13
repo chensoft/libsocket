@@ -10,9 +10,6 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // option base
-#pragma mark -
-#pragma mark option base
-
 std::string cmd_option_base::name() const
 {
     return this->_name;
@@ -36,9 +33,6 @@ void cmd_option_base::setParse(bool parse)
 
 // -----------------------------------------------------------------------------
 // cmd
-#pragma mark -
-#pragma mark cmd
-
 void cmd::parse(int argc, const char *const argv[])
 {
     // clear

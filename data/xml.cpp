@@ -10,9 +10,6 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // xml
-#pragma mark -
-#pragma mark xml
-
 xml::xml()
 {
 

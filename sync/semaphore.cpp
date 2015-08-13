@@ -10,9 +10,6 @@ using namespace chen;
 
 // ------------------------------------------------------------------
 // semaphore
-#pragma mark -
-#pragma mark semaphore
-
 void semaphore::wake()
 {
     std::unique_lock<std::mutex> lock(this->_mutex);

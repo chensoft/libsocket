@@ -10,9 +10,6 @@ using namespace chen;
 
 // ------------------------------------------------------------------
 // routine
-#pragma mark -
-#pragma mark routine
-
 void routine::async(const std::function<void ()> &job)
 {
     // no implement now

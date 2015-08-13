@@ -10,16 +10,11 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // locale
-#pragma mark -
-#pragma mark locale
-
 locale& locale::standard()
 {
     static locale inst;
     return inst;
 }
-
-#pragma mark Translate
 
 std::string translate(const std::string &text)
 {

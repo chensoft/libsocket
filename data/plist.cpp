@@ -10,9 +10,6 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // plist
-#pragma mark -
-#pragma mark plist
-
 plist::plist()
 {
 

@@ -5,21 +5,19 @@
  * @link   http://www.chensoft.com
  */
 #include "threadpool.h"
+#include <algorithm>
 
 using namespace chen;
 
 // ------------------------------------------------------------------
 // threadpool
-#pragma mark -
-#pragma mark threadpool
-
 threadpool::threadpool(unsigned int count)
 {
     // assign thread count according to cpu count
     if (!count)
         count = std::max(1u, std::thread::hardware_concurrency());
 
-    for (auto i = 0; i < count; ++i)
+    for (unsigned int i = 0; i < count; ++i)
         this->_pool.push_back(std::thread(std::bind(&threadpool::run, this)));
 }
 
