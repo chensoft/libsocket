@@ -106,6 +106,25 @@ std::uint32_t address_v4::wild() const
     return this->mask() ^ 0xFFFFFFFF;
 }
 
+// network
+address_v4 address_v4::network() const
+{
+    auto mask = this->mask();
+    return address_v4(this->_addr & mask, mask);
+}
+
+address_v4 address_v4::host_min() const
+{
+    auto mask = this->mask();
+    return address_v4((this->_addr & mask) | 0x00000001, mask);
+}
+
+address_v4 address_v4::host_max() const
+{
+    auto mask = this->mask();
+    return address_v4((this->_addr | ~mask) & 0xFFFFFFFE, mask);
+}
+
 // assign
 void address_v4::assign(std::uint32_t addr, std::uint32_t mask)
 {

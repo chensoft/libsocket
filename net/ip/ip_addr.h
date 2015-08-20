@@ -120,6 +120,22 @@ namespace chen
 
         public:
             /**
+             * Network address
+             */
+            address_v4 network() const;
+
+            /**
+             * Min host address under this network
+             */
+            address_v4 host_min() const;
+
+            /**
+             * Max host address under this network
+             */
+            address_v4 host_max() const;
+
+        public:
+            /**
              * Assign integer to address
              */
             void assign(std::uint32_t addr, std::uint32_t mask = 0);

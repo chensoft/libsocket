@@ -143,6 +143,13 @@ namespace chen
             v4.assign("10.0.0.1");
             this->assert(!v4.multicast(), "unit ip: 10.0.0.1 isn't multicast");
 
+            // network
+            v4.assign("192.168.1.10");
+
+            this->assert(v4.network().str() == "192.168.1.0", "unit ip: 192.168.1.10 network address is 192.168.1.0");
+            this->assert(v4.host_min().str() == "192.168.1.1", "unit ip: 192.168.1.10 network's min host is 192.168.1.1");
+            this->assert(v4.host_max().str() == "192.168.1.254", "unit ip: 192.168.1.10 network's min host is 192.168.1.254");
+
             PILogD("unit ip: test address property success\n");
         }
 
