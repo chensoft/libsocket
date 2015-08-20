@@ -12,9 +12,6 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // unit
-#pragma mark -
-#pragma mark unit
-
 unit& unit::instance()
 {
     static unit inst;

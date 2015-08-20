@@ -23,9 +23,11 @@ else()
 endif()
 
 # unit test
-if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_UNIT STREQUAL "true"))
+if ((NOT CMAKE_BUILD_TYPE) OR  (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_UNIT STREQUAL "true"))
   message("-- Unit enabled")
   aux_source_directory(./unit SRC_UNIT)
+else()
+  message("-- Unit disabled")
 endif()
 
 # generate lib
