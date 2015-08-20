@@ -131,7 +131,6 @@ namespace chen
 
             // broadcast
             v4.assign("192.168.0.255", 24);
-            PILogE("%x", v4.mask());
             this->assert(v4.is_broadcast(), "unit ip: 192.168.0.255 with 0xFFFFFF00 is broadcast");
 
             v4.assign("192.168.0.1", 24);
@@ -150,6 +149,10 @@ namespace chen
             this->assert(v4.network().str() == "192.168.1.0", "unit ip: 192.168.1.10 network address is 192.168.1.0");
             this->assert(v4.host_min().str() == "192.168.1.1", "unit ip: 192.168.1.10 network's min host is 192.168.1.1");
             this->assert(v4.host_max().str() == "192.168.1.254", "unit ip: 192.168.1.10 network's min host is 192.168.1.254");
+
+            // broadcast
+            v4.assign("192.168.1.1", 30);
+            this->assert(v4.broadcast().str() == "192.168.1.3", "unit ip: 192.168.1.1's broadcast should be 192.168.1.3");
 
             PILogD("unit ip: test address property success\n");
         }

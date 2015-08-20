@@ -139,6 +139,11 @@ namespace chen
              */
             address_v4 host_max() const;
 
+            /**
+             * Broadcast address based on this ip
+             */
+            address_v4 broadcast() const;
+
         public:
             /**
              * Assign integer to address
@@ -160,6 +165,11 @@ namespace chen
              * Convert string ip to int
              */
             static std::uint32_t to_integer(const std::string &addr);
+
+            /**
+             * A loopback address
+             */
+            static address_v4 loopback();
 
         protected:
             std::uint32_t _addr = 0;

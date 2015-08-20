@@ -8,6 +8,7 @@
 #include "ip_addr.h"
 #include "tool/log.h"
 #include <bitset>
+#include <cctype>
 
 using namespace chen;
 using namespace chen::ip;
@@ -43,8 +44,8 @@ bool address_v4::is_loopback() const
 bool address_v4::is_broadcast() const
 {
     // host bits are 1
-    std::uint32_t ip = (this->_addr | this->wildcard());
-    return ip == this->_addr;
+    std::uint32_t broadcast = (this->_addr | this->wildcard());
+    return broadcast == this->_addr;
 }
 
 bool address_v4::is_multicast() const
@@ -124,6 +125,11 @@ address_v4 address_v4::host_min() const
 address_v4 address_v4::host_max() const
 {
     return address_v4((this->_addr | ~this->mask()) & 0xFFFFFFFE, this->subnet());
+}
+
+address_v4 address_v4::broadcast() const
+{
+    return address_v4(this->_addr | this->wildcard(), this->subnet());
 }
 
 // assign
@@ -250,6 +256,11 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
         default:
             return 0;
     }
+}
+
+address_v4 address_v4::loopback()
+{
+    return address_v4("127.0.0.1", 8);
 }
 
 
