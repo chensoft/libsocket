@@ -45,7 +45,7 @@ bool address_v4::loopback() const
 bool address_v4::broadcast() const
 {
     // host bits are 1
-    std::uint32_t ip = (this->_addr | (this->mask() ^ 0xFFFFFFFF));
+    std::uint32_t ip = (this->_addr | this->wild());
     return ip == this->_addr;
 }
 
@@ -99,6 +99,11 @@ std::uint32_t address_v4::mask() const
         return 0xFFFFFF00;
     else
         return 0xFFFFFFFF;
+}
+
+std::uint32_t address_v4::wild() const
+{
+    return this->mask() ^ 0xFFFFFFFF;
 }
 
 // assign

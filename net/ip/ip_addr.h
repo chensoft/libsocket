@@ -113,6 +113,11 @@ namespace chen
              */
             std::uint32_t mask() const;
 
+            /**
+             * Subnet wildcard
+             */
+            std::uint32_t wild() const;
+
         public:
             /**
              * Assign integer to address
