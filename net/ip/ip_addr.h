@@ -56,8 +56,8 @@ namespace chen
         {
         public:
             address_v4() = default;
-            address_v4(std::uint32_t addr, std::uint32_t mask = 0);
-            address_v4(const std::string &addr, std::uint32_t mask = 0);
+            address_v4(std::uint32_t addr, std::uint8_t subnet = 0);
+            address_v4(const std::string &addr, std::uint8_t subnet = 0);
 
         public:
             /**
@@ -114,9 +114,14 @@ namespace chen
             std::uint32_t mask() const;
 
             /**
+             * Subnet length
+             */
+            std::uint8_t subnet() const;
+
+            /**
              * Subnet wildcard
              */
-            std::uint32_t wild() const;
+            std::uint32_t wildcard() const;
 
         public:
             /**
@@ -138,12 +143,12 @@ namespace chen
             /**
              * Assign integer to address
              */
-            void assign(std::uint32_t addr, std::uint32_t mask = 0);
+            void assign(std::uint32_t addr, std::uint8_t subnet = 0);
 
             /**
              * Assign string to address
              */
-            void assign(const std::string &addr, std::uint32_t mask = 0);
+            void assign(const std::string &addr, std::uint8_t subnet = 0);
 
         public:
             /**

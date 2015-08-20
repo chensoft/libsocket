@@ -130,10 +130,11 @@ namespace chen
             this->assert(!v4.is_loopback(), "unit ip: 192.168.0.1 should not be loopback");
 
             // broadcast
-            v4.assign("192.168.0.255", 0xFFFFFF00);
+            v4.assign("192.168.0.255", 24);
+            PILogE("%x", v4.mask());
             this->assert(v4.is_broadcast(), "unit ip: 192.168.0.255 with 0xFFFFFF00 is broadcast");
 
-            v4.assign("192.168.0.1", 0xFFFFFF00);
+            v4.assign("192.168.0.1", 24);
             this->assert(!v4.is_broadcast(), "unit ip: 192.168.0.1 with 0xFFFFFF00 isn't broadcast");
 
             // multicast

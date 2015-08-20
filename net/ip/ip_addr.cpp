@@ -7,6 +7,7 @@
  */
 #include "ip_addr.h"
 #include "tool/log.h"
+#include <bitset>
 
 using namespace chen;
 using namespace chen::ip;
@@ -17,17 +18,14 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address v4
-address_v4::address_v4(uint32_t addr, uint32_t mask)
-: _addr(addr)
-, _mask(mask)
+address_v4::address_v4(std::uint32_t addr, std::uint8_t subnet)
 {
-
+    address_v4::assign(addr, subnet);
 }
 
-address_v4::address_v4(const std::string &addr, std::uint32_t mask)
-: address_v4(address_v4::to_integer(addr), mask)
+address_v4::address_v4(const std::string &addr, std::uint8_t subnet)
 {
-
+    address_v4::assign(addr, subnet);
 }
 
 // override
@@ -45,7 +43,7 @@ bool address_v4::is_loopback() const
 bool address_v4::is_broadcast() const
 {
     // host bits are 1
-    std::uint32_t ip = (this->_addr | this->wild());
+    std::uint32_t ip = (this->_addr | this->wildcard());
     return ip == this->_addr;
 }
 
@@ -101,7 +99,13 @@ std::uint32_t address_v4::mask() const
         return 0xFFFFFFFF;
 }
 
-std::uint32_t address_v4::wild() const
+std::uint8_t address_v4::subnet() const
+{
+    std::bitset<32> bits(this->mask());
+    return static_cast<std::uint8_t>(bits.count());
+}
+
+std::uint32_t address_v4::wildcard() const
 {
     return this->mask() ^ 0xFFFFFFFF;
 }
@@ -109,37 +113,34 @@ std::uint32_t address_v4::wild() const
 // network
 address_v4 address_v4::network() const
 {
-    auto mask = this->mask();
-    return address_v4(this->_addr & mask, mask);
+    return address_v4(this->_addr & this->mask(), this->subnet());
 }
 
 address_v4 address_v4::host_min() const
 {
-    auto mask = this->mask();
-    return address_v4((this->_addr & mask) | 0x00000001, mask);
+    return address_v4((this->_addr & this->mask()) | 0x00000001, this->subnet());
 }
 
 address_v4 address_v4::host_max() const
 {
-    auto mask = this->mask();
-    return address_v4((this->_addr | ~mask) & 0xFFFFFFFE, mask);
+    return address_v4((this->_addr | ~this->mask()) & 0xFFFFFFFE, this->subnet());
 }
 
 // assign
-void address_v4::assign(std::uint32_t addr, std::uint32_t mask)
+void address_v4::assign(std::uint32_t addr, std::uint8_t subnet)
 {
     this->_addr = addr;
 
-    if (mask)
-        this->_mask = mask;
+    if (subnet && (subnet < 32))
+    {
+        auto move = 32 - subnet;
+        this->_mask = 0xFFFFFFFF >> move << move;
+    }
 }
 
-void address_v4::assign(const std::string &addr, std::uint32_t mask)
+void address_v4::assign(const std::string &addr, std::uint8_t subnet)
 {
-    this->_addr = address_v4::to_integer(addr);
-
-    if (mask)
-        this->_mask = mask;
+    this->assign(address_v4::to_integer(addr), subnet);
 }
 
 // convert
