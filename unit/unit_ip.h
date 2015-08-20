@@ -52,6 +52,10 @@ namespace chen
             v4.assign("192.168.10.1");
             this->assert(v4.str() == "192.168.10.1", "unit ip: 192.168.10.1 -> 192.168.10.1, but addr is %s", v4.str().c_str());
 
+            // full representation
+            v4.assign("192.168.1.1", 30);
+            this->assert(v4.full() == "192.168.1.1/30", "unit ip: full representation should be 192.168.1.1/30");
+
             PILogD("unit ip: test address assign success\n");
         }
 

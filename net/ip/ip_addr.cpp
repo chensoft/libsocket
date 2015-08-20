@@ -100,6 +100,11 @@ std::uint32_t address_v4::mask() const
         return 0xFFFFFFFF;
 }
 
+std::string address_v4::full() const
+{
+    return this->str() + "/" + std::to_string(this->subnet());
+}
+
 std::uint8_t address_v4::subnet() const
 {
     std::bitset<32> bits(this->mask());

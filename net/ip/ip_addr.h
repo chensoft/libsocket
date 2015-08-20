@@ -114,6 +114,11 @@ namespace chen
             std::uint32_t mask() const;
 
             /**
+             * Full address/subnet
+             */
+            std::string full() const;
+
+            /**
              * Subnet length
              */
             std::uint8_t subnet() const;
