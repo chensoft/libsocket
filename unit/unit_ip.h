@@ -24,6 +24,9 @@ namespace chen
 
             // test address property
             this->check_address_property();
+
+            // test address operator
+            this->check_address_operator();
         }
 
         void check_address_assign()
@@ -159,6 +162,32 @@ namespace chen
             this->assert(v4.broadcast().str() == "192.168.1.3", "unit ip: 192.168.1.1's broadcast should be 192.168.1.3");
 
             PILogD("unit ip: test address property success\n");
+        }
+
+        void check_address_operator()
+        {
+            PILogD("unit ip: test address operator start...");
+
+            chen::ip::address_v4 a, b;
+
+            // operator
+            a.assign("127.0.0.1");
+            b.assign("127.0.0.1");
+
+            this->assert(a == b, "unit ip: test ip equal fail");
+
+            a.assign("127.0.0.0");
+            b.assign("127.0.0.1");
+
+            this->assert(a != b, "unit ip: test ip not equal fail");
+
+            this->assert(a < b, "unit ip: test ip < fail");
+            this->assert(b > a, "unit ip: test ip > fail");
+
+            this->assert(a <= b, "unit ip: test ip <= fail");
+            this->assert(b >= a, "unit ip: test ip >= fail");
+
+            PILogD("unit ip: test address operator success\n");
         }
 
         virtual void bench() override

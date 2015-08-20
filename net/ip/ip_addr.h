@@ -56,8 +56,8 @@ namespace chen
         {
         public:
             address_v4() = default;
-            address_v4(std::uint32_t addr, std::uint8_t subnet = 0);
-            address_v4(const std::string &addr, std::uint8_t subnet = 0);
+            explicit address_v4(std::uint32_t addr, std::uint8_t subnet = 0);
+            explicit address_v4(const std::string &addr, std::uint8_t subnet = 0);
 
         public:
             /**
@@ -180,6 +180,18 @@ namespace chen
             std::uint32_t _addr = 0;
             std::uint32_t _mask = 0;
         };
+
+        /**
+         * Operator
+         */
+        bool operator==(const address_v4 &a, const address_v4 &b);
+        bool operator!=(const address_v4 &a, const address_v4 &b);
+
+        bool operator<(const address_v4 &a, const address_v4 &b);
+        bool operator>(const address_v4 &a, const address_v4 &b);
+
+        bool operator<=(const address_v4 &a, const address_v4 &b);
+        bool operator>=(const address_v4 &a, const address_v4 &b);
 
 
         // ---------------------------------------------------------------------

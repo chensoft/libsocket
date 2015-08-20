@@ -265,7 +265,39 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
 
 address_v4 address_v4::loopback()
 {
-    return address_v4("127.0.0.1", 8);
+    // 127.0.0.1
+    return address_v4(0x7F000001, 8);
+}
+
+// operator
+bool chen::ip::operator==(const address_v4 &a, const address_v4 &b)
+{
+    return a.addr() == b.addr();
+}
+
+bool chen::ip::operator!=(const address_v4 &a, const address_v4 &b)
+{
+    return !(a == b);
+}
+
+bool chen::ip::operator<(const address_v4 &a, const address_v4 &b)
+{
+    return a.addr() < b.addr();
+}
+
+bool chen::ip::operator>(const address_v4 &a, const address_v4 &b)
+{
+    return b < a;
+}
+
+bool chen::ip::operator<=(const address_v4 &a, const address_v4 &b)
+{
+    return !(b < a);
+}
+
+bool chen::ip::operator>=(const address_v4 &a, const address_v4 &b)
+{
+    return !(a < b);
 }
 
 
