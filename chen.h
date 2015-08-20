@@ -20,4 +20,6 @@
 #include "tool/cmd.h"
 #include "tool/str.h"
 
+#include "net/ip/ip_addr.h"
+
 #include "unit/unit.h"

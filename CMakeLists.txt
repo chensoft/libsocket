@@ -9,6 +9,7 @@ aux_source_directory(./data SRC_DATA)
 aux_source_directory(./lang SRC_LANG)
 aux_source_directory(./sync SRC_SYNC)
 aux_source_directory(./tool SRC_TOOL)
+aux_source_directory(./net/ip SRC_NET_IP)
 
 # platform codes
 if (UNIX)
@@ -28,4 +29,4 @@ if ((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CH
 endif()
 
 # generate lib
-add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_OS} ${SRC_UNIT})
+add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_OS} ${SRC_UNIT})

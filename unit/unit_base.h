@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include "tool/log.h"
+
 namespace chen
 {
     class unit_base
@@ -23,5 +25,13 @@ namespace chen
          * Benchmark
          */
         virtual void bench() = 0;
+
+    public:
+        template <typename ... Args>
+        void assert(bool condition, const char *format, Args ... args)
+        {
+            if (!condition)
+                PILogF(format, args...);
+        }
     };
 }

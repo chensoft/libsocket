@@ -6,6 +6,7 @@
  */
 #include "unit.h"
 #include "unit_cmd.h"
+#include "unit_ip.h"
 
 using namespace chen;
 
@@ -24,6 +25,7 @@ unit::unit()
 {
     // register all unit test
     this->_store["cmd"] = std::unique_ptr<unit_base>(new unit_cmd);
+    this->_store["ip"] = std::unique_ptr<unit_base>(new unit_ip);
 }
 
 void unit::check()
