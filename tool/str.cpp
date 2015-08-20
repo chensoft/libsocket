@@ -5,9 +5,9 @@
  * @link   http://www.chensoft.com
  */
 #include "str.h"
-#include <ctime>
 #include <cstdarg>
 #include <chrono>
+#include <time.h>
 
 using namespace chen;
 
@@ -16,11 +16,13 @@ using namespace chen;
 std::string str::date(const std::string &sep, bool utc)
 {
     std::time_t time = std::time(nullptr);
-    struct tm   *now = utc ? std::gmtime(&time) : std::localtime(&time);
 
-    auto year  = now->tm_year + 1900;
-    auto month = now->tm_mon  + 1;
-    auto day   = now->tm_mday;
+    struct tm now;
+    utc ? ::gmtime_r(&time, &now) : ::localtime_r(&time, &now);
+
+    auto year  = now.tm_year + 1900;
+    auto month = now.tm_mon  + 1;
+    auto day   = now.tm_mday;
 
     return str::format("%d%s%02d%s%02d", year, sep.c_str(), month, sep.c_str(), day);
 }
@@ -31,11 +33,13 @@ std::string str::time(const std::string &sep, bool utc, bool milliseconds)
     auto last = high - high / 1000 * 1000;
 
     std::time_t time = (time_t)(high / 1000);
-    struct tm   *now = utc ? std::gmtime(&time) : std::localtime(&time);
 
-    auto hour   = now->tm_hour;
-    auto minute = now->tm_min;
-    auto second = now->tm_sec;
+    struct tm now;
+    utc ? ::gmtime_r(&time, &now) : ::localtime_r(&time, &now);
+
+    auto hour   = now.tm_hour;
+    auto minute = now.tm_min;
+    auto second = now.tm_sec;
 
     if (milliseconds)
         return str::format("%02d%s%02d%s%02d.%03lld", hour, sep.c_str(), minute, sep.c_str(), second, last);
