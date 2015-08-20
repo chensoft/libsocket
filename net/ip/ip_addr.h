@@ -30,17 +30,17 @@ namespace chen
             /**
              * Whether the address is loopback
              */
-            virtual bool loopback() const = 0;
+            virtual bool is_loopback() const = 0;
 
             /**
              * Whether the address is broadcast
              */
-            virtual bool broadcast() const = 0;
+            virtual bool is_broadcast() const = 0;
 
             /**
              * Whether the address is multicast
              */
-            virtual bool multicast() const = 0;
+            virtual bool is_multicast() const = 0;
 
         public:
             /**
@@ -68,17 +68,17 @@ namespace chen
             /**
              * Whether the address is loopback
              */
-            virtual bool loopback() const override;
+            virtual bool is_loopback() const override;
 
             /**
              * Whether the address is broadcast
              */
-            virtual bool broadcast() const override;
+            virtual bool is_broadcast() const override;
 
             /**
              * Whether the address is multicast
              */
-            virtual bool multicast() const override;
+            virtual bool is_multicast() const override;
 
         public:
             /**
@@ -90,17 +90,17 @@ namespace chen
             /**
              * Whether the network is class A
              */
-            virtual bool class_a() const;
+            virtual bool is_class_a() const;
 
             /**
              * Whether the network is class B
              */
-            virtual bool class_b() const;
+            virtual bool is_class_b() const;
 
             /**
              * Whether the network is class C
              */
-            virtual bool class_c() const;
+            virtual bool is_class_c() const;
 
         public:
             /**

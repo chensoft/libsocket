@@ -63,51 +63,51 @@ namespace chen
 
             // class A
             v4.assign("0.0.0.0");
-            this->assert(v4.class_a(), "unit ip: 0.0.0.0 is class A");
-            this->assert(!v4.class_b(), "unit ip: 0.0.0.0 isn't class B");
-            this->assert(!v4.class_c(), "unit ip: 0.0.0.0 isn't class C");
+            this->assert(v4.is_class_a(), "unit ip: 0.0.0.0 is class A");
+            this->assert(!v4.is_class_b(), "unit ip: 0.0.0.0 isn't class B");
+            this->assert(!v4.is_class_c(), "unit ip: 0.0.0.0 isn't class C");
 
             v4.assign("10.0.0.0");
-            this->assert(v4.class_a(), "unit ip: 10.0.0.0 is class A");
-            this->assert(!v4.class_b(), "unit ip: 10.0.0.0 isn't class B");
-            this->assert(!v4.class_c(), "unit ip: 10.0.0.0 isn't class C");
+            this->assert(v4.is_class_a(), "unit ip: 10.0.0.0 is class A");
+            this->assert(!v4.is_class_b(), "unit ip: 10.0.0.0 isn't class B");
+            this->assert(!v4.is_class_c(), "unit ip: 10.0.0.0 isn't class C");
 
             v4.assign("127.255.255.255");
-            this->assert(v4.class_a(), "unit ip: 127.255.255.255 is class A");
-            this->assert(!v4.class_b(), "unit ip: 127.255.255.255 isn't class B");
-            this->assert(!v4.class_c(), "unit ip: 127.255.255.255 isn't class C");
+            this->assert(v4.is_class_a(), "unit ip: 127.255.255.255 is class A");
+            this->assert(!v4.is_class_b(), "unit ip: 127.255.255.255 isn't class B");
+            this->assert(!v4.is_class_c(), "unit ip: 127.255.255.255 isn't class C");
 
             // class B
             v4.assign("128.0.0.0");
-            this->assert(!v4.class_a(), "unit ip: 128.0.0.0 isn't class A");
-            this->assert(v4.class_b(), "unit ip: 128.0.0.0 is class B");
-            this->assert(!v4.class_c(), "unit ip: 128.0.0.0 isn't class C");
+            this->assert(!v4.is_class_a(), "unit ip: 128.0.0.0 isn't class A");
+            this->assert(v4.is_class_b(), "unit ip: 128.0.0.0 is class B");
+            this->assert(!v4.is_class_c(), "unit ip: 128.0.0.0 isn't class C");
 
             v4.assign("190.0.0.0");
-            this->assert(!v4.class_a(), "unit ip: 190.0.0.0 isn't class A");
-            this->assert(v4.class_b(), "unit ip: 190.0.0.0 is class B");
-            this->assert(!v4.class_c(), "unit ip: 190.0.0.0 isn't class C");
+            this->assert(!v4.is_class_a(), "unit ip: 190.0.0.0 isn't class A");
+            this->assert(v4.is_class_b(), "unit ip: 190.0.0.0 is class B");
+            this->assert(!v4.is_class_c(), "unit ip: 190.0.0.0 isn't class C");
 
             v4.assign("191.255.255.255");
-            this->assert(!v4.class_a(), "unit ip: 191.255.255.255 isn't class A");
-            this->assert(v4.class_b(), "unit ip: 191.255.255.255 is class B");
-            this->assert(!v4.class_c(), "unit ip: 191.255.255.255 isn't class C");
+            this->assert(!v4.is_class_a(), "unit ip: 191.255.255.255 isn't class A");
+            this->assert(v4.is_class_b(), "unit ip: 191.255.255.255 is class B");
+            this->assert(!v4.is_class_c(), "unit ip: 191.255.255.255 isn't class C");
 
             // class C
             v4.assign("192.0.0.0");
-            this->assert(!v4.class_a(), "unit ip: 192.0.0.0 isn't class A");
-            this->assert(!v4.class_b(), "unit ip: 192.0.0.0 isn't class B");
-            this->assert(v4.class_c(), "unit ip: 192.0.0.0 is class C");
+            this->assert(!v4.is_class_a(), "unit ip: 192.0.0.0 isn't class A");
+            this->assert(!v4.is_class_b(), "unit ip: 192.0.0.0 isn't class B");
+            this->assert(v4.is_class_c(), "unit ip: 192.0.0.0 is class C");
 
             v4.assign("192.168.1.1");
-            this->assert(!v4.class_a(), "unit ip: 192.168.1.1 isn't class A");
-            this->assert(!v4.class_b(), "unit ip: 192.168.1.1 isn't class B");
-            this->assert(v4.class_c(), "unit ip: 192.168.1.1 is class C");
+            this->assert(!v4.is_class_a(), "unit ip: 192.168.1.1 isn't class A");
+            this->assert(!v4.is_class_b(), "unit ip: 192.168.1.1 isn't class B");
+            this->assert(v4.is_class_c(), "unit ip: 192.168.1.1 is class C");
 
             v4.assign("223.255.255.255");
-            this->assert(!v4.class_a(), "unit ip: 223.255.255.255 isn't class A");
-            this->assert(!v4.class_b(), "unit ip: 223.255.255.255 isn't class B");
-            this->assert(v4.class_c(), "unit ip: 223.255.255.255 is class C");
+            this->assert(!v4.is_class_a(), "unit ip: 223.255.255.255 isn't class A");
+            this->assert(!v4.is_class_b(), "unit ip: 223.255.255.255 isn't class B");
+            this->assert(v4.is_class_c(), "unit ip: 223.255.255.255 is class C");
 
             PILogD("unit ip: test address class success\n");
         }
@@ -124,24 +124,24 @@ namespace chen
 
             // loopback
             v4.assign("127.0.0.1");
-            this->assert(v4.loopback(), "unit ip: 127.0.0.1 should be loopback");
+            this->assert(v4.is_loopback(), "unit ip: 127.0.0.1 should be loopback");
 
             v4.assign("192.168.0.1");
-            this->assert(!v4.loopback(), "unit ip: 192.168.0.1 should not be loopback");
+            this->assert(!v4.is_loopback(), "unit ip: 192.168.0.1 should not be loopback");
 
             // broadcast
             v4.assign("192.168.0.255", 0xFFFFFF00);
-            this->assert(v4.broadcast(), "unit ip: 192.168.0.255 with 0xFFFFFF00 is broadcast");
+            this->assert(v4.is_broadcast(), "unit ip: 192.168.0.255 with 0xFFFFFF00 is broadcast");
 
             v4.assign("192.168.0.1", 0xFFFFFF00);
-            this->assert(!v4.broadcast(), "unit ip: 192.168.0.1 with 0xFFFFFF00 isn't broadcast");
+            this->assert(!v4.is_broadcast(), "unit ip: 192.168.0.1 with 0xFFFFFF00 isn't broadcast");
 
             // multicast
             v4.assign("224.0.0.115");
-            this->assert(v4.multicast(), "unit ip: 224.0.0.115 is multicast");
+            this->assert(v4.is_multicast(), "unit ip: 224.0.0.115 is multicast");
 
             v4.assign("10.0.0.1");
-            this->assert(!v4.multicast(), "unit ip: 10.0.0.1 isn't multicast");
+            this->assert(!v4.is_multicast(), "unit ip: 10.0.0.1 isn't multicast");
 
             // network
             v4.assign("192.168.1.10");

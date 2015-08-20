@@ -36,20 +36,20 @@ bool address_v4::empty() const
     return !this->_addr;
 }
 
-bool address_v4::loopback() const
+bool address_v4::is_loopback() const
 {
     // address block 127.0.0.0/8
     return (this->_addr & 0xFF000000) == 0x7F000000;
 }
 
-bool address_v4::broadcast() const
+bool address_v4::is_broadcast() const
 {
     // host bits are 1
     std::uint32_t ip = (this->_addr | this->wild());
     return ip == this->_addr;
 }
 
-bool address_v4::multicast() const
+bool address_v4::is_multicast() const
 {
     // leading: 1110, range: 224.0.0.0 ~ 239.255.255.255
     return (this->_addr & 0xF0000000) == 0xE0000000;
@@ -61,19 +61,19 @@ std::string address_v4::str() const
 }
 
 // type
-bool address_v4::class_a() const
+bool address_v4::is_class_a() const
 {
     // leading: 0, network: 8, range: 0.0.0.0 ~ 127.255.255.255
     return (this->_addr & 0x80000000) == 0;
 }
 
-bool address_v4::class_b() const
+bool address_v4::is_class_b() const
 {
     // leading: 10, network: 16, range: 128.0.0.0 ~ 191.255.255.255
     return (this->_addr & 0xC0000000) == 0x80000000;
 }
 
-bool address_v4::class_c() const
+bool address_v4::is_class_c() const
 {
     // leading: 110, network: 24, range: 192.0.0.0 ~ 223.255.255.255
     return (this->_addr & 0xE0000000) == 0xC0000000;
@@ -91,11 +91,11 @@ std::uint32_t address_v4::mask() const
     // if mask is empty then calculate it
     if (this->_mask)
         return this->_mask;
-    else if (this->class_a())
+    else if (this->is_class_a())
         return 0xFF000000;
-    else if (this->class_b())
+    else if (this->is_class_b())
         return 0xFFFF0000;
-    else if (this->class_c())
+    else if (this->is_class_c())
         return 0xFFFFFF00;
     else
         return 0xFFFFFFFF;
