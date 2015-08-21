@@ -5,9 +5,9 @@
  * @link   http://www.chensoft.com
  */
 #include "str.h"
+#include "date.h"
 #include <cstdarg>
 #include <chrono>
-#include <ctime>
 
 using namespace chen;
 
@@ -16,14 +16,7 @@ using namespace chen;
 std::string str::date(const std::string &sep, bool utc)
 {
     std::time_t time = std::time(nullptr);
-
-#if defined(CHEN_OS_WIN32)
-    struct tm now;
-    utc ? ::gmtime_s(&now, &time) : localtime_s(&now, &time);
-#elif defined(CHEN_OS_UNIX)
-    struct tm now;
-    utc ? ::gmtime_r(&time, &now) : localtime_r(&time, &now);
-#endif
+    struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
 
     auto year  = now.tm_year + 1900;
     auto month = now.tm_mon  + 1;
@@ -38,14 +31,7 @@ std::string str::time(const std::string &sep, bool utc, bool milliseconds)
     auto last = high - high / 1000 * 1000;
 
     std::time_t time = (time_t)(high / 1000);
-
-#if defined(CHEN_OS_WIN32)
-    struct tm now;
-    utc ? ::gmtime_s(&now, &time) : localtime_s(&now, &time);
-#elif defined(CHEN_OS_UNIX)
-    struct tm now;
-    utc ? ::gmtime_r(&time, &now) : localtime_r(&time, &now);
-#endif
+    struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
 
     auto hour   = now.tm_hour;
     auto minute = now.tm_min;
