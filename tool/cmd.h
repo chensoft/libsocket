@@ -103,9 +103,9 @@ namespace chen
         cmd_option_base(const std::string &name,
                         const std::string &tiny,
                         const std::string &desc)
-                : _name(name)
-                , _tiny(tiny)
-                , _desc(desc)
+        : _name(name)
+        , _tiny(tiny)
+        , _desc(desc)
         {
         }
 
@@ -146,9 +146,9 @@ namespace chen
                    const std::string &tiny,
                    const T &def,
                    const std::string &desc)
-                : cmd_option_base(name, tiny, desc)
-                , _def(def)
-                , _val(T())
+        : cmd_option_base(name, tiny, desc)
+        , _def(def)
+        , _val(T())
         {
 
         }

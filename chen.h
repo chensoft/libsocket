@@ -21,6 +21,7 @@
 #include "tool/str.h"
 
 #include "net/ip/ip_addr.h"
+#include "net/ip/ip_error.h"
 
 #include "net/udp/udp_error.h"
 #include "net/udp/udp_client.h"

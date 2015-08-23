@@ -6,6 +6,7 @@
  * @link   https://en.wikipedia.org/wiki/Classful_network
  */
 #include "ip_addr.h"
+#include "ip_error.h"
 #include "tool/log.h"
 #include <bitset>
 #include <cctype>
@@ -142,10 +143,15 @@ void address_v4::assign(std::uint32_t addr, std::uint8_t subnet)
 {
     this->_addr = addr;
 
-    if (subnet && (subnet < 32))
+    // subnet range: [8, 30]
+    if (!subnet || ((subnet >= 8) && (subnet <= 30)))
     {
-        auto move = 32 - subnet;
+        auto   move = 32 - subnet;
         this->_mask = 0xFFFFFFFF >> move << move;
+    }
+    else
+    {
+        throw error_invalid("subnet range error");
     }
 }
 
@@ -183,7 +189,11 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
         {
             // occur invalid character
             idx = -1;
-            break;
+
+            if (addr.empty())
+                break;
+            else
+                throw error_convert("addr has invalid character");
         }
 
         // retrieve a int until '.'
@@ -208,7 +218,7 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
             if (idx >= 3)
             {
                 idx = -1;
-                break;
+                throw error_convert("addr has too many numbers");
             }
 
             // find the dot character
@@ -220,11 +230,6 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
             else
                 one = *++ptr;
         }
-        else
-        {
-            // find finish
-            break;
-        }
     }
 
     // analyse the digits
@@ -233,28 +238,28 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
         case 0:
             // 127 -> 127.0.0.0, 127 treated as the high 8 bits
             if (num[0] > 0xFF)
-                return 0;
+                throw error_convert("addr number must between 0 and 255");
 
             return num[0] << 24;
 
         case 1:
             // 127.1 -> 127.0.0.1, 1 treated as 24 bits
             if ((num[0] > 0xFF) || (num[1] > 0xFF))
-                return 0;
+                throw error_convert("addr number must between 0 and 255");
 
             return (num[0] << 24) | num[1];
 
         case 2:
             // 1.2.3 -> 1.2.0.3, 3 treated as 16 bits
             if ((num[0] > 0xFF) || (num[1] > 0xFF) || (num[2] > 0xFF))
-                return 0;
+                throw error_convert("addr number must between 0 and 255");
 
             return (num[0] << 24) | (num[1] << 16) | num[2];
 
         case 3:
             // 8.8.8.8 -> 8.8.8.8
             if ((num[0] > 0xFF) || (num[1] > 0xFF) || (num[2] > 0xFF) || (num[3] > 0xFF))
-                return 0;
+                throw error_convert("addr number must between 0 and 255");
 
             return (num[0] << 24) | (num[1] << 16) | (num[2] << 8) | num[3];
 
