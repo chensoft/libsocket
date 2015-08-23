@@ -6,13 +6,16 @@
  */
 #pragma once
 
+#include "udp_socket.h"
+
 namespace chen
 {
     namespace udp
     {
-        class client
+        class client : public socket
         {
-
+        public:
+            client();
         };
     }
 }
