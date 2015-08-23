@@ -91,6 +91,7 @@ namespace chen
         std::map<std::string, std::string> _tiny;
     };
 
+
     /**
      * Option base class (internal use)
      */

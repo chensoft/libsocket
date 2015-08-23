@@ -45,7 +45,7 @@ namespace chen
          * chen::unit &a = chen::unit::instance();
          * chen::unit *b = new chen::unit(a);
          */
-        unit(const unit&) = delete;
-        unit& operator=(const unit&) = delete;
+        unit(const unit &) = delete;
+        unit& operator=(const unit &) = delete;
     };
 }

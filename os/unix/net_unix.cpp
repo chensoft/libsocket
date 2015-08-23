@@ -6,4 +6,4 @@
  */
 #ifdef CHEN_OS_UNIX
     #warning "Detect Unix"
-#endif
+#endif  // CHEN_OS_UNIX

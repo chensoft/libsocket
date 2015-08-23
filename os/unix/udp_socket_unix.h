@@ -1,21 +1,23 @@
 /**
  * Created by Jian Chen
- * @since  2015.08.22
+ * @since  2015.08.23
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
 #pragma once
 
-#include "udp_socket.h"
+#ifdef CHEN_OS_UNIX
 
 namespace chen
 {
     namespace udp
     {
-        class server : public socket
+        class socket::impl
         {
         public:
-            virtual void bind(const std::string &addr, std::uint16_t port);
+            int _socket = 0;
         };
     }
 }
+
+#endif  // CHEN_OS_UNIX

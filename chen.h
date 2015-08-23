@@ -22,4 +22,9 @@
 
 #include "net/ip/ip_addr.h"
 
+#include "net/udp/udp_error.h"
+#include "net/udp/udp_client.h"
+#include "net/udp/udp_server.h"
+#include "net/udp/udp_socket.h"
+
 #include "unit/unit.h"

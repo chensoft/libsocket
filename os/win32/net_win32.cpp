@@ -6,4 +6,4 @@
  */
 #ifdef CHEN_OS_WIN32
     #pragma message ( "Detect Windows" )
-#endif
+#endif  // CHEN_OS_WIN32
