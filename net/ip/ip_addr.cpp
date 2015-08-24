@@ -144,10 +144,14 @@ void address_v4::assign(std::uint32_t addr, std::uint8_t subnet)
     this->_addr = addr;
 
     // subnet range: [8, 30]
-    if (!subnet || ((subnet >= 8) && (subnet <= 30)))
+    if (((subnet >= 8) && (subnet <= 30)))
     {
         auto   move = 32 - subnet;
         this->_mask = 0xFFFFFFFF >> move << move;
+    }
+    else if (!subnet)
+    {
+        this->_mask = subnet;
     }
     else
     {
