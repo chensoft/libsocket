@@ -25,7 +25,9 @@ threadpool::~threadpool()
 {
     // release thread
     this->_destroy = true;
-    this->_semaphore.wake();
+
+    for (std::size_t i = 0, len = this->_pool.size(); i < len; ++i)
+        this->_semaphore.wake();
 
     for (auto &thread : this->_pool)
         thread.join();
@@ -43,26 +45,38 @@ void threadpool::async(const job_type &job)
 
 void threadpool::run()
 {
-    while (!this->_destroy)
+    while (true)
     {
         // check job
+        bool quit = false;
+        std::size_t size = 0;
         job_type job;
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
 
-            if (this->_queue.size())
+            size = this->_queue.size();
+
+            if (size)
             {
                 job = this->_queue.front();
                 this->_queue.erase(this->_queue.begin());
             }
+
+            if ((size <= 1) && this->_destroy)
+                quit = true;
         }
 
         // run job
         if (job)
             job();
 
+        // quit loop
+        if (quit)
+            break;
+
         // sleep
-        this->_semaphore.wait();
+        if (size <= 1)
+            this->_semaphore.wait();
     }
 }

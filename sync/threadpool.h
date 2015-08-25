@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <list>
 #include "semaphore.h"
 
 namespace chen
@@ -41,8 +42,8 @@ namespace chen
     private:
         bool _destroy = false;  // is wait for destroy
 
-        std::mutex _mutex;             // queue lock
-        std::vector<job_type> _queue;  // queue job
+        std::mutex _mutex;           // queue lock
+        std::list<job_type> _queue;  // queue job
 
         std::vector<std::thread> _pool;  // thread
         chen::semaphore _semaphore;      // semaphore
