@@ -20,9 +20,21 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address v4
+address_v4::address_v4(std::uint32_t addr)
+: address_v4(addr, 0)
+{
+
+}
+
 address_v4::address_v4(std::uint32_t addr, std::uint8_t subnet)
 {
     address_v4::assign(addr, subnet);
+}
+
+address_v4::address_v4(const std::string &addr)
+: address_v4(addr, 0)
+{
+
 }
 
 address_v4::address_v4(const std::string &addr, std::uint8_t subnet)

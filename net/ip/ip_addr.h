@@ -56,8 +56,12 @@ namespace chen
         {
         public:
             address_v4() = default;
-            explicit address_v4(std::uint32_t addr, std::uint8_t subnet = 0);
-            explicit address_v4(const std::string &addr, std::uint8_t subnet = 0);
+
+            explicit address_v4(std::uint32_t addr);
+            explicit address_v4(std::uint32_t addr, std::uint8_t subnet);
+
+            explicit address_v4(const std::string &addr);
+            explicit address_v4(const std::string &addr, std::uint8_t subnet);
 
         public:
             /**
