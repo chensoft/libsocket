@@ -19,7 +19,7 @@ namespace chen
             socket();
             virtual ~socket() = 0;
 
-        public:
+        protected:
             virtual std::size_t send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port);
 
             virtual std::size_t recv(std::uint8_t *data, std::size_t size, std::string &addr, std::uint16_t &port);
