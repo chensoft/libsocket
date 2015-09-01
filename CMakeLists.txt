@@ -18,10 +18,10 @@ aux_source_directory(./net/udp SRC_NET_UDP)
 # platform codes
 if (UNIX)
   add_definitions(-DCHEN_OS_UNIX)
-  aux_source_directory(./os/unix SRC_OS)
+  aux_source_directory(./plat/unix SRC_PLAT)
 elseif(WIN32)
   add_definitions(-DCHEN_OS_WIN32)
-  aux_source_directory(./os/win32 SRC_OS)
+  aux_source_directory(./plat/win32 SRC_PLAT)
 else()
   message(FATAL_ERROR "Unsupported system")
 endif()
@@ -35,4 +35,4 @@ else()
 endif()
 
 # generate lib
-add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_OS} ${SRC_UNIT})
+add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_PLAT} ${SRC_UNIT})
