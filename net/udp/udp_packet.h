@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace chen
 {
@@ -16,10 +17,7 @@ namespace chen
         class packet
         {
         public:
-            packet();
-
-        public:
-            std::uint8_t data[65507];
+            std::vector<std::uint8_t> data;
             std::size_t size = 0;
 
             std::string addr;

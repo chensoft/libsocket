@@ -17,7 +17,7 @@ server::server(recv_type callback)
 
 }
 
-void server::run(const std::string &addr, std::uint16_t port)
+void server::run(const std::string &addr, std::uint16_t port, std::size_t size)
 {
     // bind
     this->bind(addr, port);
@@ -26,9 +26,10 @@ void server::run(const std::string &addr, std::uint16_t port)
     while (true)
     {
         packet pkt;
-        pkt.size = this->recv(pkt.data, sizeof(pkt.data), pkt.addr, pkt.port);
+        pkt.data.resize(size);
+        pkt.size = this->recv(pkt.data.data(), sizeof(pkt.data), pkt.addr, pkt.port);
 
-        this->_pool.async(std::bind(this->_func, pkt));
+        this->_pool.async(std::bind(this->_func, this, pkt));
     }
 }
 

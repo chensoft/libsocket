@@ -11,7 +11,6 @@
 #include "../../sync/threadpool.h"
 #include <functional>
 
-// todo just for test
 namespace chen
 {
     namespace udp
@@ -19,13 +18,13 @@ namespace chen
         class server : public socket
         {
         public:
-            typedef std::function<void (const chen::udp::packet &pkt)> recv_type;
+            typedef std::function<void (chen::udp::socket *so, const chen::udp::packet &pkt)> recv_type;
 
         public:
             server(recv_type callback);
 
         public:
-            virtual void run(const std::string &addr, std::uint16_t port);
+            virtual void run(const std::string &addr, std::uint16_t port, std::size_t size = 65507);
 
         public:
             virtual std::size_t send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port);

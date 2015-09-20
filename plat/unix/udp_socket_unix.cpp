@@ -17,6 +17,7 @@
 #include <cerrno>
 
 using namespace chen;
+using namespace chen::ip;
 using namespace chen::udp;
 
 // -----------------------------------------------------------------------------
@@ -67,6 +68,9 @@ std::size_t socket::recv(std::uint8_t *data, std::size_t size, std::string &addr
 
     if (ret == -1)
         throw error_recv(std::strerror(errno));
+
+    addr = address_v4::to_string(ntohl(in.sin_addr.s_addr));
+    port = ntohs(in.sin_port);
 
     return static_cast<std::size_t>(ret);
 }
