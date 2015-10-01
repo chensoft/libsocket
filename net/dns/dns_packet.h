@@ -83,6 +83,10 @@ namespace chen
         class question
         {
         public:
+            question();
+
+        private:
+            header _header;
         };
 
 
@@ -91,6 +95,9 @@ namespace chen
         class response
         {
         public:
+
+        private:
+            header _header;
         };
     }
 }

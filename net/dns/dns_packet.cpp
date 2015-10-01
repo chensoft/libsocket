@@ -176,3 +176,12 @@ std::uint16_t header::random() const
     auto high = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     return uniform(engine) ^ static_cast<uint16_t>(high);
 }
+
+
+// -----------------------------------------------------------------------------
+// question
+question::question()
+{
+    // use random id
+    this->_header.setId();
+}

@@ -81,5 +81,48 @@ namespace chen
             Refused        = 5   // the name server refuses to perform the specified operation for policy reasons
             // 6-15                 reserved for future use
         };
+
+
+        // ---------------------------------------------------------------------
+        // RRType
+        enum class RRType : std::uint16_t {
+            // common record resource types
+            A     = 1,   // a host address
+            NS    = 2,   // an authoritative name server
+            MD    = 3,   // a mail destination (Obsolete - use MX)
+            MF    = 4,   // a mail forwarder (Obsolete - use MX)
+            CNAME = 5,   // the canonical name for an alias
+            SOA   = 6,   // marks the start of a zone of authority
+            MB    = 7,   // a mailbox domain name (EXPERIMENTAL)
+            MG    = 8,   // a mail group member (EXPERIMENTAL)
+            MR    = 9,   // a mail rename domain name (EXPERIMENTAL)
+            RNULL = 10,  // a null RR (EXPERIMENTAL)
+            WKS   = 11,  // a well known service description
+            PTR   = 12,  // a domain name pointer
+            HINFO = 13,  // host information
+            MINFO = 14,  // mailbox or mail list information
+            MX    = 15,  // mail exchange
+            TXT   = 16,  // text strings
+
+            // question type
+            AXFR  = 252,  // A request for a transfer of an entire zone
+            MAILB = 253,  // A request for mailbox-related records (MB, MG or MR)
+            MAILA = 254,  // A request for mail agent RRs (Obsolete - see MX)
+            ANY   = 255   // A request for all records
+        };
+
+
+        // ---------------------------------------------------------------------
+        // RRClass
+        enum class RRClass : std::uint16_t {
+            // common record resource class
+            IN = 1,  // the Internet
+            CS = 2,  // the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
+            CH = 3,  // the CHAOS class
+            HS = 4,  // Hesiod [Dyer 87]
+
+            // question class
+            ANY = 255  // any class
+        };
     }
 }
