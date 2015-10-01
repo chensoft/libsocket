@@ -6,6 +6,7 @@
  */
 #include "dns_packet.h"
 #include <random>
+#include <chrono>
 
 using namespace chen;
 using namespace chen::dns;
@@ -169,7 +170,9 @@ void header::setRcode(chen::dns::RCODE value)
 std::uint16_t header::random() const
 {
     std::random_device device;
-    std::mt19937 rng(device());
-    std::uniform_int_distribution<std::uint16_t> uni(1, 0xFFFF);
-    return uni(rng);
+    std::mt19937 engine(device());
+    std::uniform_int_distribution<std::uint16_t> uniform(1, 0xFFFF);
+
+    auto high = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    return uniform(engine) ^ static_cast<uint16_t>(high);
 }
