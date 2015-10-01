@@ -14,6 +14,7 @@ aux_source_directory(./sync SRC_SYNC)
 aux_source_directory(./tool SRC_TOOL)
 aux_source_directory(./net/ip SRC_NET_IP)
 aux_source_directory(./net/udp SRC_NET_UDP)
+aux_source_directory(./net/dns SRC_NET_DNS)
 
 # platform codes
 if (UNIX)
@@ -35,4 +36,4 @@ else()
 endif()
 
 # generate lib
-add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_PLAT} ${SRC_UNIT})
+add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_UNIT})
