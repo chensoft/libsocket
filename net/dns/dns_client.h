@@ -5,3 +5,15 @@
  * @link   http://www.chensoft.com
  */
 #pragma once
+
+namespace chen
+{
+    namespace dns
+    {
+        class client
+        {
+        public:
+            client();
+        };
+    }
+}

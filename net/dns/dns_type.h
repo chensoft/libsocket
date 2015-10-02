@@ -87,6 +87,7 @@ namespace chen
         // RRType
         enum class RRType : std::uint16_t {
             // common record resource types
+            None  = 0,   // none
             A     = 1,   // a host address
             NS    = 2,   // an authoritative name server
             MD    = 3,   // a mail destination (Obsolete - use MX)

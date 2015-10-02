@@ -7,8 +7,9 @@
  */
 #pragma once
 
+#include <string>
 #include <cstdint>
-#include "dns_types.h"
+#include "dns_type.h"
 
 namespace chen
 {
@@ -66,7 +67,7 @@ namespace chen
             /**
              * Random int
              */
-            std::uint16_t random() const;
+            static std::uint16_t random();
 
         private:
             std::uint16_t _id      = 0;  // the identifier of a query
@@ -85,8 +86,20 @@ namespace chen
         public:
             question();
 
+        public:
+            /**
+             * Set query data
+             */
+            void setQuery(const std::string &qname,
+                          chen::dns::RRType qtype,
+                          chen::dns::RRClass qclass = chen::dns::RRClass::IN);
+
         private:
             header _header;
+
+            std::string _qname;
+            chen::dns::RRType  _qtype  = chen::dns::RRType::None;
+            chen::dns::RRClass _qclass = chen::dns::RRClass::IN;
         };
 
 

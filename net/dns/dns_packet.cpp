@@ -5,6 +5,7 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_packet.h"
+#include "dns_tool.h"
 #include <random>
 #include <chrono>
 
@@ -89,7 +90,7 @@ chen::dns::RCODE header::rcode() const
 // set filed value
 void header::setId(std::uint16_t value)
 {
-    this->_id = value ? value : this->random();
+    this->_id = value ? value : header::random();
 }
 
 void header::setFlag(std::uint16_t value)
@@ -167,7 +168,7 @@ void header::setRcode(chen::dns::RCODE value)
 }
 
 // random
-std::uint16_t header::random() const
+std::uint16_t header::random()
 {
     std::random_device device;
     std::mt19937 engine(device());
@@ -184,4 +185,23 @@ question::question()
 {
     // use random id
     this->_header.setId();
+
+    // set query
+    this->_header.setQr(QR::Query);
+}
+
+void question::setQuery(const std::string &qname,
+                        chen::dns::RRType qtype,
+                        chen::dns::RRClass qclass)
+{
+    // set opcode
+    this->_header.setOpcode(chen::dns::OPCODE::Query);
+
+    // set qdcount
+    this->_header.setQdcount(1);
+
+    // set query
+    this->_qname  = tool::fqdn(qname);
+    this->_qtype  = qtype;
+    this->_qclass = qclass;
 }

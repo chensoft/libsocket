@@ -51,14 +51,9 @@ namespace chen
         class A : public RR
         {
         public:
-        };
 
-
-        // ---------------------------------------------------------------------
-        // AAAA
-        class AAAA : public RR
-        {
-        public:
+        private:
+            std::string _address;
         };
     }
 }

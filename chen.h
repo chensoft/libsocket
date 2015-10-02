@@ -28,7 +28,8 @@
 #include "net/udp/udp_server.h"
 #include "net/udp/udp_socket.h"
 
-#include "net/dns/dns_types.h"
+#include "net/dns/dns_type.h"
+#include "net/dns/dns_tool.h"
 #include "net/dns/dns_record.h"
 #include "net/dns/dns_packet.h"
 #include "net/dns/dns_client.h"

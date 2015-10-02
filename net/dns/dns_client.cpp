@@ -5,3 +5,13 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_client.h"
+
+using namespace chen;
+using namespace chen::dns;
+
+// -----------------------------------------------------------------------------
+// client
+client::client()
+{
+
+}
