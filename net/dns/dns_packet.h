@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <vector>
 #include <string>
 #include <cstdint>
 #include "dns_type.h"
@@ -65,6 +66,12 @@ namespace chen
             void setRcode(chen::dns::RCODE value);
 
             /**
+             * Binary data of header
+             */
+            std::vector<std::uint8_t> binary() const;
+            void binary(std::vector<std::uint8_t> &store) const;
+
+            /**
              * Random int
              */
             static std::uint16_t random();
@@ -88,14 +95,28 @@ namespace chen
 
         public:
             /**
+             * Get field value
+             */
+            header qheader()            const;
+            std::string qname()         const;
+            chen::dns::RRType qtype()   const;
+            chen::dns::RRClass qclass() const;
+
+            /**
              * Set query data
              */
             void setQuery(const std::string &qname,
                           chen::dns::RRType qtype,
                           chen::dns::RRClass qclass = chen::dns::RRClass::IN);
 
+            /**
+             * Binary data of question
+             */
+            std::vector<std::uint8_t> binary() const;
+            void binary(std::vector<std::uint8_t> &store) const;
+
         private:
-            header _header;
+            header _qheader;
 
             std::string _qname;
             chen::dns::RRType  _qtype  = chen::dns::RRType::None;

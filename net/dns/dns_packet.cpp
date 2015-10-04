@@ -49,42 +49,42 @@ std::uint16_t header::arcount() const
 // flag value
 chen::dns::QR header::qr() const
 {
-    return static_cast<chen::dns::QR>(this->_flag & 0b0000000000000001);
+    return static_cast<chen::dns::QR>(this->_flag & 0b1000000000000000);
 }
 
 chen::dns::OPCODE header::opcode() const
 {
-    return static_cast<chen::dns::OPCODE>(this->_flag & 0b0000000000011110);
+    return static_cast<chen::dns::OPCODE>(this->_flag & 0b0111100000000000);
 }
 
 chen::dns::AA header::aa() const
 {
-    return static_cast<chen::dns::AA>(this->_flag & 0b0000000000100000);
+    return static_cast<chen::dns::AA>(this->_flag & 0b0000010000000000);
 }
 
 chen::dns::TC header::tc() const
 {
-    return static_cast<chen::dns::TC>(this->_flag & 0b0000000001000000);
+    return static_cast<chen::dns::TC>(this->_flag & 0b0000001000000000);
 }
 
 chen::dns::RD header::rd() const
 {
-    return static_cast<chen::dns::RD>(this->_flag & 0b0000000010000000);
+    return static_cast<chen::dns::RD>(this->_flag & 0b0000000100000000);
 }
 
 chen::dns::RA header::ra() const
 {
-    return static_cast<chen::dns::RA>(this->_flag & 0b0000000100000000);
+    return static_cast<chen::dns::RA>(this->_flag & 0b0000000010000000);
 }
 
 chen::dns::Z header::z() const
 {
-    return static_cast<chen::dns::Z>(this->_flag & 0b0000111000000000);
+    return static_cast<chen::dns::Z>(this->_flag & 0b0000000001110000);
 }
 
 chen::dns::RCODE header::rcode() const
 {
-    return static_cast<chen::dns::RCODE>(this->_flag & 0b1111000000000000);
+    return static_cast<chen::dns::RCODE>(this->_flag & 0b0000000000001111);
 }
 
 // set filed value
@@ -121,50 +121,79 @@ void header::setArcount(std::uint16_t value)
 // set flag value
 void header::setQr(chen::dns::QR value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 0) & static_cast<std::uint16_t>(0b0000000000000001);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 15) & static_cast<std::uint16_t>(0b1000000000000000);
     this->_flag |= tmp;
 }
 
 void header::setOpcode(chen::dns::OPCODE value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 1) & static_cast<std::uint16_t>(0b0000000000011110);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 11) & static_cast<std::uint16_t>(0b0111100000000000);
     this->_flag |= tmp;
 }
 
 void header::setAa(chen::dns::AA value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 5) & static_cast<std::uint16_t>(0b0000000000100000);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 10) & static_cast<std::uint16_t>(0b0000010000000000);
     this->_flag |= tmp;
 }
 
 void header::setTc(chen::dns::TC value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 6) & static_cast<std::uint16_t>(0b0000000001000000);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 9) & static_cast<std::uint16_t>(0b0000001000000000);
     this->_flag |= tmp;
 }
 
 void header::setRd(chen::dns::RD value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 7) & static_cast<std::uint16_t>(0b0000000010000000);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 8) & static_cast<std::uint16_t>(0b0000000100000000);
     this->_flag |= tmp;
 }
 
 void header::setRa(chen::dns::RA value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 8) & static_cast<std::uint16_t>(0b0000000100000000);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 7) & static_cast<std::uint16_t>(0b0000000010000000);
     this->_flag |= tmp;
 }
 
 void header::setZ(chen::dns::Z value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 9) & static_cast<std::uint16_t>(0b0000111000000000);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 4) & static_cast<std::uint16_t>(0b0000000001110000);
     this->_flag |= tmp;
 }
 
 void header::setRcode(chen::dns::RCODE value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 12) & static_cast<std::uint16_t>(0b1111000000000000);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 0) & static_cast<std::uint16_t>(0b0000000000001111);
     this->_flag |= tmp;
+}
+
+// binary
+std::vector<std::uint8_t> header::binary() const
+{
+    std::vector<std::uint8_t> store;
+    this->binary(store);
+    return store;
+}
+
+void header::binary(std::vector<std::uint8_t> &store) const
+{
+    store.push_back(static_cast<std::uint8_t>(this->_id >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_id));
+
+    store.push_back(static_cast<std::uint8_t>(this->_flag >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_flag));
+
+    store.push_back(static_cast<std::uint8_t>(this->_qdcount >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_qdcount));
+
+    store.push_back(static_cast<std::uint8_t>(this->_ancount >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_ancount));
+
+    store.push_back(static_cast<std::uint8_t>(this->_nscount >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_nscount));
+
+    store.push_back(static_cast<std::uint8_t>(this->_arcount >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_arcount));
 }
 
 // random
@@ -184,24 +213,64 @@ std::uint16_t header::random()
 question::question()
 {
     // use random id
-    this->_header.setId();
+    this->_qheader.setId();
 
     // set query
-    this->_header.setQr(QR::Query);
+    this->_qheader.setQr(QR::Query);
 }
 
+// field value
+header question::qheader() const
+{
+    return this->_qheader;
+}
+
+std::string question::qname() const
+{
+    return this->_qname;
+}
+
+chen::dns::RRType question::qtype() const
+{
+    return this->_qtype;
+}
+
+chen::dns::RRClass question::qclass() const
+{
+    return this->_qclass;
+}
+
+// set query
 void question::setQuery(const std::string &qname,
                         chen::dns::RRType qtype,
                         chen::dns::RRClass qclass)
 {
     // set opcode
-    this->_header.setOpcode(chen::dns::OPCODE::Query);
+    this->_qheader.setOpcode(chen::dns::OPCODE::Query);
+
+    // set rd
+    this->_qheader.setRd(chen::dns::RD::Yes);
 
     // set qdcount
-    this->_header.setQdcount(1);
+    this->_qheader.setQdcount(1);
 
     // set query
     this->_qname  = tool::fqdn(qname);
     this->_qtype  = qtype;
     this->_qclass = qclass;
+}
+
+// binary
+std::vector<std::uint8_t> question::binary() const
+{
+    std::vector<std::uint8_t> store;
+    this->binary(store);
+    return store;
+}
+
+void question::binary(std::vector<std::uint8_t> &store) const
+{
+    this->_qheader.binary(store);
+
+    // todo
 }
