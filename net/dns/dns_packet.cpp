@@ -211,6 +211,64 @@ std::uint16_t header::random()
 
 // -----------------------------------------------------------------------------
 // packet
+void packet::packDomain(const std::string &name, std::vector<std::uint8_t> &store)
+{
+    // check empty
+    if (name.empty())
+        throw error_size("pack domain name is empty");
+
+    // check fqdn
+    if (!tool::isFqdn(name))
+        throw error_fqdn("pack domain is not fqdn");
+
+    // check total length
+    if (name.size() > 255)
+        throw error_size("pack domain name length must be 255 or less");
+
+    // Note:
+    // each label is split by dot
+    // label count + label value(exclude dot)
+    std::vector<std::uint8_t>::size_type count = 0;
+    std::vector<std::uint8_t>::size_type begin = store.size();
+
+    try
+    {
+        store.push_back(0);  // size for next label
+
+        for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(name.size()); i < len; ++i)
+        {
+            char c = name[i];
+
+            if (c == '.')
+            {
+                if (!count)
+                    throw error_size("pack domain label is empty");
+
+                store[store.size() - count - 1] = static_cast<std::uint8_t>(count);
+                store.push_back(0);  // size for next label
+
+                count = 0;
+            }
+            else
+            {
+                ++count;
+
+                if (count > 63)
+                    throw error_size("pack domain label length must be 63 or less");
+
+                store.push_back(static_cast<std::uint8_t>(c));
+            }
+        }
+    }
+    catch (const std::exception &e)
+    {
+        // rollback
+        store.erase(store.begin() + begin, store.end());
+
+        // rethrow
+        throw e;
+    }
+}
 
 
 // -----------------------------------------------------------------------------
@@ -279,7 +337,21 @@ std::vector<std::uint8_t> question::binary() const
 
 void question::binary(std::vector<std::uint8_t> &store) const
 {
+    // header
     this->_qheader.binary(store);
 
-    // todo
+    // name
+    packet::packDomain(this->_qname, store);
+
+    // type
+    std::uint16_t qtype = static_cast<std::uint16_t>(this->_qtype);
+
+    store.push_back(static_cast<std::uint8_t>(qtype >> 8));
+    store.push_back(static_cast<std::uint8_t>(qtype));
+
+    // class
+    std::uint16_t qclass = static_cast<std::uint16_t>(this->_qclass);
+
+    store.push_back(static_cast<std::uint8_t>(qclass >> 8));
+    store.push_back(static_cast<std::uint8_t>(qclass));
 }

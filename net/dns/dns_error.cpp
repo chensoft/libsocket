@@ -25,3 +25,12 @@ error_fqdn::error_fqdn(const std::string &what)
 {
 
 }
+
+
+// -----------------------------------------------------------------------------
+// error_size
+error_size::error_size(const std::string &what)
+: error(what)
+{
+
+}

@@ -91,6 +91,10 @@ namespace chen
         class packet
         {
         public:
+            /**
+             * Pack domain name to binary
+             */
+            static void packDomain(const std::string &name, std::vector<std::uint8_t> &store);
         };
 
 

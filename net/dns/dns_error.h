@@ -31,5 +31,15 @@ namespace chen
         public:
             explicit error_fqdn(const std::string &what);
         };
+
+
+        /**
+         * Size error
+         */
+        class error_size : public error
+        {
+        public:
+            explicit error_size(const std::string &what);
+        };
     }
 }
