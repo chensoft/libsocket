@@ -5,6 +5,7 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_packet.h"
+#include "dns_error.h"
 #include "dns_tool.h"
 #include <random>
 #include <chrono>
@@ -209,6 +210,10 @@ std::uint16_t header::random()
 
 
 // -----------------------------------------------------------------------------
+// packet
+
+
+// -----------------------------------------------------------------------------
 // question
 question::question()
 {
@@ -245,6 +250,10 @@ void question::setQuery(const std::string &qname,
                         chen::dns::RRType qtype,
                         chen::dns::RRClass qclass)
 {
+    // check
+    if (!tool::isFqdn(qname))
+        throw error_fqdn("question name is not fqdn");
+
     // set opcode
     this->_qheader.setOpcode(chen::dns::OPCODE::Query);
 
@@ -255,7 +264,7 @@ void question::setQuery(const std::string &qname,
     this->_qheader.setQdcount(1);
 
     // set query
-    this->_qname  = tool::fqdn(qname);
+    this->_qname  = qname;
     this->_qtype  = qtype;
     this->_qclass = qclass;
 }

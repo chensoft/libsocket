@@ -87,8 +87,16 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
+        // packet
+        class packet
+        {
+        public:
+        };
+
+
+        // ---------------------------------------------------------------------
         // question
-        class question
+        class question : public packet
         {
         public:
             question();
@@ -126,7 +134,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // response
-        class response
+        class response : public packet
         {
         public:
 
