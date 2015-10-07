@@ -9,8 +9,10 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <cstdint>
 #include "dns_type.h"
+#include "dns_record.h"
 
 namespace chen
 {
@@ -66,6 +68,11 @@ namespace chen
             void setRcode(chen::dns::RCODE value);
 
             /**
+             * Assign binary data to header
+             */
+            void assign(const std::uint8_t *data, std::size_t size);
+
+            /**
              * Binary data of header
              */
             std::vector<std::uint8_t> binary() const;
@@ -114,6 +121,7 @@ namespace chen
             chen::dns::RRType qtype()   const;
             chen::dns::RRClass qclass() const;
 
+        public:
             /**
              * Set query data
              */
@@ -126,6 +134,7 @@ namespace chen
              */
             void setRecursionDesired();
 
+        public:
             /**
              * Binary data of question
              */
@@ -146,9 +155,30 @@ namespace chen
         class response : public packet
         {
         public:
+            typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
+
+        public:
+            /**
+             * Four rrs
+             */
+            const rr_type& question()   const;
+            const rr_type& answer()     const;
+            const rr_type& authority()  const;
+            const rr_type& additional() const;
+
+        public:
+            /**
+             * Assign binary data to response
+             */
+            void assign(const std::uint8_t *data, std::size_t size);
 
         private:
             header _header;
+
+            rr_type _question;
+            rr_type _answer;
+            rr_type _authority;
+            rr_type _additional;
         };
     }
 }

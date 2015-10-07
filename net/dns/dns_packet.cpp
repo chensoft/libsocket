@@ -7,6 +7,7 @@
 #include "dns_packet.h"
 #include "dns_error.h"
 #include "dns_tool.h"
+#include "tool/log.h"
 #include <random>
 #include <chrono>
 
@@ -166,6 +167,20 @@ void header::setRcode(chen::dns::RCODE value)
 {
     std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 0) & static_cast<std::uint16_t>(0b0000000000001111);
     this->_flag |= tmp;
+}
+
+// assign
+void header::assign(const std::uint8_t *data, std::size_t size)
+{
+    if (size < 12)
+        throw error_size("header assign size must be 12");
+
+    this->_id      = (static_cast<std::uint16_t>(data[0]) << 8) | static_cast<std::uint16_t>(data[1]);
+    this->_flag    = (static_cast<std::uint16_t>(data[2]) << 8) | static_cast<std::uint16_t>(data[3]);
+    this->_qdcount = (static_cast<std::uint16_t>(data[4]) << 8) | static_cast<std::uint16_t>(data[5]);
+    this->_ancount = (static_cast<std::uint16_t>(data[6]) << 8) | static_cast<std::uint16_t>(data[7]);
+    this->_nscount = (static_cast<std::uint16_t>(data[8]) << 8) | static_cast<std::uint16_t>(data[9]);
+    this->_arcount = (static_cast<std::uint16_t>(data[10]) << 8) | static_cast<std::uint16_t>(data[11]);
 }
 
 // binary
@@ -360,4 +375,37 @@ void question::binary(std::vector<std::uint8_t> &store) const
 
     store.push_back(static_cast<std::uint8_t>(qclass >> 8));
     store.push_back(static_cast<std::uint8_t>(qclass));
+}
+
+
+// -----------------------------------------------------------------------------
+// response
+
+// rrs
+const response::rr_type& response::question() const
+{
+    return this->_question;
+}
+
+const response::rr_type& response::answer() const
+{
+    return this->_answer;
+}
+
+const response::rr_type& response::authority() const
+{
+    return this->_authority;
+}
+
+const response::rr_type& response::additional() const
+{
+    return this->_additional;
+}
+
+// assign
+void response::assign(const std::uint8_t *data, std::size_t size)
+{
+    this->_header.assign(data, size);
+
+    PILogE("haha: %s", tool::format(this->_header.binary()).c_str());
 }

@@ -8,6 +8,7 @@
 #include "dns_error.h"
 #include "dns_tool.h"
 #include "tool/log.h"
+#include "net/udp/udp_packet.h"
 
 using namespace chen;
 using namespace chen::dns;
@@ -56,13 +57,18 @@ chen::dns::response client::resolve(const std::string &qname,
     // send query
     auto binary = q.binary();
 
-    // todo delete
-    PILogE("%s, %s", tool::format(binary).c_str(), v4.str().c_str());
-
     std::string addr(v4.str());
     std::uint16_t port = 53;
 
     this->_udp.send(binary.data(), binary.size(), addr, port);
 
-    return response();
+    // recv response
+    udp::packet pkt;
+    pkt.data.resize(65507);
+    pkt.size = this->_udp.recv(pkt.data.data(), pkt.data.size(), pkt.addr, pkt.port);
+
+    response r;
+    r.assign(pkt.data.data(), pkt.size);
+
+    return r;
 }
