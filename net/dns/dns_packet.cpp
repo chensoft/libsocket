@@ -213,60 +213,32 @@ std::uint16_t header::random()
 // packet
 void packet::packDomain(const std::string &name, std::vector<std::uint8_t> &store)
 {
-    // check empty
-    if (name.empty())
-        throw error_size("pack domain name is empty");
-
-    // check fqdn
-    if (!tool::isFqdn(name))
-        throw error_fqdn("pack domain is not fqdn");
-
-    // check total length
-    if (name.size() > 255)
-        throw error_size("pack domain name length must be 255 or less");
-
     // Note:
+    // assume name is valid
     // each label is split by dot
     // label count + label value(exclude dot)
     std::vector<std::uint8_t>::size_type count = 0;
     std::vector<std::uint8_t>::size_type begin = store.size();
 
-    try
-    {
-        store.push_back(0);  // size for next label
+    store.push_back(0);  // size for next label
 
-        for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(name.size()); i < len; ++i)
+    for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(name.size()); i < len; ++i)
+    {
+        char c = name[i];
+
+        if (c == '.')
         {
-            char c = name[i];
+            store[store.size() - count - 1] = static_cast<std::uint8_t>(count);
+            store.push_back(0);  // size for next label
 
-            if (c == '.')
-            {
-                if (!count)
-                    throw error_size("pack domain label is empty");
-
-                store[store.size() - count - 1] = static_cast<std::uint8_t>(count);
-                store.push_back(0);  // size for next label
-
-                count = 0;
-            }
-            else
-            {
-                ++count;
-
-                if (count > 63)
-                    throw error_size("pack domain label length must be 63 or less");
-
-                store.push_back(static_cast<std::uint8_t>(c));
-            }
+            count = 0;
         }
-    }
-    catch (const std::exception &e)
-    {
-        // rollback
-        store.erase(store.begin() + begin, store.end());
+        else
+        {
+            ++count;
 
-        // rethrow
-        throw e;
+            store.push_back(static_cast<std::uint8_t>(c));
+        }
     }
 }
 
@@ -308,9 +280,40 @@ void question::setQuery(const std::string &qname,
                         chen::dns::RRType qtype,
                         chen::dns::RRClass qclass)
 {
-    // check
+    // check empty
+    if (qname.empty())
+        throw error_size("question query name is empty");
+
+    // check fqdn
     if (!tool::isFqdn(qname))
-        throw error_fqdn("question name is not fqdn");
+        throw error_fqdn("question query name is not fqdn");
+
+    // check total length
+    if (qname.size() > 255)
+        throw error_size("question query name length must be 255 or less");
+
+    // check each label
+    std::string::size_type count = 0;
+
+    for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(qname.size()); i < len; ++i)
+    {
+        char c = qname[i];
+
+        if (c == '.')
+        {
+            if (!count)
+                throw error_size("question query label is empty");
+
+            count = 0;
+        }
+        else
+        {
+            ++count;
+
+            if (count > 63)
+                throw error_size("question query label length must be 63 or less");
+        }
+    }
 
     // set opcode
     this->_qheader.setOpcode(chen::dns::OPCODE::Query);

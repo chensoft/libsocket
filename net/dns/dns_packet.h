@@ -90,7 +90,7 @@ namespace chen
         // packet
         class packet
         {
-        public:
+        protected:
             /**
              * Pack domain name to binary
              */
