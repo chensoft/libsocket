@@ -7,6 +7,8 @@
 #pragma once
 
 #include "dns_packet.h"
+#include "../ip/ip_addr.h"
+#include "../udp/udp_client.h"
 
 namespace chen
 {
@@ -21,7 +23,7 @@ namespace chen
             /**
              * Set resolver address
              */
-            void setNameserver(const std::vector<std::string> &list);
+            void setNameserver(const std::vector<chen::ip::address_v4> &list);
 
             /**
              * Resolve domain name
@@ -31,7 +33,9 @@ namespace chen
                                         chen::dns::RRClass qclass = chen::dns::RRClass::IN);
 
         protected:
-            std::vector<std::string> _server;
+            std::vector<chen::ip::address_v4> _server;
+
+            chen::udp::client _udp;
         };
     }
 }

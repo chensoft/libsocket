@@ -318,9 +318,6 @@ void question::setQuery(const std::string &qname,
     // set opcode
     this->_qheader.setOpcode(chen::dns::OPCODE::Query);
 
-    // set rd
-    this->_qheader.setRd(chen::dns::RD::Yes);
-
     // set qdcount
     this->_qheader.setQdcount(1);
 

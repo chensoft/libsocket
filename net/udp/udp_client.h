@@ -16,6 +16,11 @@ namespace chen
         {
         public:
             client();
+
+        public:
+            virtual std::size_t send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port) override;
+
+            virtual std::size_t recv(std::uint8_t *data, std::size_t size, std::string &addr, std::uint16_t &port) override;
         };
     }
 }

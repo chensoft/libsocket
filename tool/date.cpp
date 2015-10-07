@@ -29,10 +29,10 @@ struct tm date::localtime(std::time_t time)
 {
 #if defined(CHEN_OS_WIN32)
     struct tm now;
-    localtime_s(&now, &time);
+    ::localtime_s(&now, &time);
 #elif defined(CHEN_OS_UNIX)
     struct tm now;
-    localtime_r(&time, &now);
+    ::localtime_r(&time, &now);
 #else
     // system not supported
 #endif
