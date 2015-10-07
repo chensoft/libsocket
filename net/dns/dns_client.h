@@ -19,11 +19,19 @@ namespace chen
 
         public:
             /**
+             * Set resolver address
+             */
+            void setNameserver(const std::vector<std::string> &list);
+
+            /**
              * Resolve domain name
              */
             chen::dns::response resolve(const std::string &qname,
                                         chen::dns::RRType qtype,
                                         chen::dns::RRClass qclass = chen::dns::RRClass::IN);
+
+        protected:
+            std::vector<std::string> _server;
         };
     }
 }

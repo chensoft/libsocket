@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include "../ip/ip_addr.h"
 
 namespace chen
 {
@@ -17,6 +18,11 @@ namespace chen
         class tool
         {
         public:
+            /**
+             * Pretty print for vector
+             */
+            static std::string format(const std::vector<std::uint8_t> &vec);
+
             /**
              * Check if the name is a fully qualified domain name
              */
@@ -28,9 +34,9 @@ namespace chen
             static std::string fqdn(const std::string &name);
 
             /**
-             * Pretty print for vector
+             * Get local nameservers
              */
-            static std::string format(const std::vector<std::uint8_t> &vec);
+            static std::vector<chen::ip::address_v4> nameservers();
         };
     }
 }

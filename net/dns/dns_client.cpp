@@ -18,6 +18,12 @@ client::client()
 
 }
 
+// server
+void client::setNameserver(const std::vector<std::string> &list)
+{
+    this->_server = list;
+}
+
 // resolve
 chen::dns::response client::resolve(const std::string &qname,
                                     chen::dns::RRType qtype,
@@ -26,6 +32,7 @@ chen::dns::response client::resolve(const std::string &qname,
     question q;
     q.setQuery(qname, qtype, qclass);
 
+    // todo delete
     PILogE("%s", tool::format(q.binary()).c_str());
 
     return response();
