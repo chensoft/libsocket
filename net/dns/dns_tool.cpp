@@ -5,6 +5,7 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_tool.h"
+#include <chen/tool/str.h>
 
 using namespace chen;
 using namespace chen::dns;
@@ -22,4 +23,27 @@ bool tool::isFqdn(const std::string &name)
 std::string tool::fqdn(const std::string &name)
 {
     return tool::isFqdn(name) ? name : name + ".";
+}
+
+// print
+std::string tool::format(const std::vector<std::uint8_t> &vec)
+{
+    std::string ret("{");
+
+    auto cur = vec.cbegin();
+    auto end = vec.cend();
+
+    while (cur != end)
+    {
+        ret.append(str::format("%02x", *cur));
+
+        if (cur != end - 1)
+            ret.append(" ");
+
+        ++cur;
+    }
+
+    ret.append("}");
+
+    return ret;
 }

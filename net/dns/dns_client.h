@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include "dns_packet.h"
+
 namespace chen
 {
     namespace dns
@@ -14,6 +16,14 @@ namespace chen
         {
         public:
             client();
+
+        public:
+            /**
+             * Resolve domain name
+             */
+            chen::dns::response resolve(const std::string &qname,
+                                        chen::dns::RRType qtype,
+                                        chen::dns::RRClass qclass = chen::dns::RRClass::IN);
         };
     }
 }

@@ -7,6 +7,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <cstdint>
 
 namespace chen
 {
@@ -24,6 +26,11 @@ namespace chen
              * Get the fully qualified domain name
              */
             static std::string fqdn(const std::string &name);
+
+            /**
+             * Pretty print for vector
+             */
+            static std::string format(const std::vector<std::uint8_t> &vec);
         };
     }
 }

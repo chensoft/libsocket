@@ -122,6 +122,11 @@ namespace chen
                           chen::dns::RRClass qclass = chen::dns::RRClass::IN);
 
             /**
+             * Enable RD flag, default is true
+             */
+            void setRecursionDesired();
+
+            /**
              * Binary data of question
              */
             std::vector<std::uint8_t> binary() const;

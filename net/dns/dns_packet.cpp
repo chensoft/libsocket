@@ -327,6 +327,12 @@ void question::setQuery(const std::string &qname,
     this->_qclass = qclass;
 }
 
+// flag
+void question::setRecursionDesired()
+{
+    this->_qheader.setRd(chen::dns::RD::Yes);
+}
+
 // binary
 std::vector<std::uint8_t> question::binary() const
 {
