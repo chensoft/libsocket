@@ -407,5 +407,6 @@ void response::assign(const std::uint8_t *data, std::size_t size)
 {
     this->_header.assign(data, size);
 
+    // todo
     PILogE("haha: %s", tool::format(this->_header.binary()).c_str());
 }
