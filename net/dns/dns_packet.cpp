@@ -259,8 +259,8 @@ void packet::packDomain(const std::string &name, std::vector<std::uint8_t> &stor
 
 
 // -----------------------------------------------------------------------------
-// question
-question::question()
+// request
+request::request()
 {
     // use random id
     this->_qheader.setId();
@@ -270,42 +270,42 @@ question::question()
 }
 
 // field value
-header question::qheader() const
+header request::qheader() const
 {
     return this->_qheader;
 }
 
-std::string question::qname() const
+std::string request::qname() const
 {
     return this->_qname;
 }
 
-chen::dns::RRType question::qtype() const
+chen::dns::RRType request::qtype() const
 {
     return this->_qtype;
 }
 
-chen::dns::RRClass question::qclass() const
+chen::dns::RRClass request::qclass() const
 {
     return this->_qclass;
 }
 
 // set query
-void question::setQuery(const std::string &qname,
+void request::setQuery(const std::string &qname,
                         chen::dns::RRType qtype,
                         chen::dns::RRClass qclass)
 {
     // check empty
     if (qname.empty())
-        throw error_size("question query name is empty");
+        throw error_size("request query name is empty");
 
     // check fqdn
     if (!tool::isFqdn(qname))
-        throw error_fqdn("question query name is not fqdn");
+        throw error_fqdn("request query name is not fqdn");
 
     // check total length
     if (qname.size() > 255)
-        throw error_size("question query name length must be 255 or less");
+        throw error_size("request query name length must be 255 or less");
 
     // check each label
     std::string::size_type count = 0;
@@ -317,7 +317,7 @@ void question::setQuery(const std::string &qname,
         if (c == '.')
         {
             if (!count)
-                throw error_size("question query label is empty");
+                throw error_size("request query label is empty");
 
             count = 0;
         }
@@ -326,7 +326,7 @@ void question::setQuery(const std::string &qname,
             ++count;
 
             if (count > 63)
-                throw error_size("question query label length must be 63 or less");
+                throw error_size("request query label length must be 63 or less");
         }
     }
 
@@ -343,20 +343,20 @@ void question::setQuery(const std::string &qname,
 }
 
 // flag
-void question::setRecursionDesired()
+void request::setRecursionDesired()
 {
     this->_qheader.setRd(chen::dns::RD::Yes);
 }
 
 // binary
-std::vector<std::uint8_t> question::binary() const
+std::vector<std::uint8_t> request::binary() const
 {
     std::vector<std::uint8_t> store;
     this->binary(store);
     return store;
 }
 
-void question::binary(std::vector<std::uint8_t> &store) const
+void request::binary(std::vector<std::uint8_t> &store) const
 {
     // header
     this->_qheader.binary(store);

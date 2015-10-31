@@ -50,7 +50,7 @@ chen::dns::response client::resolve(const std::string &qname,
     }
 
     // build query
-    question q;
+    request q;
     q.setQuery(qname, qtype, qclass);
     q.setRecursionDesired();
 

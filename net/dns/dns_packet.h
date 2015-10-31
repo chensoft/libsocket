@@ -106,11 +106,11 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // question
-        class question : public packet
+        // request
+        class request : public packet
         {
         public:
-            question();
+            request();
 
         public:
             /**
@@ -136,7 +136,7 @@ namespace chen
 
         public:
             /**
-             * Binary data of question
+             * Binary data of request
              */
             std::vector<std::uint8_t> binary() const;
             void binary(std::vector<std::uint8_t> &store) const;
