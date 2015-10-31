@@ -225,8 +225,44 @@ std::uint16_t header::random()
 
 
 // -----------------------------------------------------------------------------
-// packet
-void packet::packDomain(const std::string &name, std::vector<std::uint8_t> &store)
+// question
+
+// get filed value
+std::string question::qname() const
+{
+    return this->_qname;
+}
+
+chen::dns::RRType question::qtype() const
+{
+    return this->_qtype;
+}
+
+chen::dns::RRClass question::qclass() const
+{
+    return this->_qclass;
+}
+
+// set field value
+void question::setQname(const std::string &value)
+{
+    this->_qname = value;
+}
+
+void question::setQtype(chen::dns::RRType value)
+{
+    this->_qtype = value;
+}
+
+void question::setQclass(chen::dns::RRClass value)
+{
+    this->_qclass = value;
+}
+
+
+// -----------------------------------------------------------------------------
+// message
+void message::packDomain(const std::string &name, std::vector<std::uint8_t> &store)
 {
     // Note:
     // assume name is valid
@@ -263,31 +299,21 @@ void packet::packDomain(const std::string &name, std::vector<std::uint8_t> &stor
 request::request()
 {
     // use random id
-    this->_qheader.setId();
+    this->_header.setId();
 
     // set query
-    this->_qheader.setQr(QR::Query);
+    this->_header.setQr(QR::Query);
 }
 
 // field value
-header request::qheader() const
+chen::dns::header request::header() const
 {
-    return this->_qheader;
+    return this->_header;
 }
 
-std::string request::qname() const
+chen::dns::question request::question() const
 {
-    return this->_qname;
-}
-
-chen::dns::RRType request::qtype() const
-{
-    return this->_qtype;
-}
-
-chen::dns::RRClass request::qclass() const
-{
-    return this->_qclass;
+    return this->_question;
 }
 
 // set query
@@ -331,21 +357,21 @@ void request::setQuery(const std::string &qname,
     }
 
     // set opcode
-    this->_qheader.setOpcode(chen::dns::OPCODE::Query);
+    this->_header.setOpcode(chen::dns::OPCODE::Query);
 
     // set qdcount
-    this->_qheader.setQdcount(1);
+    this->_header.setQdcount(1);
 
     // set query
-    this->_qname  = qname;
-    this->_qtype  = qtype;
-    this->_qclass = qclass;
+    this->_question.setQname(qname);
+    this->_question.setQtype(qtype);
+    this->_question.setQclass(qclass);
 }
 
 // flag
 void request::setRecursionDesired()
 {
-    this->_qheader.setRd(chen::dns::RD::Yes);
+    this->_header.setRd(chen::dns::RD::Yes);
 }
 
 // binary
@@ -359,19 +385,19 @@ std::vector<std::uint8_t> request::binary() const
 void request::binary(std::vector<std::uint8_t> &store) const
 {
     // header
-    this->_qheader.binary(store);
+    this->_header.binary(store);
 
     // name
-    packet::packDomain(this->_qname, store);
+    message::packDomain(this->_question.qname(), store);
 
     // type
-    std::uint16_t qtype = static_cast<std::uint16_t>(this->_qtype);
+    std::uint16_t qtype = static_cast<std::uint16_t>(this->_question.qtype());
 
     store.push_back(static_cast<std::uint8_t>(qtype >> 8));
     store.push_back(static_cast<std::uint8_t>(qtype));
 
     // class
-    std::uint16_t qclass = static_cast<std::uint16_t>(this->_qclass);
+    std::uint16_t qclass = static_cast<std::uint16_t>(this->_question.qclass());
 
     store.push_back(static_cast<std::uint8_t>(qclass >> 8));
     store.push_back(static_cast<std::uint8_t>(qclass));
@@ -382,7 +408,7 @@ void request::binary(std::vector<std::uint8_t> &store) const
 // response
 
 // rrs
-const response::rr_type& response::question() const
+const response::q_type& response::question() const
 {
     return this->_question;
 }

@@ -94,8 +94,34 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // packet
-        class packet
+        // question
+        class question
+        {
+        public:
+            /**
+             * Get field value
+             */
+            std::string qname()         const;
+            chen::dns::RRType qtype()   const;
+            chen::dns::RRClass qclass() const;
+
+            /**
+             * Set field value
+             */
+            void setQname(const std::string &value);
+            void setQtype(chen::dns::RRType value);
+            void setQclass(chen::dns::RRClass value);
+
+        private:
+            std::string _qname;
+            chen::dns::RRType  _qtype  = chen::dns::RRType::None;
+            chen::dns::RRClass _qclass = chen::dns::RRClass::IN;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // message
+        class message
         {
         protected:
             /**
@@ -107,7 +133,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // request
-        class request : public packet
+        class request : public message
         {
         public:
             request();
@@ -116,10 +142,8 @@ namespace chen
             /**
              * Get field value
              */
-            header qheader()            const;
-            std::string qname()         const;
-            chen::dns::RRType qtype()   const;
-            chen::dns::RRClass qclass() const;
+            chen::dns::header header()     const;
+            chen::dns::question question() const;
 
         public:
             /**
@@ -142,26 +166,24 @@ namespace chen
             void binary(std::vector<std::uint8_t> &store) const;
 
         private:
-            header _qheader;
-
-            std::string _qname;
-            chen::dns::RRType  _qtype  = chen::dns::RRType::None;
-            chen::dns::RRClass _qclass = chen::dns::RRClass::IN;
+            chen::dns::header _header;
+            chen::dns::question _question;
         };
 
 
         // ---------------------------------------------------------------------
         // response
-        class response : public packet
+        class response : public message
         {
         public:
+            typedef std::vector<std::shared_ptr<chen::dns::question>> q_type;
             typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
 
         public:
             /**
              * Four rrs
              */
-            const rr_type& question()   const;
+            const q_type& question()    const;
             const rr_type& answer()     const;
             const rr_type& authority()  const;
             const rr_type& additional() const;
@@ -173,9 +195,9 @@ namespace chen
             void assign(const std::uint8_t *data, std::size_t size);
 
         private:
-            header _header;
+            chen::dns::header _header;
 
-            rr_type _question;
+            q_type  _question;
             rr_type _answer;
             rr_type _authority;
             rr_type _additional;
