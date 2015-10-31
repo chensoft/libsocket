@@ -9,6 +9,8 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+#include "dns_type.h"
 
 namespace chen
 {
@@ -22,27 +24,38 @@ namespace chen
             /**
              * Get filed value
              */
-            std::string name()       const;
-            std::uint16_t rrtype()   const;
-            std::uint16_t rrclass()  const;
+            std::string name()           const;
+            chen::dns::RRType rrtype()   const;
+            chen::dns::RRClass rrclass() const;
             std::int32_t ttl()       const;
             std::uint16_t rdlength() const;
+            std::vector<std::uint8_t> rdata() const;
 
             /**
              * Set filed value
              */
             void setName(const std::string &value);
-            void setRrtype(std::uint16_t value);
-            void setRrclass(std::uint16_t value);
+            void setRrtype(chen::dns::RRType value);
+            void setRrclass(chen::dns::RRClass value);
             void setTtl(std::int32_t value);
             void setRdlength(std::uint16_t value);
+            void setRdata(const std::uint8_t *data, std::size_t size);
+
+        public:
+            /**
+             * Assign binary data to RR
+             */
+            std::size_t assign(const std::uint8_t *cur_data, std::size_t cur_size,
+                               const std::uint8_t *org_data, std::size_t org_size);
 
         private:
             std::string _name;
-            std::uint16_t _rrtype   = 0;
-            std::uint16_t _rrclass  = 0;
+            chen::dns::RRType _rrtype   = chen::dns::RRType::None;
+            chen::dns::RRClass _rrclass = chen::dns::RRClass::IN;
             std::int32_t _ttl       = 0;
             std::uint16_t _rdlength = 0;
+
+            std::vector<std::uint8_t> _rdata;
         };
 
 

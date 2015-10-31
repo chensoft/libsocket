@@ -332,7 +332,7 @@ std::size_t question::assign(const std::uint8_t *data, std::size_t size)
 
     len -= 2;
 
-    return len;
+    return size - len;
 }
 
 
@@ -493,9 +493,37 @@ std::size_t response::assign(const std::uint8_t *data, std::size_t size)
     }
 
     // answer
+    for (std::uint16_t i = 0, c = this->_header.ancount(); i < c; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> q(new chen::dns::RR);
 
-    // todo
-    PILogE("haha: %s", tool::format(this->_header.binary()).c_str());
+        ptr += q->assign(ptr, len, data, size);
+        len  = size - (ptr - data);
+
+        this->_answer.push_back(q);
+    }
+
+    // authority
+    for (std::uint16_t i = 0, c = this->_header.nscount(); i < c; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> q(new chen::dns::RR);
+
+        ptr += q->assign(ptr, len, data, size);
+        len  = size - (ptr - data);
+
+        this->_authority.push_back(q);
+    }
+
+    // additional
+    for (std::uint16_t i = 0, c = this->_header.arcount(); i < c; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> q(new chen::dns::RR);
+
+        ptr += q->assign(ptr, len, data, size);
+        len  = size - (ptr - data);
+
+        this->_additional.push_back(q);
+    }
 
     return size - len;
 }
