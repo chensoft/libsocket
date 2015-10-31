@@ -259,6 +259,32 @@ void question::setQclass(chen::dns::RRClass value)
     this->_qclass = value;
 }
 
+// binary
+std::vector<std::uint8_t> question::binary() const
+{
+    std::vector<std::uint8_t> store;
+    this->binary(store);
+    return store;
+}
+
+void question::binary(std::vector<std::uint8_t> &store) const
+{
+    // name
+    message::packDomain(this->_qname, store);
+
+    // type
+    std::uint16_t qtype = static_cast<std::uint16_t>(this->_qtype);
+
+    store.push_back(static_cast<std::uint8_t>(qtype >> 8));
+    store.push_back(static_cast<std::uint8_t>(qtype));
+
+    // class
+    std::uint16_t qclass = static_cast<std::uint16_t>(this->_qclass);
+
+    store.push_back(static_cast<std::uint8_t>(qclass >> 8));
+    store.push_back(static_cast<std::uint8_t>(qclass));
+}
+
 
 // -----------------------------------------------------------------------------
 // message
@@ -387,20 +413,8 @@ void request::binary(std::vector<std::uint8_t> &store) const
     // header
     this->_header.binary(store);
 
-    // name
-    message::packDomain(this->_question.qname(), store);
-
-    // type
-    std::uint16_t qtype = static_cast<std::uint16_t>(this->_question.qtype());
-
-    store.push_back(static_cast<std::uint8_t>(qtype >> 8));
-    store.push_back(static_cast<std::uint8_t>(qtype));
-
-    // class
-    std::uint16_t qclass = static_cast<std::uint16_t>(this->_question.qclass());
-
-    store.push_back(static_cast<std::uint8_t>(qclass >> 8));
-    store.push_back(static_cast<std::uint8_t>(qclass));
+    // question
+    this->_question.binary(store);
 }
 
 

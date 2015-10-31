@@ -112,6 +112,13 @@ namespace chen
             void setQtype(chen::dns::RRType value);
             void setQclass(chen::dns::RRClass value);
 
+        public:
+            /**
+             * Binary data of question
+             */
+            std::vector<std::uint8_t> binary() const;
+            void binary(std::vector<std::uint8_t> &store) const;
+
         private:
             std::string _qname;
             chen::dns::RRType  _qtype  = chen::dns::RRType::None;
@@ -123,7 +130,7 @@ namespace chen
         // message
         class message
         {
-        protected:
+        public:
             /**
              * Pack domain name to binary
              */
