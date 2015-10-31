@@ -5,6 +5,7 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_tool.h"
+#include "dns_error.h"
 #include <chen/tool/str.h>
 
 using namespace chen;
@@ -58,9 +59,9 @@ std::size_t pack::nameToBinary(const std::string &name, std::vector<std::uint8_t
     // Note:
     // assume name is valid
     // each label is split by dot
-    // label count + label value(exclude dot)
+    // label length + label value(exclude dot)
     std::size_t origin = store.size();
-    std::size_t count  = 0;
+    std::size_t length = 0;
 
     store.push_back(0);  // size for next label
 
@@ -70,18 +71,43 @@ std::size_t pack::nameToBinary(const std::string &name, std::vector<std::uint8_t
 
         if (c == '.')
         {
-            store[store.size() - count - 1] = static_cast<std::uint8_t>(count);
+            store[store.size() - length - 1] = static_cast<std::uint8_t>(length);
             store.push_back(0);  // size for next label
 
-            count = 0;
+            length = 0;
         }
         else
         {
-            ++count;
+            ++length;
 
             store.push_back(static_cast<std::uint8_t>(c));
         }
     }
 
     return store.size() - origin;
+}
+
+std::string pack::binaryToName(const std::uint8_t *data, std::size_t size)
+{
+    if (!size)
+        return "";
+
+    std::string ret;
+    const std::uint8_t *ptr = data;
+
+    while (*ptr)
+    {
+        if (*ptr + 1 > size)
+            throw error_size("pack binary to name size is not enough");
+
+        for (std::size_t i = 0; i < *ptr; ++i)
+        {
+            ret += *(ptr + i + 1);
+        }
+
+        ptr += *ptr + 1;
+        ret += ".";
+    }
+
+    return ret;
 }

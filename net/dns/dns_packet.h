@@ -68,9 +68,14 @@ namespace chen
             void setRcode(chen::dns::RCODE value);
 
             /**
+             * Header size
+             */
+            std::size_t size() const;
+
+            /**
              * Assign binary data to header
              */
-            void assign(const std::uint8_t *data, std::size_t size);
+            std::size_t assign(const std::uint8_t *data, std::size_t size);
 
             /**
              * Binary data of header
@@ -123,7 +128,7 @@ namespace chen
             /**
              * Assign binary data to question
              */
-            void assign(const std::uint8_t *data, std::size_t size);
+            std::size_t assign(const std::uint8_t *data, std::size_t size);
 
         private:
             std::string _qname;
@@ -201,7 +206,7 @@ namespace chen
             /**
              * Assign binary data to response
              */
-            void assign(const std::uint8_t *data, std::size_t size);
+            std::size_t assign(const std::uint8_t *data, std::size_t size);
 
         private:
             chen::dns::header _header;

@@ -51,6 +51,7 @@ namespace chen
              * Name & Binary convert
              */
             static std::size_t nameToBinary(const std::string &name, std::vector<std::uint8_t> &store);
+            static std::string binaryToName(const std::uint8_t *data, std::size_t size);
         };
     }
 }

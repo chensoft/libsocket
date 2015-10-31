@@ -169,11 +169,19 @@ void header::setRcode(chen::dns::RCODE value)
     this->_flag |= tmp;
 }
 
-// assign
-void header::assign(const std::uint8_t *data, std::size_t size)
+// size
+std::size_t header::size() const
 {
-    if (size < 12)
-        throw error_size("header assign size must be 12");
+    return 12;
+}
+
+// assign
+std::size_t header::assign(const std::uint8_t *data, std::size_t size)
+{
+    auto len = this->size();
+
+    if (size < len)
+        throw error_size("header assign size must be " + std::to_string(len));
 
     this->_id      = (static_cast<std::uint16_t>(data[0]) << 8) | static_cast<std::uint16_t>(data[1]);
     this->_flag    = (static_cast<std::uint16_t>(data[2]) << 8) | static_cast<std::uint16_t>(data[3]);
@@ -181,6 +189,8 @@ void header::assign(const std::uint8_t *data, std::size_t size)
     this->_ancount = (static_cast<std::uint16_t>(data[6]) << 8) | static_cast<std::uint16_t>(data[7]);
     this->_nscount = (static_cast<std::uint16_t>(data[8]) << 8) | static_cast<std::uint16_t>(data[9]);
     this->_arcount = (static_cast<std::uint16_t>(data[10]) << 8) | static_cast<std::uint16_t>(data[11]);
+
+    return len;
 }
 
 // binary
@@ -294,9 +304,35 @@ std::size_t question::binary(std::vector<std::uint8_t> &store) const
 }
 
 // assign
-void question::assign(const std::uint8_t *data, std::size_t size)
+std::size_t question::assign(const std::uint8_t *data, std::size_t size)
 {
+    auto ptr = data;
+    auto len = size;
 
+    // name
+    this->_qname = pack::binaryToName(ptr, len);
+
+    ptr += this->_qname.size() + 1;
+    len  = size - (ptr - data);
+
+    // type
+    if (len < 2)
+        throw error_size("question assign type size is not enough");
+
+    this->_qtype = static_cast<chen::dns::RRType>((*ptr << 8) + *(ptr + 1));
+
+    ptr += 2;
+    len -= 2;
+
+    // class
+    if (len < 2)
+        throw error_size("question assign class size is not enough");
+
+    this->_qclass = static_cast<chen::dns::RRClass>((*ptr << 8) + *(ptr + 1));
+
+    len -= 2;
+
+    return len;
 }
 
 
@@ -431,14 +467,35 @@ const response::rr_type& response::additional() const
 }
 
 // assign
-void response::assign(const std::uint8_t *data, std::size_t size)
+std::size_t response::assign(const std::uint8_t *data, std::size_t size)
 {
+    // prepare
+    auto ptr = data;
+    auto len = size;
+
     // header
-    this->_header.assign(data, size);
+    this->_header.assign(ptr, len);
+
+    ptr += this->_header.size();
+    len  = size - (ptr - data);
 
     // question
+    this->_question.clear();
 
+    for (std::uint16_t i = 0, c = this->_header.qdcount(); i < c; ++i)
+    {
+        std::shared_ptr<chen::dns::question> q(new chen::dns::question);
+
+        ptr += q->assign(ptr, len);
+        len  = size - (ptr - data);
+
+        this->_question.push_back(q);
+    }
+
+    // answer
 
     // todo
     PILogE("haha: %s", tool::format(this->_header.binary()).c_str());
+
+    return size - len;
 }
