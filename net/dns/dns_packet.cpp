@@ -191,8 +191,10 @@ std::vector<std::uint8_t> header::binary() const
     return store;
 }
 
-void header::binary(std::vector<std::uint8_t> &store) const
+std::size_t header::binary(std::vector<std::uint8_t> &store) const
 {
+    auto size = store.size();
+
     store.push_back(static_cast<std::uint8_t>(this->_id >> 8));
     store.push_back(static_cast<std::uint8_t>(this->_id));
 
@@ -210,6 +212,8 @@ void header::binary(std::vector<std::uint8_t> &store) const
 
     store.push_back(static_cast<std::uint8_t>(this->_arcount >> 8));
     store.push_back(static_cast<std::uint8_t>(this->_arcount));
+
+    return store.size() - size;
 }
 
 // random
@@ -267,10 +271,12 @@ std::vector<std::uint8_t> question::binary() const
     return store;
 }
 
-void question::binary(std::vector<std::uint8_t> &store) const
+std::size_t question::binary(std::vector<std::uint8_t> &store) const
 {
+    auto size = store.size();
+
     // name
-    message::packDomain(this->_qname, store);
+    pack::nameToBinary(this->_qname, store);
 
     // type
     std::uint16_t qtype = static_cast<std::uint16_t>(this->_qtype);
@@ -283,41 +289,19 @@ void question::binary(std::vector<std::uint8_t> &store) const
 
     store.push_back(static_cast<std::uint8_t>(qclass >> 8));
     store.push_back(static_cast<std::uint8_t>(qclass));
+
+    return store.size() - size;
+}
+
+// assign
+void question::assign(const std::uint8_t *data, std::size_t size)
+{
+
 }
 
 
 // -----------------------------------------------------------------------------
 // message
-void message::packDomain(const std::string &name, std::vector<std::uint8_t> &store)
-{
-    // Note:
-    // assume name is valid
-    // each label is split by dot
-    // label count + label value(exclude dot)
-    std::vector<std::uint8_t>::size_type count = 0;
-    std::vector<std::uint8_t>::size_type begin = store.size();
-
-    store.push_back(0);  // size for next label
-
-    for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(name.size()); i < len; ++i)
-    {
-        char c = name[i];
-
-        if (c == '.')
-        {
-            store[store.size() - count - 1] = static_cast<std::uint8_t>(count);
-            store.push_back(0);  // size for next label
-
-            count = 0;
-        }
-        else
-        {
-            ++count;
-
-            store.push_back(static_cast<std::uint8_t>(c));
-        }
-    }
-}
 
 
 // -----------------------------------------------------------------------------
@@ -408,13 +392,17 @@ std::vector<std::uint8_t> request::binary() const
     return store;
 }
 
-void request::binary(std::vector<std::uint8_t> &store) const
+std::size_t request::binary(std::vector<std::uint8_t> &store) const
 {
+    auto size = store.size();
+
     // header
     this->_header.binary(store);
 
     // question
     this->_question.binary(store);
+
+    return store.size() - size;
 }
 
 
@@ -445,7 +433,11 @@ const response::rr_type& response::additional() const
 // assign
 void response::assign(const std::uint8_t *data, std::size_t size)
 {
+    // header
     this->_header.assign(data, size);
+
+    // question
+
 
     // todo
     PILogE("haha: %s", tool::format(this->_header.binary()).c_str());

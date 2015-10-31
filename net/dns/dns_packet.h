@@ -76,7 +76,7 @@ namespace chen
              * Binary data of header
              */
             std::vector<std::uint8_t> binary() const;
-            void binary(std::vector<std::uint8_t> &store) const;
+            std::size_t binary(std::vector<std::uint8_t> &store) const;
 
             /**
              * Random int
@@ -117,7 +117,13 @@ namespace chen
              * Binary data of question
              */
             std::vector<std::uint8_t> binary() const;
-            void binary(std::vector<std::uint8_t> &store) const;
+            std::size_t binary(std::vector<std::uint8_t> &store) const;
+
+        public:
+            /**
+             * Assign binary data to question
+             */
+            void assign(const std::uint8_t *data, std::size_t size);
 
         private:
             std::string _qname;
@@ -130,11 +136,7 @@ namespace chen
         // message
         class message
         {
-        public:
-            /**
-             * Pack domain name to binary
-             */
-            static void packDomain(const std::string &name, std::vector<std::uint8_t> &store);
+
         };
 
 
@@ -170,7 +172,7 @@ namespace chen
              * Binary data of request
              */
             std::vector<std::uint8_t> binary() const;
-            void binary(std::vector<std::uint8_t> &store) const;
+            std::size_t binary(std::vector<std::uint8_t> &store) const;
 
         private:
             chen::dns::header _header;

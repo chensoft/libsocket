@@ -15,6 +15,8 @@ namespace chen
 {
     namespace dns
     {
+        // ---------------------------------------------------------------------
+        // tool
         class tool
         {
         public:
@@ -37,6 +39,18 @@ namespace chen
              * Get local nameservers
              */
             static std::vector<chen::ip::address_v4> nameservers();
+        };
+
+
+        // ---------------------------------------------------------------------
+        // pack
+        class pack
+        {
+        public:
+            /**
+             * Name & Binary convert
+             */
+            static std::size_t nameToBinary(const std::string &name, std::vector<std::uint8_t> &store);
         };
     }
 }

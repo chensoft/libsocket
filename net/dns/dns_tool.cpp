@@ -47,3 +47,41 @@ std::string tool::fqdn(const std::string &name)
 {
     return tool::isFqdn(name) ? name : name + ".";
 }
+
+
+// -----------------------------------------------------------------------------
+// pack
+
+// name
+std::size_t pack::nameToBinary(const std::string &name, std::vector<std::uint8_t> &store)
+{
+    // Note:
+    // assume name is valid
+    // each label is split by dot
+    // label count + label value(exclude dot)
+    std::size_t origin = store.size();
+    std::size_t count  = 0;
+
+    store.push_back(0);  // size for next label
+
+    for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(name.size()); i < len; ++i)
+    {
+        char c = name[i];
+
+        if (c == '.')
+        {
+            store[store.size() - count - 1] = static_cast<std::uint8_t>(count);
+            store.push_back(0);  // size for next label
+
+            count = 0;
+        }
+        else
+        {
+            ++count;
+
+            store.push_back(static_cast<std::uint8_t>(c));
+        }
+    }
+
+    return store.size() - origin;
+}
