@@ -6,14 +6,14 @@
  */
 #pragma once
 
-#include "tool/log.h"
+#include <chen/tool/log.h>
 
 namespace chen
 {
-    class unit_base
+    class test_base
     {
     public:
-        virtual ~unit_base() = default;
+        virtual ~test_base() = default;
 
     public:
         /**

@@ -8,7 +8,7 @@
 
 #include "udp_socket.h"
 #include "udp_packet.h"
-#include "../../sync/threadpool.h"
+#include <chen/sync/threadpool.h>
 #include <functional>
 
 namespace chen

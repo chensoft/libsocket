@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include "../ip/ip_addr.h"
+#include <chen/net/ip/ip_addr.h>
 
 namespace chen
 {

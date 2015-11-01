@@ -6,13 +6,13 @@
  */
 #pragma once
 
-#include "unit_base.h"
-#include "tool/cmd.h"
-#include "tool/log.h"
+#include "test_base.h"
+#include <chen/tool/cmd.h>
+#include <chen/tool/log.h>
 
 namespace chen
 {
-    class unit_cmd : public unit_base
+    class test_cmd : public test_base
     {
     public:
         virtual void check() override

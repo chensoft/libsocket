@@ -7,7 +7,7 @@
 #include "dns_packet.h"
 #include "dns_error.h"
 #include "dns_tool.h"
-#include "tool/log.h"
+#include <chen/tool/log.h>
 #include <random>
 #include <chrono>
 

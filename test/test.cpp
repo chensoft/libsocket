@@ -4,34 +4,34 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "unit.h"
-#include "unit_cmd.h"
-#include "unit_ip.h"
+#include "test.h"
+#include "test_cmd.h"
+#include "test_ip.h"
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
-// unit
-unit& unit::instance()
+// test
+test& test::instance()
 {
-    static unit inst;
+    static test inst;
     return inst;
 }
 
-unit::unit()
+test::test()
 {
     // register all unit test
-    this->_store["cmd"] = std::unique_ptr<unit_base>(new unit_cmd);
-    this->_store["ip"] = std::unique_ptr<unit_base>(new unit_ip);
+    this->_store["cmd"] = std::unique_ptr<test_base>(new test_cmd);
+    this->_store["ip"] = std::unique_ptr<test_base>(new test_ip);
 }
 
-void unit::check()
+void test::check()
 {
     for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
         it->second->check();
 }
 
-void unit::bench()
+void test::bench()
 {
     for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
         it->second->bench();

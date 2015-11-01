@@ -8,6 +8,8 @@
 
 #ifdef CHEN_OS_UNIX
 
+#include <chen/net/udp/udp_socket.h>
+
 namespace chen
 {
     namespace udp

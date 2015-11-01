@@ -15,12 +15,12 @@
 
 namespace chen
 {
-    class unit_base;
+    class test_base;
 
-    class unit final
+    class test final
     {
     public:
-        static unit& instance();
+        static test& instance();
 
     public:
         /**
@@ -34,18 +34,18 @@ namespace chen
         void bench();
 
     private:
-        std::map<std::string, std::unique_ptr<unit_base>> _store;
+        std::map<std::string, std::unique_ptr<test_base>> _store;
 
     private:
-        unit();
-        ~unit() = default;
+        test();
+        ~test() = default;
 
         /**
          * Prevent the following situation
-         * chen::unit &a = chen::unit::instance();
-         * chen::unit *b = new chen::unit(a);
+         * chen::test &a = chen::test::instance();
+         * chen::test *b = new chen::test(a);
          */
-        unit(const unit &) = delete;
-        unit& operator=(const unit &) = delete;
+        test(const test &) = delete;
+        test& operator=(const test &) = delete;
     };
 }

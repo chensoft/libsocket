@@ -6,7 +6,7 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "net/dns/dns_tool.h"
+#include <chen/net/dns/dns_tool.h>
 #include <sys/stat.h>
 #include <sstream>
 #include <fstream>

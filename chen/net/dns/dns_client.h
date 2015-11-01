@@ -7,8 +7,8 @@
 #pragma once
 
 #include "dns_packet.h"
-#include "../ip/ip_addr.h"
-#include "../udp/udp_client.h"
+#include <chen/net/ip/ip_addr.h>
+#include <chen/net/udp/udp_client.h>
 
 namespace chen
 {

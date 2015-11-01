@@ -8,9 +8,9 @@
  */
 #pragma once
 
-#include "str.h"
 #include <cstdlib>
 #include <mutex>
+#include "str.h"
 
 // macro
 #define PILogD(FORMAT, ...) (chen::log::standard().debug(FORMAT, ##__VA_ARGS__))

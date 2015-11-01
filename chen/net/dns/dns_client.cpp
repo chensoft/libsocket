@@ -7,8 +7,8 @@
 #include "dns_client.h"
 #include "dns_error.h"
 #include "dns_tool.h"
-#include "tool/log.h"
-#include "net/udp/udp_packet.h"
+#include <chen/tool/log.h>
+#include <chen/net/udp/udp_packet.h>
 
 using namespace chen;
 using namespace chen::dns;
