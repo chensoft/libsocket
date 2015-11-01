@@ -48,6 +48,9 @@ std::vector<std::uint8_t> RR::rdata() const
 // set field value
 void RR::setName(const std::string &value)
 {
+    if (!tool::isFqdn(value))
+        throw error_fqdn("RR name is not fqdn");
+
     this->_name = value;
 }
 
@@ -147,4 +150,43 @@ std::size_t RR::assign(const std::uint8_t *cur_data, std::size_t cur_size,
     len -= this->_rdlength;
 
     return cur_size - len;
+}
+
+// binary
+std::vector<std::uint8_t> RR::binary() const
+{
+    std::vector<std::uint8_t> store;
+    this->binary(store);
+    return store;
+}
+
+std::size_t RR::binary(std::vector<std::uint8_t> &store) const
+{
+    auto size = store.size();
+
+    // name
+    pack::nameToBinary(this->_name, store);
+
+    // type
+    store.push_back(static_cast<std::uint8_t>(static_cast<std::uint16_t>(this->_rrtype) >> 8));
+    store.push_back(static_cast<std::uint8_t>(static_cast<std::uint16_t>(this->_rrtype) & 0b0000000011111111));
+
+    // class
+    store.push_back(static_cast<std::uint8_t>(static_cast<std::uint16_t>(this->_rrclass) >> 8));
+    store.push_back(static_cast<std::uint8_t>(static_cast<std::uint16_t>(this->_rrclass) & 0b0000000011111111));
+
+    // ttl
+    store.push_back(static_cast<std::uint8_t>(this->_ttl & 0xFF000000 >> 24));
+    store.push_back(static_cast<std::uint8_t>(this->_ttl & 0x00FF0000 >> 16));
+    store.push_back(static_cast<std::uint8_t>(this->_ttl & 0x0000FF00 >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_ttl & 0x000000FF));
+
+    // length
+    store.push_back(static_cast<std::uint8_t>(this->_rdlength & 0xFF00 >> 8));
+    store.push_back(static_cast<std::uint8_t>(this->_rdlength & 0x00FF));
+
+    // data
+    store.insert(store.end(), this->_rdata.cbegin(), this->_rdata.cend());
+
+    return store.size() - size;
 }

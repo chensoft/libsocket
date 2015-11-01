@@ -21,6 +21,9 @@ namespace chen
         class RR
         {
         public:
+            virtual ~RR() = default;
+
+        public:
             /**
              * Get filed value
              */
@@ -47,6 +50,12 @@ namespace chen
              */
             std::size_t assign(const std::uint8_t *cur_data, std::size_t cur_size,
                                const std::uint8_t *org_data, std::size_t org_size);
+
+            /**
+             * Binary data of RR
+             */
+            std::vector<std::uint8_t> binary() const;
+            std::size_t binary(std::vector<std::uint8_t> &store) const;
 
         private:
             std::string _name;

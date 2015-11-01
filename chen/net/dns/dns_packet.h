@@ -119,16 +119,15 @@ namespace chen
 
         public:
             /**
+             * Assign binary data to question
+             */
+            std::size_t assign(const std::uint8_t *data, std::size_t size);
+
+            /**
              * Binary data of question
              */
             std::vector<std::uint8_t> binary() const;
             std::size_t binary(std::vector<std::uint8_t> &store) const;
-
-        public:
-            /**
-             * Assign binary data to question
-             */
-            std::size_t assign(const std::uint8_t *data, std::size_t size);
 
         private:
             std::string _qname;
@@ -174,6 +173,11 @@ namespace chen
 
         public:
             /**
+             * Assign binary data to request
+             */
+            std::size_t assign(const std::uint8_t *data, std::size_t size);
+
+            /**
              * Binary data of request
              */
             std::vector<std::uint8_t> binary() const;
@@ -195,25 +199,29 @@ namespace chen
 
         public:
             /**
+             * Header
+             */
+            chen::dns::header& header();
+
+            /**
              * Four rrs
              */
-            const q_type& question()    const;
-            const rr_type& answer()     const;
-            const rr_type& authority()  const;
-            const rr_type& additional() const;
-
-//        public:
-//            /**
-//             * Binary data of response
-//             */
-//            std::vector<std::uint8_t> binary() const;
-//            std::size_t binary(std::vector<std::uint8_t> &store) const;
+            q_type& question();
+            rr_type& answer();
+            rr_type& authority();
+            rr_type& additional();
 
         public:
             /**
              * Assign binary data to response
              */
             std::size_t assign(const std::uint8_t *data, std::size_t size);
+
+            /**
+             * Binary data of response
+             */
+            std::vector<std::uint8_t> binary() const;
+            std::size_t binary(std::vector<std::uint8_t> &store) const;
 
         private:
             chen::dns::header _header;

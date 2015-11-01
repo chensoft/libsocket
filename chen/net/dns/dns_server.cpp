@@ -50,6 +50,20 @@ void server::run(const std::string &addr, std::uint16_t port)
 
 // callback
 void server::callback(chen::udp::socket *so, const chen::udp::packet &pkt) {
+    request q;
+    q.assign(pkt.data.data(), pkt.size);
+
     // todo
-    PILogE("haha: %s", tool::format(pkt.data).c_str());
+    response r;
+    r.question().push_back(std::shared_ptr<question>(new question(q.question())));
+
+    std::shared_ptr<RR> rr(new RR);
+    rr->setName("555.io.");
+    rr->setRrtype(RRType::A);
+    rr->setRrclass(RRClass::IN);
+    rr->setTtl(600);
+    rr->setRdlength(0);
+
+    PILogE("pkt: %s", tool::format(pkt.data).c_str());
+    PILogE("RR: %s", tool::format(rr->binary()).c_str());
 }

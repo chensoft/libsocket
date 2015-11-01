@@ -273,36 +273,6 @@ void question::setQclass(chen::dns::RRClass value)
     this->_qclass = value;
 }
 
-// binary
-std::vector<std::uint8_t> question::binary() const
-{
-    std::vector<std::uint8_t> store;
-    this->binary(store);
-    return store;
-}
-
-std::size_t question::binary(std::vector<std::uint8_t> &store) const
-{
-    auto size = store.size();
-
-    // name
-    pack::nameToBinary(this->_qname, store);
-
-    // type
-    std::uint16_t qtype = static_cast<std::uint16_t>(this->_qtype);
-
-    store.push_back(static_cast<std::uint8_t>(qtype >> 8));
-    store.push_back(static_cast<std::uint8_t>(qtype));
-
-    // class
-    std::uint16_t qclass = static_cast<std::uint16_t>(this->_qclass);
-
-    store.push_back(static_cast<std::uint8_t>(qclass >> 8));
-    store.push_back(static_cast<std::uint8_t>(qclass));
-
-    return store.size() - size;
-}
-
 // assign
 std::size_t question::assign(const std::uint8_t *data, std::size_t size)
 {
@@ -333,6 +303,36 @@ std::size_t question::assign(const std::uint8_t *data, std::size_t size)
     len -= 2;
 
     return size - len;
+}
+
+// binary
+std::vector<std::uint8_t> question::binary() const
+{
+    std::vector<std::uint8_t> store;
+    this->binary(store);
+    return store;
+}
+
+std::size_t question::binary(std::vector<std::uint8_t> &store) const
+{
+    auto size = store.size();
+
+    // name
+    pack::nameToBinary(this->_qname, store);
+
+    // type
+    std::uint16_t qtype = static_cast<std::uint16_t>(this->_qtype);
+
+    store.push_back(static_cast<std::uint8_t>(qtype >> 8));
+    store.push_back(static_cast<std::uint8_t>(qtype));
+
+    // class
+    std::uint16_t qclass = static_cast<std::uint16_t>(this->_qclass);
+
+    store.push_back(static_cast<std::uint8_t>(qclass >> 8));
+    store.push_back(static_cast<std::uint8_t>(qclass));
+
+    return store.size() - size;
 }
 
 
@@ -420,6 +420,25 @@ void request::setRecursionDesired()
     this->_header.setRd(chen::dns::RD::Yes);
 }
 
+// assign
+std::size_t request::assign(const std::uint8_t *data, std::size_t size)
+{
+    auto ptr = data;
+    auto len = size;
+
+    // header
+    this->_header.assign(ptr, len);
+
+    ptr += this->_header.size();
+    len  = size - (ptr - data);
+
+    // question
+    ptr += this->_question.assign(ptr, len);
+    len  = size - (ptr - data);
+
+    return size - len;
+}
+
 // binary
 std::vector<std::uint8_t> request::binary() const
 {
@@ -445,23 +464,29 @@ std::size_t request::binary(std::vector<std::uint8_t> &store) const
 // -----------------------------------------------------------------------------
 // response
 
+// header
+chen::dns::header& response::header()
+{
+    return this->_header;
+}
+
 // rrs
-const response::q_type& response::question() const
+response::q_type& response::question()
 {
     return this->_question;
 }
 
-const response::rr_type& response::answer() const
+response::rr_type& response::answer()
 {
     return this->_answer;
 }
 
-const response::rr_type& response::authority() const
+response::rr_type& response::authority()
 {
     return this->_authority;
 }
 
-const response::rr_type& response::additional() const
+response::rr_type& response::additional()
 {
     return this->_additional;
 }
@@ -526,4 +551,46 @@ std::size_t response::assign(const std::uint8_t *data, std::size_t size)
     }
 
     return size - len;
+}
+
+// binary
+std::vector<std::uint8_t> response::binary() const
+{
+    std::vector<std::uint8_t> store;
+    this->binary(store);
+    return store;
+}
+
+std::size_t response::binary(std::vector<std::uint8_t> &store) const
+{
+    auto size = store.size();
+
+    // header
+    this->_header.binary(store);
+
+    // question
+    for (auto &ptr : this->_question)
+    {
+        ptr->binary(store);
+    }
+
+    // answer
+    for (auto &ptr : this->_answer)
+    {
+        ptr->binary(store);
+    }
+
+    // authority
+    for (auto &ptr : this->_authority)
+    {
+        ptr->binary(store);
+    }
+
+    // additional
+    for (auto &ptr : this->_additional)
+    {
+        ptr->binary(store);
+    }
+
+    return store.size() - size;
 }
