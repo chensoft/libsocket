@@ -30,8 +30,10 @@
 
 #include "net/dns/dns_type.h"
 #include "net/dns/dns_tool.h"
+#include "net/dns/dns_error.h"
 #include "net/dns/dns_record.h"
 #include "net/dns/dns_packet.h"
 #include "net/dns/dns_client.h"
+#include "net/dns/dns_server.h"
 
 #include "unit/unit.h"

@@ -18,6 +18,7 @@ namespace chen
         {
         public:
             client();
+            virtual ~client() = default;
 
         public:
             /**

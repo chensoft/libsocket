@@ -202,6 +202,13 @@ namespace chen
             const rr_type& authority()  const;
             const rr_type& additional() const;
 
+//        public:
+//            /**
+//             * Binary data of response
+//             */
+//            std::vector<std::uint8_t> binary() const;
+//            std::size_t binary(std::vector<std::uint8_t> &store) const;
+
         public:
             /**
              * Assign binary data to response

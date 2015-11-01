@@ -37,6 +37,15 @@ error_size::error_size(const std::string &what)
 
 
 // -----------------------------------------------------------------------------
+// error_empty
+error_empty::error_empty(const std::string &what)
+: error(what)
+{
+
+}
+
+
+// -----------------------------------------------------------------------------
 // error_nameserver
 error_nameserver::error_nameserver(const std::string &what)
 : error(what)

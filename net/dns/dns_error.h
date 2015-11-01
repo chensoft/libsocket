@@ -44,6 +44,16 @@ namespace chen
 
 
         /**
+         * Empty error
+         */
+        class error_empty : public error
+        {
+        public:
+            explicit error_empty(const std::string &what);
+        };
+
+
+        /**
          * Nameserver error
          */
         class error_nameserver : public error
