@@ -1,3 +1,9 @@
+# libchen: The Foundation C++ Library
+# Jian Chen <admin@chensoft.com>
+# http://www.chensoft.com
+# Licensed under MIT license
+# Copyright 2015 Jian Chen
+
 cmake_minimum_required(VERSION 2.8)
 project(chen)
 
@@ -18,21 +24,21 @@ aux_source_directory(./chen/net/dns SRC_NET_DNS)
 
 # platform codes
 if (UNIX)
-  add_definitions(-DCHEN_OS_UNIX)
-  aux_source_directory(./chen/plat/unix SRC_PLAT)
+    add_definitions(-DCHEN_OS_UNIX)
+    aux_source_directory(./chen/plat/unix SRC_PLAT)
 elseif(WIN32)
-  add_definitions(-DCHEN_OS_WIN32)
-  aux_source_directory(./chen/plat/win32 SRC_PLAT)
+    add_definitions(-DCHEN_OS_WIN32)
+    aux_source_directory(./chen/plat/win32 SRC_PLAT)
 else()
-  message(FATAL_ERROR "Unsupported system")
+    message(FATAL_ERROR "Unsupported system")
 endif()
 
 # unit test
 if ((NOT CMAKE_BUILD_TYPE) OR  (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_TEST STREQUAL "true"))
-  message("-- Test enabled")
-  aux_source_directory(./test SRC_TEST)
+    message("-- Test enabled")
+    aux_source_directory(./test SRC_TEST)
 else()
-  message("-- Test disabled")
+    message("-- Test disabled")
 endif()
 
 # generate lib
