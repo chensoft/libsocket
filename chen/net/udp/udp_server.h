@@ -17,7 +17,9 @@ namespace chen
         class server : public socket
         {
         public:
-            // todo @@ add endpoint, local and server address
+            /**
+             * Callback type: data, addr, port
+             */
             typedef std::function<void (std::vector<std::uint8_t>,
                                         std::string,
                                         std::uint16_t)> callback_type;
@@ -50,7 +52,9 @@ namespace chen
             /**
              * Notify the observer
              */
-            virtual void notify();
+            virtual void notify(std::vector<std::uint8_t> data,
+                                std::string addr,
+                                std::uint16_t port);
 
         public:
             /**
