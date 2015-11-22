@@ -52,8 +52,8 @@ namespace chen
             virtual void build();
 
         private:
-            socket(const socket &) = delete;
-            socket& operator=(const socket &) = delete;
+            socket(const socket&) = delete;
+            socket& operator=(const socket&) = delete;
 
         protected:
             struct impl;

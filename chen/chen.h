@@ -25,3 +25,5 @@
 
 #include <chen/net/udp/udp_error.h>
 #include <chen/net/udp/udp_socket.h>
+#include <chen/net/udp/udp_client.h>
+#include <chen/net/udp/udp_server.h>
