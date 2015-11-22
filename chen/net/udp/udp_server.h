@@ -38,6 +38,11 @@ namespace chen
              */
             virtual void start();
 
+            /**
+             * Close socket
+             */
+            virtual void close() override;
+
         public:
             /**
              * Set observer for server

@@ -39,6 +39,14 @@ void server::start()
     }
 }
 
+void server::close()
+{
+    socket::close();
+
+    this->_addr.clear();
+    this->_port = 0;
+}
+
 void server::attach(const callback_type &callback)
 {
     this->_callback = callback;
