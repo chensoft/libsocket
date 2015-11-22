@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * @since  2015.08.23
+ * @since  2015.11.22
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
@@ -18,16 +18,37 @@ namespace chen
         {
         public:
             socket();
-            virtual ~socket() = 0;
+            virtual ~socket();
 
-        protected:
-            virtual std::size_t send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port);
+        public:
+            /**
+             * Send packet to remote
+             */
+            virtual void send(const std::uint8_t *data,
+                              std::size_t size,
+                              const std::string &addr,
+                              std::uint16_t port);
 
-            virtual std::size_t recv(std::uint8_t *data, std::size_t size, std::string &addr, std::uint16_t &port);
+            /**
+             * Recv packet from remote
+             * @param size buffer size & received length
+             * @param addr received remote address
+             * @param port received remote port
+             */
+            virtual void recv(std::uint8_t *data,
+                              std::size_t &size,
+                              std::string &addr,
+                              std::uint16_t &port);
 
+            /**
+             * Close socket
+             */
             virtual void close();
 
         protected:
+            /**
+             * Build socket
+             */
             virtual void build();
 
         private:
@@ -35,7 +56,7 @@ namespace chen
             socket& operator=(const socket &) = delete;
 
         protected:
-            class impl;
+            struct impl;
             std::unique_ptr<impl> _impl;
         };
     }

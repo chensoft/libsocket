@@ -18,7 +18,7 @@ namespace chen
         class error : public std::runtime_error
         {
         public:
-            explicit error(const std::string &what);
+            explicit error(const std::string &what) : std::runtime_error(what) {}
         };
 
 
@@ -28,7 +28,7 @@ namespace chen
         class error_convert : public error
         {
         public:
-            explicit error_convert(const std::string &what);
+            explicit error_convert(const std::string &what) : error(what) {}
         };
 
 
@@ -38,7 +38,7 @@ namespace chen
         class error_invalid : public error
         {
         public:
-            explicit error_invalid(const std::string &what);
+            explicit error_invalid(const std::string &what) : error(what) {}
         };
     }
 }

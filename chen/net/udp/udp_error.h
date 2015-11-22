@@ -14,22 +14,22 @@ namespace chen
     namespace udp
     {
         /**
-         * Base class for udp related error
+         * Udp general error
          */
         class error : public std::runtime_error
         {
         public:
-            explicit error(const std::string &what);
+            explicit error(const std::string &what) : std::runtime_error(what) {}
         };
 
 
         /**
-         * Socket create error
+         * Socket build error
          */
-        class error_socket : public error
+        class error_build : public error
         {
         public:
-            explicit error_socket(const std::string &what);
+            explicit error_build(const std::string &what) : error(what) {}
         };
 
 
@@ -39,7 +39,7 @@ namespace chen
         class error_bind : public error
         {
         public:
-            explicit error_bind(const std::string &what);
+            explicit error_bind(const std::string &what) : error(what) {}
         };
 
 
@@ -49,17 +49,17 @@ namespace chen
         class error_send : public error
         {
         public:
-            explicit error_send(const std::string &what);
+            explicit error_send(const std::string &what) : error(what) {}
         };
 
 
         /**
-         * Socket bind error
+         * Socket recv error
          */
         class error_recv : public error
         {
         public:
-            explicit error_recv(const std::string &what);
+            explicit error_recv(const std::string &what) : error(what) {}
         };
     }
 }

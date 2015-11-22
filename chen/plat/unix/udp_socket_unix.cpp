@@ -8,22 +8,18 @@
 
 #include "udp_socket_unix.h"
 #include <chen/net/udp/udp_error.h>
-#include <chen/net/ip/ip_addr.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <cstring>
 #include <cerrno>
 
 using namespace chen;
-using namespace chen::ip;
 using namespace chen::udp;
 
 // -----------------------------------------------------------------------------
 // socket
 socket::socket()
 {
-
+    this->build();
 }
 
 socket::~socket()
@@ -32,33 +28,31 @@ socket::~socket()
         this->close();
 }
 
-std::size_t socket::send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port)
+void socket::send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port)
 {
     if (!this->_impl)
-        throw error_socket("socket invalid");
+        throw error("udp: socket invalid");
 
     struct sockaddr_in in;
 
     ::memset(&in, 0, sizeof(in));
 
     in.sin_family      = AF_INET;
-    in.sin_addr.s_addr = htonl(ip::address_v4::to_integer(addr));
+    in.sin_addr.s_addr = ::inet_addr(addr.c_str());
     in.sin_port        = htons(port);
 
-    socklen_t len = sizeof(in);
-
-    auto ret = ::sendto(this->_impl->_socket, data, size, 0, (struct sockaddr*)&in, len);
+    auto ret = ::sendto(this->_impl->_socket, data, size, 0, (struct sockaddr*)&in, sizeof(in));
 
     if (ret == -1)
-        throw error_recv(std::strerror(errno));
-
-    return static_cast<std::size_t>(ret);
+        throw error_send(std::strerror(errno));
+    else if (ret != size)
+        throw error_send("udp: send packet length is error");
 }
 
-std::size_t socket::recv(std::uint8_t *data, std::size_t size, std::string &addr, std::uint16_t &port)
+void socket::recv(std::uint8_t *data, std::size_t &size, std::string &addr, std::uint16_t &port)
 {
     if (!this->_impl)
-        throw error_socket("socket invalid");
+        throw error("udp: socket invalid");
 
     struct sockaddr_in in;
     socklen_t len = sizeof(in);
@@ -68,10 +62,9 @@ std::size_t socket::recv(std::uint8_t *data, std::size_t size, std::string &addr
     if (ret == -1)
         throw error_recv(std::strerror(errno));
 
-    addr = address_v4::to_string(ntohl(in.sin_addr.s_addr));
+    size = static_cast<std::size_t>(ret);
+    addr = ::inet_ntoa(in.sin_addr);
     port = ntohs(in.sin_port);
-
-    return static_cast<std::size_t>(ret);
 }
 
 void socket::close()
@@ -90,10 +83,10 @@ void socket::build()
 
     this->_impl.reset(new socket::impl);
 
-    auto sock = ::socket(PF_INET, SOCK_DGRAM, 0);
+    auto sock = ::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     if (sock == -1)
-        throw error_socket(std::strerror(errno));
+        throw error_build(std::strerror(errno));
     else
         this->_impl->_socket = sock;
 }

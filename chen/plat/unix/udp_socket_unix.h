@@ -14,9 +14,8 @@ namespace chen
 {
     namespace udp
     {
-        class socket::impl
+        struct socket::impl
         {
-        public:
             int _socket = 0;
         };
     }
