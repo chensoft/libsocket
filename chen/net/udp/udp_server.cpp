@@ -22,8 +22,8 @@ void server::start()
     // 65535 − 8 byte UDP header − 20 byte IP header = 65507
     // see https://en.wikipedia.org/wiki/User_Datagram_Protocol
     std::size_t length = 65507;
-    std::uint8_t *buffer = new std::uint8_t[length];
-    std::unique_ptr<std::uint8_t> pointer(buffer);
+    std::unique_ptr<std::uint8_t> pointer(new std::uint8_t[length]);
+    std::uint8_t *buffer = pointer.get();
 
     while (true)
     {

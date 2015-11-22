@@ -7,6 +7,7 @@
 #include "test.h"
 #include "test_cmd.h"
 #include "test_ip.h"
+#include "test_udp.h"
 
 using namespace chen;
 
@@ -22,7 +23,8 @@ test::test()
 {
     // register all unit test
     this->_store["cmd"] = std::unique_ptr<test_base>(new test_cmd);
-    this->_store["ip"] = std::unique_ptr<test_base>(new test_ip);
+    this->_store["ip"]  = std::unique_ptr<test_base>(new test_ip);
+    this->_store["udp"] = std::unique_ptr<test_base>(new test_udp);
 }
 
 void test::check()
