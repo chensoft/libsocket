@@ -25,6 +25,8 @@ void server::start()
     std::unique_ptr<std::uint8_t> pointer(new std::uint8_t[length]);
     std::uint8_t *buffer = pointer.get();
 
+    this->_running = true;
+
     while (true)
     {
         // receive data from remote
@@ -38,6 +40,8 @@ void server::start()
         if (size)
             this->notify(std::vector<std::uint8_t>(buffer, buffer + size), addr, port);
     }
+
+    this->_running = false;
 
     this->close();
 }
@@ -80,4 +84,9 @@ std::string server::addr() const
 std::uint16_t server::port() const
 {
     return this->_port;
+}
+
+bool server::running() const
+{
+    return this->_running;
 }
