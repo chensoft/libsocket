@@ -17,6 +17,9 @@ namespace chen
         class socket
         {
         public:
+            enum class Shutdown {Read, Write, Both};
+
+        public:
             socket();
             virtual ~socket();
 
@@ -44,6 +47,11 @@ namespace chen
              * Close socket
              */
             virtual void close();
+
+            /**
+             * Shutdown socket
+             */
+            virtual void shutdown(Shutdown flag = Shutdown::Both);
 
         protected:
             /**

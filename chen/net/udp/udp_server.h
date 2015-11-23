@@ -39,6 +39,11 @@ namespace chen
             virtual void start();
 
             /**
+             * Shutdown the server
+             */
+            virtual void stop();
+
+            /**
              * Close socket
              */
             virtual void close() override;

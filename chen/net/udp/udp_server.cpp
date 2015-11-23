@@ -35,8 +35,17 @@ void server::start()
         this->recv(buffer, size, addr, port);
 
         // post result to callback
-        this->notify(std::vector<std::uint8_t>(buffer, buffer + size), addr, port);
+        if (size)
+            this->notify(std::vector<std::uint8_t>(buffer, buffer + size), addr, port);
     }
+
+    this->close();
+}
+
+void server::stop()
+{
+    // todo @@
+//    this->shutdown();
 }
 
 void server::close()
