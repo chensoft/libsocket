@@ -77,11 +77,6 @@ namespace chen
              */
             std::uint16_t port() const;
 
-            /**
-             * Is server running
-             */
-            bool running() const;
-
         private:
             server(const server&) = delete;
             server& operator=(const server&) = delete;
@@ -89,7 +84,6 @@ namespace chen
         private:
             std::string _addr;
             std::uint16_t _port = 0;
-            bool _running = false;
 
             callback_type _callback;
         };

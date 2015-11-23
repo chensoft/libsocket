@@ -30,7 +30,8 @@ namespace chen
             virtual void send(const std::uint8_t *data,
                               std::size_t size,
                               const std::string &addr,
-                              std::uint16_t port);
+                              std::uint16_t port,
+                              float timeout = 0);
 
             /**
              * Recv packet from remote
@@ -41,7 +42,8 @@ namespace chen
             virtual void recv(std::uint8_t *data,
                               std::size_t &size,
                               std::string &addr,
-                              std::uint16_t &port);
+                              std::uint16_t &port,
+                              float timeout = 0);
 
             /**
              * Close socket
