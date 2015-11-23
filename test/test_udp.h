@@ -58,6 +58,7 @@ namespace chen
             server.bind("0.0.0.0", 8888);
             server.attach([&server] (std::vector<std::uint8_t> data, std::string addr, std::uint16_t port) {
                 server.send(data.data(), data.size(), addr, port);
+                server.stop();
             });
             server.start();
 

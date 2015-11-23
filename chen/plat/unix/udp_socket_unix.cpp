@@ -50,6 +50,7 @@ void socket::send(const std::uint8_t *data, std::size_t size, const std::string 
 
     auto ret = ::sendto(this->_impl->_socket, data, size, 0, (struct sockaddr*)&in, sizeof(in));
 
+    // timeout is also an error when send, because the data sent failure
     if (ret == -1)
         throw error_send(std::strerror(errno));
     else if (ret != size)
@@ -74,11 +75,26 @@ void socket::recv(std::uint8_t *data, std::size_t &size, std::string &addr, std:
     auto ret = ::recvfrom(this->_impl->_socket, data, size, 0, (struct sockaddr*)&in, &len);
 
     if (ret == -1)
-        throw error_recv(std::strerror(errno));
-
-    size = static_cast<std::size_t>(ret);
-    addr = ::inet_ntoa(in.sin_addr);
-    port = ntohs(in.sin_port);
+    {
+        // don't treat timeout as an error
+        if (errno == EAGAIN)
+        {
+            // timeout or non-blocking
+            size = 0;
+            addr = "";
+            port = 0;
+        }
+        else
+        {
+            throw error_recv(std::strerror(errno));
+        }
+    }
+    else
+    {
+        size = static_cast<std::size_t>(ret);
+        addr = ::inet_ntoa(in.sin_addr);
+        port = ntohs(in.sin_port);
+    }
 }
 
 void socket::close()

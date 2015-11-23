@@ -18,6 +18,12 @@ server::server()
 
 void server::start()
 {
+    {
+        // reset quit variable
+        std::lock_guard<std::mutex> lock(this->_mutex);
+        this->_quit = false;
+    }
+
     // define maximum udp buffer
     // 65535 − 8 byte UDP header − 20 byte IP header = 65507
     // see https://en.wikipedia.org/wiki/User_Datagram_Protocol
@@ -25,14 +31,15 @@ void server::start()
     std::unique_ptr<std::uint8_t> pointer(new std::uint8_t[length]);
     std::uint8_t *buffer = pointer.get();
 
-    while (true)
+    while (!this->_quit)
     {
         // receive data from remote
         std::string addr;
         std::uint16_t port = 0;
         std::size_t size = length;
 
-        this->recv(buffer, size, addr, port);
+        // set timeout, let server can quit gracefully
+        this->recv(buffer, size, addr, port, 1);
 
         // post result to callback
         if (size)
@@ -44,8 +51,8 @@ void server::start()
 
 void server::stop()
 {
-    // todo @@
-//    this->shutdown();
+    std::lock_guard<std::mutex> lock(this->_mutex);
+    this->_quit = true;
 }
 
 void server::close()
@@ -54,6 +61,9 @@ void server::close()
 
     this->_addr.clear();
     this->_port = 0;
+
+    std::lock_guard<std::mutex> lock(this->_mutex);
+    this->_quit = true;
 }
 
 void server::attach(const callback_type &callback)

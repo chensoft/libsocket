@@ -9,6 +9,7 @@
 #include "udp_socket.h"
 #include <functional>
 #include <vector>
+#include <mutex>
 
 namespace chen
 {
@@ -84,6 +85,9 @@ namespace chen
         private:
             std::string _addr;
             std::uint16_t _port = 0;
+
+            bool _quit = false;
+            std::mutex _mutex;
 
             callback_type _callback;
         };
