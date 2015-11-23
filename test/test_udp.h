@@ -9,6 +9,7 @@
 #include "test_base.h"
 #include <chen/net/udp/udp_client.h>
 #include <chen/net/udp/udp_server.h>
+#include <cstring>
 #include <thread>
 
 namespace chen
@@ -46,7 +47,7 @@ namespace chen
 
                 PILogD("unit udp: client recv: %s, %u, %s, %d", (char*)data, size, addr.c_str(), port);
 
-                this->assert(strcmp((char*)data, "chen") == 0, "unit udp: client recv data error");
+                this->assert(::strcmp((char*)data, "chen") == 0, "unit udp: client recv data error");
                 this->assert(size == 4, "unit udp: client recv size error");
                 this->assert(addr == "127.0.0.1", "unit udp: client recv addr error");
                 this->assert(port == 8888, "unit udp: client recv port error");

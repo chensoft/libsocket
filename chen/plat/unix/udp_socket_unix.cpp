@@ -10,6 +10,8 @@
 #include <chen/net/udp/udp_error.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
+#include <cstring>
 #include <cerrno>
 
 using namespace chen;
