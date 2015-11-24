@@ -7,7 +7,6 @@
  */
 #include "ip_addr.h"
 #include "ip_error.h"
-#include <chen/tool/log.h>
 #include <bitset>
 #include <cctype>
 
@@ -16,88 +15,84 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
-
-
-// -----------------------------------------------------------------------------
-// address v4
-address_v4::address_v4(std::uint32_t addr)
-: address_v4(addr, 0)
+address::address(std::uint32_t addr)
+: address(addr, 0)
 {
 
 }
 
-address_v4::address_v4(std::uint32_t addr, std::uint8_t subnet)
+address::address(std::uint32_t addr, std::uint8_t subnet)
 {
-    address_v4::assign(addr, subnet);
+    address::assign(addr, subnet);
 }
 
-address_v4::address_v4(const std::string &addr)
-: address_v4(addr, 0)
+address::address(const std::string &addr)
+: address(addr, 0)
 {
 
 }
 
-address_v4::address_v4(const std::string &addr, std::uint8_t subnet)
+address::address(const std::string &addr, std::uint8_t subnet)
 {
-    address_v4::assign(addr, subnet);
+    address::assign(addr, subnet);
 }
 
 // override
-bool address_v4::empty() const
+bool address::empty() const
 {
     return !this->_addr;
 }
 
-bool address_v4::is_loopback() const
+bool address::is_loopback() const
 {
     // address block 127.0.0.0/8
     return (this->_addr & 0xFF000000) == 0x7F000000;
 }
 
-bool address_v4::is_broadcast() const
+bool address::is_broadcast() const
 {
     // host bits are 1
     std::uint32_t broadcast = (this->_addr | this->wildcard());
     return broadcast == this->_addr;
 }
 
-bool address_v4::is_multicast() const
+bool address::is_multicast() const
 {
     // leading: 1110, range: 224.0.0.0 ~ 239.255.255.255
     return (this->_addr & 0xF0000000) == 0xE0000000;
 }
 
-std::string address_v4::str() const
+std::string address::str() const
 {
-    return address_v4::to_string(this->_addr);
+    return address::to_string(this->_addr);
 }
 
 // type
-bool address_v4::is_class_a() const
+bool address::is_class_a() const
 {
     // leading: 0, network: 8, range: 0.0.0.0 ~ 127.255.255.255
     return (this->_addr & 0x80000000) == 0;
 }
 
-bool address_v4::is_class_b() const
+bool address::is_class_b() const
 {
     // leading: 10, network: 16, range: 128.0.0.0 ~ 191.255.255.255
     return (this->_addr & 0xC0000000) == 0x80000000;
 }
 
-bool address_v4::is_class_c() const
+bool address::is_class_c() const
 {
     // leading: 110, network: 24, range: 192.0.0.0 ~ 223.255.255.255
     return (this->_addr & 0xE0000000) == 0xC0000000;
 }
 
 // raw
-std::uint32_t address_v4::addr() const
+std::uint32_t address::addr() const
 {
     return this->_addr;
 }
 
-std::uint32_t address_v4::mask() const
+std::uint32_t address::mask() const
 {
     // if mask is valid then return mask
     // if mask is empty then calculate it
@@ -113,45 +108,45 @@ std::uint32_t address_v4::mask() const
         return 0xFFFFFFFF;
 }
 
-std::string address_v4::full() const
+std::string address::full() const
 {
     return this->str() + "/" + std::to_string(this->subnet());
 }
 
-std::uint8_t address_v4::subnet() const
+std::uint8_t address::subnet() const
 {
     std::bitset<32> bits(this->mask());
     return static_cast<std::uint8_t>(bits.count());
 }
 
-std::uint32_t address_v4::wildcard() const
+std::uint32_t address::wildcard() const
 {
     return this->mask() ^ 0xFFFFFFFF;
 }
 
 // network
-address_v4 address_v4::network() const
+address address::network() const
 {
-    return address_v4(this->_addr & this->mask(), this->subnet());
+    return address(this->_addr & this->mask(), this->subnet());
 }
 
-address_v4 address_v4::host_min() const
+address address::host_min() const
 {
-    return address_v4((this->_addr & this->mask()) | 0x00000001, this->subnet());
+    return address((this->_addr & this->mask()) | 0x00000001, this->subnet());
 }
 
-address_v4 address_v4::host_max() const
+address address::host_max() const
 {
-    return address_v4((this->_addr | ~this->mask()) & 0xFFFFFFFE, this->subnet());
+    return address((this->_addr | ~this->mask()) & 0xFFFFFFFE, this->subnet());
 }
 
-address_v4 address_v4::broadcast() const
+address address::broadcast() const
 {
-    return address_v4(this->_addr | this->wildcard(), this->subnet());
+    return address(this->_addr | this->wildcard(), this->subnet());
 }
 
 // assign
-void address_v4::assign(std::uint32_t addr, std::uint8_t subnet)
+void address::assign(std::uint32_t addr, std::uint8_t subnet)
 {
     this->_addr = addr;
 
@@ -171,13 +166,13 @@ void address_v4::assign(std::uint32_t addr, std::uint8_t subnet)
     }
 }
 
-void address_v4::assign(const std::string &addr, std::uint8_t subnet)
+void address::assign(const std::string &addr, std::uint8_t subnet)
 {
-    this->assign(address_v4::to_integer(addr), subnet);
+    this->assign(address::to_integer(addr), subnet);
 }
 
 // convert
-std::string address_v4::to_string(std::uint32_t addr)
+std::string address::to_string(std::uint32_t addr)
 {
     return  std::to_string((addr >> 24) & 0xFF) + "." +
             std::to_string((addr >> 16) & 0xFF) + "." +
@@ -185,7 +180,7 @@ std::string address_v4::to_string(std::uint32_t addr)
             std::to_string((addr) & 0xFF);
 }
 
-std::uint32_t address_v4::to_integer(const std::string &addr)
+std::uint32_t address::to_integer(const std::string &addr)
 {
     int idx = -1;
     std::uint32_t val = 0;
@@ -284,43 +279,39 @@ std::uint32_t address_v4::to_integer(const std::string &addr)
     }
 }
 
-address_v4 address_v4::loopback()
+address address::loopback()
 {
     // 127.0.0.1
-    return address_v4(0x7F000001, 8);
+    return address(0x7F000001, 8);
 }
 
 // operator
-bool chen::ip::operator==(const address_v4 &a, const address_v4 &b)
+bool chen::ip::operator==(const address &a, const address &b)
 {
     return a.addr() == b.addr();
 }
 
-bool chen::ip::operator!=(const address_v4 &a, const address_v4 &b)
+bool chen::ip::operator!=(const address &a, const address &b)
 {
     return !(a == b);
 }
 
-bool chen::ip::operator<(const address_v4 &a, const address_v4 &b)
+bool chen::ip::operator<(const address &a, const address &b)
 {
     return a.addr() < b.addr();
 }
 
-bool chen::ip::operator>(const address_v4 &a, const address_v4 &b)
+bool chen::ip::operator>(const address &a, const address &b)
 {
     return b < a;
 }
 
-bool chen::ip::operator<=(const address_v4 &a, const address_v4 &b)
+bool chen::ip::operator<=(const address &a, const address &b)
 {
     return !(b < a);
 }
 
-bool chen::ip::operator>=(const address_v4 &a, const address_v4 &b)
+bool chen::ip::operator>=(const address &a, const address &b)
 {
     return !(a < b);
 }
-
-
-// -----------------------------------------------------------------------------
-// address v6

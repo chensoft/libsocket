@@ -33,7 +33,7 @@ namespace chen
         {
             PILogD("unit ip: test address assign start...");
 
-            chen::ip::address_v4 v4;
+            chen::ip::address v4;
 
             // empty: 0.0.0.0
             v4.assign("");
@@ -66,7 +66,7 @@ namespace chen
         {
             PILogD("unit ip: test address class start...");
 
-            chen::ip::address_v4 v4;
+            chen::ip::address v4;
 
             // class A
             v4.assign("0.0.0.0");
@@ -123,7 +123,7 @@ namespace chen
         {
             PILogD("unit ip: test address property start...");
 
-            chen::ip::address_v4 v4;
+            chen::ip::address v4;
 
             // empty
             v4.assign("");
@@ -168,7 +168,7 @@ namespace chen
         {
             PILogD("unit ip: test address operator start...");
 
-            chen::ip::address_v4 a, b;
+            chen::ip::address a, b;
 
             // operator
             a.assign("127.0.0.1");

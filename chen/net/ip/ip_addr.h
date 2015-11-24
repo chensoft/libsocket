@@ -13,82 +13,44 @@ namespace chen
 {
     namespace ip
     {
-        // ---------------------------------------------------------------------
-        // address base class
         class address
         {
         public:
             address() = default;
             virtual ~address() = default;
 
-        public:
-            /**
-             * Whether the address is empty
-             */
-            virtual bool empty() const = 0;
+            explicit address(std::uint32_t addr);
+            explicit address(std::uint32_t addr, std::uint8_t subnet);
 
-            /**
-             * Whether the address is loopback
-             */
-            virtual bool is_loopback() const = 0;
-
-            /**
-             * Whether the address is broadcast
-             */
-            virtual bool is_broadcast() const = 0;
-
-            /**
-             * Whether the address is multicast
-             */
-            virtual bool is_multicast() const = 0;
-
-        public:
-            /**
-             * IP address to string
-             */
-            virtual std::string str() const = 0;
-        };
-
-
-        // ---------------------------------------------------------------------
-        // address v4
-        class address_v4 : public address
-        {
-        public:
-            address_v4() = default;
-
-            explicit address_v4(std::uint32_t addr);
-            explicit address_v4(std::uint32_t addr, std::uint8_t subnet);
-
-            explicit address_v4(const std::string &addr);
-            explicit address_v4(const std::string &addr, std::uint8_t subnet);
+            explicit address(const std::string &addr);
+            explicit address(const std::string &addr, std::uint8_t subnet);
 
         public:
             /**
              * Whether the address is empty
              */
-            virtual bool empty() const override;
+            virtual bool empty() const;
 
             /**
              * Whether the address is loopback
              */
-            virtual bool is_loopback() const override;
+            virtual bool is_loopback() const;
 
             /**
              * Whether the address is broadcast
              */
-            virtual bool is_broadcast() const override;
+            virtual bool is_broadcast() const;
 
             /**
              * Whether the address is multicast
              */
-            virtual bool is_multicast() const override;
+            virtual bool is_multicast() const;
 
         public:
             /**
              * IP address to string
              */
-            virtual std::string str() const override;
+            virtual std::string str() const;
 
         public:
             /**
@@ -136,22 +98,22 @@ namespace chen
             /**
              * Network address
              */
-            address_v4 network() const;
+            address network() const;
 
             /**
              * Min host address under this network
              */
-            address_v4 host_min() const;
+            address host_min() const;
 
             /**
              * Max host address under this network
              */
-            address_v4 host_max() const;
+            address host_max() const;
 
             /**
              * Broadcast address based on this ip
              */
-            address_v4 broadcast() const;
+            address broadcast() const;
 
         public:
             /**
@@ -178,7 +140,7 @@ namespace chen
             /**
              * A loopback address
              */
-            static address_v4 loopback();
+            static address loopback();
 
         protected:
             std::uint32_t _addr = 0;
@@ -188,21 +150,13 @@ namespace chen
         /**
          * Operator
          */
-        bool operator==(const address_v4 &a, const address_v4 &b);
-        bool operator!=(const address_v4 &a, const address_v4 &b);
+        bool operator==(const address &a, const address &b);
+        bool operator!=(const address &a, const address &b);
 
-        bool operator<(const address_v4 &a, const address_v4 &b);
-        bool operator>(const address_v4 &a, const address_v4 &b);
+        bool operator<(const address &a, const address &b);
+        bool operator>(const address &a, const address &b);
 
-        bool operator<=(const address_v4 &a, const address_v4 &b);
-        bool operator>=(const address_v4 &a, const address_v4 &b);
-
-
-        // ---------------------------------------------------------------------
-        // address v6
-        class address_v6 : public address
-        {
-        public:
-        };
+        bool operator<=(const address &a, const address &b);
+        bool operator>=(const address &a, const address &b);
     }
 }
