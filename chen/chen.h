@@ -27,3 +27,5 @@
 #include <chen/net/udp/udp_socket.h>
 #include <chen/net/udp/udp_client.h>
 #include <chen/net/udp/udp_server.h>
+
+#include <chen/net/dns/dns_define.h>
