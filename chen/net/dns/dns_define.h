@@ -32,23 +32,11 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
+        // The following bit will treat as bool
         // AA, 1 bit(Authoritative Answer)
-        typedef bool AA;
-
-
-        // ---------------------------------------------------------------------
         // TC, 1 bit(TrunCation)
-        typedef bool TC;
-
-
-        // ---------------------------------------------------------------------
         // RD, 1 bit(Recursion Desired)
-        typedef bool RD;
-
-
-        // ---------------------------------------------------------------------
         // RA, 1 bit(Recursion Available)
-        typedef bool RA;
 
 
         // ---------------------------------------------------------------------
@@ -69,6 +57,18 @@ namespace chen
             Refused        = 5   // the name server refuses to perform the specified operation for policy reasons
             // 6-15                 reserved for future use
         };
+
+
+        // ---------------------------------------------------------------------
+        // Flag mask
+        static const std::uint16_t FLAG_MASK_QR     = 0b1000000000000000;
+        static const std::uint16_t FLAG_MASK_OPCODE = 0b0111100000000000;
+        static const std::uint16_t FLAG_MASK_AA     = 0b0000010000000000;
+        static const std::uint16_t FLAG_MASK_TC     = 0b0000001000000000;
+        static const std::uint16_t FLAG_MASK_RD     = 0b0000000100000000;
+        static const std::uint16_t FLAG_MASK_RA     = 0b0000000010000000;
+        static const std::uint16_t FLAG_MASK_Z      = 0b0000000001110000;
+        static const std::uint16_t FLAG_MASK_RCODE  = 0b0000000000001111;
 
 
         // ---------------------------------------------------------------------

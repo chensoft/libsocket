@@ -67,8 +67,8 @@ namespace chen
             std::string rname;  // hostmaster email address
             std::uint32_t serial = 0;  // serial number
             std::int32_t refresh = 0;  // zone refresh interval
-            std::int32_t retry = 0;    // retry interval when refresh failed
-            std::int32_t expire = 0;   // expire interval of the zone
+            std::int32_t retry   = 0;  // retry interval when refresh failed
+            std::int32_t expire  = 0;  // expire interval of the zone
         };
 
 
