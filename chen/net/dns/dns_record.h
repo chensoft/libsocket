@@ -14,7 +14,7 @@ namespace chen
     namespace dns
     {
         // ---------------------------------------------------------------------
-        // Resource Record
+        // Resource Record(rfc1035, page 11)
         struct RR
         {
         public:
@@ -32,16 +32,16 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // A
+        // A(rfc1035, page 20)
         struct A : public RR
         {
         public:
-            std::string address;  // IPv4 address
+            std::int32_t address;  // IPv4 address
         };
 
 
         // ---------------------------------------------------------------------
-        // NS
+        // NS(rfc1035, page 18)
         struct NS : public RR
         {
         public:
@@ -50,7 +50,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // CNAME
+        // CNAME(rfc1035, page 14)
         struct CNAME : public RR
         {
         public:
@@ -59,7 +59,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // SOA
+        // SOA(rfc1035, page 19)
         struct SOA : public RR
         {
         public:
@@ -73,7 +73,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // PTR
+        // PTR(rfc1035, page 18)
         struct PTR : public RR
         {
         public:
@@ -82,7 +82,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // MX
+        // MX(rfc1035, page 17)
         struct MX : public RR
         {
         public:
@@ -92,7 +92,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // TXT
+        // TXT(rfc1035, page 20)
         struct TXT : public RR
         {
         public:
