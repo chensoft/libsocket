@@ -29,3 +29,6 @@
 #include <chen/net/udp/udp_server.h>
 
 #include <chen/net/dns/dns_define.h>
+#include <chen/net/dns/dns_record.h>
+#include <chen/net/dns/dns_header.h>
+#include <chen/net/dns/dns_packet.h>

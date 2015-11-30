@@ -177,3 +177,39 @@ std::int16_t header::random()
     auto high = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     return uniform(engine) ^ static_cast<int16_t>(high);
 }
+
+
+// -----------------------------------------------------------------------------
+// question
+
+// get filed value
+std::string question::qname() const
+{
+    return this->_qname;
+}
+
+chen::dns::RRType question::qtype() const
+{
+    return this->_qtype;
+}
+
+chen::dns::RRClass question::qclass() const
+{
+    return this->_qclass;
+}
+
+// set field value
+void question::setQname(const std::string &value)
+{
+    this->_qname = value;
+}
+
+void question::setQtype(chen::dns::RRType value)
+{
+    this->_qtype = value;
+}
+
+void question::setQclass(chen::dns::RRClass value)
+{
+    this->_qclass = value;
+}

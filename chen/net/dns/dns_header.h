@@ -6,8 +6,9 @@
  */
 #pragma once
 
-#include <cstdint>
 #include "dns_define.h"
+#include <cstdint>
+#include <string>
 
 namespace chen
 {
@@ -75,6 +76,32 @@ namespace chen
             std::uint16_t _ancount = 0;  // the number of resource records in the answer section
             std::uint16_t _nscount = 0;  // the number of name server resource records in the authority records section
             std::uint16_t _arcount = 0;  // the number of resource records in the additional records section
+        };
+
+
+        // ---------------------------------------------------------------------
+        // question
+        class question
+        {
+        public:
+            /**
+             * Get field value
+             */
+            std::string qname()         const;
+            chen::dns::RRType qtype()   const;
+            chen::dns::RRClass qclass() const;
+
+            /**
+             * Set field value
+             */
+            void setQname(const std::string &value);
+            void setQtype(chen::dns::RRType value);
+            void setQclass(chen::dns::RRClass value);
+
+        private:
+            std::string _qname;
+            chen::dns::RRType  _qtype  = chen::dns::RRType::None;
+            chen::dns::RRClass _qclass = chen::dns::RRClass::IN;
         };
     }
 }
