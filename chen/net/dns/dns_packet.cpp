@@ -7,6 +7,7 @@
 #include "dns_packet.h"
 #include "dns_error.h"
 #include "dns_codec.h"
+#include <chen/tool/str.h>
 
 using namespace chen;
 using namespace chen::dns;
@@ -50,10 +51,13 @@ void request::setQuery(const std::string &qname,
     if (!codec::isFqdn(qname))
         throw error_fqdn("request query name is not fqdn");
 
-//    // check total length
-//    if (qname.size() > 255)
-//        throw error_size("request query name length must be 255 or less");
-//
+    // check total length
+    // caution: this limit isn't name's length, it's the bytes after encoded
+    // example: www.chensoft.com. will encoded as [3, w, w, w, 8, c, h, e, n, s, o, f, t, 3, c, o, m, 0]
+    // the encoded bytes can't exceed SIZE_LIMIT_NAME
+    if (qname.size() + 1 > SIZE_LIMIT_NAME)
+        throw error_size(str::format("request query name length must be %d octets or less", SIZE_LIMIT_NAME));
+
 //    // check each label
 //    std::string::size_type count = 0;
 //

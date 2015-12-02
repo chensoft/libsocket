@@ -14,7 +14,7 @@ namespace chen
     namespace dns
     {
         // ---------------------------------------------------------------------
-        // Resource Record(rfc1035, page 11)
+        // Resource Record(rfc1035, section 3.2.1)
         struct RR
         {
         public:
@@ -32,7 +32,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // A(rfc1035, page 20)
+        // A(rfc1035, section 3.4.1)
         struct A : public RR
         {
         public:
@@ -41,7 +41,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // NS(rfc1035, page 18)
+        // NS(rfc1035, section 3.3.11)
         struct NS : public RR
         {
         public:
@@ -50,7 +50,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // CNAME(rfc1035, page 14)
+        // CNAME(rfc1035, section 3.3.1)
         struct CNAME : public RR
         {
         public:
@@ -59,7 +59,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // SOA(rfc1035, page 19)
+        // SOA(rfc1035, section 3.3.13)
         struct SOA : public RR
         {
         public:
@@ -73,7 +73,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // PTR(rfc1035, page 18)
+        // PTR(rfc1035, section 3.3.12)
         struct PTR : public RR
         {
         public:
@@ -82,7 +82,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // MX(rfc1035, page 17)
+        // MX(rfc1035, section 3.3.9)
         struct MX : public RR
         {
         public:
@@ -92,7 +92,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // TXT(rfc1035, page 20)
+        // TXT(rfc1035, section 3.3.14)
         struct TXT : public RR
         {
         public:

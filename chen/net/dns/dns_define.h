@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace chen
 {
@@ -109,5 +110,11 @@ namespace chen
 
             ANY = 255  // any class
         };
+
+
+        // ---------------------------------------------------------------------
+        // Size limit(rfc1035, section 2.3.4)
+        static const std::size_t SIZE_LIMIT_NAME  = 255;  // name's total size(fqdn)
+        static const std::size_t SIZE_LIMIT_LABEL = 63;   // label's max size
     }
 }
