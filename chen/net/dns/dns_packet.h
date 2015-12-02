@@ -48,7 +48,7 @@ namespace chen
             /**
              * Enable RD flag, default is true
              */
-            void setRecursionDesired();
+            void setRecursionDesired(bool value);
 
         private:
             chen::dns::header _header;
