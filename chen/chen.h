@@ -28,6 +28,8 @@
 #include <chen/net/udp/udp_client.h>
 #include <chen/net/udp/udp_server.h>
 
+#include <chen/net/dns/dns_error.h>
+#include <chen/net/dns/dns_codec.h>
 #include <chen/net/dns/dns_define.h>
 #include <chen/net/dns/dns_record.h>
 #include <chen/net/dns/dns_header.h>

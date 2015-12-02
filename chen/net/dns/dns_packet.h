@@ -34,8 +34,8 @@ namespace chen
             /**
              * Get field value
              */
-            chen::dns::header header()     const;
-            chen::dns::question question() const;
+            const chen::dns::header& header()     const;
+            const chen::dns::question& question() const;
 
         public:
             /**
@@ -56,35 +56,35 @@ namespace chen
         };
 
 
-        // ---------------------------------------------------------------------
-        // response
-        class response : public message
-        {
-        public:
-            typedef std::vector<chen::dns::question> q_type;
-            typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
-
-        public:
-            /**
-             * Header
-             */
-            chen::dns::header& header();
-
-            /**
-             * Four RRs
-             */
-            q_type& question();
-            rr_type& answer();
-            rr_type& authority();
-            rr_type& additional();
-
-        private:
-            chen::dns::header _header;
-
-            q_type  _question;
-            rr_type _answer;
-            rr_type _authority;
-            rr_type _additional;
-        };
+//        // ---------------------------------------------------------------------
+//        // response
+//        class response : public message
+//        {
+//        public:
+//            typedef std::vector<chen::dns::question> q_type;
+//            typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
+//
+//        public:
+//            /**
+//             * Header
+//             */
+//            chen::dns::header& header();
+//
+//            /**
+//             * Four RRs
+//             */
+//            q_type& question();
+//            rr_type& answer();
+//            rr_type& authority();
+//            rr_type& additional();
+//
+//        private:
+//            chen::dns::header _header;
+//
+//            q_type  _question;
+//            rr_type _answer;
+//            rr_type _authority;
+//            rr_type _additional;
+//        };
     }
 }

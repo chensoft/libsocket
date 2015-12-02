@@ -14,7 +14,7 @@ namespace chen
     namespace udp
     {
         /**
-         * Udp general error
+         * UDP general error
          */
         class error : public std::runtime_error
         {

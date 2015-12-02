@@ -5,6 +5,8 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_packet.h"
+#include "dns_error.h"
+#include "dns_codec.h"
 
 using namespace chen;
 using namespace chen::dns;
@@ -17,7 +19,7 @@ using namespace chen::dns;
 // request
 request::request()
 {
-    // use random id
+    // random id
     this->_header.setId();
 
     // set query
@@ -25,12 +27,12 @@ request::request()
 }
 
 // field value
-chen::dns::header request::header() const
+const chen::dns::header& request::header() const
 {
     return this->_header;
 }
 
-chen::dns::question request::question() const
+const chen::dns::question& request::question() const
 {
     return this->_question;
 }
@@ -40,15 +42,14 @@ void request::setQuery(const std::string &qname,
                        chen::dns::RRType qtype,
                        chen::dns::RRClass qclass)
 {
-    // todo @@
-//    // check empty
-//    if (qname.empty())
-//        throw error_size("request query name is empty");
-//
-//    // check fqdn
-//    if (!tool::isFqdn(qname))
-//        throw error_fqdn("request query name is not fqdn");
-//
+    // check empty
+    if (qname.empty())
+        throw error_size("request query name is empty");
+
+    // check fqdn
+    if (!codec::isFqdn(qname))
+        throw error_fqdn("request query name is not fqdn");
+
 //    // check total length
 //    if (qname.size() > 255)
 //        throw error_size("request query name length must be 255 or less");
@@ -95,32 +96,32 @@ void request::setRecursionDesired()
 }
 
 
-// -----------------------------------------------------------------------------
-// response
-
-// header
-chen::dns::header& response::header()
-{
-    return this->_header;
-}
-
-// rrs
-response::q_type& response::question()
-{
-    return this->_question;
-}
-
-response::rr_type& response::answer()
-{
-    return this->_answer;
-}
-
-response::rr_type& response::authority()
-{
-    return this->_authority;
-}
-
-response::rr_type& response::additional()
-{
-    return this->_additional;
-}
+//// -----------------------------------------------------------------------------
+//// response
+//
+//// header
+//chen::dns::header& response::header()
+//{
+//    return this->_header;
+//}
+//
+//// rrs
+//response::q_type& response::question()
+//{
+//    return this->_question;
+//}
+//
+//response::rr_type& response::answer()
+//{
+//    return this->_answer;
+//}
+//
+//response::rr_type& response::authority()
+//{
+//    return this->_authority;
+//}
+//
+//response::rr_type& response::additional()
+//{
+//    return this->_additional;
+//}
