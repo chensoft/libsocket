@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <string>
 
-// todo @@ for review
 namespace chen
 {
     namespace ip
@@ -20,11 +19,8 @@ namespace chen
             address() = default;
             virtual ~address() = default;
 
-            explicit address(std::uint32_t addr);
-            explicit address(std::uint32_t addr, std::uint8_t subnet);
-
-            explicit address(const std::string &addr);
-            explicit address(const std::string &addr, std::uint8_t subnet);
+            explicit address(std::uint32_t addr, std::uint8_t subnet = 0);
+            explicit address(const std::string &addr, std::uint8_t subnet = 0);
 
         public:
             /**
@@ -35,17 +31,33 @@ namespace chen
             /**
              * Whether the address is loopback
              */
-            virtual bool is_loopback() const;
+            virtual bool isLoopback() const;
 
             /**
              * Whether the address is broadcast
              */
-            virtual bool is_broadcast() const;
+            virtual bool isBroadcast() const;
 
             /**
              * Whether the address is multicast
              */
-            virtual bool is_multicast() const;
+            virtual bool isMulticast() const;
+
+        public:
+            /**
+             * Whether the network is class A
+             */
+            virtual bool isClassA() const;
+
+            /**
+             * Whether the network is class B
+             */
+            virtual bool isClassB() const;
+
+            /**
+             * Whether the network is class C
+             */
+            virtual bool isClassC() const;
 
         public:
             /**
@@ -53,79 +65,62 @@ namespace chen
              */
             virtual std::string str() const;
 
-        public:
-            /**
-             * Whether the network is class A
-             */
-            virtual bool is_class_a() const;
-
-            /**
-             * Whether the network is class B
-             */
-            virtual bool is_class_b() const;
-
-            /**
-             * Whether the network is class C
-             */
-            virtual bool is_class_c() const;
-
-        public:
             /**
              * Decimal address
              */
-            std::uint32_t addr() const;
+            virtual std::uint32_t addr() const;
 
             /**
              * Subnet mask
              */
-            std::uint32_t mask() const;
+            virtual std::uint32_t mask() const;
 
             /**
              * Full address/subnet
              */
-            std::string full() const;
+            virtual std::string full() const;
 
             /**
              * Subnet length
              */
-            std::uint8_t subnet() const;
+            virtual std::uint8_t subnet() const;
 
             /**
              * Subnet wildcard
              */
-            std::uint32_t wildcard() const;
+            virtual std::uint32_t wildcard() const;
 
         public:
             /**
              * Network address
              */
-            address network() const;
+            virtual address network() const;
 
             /**
              * Min host address under this network
              */
-            address host_min() const;
+            virtual address hostMin() const;
 
             /**
              * Max host address under this network
              */
-            address host_max() const;
+            virtual address hostMax() const;
 
             /**
              * Broadcast address based on this ip
              */
-            address broadcast() const;
+            virtual address broadcast() const;
 
         public:
             /**
              * Assign integer to address
              */
-            void assign(std::uint32_t addr, std::uint8_t subnet = 0);
+            virtual void assign(std::uint32_t addr, std::uint8_t subnet = 0);
 
             /**
              * Assign string to address
              */
-            void assign(const std::string &addr, std::uint8_t subnet = 0);
+            virtual void assign(const std::string &addr, std::uint8_t subnet = 0);
 
         public:
             /**

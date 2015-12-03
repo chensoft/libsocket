@@ -9,27 +9,16 @@
 #include "ip_error.h"
 #include <bitset>
 #include <cctype>
+#include <chen/tool/str.h>
 
 using namespace chen;
 using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
-address::address(std::uint32_t addr)
-: address(addr, 0)
-{
-
-}
-
 address::address(std::uint32_t addr, std::uint8_t subnet)
 {
     address::assign(addr, subnet);
-}
-
-address::address(const std::string &addr)
-: address(addr, 0)
-{
-
 }
 
 address::address(const std::string &addr, std::uint8_t subnet)
@@ -37,56 +26,56 @@ address::address(const std::string &addr, std::uint8_t subnet)
     address::assign(addr, subnet);
 }
 
-// override
+// status
 bool address::empty() const
 {
     return !this->_addr;
 }
 
-bool address::is_loopback() const
+bool address::isLoopback() const
 {
     // address block 127.0.0.0/8
     return (this->_addr & 0xFF000000) == 0x7F000000;
 }
 
-bool address::is_broadcast() const
+bool address::isBroadcast() const
 {
     // host bits are 1
     std::uint32_t broadcast = (this->_addr | this->wildcard());
     return broadcast == this->_addr;
 }
 
-bool address::is_multicast() const
+bool address::isMulticast() const
 {
     // leading: 1110, range: 224.0.0.0 ~ 239.255.255.255
     return (this->_addr & 0xF0000000) == 0xE0000000;
 }
 
-std::string address::str() const
-{
-    return address::to_string(this->_addr);
-}
-
 // type
-bool address::is_class_a() const
+bool address::isClassA() const
 {
     // leading: 0, network: 8, range: 0.0.0.0 ~ 127.255.255.255
     return (this->_addr & 0x80000000) == 0;
 }
 
-bool address::is_class_b() const
+bool address::isClassB() const
 {
     // leading: 10, network: 16, range: 128.0.0.0 ~ 191.255.255.255
     return (this->_addr & 0xC0000000) == 0x80000000;
 }
 
-bool address::is_class_c() const
+bool address::isClassC() const
 {
     // leading: 110, network: 24, range: 192.0.0.0 ~ 223.255.255.255
     return (this->_addr & 0xE0000000) == 0xC0000000;
 }
 
 // raw
+std::string address::str() const
+{
+    return address::to_string(this->_addr);
+}
+
 std::uint32_t address::addr() const
 {
     return this->_addr;
@@ -98,11 +87,11 @@ std::uint32_t address::mask() const
     // if mask is empty then calculate it
     if (this->_mask)
         return this->_mask;
-    else if (this->is_class_a())
+    else if (this->isClassA())
         return 0xFF000000;
-    else if (this->is_class_b())
+    else if (this->isClassB())
         return 0xFFFF0000;
-    else if (this->is_class_c())
+    else if (this->isClassC())
         return 0xFFFFFF00;
     else
         return 0xFFFFFFFF;
@@ -110,7 +99,7 @@ std::uint32_t address::mask() const
 
 std::string address::full() const
 {
-    return this->str() + "/" + std::to_string(this->subnet());
+    return this->str() + "/" + str::format("%d", this->subnet());
 }
 
 std::uint8_t address::subnet() const
@@ -130,12 +119,12 @@ address address::network() const
     return address(this->_addr & this->mask(), this->subnet());
 }
 
-address address::host_min() const
+address address::hostMin() const
 {
     return address((this->_addr & this->mask()) | 0x00000001, this->subnet());
 }
 
-address address::host_max() const
+address address::hostMax() const
 {
     return address((this->_addr | ~this->mask()) & 0xFFFFFFFE, this->subnet());
 }
@@ -174,10 +163,11 @@ void address::assign(const std::string &addr, std::uint8_t subnet)
 // convert
 std::string address::to_string(std::uint32_t addr)
 {
-    return  std::to_string((addr >> 24) & 0xFF) + "." +
-            std::to_string((addr >> 16) & 0xFF) + "." +
-            std::to_string((addr >> 8) & 0xFF) + "." +
-            std::to_string((addr) & 0xFF);
+    return str::format("%u.%u.%u.%u",
+                       (addr >> 24) & 0xFF,
+                       (addr >> 16) & 0xFF,
+                       (addr >> 8) & 0xFF,
+                       (addr) & 0xFF);
 }
 
 std::uint32_t address::to_integer(const std::string &addr)
