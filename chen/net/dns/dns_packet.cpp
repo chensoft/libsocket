@@ -73,32 +73,57 @@ void request::setRecursionDesired(bool value)
 }
 
 
-//// -----------------------------------------------------------------------------
-//// response
-//
-//// header
-//chen::dns::header& response::header()
-//{
-//    return this->_header;
-//}
-//
-//// rrs
-//response::q_type& response::question()
-//{
-//    return this->_question;
-//}
-//
-//response::rr_type& response::answer()
-//{
-//    return this->_answer;
-//}
-//
-//response::rr_type& response::authority()
-//{
-//    return this->_authority;
-//}
-//
-//response::rr_type& response::additional()
-//{
-//    return this->_additional;
-//}
+// -----------------------------------------------------------------------------
+// response
+
+// get
+const chen::dns::header& response::header()
+{
+    return this->_header;
+}
+
+const response::q_type& response::question()
+{
+    return this->_question;
+}
+
+const response::rr_type& response::answer()
+{
+    return this->_answer;
+}
+
+const response::rr_type& response::authority()
+{
+    return this->_authority;
+}
+
+const response::rr_type& response::additional()
+{
+    return this->_additional;
+}
+
+// set
+void response::setHeader(const chen::dns::header &value)
+{
+    this->_header = value;
+}
+
+void response::setQuestion(const q_type &value)
+{
+    this->_question = std::move(value);
+}
+
+void response::setAnswer(const rr_type &value)
+{
+    this->_answer = std::move(value);
+}
+
+void response::setAuthority(const rr_type &value)
+{
+    this->_authority = std::move(value);
+}
+
+void response::setAdditional(const rr_type &value)
+{
+    this->_additional = std::move(value);
+}

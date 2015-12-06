@@ -56,35 +56,41 @@ namespace chen
         };
 
 
-//        // ---------------------------------------------------------------------
-//        // response
-//        class response : public message
-//        {
-//        public:
-//            typedef std::vector<chen::dns::question> q_type;
-//            typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
-//
-//        public:
-//            /**
-//             * Header
-//             */
-//            chen::dns::header& header();
-//
-//            /**
-//             * Four RRs
-//             */
-//            q_type& question();
-//            rr_type& answer();
-//            rr_type& authority();
-//            rr_type& additional();
-//
-//        private:
-//            chen::dns::header _header;
-//
-//            q_type  _question;
-//            rr_type _answer;
-//            rr_type _authority;
-//            rr_type _additional;
-//        };
+        // ---------------------------------------------------------------------
+        // response
+        class response : public message
+        {
+        public:
+            typedef std::vector<chen::dns::question> q_type;
+            typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
+
+        public:
+            /**
+             * Get field value
+             */
+            const chen::dns::header& header();
+            const q_type& question();
+            const rr_type& answer();
+            const rr_type& authority();
+            const rr_type& additional();
+
+        public:
+            /**
+             * Set field value
+             */
+            void setHeader(const chen::dns::header &value);
+            void setQuestion(const q_type &value);
+            void setAnswer(const rr_type &value);
+            void setAuthority(const rr_type &value);
+            void setAdditional(const rr_type &value);
+
+        private:
+            chen::dns::header _header;
+
+            q_type  _question;
+            rr_type _answer;
+            rr_type _authority;
+            rr_type _additional;
+        };
     }
 }
