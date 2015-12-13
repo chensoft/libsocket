@@ -114,7 +114,8 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // Size limit(rfc1035, section 2.3.4)
-        static const std::size_t SIZE_LIMIT_NAME  = 255;  // name's total size(fqdn)
-        static const std::size_t SIZE_LIMIT_LABEL = 63;   // label's max size
+        static const std::size_t SIZE_LIMIT_STRING = 255;  // plain text's size
+        static const std::size_t SIZE_LIMIT_DOMAIN = 255;  // domain's total size(fqdn)
+        static const std::size_t SIZE_LIMIT_LABEL  = 63;   // label's max size
     }
 }

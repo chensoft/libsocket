@@ -8,6 +8,7 @@
 
 #include "dns_define.h"
 #include <string>
+#include <vector>
 
 namespace chen
 {
@@ -21,13 +22,18 @@ namespace chen
             virtual ~RR() = default;
 
         public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const = 0;
+
+        public:
             std::string name;
             chen::dns::RRType rrtype   = chen::dns::RRType::None;
             chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
             std::int32_t ttl = 0;
 
-        protected:
-            std::uint16_t rdlength = 0;
+            // rdlength, uint16_t
         };
 
 
@@ -35,6 +41,12 @@ namespace chen
         // A(rfc1035, section 3.4.1)
         struct A : public RR
         {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
         public:
             std::int32_t address;  // IPv4 address
         };
