@@ -57,6 +57,12 @@ namespace chen
         struct NS : public RR
         {
         public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
+        public:
             std::string nsdname;  // authoritative nameserver domain name
         };
 
@@ -66,6 +72,12 @@ namespace chen
         struct CNAME : public RR
         {
         public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
+        public:
             std::string cname;  // canonical name
         };
 
@@ -74,6 +86,12 @@ namespace chen
         // SOA(rfc1035, section 3.3.13)
         struct SOA : public RR
         {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
         public:
             std::string mname;  // primary nameserver
             std::string rname;  // hostmaster email address
@@ -89,6 +107,12 @@ namespace chen
         struct PTR : public RR
         {
         public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
+        public:
             std::string ptrdname;  // domain name which points to some location
         };
 
@@ -97,6 +121,12 @@ namespace chen
         // MX(rfc1035, section 3.3.9)
         struct MX : public RR
         {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
         public:
             std::int16_t preference = 0;  // preference of this record
             std::string exchange;  // a host act as a mail exchange
@@ -107,6 +137,12 @@ namespace chen
         // TXT(rfc1035, section 3.3.14)
         struct TXT : public RR
         {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const;
+
         public:
             std::string txt_data;  // character strings
         };

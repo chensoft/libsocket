@@ -7,6 +7,7 @@
 #pragma once
 
 #include "dns_record.h"
+#include <memory>
 #include <map>
 
 namespace chen
@@ -24,14 +25,8 @@ namespace chen
             /**
              * RR Pack & Unpack
              */
-            void pack(const RR &rr, std::vector<std::uint8_t> &store);
-            void unpack(RR &rr, const std::vector<std::uint8_t> &data);
-
-        public:
-            /**
-             * Clear
-             */
-            void clear();
+            static void pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store);
+            static void unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::uint8_t> &data);
 
         public:
             /**
@@ -69,9 +64,6 @@ namespace chen
              */
             static bool isFqdn(const std::string &name);
             static std::string fqdn(const std::string &name);
-
-        private:
-            std::map<std::string, std::size_t> _map;
         };
     }
 }

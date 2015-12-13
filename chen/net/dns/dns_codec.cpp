@@ -15,21 +15,21 @@ using namespace chen::dns;
 // codec
 
 // rr
-void codec::pack(const RR &rr, std::vector<std::uint8_t> &store)
+void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
 {
     auto size = store.size();
 
     try
     {
         // common
-        this->pack(rr.name, true, store);
-        this->pack(static_cast<std::uint16_t>(rr.rrtype), store);
-        this->pack(static_cast<std::uint16_t>(rr.rrclass), store);
-        this->pack(static_cast<std::uint32_t>(rr.ttl), store);
+        codec::pack(rr.name, true, store);
+        codec::pack(static_cast<std::uint16_t>(rr.rrtype), store);
+        codec::pack(static_cast<std::uint16_t>(rr.rrclass), store);
+        codec::pack(static_cast<std::uint32_t>(rr.ttl), store);
 
         // rdata
         auto rdata = rr.data();
-        this->pack(static_cast<std::uint16_t>(rdata.size()), store);
+        codec::pack(static_cast<std::uint16_t>(rdata.size()), store);
         store.insert(store.end(), rdata.cbegin(), rdata.cend());
     }
     catch (...)
@@ -40,15 +40,9 @@ void codec::pack(const RR &rr, std::vector<std::uint8_t> &store)
     }
 }
 
-void codec::unpack(RR &rr, const std::vector<std::uint8_t> &data)
+void codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::uint8_t> &data)
 {
 
-}
-
-// clear
-void codec::clear()
-{
-    this->_map.clear();
 }
 
 // data pack
