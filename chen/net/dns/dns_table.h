@@ -25,9 +25,9 @@ namespace chen
             /**
              * Get table value
              */
-            std::string rrName(chen::dns::RRType key);
-            chen::dns::RRType rrReverse(const std::string &key);
-            chen::dns::table::rr_build_type rrBuild(chen::dns::RRType key);
+            static std::string rrTypeToName(chen::dns::RRType key);
+            static chen::dns::RRType rrNameToType(const std::string &key);
+            static chen::dns::table::rr_build_type rrTypeToBuild(chen::dns::RRType key);
 
         public:
             /**

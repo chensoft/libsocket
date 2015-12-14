@@ -6,6 +6,7 @@
  */
 #include "dns_codec.h"
 #include "dns_error.h"
+#include "dns_table.h"
 #include <chen/tool/str.h>
 
 using namespace chen;
@@ -42,7 +43,58 @@ void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
 
 void codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::uint8_t> &data)
 {
+    auto begin  = data.data();
+    auto remain = data.size();
 
+    // name
+    std::string name;
+    std::size_t size = codec::unpack(name, true, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // rrtype
+    chen::dns::RRType rrtype = chen::dns::RRType::None;
+    size = codec::unpack(rrtype, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // rrclass
+    chen::dns::RRClass rrclass = chen::dns::RRClass::None;
+    size = codec::unpack(rrclass, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // ttl
+    std::int32_t ttl = 0;
+    size = codec::unpack(ttl, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // rdlength
+    std::uint16_t rdlength = 0;
+    size = codec::unpack(rdlength, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // build
+    std::shared_ptr<chen::dns::RR> record;
+    auto build = table::rrTypeToBuild(rrtype);
+
+    if (build)
+        record = build();
+    else
+        record.reset(new chen::dns::Unknown);
+
+    // rdata
+    record->setData(begin, remain);
+
+    // assign
+    rr.swap(record);
 }
 
 // data pack

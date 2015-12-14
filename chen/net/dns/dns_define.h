@@ -103,6 +103,8 @@ namespace chen
         // ---------------------------------------------------------------------
         // RRClass(common rr class and question class)
         enum class RRClass : std::uint16_t {
+            None = 0,  // none
+
             IN = 1,  // the Internet
             CS = 2,  // the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
             CH = 3,  // the CHAOS class
