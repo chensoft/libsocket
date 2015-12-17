@@ -19,7 +19,7 @@ namespace chen
         class message
         {
         public:
-            virtual ~message() = default;
+            virtual ~message() = 0;
         };
 
 

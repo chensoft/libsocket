@@ -19,9 +19,6 @@ namespace chen
         class codec
         {
         public:
-            virtual ~codec() = default;
-
-        public:
             /**
              * RR Pack & Unpack
              */

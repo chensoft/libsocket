@@ -19,7 +19,7 @@ namespace chen
         struct RR
         {
         public:
-            virtual ~RR() = default;
+            virtual ~RR() = 0;
 
         public:
             /**

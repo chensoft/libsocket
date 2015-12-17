@@ -17,7 +17,6 @@ namespace chen
         {
         public:
             address() = default;
-            virtual ~address() = default;
 
             explicit address(std::uint32_t addr, std::uint8_t subnet = 0);
             explicit address(const std::string &addr, std::uint8_t subnet = 0);
