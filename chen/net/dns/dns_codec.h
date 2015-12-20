@@ -7,6 +7,7 @@
 #pragma once
 
 #include "dns_record.h"
+#include "dns_header.h"
 #include <memory>
 #include <map>
 
@@ -24,6 +25,12 @@ namespace chen
              */
             static void pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store);
             static void unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::uint8_t> &data);
+
+            /**
+             * Header Pack & Unpack
+             */
+            static void pack(const chen::dns::header &header, std::vector<std::uint8_t> &store);
+            static void unpack(chen::dns::header &header, const std::vector<std::uint8_t> &data);
 
         public:
             /**

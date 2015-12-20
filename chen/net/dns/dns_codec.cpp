@@ -97,6 +97,92 @@ void codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::ui
     rr.swap(record);
 }
 
+// header
+void codec::pack(const chen::dns::header &header, std::vector<std::uint8_t> &store)
+{
+    auto size = store.size();
+
+    try
+    {
+        // id
+        codec::pack(header.id(), store);
+
+        // flag
+        codec::pack(header.flag(), store);
+
+        // question
+        codec::pack(header.qdcount(), store);
+
+        // answer
+        codec::pack(header.ancount(), store);
+
+        // authority
+        codec::pack(header.nscount(), store);
+
+        // additional
+        codec::pack(header.arcount(), store);
+    }
+    catch (...)
+    {
+        // restore
+        store.erase(store.begin() + size, store.end());
+        throw;
+    }
+}
+
+void codec::unpack(chen::dns::header &header, const std::vector<std::uint8_t> &data)
+{
+    auto begin  = data.data();
+    auto remain = data.size();
+
+    // id
+    std::int16_t id = 0;
+    std::size_t size = codec::unpack(id, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // flag
+    std::uint16_t flag = 0;
+    size = codec::unpack(flag, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // question
+    std::uint16_t qdcount = 0;
+    size = codec::unpack(qdcount, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // answer
+    std::uint16_t ancount = 0;
+    size = codec::unpack(ancount, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // authority
+    std::uint16_t nscount = 0;
+    size = codec::unpack(nscount, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // additional
+    std::uint16_t arcount = 0;
+    codec::unpack(arcount, begin, remain);
+
+    // set
+    header.setId(id);
+    header.setFlag(flag);
+    header.setQdcount(qdcount);
+    header.setAncount(ancount);
+    header.setNscount(nscount);
+    header.setArcount(arcount);
+}
+
 // data pack
 void codec::pack(std::int8_t value, std::vector<std::uint8_t> &store)
 {
