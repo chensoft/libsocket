@@ -24,9 +24,9 @@ void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
     {
         // common
         codec::pack(rr.name, true, store);
-        codec::pack(static_cast<std::uint16_t>(rr.rrtype), store);
-        codec::pack(static_cast<std::uint16_t>(rr.rrclass), store);
-        codec::pack(static_cast<std::uint32_t>(rr.ttl), store);
+        codec::pack(rr.rrtype, store);
+        codec::pack(rr.rrclass, store);
+        codec::pack(rr.ttl, store);
 
         // rdata
         auto rdata = rr.data();
@@ -181,6 +181,59 @@ void codec::unpack(chen::dns::header &header, const std::vector<std::uint8_t> &d
     header.setAncount(ancount);
     header.setNscount(nscount);
     header.setArcount(arcount);
+}
+
+// question
+void codec::pack(const chen::dns::question &question, std::vector<std::uint8_t> &store)
+{
+    auto size = store.size();
+
+    try
+    {
+        // qname
+        codec::pack(question.qname(), true, store);
+
+        // qtype
+        codec::pack(question.qtype(), store);
+
+        // qclass
+        codec::pack(question.qclass(), store);
+    }
+    catch (...)
+    {
+        // restore
+        store.erase(store.begin() + size, store.end());
+        throw;
+    }
+}
+
+void codec::unpack(chen::dns::question &question, const std::vector<std::uint8_t> &data)
+{
+    auto begin  = data.data();
+    auto remain = data.size();
+
+    // qname
+    std::string qname;
+    std::size_t size = codec::unpack(qname, true, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // qtype
+    chen::dns::RRType qtype = chen::dns::RRType::None;
+    size = codec::unpack(qtype, begin, remain);
+
+    begin  += size;
+    remain -= size;
+
+    // qclass
+    chen::dns::RRClass qclass = chen::dns::RRClass::None;
+    codec::unpack(qclass, begin, remain);
+
+    // set
+    question.setQname(qname);
+    question.setQtype(qtype);
+    question.setQclass(qclass);
 }
 
 // data pack
