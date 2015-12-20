@@ -8,6 +8,7 @@
 
 #include "dns_record.h"
 #include "dns_header.h"
+#include "dns_packet.h"
 #include <memory>
 #include <map>
 
@@ -24,19 +25,25 @@ namespace chen
              * RR Pack & Unpack
              */
             static void pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store);
-            static void unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::uint8_t> &data);
+            static std::size_t unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t *data, std::size_t size);
 
             /**
              * Header Pack & Unpack
              */
             static void pack(const chen::dns::header &header, std::vector<std::uint8_t> &store);
-            static void unpack(chen::dns::header &header, const std::vector<std::uint8_t> &data);
+            static std::size_t unpack(chen::dns::header &header, const std::uint8_t *data, std::size_t size);
 
             /**
              * Question Pack & Unpack
              */
             static void pack(const chen::dns::question &question, std::vector<std::uint8_t> &store);
-            static void unpack(chen::dns::question &question, const std::vector<std::uint8_t> &data);
+            static std::size_t unpack(chen::dns::question &question, const std::uint8_t *data, std::size_t size);
+
+            /**
+             * Request Pack & Unpack
+             */
+            static void pack(const chen::dns::request &request, std::vector<std::uint8_t> &store);
+            static std::size_t unpack(chen::dns::request &request, const std::uint8_t *data, std::size_t size);
 
         public:
             /**

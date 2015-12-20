@@ -26,7 +26,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const = 0;
-            virtual void setData(const std::uint8_t *data, std::size_t size) = 0;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) = 0;
 
         public:
             std::string name;
@@ -47,7 +47,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::uint16_t rdlength = 0;
@@ -63,7 +63,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::int32_t address;  // IPv4 address
@@ -79,7 +79,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::string nsdname;  // authoritative nameserver domain name
@@ -95,7 +95,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::string cname;  // canonical name
@@ -111,7 +111,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::string mname;  // primary nameserver
@@ -132,7 +132,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::string ptrdname;  // domain name which points to some location
@@ -148,7 +148,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::int16_t preference = 0;  // preference of this record
@@ -165,7 +165,7 @@ namespace chen
              * Data
              */
             virtual std::vector<std::uint8_t> data() const;
-            virtual void setData(const std::uint8_t *data, std::size_t size);
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
 
         public:
             std::string txt_data;  // character strings

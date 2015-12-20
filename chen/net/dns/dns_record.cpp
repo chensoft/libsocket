@@ -6,6 +6,7 @@
  */
 #include "dns_record.h"
 #include "dns_codec.h"
+#include "dns_error.h"
 
 using namespace chen;
 using namespace chen::dns;
@@ -25,12 +26,26 @@ std::vector<std::uint8_t> Unknown::data() const
     return this->rdata;
 }
 
-void Unknown::setData(const std::uint8_t *data, std::size_t size)
+std::size_t Unknown::setData(const std::uint8_t *data, std::size_t size)
 {
-    this->rdlength = static_cast<std::uint16_t>(size);
+    if (size < 2)
+        throw error_size("record data size is not enough, require 2 bytes");
+
+    // rdlength
+    std::uint16_t rdlength = static_cast<std::uint16_t>((data[0] << 8) + data[1]);
+
+    size -= 2;
+
+    if (size < rdlength)
+        throw error_size("record data size is too small");
+
+    // rdata
+    this->rdlength = rdlength;
 
     this->rdata.clear();
-    this->rdata.insert(this->rdata.begin(), data, data + size);
+    this->rdata.insert(this->rdata.begin(), data + 2, data + rdlength);
+
+    return rdlength + 2;
 }
 
 
@@ -43,9 +58,9 @@ std::vector<std::uint8_t> A::data() const
     return std::move(store);
 }
 
-void A::setData(const std::uint8_t *data, std::size_t size)
+std::size_t A::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->address, data, size);
+    return codec::unpack(this->address, data, size);
 }
 
 
@@ -58,9 +73,9 @@ std::vector<std::uint8_t> NS::data() const
     return std::move(store);
 }
 
-void NS::setData(const std::uint8_t *data, std::size_t size)
+std::size_t NS::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->nsdname, true, data, size);
+    return codec::unpack(this->nsdname, true, data, size);
 }
 
 
@@ -73,9 +88,9 @@ std::vector<std::uint8_t> CNAME::data() const
     return std::move(store);
 }
 
-void CNAME::setData(const std::uint8_t *data, std::size_t size)
+std::size_t CNAME::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->cname, true, data, size);
+    return codec::unpack(this->cname, true, data, size);
 }
 
 
@@ -93,14 +108,15 @@ std::vector<std::uint8_t> SOA::data() const
     return std::move(store);
 }
 
-void SOA::setData(const std::uint8_t *data, std::size_t size)
+std::size_t SOA::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->mname, true, data, size);
-    codec::unpack(this->rname, true, data, size);
-    codec::unpack(this->serial, data, size);
-    codec::unpack(this->refresh, data, size);
-    codec::unpack(this->retry, data, size);
-    codec::unpack(this->expire, data, size);
+    std::size_t temp = codec::unpack(this->mname, true, data, size);
+    temp += codec::unpack(this->rname, true, data, size);
+    temp += codec::unpack(this->serial, data, size);
+    temp += codec::unpack(this->refresh, data, size);
+    temp += codec::unpack(this->retry, data, size);
+    temp += codec::unpack(this->expire, data, size);
+    return temp;
 }
 
 
@@ -113,9 +129,9 @@ std::vector<std::uint8_t> PTR::data() const
     return std::move(store);
 }
 
-void PTR::setData(const std::uint8_t *data, std::size_t size)
+std::size_t PTR::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->ptrdname, true, data, size);
+    return codec::unpack(this->ptrdname, true, data, size);
 }
 
 
@@ -129,10 +145,11 @@ std::vector<std::uint8_t> MX::data() const
     return std::move(store);
 }
 
-void MX::setData(const std::uint8_t *data, std::size_t size)
+std::size_t MX::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->preference, data, size);
-    codec::unpack(this->exchange, true, data, size);
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->exchange, true, data, size);
+    return temp;
 }
 
 
@@ -145,7 +162,7 @@ std::vector<std::uint8_t> TXT::data() const
     return std::move(store);
 }
 
-void TXT::setData(const std::uint8_t *data, std::size_t size)
+std::size_t TXT::setData(const std::uint8_t *data, std::size_t size)
 {
-    codec::unpack(this->txt_data, false, data, size);
+    return codec::unpack(this->txt_data, false, data, size);
 }

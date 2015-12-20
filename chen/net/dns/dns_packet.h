@@ -39,6 +39,13 @@ namespace chen
 
         public:
             /**
+             * Set field value
+             */
+            void setHeader(const chen::dns::header &value);
+            void setQuestion(const chen::dns::question &value);
+
+        public:
+            /**
              * Set query data
              */
             void setQuery(const std::string &qname,

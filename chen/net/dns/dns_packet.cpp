@@ -34,7 +34,7 @@ request::request()
     this->setRecursionDesired(true);
 }
 
-// field value
+// get
 const chen::dns::header& request::header() const
 {
     return this->_header;
@@ -43,6 +43,17 @@ const chen::dns::header& request::header() const
 const chen::dns::question& request::question() const
 {
     return this->_question;
+}
+
+// set
+void request::setHeader(const chen::dns::header &value)
+{
+    this->_header = value;
+}
+
+void request::setQuestion(const chen::dns::question &value)
+{
+    this->_question = value;
 }
 
 // set query

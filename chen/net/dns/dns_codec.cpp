@@ -41,45 +41,44 @@ void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
     }
 }
 
-void codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::uint8_t> &data)
+std::size_t codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t *data, std::size_t size)
 {
-    auto begin  = data.data();
-    auto remain = data.size();
+    std::size_t origin = size;
 
     // name
     std::string name;
-    std::size_t size = codec::unpack(name, true, begin, remain);
+    std::size_t temp = codec::unpack(name, true, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // rrtype
     chen::dns::RRType rrtype = chen::dns::RRType::None;
-    size = codec::unpack(rrtype, begin, remain);
+    temp = codec::unpack(rrtype, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // rrclass
     chen::dns::RRClass rrclass = chen::dns::RRClass::None;
-    size = codec::unpack(rrclass, begin, remain);
+    temp = codec::unpack(rrclass, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // ttl
     std::int32_t ttl = 0;
-    size = codec::unpack(ttl, begin, remain);
+    temp = codec::unpack(ttl, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // rdlength
     std::uint16_t rdlength = 0;
-    size = codec::unpack(rdlength, begin, remain);
+    temp = codec::unpack(rdlength, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // build
     std::shared_ptr<chen::dns::RR> record;
@@ -91,10 +90,20 @@ void codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::vector<std::ui
         record.reset(new chen::dns::Unknown);
 
     // rdata
-    record->setData(begin, remain);
+    temp = record->setData(data, size);
+
+    size -= temp;
+
+    // set
+    record->name    = name;
+    record->rrtype  = rrtype;
+    record->rrclass = rrclass;
+    record->ttl     = ttl;
 
     // assign
     rr.swap(record);
+
+    return origin - size;
 }
 
 // header
@@ -130,49 +139,50 @@ void codec::pack(const chen::dns::header &header, std::vector<std::uint8_t> &sto
     }
 }
 
-void codec::unpack(chen::dns::header &header, const std::vector<std::uint8_t> &data)
+std::size_t codec::unpack(chen::dns::header &header, const std::uint8_t *data, std::size_t size)
 {
-    auto begin  = data.data();
-    auto remain = data.size();
+    std::size_t origin = size;
 
     // id
     std::int16_t id = 0;
-    std::size_t size = codec::unpack(id, begin, remain);
+    std::size_t temp = codec::unpack(id, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // flag
     std::uint16_t flag = 0;
-    size = codec::unpack(flag, begin, remain);
+    temp = codec::unpack(flag, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // question
     std::uint16_t qdcount = 0;
-    size = codec::unpack(qdcount, begin, remain);
+    temp = codec::unpack(qdcount, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // answer
     std::uint16_t ancount = 0;
-    size = codec::unpack(ancount, begin, remain);
+    temp = codec::unpack(ancount, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // authority
     std::uint16_t nscount = 0;
-    size = codec::unpack(nscount, begin, remain);
+    temp = codec::unpack(nscount, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // additional
     std::uint16_t arcount = 0;
-    codec::unpack(arcount, begin, remain);
+    temp = codec::unpack(arcount, data, size);
+
+    size -= temp;
 
     // set
     header.setId(id);
@@ -181,6 +191,8 @@ void codec::unpack(chen::dns::header &header, const std::vector<std::uint8_t> &d
     header.setAncount(ancount);
     header.setNscount(nscount);
     header.setArcount(arcount);
+
+    return origin - size;
 }
 
 // question
@@ -207,33 +219,81 @@ void codec::pack(const chen::dns::question &question, std::vector<std::uint8_t> 
     }
 }
 
-void codec::unpack(chen::dns::question &question, const std::vector<std::uint8_t> &data)
+std::size_t codec::unpack(chen::dns::question &question, const std::uint8_t *data, std::size_t size)
 {
-    auto begin  = data.data();
-    auto remain = data.size();
+    std::size_t origin = size;
 
     // qname
     std::string qname;
-    std::size_t size = codec::unpack(qname, true, begin, remain);
+    std::size_t temp = codec::unpack(qname, true, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // qtype
     chen::dns::RRType qtype = chen::dns::RRType::None;
-    size = codec::unpack(qtype, begin, remain);
+    temp = codec::unpack(qtype, data, size);
 
-    begin  += size;
-    remain -= size;
+    data += temp;
+    size -= temp;
 
     // qclass
     chen::dns::RRClass qclass = chen::dns::RRClass::None;
-    codec::unpack(qclass, begin, remain);
+    temp = codec::unpack(qclass, data, size);
+
+    size -= temp;
 
     // set
     question.setQname(qname);
     question.setQtype(qtype);
     question.setQclass(qclass);
+
+    return origin - size;
+}
+
+// request
+void codec::pack(const chen::dns::request &request, std::vector<std::uint8_t> &store)
+{
+    auto size = store.size();
+
+    try
+    {
+        // header
+        codec::pack(request.header(), store);
+
+        // question
+        codec::pack(request.question(), store);
+    }
+    catch (...)
+    {
+        // restore
+        store.erase(store.begin() + size, store.end());
+        throw;
+    }
+}
+
+std::size_t codec::unpack(chen::dns::request &request, const std::uint8_t *data, std::size_t size)
+{
+    std::size_t origin = size;
+
+    // header
+    chen::dns::header header;
+    std::size_t temp = codec::unpack(header, data, size);
+
+    data += temp;
+    size -= temp;
+
+    // question
+    chen::dns::question question;
+    temp = codec::unpack(question, data, size);
+
+    size -= temp;
+
+    // set
+    request.setHeader(header);
+    request.setQuestion(question);
+
+    return origin - size;
 }
 
 // data pack
