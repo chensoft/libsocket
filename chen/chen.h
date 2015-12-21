@@ -35,3 +35,4 @@
 #include <chen/net/dns/dns_record.h>
 #include <chen/net/dns/dns_header.h>
 #include <chen/net/dns/dns_packet.h>
+#include <chen/net/dns/dns_client.h>

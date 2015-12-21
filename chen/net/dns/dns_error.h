@@ -41,5 +41,15 @@ namespace chen
         public:
             explicit error_fqdn(const std::string &what) : error(what) {}
         };
+
+
+        /**
+         * Nameserver error
+         */
+        class error_nameserver : public error
+        {
+        public:
+            explicit error_nameserver(const std::string &what) : error(what) {}
+        };
     }
 }

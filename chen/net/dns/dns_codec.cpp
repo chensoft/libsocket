@@ -297,7 +297,7 @@ std::size_t codec::unpack(chen::dns::request &request, const std::uint8_t *data,
 }
 
 // response
-void pack(const chen::dns::response &response, std::vector<std::uint8_t> &store)
+void codec::pack(const chen::dns::response &response, std::vector<std::uint8_t> &store)
 {
     auto size = store.size();
 
@@ -334,7 +334,7 @@ void pack(const chen::dns::response &response, std::vector<std::uint8_t> &store)
     }
 }
 
-std::size_t unpack(chen::dns::response &response, const std::uint8_t *data, std::size_t size)
+std::size_t codec::unpack(chen::dns::response &response, const std::uint8_t *data, std::size_t size)
 {
     std::size_t origin = size;
 
