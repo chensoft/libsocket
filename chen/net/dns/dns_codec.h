@@ -45,6 +45,12 @@ namespace chen
             static void pack(const chen::dns::request &request, std::vector<std::uint8_t> &store);
             static std::size_t unpack(chen::dns::request &request, const std::uint8_t *data, std::size_t size);
 
+            /**
+             * Response Pack & Unpack
+             */
+            static void pack(const chen::dns::response &response, std::vector<std::uint8_t> &store);
+            static std::size_t unpack(chen::dns::response &response, const std::uint8_t *data, std::size_t size);
+
         public:
             /**
              * Data Pack & Unpack

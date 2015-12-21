@@ -92,27 +92,27 @@ void request::setRecursionDesired(bool value)
 // response
 
 // get
-const chen::dns::header& response::header()
+const chen::dns::header& response::header() const
 {
     return this->_header;
 }
 
-const response::q_type& response::question()
+const response::q_type& response::question() const
 {
     return this->_question;
 }
 
-const response::rr_type& response::answer()
+const response::rr_type& response::answer() const
 {
     return this->_answer;
 }
 
-const response::rr_type& response::authority()
+const response::rr_type& response::authority() const
 {
     return this->_authority;
 }
 
-const response::rr_type& response::additional()
+const response::rr_type& response::additional() const
 {
     return this->_additional;
 }

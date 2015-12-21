@@ -296,6 +296,116 @@ std::size_t codec::unpack(chen::dns::request &request, const std::uint8_t *data,
     return origin - size;
 }
 
+// response
+void pack(const chen::dns::response &response, std::vector<std::uint8_t> &store)
+{
+    auto size = store.size();
+
+    try
+    {
+        // header
+        codec::pack(response.header(), store);
+
+        // question
+        auto question = response.question();
+        for (auto &val : question)
+            codec::pack(val, store);
+
+        // answer
+        auto answer = response.answer();
+        for (auto &val : answer)
+            codec::pack(*val, store);
+
+        // authority
+        auto authority = response.authority();
+        for (auto &val : authority)
+            codec::pack(*val, store);
+
+        // additional
+        auto additional = response.additional();
+        for (auto &val : additional)
+            codec::pack(*val, store);
+    }
+    catch (...)
+    {
+        // restore
+        store.erase(store.begin() + size, store.end());
+        throw;
+    }
+}
+
+std::size_t unpack(chen::dns::response &response, const std::uint8_t *data, std::size_t size)
+{
+    std::size_t origin = size;
+
+    // header
+    chen::dns::header header;
+    std::size_t temp = codec::unpack(header, data, size);
+
+    data += temp;
+    size -= temp;
+
+    // question
+    response::q_type question;
+
+    for (std::uint16_t i = 0, len = header.qdcount(); i < len; ++i)
+    {
+        chen::dns::question q;
+        temp = codec::unpack(q, data, size);
+
+        data += temp;
+        size -= temp;
+    }
+
+    // answer
+    response::rr_type answer;
+
+    for (std::uint16_t i = 0, len = header.ancount(); i < len; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> r;
+        temp = codec::unpack(r, data, size);
+
+        data += temp;
+        size -= temp;
+
+        answer.push_back(r);
+    }
+
+    // authority
+    response::rr_type authority;
+
+    for (std::uint16_t i = 0, len = header.nscount(); i < len; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> r;
+        temp = codec::unpack(r, data, size);
+
+        data += temp;
+        size -= temp;
+
+        authority.push_back(r);
+    }
+
+    // additional
+    response::rr_type additional;
+
+    for (std::uint16_t i = 0, len = header.arcount(); i < len; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> r;
+        temp = codec::unpack(r, data, size);
+
+        data += temp;
+        size -= temp;
+
+        additional.push_back(r);
+    }
+
+    // set
+    response.setHeader(header);
+    response.setQuestion(std::move(question));
+
+    return origin - size;
+}
+
 // data pack
 void codec::pack(std::int8_t value, std::vector<std::uint8_t> &store)
 {
