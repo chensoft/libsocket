@@ -308,5 +308,88 @@ namespace chen
         public:
             std::string txt_data;
         };
+
+
+        // ---------------------------------------------------------------------
+        // RP(rfc1183, section 2.2)
+        struct RP : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string mbox_dname;
+            std::string txt_dname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // AFSDB(rfc1183, section 1)
+        struct AFSDB : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::int16_t subtype = 0;
+            std::string hostname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // X25(rfc1183, section 3.1)
+        struct X25 : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string psdn_address;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // ISDN(rfc1183, section 3.2)
+        struct ISDN : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string isdn_address;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // RT(rfc1183, section 3.3)
+        struct RT : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::int16_t preference = 0;
+            std::string intermediate_host;
+        };
     }
 }

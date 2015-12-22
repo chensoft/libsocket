@@ -93,6 +93,11 @@ namespace chen
             MINFO      = 14,  // rfc1035, section 3.3.7, mailbox or mail list information
             MX         = 15,  // rfc1035, section 3.3.9, mail exchange
             TXT        = 16,  // rfc1035, section 3.3.14, text strings
+            RP         = 17,  // rfc1183, section 2.2, responsible person
+            AFSDB      = 18,  // rfc1183, section 1, afs data base location
+            X25        = 19,  // rfc1183, section 3.1, maps a domain name to a Public Switched Data Network (PSDN) address number
+            ISDN       = 20,  // rfc1183, section 3.2, maps a domain name to an ISDN (Integrated Services Digital Network) telephone number
+            RT         = 21,  // rfc1183, section 3.3, route through
 
             AXFR  = 252,  // A request for a transfer of an entire zone
             MAILB = 253,  // A request for mailbox-related records (MB, MG or MR)

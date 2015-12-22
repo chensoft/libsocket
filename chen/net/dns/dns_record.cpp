@@ -300,3 +300,87 @@ std::size_t TXT::setData(const std::uint8_t *data, std::size_t size)
 {
     return codec::unpack(this->txt_data, false, data, size);
 }
+
+
+// -----------------------------------------------------------------------------
+// RP
+std::vector<std::uint8_t> RP::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->mbox_dname, true, store);
+    codec::pack(this->txt_dname, true, store);
+    return std::move(store);
+}
+
+std::size_t RP::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->mbox_dname, true, data, size);
+    temp += codec::unpack(this->txt_dname, true, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// AFSDB
+std::vector<std::uint8_t> AFSDB::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->subtype, store);
+    codec::pack(this->hostname, true, store);
+    return std::move(store);
+}
+
+std::size_t AFSDB::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->subtype, data, size);
+    temp += codec::unpack(this->hostname, true, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// X25
+std::vector<std::uint8_t> X25::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->psdn_address, false, store);
+    return std::move(store);
+}
+
+std::size_t X25::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->psdn_address, false, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// ISDN
+std::vector<std::uint8_t> ISDN::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->isdn_address, false, store);
+    return std::move(store);
+}
+
+std::size_t ISDN::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->isdn_address, false, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// RT
+std::vector<std::uint8_t> RT::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->preference, store);
+    codec::pack(this->intermediate_host, true, store);
+    return std::move(store);
+}
+
+std::size_t RT::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->intermediate_host, true, data + temp, size - temp);
+    return temp;
+}
