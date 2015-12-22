@@ -33,8 +33,6 @@ namespace chen
             chen::dns::RRType rrtype   = chen::dns::RRType::None;
             chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
             std::int32_t ttl = 0;
-
-            // rdlength, uint16_t
         };
 
 
@@ -46,13 +44,14 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
             std::uint16_t rdlength = 0;
             std::vector<std::uint8_t> rdata;
         };
+
 
         // ---------------------------------------------------------------------
         // A(rfc1035, section 3.4.1)
@@ -62,11 +61,11 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::int32_t address;  // IPv4 address
+            std::int32_t address = 0;
         };
 
 
@@ -78,11 +77,43 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string nsdname;  // authoritative nameserver domain name
+            std::string nsdname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // MD(rfc1035, section 3.3.4)
+        struct MD : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string madname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // MF(rfc1035, section 3.3.5)
+        struct MF : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string madname;
         };
 
 
@@ -94,11 +125,11 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string cname;  // canonical name
+            std::string cname;
         };
 
 
@@ -110,8 +141,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
             std::string mname;  // primary nameserver
@@ -124,6 +155,79 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
+        // MB(rfc1035, section 3.3.3)
+        struct MB : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string madname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // MG(rfc1035, section 3.3.6)
+        struct MG : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string mgmname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // MR(rfc1035, section 3.3.8)
+        struct MR : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string newname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // RNULL(rfc1035, section 3.3.10, can store anything)
+        struct RNULL : public Unknown
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
+        // WKS(rfc1035, section 3.4.2)
+        struct WKS : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::int32_t address = 0;
+            std::int8_t protocol = 0;
+            std::vector<std::uint8_t> bitmap;
+        };
+
+
+        // ---------------------------------------------------------------------
         // PTR(rfc1035, section 3.3.12)
         struct PTR : public RR
         {
@@ -131,11 +235,45 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string ptrdname;  // domain name which points to some location
+            std::string ptrdname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // HINFO(rfc1035, section 3.3.2)
+        struct HINFO : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string cpu;
+            std::string os;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // MINFO(rfc1035, section 3.3.7)
+        struct MINFO : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string rmailbx;
+            std::string emailbx;
         };
 
 
@@ -147,12 +285,12 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::int16_t preference = 0;  // preference of this record
-            std::string exchange;  // a host act as a mail exchange
+            std::int16_t preference = 0;
+            std::string exchange;
         };
 
 
@@ -164,11 +302,11 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size);
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string txt_data;  // character strings
+            std::string txt_data;
         };
     }
 }

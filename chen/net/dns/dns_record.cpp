@@ -80,6 +80,36 @@ std::size_t NS::setData(const std::uint8_t *data, std::size_t size)
 
 
 // -----------------------------------------------------------------------------
+// MD
+std::vector<std::uint8_t> MD::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->madname, true, store);
+    return std::move(store);
+}
+
+std::size_t MD::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->madname, true, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// MF
+std::vector<std::uint8_t> MF::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->madname, true, store);
+    return std::move(store);
+}
+
+std::size_t MF::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->madname, true, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
 // CNAME
 std::vector<std::uint8_t> CNAME::data() const
 {
@@ -111,12 +141,80 @@ std::vector<std::uint8_t> SOA::data() const
 std::size_t SOA::setData(const std::uint8_t *data, std::size_t size)
 {
     std::size_t temp = codec::unpack(this->mname, true, data, size);
-    temp += codec::unpack(this->rname, true, data, size);
-    temp += codec::unpack(this->serial, data, size);
-    temp += codec::unpack(this->refresh, data, size);
-    temp += codec::unpack(this->retry, data, size);
-    temp += codec::unpack(this->expire, data, size);
+    temp += codec::unpack(this->rname, true, data + temp, size - temp);
+    temp += codec::unpack(this->serial, data + temp, size - temp);
+    temp += codec::unpack(this->refresh, data + temp, size - temp);
+    temp += codec::unpack(this->retry, data + temp, size - temp);
+    temp += codec::unpack(this->expire, data + temp, size - temp);
     return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// MB
+std::vector<std::uint8_t> MB::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->madname, true, store);
+    return std::move(store);
+}
+
+std::size_t MB::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->madname, true, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// MG
+std::vector<std::uint8_t> MG::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->mgmname, true, store);
+    return std::move(store);
+}
+
+std::size_t MG::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->mgmname, true, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// MR
+std::vector<std::uint8_t> MR::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->newname, true, store);
+    return std::move(store);
+}
+
+std::size_t MR::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->newname, true, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// WKS
+std::vector<std::uint8_t> WKS::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->address, store);
+    codec::pack(this->protocol, store);
+    store.insert(store.begin(), this->bitmap.begin(), this->bitmap.end());
+    return std::move(store);
+}
+
+std::size_t WKS::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->address, data, size);
+    temp += codec::unpack(this->protocol, data + temp, size - temp);
+
+    this->bitmap.clear();
+    this->bitmap.insert(this->bitmap.begin(), data + temp, data + size);
+
+    return size;
 }
 
 
@@ -136,6 +234,42 @@ std::size_t PTR::setData(const std::uint8_t *data, std::size_t size)
 
 
 // -----------------------------------------------------------------------------
+// HINFO
+std::vector<std::uint8_t> HINFO::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->cpu, false, store);
+    codec::pack(this->os, false, store);
+    return std::move(store);
+}
+
+std::size_t HINFO::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->cpu, false, data, size);
+    temp += codec::unpack(this->os, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// MINFO
+std::vector<std::uint8_t> MINFO::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->rmailbx, true, store);
+    codec::pack(this->emailbx, true, store);
+    return std::move(store);
+}
+
+std::size_t MINFO::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->rmailbx, true, data, size);
+    temp += codec::unpack(this->emailbx, true, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
 // MX
 std::vector<std::uint8_t> MX::data() const
 {
@@ -148,7 +282,7 @@ std::vector<std::uint8_t> MX::data() const
 std::size_t MX::setData(const std::uint8_t *data, std::size_t size)
 {
     std::size_t temp = codec::unpack(this->preference, data, size);
-    temp += codec::unpack(this->exchange, true, data, size);
+    temp += codec::unpack(this->exchange, true, data + temp, size - temp);
     return temp;
 }
 

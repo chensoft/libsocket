@@ -4,6 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  * @link   https://tools.ietf.org/html/rfc1035
+ * @link   https://en.wikipedia.org/wiki/List_of_DNS_record_types
  */
 #pragma once
 
@@ -75,23 +76,23 @@ namespace chen
         // ---------------------------------------------------------------------
         // RRType(common rr types and question types)
         enum class RRType : std::uint16_t {
-            None  = 0,   // none
-            A     = 1,   // a host address
-            NS    = 2,   // an authoritative name server
-            MD    = 3,   // a mail destination (Obsolete - use MX)
-            MF    = 4,   // a mail forwarder (Obsolete - use MX)
-            CNAME = 5,   // the canonical name for an alias
-            SOA   = 6,   // marks the start of a zone of authority
-            MB    = 7,   // a mailbox domain name (EXPERIMENTAL)
-            MG    = 8,   // a mail group member (EXPERIMENTAL)
-            MR    = 9,   // a mail rename domain name (EXPERIMENTAL)
-            RNULL = 10,  // a null RR (EXPERIMENTAL)
-            WKS   = 11,  // a well known service description
-            PTR   = 12,  // a domain name pointer
-            HINFO = 13,  // host information
-            MINFO = 14,  // mailbox or mail list information
-            MX    = 15,  // mail exchange
-            TXT   = 16,  // text strings
+            None       = 0,   // none
+            A          = 1,   // rfc1035, section 3.4.1, a host address
+            NS         = 2,   // rfc1035, section 3.3.11, an authoritative name server
+            MD         = 3,   // rfc1035, section 3.3.4, a mail destination (Obsolete - use MX)
+            MF         = 4,   // rfc1035, section 3.3.5, a mail forwarder (Obsolete - use MX)
+            CNAME      = 5,   // rfc1035, section 3.3.1, the canonical name for an alias
+            SOA        = 6,   // rfc1035, section 3.3.13, marks the start of a zone of authority
+            MB         = 7,   // rfc1035, section 3.3.3, a mailbox domain name (EXPERIMENTAL)
+            MG         = 8,   // rfc1035, section 3.3.6, a mail group member (EXPERIMENTAL)
+            MR         = 9,   // rfc1035, section 3.3.8, a mail rename domain name (EXPERIMENTAL)
+            RNULL      = 10,  // rfc1035, section 3.3.10, a null RR (EXPERIMENTAL)
+            WKS        = 11,  // rfc1035, section 3.4.2, a well known service description
+            PTR        = 12,  // rfc1035, section 3.3.12, a domain name pointer
+            HINFO      = 13,  // rfc1035, section 3.3.2, host information
+            MINFO      = 14,  // rfc1035, section 3.3.7, mailbox or mail list information
+            MX         = 15,  // rfc1035, section 3.3.9, mail exchange
+            TXT        = 16,  // rfc1035, section 3.3.14, text strings
 
             AXFR  = 252,  // A request for a transfer of an entire zone
             MAILB = 253,  // A request for mailbox-related records (MB, MG or MR)
