@@ -37,12 +37,24 @@ namespace chen
             const chen::dns::header& header()     const;
             const chen::dns::question& question() const;
 
+            /**
+             * Get address and port
+             */
+            std::string addr()   const;
+            std::uint16_t port() const;
+
         public:
             /**
              * Set field value
              */
             void setHeader(const chen::dns::header &value);
             void setQuestion(const chen::dns::question &value);
+
+            /**
+             * Set address and port
+             */
+            void setAddr(const std::string &value);
+            void setPort(std::uint16_t value);
 
         public:
             /**
@@ -60,6 +72,10 @@ namespace chen
         private:
             chen::dns::header _header;
             chen::dns::question _question;
+
+            // for client send request to server
+            std::string _addr;
+            std::uint16_t _port = 0;
         };
 
 

@@ -45,6 +45,17 @@ const chen::dns::question& request::question() const
     return this->_question;
 }
 
+// address
+std::string request::addr() const
+{
+    return this->_addr;
+}
+
+std::uint16_t request::port() const
+{
+    return this->_port;
+}
+
 // set
 void request::setHeader(const chen::dns::header &value)
 {
@@ -54,6 +65,17 @@ void request::setHeader(const chen::dns::header &value)
 void request::setQuestion(const chen::dns::question &value)
 {
     this->_question = value;
+}
+
+// address
+void request::setAddr(const std::string &value)
+{
+    this->_addr = value;
+}
+
+void request::setPort(std::uint16_t value)
+{
+    this->_port = value;
 }
 
 // set query

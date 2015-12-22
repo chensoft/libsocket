@@ -1,32 +1,30 @@
 /**
  * Created by Jian Chen
- * @since  2015.11.22
+ * @since  2015.12.22
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
 #pragma once
 
-#include "udp_socket.h"
+#include "dns_packet.h"
 #include <functional>
-#include <vector>
-#include <mutex>
+#include <chen/net/udp/udp_server.h>
 
 namespace chen
 {
-    namespace udp
+    namespace dns
     {
-        class server : public socket
+        class server
         {
         public:
             /**
-             * Callback type: data, addr, port
+             * Callback type: request
              */
-            typedef std::function<void (const std::vector<std::uint8_t>&,
-                                        const std::string&,
-                                        std::uint16_t)> callback_type;
+            typedef std::function<void (const chen::dns::request&)> callback_type;
 
         public:
-            server() = default;
+            server();
+            virtual ~server() = default;
 
         public:
             /**
@@ -44,11 +42,6 @@ namespace chen
              */
             virtual void stop();
 
-            /**
-             * Close socket
-             */
-            virtual void close() override;
-
         public:
             /**
              * Set observer for server
@@ -63,9 +56,7 @@ namespace chen
             /**
              * Notify the observer
              */
-            virtual void notify(const std::vector<std::uint8_t> &data,
-                                const std::string &addr,
-                                std::uint16_t port);
+            virtual void notify(const chen::dns::request &request);
 
         public:
             /**
@@ -83,11 +74,15 @@ namespace chen
             server& operator=(const server&) = delete;
 
         protected:
-            std::string _addr;
-            std::uint16_t _port = 0;
+            /**
+             * Receive server packet
+             */
+            virtual void onPacket(const std::vector<std::uint8_t> &data,
+                                  const std::string &addr,
+                                  std::uint16_t port);
 
-            bool _quit = false;
-            std::mutex _mutex;
+        protected:
+            chen::udp::server _udp;
 
             callback_type _callback;
         };

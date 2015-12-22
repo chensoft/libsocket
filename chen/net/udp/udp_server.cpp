@@ -11,10 +11,6 @@ using namespace chen::udp;
 
 // -----------------------------------------------------------------------------
 // server
-server::server()
-{
-
-}
 
 void server::start()
 {
@@ -76,10 +72,10 @@ void server::detach()
     this->_callback = nullptr;
 }
 
-void server::notify(std::vector<std::uint8_t> data, std::string addr, std::uint16_t port)
+void server::notify(const std::vector<std::uint8_t> &data, const std::string &addr, std::uint16_t port)
 {
     if (this->_callback)
-        this->_callback(std::move(data), std::move(addr), port);
+        this->_callback(data, addr, port);
 }
 
 std::string server::addr() const
