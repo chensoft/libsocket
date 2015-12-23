@@ -9,6 +9,7 @@
 #include "dns_define.h"
 #include <string>
 #include <vector>
+#include <array>
 
 namespace chen
 {
@@ -390,6 +391,173 @@ namespace chen
         public:
             std::int16_t preference = 0;
             std::string intermediate_host;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // NSAP(rfc1706, section 5)
+        struct NSAP : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string nsap;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // NSAPPTR(rfc1706, section 6)
+        struct NSAPPTR : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string ptrdname;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // SIG(rfc2535, section 4.1)
+        struct SIG : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t typecovered = 0;
+            std::uint8_t algorithm    = 0;
+            std::uint8_t labels       = 0;
+            std::uint32_t original    = 0;  // original ttl
+            std::uint32_t expiration  = 0;  // signature expiration
+            std::uint32_t inception   = 0;  // signature inception
+            std::uint16_t keytag      = 0;
+            std::string signer;  // signer's name
+            std::string signature;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // KEY(rfc2535, section 3.1)
+        struct KEY : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t flags    = 0;
+            std::uint8_t protocol  = 0;
+            std::uint8_t algorithm = 0;
+            std::string publickey;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // PX(rfc2163, section 4)
+        struct PX : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::int16_t preference = 0;
+            std::string map822;
+            std::string mapx400;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // GPOS(rfc1712, section 3)
+        struct GPOS : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string longitude;
+            std::string latitude;
+            std::string altitude;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // AAAA(rfc3596, section 2.2)
+        struct AAAA : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::array<std::uint8_t, 16> address;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // LOC(rfc1876, section 2)
+        struct LOC : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint8_t version  = 0;
+            std::uint8_t size     = 0;
+            std::uint8_t horizpre = 0;
+            std::uint8_t vertpre  = 0;
+
+            std::uint32_t longitude = 0;
+            std::uint32_t latitude  = 0;
+            std::uint32_t altitude  = 0;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // NXT(rfc2535, section 5.2)
+        struct NXT : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string next;
+            std::vector<std::uint8_t> bitmap;
         };
     }
 }

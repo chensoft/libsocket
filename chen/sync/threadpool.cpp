@@ -59,7 +59,7 @@ void threadpool::run()
             if (size)
             {
                 job = this->_queue.front();
-                this->_queue.erase(this->_queue.begin());
+                this->_queue.erase(this->_queue.cbegin());
             }
 
             if ((size <= 1) && this->_destroy)

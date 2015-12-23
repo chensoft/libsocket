@@ -77,7 +77,7 @@ namespace chen
         // RRType(common rr types and question types)
         enum class RRType : std::uint16_t {
             None       = 0,   // none
-            A          = 1,   // rfc1035, section 3.4.1, a host address
+            A          = 1,   // rfc1035, section 3.4.1, ipv4 address
             NS         = 2,   // rfc1035, section 3.3.11, an authoritative name server
             MD         = 3,   // rfc1035, section 3.3.4, a mail destination (Obsolete - use MX)
             MF         = 4,   // rfc1035, section 3.3.5, a mail forwarder (Obsolete - use MX)
@@ -98,6 +98,15 @@ namespace chen
             X25        = 19,  // rfc1183, section 3.1, maps a domain name to a Public Switched Data Network (PSDN) address number
             ISDN       = 20,  // rfc1183, section 3.2, maps a domain name to an ISDN (Integrated Services Digital Network) telephone number
             RT         = 21,  // rfc1183, section 3.3, route through
+            NSAP       = 22,  // rfc1706, section 5, map from domain names to NSAPs
+            NSAPPTR    = 23,  // rfc1706, section 6, map from NSAPs to domain names under the "NSAP.INT" domain
+            SIG        = 24,  // rfc2535, section 4.1, signature
+            KEY        = 25,  // rfc2535, section 3.1, key record
+            PX         = 26,  // rfc2163, section 4, resource record for MIXER mapping rules
+            GPOS       = 27,  // rfc1712, section 3, geographical location
+            AAAA       = 28,  // rfc3596, section 2.2, ipv6 address
+            LOC        = 29,  // rfc1876, section 2, location record
+            NXT        = 30,  // rfc2535, section 5.2, next resource record
 
             AXFR  = 252,  // A request for a transfer of an entire zone
             MAILB = 253,  // A request for mailbox-related records (MB, MG or MR)

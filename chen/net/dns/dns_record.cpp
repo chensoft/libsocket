@@ -7,6 +7,7 @@
 #include "dns_record.h"
 #include "dns_codec.h"
 #include "dns_error.h"
+#include <chen/tool/str.h>
 
 using namespace chen;
 using namespace chen::dns;
@@ -43,7 +44,7 @@ std::size_t Unknown::setData(const std::uint8_t *data, std::size_t size)
     this->rdlength = rdlength;
 
     this->rdata.clear();
-    this->rdata.insert(this->rdata.begin(), data + 2, data + rdlength);
+    this->rdata.insert(this->rdata.cbegin(), data + 2, data + rdlength);
 
     return rdlength + 2;
 }
@@ -202,7 +203,7 @@ std::vector<std::uint8_t> WKS::data() const
     std::vector<std::uint8_t> store;
     codec::pack(this->address, store);
     codec::pack(this->protocol, store);
-    store.insert(store.begin(), this->bitmap.begin(), this->bitmap.end());
+    store.insert(store.cbegin(), this->bitmap.cbegin(), this->bitmap.cend());
     return std::move(store);
 }
 
@@ -212,7 +213,7 @@ std::size_t WKS::setData(const std::uint8_t *data, std::size_t size)
     temp += codec::unpack(this->protocol, data + temp, size - temp);
 
     this->bitmap.clear();
-    this->bitmap.insert(this->bitmap.begin(), data + temp, data + size);
+    this->bitmap.insert(this->bitmap.cbegin(), data + temp, data + size);
 
     return size;
 }
@@ -383,4 +384,199 @@ std::size_t RT::setData(const std::uint8_t *data, std::size_t size)
     std::size_t temp = codec::unpack(this->preference, data, size);
     temp += codec::unpack(this->intermediate_host, true, data + temp, size - temp);
     return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// NSAP
+std::vector<std::uint8_t> NSAP::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->nsap, false, store);
+    return std::move(store);
+}
+
+std::size_t NSAP::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->nsap, false, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// NSAPPTR
+std::vector<std::uint8_t> NSAPPTR::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->ptrdname, true, store);
+    return std::move(store);
+}
+
+std::size_t NSAPPTR::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->ptrdname, true, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// SIG
+std::vector<std::uint8_t> SIG::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->typecovered, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->labels, store);
+    codec::pack(this->original, store);
+    codec::pack(this->expiration, store);
+    codec::pack(this->inception, store);
+    codec::pack(this->keytag, store);
+    codec::pack(this->signer, true, store);
+    codec::pack(this->signature, false, store);
+    return std::move(store);
+}
+
+std::size_t SIG::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->typecovered, data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->labels, data + temp, size - temp);
+    temp += codec::unpack(this->original, data + temp, size - temp);
+    temp += codec::unpack(this->expiration, data + temp, size - temp);
+    temp += codec::unpack(this->inception, data + temp, size - temp);
+    temp += codec::unpack(this->keytag, data + temp, size - temp);
+    temp += codec::unpack(this->signer, true, data + temp, size - temp);
+    temp += codec::unpack(this->signature, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// KEY
+std::vector<std::uint8_t> KEY::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->flags, store);
+    codec::pack(this->protocol, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->publickey, false, store);
+    return std::move(store);
+}
+
+std::size_t KEY::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->flags, data, size);
+    temp += codec::unpack(this->protocol, data + temp, size - temp);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->publickey, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// PX
+std::vector<std::uint8_t> PX::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->preference, store);
+    codec::pack(this->map822, true, store);
+    codec::pack(this->mapx400, true, store);
+    return std::move(store);
+}
+
+std::size_t PX::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->map822, true, data + temp, size - temp);
+    temp += codec::unpack(this->mapx400, true, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// GPOS
+std::vector<std::uint8_t> GPOS::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->longitude, false, store);
+    codec::pack(this->latitude, false, store);
+    codec::pack(this->altitude, false, store);
+    return std::move(store);
+}
+
+std::size_t GPOS::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->longitude, false, data, size);
+    temp += codec::unpack(this->latitude, false, data + temp, size - temp);
+    temp += codec::unpack(this->altitude, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// AAAA
+std::vector<std::uint8_t> AAAA::data() const
+{
+    std::vector<std::uint8_t> store;
+    store.insert(store.cbegin(), this->address.cbegin(), this->address.cend());
+    return std::move(store);
+}
+
+std::size_t AAAA::setData(const std::uint8_t *data, std::size_t size)
+{
+    auto need = this->address.size();
+
+    if (size < need)
+        throw error_size(str::format("codec unpack AAAA size is not enough, require %d bytes", need));
+
+    std::copy(data, data + need, this->address.begin());
+
+    return need;
+}
+
+
+// -----------------------------------------------------------------------------
+// LOC
+std::vector<std::uint8_t> LOC::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->version, store);
+    codec::pack(this->size, store);
+    codec::pack(this->horizpre, store);
+    codec::pack(this->vertpre, store);
+    codec::pack(this->longitude, store);
+    codec::pack(this->latitude, store);
+    codec::pack(this->altitude, store);
+    return std::move(store);
+}
+
+std::size_t LOC::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->version, data, size);
+    temp += codec::unpack(this->size, data + temp, size - temp);
+    temp += codec::unpack(this->horizpre, data + temp, size - temp);
+    temp += codec::unpack(this->vertpre, data + temp, size - temp);
+    temp += codec::unpack(this->longitude, data + temp, size - temp);
+    temp += codec::unpack(this->latitude, data + temp, size - temp);
+    temp += codec::unpack(this->altitude, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// NXT
+std::vector<std::uint8_t> NXT::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->next, true, store);
+    store.insert(store.cbegin(), this->bitmap.cbegin(), this->bitmap.cend());
+    return std::move(store);
+}
+
+std::size_t NXT::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->next, true, data, size);
+
+    this->bitmap.clear();
+    this->bitmap.insert(this->bitmap.cbegin(), data + temp, data + size);
+
+    return size;
 }

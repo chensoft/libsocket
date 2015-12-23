@@ -29,12 +29,12 @@ test::test()
 
 void test::check()
 {
-    for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
+    for (auto it = this->_store.cbegin(); it != this->_store.cend(); ++it)
         it->second->check();
 }
 
 void test::bench()
 {
-    for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
+    for (auto it = this->_store.cbegin(); it != this->_store.cend(); ++it)
         it->second->bench();
 }

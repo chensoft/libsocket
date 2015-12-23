@@ -45,19 +45,19 @@ std::map<chen::dns::RRType, table::rr_build_type> table::_rr_build = {
 std::string table::rrTypeToName(chen::dns::RRType key)
 {
     auto it = table::_rr_name.find(key);
-    return it != table::_rr_name.end() ? it->second : "";
+    return it != table::_rr_name.cend() ? it->second : "";
 }
 
 chen::dns::RRType table::rrNameToType(const std::string &key)
 {
     auto it = table::_rr_reverse.find(key);
-    return it != table::_rr_reverse.end() ? it->second : chen::dns::RRType::None;
+    return it != table::_rr_reverse.cend() ? it->second : chen::dns::RRType::None;
 }
 
 chen::dns::table::rr_build_type table::rrTypeToBuild(chen::dns::RRType key)
 {
     auto it = table::_rr_build.find(key);
-    return it != table::_rr_build.end() ? it->second : nullptr;
+    return it != table::_rr_build.cend() ? it->second : nullptr;
 }
 
 // set

@@ -404,14 +404,14 @@ namespace chen
 
         auto it_tiny = this->_tiny.find(name);
 
-        if (it_tiny != this->_tiny.end())
+        if (it_tiny != this->_tiny.cend())
             tiny = it_tiny->second;
         else
             tiny = name;
 
         auto it_store = this->_store.find(tiny);
 
-        if (it_store == this->_store.end())
+        if (it_store == this->_store.cend())
             throw std::runtime_error("cmd: option not defined: " + tiny);
 
         auto *p = dynamic_cast<cmd_option<T> *>(it_store->second.get());

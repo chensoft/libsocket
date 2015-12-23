@@ -31,12 +31,12 @@ void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
         // rdata
         auto rdata = rr.data();
         codec::pack(static_cast<std::uint16_t>(rdata.size()), store);
-        store.insert(store.end(), rdata.cbegin(), rdata.cend());
+        store.insert(store.cend(), rdata.cbegin(), rdata.cend());
     }
     catch (...)
     {
         // restore
-        store.erase(store.begin() + size, store.end());
+        store.erase(store.cbegin() + size, store.cend());
         throw;
     }
 }
@@ -134,7 +134,7 @@ void codec::pack(const chen::dns::header &header, std::vector<std::uint8_t> &sto
     catch (...)
     {
         // restore
-        store.erase(store.begin() + size, store.end());
+        store.erase(store.cbegin() + size, store.cend());
         throw;
     }
 }
@@ -214,7 +214,7 @@ void codec::pack(const chen::dns::question &question, std::vector<std::uint8_t> 
     catch (...)
     {
         // restore
-        store.erase(store.begin() + size, store.end());
+        store.erase(store.cbegin() + size, store.cend());
         throw;
     }
 }
@@ -267,7 +267,7 @@ void codec::pack(const chen::dns::request &request, std::vector<std::uint8_t> &s
     catch (...)
     {
         // restore
-        store.erase(store.begin() + size, store.end());
+        store.erase(store.cbegin() + size, store.cend());
         throw;
     }
 }
@@ -329,7 +329,7 @@ void codec::pack(const chen::dns::response &response, std::vector<std::uint8_t> 
     catch (...)
     {
         // restore
-        store.erase(store.begin() + size, store.end());
+        store.erase(store.cbegin() + size, store.cend());
         throw;
     }
 }
@@ -502,7 +502,7 @@ void codec::pack(const std::string &value, bool domain, std::vector<std::uint8_t
         }
         catch (...)
         {
-            store.erase(store.begin() + origin, store.end());
+            store.erase(store.cbegin() + origin, store.cend());
             throw;
         }
     }
@@ -515,7 +515,7 @@ void codec::pack(const std::string &value, bool domain, std::vector<std::uint8_t
             throw error_size(str::format("codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
         store.push_back(static_cast<std::uint8_t>(value.size()));
-        store.insert(store.end(), value.cbegin(), value.cend());
+        store.insert(store.cend(), value.cbegin(), value.cend());
     }
 }
 
