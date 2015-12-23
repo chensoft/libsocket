@@ -107,6 +107,26 @@ namespace chen
             AAAA       = 28,  // rfc3596, section 2.2, ipv6 address
             LOC        = 29,  // rfc1876, section 2, location record
             NXT        = 30,  // rfc2535, section 5.2, next resource record
+            EID        = 31,  // draft-lewis-dns-undocumented-types-01
+            NIMLOC     = 32,  // draft-lewis-dns-undocumented-types-01
+            SRV        = 33,  // rfc2782, service locator
+            ATMA       = 34,  // ATM Name System Specification Version 1.0, maps a domain name to an ATM address
+            NAPTR      = 35,  // rfc3403, section 4.1, naming authority pointer
+            KX         = 36,  // rfc2230, section 3.1, key exchanger record
+            CERT       = 37,  // rfc4398, section 2, certificate record
+            DNAME      = 39,  // rfc2672, section 3, delegation name
+            OPT        = 41,  // rfc6891, section 6.1.2, option, a pseudo-record type
+            DS         = 43,  // rfc4034, section 5.1, delegation signer
+            SSHFP      = 44,  // rfc4255, section 3.1, SSH public key fingerprint
+            IPSECKEY   = 45,  // rfc4025, section 2.1, IPsec key
+            RRSIG      = 46,  // rfc4034, section 3.1, DNSSEC signature
+            NSEC       = 47,  // rfc4034, section 4.1, next-secure record
+            DNSKEY     = 48,  // rfc4034, section 2.1, DNS key record
+            DHCID      = 49,  // rfc4701, section 3.1, DHCP identifier
+            NSEC3      = 50,  // rfc5155, section 3.2, NSEC record version 3
+            NSEC3PARAM = 51,  // rfc5155, section 4.2, NSEC record version 3
+            TLSA       = 52,  // rfc6698, section 2.1, TLSA certificate association
+            HIP        = 55,  // rfc5205, section 5, host identity protocol
 
             AXFR  = 252,  // A request for a transfer of an entire zone
             MAILB = 253,  // A request for mailbox-related records (MB, MG or MR)

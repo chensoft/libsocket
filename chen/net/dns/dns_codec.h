@@ -64,6 +64,7 @@ namespace chen
             static void pack(chen::dns::RRType value, std::vector<std::uint8_t> &store);
             static void pack(chen::dns::RRClass value, std::vector<std::uint8_t> &store);
             static void pack(const std::string &value, bool domain, std::vector<std::uint8_t> &store);
+            // todo domain move to last param
 
             static std::size_t unpack(std::int8_t &value, const std::uint8_t *data, std::size_t size);
             static std::size_t unpack(std::int16_t &value, const std::uint8_t *data, std::size_t size);
