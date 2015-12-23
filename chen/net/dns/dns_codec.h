@@ -64,8 +64,7 @@ namespace chen
             static void pack(std::uint64_t value, std::vector<std::uint8_t> &store);
             static void pack(chen::dns::RRType value, std::vector<std::uint8_t> &store);
             static void pack(chen::dns::RRClass value, std::vector<std::uint8_t> &store);
-            static void pack(const std::string &value, bool domain, std::vector<std::uint8_t> &store);
-            // todo domain move to last param
+            static void pack(const std::string &value, std::vector<std::uint8_t> &store, bool domain);
 
             static std::size_t unpack(std::int8_t &value, const std::uint8_t *data, std::size_t size);
             static std::size_t unpack(std::int16_t &value, const std::uint8_t *data, std::size_t size);
@@ -76,7 +75,7 @@ namespace chen
             static std::size_t unpack(std::uint64_t &value, const std::uint8_t *data, std::size_t size);
             static std::size_t unpack(chen::dns::RRType &value, const std::uint8_t *data, std::size_t size);
             static std::size_t unpack(chen::dns::RRClass &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::string &value, bool domain, const std::uint8_t *data, std::size_t size);
+            static std::size_t unpack(std::string &value, const std::uint8_t *data, std::size_t size, bool domain);
 
         private:
             /**

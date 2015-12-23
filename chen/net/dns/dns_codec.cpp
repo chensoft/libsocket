@@ -23,7 +23,7 @@ void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
     try
     {
         // common
-        codec::pack(rr.name, true, store);
+        codec::pack(rr.name, store, true);
         codec::pack(rr.rrtype, store);
         codec::pack(rr.rrclass, store);
         codec::pack(rr.ttl, store);
@@ -47,7 +47,7 @@ std::size_t codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t
 
     // name
     std::string name;
-    std::size_t temp = codec::unpack(name, true, data, size);
+    std::size_t temp = codec::unpack(name, data, size, true);
 
     data += temp;
     size -= temp;
@@ -203,7 +203,7 @@ void codec::pack(const chen::dns::question &question, std::vector<std::uint8_t> 
     try
     {
         // qname
-        codec::pack(question.qname(), true, store);
+        codec::pack(question.qname(), store, true);
 
         // qtype
         codec::pack(question.qtype(), store);
@@ -225,7 +225,7 @@ std::size_t codec::unpack(chen::dns::question &question, const std::uint8_t *dat
 
     // qname
     std::string qname;
-    std::size_t temp = codec::unpack(qname, true, data, size);
+    std::size_t temp = codec::unpack(qname, data, size, true);
 
     data += temp;
     size -= temp;
@@ -463,7 +463,7 @@ void codec::pack(chen::dns::RRClass value, std::vector<std::uint8_t> &store)
     codec::pack(static_cast<std::uint16_t>(value), store);
 }
 
-void codec::pack(const std::string &value, bool domain, std::vector<std::uint8_t> &store)
+void codec::pack(const std::string &value, std::vector<std::uint8_t> &store, bool domain)
 {
     if (domain)
     {
@@ -601,7 +601,7 @@ std::size_t codec::unpack(chen::dns::RRClass &value, const std::uint8_t *data, s
     return 2;
 }
 
-std::size_t codec::unpack(std::string &value, bool domain, const std::uint8_t *data, std::size_t size)
+std::size_t codec::unpack(std::string &value, const std::uint8_t *data, std::size_t size, bool domain)
 {
     codec::check(1, size, "codec unpack size is zero");
 
