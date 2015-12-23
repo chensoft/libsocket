@@ -1051,3 +1051,397 @@ std::size_t HIP::setData(const std::uint8_t *data, std::size_t size)
     temp += codec::unpack(this->rendezvousservers, false, data + temp, size - temp);
     return temp;
 }
+
+
+// -----------------------------------------------------------------------------
+// NINFO
+std::vector<std::uint8_t> NINFO::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->zs_data, false, store);
+    return std::move(store);
+}
+
+std::size_t NINFO::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->zs_data, false, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// RKEY
+std::vector<std::uint8_t> RKEY::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->flags, store);
+    codec::pack(this->protocol, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->publickey, false, store);
+    return std::move(store);
+}
+
+std::size_t RKEY::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->flags, data, size);
+    temp += codec::unpack(this->protocol, data + temp, size - temp);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->publickey, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// TALINK
+std::vector<std::uint8_t> TALINK::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->previous, false, store);
+    codec::pack(this->next, false, store);
+    return std::move(store);
+}
+
+std::size_t TALINK::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->previous, false, data, size);
+    temp += codec::unpack(this->next, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// CDS
+std::vector<std::uint8_t> CDS::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->keytag, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->digesttype, store);
+    codec::pack(this->digest, false, store);
+    return std::move(store);
+}
+
+std::size_t CDS::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->keytag, data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->digesttype, data + temp, size - temp);
+    temp += codec::unpack(this->digest, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// CDNSKEY
+std::vector<std::uint8_t> CDNSKEY::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->flags, store);
+    codec::pack(this->protocol, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->publickey, false, store);
+    return std::move(store);
+}
+
+std::size_t CDNSKEY::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->flags, data, size);
+    temp += codec::unpack(this->protocol, data + temp, size - temp);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->publickey, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// OPENPGPKEY
+std::vector<std::uint8_t> OPENPGPKEY::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->publickey, false, store);
+    return std::move(store);
+}
+
+std::size_t OPENPGPKEY::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->publickey, false, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// SPF
+std::vector<std::uint8_t> SPF::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->txt, false, store);
+    return std::move(store);
+}
+
+std::size_t SPF::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->txt, false, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// NID
+std::vector<std::uint8_t> NID::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->preference, store);
+    codec::pack(this->nodeid, store);
+    return std::move(store);
+}
+
+std::size_t NID::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->nodeid, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// L32
+std::vector<std::uint8_t> L32::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->preference, store);
+    codec::pack(this->locator32, store);
+    return std::move(store);
+}
+
+std::size_t L32::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->locator32, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// L64
+std::vector<std::uint8_t> L64::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->preference, store);
+    codec::pack(this->locator64, store);
+    return std::move(store);
+}
+
+std::size_t L64::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->locator64, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// LP
+std::vector<std::uint8_t> LP::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->preference, store);
+    codec::pack(this->fqdn, true, store);
+    return std::move(store);
+}
+
+std::size_t LP::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->preference, data, size);
+    temp += codec::unpack(this->fqdn, true, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// EUI48
+std::vector<std::uint8_t> EUI48::data() const
+{
+    std::vector<std::uint8_t> store;
+    std::copy(this->address.cbegin(), this->address.cend(), store.begin());
+    return std::move(store);
+}
+
+std::size_t EUI48::setData(const std::uint8_t *data, std::size_t size)
+{
+    if (size < 6)
+        throw error_size(str::format("codec unpack EUI48 size is not enough, require 6 bytes"));
+
+    std::copy(data, data + 6, this->address.begin());
+    return 6;
+}
+
+
+// -----------------------------------------------------------------------------
+// EUI64
+std::vector<std::uint8_t> EUI64::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->address, store);
+    return std::move(store);
+}
+
+std::size_t EUI64::setData(const std::uint8_t *data, std::size_t size)
+{
+    return codec::unpack(this->address, data, size);
+}
+
+
+// -----------------------------------------------------------------------------
+// TKEY
+std::vector<std::uint8_t> TKEY::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->algorithm, true, store);
+    codec::pack(this->inception, store);
+    codec::pack(this->expiration, store);
+    codec::pack(this->mode, store);
+    codec::pack(this->error, store);
+    codec::pack(this->keysize, store);
+    codec::pack(this->key, false, store);
+    codec::pack(this->otherlen, store);
+    codec::pack(this->otherdata, false, store);
+    return std::move(store);
+}
+
+std::size_t TKEY::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->algorithm, true, data, size);
+    temp += codec::unpack(this->inception, data + temp, size - temp);
+    temp += codec::unpack(this->expiration, data + temp, size - temp);
+    temp += codec::unpack(this->mode, data + temp, size - temp);
+    temp += codec::unpack(this->error, data + temp, size - temp);
+    temp += codec::unpack(this->keysize, data + temp, size - temp);
+    temp += codec::unpack(this->key, false, data + temp, size - temp);
+    temp += codec::unpack(this->otherlen, data + temp, size - temp);
+    temp += codec::unpack(this->otherdata, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// TSIG
+std::vector<std::uint8_t> TSIG::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->algorithm, true, store);
+    std::copy(this->timesigned.cbegin(), this->timesigned.cend(), store.end());
+    codec::pack(this->fudge, store);
+    codec::pack(this->macsize, store);
+    codec::pack(this->mac, false, store);
+    codec::pack(this->originalid, store);
+    codec::pack(this->error, store);
+    codec::pack(this->otherlen, store);
+    codec::pack(this->otherdata, false, store);
+    return std::move(store);
+}
+
+std::size_t TSIG::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::string algorithm;
+    std::size_t temp = codec::unpack(algorithm, true, data, size);
+
+    auto need = this->timesigned.size();
+
+    if (size < need)
+        throw error_size(str::format("codec unpack TSIG size is not enough, require %d bytes", need));
+
+    std::copy(data + temp, data + temp + need, this->timesigned.begin());
+
+    this->algorithm = algorithm;
+
+    temp += need;
+    temp += codec::unpack(this->fudge, data + temp, size - temp);
+    temp += codec::unpack(this->macsize, data + temp, size - temp);
+    temp += codec::unpack(this->mac, false, data + temp, size - temp);
+    temp += codec::unpack(this->originalid, data + temp, size - temp);
+    temp += codec::unpack(this->error, data + temp, size - temp);
+    temp += codec::unpack(this->otherlen, data + temp, size - temp);
+    temp += codec::unpack(this->otherdata, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// URI
+std::vector<std::uint8_t> URI::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->priority, store);
+    codec::pack(this->weight, store);
+    codec::pack(this->target, false, store);
+    return std::move(store);
+}
+
+std::size_t URI::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->priority, data, size);
+    temp += codec::unpack(this->weight, data + temp, size - temp);
+    temp += codec::unpack(this->target, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// CAA
+std::vector<std::uint8_t> CAA::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->flags, store);
+    codec::pack(this->tag, false, store);
+    codec::pack(this->value, false, store);
+    return std::move(store);
+}
+
+std::size_t CAA::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->flags, data, size);
+    temp += codec::unpack(this->tag, false, data + temp, size - temp);
+    temp += codec::unpack(this->value, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// TA
+std::vector<std::uint8_t> TA::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->keytag, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->digesttype, store);
+    codec::pack(this->digest, false, store);
+    return std::move(store);
+}
+
+std::size_t TA::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->keytag, data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->digesttype, data + temp, size - temp);
+    temp += codec::unpack(this->digest, false, data + temp, size - temp);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
+// DLV
+std::vector<std::uint8_t> DLV::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->keytag, store);
+    codec::pack(this->algorithm, store);
+    codec::pack(this->digesttype, store);
+    codec::pack(this->digest, false, store);
+    return std::move(store);
+}
+
+std::size_t DLV::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->keytag, data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    temp += codec::unpack(this->digesttype, data + temp, size - temp);
+    temp += codec::unpack(this->digest, false, data + temp, size - temp);
+    return temp;
+}

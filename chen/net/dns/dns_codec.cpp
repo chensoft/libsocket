@@ -441,6 +441,18 @@ void codec::pack(std::uint32_t value, std::vector<std::uint8_t> &store)
     store.push_back(static_cast<std::uint8_t>(value & 0xFF));
 }
 
+void codec::pack(std::uint64_t value, std::vector<std::uint8_t> &store)
+{
+    store.push_back(static_cast<std::uint8_t>(value >> 56 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value >> 48 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value >> 40 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value >> 32 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value >> 24 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value >> 16 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value >> 8 & 0xFF));
+    store.push_back(static_cast<std::uint8_t>(value & 0xFF));
+}
+
 void codec::pack(chen::dns::RRType value, std::vector<std::uint8_t> &store)
 {
     codec::pack(static_cast<std::uint16_t>(value), store);
@@ -560,6 +572,19 @@ std::size_t codec::unpack(std::uint32_t &value, const std::uint8_t *data, std::s
     codec::check(4, size, "codec unpack size is not enough, require 4 bytes");
     value = static_cast<std::uint32_t>((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
     return 4;
+}
+
+std::size_t codec::unpack(std::uint64_t &value, const std::uint8_t *data, std::size_t size)
+{
+    codec::check(8, size, "codec unpack size is not enough, require 8 bytes");
+
+    std::uint64_t c0 = static_cast<std::uint64_t>(data[0]);
+    std::uint64_t c1 = static_cast<std::uint64_t>(data[1]);
+    std::uint64_t c2 = static_cast<std::uint64_t>(data[2]);
+    std::uint64_t c3 = static_cast<std::uint64_t>(data[3]);
+
+    value = static_cast<std::uint64_t>((c0 << 56) + (c1 << 48) + (c2 << 40) + (c3 << 32) + (data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7]);
+    return 8;
 }
 
 std::size_t codec::unpack(chen::dns::RRType &value, const std::uint8_t *data, std::size_t size)

@@ -928,5 +928,377 @@ namespace chen
             std::string publickey;
             std::string rendezvousservers;
         };
+
+
+        // ---------------------------------------------------------------------
+        // NINFO(draft-lewis-dns-undocumented-types-01)
+        struct NINFO : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string zs_data;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // RKEY(draft-lewis-dns-undocumented-types-01)
+        struct RKEY : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t flags    = 0;
+            std::uint8_t protocol  = 0;
+            std::uint8_t algorithm = 0;
+            std::string publickey;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // TALINK(draft-lewis-dns-undocumented-types-01)
+        struct TALINK : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string previous;
+            std::string next;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // CDS(rfc7344, section 3.1)
+        struct CDS : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t keytag    = 0;
+            std::uint8_t algorithm  = 0;
+            std::uint8_t digesttype = 0;
+            std::string digest;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // CDNSKEY(rfc7344, section 3.2)
+        struct CDNSKEY : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t flags    = 0;
+            std::uint8_t protocol  = 0;
+            std::uint8_t algorithm = 0;
+            std::string publickey;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // OPENPGPKEY(rfc4880, section 5.5.1.1)
+        struct OPENPGPKEY : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string publickey;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // SPF(rfc4408, section 3)
+        struct SPF : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string txt;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // UINFO(IANA reserved, no RFC documented)
+        struct UINFO : public Unknown
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
+        // UID(IANA reserved, no RFC documented)
+        struct UID : public Unknown
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
+        // GID(IANA reserved, no RFC documented)
+        struct GID : public Unknown
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
+        // UNSPEC(IANA reserved, no RFC documented)
+        struct UNSPEC : public Unknown
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
+        // NID(rfc6742, section 2.1.1)
+        struct NID : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t preference = 0;
+            std::uint64_t nodeid = 0;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // L32(rfc6742, section 2.2.1)
+        struct L32 : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t preference = 0;
+            std::uint32_t locator32  = 0;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // L64(rfc6742, section 2.3.1)
+        struct L64 : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t preference = 0;
+            std::uint32_t locator64  = 0;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // LP(rfc6742, section 2.4.1)
+        struct LP : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t preference = 0;
+            std::string fqdn;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // EUI48(rfc7043, section 3.1)
+        struct EUI48 : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::array<std::uint8_t, 6> address;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // EUI64(rfc7043, section 4.1)
+        struct EUI64 : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint64_t address = 0;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // TKEY(rfc2930, section 2)
+        struct TKEY : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string algorithm;
+            std::uint32_t inception  = 0;
+            std::uint32_t expiration = 0;
+            std::uint16_t mode       = 0;
+            std::uint16_t error      = 0;
+            std::uint16_t keysize    = 0;
+            std::string key;
+            std::uint16_t otherlen   = 0;
+            std::string otherdata;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // TSIG(rfc2845, section 2.3)
+        struct TSIG : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::string algorithm;
+            std::array<std::uint8_t, 6> timesigned;
+            std::uint16_t fudge   = 0;
+            std::uint16_t macsize = 0;
+            std::string mac;
+            std::uint16_t originalid = 0;
+            std::uint16_t error      = 0;
+            std::uint16_t otherlen   = 0;
+            std::string otherdata;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // URI(rfc7553, section 4.5)
+        struct URI : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t priority = 0;
+            std::uint16_t weight   = 0;
+            std::string target;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // CAA(rfc6844, section 5.1.1)
+        struct CAA : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint8_t flags = 0;
+            std::string tag;
+            std::string value;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // TA(Deploying DNSSEC Without a Signed Root)
+        struct TA : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t keytag    = 0;
+            std::uint8_t algorithm  = 0;
+            std::uint8_t digesttype = 0;
+            std::string digest;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // DLV(rfc4431, section 2)
+        struct DLV : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint16_t keytag    = 0;
+            std::uint8_t algorithm  = 0;
+            std::uint8_t digesttype = 0;
+            std::string digest;
+        };
     }
 }
