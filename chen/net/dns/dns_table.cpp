@@ -192,14 +192,24 @@ std::map<chen::dns::RRClass, std::string> table::_rr_class_text = {
         {chen::dns::RRClass::ANY, "ANY"}
 };
 
-std::map<std::string, chen::dns::QR> table::_rr_text_qr;
+std::map<std::string, chen::dns::RRClass> table::_rr_text_class;
 
-std::map<chen::dns::QR , std::string> table::_rr_qr_text = {
+std::map<chen::dns::QR, std::string> table::_rr_qr_text = {
         {chen::dns::QR::Query, "QUERY"},
         {chen::dns::QR::Response, "RESPONSE"}
 };
 
-std::map<std::string, chen::dns::RRClass> table::_rr_text_class;
+std::map<std::string, chen::dns::QR> table::_rr_text_qr;
+
+std::map<chen::dns::OPCODE, std::string> table::_rr_opcode_text = {
+        {chen::dns::OPCODE::Query, "QUERY"},
+        {chen::dns::OPCODE::IQuery, "IQUERY"},
+        {chen::dns::OPCODE::Status, "STATUS"},
+        {chen::dns::OPCODE::Notify, "NOTIFY"},
+        {chen::dns::OPCODE::Update, "UPDATE"}
+};
+
+std::map<std::string, chen::dns::OPCODE> table::_rr_text_opcode;
 
 // build
 chen::dns::table::rr_pointer table::build(chen::dns::RRType key)
@@ -251,6 +261,19 @@ chen::dns::QR table::textToQr(const std::string &key)
     return it != table::_rr_text_qr.cend() ? it->second : chen::dns::QR::Query;
 }
 
+// opcode & text
+std::string table::opcodeToText(chen::dns::OPCODE key)
+{
+    auto it = table::_rr_opcode_text.find(key);
+    return it != table::_rr_opcode_text.cend() ? it->second : "";
+}
+
+chen::dns::OPCODE table::textToOpcode(const std::string &key)
+{
+    auto it = table::_rr_text_opcode.find(key);
+    return it != table::_rr_text_opcode.cend() ? it->second : chen::dns::OPCODE::Query;
+}
+
 // set
 void table::set(chen::dns::RRType key, rr_build_type val)
 {
@@ -281,6 +304,14 @@ void table::set(chen::dns::QR key, const std::string &val)
     table::_rr_text_qr[val] = key;
 }
 
+void table::set(chen::dns::OPCODE key, const std::string &val)
+{
+    table::init();
+
+    table::_rr_opcode_text[key] = val;
+    table::_rr_text_opcode[val] = key;
+}
+
 // init
 inline void table::init()
 {
@@ -297,4 +328,7 @@ inline void table::init()
 
     for (auto &it : table::_rr_qr_text)
         table::_rr_text_qr[it.second] = it.first;
+
+    for (auto &it : table::_rr_opcode_text)
+        table::_rr_text_opcode[it.second] = it.first;
 }

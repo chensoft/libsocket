@@ -27,10 +27,11 @@ namespace chen
         // ---------------------------------------------------------------------
         // OPCODE, 4 bit, kind of query in the message(Operation Code)
         enum class OPCODE : std::uint8_t {
-            Query  = 0,  // a standard query
-            IQuery = 1,  // an inverse query
-            Status = 2,  // a server status request
-            // 3-15         reserved for future use
+            Query  = 0,  // rfc1035, a standard query
+            IQuery = 1,  // rfc3425, an inverse query(OBSOLETE)
+            Status = 2,  // rfc1035, a server status request
+            Notify = 4,  // rfc1996, notification of zone changes
+            Update = 5,  // rfc2136, dynamic updates
         };
 
 
