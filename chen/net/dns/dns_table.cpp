@@ -11,6 +11,8 @@ using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // table
+bool table::_init = false;
+
 std::map<chen::dns::RRType, table::rr_build_type> table::_rr_build = {
         {chen::dns::RRType::A, [] () -> rr_pointer { return rr_pointer(new chen::dns::A); }},
         {chen::dns::RRType::NS, [] () -> rr_pointer { return rr_pointer(new chen::dns::NS); }},
@@ -190,6 +192,13 @@ std::map<chen::dns::RRClass, std::string> table::_rr_class_text = {
         {chen::dns::RRClass::ANY, "ANY"}
 };
 
+std::map<std::string, chen::dns::QR> table::_rr_text_qr;
+
+std::map<chen::dns::QR , std::string> table::_rr_qr_text = {
+        {chen::dns::QR::Query, "QUERY"},
+        {chen::dns::QR::Response, "RESPONSE"}
+};
+
 std::map<std::string, chen::dns::RRClass> table::_rr_text_class;
 
 // build
@@ -229,6 +238,19 @@ chen::dns::RRClass table::textToClass(const std::string &key)
     return it != table::_rr_text_class.cend() ? it->second : chen::dns::RRClass::IN;
 }
 
+// qr & text
+std::string table::qrToText(chen::dns::QR key)
+{
+    auto it = table::_rr_qr_text.find(key);
+    return it != table::_rr_qr_text.cend() ? it->second : "";
+}
+
+chen::dns::QR table::textToQr(const std::string &key)
+{
+    auto it = table::_rr_text_qr.find(key);
+    return it != table::_rr_text_qr.cend() ? it->second : chen::dns::QR::Query;
+}
+
 // set
 void table::set(chen::dns::RRType key, rr_build_type val)
 {
@@ -251,18 +273,28 @@ void table::set(chen::dns::RRClass key, const std::string &val)
     table::_rr_text_class[val] = key;
 }
 
+void table::set(chen::dns::QR key, const std::string &val)
+{
+    table::init();
+
+    table::_rr_qr_text[key] = val;
+    table::_rr_text_qr[val] = key;
+}
+
 // init
 inline void table::init()
 {
-    if (table::_rr_text_type.empty())
-    {
-        for (auto &it : table::_rr_type_text)
-            table::_rr_text_type[it.second] = it.first;
-    }
+    if (table::_init)
+        return;
 
-    if (table::_rr_text_class.empty())
-    {
-        for (auto &it : table::_rr_class_text)
-            table::_rr_text_class[it.second] = it.first;
-    }
+    table::_init = true;
+
+    for (auto &it : table::_rr_type_text)
+        table::_rr_text_type[it.second] = it.first;
+
+    for (auto &it : table::_rr_class_text)
+        table::_rr_text_class[it.second] = it.first;
+
+    for (auto &it : table::_rr_qr_text)
+        table::_rr_text_qr[it.second] = it.first;
 }

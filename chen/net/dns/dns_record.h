@@ -36,7 +36,6 @@ namespace chen
             std::int32_t ttl = 0;
 
             // todo put rdlength here, the rr can use this length to get data from buffer
-            // todo use RAW to represent rdlength and rdata
         };
 
 
