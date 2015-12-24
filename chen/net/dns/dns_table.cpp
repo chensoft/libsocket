@@ -173,6 +173,17 @@ std::map<chen::dns::RRType, std::string> table::_rr_type_text = {
 
 std::map<std::string, chen::dns::RRType> table::_rr_text_type;
 
+std::map<chen::dns::RRClass, std::string> table::_rr_class_text = {
+        {chen::dns::RRClass::IN, "IN"},
+        {chen::dns::RRClass::CS, "CS"},
+        {chen::dns::RRClass::CH, "CH"},
+        {chen::dns::RRClass::HS, "HS"},
+        {chen::dns::RRClass::NONE, "NONE"},
+        {chen::dns::RRClass::ANY, "ANY"}
+};
+
+std::map<std::string, chen::dns::RRClass> table::_rr_text_class;
+
 // build
 chen::dns::table::rr_pointer table::build(chen::dns::RRType key)
 {
@@ -195,7 +206,27 @@ chen::dns::RRType table::textToType(const std::string &key)
     return it != table::_rr_text_type.cend() ? it->second : chen::dns::RRType::None;
 }
 
+// class & text
+std::string table::classToText(chen::dns::RRClass key)
+{
+    auto it = table::_rr_class_text.find(key);
+    return it != table::_rr_class_text.cend() ? it->second : "";
+}
+
+chen::dns::RRClass table::textToClass(const std::string &key)
+{
+    table::init();
+
+    auto it = table::_rr_text_class.find(key);
+    return it != table::_rr_text_class.cend() ? it->second : chen::dns::RRClass::IN;
+}
+
 // set
+void table::set(chen::dns::RRType key, rr_build_type val)
+{
+    table::_rr_build[key] = val;
+}
+
 void table::set(chen::dns::RRType key, const std::string &val)
 {
     table::init();
@@ -204,17 +235,26 @@ void table::set(chen::dns::RRType key, const std::string &val)
     table::_rr_text_type[val] = key;
 }
 
-void table::set(chen::dns::RRType key, rr_build_type val)
+void table::set(chen::dns::RRClass key, const std::string &val)
 {
-    table::_rr_build[key] = val;
+    table::init();
+
+    table::_rr_class_text[key] = val;
+    table::_rr_text_class[val] = key;
 }
 
 // init
 inline void table::init()
 {
-    if (!table::_rr_text_type.empty())
-        return;
+    if (table::_rr_text_type.empty())
+    {
+        for (auto &it : table::_rr_type_text)
+            table::_rr_text_type[it.second] = it.first;
+    }
 
-    for (auto &it : table::_rr_type_text)
-        table::_rr_text_type[it.second] = it.first;
+    if (table::_rr_text_class.empty())
+    {
+        for (auto &it : table::_rr_class_text)
+            table::_rr_text_class[it.second] = it.first;
+    }
 }

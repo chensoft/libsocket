@@ -60,7 +60,7 @@ std::size_t codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t
     size -= temp;
 
     // rrclass
-    chen::dns::RRClass rrclass = chen::dns::RRClass::None;
+    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
     temp = codec::unpack(rrclass, data, size);
 
     data += temp;
@@ -235,7 +235,7 @@ std::size_t codec::unpack(chen::dns::question &question, const std::uint8_t *dat
     size -= temp;
 
     // qclass
-    chen::dns::RRClass qclass = chen::dns::RRClass::None;
+    chen::dns::RRClass qclass = chen::dns::RRClass::IN;
     temp = codec::unpack(qclass, data, size);
 
     size -= temp;

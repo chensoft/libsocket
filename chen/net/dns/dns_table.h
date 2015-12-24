@@ -34,12 +34,19 @@ namespace chen
             static std::string typeToText(chen::dns::RRType key);
             static chen::dns::RRType textToType(const std::string &key);
 
+            /**
+             * Class & Text
+             */
+            static std::string classToText(chen::dns::RRClass key);
+            static chen::dns::RRClass textToClass(const std::string &key);
+
         public:
             /**
              * Set custom rr type and related value
              */
-            static void set(chen::dns::RRType key, const std::string &val);
             static void set(chen::dns::RRType key, rr_build_type val);
+            static void set(chen::dns::RRType key, const std::string &val);
+            static void set(chen::dns::RRClass key, const std::string &val);
 
         private:
             /**
@@ -52,6 +59,9 @@ namespace chen
 
             static std::map<chen::dns::RRType, std::string> _rr_type_text;
             static std::map<std::string, chen::dns::RRType> _rr_text_type;
+
+            static std::map<chen::dns::RRClass, std::string> _rr_class_text;
+            static std::map<std::string, chen::dns::RRClass> _rr_text_class;
         };
     }
 }
