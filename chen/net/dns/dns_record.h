@@ -36,12 +36,16 @@ namespace chen
             std::int32_t ttl = 0;
 
             // todo put rdlength here, the rr can use this length to get data from buffer
+            // todo use RAW to represent rdlength and rdata
         };
 
 
         // ---------------------------------------------------------------------
-        // Unknown
-        struct Unknown : public RR
+        // Custom RR
+        // ---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
+        // Raw(raw resource record, with rdata)
+        struct Raw : public RR
         {
         public:
             /**
@@ -56,6 +60,16 @@ namespace chen
         };
 
 
+        // ---------------------------------------------------------------------
+        // Unknown(unknown record)
+        struct Unknown : public Raw
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
+        // Standard RR
+        // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
         // A(rfc1035, section 3.4.1)
         struct A : public RR
@@ -208,7 +222,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RNULL(rfc1035, section 3.3.10, can store anything)
-        struct RNULL : public Unknown
+        struct RNULL : public Raw
         {
         public:
             /**
@@ -742,7 +756,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPT(rfc6891, section 6.1.2)
-        struct OPT : public Unknown
+        struct OPT : public Raw
         {
         };
 
@@ -1127,28 +1141,28 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // UINFO(IANA reserved, no RFC documented)
-        struct UINFO : public Unknown
+        struct UINFO : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // UID(IANA reserved, no RFC documented)
-        struct UID : public Unknown
+        struct UID : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // GID(IANA reserved, no RFC documented)
-        struct GID : public Unknown
+        struct GID : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // UNSPEC(IANA reserved, no RFC documented)
-        struct UNSPEC : public Unknown
+        struct UNSPEC : public Raw
         {
         };
 

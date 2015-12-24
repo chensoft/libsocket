@@ -21,13 +21,13 @@ RR::~RR()
 
 
 // -----------------------------------------------------------------------------
-// Unknown
-std::vector<std::uint8_t> Unknown::data() const
+// RAW
+std::vector<std::uint8_t> Raw::data() const
 {
     return this->rdata;
 }
 
-std::size_t Unknown::setData(const std::uint8_t *data, std::size_t size)
+std::size_t Raw::setData(const std::uint8_t *data, std::size_t size)
 {
     if (size < 2)
         throw error_size("record data size is not enough, require 2 bytes");
@@ -203,7 +203,7 @@ std::size_t MR::setData(const std::uint8_t *data, std::size_t size)
 std::vector<std::uint8_t> RNULL::data() const
 {
     std::vector<std::uint8_t> store;
-    std::copy(this->anything.cbegin(), this->anything.cend(), store.begin());
+    store.insert(store.cbegin(), this->anything.cbegin(), this->anything.cend());
     return std::move(store);
 }
 
@@ -942,7 +942,7 @@ std::vector<std::uint8_t> NSEC::data() const
 {
     std::vector<std::uint8_t> store;
     codec::pack(this->next_domain, store, true);
-    std::copy(this->type_bitmap.cbegin(), this->type_bitmap.cend(), store.end());
+    store.insert(store.cend(), this->type_bitmap.cbegin(), this->type_bitmap.cend());
     return std::move(store);
 }
 
@@ -951,7 +951,7 @@ std::size_t NSEC::setData(const std::uint8_t *data, std::size_t size)
     std::size_t temp = codec::unpack(this->next_domain, data, size, true);
 
     this->type_bitmap.clear();
-    std::copy(data + temp, data + size, this->type_bitmap.begin());
+    this->type_bitmap.insert(this->type_bitmap.cbegin(), data + temp, data + size);
 
     return size;
 }
