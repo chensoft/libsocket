@@ -68,7 +68,7 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::int32_t address = 0;
+            std::uint32_t address = 0;
         };
 
 
@@ -150,10 +150,11 @@ namespace chen
         public:
             std::string mname;  // primary nameserver
             std::string rname;  // hostmaster email address
-            std::uint32_t serial = 0;  // serial number
-            std::int32_t refresh = 0;  // zone refresh interval
-            std::int32_t retry   = 0;  // retry interval when refresh failed
-            std::int32_t expire  = 0;  // expire interval of the zone
+            std::uint32_t serial  = 0;  // serial number
+            std::int32_t refresh  = 0;  // zone refresh interval
+            std::int32_t retry    = 0;  // retry interval when refresh failed
+            std::int32_t expire   = 0;  // expire interval of the zone
+            std::uint32_t minimum = 0;  // minimum ttl
         };
 
 
@@ -209,6 +210,15 @@ namespace chen
         // RNULL(rfc1035, section 3.3.10, can store anything)
         struct RNULL : public Unknown
         {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::vector<std::uint8_t> anything;
         };
 
 
@@ -224,8 +234,8 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::int32_t address = 0;
-            std::int8_t protocol = 0;
+            std::uint32_t address = 0;
+            std::uint8_t protocol = 0;
             std::vector<std::uint8_t> bitmap;
         };
 
@@ -376,6 +386,7 @@ namespace chen
 
         public:
             std::string isdn_address;
+            std::string sa;
         };
 
 
@@ -424,7 +435,7 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string ptrdname;
+            std::string owner;
         };
 
 
@@ -558,8 +569,8 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string next;
-            std::vector<std::uint8_t> bitmap;
+            std::string nextdomain;
+            std::vector<std::uint8_t> typebitmap;
         };
 
 
@@ -821,7 +832,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // NSEC(rfc4034, section 3.1)
+        // NSEC(rfc4034, section 4.1)
         struct NSEC : public RR
         {
         public:
@@ -888,7 +899,7 @@ namespace chen
             std::uint8_t flags       = 0;
             std::uint16_t iterations = 0;
             std::uint8_t saltLength  = 0;
-            std::string salt;
+            std::vector<std::uint8_t> salt;
             std::uint8_t hashlength  = 0;
             std::string nextowner;
             std::vector<std::uint8_t> typebitmap;
@@ -911,7 +922,7 @@ namespace chen
             std::uint8_t flags       = 0;
             std::uint16_t iterations = 0;
             std::uint8_t saltLength  = 0;
-            std::string salt;
+            std::vector<std::uint8_t> salt;
         };
 
 
@@ -964,13 +975,13 @@ namespace chen
             virtual std::vector<std::uint8_t> data() const override;
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
-        public:
-            std::uint8_t hitlength   = 0;
-            std::uint8_t pkalgorithm = 0;
-            std::uint16_t pklength   = 0;
-            std::string hit;
-            std::string publickey;
-            std::string rendezvousservers;
+//        public:
+//            std::uint8_t hitlength   = 0;
+//            std::uint8_t pkalgorithm = 0;
+//            std::uint16_t pklength   = 0;
+//            std::string hit;
+//            std::string publickey;
+//            std::string rendezvousservers;  // todo
         };
 
 
@@ -1021,8 +1032,8 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string previous;
-            std::string next;
+            std::string previousname;
+            std::string nextname;
         };
 
 
@@ -1065,7 +1076,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // OPENPGPKEY(rfc4880, section 5.5.1.1)
+        // OPENPGPKEY(draft-ietf-dane-openpgpkey, section 2.1)
         struct OPENPGPKEY : public RR
         {
         public:
@@ -1260,9 +1271,9 @@ namespace chen
             std::uint16_t mode       = 0;
             std::uint16_t error      = 0;
             std::uint16_t keysize    = 0;
-            std::string key;
+            std::vector<std::uint8_t> key;
             std::uint16_t otherlen   = 0;
-            std::string otherdata;
+            std::vector<std::uint8_t> otherdata;
         };
 
 
@@ -1282,11 +1293,11 @@ namespace chen
             std::array<std::uint8_t, 6> timesigned;
             std::uint16_t fudge   = 0;
             std::uint16_t macsize = 0;
-            std::string mac;
+            std::vector<std::uint8_t> mac;
             std::uint16_t originalid = 0;
             std::uint16_t error      = 0;
             std::uint16_t otherlen   = 0;
-            std::string otherdata;
+            std::vector<std::uint8_t> otherdata;
         };
 
 

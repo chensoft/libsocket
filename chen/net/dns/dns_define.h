@@ -136,7 +136,7 @@ namespace chen
             TALINK     = 58,   // draft-lewis-dns-undocumented-types-01, Trust Anchor LINK
             CDS        = 59,   // rfc7344, section 3.1, child ds
             CDNSKEY    = 60,   // rfc7344, section 3.2, DNSKEY(s) the Child wants reflected in DS
-            OPENPGPKEY = 61,   // rfc4880, section 5.5.1.1, OpenPGP key
+            OPENPGPKEY = 61,   // draft-ietf-dane-openpgpkey, section 2.1, OpenPGP key
             CSYNC      = 62,   // rfc7477, section 2.1.1, Child-To-Parent Synchronization
             SPF        = 99,   // rfc4408, section 3, declares which hosts are, and are not, authorized to use a domain name for the "HELO" and "MAIL FROM" identities
             UINFO      = 100,  // IANA reserved, no RFC documented
