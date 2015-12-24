@@ -451,13 +451,13 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t typecovered = 0;
+            std::uint16_t type_covered = 0;
             std::uint8_t algorithm    = 0;
             std::uint8_t labels       = 0;
             std::uint32_t original    = 0;  // original ttl
             std::uint32_t expiration  = 0;  // signature expiration
             std::uint32_t inception   = 0;  // signature inception
-            std::uint16_t keytag      = 0;
+            std::uint16_t key_tag     = 0;
             std::string signer;  // signer's name
             std::string signature;
         };
@@ -546,10 +546,10 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint8_t version  = 0;
-            std::uint8_t size     = 0;
-            std::uint8_t horizpre = 0;
-            std::uint8_t vertpre  = 0;
+            std::uint8_t version   = 0;
+            std::uint8_t size      = 0;
+            std::uint8_t horiz_pre = 0;
+            std::uint8_t vert_pre  = 0;
 
             std::uint32_t longitude = 0;
             std::uint32_t latitude  = 0;
@@ -569,8 +569,8 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string nextdomain;
-            std::vector<std::uint8_t> typebitmap;
+            std::string next_domain;
+            std::vector<std::uint8_t> type_bitmap;
         };
 
 
@@ -693,7 +693,7 @@ namespace chen
 
         public:
             std::uint16_t type     = 0;
-            std::uint16_t keytag   = 0;
+            std::uint16_t key_tag  = 0;
             std::uint8_t algorithm = 0;
             std::string certificate;
         };
@@ -759,9 +759,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t keytag    = 0;
+            std::uint16_t key_tag   = 0;
             std::uint8_t algorithm  = 0;
-            std::uint8_t digesttype = 0;
+            std::uint8_t digest_type = 0;
             std::string digest;
         };
 
@@ -799,9 +799,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint8_t precedence  = 0;
-            std::uint8_t gatewaytype = 0;  // 0: no type, gateway should be '.', 1: ipv4, 4 bytes, 2: ipv6, 16 bytes, 3: domain name
-            std::uint8_t algorithm   = 0;
+            std::uint8_t precedence   = 0;
+            std::uint8_t gateway_type = 0;  // 0: no type, gateway should be '.', 1: ipv4, 4 bytes, 2: ipv6, 16 bytes, 3: domain name
+            std::uint8_t algorithm    = 0;
             std::vector<std::uint8_t> gateway;
             std::string publickey;
         };
@@ -819,13 +819,13 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t typecovered = 0;
+            std::uint16_t type_covered = 0;
             std::uint8_t algorithm    = 0;
             std::uint8_t labels       = 0;
             std::uint32_t original    = 0;  // original ttl
             std::uint32_t expiration  = 0;  // signature expiration
             std::uint32_t inception   = 0;  // signature inception
-            std::uint16_t keytag      = 0;
+            std::uint16_t key_tag     = 0;
             std::string signer;  // signer's name
             std::string signature;
         };
@@ -843,8 +843,8 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string nextdomain;
-            std::vector<std::uint8_t> typebitmap;
+            std::string next_domain;
+            std::vector<std::uint8_t> type_bitmap;
         };
 
 
@@ -898,11 +898,11 @@ namespace chen
             std::uint8_t hash        = 0;
             std::uint8_t flags       = 0;
             std::uint16_t iterations = 0;
-            std::uint8_t saltLength  = 0;
+            std::uint8_t salt_length = 0;
             std::vector<std::uint8_t> salt;
-            std::uint8_t hashlength  = 0;
-            std::string nextowner;
-            std::vector<std::uint8_t> typebitmap;
+            std::uint8_t hash_length = 0;
+            std::string next_owner;
+            std::vector<std::uint8_t> type_bitmap;
         };
 
 
@@ -921,7 +921,7 @@ namespace chen
             std::uint8_t hash        = 0;
             std::uint8_t flags       = 0;
             std::uint16_t iterations = 0;
-            std::uint8_t saltLength  = 0;
+            std::uint8_t salt_length = 0;
             std::vector<std::uint8_t> salt;
         };
 
@@ -938,9 +938,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint8_t usage        = 0;
-            std::uint8_t selector     = 0;
-            std::uint8_t matchingtype = 0;
+            std::uint8_t usage         = 0;
+            std::uint8_t selector      = 0;
+            std::uint8_t matching_type = 0;
             std::string certificate;
         };
 
@@ -957,9 +957,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint8_t usage        = 0;
-            std::uint8_t selector     = 0;
-            std::uint8_t matchingtype = 0;
+            std::uint8_t usage         = 0;
+            std::uint8_t selector      = 0;
+            std::uint8_t matching_type = 0;
             std::string certificate;
         };
 
@@ -975,13 +975,13 @@ namespace chen
             virtual std::vector<std::uint8_t> data() const override;
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
-//        public:
-//            std::uint8_t hitlength   = 0;
-//            std::uint8_t pkalgorithm = 0;
-//            std::uint16_t pklength   = 0;
-//            std::string hit;
-//            std::string publickey;
-//            std::string rendezvousservers;  // todo
+        public:
+            std::uint8_t hit_length   = 0;
+            std::uint8_t pk_algorithm = 0;
+            std::uint16_t pk_length   = 0;
+            std::string hit;
+            std::string publickey;
+            std::string rendezvous_servers;
         };
 
 
@@ -1032,8 +1032,8 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::string previousname;
-            std::string nextname;
+            std::string previous_name;
+            std::string next_name;
         };
 
 
@@ -1049,9 +1049,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t keytag    = 0;
-            std::uint8_t algorithm  = 0;
-            std::uint8_t digesttype = 0;
+            std::uint16_t key_tag    = 0;
+            std::uint8_t algorithm   = 0;
+            std::uint8_t digest_type = 0;
             std::string digest;
         };
 
@@ -1105,7 +1105,7 @@ namespace chen
         public:
             std::uint32_t serial = 0;
             std::uint16_t flags  = 0;
-            std::vector<std::uint8_t> typebitmap;
+            std::vector<std::uint8_t> type_bitmap;
         };
 
 
@@ -1166,7 +1166,7 @@ namespace chen
 
         public:
             std::uint16_t preference = 0;
-            std::uint64_t nodeid = 0;
+            std::uint64_t node_id    = 0;
         };
 
 
@@ -1270,10 +1270,10 @@ namespace chen
             std::uint32_t expiration = 0;
             std::uint16_t mode       = 0;
             std::uint16_t error      = 0;
-            std::uint16_t keysize    = 0;
+            std::uint16_t key_size   = 0;
             std::vector<std::uint8_t> key;
-            std::uint16_t otherlen   = 0;
-            std::vector<std::uint8_t> otherdata;
+            std::uint16_t other_len  = 0;
+            std::vector<std::uint8_t> other_data;
         };
 
 
@@ -1290,14 +1290,14 @@ namespace chen
 
         public:
             std::string algorithm;
-            std::array<std::uint8_t, 6> timesigned;
-            std::uint16_t fudge   = 0;
-            std::uint16_t macsize = 0;
+            std::array<std::uint8_t, 6> time_signed;
+            std::uint16_t fudge    = 0;
+            std::uint16_t mac_size = 0;
             std::vector<std::uint8_t> mac;
-            std::uint16_t originalid = 0;
-            std::uint16_t error      = 0;
-            std::uint16_t otherlen   = 0;
-            std::vector<std::uint8_t> otherdata;
+            std::uint16_t original_id = 0;
+            std::uint16_t error       = 0;
+            std::uint16_t other_len   = 0;
+            std::vector<std::uint8_t> other_data;
         };
 
 
@@ -1349,9 +1349,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t keytag    = 0;
-            std::uint8_t algorithm  = 0;
-            std::uint8_t digesttype = 0;
+            std::uint16_t key_tag    = 0;
+            std::uint8_t algorithm   = 0;
+            std::uint8_t digest_type = 0;
             std::string digest;
         };
 
@@ -1368,9 +1368,9 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t keytag    = 0;
-            std::uint8_t algorithm  = 0;
-            std::uint8_t digesttype = 0;
+            std::uint16_t key_tag    = 0;
+            std::uint8_t algorithm   = 0;
+            std::uint8_t digest_type = 0;
             std::string digest;
         };
     }
