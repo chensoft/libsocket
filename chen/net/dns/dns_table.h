@@ -23,11 +23,16 @@ namespace chen
 
         public:
             /**
-             * Get table value
+             * Build object
              */
-            static std::string rrTypeToName(chen::dns::RRType key);
-            static chen::dns::RRType rrNameToType(const std::string &key);
-            static chen::dns::table::rr_build_type rrTypeToBuild(chen::dns::RRType key);
+            static rr_pointer build(chen::dns::RRType key);
+
+        public:
+            /**
+             * Type & Text
+             */
+            static std::string typeToText(chen::dns::RRType key);
+            static chen::dns::RRType textToType(const std::string &key);
 
         public:
             /**
@@ -37,9 +42,16 @@ namespace chen
             static void set(chen::dns::RRType key, rr_build_type val);
 
         private:
-            static std::map<chen::dns::RRType, std::string> _rr_name;
-            static std::map<std::string, chen::dns::RRType> _rr_reverse;
+            /**
+             * Init
+             */
+            static void init();
+
+        private:
             static std::map<chen::dns::RRType, rr_build_type> _rr_build;
+
+            static std::map<chen::dns::RRType, std::string> _rr_type_text;
+            static std::map<std::string, chen::dns::RRType> _rr_text_type;
         };
     }
 }

@@ -81,12 +81,9 @@ std::size_t codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t
     size -= temp;
 
     // build
-    std::shared_ptr<chen::dns::RR> record;
-    auto build = table::rrTypeToBuild(rrtype);
+    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
 
-    if (build)
-        record = build();
-    else
+    if (!record)
         record.reset(new chen::dns::Unknown);
 
     // rdata
