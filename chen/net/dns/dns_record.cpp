@@ -734,6 +734,29 @@ std::size_t DNAME::setData(const std::uint8_t *data, std::size_t size)
 
 
 // -----------------------------------------------------------------------------
+// SINK
+std::vector<std::uint8_t> SINK::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->coding, store);
+    codec::pack(this->subcoding, store);
+    std::copy(this->sdata.cbegin(), this->sdata.cend(), store.end());
+    return std::move(store);
+}
+
+std::size_t SINK::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->coding, data, size);
+    temp += codec::unpack(this->subcoding, data + temp, size - temp);
+
+    this->sdata.clear();
+    std::copy(data + temp, data + size, this->sdata.begin());
+
+    return size;
+}
+
+
+// -----------------------------------------------------------------------------
 // DS
 std::vector<std::uint8_t> DS::data() const
 {
@@ -1028,6 +1051,28 @@ std::size_t TLSA::setData(const std::uint8_t *data, std::size_t size)
 
 
 // -----------------------------------------------------------------------------
+// SMIMEA
+std::vector<std::uint8_t> SMIMEA::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->usage, store);
+    codec::pack(this->selector, store);
+    codec::pack(this->matchingtype, store);
+    codec::pack(this->certificate, store, false);
+    return std::move(store);
+}
+
+std::size_t SMIMEA::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->usage, data, size);
+    temp += codec::unpack(this->selector, data + temp, size - temp);
+    temp += codec::unpack(this->matchingtype, data + temp, size - temp);
+    temp += codec::unpack(this->certificate, data + temp, size - temp, false);
+    return temp;
+}
+
+
+// -----------------------------------------------------------------------------
 // HIP
 std::vector<std::uint8_t> HIP::data() const
 {
@@ -1164,6 +1209,29 @@ std::vector<std::uint8_t> OPENPGPKEY::data() const
 std::size_t OPENPGPKEY::setData(const std::uint8_t *data, std::size_t size)
 {
     return codec::unpack(this->publickey, data, size, false);
+}
+
+
+// -----------------------------------------------------------------------------
+// CSYNC
+std::vector<std::uint8_t> CSYNC::data() const
+{
+    std::vector<std::uint8_t> store;
+    codec::pack(this->serial, store);
+    codec::pack(this->flags, store);
+    std::copy(this->typebitmap.cbegin(), this->typebitmap.cend(), store.end());
+    return std::move(store);
+}
+
+std::size_t CSYNC::setData(const std::uint8_t *data, std::size_t size)
+{
+    std::size_t temp = codec::unpack(this->serial, data, size);
+    temp += codec::unpack(this->flags, data + temp, size - temp);
+
+    this->typebitmap.clear();
+    std::copy(data + temp, data + size, this->typebitmap.begin());
+
+    return size;
 }
 
 

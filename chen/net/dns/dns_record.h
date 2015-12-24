@@ -413,7 +413,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // NSAPPTR(rfc1706, section 6)
+        // NSAPPTR(rfc1348)
         struct NSAPPTR : public RR
         {
         public:
@@ -689,6 +689,13 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
+        // A6(OBSOLETE - use AAAA)
+        struct A6 : public AAAA
+        {
+        };
+
+
+        // ---------------------------------------------------------------------
         // DNAME(rfc2672, section 3)
         struct DNAME : public RR
         {
@@ -701,6 +708,24 @@ namespace chen
 
         public:
             std::string target;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // SINK(draft-eastlake-kitchen-sink-02)
+        struct SINK : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint8_t coding    = 0;
+            std::uint8_t subcoding = 0;
+            std::vector<std::uint8_t> sdata;
         };
 
 
@@ -910,6 +935,25 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
+        // SMIMEA(draft-ietf-dane-smime, section 2)
+        struct SMIMEA : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint8_t usage        = 0;
+            std::uint8_t selector     = 0;
+            std::uint8_t matchingtype = 0;
+            std::string certificate;
+        };
+
+
+        // ---------------------------------------------------------------------
         // HIP(rfc5205, section 5)
         struct HIP : public RR
         {
@@ -1033,6 +1077,24 @@ namespace chen
 
         public:
             std::string publickey;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // CSYNC(rfc7477, section 2.1.1)
+        struct CSYNC : public RR
+        {
+        public:
+            /**
+             * Data
+             */
+            virtual std::vector<std::uint8_t> data() const override;
+            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+
+        public:
+            std::uint32_t serial = 0;
+            std::uint16_t flags  = 0;
+            std::vector<std::uint8_t> typebitmap;
         };
 
 
