@@ -37,17 +37,13 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // The following bit will treat as bool
-        // AA, 1 bit(Authoritative Answer)
-        // TC, 1 bit(TrunCation)
-        // RD, 1 bit(Recursion Desired)
-        // RA, 1 bit(Recursion Available)
-
-
-        // ---------------------------------------------------------------------
-        // Z, 3 bit(Reserved)
-        enum class Z : std::uint8_t {
-            None = 0
-        };
+        // AA, bit 5, rfc1035, Authoritative Answer
+        // TC, bit 6, rfc1035, Truncated Response
+        // RD, bit 7, rfc1035, Recursion Desired
+        // RA, bit 8, rfc1035, Recursion Available
+        // Z,  bit 9, Reserved
+        // AD, bit 10, rfc4035, Authentic Data
+        // CD, bit 11, rfc4035, Checking Disabled
 
 
         // ---------------------------------------------------------------------
@@ -64,15 +60,28 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // Flag mask
-        static const std::uint16_t FLAG_MASK_QR     = 0b1000000000000000;
-        static const std::uint16_t FLAG_MASK_OPCODE = 0b0111100000000000;
-        static const std::uint16_t FLAG_MASK_AA     = 0b0000010000000000;
-        static const std::uint16_t FLAG_MASK_TC     = 0b0000001000000000;
-        static const std::uint16_t FLAG_MASK_RD     = 0b0000000100000000;
-        static const std::uint16_t FLAG_MASK_RA     = 0b0000000010000000;
-        static const std::uint16_t FLAG_MASK_Z      = 0b0000000001110000;
-        static const std::uint16_t FLAG_MASK_RCODE  = 0b0000000000001111;
+        // Flag
+        static const std::uint16_t FLAG_POS_QR     = 15;
+        static const std::uint16_t FLAG_POS_OPCODE = 11;
+        static const std::uint16_t FLAG_POS_AA     = 10;
+        static const std::uint16_t FLAG_POS_TC     = 9;
+        static const std::uint16_t FLAG_POS_RD     = 8;
+        static const std::uint16_t FLAG_POS_RA     = 7;
+        static const std::uint16_t FLAG_POS_Z      = 6;
+        static const std::uint16_t FLAG_POS_AD     = 5;
+        static const std::uint16_t FLAG_POS_CD     = 4;
+        static const std::uint16_t FLAG_POS_RCODE  = 0;
+
+        static const std::uint16_t FLAG_MASK_QR     = 1 << FLAG_POS_QR;
+        static const std::uint16_t FLAG_MASK_OPCODE = 1 << FLAG_POS_OPCODE;
+        static const std::uint16_t FLAG_MASK_AA     = 1 << FLAG_POS_AA;
+        static const std::uint16_t FLAG_MASK_TC     = 1 << FLAG_POS_TC;
+        static const std::uint16_t FLAG_MASK_RD     = 1 << FLAG_POS_RD;
+        static const std::uint16_t FLAG_MASK_RA     = 1 << FLAG_POS_RA;
+        static const std::uint16_t FLAG_MASK_Z      = 1 << FLAG_POS_Z;
+        static const std::uint16_t FLAG_MASK_AD     = 1 << FLAG_POS_AD;
+        static const std::uint16_t FLAG_MASK_CD     = 1 << FLAG_POS_CD;
+        static const std::uint16_t FLAG_MASK_RCODE  = 1 << FLAG_POS_RCODE;
 
 
         // ---------------------------------------------------------------------

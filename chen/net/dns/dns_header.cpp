@@ -62,7 +62,7 @@ bool header::authoritative() const
     return static_cast<bool>(this->_flag & FLAG_MASK_AA);
 }
 
-bool header::truncation() const
+bool header::truncated() const
 {
     return static_cast<bool>(this->_flag & FLAG_MASK_TC);
 }
@@ -77,9 +77,19 @@ bool header::recursionAvailable() const
     return static_cast<bool>(this->_flag & FLAG_MASK_RA);
 }
 
-chen::dns::Z header::zero() const
+bool header::zero() const
 {
-    return static_cast<chen::dns::Z>(this->_flag & FLAG_MASK_Z);
+    return static_cast<bool>(this->_flag & FLAG_MASK_Z);
+}
+
+bool header::authenticData() const
+{
+    return static_cast<bool>(this->_flag & FLAG_MASK_AD);
+}
+
+bool header::checkingDisabled() const
+{
+    return static_cast<bool>(this->_flag & FLAG_MASK_CD);
 }
 
 chen::dns::RCODE header::rcode() const
@@ -121,49 +131,61 @@ void header::setArcount(std::uint16_t value)
 // set flag value
 void header::setQr(chen::dns::QR value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 15) & static_cast<std::uint16_t>(FLAG_MASK_QR);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_QR) & static_cast<std::uint16_t>(FLAG_MASK_QR);
     this->_flag |= tmp;
 }
 
 void header::setOpcode(chen::dns::OPCODE value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 11) & static_cast<std::uint16_t>(FLAG_MASK_OPCODE);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_OPCODE) & static_cast<std::uint16_t>(FLAG_MASK_OPCODE);
     this->_flag |= tmp;
 }
 
 void header::setAuthoritative(bool value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 10) & static_cast<std::uint16_t>(FLAG_MASK_AA);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_AA) & static_cast<std::uint16_t>(FLAG_MASK_AA);
     this->_flag |= tmp;
 }
 
-void header::setTruncation(bool value)
+void header::setTruncated(bool value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 9) & static_cast<std::uint16_t>(FLAG_MASK_TC);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_TC) & static_cast<std::uint16_t>(FLAG_MASK_TC);
     this->_flag |= tmp;
 }
 
 void header::setRecursionDesired(bool value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 8) & static_cast<std::uint16_t>(FLAG_MASK_RD);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_RD) & static_cast<std::uint16_t>(FLAG_MASK_RD);
     this->_flag |= tmp;
 }
 
 void header::setRecursionAvailable(bool value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 7) & static_cast<std::uint16_t>(FLAG_MASK_RA);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_RA) & static_cast<std::uint16_t>(FLAG_MASK_RA);
     this->_flag |= tmp;
 }
 
-void header::setZero(chen::dns::Z value)
+void header::setZero(bool value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 4) & static_cast<std::uint16_t>(FLAG_MASK_Z);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_Z) & static_cast<std::uint16_t>(FLAG_MASK_Z);
+    this->_flag |= tmp;
+}
+
+void header::setAuthenticData(bool value)
+{
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_AD) & static_cast<std::uint16_t>(FLAG_MASK_AD);
+    this->_flag |= tmp;
+}
+
+void header::setCheckingDisabled(bool value)
+{
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_CD) & static_cast<std::uint16_t>(FLAG_MASK_CD);
     this->_flag |= tmp;
 }
 
 void header::setRcode(chen::dns::RCODE value)
 {
-    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << 0) & static_cast<std::uint16_t>(FLAG_MASK_RCODE);
+    std::uint16_t tmp = (static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & static_cast<std::uint16_t>(FLAG_MASK_RCODE);
     this->_flag |= tmp;
 }
 

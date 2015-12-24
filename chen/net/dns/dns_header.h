@@ -35,10 +35,12 @@ namespace chen
             chen::dns::QR qr()         const;  // query or response
             chen::dns::OPCODE opcode() const;  // operation code
             bool authoritative()       const;  // authoritative answer
-            bool truncation()          const;  // truncation
+            bool truncated()           const;  // truncated response
             bool recursionDesired()    const;  // recursion desired
             bool recursionAvailable()  const;  // recursion available
-            chen::dns::Z zero()        const;  // reserved
+            bool zero()                const;  // reserved
+            bool authenticData()       const;  // authentic data
+            bool checkingDisabled()    const;  // checking disabled
             chen::dns::RCODE rcode()   const;  // response code
 
             /**
@@ -57,10 +59,12 @@ namespace chen
             void setQr(chen::dns::QR value);
             void setOpcode(chen::dns::OPCODE value);
             void setAuthoritative(bool value);
-            void setTruncation(bool value);
+            void setTruncated(bool value);
             void setRecursionDesired(bool value);
             void setRecursionAvailable(bool value);
-            void setZero(chen::dns::Z value);
+            void setZero(bool value);
+            void setAuthenticData(bool value);
+            void setCheckingDisabled(bool value);
             void setRcode(chen::dns::RCODE value);
 
         public:
