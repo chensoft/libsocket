@@ -211,6 +211,31 @@ std::map<chen::dns::OPCODE, std::string> table::_rr_opcode_text = {
 
 std::map<std::string, chen::dns::OPCODE> table::_rr_text_opcode;
 
+std::map<chen::dns::RCODE, std::string> table::_rr_rcode_text = {
+        {chen::dns::RCODE::NoError, "NOERROR"},
+        {chen::dns::RCODE::FormErr, "FORMERR"},
+        {chen::dns::RCODE::ServFail, "SERVFAIL"},
+        {chen::dns::RCODE::NXDomain, "NXDOMAIN"},
+        {chen::dns::RCODE::NotImp, "NOTIMPL"},
+        {chen::dns::RCODE::Refused, "REFUSED"},
+        {chen::dns::RCODE::YXDomain, "YXDOMAIN"},
+        {chen::dns::RCODE::YXRrSet, "YXRRSET"},
+        {chen::dns::RCODE::NXRrSet, "NXRRSET"},
+        {chen::dns::RCODE::NotAuth, "NOTAUTH"},
+        {chen::dns::RCODE::NotZone, "NOTZONE"},
+        {chen::dns::RCODE::BadVers, "BADVERS"},  // BadVers & BadSig has the same value
+//        {chen::dns::RCODE::BadSig, "BADSIG"},
+        {chen::dns::RCODE::BadKey, "BADKEY"},
+        {chen::dns::RCODE::BadTime, "BADTIME"},
+        {chen::dns::RCODE::BadMode, "BADMODE"},
+        {chen::dns::RCODE::BadName, "BADNAME"},
+        {chen::dns::RCODE::BadAlg, "BADALG"},
+        {chen::dns::RCODE::BadTrunc, "BADTRUNC"},
+        {chen::dns::RCODE::BadCookie, "BADCOOKIE"},
+};
+
+std::map<std::string, chen::dns::RCODE> table::_rr_text_rcode;
+
 // build
 chen::dns::table::rr_pointer table::build(chen::dns::RRType key)
 {
@@ -274,6 +299,19 @@ chen::dns::OPCODE table::textToOpcode(const std::string &key)
     return it != table::_rr_text_opcode.cend() ? it->second : chen::dns::OPCODE::Query;
 }
 
+// rcode & text
+std::string table::rcodeToText(chen::dns::RCODE key)
+{
+    auto it = table::_rr_rcode_text.find(key);
+    return it != table::_rr_rcode_text.cend() ? it->second : "";
+}
+
+chen::dns::RCODE table::textToRcode(const std::string &key)
+{
+    auto it = table::_rr_text_rcode.find(key);
+    return it != table::_rr_text_rcode.cend() ? it->second : chen::dns::RCODE::NoError;
+}
+
 // set
 void table::set(chen::dns::RRType key, rr_build_type val)
 {
@@ -312,6 +350,14 @@ void table::set(chen::dns::OPCODE key, const std::string &val)
     table::_rr_text_opcode[val] = key;
 }
 
+void table::set(chen::dns::RCODE key, const std::string &val)
+{
+    table::init();
+
+    table::_rr_rcode_text[key] = val;
+    table::_rr_text_rcode[val] = key;
+}
+
 // init
 inline void table::init()
 {
@@ -331,4 +377,7 @@ inline void table::init()
 
     for (auto &it : table::_rr_opcode_text)
         table::_rr_text_opcode[it.second] = it.first;
+
+    for (auto &it : table::_rr_rcode_text)
+        table::_rr_text_rcode[it.second] = it.first;
 }

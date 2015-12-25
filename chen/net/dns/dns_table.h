@@ -52,6 +52,12 @@ namespace chen
             static std::string opcodeToText(chen::dns::OPCODE key);
             static chen::dns::OPCODE textToOpcode(const std::string &key);
 
+            /**
+             * RCODE & Text
+             */
+            static std::string rcodeToText(chen::dns::RCODE key);
+            static chen::dns::RCODE textToRcode(const std::string &key);
+
         public:
             /**
              * Set custom rr type and related value
@@ -61,6 +67,7 @@ namespace chen
             static void set(chen::dns::RRClass key, const std::string &val);
             static void set(chen::dns::QR key, const std::string &val);
             static void set(chen::dns::OPCODE key, const std::string &val);
+            static void set(chen::dns::RCODE key, const std::string &val);
 
         private:
             /**
@@ -84,6 +91,9 @@ namespace chen
 
             static std::map<chen::dns::OPCODE, std::string> _rr_opcode_text;
             static std::map<std::string, chen::dns::OPCODE> _rr_text_opcode;
+
+            static std::map<chen::dns::RCODE, std::string> _rr_rcode_text;
+            static std::map<std::string, chen::dns::RCODE> _rr_text_rcode;
         };
     }
 }

@@ -49,13 +49,26 @@ namespace chen
         // ---------------------------------------------------------------------
         // RCODE, 4 bit(Response Code)
         enum class RCODE : std::uint8_t {
-            Success        = 0,  // no error
-            FormatError    = 1,  // unable to interpret the query
-            ServerFailure  = 2,  // unable to process this query due to a problem with the name server
-            NameError      = 3,  // domain name referenced in the query does not exist
-            NotImplemented = 4,  // does not support the requested kind of query
-            Refused        = 5   // the name server refuses to perform the specified operation for policy reasons
-            // 6-15                 reserved for future use
+            NoError   = 0,   // rfc1035, no error
+            FormErr   = 1,   // rfc1035, unable to interpret the query
+            ServFail  = 2,   // rfc1035, unable to process this query due to a problem with the name server
+            NXDomain  = 3,   // rfc1035, domain name referenced in the query does not exist
+            NotImp    = 4,   // rfc1035, does not support the requested kind of query
+            Refused   = 5,   // rfc1035, refuses to perform the specified operation for policy reasons
+            YXDomain  = 6,   // rfc2136, some name that ought not to exist, does exist
+            YXRrSet   = 7,   // rfc2136, some RRset that ought not to exist, does exist
+            NXRrSet   = 8,   // rfc2136, some RRset that ought to exist, does not exist
+            NotAuth   = 9,   // rfc2136, the server is not authoritative for the zone named in the Zone Section
+            NotZone   = 10,  // rfc2136, a name used in the Prerequisite or Update Section is not within the zone denoted by the Zone Section
+            BadVers   = 16,  // rfc6891, bad OPT version
+            BadSig    = 16,  // rfc2845, TSIG signature failure
+            BadKey    = 17,  // rfc2845, key not recognized
+            BadTime   = 18,  // rfc2845, signature out of time window
+            BadMode   = 19,  // rfc2930, bad TKEY mode
+            BadName   = 20,  // rfc2930, duplicate key name
+            BadAlg    = 21,  // rfc2930, algorithm not supported
+            BadTrunc  = 22,  // rfc4635, bad truncation
+            BadCookie = 23   // draft-ietf-dnsop-cookies, bad/missing server cookie
         };
 
 
