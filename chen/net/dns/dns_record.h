@@ -35,7 +35,8 @@ namespace chen
             chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
             std::int32_t ttl = 0;
 
-            // rdlength will be set when call setData method
+        protected:
+            // internal use only, will be set when call setData method
             std::uint16_t rdlength = 0;
         };
 
