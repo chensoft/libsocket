@@ -12,12 +12,6 @@
 #include <mutex>
 #include "str.h"
 
-// macro
-#define PILogD(FORMAT, ...) (chen::log::standard().debug(FORMAT, ##__VA_ARGS__))
-#define PILogE(FORMAT, ...) (chen::log::standard().error(FORMAT, ##__VA_ARGS__))
-#define PILogF(FORMAT, ...) (chen::log::standard().fatal(FORMAT, ##__VA_ARGS__))
-
-
 // log
 namespace chen
 {
@@ -35,19 +29,29 @@ namespace chen
          * Debug trace
          */
         template <typename ... Args>
-        void debug(const char *format, Args ... args);
+        void debug(const char *format, Args ... args)
+        {
+            this->flush("[DEBUG] " + chen::str::format(format, args...));
+        }
 
         /**
          * Error trace
          */
         template <typename ... Args>
-        void error(const char *format, Args ... args);
+        void error(const char *format, Args ... args)
+        {
+            this->flush("[ERROR] " + chen::str::format(format, args...));
+        }
 
         /**
          * Fatal trace
          */
         template <typename ... Args>
-        void fatal(const char *format, Args ... args);
+        void fatal(const char *format, Args ... args)
+        {
+            this->flush("[FATAL] " + chen::str::format(format, args...));
+            std::exit(EXIT_FAILURE);
+        }
 
         /**
          * Final output
@@ -59,29 +63,21 @@ namespace chen
     };
 }
 
-
-namespace chen
+// helper
+template <typename ... Args>
+inline void PILogD(const char *format, Args ... args)
 {
-    /**
-     * Log
-     */
-    template <typename ... Args>
-    void log::debug(const char *format, Args ... args)
-    {
-        this->flush("[DEBUG] " + chen::str::format(format, args...));
-    }
+    chen::log::standard().debug(format, args...);
+}
 
-    template <typename ... Args>
-    void log::error(const char *format, Args ... args)
-    {
-        this->flush("[ERROR] " + chen::str::format(format, args...));
-    }
+template <typename ... Args>
+inline void PILogE(const char *format, Args ... args)
+{
+    chen::log::standard().error(format, args...);
+}
 
-    template <typename ... Args>
-    void log::fatal(const char *format, Args ... args)
-    {
-        this->flush("[FATAL] " + chen::str::format(format, args...));
-
-        std::exit(EXIT_FAILURE);
-    }
+template <typename ... Args>
+inline void PILogF(const char *format, Args ... args)
+{
+    chen::log::standard().fatal(format, args...);
 }

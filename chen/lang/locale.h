@@ -9,10 +9,6 @@
 #include <string>
 
 // todo no implement now
-
-// using macro _T to wrap a text that need to translate
-#define _T(TEXT) (chen::locale::standard().translate(TEXT))
-
 namespace chen
 {
     class locale
@@ -30,4 +26,10 @@ namespace chen
          */
         virtual std::string translate(const std::string &text);
     };
+}
+
+// using helper _T to wrap a text that need to translate
+inline std::string _T(const std::string &text)
+{
+    return chen::locale::standard().translate(text);
 }
