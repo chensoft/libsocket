@@ -12,11 +12,25 @@
 using namespace chen;
 using namespace chen::dns;
 
+// todo using stream data model
 // -----------------------------------------------------------------------------
 // RR
-RR::~RR()
+std::size_t RR::setData(const std::uint8_t *data, std::size_t size)
 {
+    auto need = sizeof(this->rdlength);
 
+    if (size < need)
+        throw error_size(str::format("record data size is not enough, require %d bytes", need));
+
+    // rdlength
+    std::uint16_t rdlength = static_cast<std::uint16_t>((data[0] << 8) + data[1]);
+
+    if (size - need < rdlength)
+        throw error_size("record data size is too small");
+    else
+        this->rdlength = rdlength;
+
+    return need;
 }
 
 
@@ -29,24 +43,13 @@ std::vector<std::uint8_t> Raw::data() const
 
 std::size_t Raw::setData(const std::uint8_t *data, std::size_t size)
 {
-    if (size < 2)
-        throw error_size("record data size is not enough, require 2 bytes");
-
-    // rdlength
-    std::uint16_t rdlength = static_cast<std::uint16_t>((data[0] << 8) + data[1]);
-
-    size -= 2;
-
-    if (size < rdlength)
-        throw error_size("record data size is too small");
+    std::size_t temp = RR::setData(data, size);
 
     // rdata
-    this->rdlength = rdlength;
-
     this->rdata.clear();
-    this->rdata.insert(this->rdata.cbegin(), data + 2, data + rdlength);
+    this->rdata.insert(this->rdata.cbegin(), data + temp, data + this->rdlength);
 
-    return rdlength + 2;
+    return this->rdlength + temp;
 }
 
 
@@ -61,7 +64,8 @@ std::vector<std::uint8_t> A::data() const
 
 std::size_t A::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->address, data, size);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->address, data + temp, size - temp) + temp;
 }
 
 
@@ -76,7 +80,8 @@ std::vector<std::uint8_t> NS::data() const
 
 std::size_t NS::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->nsdname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->nsdname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -91,7 +96,8 @@ std::vector<std::uint8_t> MD::data() const
 
 std::size_t MD::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->madname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->madname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -106,7 +112,8 @@ std::vector<std::uint8_t> MF::data() const
 
 std::size_t MF::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->madname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->madname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -121,7 +128,8 @@ std::vector<std::uint8_t> CNAME::data() const
 
 std::size_t CNAME::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->cname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->cname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -142,7 +150,8 @@ std::vector<std::uint8_t> SOA::data() const
 
 std::size_t SOA::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->mname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->mname, data + temp, size - temp, true);
     temp += codec::unpack(this->rname, data + temp, size - temp, true);
     temp += codec::unpack(this->serial, data + temp, size - temp);
     temp += codec::unpack(this->refresh, data + temp, size - temp);
@@ -164,7 +173,8 @@ std::vector<std::uint8_t> MB::data() const
 
 std::size_t MB::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->madname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->madname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -179,7 +189,8 @@ std::vector<std::uint8_t> MG::data() const
 
 std::size_t MG::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->mgmname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->mgmname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -194,7 +205,8 @@ std::vector<std::uint8_t> MR::data() const
 
 std::size_t MR::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->newname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->newname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -209,8 +221,10 @@ std::vector<std::uint8_t> RNULL::data() const
 
 std::size_t RNULL::setData(const std::uint8_t *data, std::size_t size)
 {
+    std::size_t temp = RR::setData(data, size);
+
     this->anything.clear();
-    this->anything.insert(this->anything.cbegin(), data, data + size);
+    this->anything.insert(this->anything.cbegin(), data + temp, data + size - temp);
 
     return size;
 }
@@ -229,7 +243,9 @@ std::vector<std::uint8_t> WKS::data() const
 
 std::size_t WKS::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->address, data, size);
+    std::size_t temp = RR::setData(data, size);
+
+    temp += codec::unpack(this->address, data + temp, size - temp);
     temp += codec::unpack(this->protocol, data + temp, size - temp);
 
     this->bitmap.clear();
@@ -250,7 +266,8 @@ std::vector<std::uint8_t> PTR::data() const
 
 std::size_t PTR::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->ptrdname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->ptrdname, data + temp, size - temp, true) + temp;
 }
 
 
@@ -266,7 +283,8 @@ std::vector<std::uint8_t> HINFO::data() const
 
 std::size_t HINFO::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->cpu, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->cpu, data + temp, size - temp, false);
     temp += codec::unpack(this->os, data + temp, size - temp, false);
     return temp;
 }
@@ -284,7 +302,8 @@ std::vector<std::uint8_t> MINFO::data() const
 
 std::size_t MINFO::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->rmailbx, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->rmailbx, data + temp, size - temp, true);
     temp += codec::unpack(this->emailbx, data + temp, size - temp, true);
     return temp;
 }
@@ -302,7 +321,8 @@ std::vector<std::uint8_t> MX::data() const
 
 std::size_t MX::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->exchange, data + temp, size - temp, true);
     return temp;
 }
@@ -319,7 +339,8 @@ std::vector<std::uint8_t> TXT::data() const
 
 std::size_t TXT::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->txt_data, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->txt_data, data + temp, size - temp, false) + temp;
 }
 
 
@@ -335,7 +356,8 @@ std::vector<std::uint8_t> RP::data() const
 
 std::size_t RP::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->mbox_dname, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->mbox_dname, data + temp, size - temp, true);
     temp += codec::unpack(this->txt_dname, data + temp, size - temp, true);
     return temp;
 }
@@ -353,7 +375,8 @@ std::vector<std::uint8_t> AFSDB::data() const
 
 std::size_t AFSDB::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->subtype, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->subtype, data + temp, size - temp);
     temp += codec::unpack(this->hostname, data + temp, size - temp, true);
     return temp;
 }
@@ -370,7 +393,8 @@ std::vector<std::uint8_t> X25::data() const
 
 std::size_t X25::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->psdn_address, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->psdn_address, data + temp, size - temp, false) + temp;
 }
 
 
@@ -386,7 +410,8 @@ std::vector<std::uint8_t> ISDN::data() const
 
 std::size_t ISDN::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->isdn_address, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->isdn_address, data + temp, size - temp, false);
     temp += codec::unpack(this->sa, data + temp, size - temp, false);
     return temp;
 }
@@ -404,7 +429,8 @@ std::vector<std::uint8_t> RT::data() const
 
 std::size_t RT::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->intermediate_host, data + temp, size - temp, true);
     return temp;
 }
@@ -421,7 +447,8 @@ std::vector<std::uint8_t> NSAP::data() const
 
 std::size_t NSAP::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->nsap, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->nsap, data + temp, size - temp, false) + temp;
 }
 
 
@@ -436,7 +463,8 @@ std::vector<std::uint8_t> NSAPPTR::data() const
 
 std::size_t NSAPPTR::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->owner, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->owner, data + temp, size - temp, true) + temp;
 }
 
 
@@ -459,7 +487,8 @@ std::vector<std::uint8_t> SIG::data() const
 
 std::size_t SIG::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->type_covered, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->type_covered, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->labels, data + temp, size - temp);
     temp += codec::unpack(this->original, data + temp, size - temp);
@@ -486,7 +515,8 @@ std::vector<std::uint8_t> KEY::data() const
 
 std::size_t KEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->flags, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->protocol, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->publickey, data + temp, size - temp, false);
@@ -507,7 +537,8 @@ std::vector<std::uint8_t> PX::data() const
 
 std::size_t PX::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->map822, data + temp, size - temp, true);
     temp += codec::unpack(this->mapx400, data + temp, size - temp, true);
     return temp;
@@ -527,7 +558,8 @@ std::vector<std::uint8_t> GPOS::data() const
 
 std::size_t GPOS::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->longitude, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->longitude, data + temp, size - temp, false);
     temp += codec::unpack(this->latitude, data + temp, size - temp, false);
     temp += codec::unpack(this->altitude, data + temp, size - temp, false);
     return temp;
@@ -545,6 +577,11 @@ std::vector<std::uint8_t> AAAA::data() const
 
 std::size_t AAAA::setData(const std::uint8_t *data, std::size_t size)
 {
+    std::size_t temp = RR::setData(data, size);
+
+    data += temp;
+    size -= temp;
+
     auto need = this->address.size();
 
     if (size < need)
@@ -552,7 +589,7 @@ std::size_t AAAA::setData(const std::uint8_t *data, std::size_t size)
 
     std::copy(data, data + need, this->address.begin());
 
-    return need;
+    return need + temp;
 }
 
 
@@ -573,7 +610,8 @@ std::vector<std::uint8_t> LOC::data() const
 
 std::size_t LOC::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->version, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp = codec::unpack(this->version, data + temp, size - temp);
     temp += codec::unpack(this->size, data + temp, size - temp);
     temp += codec::unpack(this->horiz_pre, data + temp, size - temp);
     temp += codec::unpack(this->vert_pre, data + temp, size - temp);
@@ -596,7 +634,8 @@ std::vector<std::uint8_t> NXT::data() const
 
 std::size_t NXT::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->next_domain, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->next_domain, data + temp, size - temp, true);
 
     this->type_bitmap.clear();
     this->type_bitmap.insert(this->type_bitmap.cbegin(), data + temp, data + size);
@@ -616,7 +655,8 @@ std::vector<std::uint8_t> EID::data() const
 
 std::size_t EID::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->endpoint, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->endpoint, data + temp, size - temp, false) + temp;
 }
 
 
@@ -631,7 +671,8 @@ std::vector<std::uint8_t> NIMLOC::data() const
 
 std::size_t NIMLOC::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->locator, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->locator, data + temp, size - temp, false) + temp;
 }
 
 
@@ -649,7 +690,8 @@ std::vector<std::uint8_t> SRV::data() const
 
 std::size_t SRV::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->priority, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->priority, data + temp, size - temp);
     temp += codec::unpack(this->weight, data + temp, size - temp);
     temp += codec::unpack(this->port, data + temp, size - temp);
     temp += codec::unpack(this->target, data + temp, size - temp, true);
@@ -669,7 +711,8 @@ std::vector<std::uint8_t> ATMA::data() const
 
 std::size_t ATMA::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->format, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->format, data + temp, size - temp);
     temp += codec::unpack(this->address, data + temp, size - temp, false);
     return temp;
 }
@@ -691,7 +734,8 @@ std::vector<std::uint8_t> NAPTR::data() const
 
 std::size_t NAPTR::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->order, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->order, data + temp, size - temp);
     temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->flags, data + temp, size - temp, false);
     temp += codec::unpack(this->services, data + temp, size - temp, false);
@@ -713,7 +757,8 @@ std::vector<std::uint8_t> KX::data() const
 
 std::size_t KX::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->exchanger, data + temp, size - temp, true);
     return temp;
 }
@@ -733,7 +778,8 @@ std::vector<std::uint8_t> CERT::data() const
 
 std::size_t CERT::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->type, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->type, data + temp, size - temp);
     temp += codec::unpack(this->key_tag, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->certificate, data + temp, size - temp, false);
@@ -752,7 +798,8 @@ std::vector<std::uint8_t> DNAME::data() const
 
 std::size_t DNAME::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->target, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->target, data + temp, size - temp, true) + temp;
 }
 
 
@@ -769,7 +816,8 @@ std::vector<std::uint8_t> SINK::data() const
 
 std::size_t SINK::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->coding, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->coding, data + temp, size - temp);
     temp += codec::unpack(this->subcoding, data + temp, size - temp);
 
     this->sdata.clear();
@@ -793,7 +841,8 @@ std::vector<std::uint8_t> DS::data() const
 
 std::size_t DS::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->key_tag, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->key_tag, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->digest_type, data + temp, size - temp);
     temp += codec::unpack(this->digest, data + temp, size - temp, false);
@@ -814,7 +863,8 @@ std::vector<std::uint8_t> SSHFP::data() const
 
 std::size_t SSHFP::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->algorithm, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->fptype, data + temp, size - temp);
     temp += codec::unpack(this->fingerprint, data + temp, size - temp, false);
     return temp;
@@ -858,7 +908,8 @@ std::vector<std::uint8_t> IPSECKEY::data() const
 
 std::size_t IPSECKEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->precedence, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->precedence, data + temp, size - temp);
     temp += codec::unpack(this->gateway_type, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
 
@@ -923,7 +974,8 @@ std::vector<std::uint8_t> RRSIG::data() const
 
 std::size_t RRSIG::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->type_covered, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->type_covered, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->labels, data + temp, size - temp);
     temp += codec::unpack(this->original, data + temp, size - temp);
@@ -948,7 +1000,8 @@ std::vector<std::uint8_t> NSEC::data() const
 
 std::size_t NSEC::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->next_domain, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->next_domain, data + temp, size - temp, true);
 
     this->type_bitmap.clear();
     this->type_bitmap.insert(this->type_bitmap.cbegin(), data + temp, data + size);
@@ -971,7 +1024,8 @@ std::vector<std::uint8_t> DNSKEY::data() const
 
 std::size_t DNSKEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->flags, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->protocol, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->publickey, data + temp, size - temp, false);
@@ -990,7 +1044,8 @@ std::vector<std::uint8_t> DHCID::data() const
 
 std::size_t DHCID::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->digest, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->digest, data + temp, size - temp, false) + temp;
 }
 
 
@@ -1012,7 +1067,8 @@ std::vector<std::uint8_t> NSEC3::data() const
 
 std::size_t NSEC3::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->hash, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->hash, data + temp, size - temp);
     temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->iterations, data + temp, size - temp);
     temp += codec::unpack(this->salt_length, data + temp, size - temp);
@@ -1045,7 +1101,8 @@ std::vector<std::uint8_t> NSEC3PARAM::data() const
 
 std::size_t NSEC3PARAM::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->hash, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->hash, data + temp, size - temp);
     temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->iterations, data + temp, size - temp);
     temp += codec::unpack(this->salt_length, data + temp, size - temp);
@@ -1071,7 +1128,8 @@ std::vector<std::uint8_t> TLSA::data() const
 
 std::size_t TLSA::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->usage, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->usage, data + temp, size - temp);
     temp += codec::unpack(this->selector, data + temp, size - temp);
     temp += codec::unpack(this->matching_type, data + temp, size - temp);
     temp += codec::unpack(this->certificate, data + temp, size - temp, false);
@@ -1093,7 +1151,8 @@ std::vector<std::uint8_t> SMIMEA::data() const
 
 std::size_t SMIMEA::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->usage, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->usage, data + temp, size - temp);
     temp += codec::unpack(this->selector, data + temp, size - temp);
     temp += codec::unpack(this->matching_type, data + temp, size - temp);
     temp += codec::unpack(this->certificate, data + temp, size - temp, false);
@@ -1117,7 +1176,8 @@ std::vector<std::uint8_t> HIP::data() const
 
 std::size_t HIP::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->hit_length, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->hit_length, data + temp, size - temp);
     temp += codec::unpack(this->pk_algorithm, data + temp, size - temp);
     temp += codec::unpack(this->pk_length, data + temp, size - temp);
     temp += codec::unpack(this->hit, data + temp, size - temp, false);
@@ -1138,7 +1198,8 @@ std::vector<std::uint8_t> NINFO::data() const
 
 std::size_t NINFO::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->zs_data, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->zs_data, data + temp, size - temp, false) + temp;
 }
 
 
@@ -1156,7 +1217,8 @@ std::vector<std::uint8_t> RKEY::data() const
 
 std::size_t RKEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->flags, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->protocol, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->publickey, data + temp, size - temp, false);
@@ -1176,7 +1238,8 @@ std::vector<std::uint8_t> TALINK::data() const
 
 std::size_t TALINK::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->previous_name, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->previous_name, data + temp, size - temp, true);
     temp += codec::unpack(this->next_name, data + temp, size - temp, true);
     return temp;
 }
@@ -1196,7 +1259,8 @@ std::vector<std::uint8_t> CDS::data() const
 
 std::size_t CDS::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->key_tag, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->key_tag, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->digest_type, data + temp, size - temp);
     temp += codec::unpack(this->digest, data + temp, size - temp, false);
@@ -1218,7 +1282,8 @@ std::vector<std::uint8_t> CDNSKEY::data() const
 
 std::size_t CDNSKEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->flags, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->protocol, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->publickey, data + temp, size - temp, false);
@@ -1237,7 +1302,8 @@ std::vector<std::uint8_t> OPENPGPKEY::data() const
 
 std::size_t OPENPGPKEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->publickey, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->publickey, data + temp, size - temp, false) + temp;
 }
 
 
@@ -1254,7 +1320,8 @@ std::vector<std::uint8_t> CSYNC::data() const
 
 std::size_t CSYNC::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->serial, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->serial, data + temp, size - temp);
     temp += codec::unpack(this->flags, data + temp, size - temp);
 
     this->type_bitmap.clear();
@@ -1275,7 +1342,8 @@ std::vector<std::uint8_t> SPF::data() const
 
 std::size_t SPF::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->txt, data, size, false);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->txt, data + temp, size - temp, false) + temp;
 }
 
 
@@ -1291,7 +1359,8 @@ std::vector<std::uint8_t> NID::data() const
 
 std::size_t NID::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->node_id, data + temp, size - temp);
     return temp;
 }
@@ -1309,7 +1378,8 @@ std::vector<std::uint8_t> L32::data() const
 
 std::size_t L32::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->locator32, data + temp, size - temp);
     return temp;
 }
@@ -1327,7 +1397,8 @@ std::vector<std::uint8_t> L64::data() const
 
 std::size_t L64::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->locator64, data + temp, size - temp);
     return temp;
 }
@@ -1345,7 +1416,8 @@ std::vector<std::uint8_t> LP::data() const
 
 std::size_t LP::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->preference, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->preference, data + temp, size - temp);
     temp += codec::unpack(this->fqdn, data + temp, size - temp, true);
     return temp;
 }
@@ -1362,11 +1434,18 @@ std::vector<std::uint8_t> EUI48::data() const
 
 std::size_t EUI48::setData(const std::uint8_t *data, std::size_t size)
 {
-    if (size < 6)
-        throw error_size(str::format("codec unpack EUI48 size is not enough, require 6 bytes"));
+    std::size_t temp = RR::setData(data, size);
 
-    std::copy(data, data + 6, this->address.begin());
-    return 6;
+    data += temp;
+    size -= temp;
+
+    std::size_t need = this->address.size();
+
+    if (size < need)
+        throw error_size(str::format("codec unpack EUI48 size is not enough, require %d bytes", need));
+
+    std::copy(data, data + need, this->address.begin());
+    return need + temp;
 }
 
 
@@ -1381,7 +1460,8 @@ std::vector<std::uint8_t> EUI64::data() const
 
 std::size_t EUI64::setData(const std::uint8_t *data, std::size_t size)
 {
-    return codec::unpack(this->address, data, size);
+    std::size_t temp = RR::setData(data, size);
+    return codec::unpack(this->address, data + temp, size - temp) + temp;
 }
 
 
@@ -1404,7 +1484,8 @@ std::vector<std::uint8_t> TKEY::data() const
 
 std::size_t TKEY::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->algorithm, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp, true);
     temp += codec::unpack(this->inception, data + temp, size - temp);
     temp += codec::unpack(this->expiration, data + temp, size - temp);
     temp += codec::unpack(this->mode, data + temp, size - temp);
@@ -1444,7 +1525,8 @@ std::vector<std::uint8_t> TSIG::data() const
 
 std::size_t TSIG::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->algorithm, data, size, true);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->algorithm, data + temp, size - temp, true);
 
     auto need = this->time_signed.size();
 
@@ -1486,7 +1568,8 @@ std::vector<std::uint8_t> URI::data() const
 
 std::size_t URI::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->priority, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->priority, data + temp, size - temp);
     temp += codec::unpack(this->weight, data + temp, size - temp);
     temp += codec::unpack(this->target, data + temp, size - temp, false);
     return temp;
@@ -1506,7 +1589,8 @@ std::vector<std::uint8_t> CAA::data() const
 
 std::size_t CAA::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->flags, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->flags, data + temp, size - temp);
     temp += codec::unpack(this->tag, data + temp, size - temp, false);
     temp += codec::unpack(this->value, data + temp, size - temp, false);
     return temp;
@@ -1527,7 +1611,8 @@ std::vector<std::uint8_t> TA::data() const
 
 std::size_t TA::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->key_tag, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->key_tag, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->digest_type, data + temp, size - temp);
     temp += codec::unpack(this->digest, data + temp, size - temp, false);
@@ -1549,7 +1634,8 @@ std::vector<std::uint8_t> DLV::data() const
 
 std::size_t DLV::setData(const std::uint8_t *data, std::size_t size)
 {
-    std::size_t temp = codec::unpack(this->key_tag, data, size);
+    std::size_t temp = RR::setData(data, size);
+    temp += codec::unpack(this->key_tag, data + temp, size - temp);
     temp += codec::unpack(this->algorithm, data + temp, size - temp);
     temp += codec::unpack(this->digest_type, data + temp, size - temp);
     temp += codec::unpack(this->digest, data + temp, size - temp, false);

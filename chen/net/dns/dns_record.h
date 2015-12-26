@@ -35,7 +35,8 @@ namespace chen
             chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
             std::int32_t ttl = 0;
 
-            // todo put rdlength here, the rr can use this length to get data from buffer
+            // rdlength will be set when call setData method
+            std::uint16_t rdlength = 0;
         };
 
 
@@ -54,7 +55,6 @@ namespace chen
             virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
 
         public:
-            std::uint16_t rdlength = 0;
             std::vector<std::uint8_t> rdata;
         };
 

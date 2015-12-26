@@ -92,10 +92,10 @@ namespace chen
              * Get field value
              */
             const chen::dns::header& header() const;
-            const q_type& question()    const;
-            const rr_type& answer()     const;
-            const rr_type& authority()  const;
-            const rr_type& additional() const;
+            const q_type& question()          const;
+            const rr_type& answer()           const;
+            const rr_type& authority()        const;
+            const rr_type& additional()       const;
 
         public:
             /**

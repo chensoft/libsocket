@@ -7,17 +7,12 @@
 #include "dns_packet.h"
 #include "dns_error.h"
 #include "dns_codec.h"
-#include <chen/tool/str.h>
 
 using namespace chen;
 using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // message
-message::~message()
-{
-
-}
 
 
 // -----------------------------------------------------------------------------
