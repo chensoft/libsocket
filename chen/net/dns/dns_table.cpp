@@ -240,14 +240,14 @@ std::map<std::string, chen::dns::RCODE> table::_rr_text_rcode;
 chen::dns::table::rr_pointer table::build(chen::dns::RRType key)
 {
     auto it = table::_rr_build.find(key);
-    return it != table::_rr_build.cend() ? it->second() : nullptr;
+    return it != table::_rr_build.end() ? it->second() : nullptr;
 }
 
 // type & text
 std::string table::typeToText(chen::dns::RRType key)
 {
     auto it = table::_rr_type_text.find(key);
-    return it != table::_rr_type_text.cend() ? it->second : "";
+    return it != table::_rr_type_text.end() ? it->second : "";
 }
 
 chen::dns::RRType table::textToType(const std::string &key)
@@ -255,14 +255,14 @@ chen::dns::RRType table::textToType(const std::string &key)
     table::init();
 
     auto it = table::_rr_text_type.find(key);
-    return it != table::_rr_text_type.cend() ? it->second : chen::dns::RRType::None;
+    return it != table::_rr_text_type.end() ? it->second : chen::dns::RRType::None;
 }
 
 // class & text
 std::string table::classToText(chen::dns::RRClass key)
 {
     auto it = table::_rr_class_text.find(key);
-    return it != table::_rr_class_text.cend() ? it->second : "";
+    return it != table::_rr_class_text.end() ? it->second : "";
 }
 
 chen::dns::RRClass table::textToClass(const std::string &key)
@@ -270,46 +270,46 @@ chen::dns::RRClass table::textToClass(const std::string &key)
     table::init();
 
     auto it = table::_rr_text_class.find(key);
-    return it != table::_rr_text_class.cend() ? it->second : chen::dns::RRClass::IN;
+    return it != table::_rr_text_class.end() ? it->second : chen::dns::RRClass::IN;
 }
 
 // qr & text
 std::string table::qrToText(chen::dns::QR key)
 {
     auto it = table::_rr_qr_text.find(key);
-    return it != table::_rr_qr_text.cend() ? it->second : "";
+    return it != table::_rr_qr_text.end() ? it->second : "";
 }
 
 chen::dns::QR table::textToQr(const std::string &key)
 {
     auto it = table::_rr_text_qr.find(key);
-    return it != table::_rr_text_qr.cend() ? it->second : chen::dns::QR::Query;
+    return it != table::_rr_text_qr.end() ? it->second : chen::dns::QR::Query;
 }
 
 // opcode & text
 std::string table::opcodeToText(chen::dns::OPCODE key)
 {
     auto it = table::_rr_opcode_text.find(key);
-    return it != table::_rr_opcode_text.cend() ? it->second : "";
+    return it != table::_rr_opcode_text.end() ? it->second : "";
 }
 
 chen::dns::OPCODE table::textToOpcode(const std::string &key)
 {
     auto it = table::_rr_text_opcode.find(key);
-    return it != table::_rr_text_opcode.cend() ? it->second : chen::dns::OPCODE::Query;
+    return it != table::_rr_text_opcode.end() ? it->second : chen::dns::OPCODE::Query;
 }
 
 // rcode & text
 std::string table::rcodeToText(chen::dns::RCODE key)
 {
     auto it = table::_rr_rcode_text.find(key);
-    return it != table::_rr_rcode_text.cend() ? it->second : "";
+    return it != table::_rr_rcode_text.end() ? it->second : "";
 }
 
 chen::dns::RCODE table::textToRcode(const std::string &key)
 {
     auto it = table::_rr_text_rcode.find(key);
-    return it != table::_rr_text_rcode.cend() ? it->second : chen::dns::RCODE::NoError;
+    return it != table::_rr_text_rcode.end() ? it->second : chen::dns::RCODE::NoError;
 }
 
 // set

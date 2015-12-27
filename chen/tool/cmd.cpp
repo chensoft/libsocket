@@ -157,7 +157,7 @@ std::string cmd::usage()
     indent += 2;
 
     // print the options
-    for (auto it = this->_store.cbegin();;)
+    for (auto it = this->_store.begin();;)
     {
         auto name = it->second->name();
         auto tiny = it->second->tiny();
@@ -168,7 +168,7 @@ std::string cmd::usage()
         else
             ss << "  -" << tiny << ", --" << name << std::string(indent - tiny.size() - name.size() - 7, ' ');
 
-        if (++it != this->_store.cend())
+        if (++it != this->_store.end())
         {
             ss << desc << std::endl;
         }
@@ -195,14 +195,14 @@ void cmd::update(const std::string &text, const std::string &name, const std::st
 
     auto it_tiny = this->_tiny.find(name);
 
-    if (it_tiny != this->_tiny.cend())
+    if (it_tiny != this->_tiny.end())
         tiny = it_tiny->second;
     else
         tiny = name;
 
     auto it_store = this->_store.find(tiny);
 
-    if (it_store == this->_store.cend())
+    if (it_store == this->_store.end())
         throw std::runtime_error("cmd: parse option but not defined: " + text + ", name: " + name);
 
     try
