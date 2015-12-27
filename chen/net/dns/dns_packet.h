@@ -9,6 +9,7 @@
 #include "dns_header.h"
 #include "dns_record.h"
 #include <vector>
+#include <memory>
 
 namespace chen
 {
