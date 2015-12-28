@@ -18,6 +18,7 @@
 
 #include <chen/tool/log.h>
 #include <chen/tool/cmd.h>
+#include <chen/tool/num.h>
 #include <chen/tool/str.h>
 
 #include <chen/net/ip/ip_error.h>
