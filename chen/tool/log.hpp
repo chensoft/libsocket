@@ -10,7 +10,7 @@
 
 #include <cstdlib>
 #include <mutex>
-#include "str.h"
+#include "str.hpp"
 
 // todo ad log level enum, and user can change log mode
 // log

@@ -4,10 +4,10 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "dns_record.h"
-#include "dns_error.h"
-#include "dns_codec.h"
-#include <chen/tool/str.h>
+#include "dns_record.hpp"
+#include "dns_error.hpp"
+#include "dns_codec.hpp"
+#include <chen/tool/str.hpp>
 
 using namespace chen;
 using namespace chen::dns;

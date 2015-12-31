@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "locale.h"
+#include "locale.hpp"
 
 using namespace chen;
 

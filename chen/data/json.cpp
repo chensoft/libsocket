@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "json.h"
+#include "json.hpp"
 
 using namespace chen;
 

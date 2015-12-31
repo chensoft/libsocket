@@ -6,9 +6,9 @@
  */
 #pragma once
 
-#include "dns_define.h"
-#include "dns_error.h"
-#include <chen/tool/str.h>
+#include "dns_define.hpp"
+#include "dns_error.hpp"
+#include <chen/tool/str.hpp>
 #include <memory>
 #include <vector>
 #include <array>

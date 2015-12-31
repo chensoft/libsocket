@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "semaphore.h"
+#include "semaphore.hpp"
 
 using namespace chen;
 

@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "xml.h"
+#include "xml.hpp"
 
 using namespace chen;
 

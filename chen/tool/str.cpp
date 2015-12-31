@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "str.h"
-#include "date.h"
+#include "str.hpp"
+#include "date.hpp"
 #include <cstdarg>
 #include <chrono>
 

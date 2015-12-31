@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/tool/log.h>
+#include <chen/tool/log.hpp>
 
 namespace chen
 {

@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "num.h"
+#include "num.hpp"
 #include <algorithm>
 
 using namespace chen;

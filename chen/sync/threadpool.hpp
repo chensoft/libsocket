@@ -10,7 +10,7 @@
 #include <thread>
 #include <mutex>
 #include <list>
-#include "semaphore.h"
+#include "semaphore.hpp"
 
 namespace chen
 {

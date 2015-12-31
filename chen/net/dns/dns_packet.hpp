@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "dns_header.h"
+#include "dns_header.hpp"
 #include <vector>
 #include <memory>
 

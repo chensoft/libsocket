@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "log.h"
+#include "log.hpp"
 #include <iostream>
 
 using namespace chen;

@@ -4,10 +4,10 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "test.h"
-#include "test_cmd.h"
-#include "test_ip.h"
-#include "test_udp.h"
+#include "test.hpp"
+#include "test_cmd.hpp"
+#include "test_ip.hpp"
+#include "test_udp.hpp"
 
 using namespace chen;
 

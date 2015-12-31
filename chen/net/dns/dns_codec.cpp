@@ -4,11 +4,11 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "dns_codec.h"
-#include "dns_table.h"
-#include "dns_record.h"
-#include "dns_packet.h"
-#include <chen/tool/num.h>
+#include "dns_codec.hpp"
+#include "dns_table.hpp"
+#include "dns_record.hpp"
+#include "dns_packet.hpp"
+#include <chen/tool/num.hpp>
 #include <limits>
 
 using namespace chen;

@@ -4,9 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "dns_client.h"
-#include "dns_error.h"
-#include "dns_codec.h"
+#include "dns_client.hpp"
+#include "dns_error.hpp"
+#include "dns_codec.hpp"
 #include <array>
 
 using namespace chen;

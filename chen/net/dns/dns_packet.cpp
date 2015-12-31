@@ -4,9 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "dns_packet.h"
-#include "dns_error.h"
-#include "dns_codec.h"
+#include "dns_packet.hpp"
+#include "dns_error.hpp"
+#include "dns_codec.hpp"
 
 using namespace chen;
 using namespace chen::dns;

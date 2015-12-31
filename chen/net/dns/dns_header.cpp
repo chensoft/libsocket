@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "dns_header.h"
+#include "dns_header.hpp"
 
 #include <random>
 #include <chrono>

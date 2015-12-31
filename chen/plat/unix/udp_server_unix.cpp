@@ -6,9 +6,9 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "udp_socket_unix.h"
-#include <chen/net/udp/udp_server.h>
-#include <chen/net/udp/udp_error.h>
+#include "udp_socket_unix.hpp"
+#include <chen/net/udp/udp_server.hpp>
+#include <chen/net/udp/udp_error.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cstring>

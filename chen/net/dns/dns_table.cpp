@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "dns_table.h"
-#include "dns_record.h"
+#include "dns_table.hpp"
+#include "dns_record.hpp"
 
 using namespace chen;
 using namespace chen::dns;

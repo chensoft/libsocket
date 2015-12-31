@@ -5,11 +5,11 @@
  * @link   http://www.chensoft.com
  * @link   https://en.wikipedia.org/wiki/Classful_network
  */
-#include "ip_addr.h"
-#include "ip_error.h"
+#include "ip_addr.hpp"
+#include "ip_error.hpp"
 #include <bitset>
 #include <cctype>
-#include <chen/tool/str.h>
+#include <chen/tool/str.hpp>
 
 using namespace chen;
 using namespace chen::ip;

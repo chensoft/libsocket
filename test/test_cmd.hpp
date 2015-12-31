@@ -6,9 +6,9 @@
  */
 #pragma once
 
-#include "test_base.h"
-#include <chen/tool/cmd.h>
-#include <chen/tool/log.h>
+#include "test_base.hpp"
+#include <chen/tool/cmd.hpp>
+#include <chen/tool/log.hpp>
 
 namespace chen
 {

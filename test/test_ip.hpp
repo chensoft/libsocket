@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#include "test_base.h"
-#include <chen/net/ip/ip_addr.h>
+#include "test_base.hpp"
+#include <chen/net/ip/ip_addr.hpp>
 
 namespace chen
 {

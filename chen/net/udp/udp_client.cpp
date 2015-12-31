@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
  */
-#include "udp_client.h"
+#include "udp_client.hpp"
 
 using namespace chen;
 using namespace chen::udp;
