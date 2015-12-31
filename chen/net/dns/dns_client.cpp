@@ -37,11 +37,12 @@ chen::dns::response client::query(const std::string &qname,
     q.setRecursionDesired(true);
 
     // build binary
-    std::vector<std::uint8_t> binary;
-    codec::pack(q, binary);
+    encoder e;
+    e.pack(q);
 
     // send request
-    this->_udp.send(binary.data(), binary.size(), this->_ns_addr, this->_ns_port);
+    auto b = e.binary();
+    this->_udp.send(b.data(), b.size(), this->_ns_addr, this->_ns_port);
 
     // recv response
     std::array<std::uint8_t, 65507> packet;
@@ -53,7 +54,10 @@ chen::dns::response client::query(const std::string &qname,
 
     // build response
     response r;
-    codec::unpack(r, packet.data(), size);
+    decoder d;
+
+    d.assign(std::vector<std::uint8_t>(packet.begin(), packet.begin() + size));
+    d.unpack(r);
 
     return std::move(r);
 }

@@ -5,6 +5,7 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_table.h"
+#include "dns_record.h"
 
 using namespace chen;
 using namespace chen::dns;

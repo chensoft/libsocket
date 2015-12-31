@@ -12,6 +12,7 @@
 #include <mutex>
 #include "str.h"
 
+// todo ad log level enum, and user can change log mode
 // log
 namespace chen
 {

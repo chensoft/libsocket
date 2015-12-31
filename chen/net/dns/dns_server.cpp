@@ -6,6 +6,7 @@
  */
 #include "dns_server.h"
 #include "dns_codec.h"
+#include "dns_packet.h"
 
 using namespace chen;
 using namespace chen::dns;
@@ -67,10 +68,13 @@ void server::onPacket(const std::vector<std::uint8_t> &data,
                       std::uint16_t port)
 {
     request q;
+    decoder d;
 
     q.setAddr(addr);
     q.setPort(port);
-    codec::unpack(q, data.data(), data.size());
+
+    d.assign(data);
+    d.unpack(q);
 
     this->notify(q);
 }

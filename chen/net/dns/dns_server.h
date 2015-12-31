@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include "dns_packet.h"
 #include <functional>
 #include <chen/net/udp/udp_server.h>
 
@@ -14,6 +13,8 @@ namespace chen
 {
     namespace dns
     {
+        class request;
+
         class server
         {
         public:

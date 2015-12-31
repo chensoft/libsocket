@@ -15,6 +15,9 @@ namespace chen
 {
     namespace dns
     {
+        class encoder;
+        class decoder;
+
         // ---------------------------------------------------------------------
         // Resource Record(rfc1035, section 3.2.1)
         struct RR
@@ -24,10 +27,14 @@ namespace chen
 
         public:
             /**
-             * Data
+             * Pack data to binary
              */
-            virtual std::vector<std::uint8_t> data() const = 0;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) = 0;
+            virtual void encode(chen::dns::encoder &encoder) const = 0;
+
+            /**
+             * Unpack data from binary
+             */
+            virtual void decode(chen::dns::decoder &decoder) = 0;
 
         public:
             std::string name;
@@ -49,11 +56,8 @@ namespace chen
         struct Raw : public RR
         {
         public:
-            /**
-             * Data
-             */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::vector<std::uint8_t> rdata;
@@ -75,11 +79,8 @@ namespace chen
         struct A : public RR
         {
         public:
-            /**
-             * Data
-             */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint32_t address = 0;
@@ -94,8 +95,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string nsdname;
@@ -110,8 +111,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string madname;
@@ -126,8 +127,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string madname;
@@ -142,8 +143,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string cname;
@@ -158,8 +159,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string mname;  // primary nameserver
@@ -180,8 +181,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string madname;
@@ -196,8 +197,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string mgmname;
@@ -212,8 +213,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string newname;
@@ -228,8 +229,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::vector<std::uint8_t> anything;
@@ -244,8 +245,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint32_t address = 0;
@@ -262,8 +263,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string ptrdname;
@@ -278,8 +279,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string cpu;
@@ -295,8 +296,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string rmailbx;
@@ -312,8 +313,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::int16_t preference = 0;
@@ -329,8 +330,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string txt_data;
@@ -345,8 +346,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string mbox_dname;
@@ -362,8 +363,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::int16_t subtype = 0;
@@ -379,8 +380,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string psdn_address;
@@ -395,8 +396,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string isdn_address;
@@ -412,8 +413,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::int16_t preference = 0;
@@ -429,8 +430,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string nsap;
@@ -445,8 +446,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string owner;
@@ -461,8 +462,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -485,8 +486,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -504,8 +505,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::int16_t preference = 0;
@@ -522,8 +523,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string longitude;
@@ -540,8 +541,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::array<std::uint8_t, 16> address;
@@ -556,8 +557,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t version   = 0;
@@ -579,8 +580,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string next_domain;
@@ -596,8 +597,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string endpoint;
@@ -612,8 +613,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string locator;
@@ -628,8 +629,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t priority = 0;
@@ -647,8 +648,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t format = 0;
@@ -664,8 +665,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t order = 0;
@@ -685,8 +686,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t preference = 0;
@@ -702,8 +703,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t type     = 0;
@@ -728,8 +729,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string target;
@@ -744,8 +745,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t coding    = 0;
@@ -769,8 +770,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t key_tag   = 0;
@@ -788,8 +789,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t algorithm = 0;
@@ -809,8 +810,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t precedence   = 0;
@@ -829,8 +830,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -853,8 +854,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string next_domain;
@@ -870,8 +871,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -889,8 +890,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string digest;
@@ -905,8 +906,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -928,8 +929,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -948,8 +949,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -967,8 +968,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -986,8 +987,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t hit_length   = 0;
@@ -1007,8 +1008,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string zs_data;
@@ -1023,8 +1024,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1042,8 +1043,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string previous_name;
@@ -1059,8 +1060,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1078,8 +1079,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1097,8 +1098,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string publickey;
@@ -1113,8 +1114,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint32_t serial = 0;
@@ -1131,8 +1132,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string txt;
@@ -1175,8 +1176,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1192,8 +1193,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1209,8 +1210,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1226,8 +1227,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1243,8 +1244,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::array<std::uint8_t, 6> address;
@@ -1259,8 +1260,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint64_t address = 0;
@@ -1275,8 +1276,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string algorithm;
@@ -1299,8 +1300,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::string algorithm;
@@ -1323,8 +1324,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t priority = 0;
@@ -1341,8 +1342,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint8_t flags = 0;
@@ -1359,8 +1360,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1378,8 +1379,8 @@ namespace chen
             /**
              * Data
              */
-            virtual std::vector<std::uint8_t> data() const override;
-            virtual std::size_t setData(const std::uint8_t *data, std::size_t size) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         public:
             std::uint16_t key_tag    = 0;

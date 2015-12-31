@@ -6,82 +6,47 @@
  */
 #pragma once
 
-#include "dns_record.h"
-#include "dns_header.h"
-#include "dns_packet.h"
+#include "dns_define.h"
+#include "dns_error.h"
+#include <chen/tool/str.h>
 #include <memory>
+#include <vector>
+#include <array>
 #include <map>
 
 namespace chen
 {
     namespace dns
     {
+        class RR;
+        class header;
+        class question;
+        class request;
+        class response;
+
         // ---------------------------------------------------------------------
         // codec
         class codec
         {
         public:
-            /**
-             * RR Pack & Unpack
-             */
-            static void pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store);
-            static std::size_t unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t *data, std::size_t size);
-
-            /**
-             * Header Pack & Unpack
-             */
-            static void pack(const chen::dns::header &header, std::vector<std::uint8_t> &store);
-            static std::size_t unpack(chen::dns::header &header, const std::uint8_t *data, std::size_t size);
-
-            /**
-             * Question Pack & Unpack
-             */
-            static void pack(const chen::dns::question &question, std::vector<std::uint8_t> &store);
-            static std::size_t unpack(chen::dns::question &question, const std::uint8_t *data, std::size_t size);
-
-            /**
-             * Request Pack & Unpack
-             */
-            static void pack(const chen::dns::request &request, std::vector<std::uint8_t> &store);
-            static std::size_t unpack(chen::dns::request &request, const std::uint8_t *data, std::size_t size);
-
-            /**
-             * Response Pack & Unpack
-             */
-            static void pack(const chen::dns::response &response, std::vector<std::uint8_t> &store);
-            static std::size_t unpack(chen::dns::response &response, const std::uint8_t *data, std::size_t size);
+            virtual ~codec() = 0;
 
         public:
             /**
-             * Data Pack & Unpack
+             * Get binary data
              */
-            static void pack(std::int8_t value, std::vector<std::uint8_t> &store);
-            static void pack(std::int16_t value, std::vector<std::uint8_t> &store);
-            static void pack(std::int32_t value, std::vector<std::uint8_t> &store);
-            static void pack(std::uint8_t value, std::vector<std::uint8_t> &store);
-            static void pack(std::uint16_t value, std::vector<std::uint8_t> &store);
-            static void pack(std::uint32_t value, std::vector<std::uint8_t> &store);
-            static void pack(std::uint64_t value, std::vector<std::uint8_t> &store);
-            static void pack(chen::dns::RRType value, std::vector<std::uint8_t> &store);
-            static void pack(chen::dns::RRClass value, std::vector<std::uint8_t> &store);
-            static void pack(const std::string &value, std::vector<std::uint8_t> &store, bool domain);
+            const std::vector<std::uint8_t>& binary() const;
 
-            static std::size_t unpack(std::int8_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::int16_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::int32_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::uint8_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::uint16_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::uint32_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::uint64_t &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(chen::dns::RRType &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(chen::dns::RRClass &value, const std::uint8_t *data, std::size_t size);
-            static std::size_t unpack(std::string &value, const std::uint8_t *data, std::size_t size, bool domain);
-
-        private:
             /**
-             * Check buffer size
+             * Set binary data
              */
-            static void check(std::size_t require, std::size_t size, const std::string &msg);
+            virtual void assign(const std::vector<std::uint8_t> &value);
+
+        public:
+            /**
+             * Clear binary cache
+             */
+            virtual void clear();
 
         public:
             /**
@@ -89,6 +54,111 @@ namespace chen
              */
             static bool isFqdn(const std::string &name);
             static std::string fqdn(const std::string &name);
+
+        protected:
+            std::vector<std::uint8_t> _binary;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // encoder
+        class encoder : public codec
+        {
+        public:
+            /**
+             * Pack data
+             */
+            virtual void pack(std::int8_t value);
+            virtual void pack(std::int16_t value);
+            virtual void pack(std::int32_t value);
+            virtual void pack(std::int64_t value);
+            virtual void pack(std::uint8_t value);
+            virtual void pack(std::uint16_t value);
+            virtual void pack(std::uint32_t value);
+            virtual void pack(std::uint64_t value);
+            virtual void pack(chen::dns::RRType value);
+            virtual void pack(chen::dns::RRClass value);
+            virtual void pack(const std::string &value, bool domain);
+            virtual void pack(const std::vector<std::uint8_t> &value, std::size_t need);
+
+            template <std::size_t Size>
+            void pack(const std::array<std::uint8_t, Size> &value)
+            {
+                this->_binary.insert(this->_binary.end(), value.begin(), value.end());
+            }
+
+            virtual void pack(const chen::dns::RR &rr);
+            virtual void pack(const chen::dns::header &header);
+            virtual void pack(const chen::dns::question &question);
+            virtual void pack(const chen::dns::request &request);
+            virtual void pack(const chen::dns::response &response);
+        };
+
+
+        // ---------------------------------------------------------------------
+        // decoder
+        class decoder : public codec
+        {
+        public:
+            /**
+             * Unpack data
+             */
+            virtual void unpack(std::int8_t &value);
+            virtual void unpack(std::int16_t &value);
+            virtual void unpack(std::int32_t &value);
+            virtual void unpack(std::int64_t &value);
+            virtual void unpack(std::uint8_t &value);
+            virtual void unpack(std::uint16_t &value);
+            virtual void unpack(std::uint32_t &value);
+            virtual void unpack(std::uint64_t &value);
+            virtual void unpack(chen::dns::RRType &value);
+            virtual void unpack(chen::dns::RRClass &value);
+            virtual void unpack(std::string &value, bool domain);
+            virtual void unpack(std::vector<std::uint8_t> &value, std::size_t need);
+
+            template <std::size_t Size>
+            void unpack(std::array<std::uint8_t, Size> &value)
+            {
+                auto need = value.size();
+                if (this->remain() < need)
+                    throw error_size(str::format("codec unpack array size is not enough, require %d bytes", need));
+
+                std::copy(this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need, value.begin());
+                this->_cursor -= need;
+            }
+
+            virtual void unpack(std::shared_ptr<chen::dns::RR> &rr);
+            virtual void unpack(chen::dns::header &header);
+            virtual void unpack(chen::dns::question &question);
+            virtual void unpack(chen::dns::request &request);
+            virtual void unpack(chen::dns::response &response);
+
+        public:
+            /**
+             * Set binary data
+             */
+            virtual void assign(const std::vector<std::uint8_t> &value) override;
+
+            // todo
+            /**
+             * Stream state
+             */
+            virtual std::size_t cursor() const;
+            virtual std::size_t remain() const;
+
+        public:
+            /**
+             * Reset stream pointer
+             */
+            virtual void reset();
+
+            /**
+             * Clear binary cache
+             */
+            virtual void clear() override;
+
+        protected:
+            std::size_t _cursor = 0;
         };
     }
 }

@@ -5,9 +5,11 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_codec.h"
-#include "dns_error.h"
 #include "dns_table.h"
-#include <chen/tool/str.h>
+#include "dns_record.h"
+#include "dns_packet.h"
+#include <chen/tool/num.h>
+#include <limits>
 
 using namespace chen;
 using namespace chen::dns;
@@ -15,452 +17,94 @@ using namespace chen::dns;
 // -----------------------------------------------------------------------------
 // codec
 
-// rr
-void codec::pack(const chen::dns::RR &rr, std::vector<std::uint8_t> &store)
+// binary
+const std::vector<std::uint8_t>& codec::binary() const
 {
-    auto size = store.size();
-
-    try
-    {
-        // common
-        codec::pack(rr.name, store, true);
-        codec::pack(rr.rrtype, store);
-        codec::pack(rr.rrclass, store);
-        codec::pack(rr.ttl, store);
-
-        // rdata
-        auto rdata = rr.data();
-        codec::pack(static_cast<std::uint16_t>(rdata.size()), store);
-        store.insert(store.end(), rdata.begin(), rdata.end());
-    }
-    catch (...)
-    {
-        // restore
-        store.erase(store.begin() + size, store.end());
-        throw;
-    }
+    return this->_binary;
 }
 
-std::size_t codec::unpack(std::shared_ptr<chen::dns::RR> &rr, const std::uint8_t *data, std::size_t size)
+void codec::assign(const std::vector<std::uint8_t> &value)
 {
-    std::size_t origin = size;
-
-    // name
-    std::string name;
-    std::size_t temp = codec::unpack(name, data, size, true);
-
-    data += temp;
-    size -= temp;
-
-    // rrtype
-    chen::dns::RRType rrtype = chen::dns::RRType::None;
-    temp = codec::unpack(rrtype, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // rrclass
-    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
-    temp = codec::unpack(rrclass, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // ttl
-    std::int32_t ttl = 0;
-    temp = codec::unpack(ttl, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // rdlength
-    std::uint16_t rdlength = 0;
-    temp = codec::unpack(rdlength, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // build
-    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
-
-    if (!record)
-        record.reset(new chen::dns::Unknown);
-
-    // rdata
-    temp = record->setData(data, size);
-
-    size -= temp;
-
-    // set
-    record->name    = name;
-    record->rrtype  = rrtype;
-    record->rrclass = rrclass;
-    record->ttl     = ttl;
-
-    // assign
-    rr.swap(record);
-
-    return origin - size;
+    this->_binary = std::move(value);
 }
 
-// header
-void codec::pack(const chen::dns::header &header, std::vector<std::uint8_t> &store)
+// clear
+void codec::clear()
 {
-    auto size = store.size();
-
-    try
-    {
-        // id
-        codec::pack(header.id(), store);
-
-        // flag
-        codec::pack(header.flag(), store);
-
-        // question
-        codec::pack(header.qdcount(), store);
-
-        // answer
-        codec::pack(header.ancount(), store);
-
-        // authority
-        codec::pack(header.nscount(), store);
-
-        // additional
-        codec::pack(header.arcount(), store);
-    }
-    catch (...)
-    {
-        // restore
-        store.erase(store.begin() + size, store.end());
-        throw;
-    }
+    this->_binary.clear();
 }
 
-std::size_t codec::unpack(chen::dns::header &header, const std::uint8_t *data, std::size_t size)
+// fqdn
+bool codec::isFqdn(const std::string &name)
 {
-    std::size_t origin = size;
-
-    // id
-    std::int16_t id = 0;
-    std::size_t temp = codec::unpack(id, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // flag
-    std::uint16_t flag = 0;
-    temp = codec::unpack(flag, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // question
-    std::uint16_t qdcount = 0;
-    temp = codec::unpack(qdcount, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // answer
-    std::uint16_t ancount = 0;
-    temp = codec::unpack(ancount, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // authority
-    std::uint16_t nscount = 0;
-    temp = codec::unpack(nscount, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // additional
-    std::uint16_t arcount = 0;
-    temp = codec::unpack(arcount, data, size);
-
-    size -= temp;
-
-    // set
-    header.setId(id);
-    header.setFlag(flag);
-    header.setQdcount(qdcount);
-    header.setAncount(ancount);
-    header.setNscount(nscount);
-    header.setArcount(arcount);
-
-    return origin - size;
+    auto size = name.size();
+    return size ? name[size - 1] == '.' : false;
 }
 
-// question
-void codec::pack(const chen::dns::question &question, std::vector<std::uint8_t> &store)
+std::string codec::fqdn(const std::string &name)
 {
-    auto size = store.size();
-
-    try
-    {
-        // qname
-        codec::pack(question.qname(), store, true);
-
-        // qtype
-        codec::pack(question.qtype(), store);
-
-        // qclass
-        codec::pack(question.qclass(), store);
-    }
-    catch (...)
-    {
-        // restore
-        store.erase(store.begin() + size, store.end());
-        throw;
-    }
+    return codec::isFqdn(name) ? name : name + ".";
 }
 
-std::size_t codec::unpack(chen::dns::question &question, const std::uint8_t *data, std::size_t size)
+
+// -----------------------------------------------------------------------------
+// encoder
+
+// pack
+void encoder::pack(std::int8_t value)
 {
-    std::size_t origin = size;
-
-    // qname
-    std::string qname;
-    std::size_t temp = codec::unpack(qname, data, size, true);
-
-    data += temp;
-    size -= temp;
-
-    // qtype
-    chen::dns::RRType qtype = chen::dns::RRType::None;
-    temp = codec::unpack(qtype, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // qclass
-    chen::dns::RRClass qclass = chen::dns::RRClass::IN;
-    temp = codec::unpack(qclass, data, size);
-
-    size -= temp;
-
-    // set
-    question.setQname(qname);
-    question.setQtype(qtype);
-    question.setQclass(qclass);
-
-    return origin - size;
+    encoder::pack(static_cast<std::uint8_t>(value));
 }
 
-// request
-void codec::pack(const chen::dns::request &request, std::vector<std::uint8_t> &store)
+void encoder::pack(std::int16_t value)
 {
-    auto size = store.size();
-
-    try
-    {
-        // header
-        codec::pack(request.header(), store);
-
-        // question
-        codec::pack(request.question(), store);
-    }
-    catch (...)
-    {
-        // restore
-        store.erase(store.begin() + size, store.end());
-        throw;
-    }
+    encoder::pack(static_cast<std::uint16_t>(value));
 }
 
-std::size_t codec::unpack(chen::dns::request &request, const std::uint8_t *data, std::size_t size)
+void encoder::pack(std::int32_t value)
 {
-    std::size_t origin = size;
-
-    // header
-    chen::dns::header header;
-    std::size_t temp = codec::unpack(header, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // question
-    chen::dns::question question;
-    temp = codec::unpack(question, data, size);
-
-    size -= temp;
-
-    // set
-    request.setHeader(header);
-    request.setQuestion(question);
-
-    return origin - size;
+    encoder::pack(static_cast<std::uint32_t>(value));
 }
 
-// response
-void codec::pack(const chen::dns::response &response, std::vector<std::uint8_t> &store)
+void encoder::pack(std::int64_t value)
 {
-    auto size = store.size();
-
-    try
-    {
-        // header
-        codec::pack(response.header(), store);
-
-        // question
-        auto question = response.question();
-        for (auto &val : question)
-            codec::pack(val, store);
-
-        // answer
-        auto answer = response.answer();
-        for (auto &val : answer)
-            codec::pack(*val, store);
-
-        // authority
-        auto authority = response.authority();
-        for (auto &val : authority)
-            codec::pack(*val, store);
-
-        // additional
-        auto additional = response.additional();
-        for (auto &val : additional)
-            codec::pack(*val, store);
-    }
-    catch (...)
-    {
-        // restore
-        store.erase(store.begin() + size, store.end());
-        throw;
-    }
+    encoder::pack(static_cast<std::uint64_t>(value));
 }
 
-std::size_t codec::unpack(chen::dns::response &response, const std::uint8_t *data, std::size_t size)
+void encoder::pack(std::uint8_t value)
 {
-    std::size_t origin = size;
-
-    // header
-    chen::dns::header header;
-    std::size_t temp = codec::unpack(header, data, size);
-
-    data += temp;
-    size -= temp;
-
-    // question
-    response::q_type question;
-
-    for (std::uint16_t i = 0, len = header.qdcount(); i < len; ++i)
-    {
-        chen::dns::question q;
-        temp = codec::unpack(q, data, size);
-
-        data += temp;
-        size -= temp;
-    }
-
-    // answer
-    response::rr_type answer;
-
-    for (std::uint16_t i = 0, len = header.ancount(); i < len; ++i)
-    {
-        std::shared_ptr<chen::dns::RR> r;
-        temp = codec::unpack(r, data, size);
-
-        data += temp;
-        size -= temp;
-
-        answer.push_back(r);
-    }
-
-    // authority
-    response::rr_type authority;
-
-    for (std::uint16_t i = 0, len = header.nscount(); i < len; ++i)
-    {
-        std::shared_ptr<chen::dns::RR> r;
-        temp = codec::unpack(r, data, size);
-
-        data += temp;
-        size -= temp;
-
-        authority.push_back(r);
-    }
-
-    // additional
-    response::rr_type additional;
-
-    for (std::uint16_t i = 0, len = header.arcount(); i < len; ++i)
-    {
-        std::shared_ptr<chen::dns::RR> r;
-        temp = codec::unpack(r, data, size);
-
-        data += temp;
-        size -= temp;
-
-        additional.push_back(r);
-    }
-
-    // set
-    response.setHeader(header);
-    response.setQuestion(std::move(question));
-
-    return origin - size;
+    this->_binary.push_back(value);
 }
 
-// data pack
-void codec::pack(std::int8_t value, std::vector<std::uint8_t> &store)
+void encoder::pack(std::uint16_t value)
 {
-    codec::pack(static_cast<std::uint8_t>(value), store);
+    for (int i = 8; i >= 0; i -= 8)
+        this->_binary.push_back(static_cast<std::uint8_t>(value >> i & 0xFF));
 }
 
-void codec::pack(std::int16_t value, std::vector<std::uint8_t> &store)
+void encoder::pack(std::uint32_t value)
 {
-    codec::pack(static_cast<std::uint16_t>(value), store);
+    for (int i = 24; i >= 0; i -= 8)
+        this->_binary.push_back(static_cast<std::uint8_t>(value >> i & 0xFF));
 }
 
-void codec::pack(std::int32_t value, std::vector<std::uint8_t> &store)
+void encoder::pack(std::uint64_t value)
 {
-    codec::pack(static_cast<std::uint32_t>(value), store);
+    for (int i = 56; i >= 0; i -= 8)
+        this->_binary.push_back(static_cast<std::uint8_t>(value >> i & 0xFF));
 }
 
-void codec::pack(std::uint8_t value, std::vector<std::uint8_t> &store)
+void encoder::pack(chen::dns::RRType value)
 {
-    store.push_back(value);
+    encoder::pack(static_cast<std::uint16_t>(value));
 }
 
-void codec::pack(std::uint16_t value, std::vector<std::uint8_t> &store)
+void encoder::pack(chen::dns::RRClass value)
 {
-    store.push_back(static_cast<std::uint8_t>(static_cast<std::uint16_t>(value) >> 8));
-    store.push_back(static_cast<std::uint8_t>(static_cast<std::uint16_t>(value) & 0xFF));
+    encoder::pack(static_cast<std::uint16_t>(value));
 }
 
-void codec::pack(std::uint32_t value, std::vector<std::uint8_t> &store)
-{
-    store.push_back(static_cast<std::uint8_t>(value >> 24 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 16 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 8 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value & 0xFF));
-}
-
-void codec::pack(std::uint64_t value, std::vector<std::uint8_t> &store)
-{
-    store.push_back(static_cast<std::uint8_t>(value >> 56 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 48 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 40 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 32 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 24 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 16 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value >> 8 & 0xFF));
-    store.push_back(static_cast<std::uint8_t>(value & 0xFF));
-}
-
-void codec::pack(chen::dns::RRType value, std::vector<std::uint8_t> &store)
-{
-    codec::pack(static_cast<std::uint16_t>(value), store);
-}
-
-void codec::pack(chen::dns::RRClass value, std::vector<std::uint8_t> &store)
-{
-    codec::pack(static_cast<std::uint16_t>(value), store);
-}
-
-void codec::pack(const std::string &value, std::vector<std::uint8_t> &store, bool domain)
+void encoder::pack(const std::string &value, bool domain)
 {
     if (domain)
     {
@@ -480,21 +124,21 @@ void codec::pack(const std::string &value, std::vector<std::uint8_t> &store, boo
             throw error_size(str::format("codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
 
         // generate binary
-        std::size_t origin = store.size();
+        std::size_t origin = this->_binary.size();
         std::size_t length = 0;
 
         try
         {
-            store.push_back(0);  // size for next label
+            this->_binary.push_back(0);  // size for next label
 
-            for (std::uint8_t i = 0, len = static_cast<std::uint8_t>(value.size()); i < len; ++i)
+            for (std::size_t i = 0, len = value.size(); i < len; ++i)
             {
                 char c = value[i];
 
                 if (c == '.')
                 {
-                    store[store.size() - length - 1] = static_cast<std::uint8_t>(length);
-                    store.push_back(0);  // size for next label
+                    this->_binary[this->_binary.size() - length - 1] = static_cast<std::uint8_t>(length);
+                    this->_binary.push_back(0);  // size for next label
 
                     length = 0;
                 }
@@ -505,13 +149,13 @@ void codec::pack(const std::string &value, std::vector<std::uint8_t> &store, boo
                     if (length > SIZE_LIMIT_LABEL)
                         throw error_size(str::format("codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-                    store.push_back(static_cast<std::uint8_t>(c));
+                    this->_binary.push_back(static_cast<std::uint8_t>(c));
                 }
             }
         }
         catch (...)
         {
-            store.erase(store.begin() + origin, store.end());
+            this->_binary.erase(this->_binary.begin() + origin, this->_binary.end());
             throw;
         }
     }
@@ -523,84 +167,262 @@ void codec::pack(const std::string &value, std::vector<std::uint8_t> &store, boo
         if (value.size() > SIZE_LIMIT_STRING)
             throw error_size(str::format("codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
-        store.push_back(static_cast<std::uint8_t>(value.size()));
-        store.insert(store.end(), value.begin(), value.end());
+        this->_binary.push_back(static_cast<std::uint8_t>(value.size()));
+        this->_binary.insert(this->_binary.end(), value.begin(), value.end());
     }
 }
 
-// data unpack
-std::size_t codec::unpack(std::int8_t &value, const std::uint8_t *data, std::size_t size)
+void encoder::pack(const std::vector<std::uint8_t> &value, std::size_t need)
 {
-    codec::check(1, size, "codec unpack size is not enough, require 1 byte");
-    value = static_cast<std::int8_t>(data[0]);
-    return 1;
+    if (value.size() < need)
+        throw error_size(str::format("codec pack vector size is not enough, require %d bytes", need));
+
+    this->_binary.insert(this->_binary.end(), value.begin(), value.begin() + need);
 }
 
-std::size_t codec::unpack(std::int16_t &value, const std::uint8_t *data, std::size_t size)
+void encoder::pack(const chen::dns::RR &rr)
 {
-    codec::check(2, size, "codec unpack size is not enough, require 2 bytes");
-    value = static_cast<std::int16_t>((data[0] << 8) + data[1]);
-    return 2;
+    auto size = this->_binary.size();
+
+    try
+    {
+        // common
+        this->pack(rr.name, true);
+        this->pack(rr.rrtype);
+        this->pack(rr.rrclass);
+        this->pack(rr.ttl);
+
+        // rdata
+        auto temp = this->_binary.size();
+        rr.encode(*this);
+
+        // rdlength
+        temp = this->_binary.size() - temp;
+        if (temp > std::numeric_limits<std::uint16_t>::max())
+            throw error_size("codec pack rdata size is overflow");
+
+        this->pack(static_cast<std::uint16_t>(temp));
+    }
+    catch (...)
+    {
+        // restore
+        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
+        throw;
+    }
 }
 
-std::size_t codec::unpack(std::int32_t &value, const std::uint8_t *data, std::size_t size)
+void encoder::pack(const chen::dns::header &header)
 {
-    codec::check(4, size, "codec unpack size is not enough, require 4 bytes");
-    value = static_cast<std::int32_t>((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
-    return 4;
+    auto size = this->_binary.size();
+
+    try
+    {
+        // id
+        this->pack(header.id());
+
+        // flag
+        this->pack(header.flag());
+
+        // question
+        this->pack(header.qdcount());
+
+        // answer
+        this->pack(header.ancount());
+
+        // authority
+        this->pack(header.nscount());
+
+        // additional
+        this->pack(header.arcount());
+    }
+    catch (...)
+    {
+        // restore
+        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
+        throw;
+    }
 }
 
-std::size_t codec::unpack(std::uint8_t &value, const std::uint8_t *data, std::size_t size)
+void encoder::pack(const chen::dns::question &question)
 {
-    codec::check(1, size, "codec unpack size is not enough, require 1 byte");
-    value = data[0];
-    return 1;
+    auto size = this->_binary.size();
+
+    try
+    {
+        // qname
+        this->pack(question.qname(), true);
+
+        // qtype
+        this->pack(question.qtype());
+
+        // qclass
+        this->pack(question.qclass());
+    }
+    catch (...)
+    {
+        // restore
+        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
+        throw;
+    }
 }
 
-std::size_t codec::unpack(std::uint16_t &value, const std::uint8_t *data, std::size_t size)
+void encoder::pack(const chen::dns::request &request)
 {
-    codec::check(2, size, "codec unpack size is not enough, require 2 bytes");
-    value = static_cast<std::uint16_t>((data[0] << 8) + data[1]);
-    return 2;
+    auto size = this->_binary.size();
+
+    try
+    {
+        // header
+        this->pack(request.header());
+
+        // question
+        this->pack(request.question());
+    }
+    catch (...)
+    {
+        // restore
+        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
+        throw;
+    }
 }
 
-std::size_t codec::unpack(std::uint32_t &value, const std::uint8_t *data, std::size_t size)
+void encoder::pack(const chen::dns::response &response)
 {
-    codec::check(4, size, "codec unpack size is not enough, require 4 bytes");
-    value = static_cast<std::uint32_t>((data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3]);
-    return 4;
+    auto size = this->_binary.size();
+
+    try
+    {
+        // header
+        this->pack(response.header());
+
+        // question
+        auto question = response.question();
+        for (auto &val : question)
+            this->pack(val);
+
+        // answer
+        auto answer = response.answer();
+        for (auto &val : answer)
+            this->pack(*val);
+
+        // authority
+        auto authority = response.authority();
+        for (auto &val : authority)
+            this->pack(*val);
+
+        // additional
+        auto additional = response.additional();
+        for (auto &val : additional)
+            this->pack(*val);
+    }
+    catch (...)
+    {
+        // restore
+        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
+        throw;
+    }
 }
 
-std::size_t codec::unpack(std::uint64_t &value, const std::uint8_t *data, std::size_t size)
+
+// -----------------------------------------------------------------------------
+// decoder
+
+// unpack
+void decoder::unpack(std::int8_t &value)
 {
-    codec::check(8, size, "codec unpack size is not enough, require 8 bytes");
+    auto temp = static_cast<std::uint8_t>(value);
+    this->unpack(temp);
 
-    std::uint64_t c0 = static_cast<std::uint64_t>(data[0]);
-    std::uint64_t c1 = static_cast<std::uint64_t>(data[1]);
-    std::uint64_t c2 = static_cast<std::uint64_t>(data[2]);
-    std::uint64_t c3 = static_cast<std::uint64_t>(data[3]);
-
-    value = static_cast<std::uint64_t>((c0 << 56) + (c1 << 48) + (c2 << 40) + (c3 << 32) + (data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7]);
-    return 8;
+    value = static_cast<std::int8_t>(temp);
 }
 
-std::size_t codec::unpack(chen::dns::RRType &value, const std::uint8_t *data, std::size_t size)
+void decoder::unpack(std::int16_t &value)
 {
-    codec::check(2, size, "codec unpack size is not enough, require 2 bytes");
-    value = static_cast<chen::dns::RRType>((data[0] << 8) + data[1]);
-    return 2;
+    auto temp = static_cast<std::uint16_t>(value);
+    this->unpack(temp);
+
+    value = static_cast<std::int16_t>(temp);
 }
 
-std::size_t codec::unpack(chen::dns::RRClass &value, const std::uint8_t *data, std::size_t size)
+void decoder::unpack(std::int32_t &value)
 {
-    codec::check(2, size, "codec unpack size is not enough, require 2 bytes");
-    value = static_cast<chen::dns::RRClass>((data[0] << 8) + data[1]);
-    return 2;
+    auto temp = static_cast<std::uint32_t>(value);
+    this->unpack(temp);
+
+    value = static_cast<std::int32_t>(temp);
 }
 
-std::size_t codec::unpack(std::string &value, const std::uint8_t *data, std::size_t size, bool domain)
+void decoder::unpack(std::int64_t &value)
 {
-    codec::check(1, size, "codec unpack size is zero");
+    auto temp = static_cast<std::uint64_t>(value);
+    this->unpack(temp);
+
+    value = static_cast<std::int64_t>(temp);
+}
+
+void decoder::unpack(std::uint8_t &value)
+{
+    if (this->remain() < 1)
+        throw error_size("codec unpack size is not enough, require 1 bytes");
+
+    value = this->_binary[this->_cursor];
+
+    this->_cursor += 1;
+}
+
+void decoder::unpack(std::uint16_t &value)
+{
+    if (this->remain() < 2)
+        throw error_size("codec unpack size is not enough, require 2 bytes");
+
+    auto ptr = reinterpret_cast<std::uint16_t*>(&this->_binary[this->_cursor]);
+    value    = num::swap(*ptr);
+
+    this->_cursor += 2;
+}
+
+void decoder::unpack(std::uint32_t &value)
+{
+    if (this->remain() < 4)
+        throw error_size("codec unpack size is not enough, require 4 bytes");
+
+    auto ptr = reinterpret_cast<std::uint32_t*>(&this->_binary[this->_cursor]);
+    value    = num::swap(*ptr);
+
+    this->_cursor += 4;
+}
+
+void decoder::unpack(std::uint64_t &value)
+{
+    if (this->remain() < 8)
+        throw error_size("codec unpack size is not enough, require 8 bytes");
+
+    auto ptr = reinterpret_cast<std::uint64_t*>(&this->_binary[this->_cursor]);
+    value    = num::swap(*ptr);
+
+    this->_cursor += 8;
+}
+
+void decoder::unpack(chen::dns::RRType &value)
+{
+    auto temp = static_cast<std::uint16_t>(value);
+    this->unpack(temp);
+
+    value = static_cast<chen::dns::RRType>(temp);
+}
+
+void decoder::unpack(chen::dns::RRClass &value)
+{
+    auto temp = static_cast<std::uint16_t>(value);
+    this->unpack(temp);
+
+    value = static_cast<chen::dns::RRClass>(temp);
+}
+
+void decoder::unpack(std::string &value, bool domain)
+{
+    if (this->remain() < 1)
+        throw error_size("codec unpack size is zero");
 
     std::size_t total = 0;
 
@@ -614,10 +436,15 @@ std::size_t codec::unpack(std::string &value, const std::uint8_t *data, std::siz
 
         try
         {
+            const std::uint8_t *data = &this->_binary[this->_cursor];
+            std::size_t size = this->remain();
+
             while (*data)
             {
                 length = static_cast<std::size_t>(data[0]) + 1;
-                codec::check(length, size, str::format("codec unpack domain size is not enough, require %d bytes", length));
+
+                if (size < length)
+                    throw error_size(str::format("codec unpack domain size is not enough, require %d bytes", length));
 
                 // check limit
                 if (length > SIZE_LIMIT_LABEL)
@@ -630,6 +457,7 @@ std::size_t codec::unpack(std::string &value, const std::uint8_t *data, std::siz
 
                 data  += length;
                 value += ".";
+                total += 1 + length;
             }
         }
         catch (...)
@@ -643,30 +471,218 @@ std::size_t codec::unpack(std::string &value, const std::uint8_t *data, std::siz
         // Note:
         // value is plain text
         // one byte length + characters
-        total = static_cast<std::size_t>(data[0]) + 1;
-        codec::check(total, size, str::format("codec unpack string size is not enough, require %d bytes", total));
+        total = static_cast<std::size_t>(this->_binary[this->_cursor]) + 1;
 
-        value.insert(value.size(), reinterpret_cast<const char*>(data), total);
+        if (this->remain() < total)
+            throw error_size(str::format("codec unpack string size is not enough, require %d bytes", total));
+
+        value.insert(value.size(), reinterpret_cast<const char*>(this->_binary[this->_cursor + 1]), total - 1);
     }
 
-    return total;
+    this->_cursor += total;
 }
 
-// check
-void codec::check(std::size_t require, std::size_t size, const std::string &msg)
+void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need)
 {
-    if (size < require)
-        throw error_size(msg);
+    if (this->remain() < need)
+        throw error_size(str::format("codec unpack vector size is not enough, require %d bytes", need));
+
+    value.insert(value.end(), this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need);
+    this->_cursor += need;
 }
 
-// fqdn
-bool codec::isFqdn(const std::string &name)
+void decoder::unpack(std::shared_ptr<chen::dns::RR> &rr)
 {
-    auto size = name.size();
-    return size ? name[size - 1] == '.' : false;
+    // name
+    std::string name;
+    this->unpack(name, true);
+
+    // rrtype
+    chen::dns::RRType rrtype = chen::dns::RRType::None;
+    this->unpack(rrtype);
+
+    // rrclass
+    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
+    this->unpack(rrclass);
+
+    // ttl
+    std::int32_t ttl = 0;
+    this->unpack(ttl);
+
+    // rdlength
+    std::uint16_t rdlength = 0;
+    this->unpack(rdlength);
+
+    // build
+    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
+
+    if (!record)
+        record.reset(new chen::dns::Unknown);
+
+    // rdata
+    record->decode(*this);
+
+    // set
+    record->name    = name;
+    record->rrtype  = rrtype;
+    record->rrclass = rrclass;
+    record->ttl     = ttl;
+
+    // assign
+    rr.swap(record);
 }
 
-std::string codec::fqdn(const std::string &name)
+void decoder::unpack(chen::dns::header &header)
 {
-    return codec::isFqdn(name) ? name : name + ".";
+    // id
+    std::int16_t id = 0;
+    this->unpack(id);
+
+    // flag
+    std::uint16_t flag = 0;
+    this->unpack(flag);
+
+    // question
+    std::uint16_t qdcount = 0;
+    this->unpack(qdcount);
+
+    // answer
+    std::uint16_t ancount = 0;
+    this->unpack(ancount);
+
+    // authority
+    std::uint16_t nscount = 0;
+    this->unpack(nscount);
+
+    // additional
+    std::uint16_t arcount = 0;
+    this->unpack(arcount);
+
+    // set
+    header.setId(id);
+    header.setFlag(flag);
+    header.setQdcount(qdcount);
+    header.setAncount(ancount);
+    header.setNscount(nscount);
+    header.setArcount(arcount);
+}
+
+void decoder::unpack(chen::dns::question &question)
+{
+    // qname
+    std::string qname;
+    this->unpack(qname, true);
+
+    // qtype
+    chen::dns::RRType qtype = chen::dns::RRType::None;
+    this->unpack(qtype);
+
+    // qclass
+    chen::dns::RRClass qclass = chen::dns::RRClass::IN;
+    this->unpack(qclass);
+
+    // set
+    question.setQname(qname);
+    question.setQtype(qtype);
+    question.setQclass(qclass);
+}
+
+void decoder::unpack(chen::dns::request &request)
+{
+    // header
+    chen::dns::header header;
+    this->unpack(header);
+
+    // question
+    chen::dns::question question;
+    this->unpack(question);
+
+    // set
+    request.setHeader(header);
+    request.setQuestion(question);
+}
+
+void decoder::unpack(chen::dns::response &response)
+{
+    // header
+    chen::dns::header header;
+    this->unpack(header);
+
+    // question
+    response::q_type question;
+
+    for (std::uint16_t i = 0, len = header.qdcount(); i < len; ++i)
+    {
+        chen::dns::question q;
+        this->unpack(q);
+
+        question.push_back(q);
+    }
+
+    // answer
+    response::rr_type answer;
+
+    for (std::uint16_t i = 0, len = header.ancount(); i < len; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> r;
+        this->unpack(r);
+
+        answer.push_back(r);
+    }
+
+    // authority
+    response::rr_type authority;
+
+    for (std::uint16_t i = 0, len = header.nscount(); i < len; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> r;
+        this->unpack(r);
+
+        authority.push_back(r);
+    }
+
+    // additional
+    response::rr_type additional;
+
+    for (std::uint16_t i = 0, len = header.arcount(); i < len; ++i)
+    {
+        std::shared_ptr<chen::dns::RR> r;
+        this->unpack(r);
+
+        additional.push_back(r);
+    }
+
+    // set
+    response.setHeader(header);
+    response.setQuestion(std::move(question));
+}
+
+// assign
+void decoder::assign(const std::vector<std::uint8_t> &value)
+{
+    codec::assign(value);
+    this->reset();
+}
+
+// state
+std::size_t decoder::cursor() const
+{
+    return this->_cursor;
+}
+
+std::size_t decoder::remain() const
+{
+    return this->_binary.size() - this->_cursor;
+}
+
+// reset & clear
+void decoder::reset()
+{
+    this->_cursor = 0;
+}
+
+void decoder::clear()
+{
+    codec::clear();
+    this->reset();
 }

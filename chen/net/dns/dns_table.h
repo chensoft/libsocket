@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "dns_record.h"
+#include "dns_define.h"
 #include <functional>
 #include <memory>
 #include <map>
@@ -15,6 +15,8 @@ namespace chen
 {
     namespace dns
     {
+        class RR;
+
         class table
         {
         public:

@@ -5,1639 +5,1364 @@
  * @link   http://www.chensoft.com
  */
 #include "dns_record.h"
-#include "dns_codec.h"
 #include "dns_error.h"
+#include "dns_codec.h"
 #include <chen/tool/str.h>
 
 using namespace chen;
 using namespace chen::dns;
 
-// todo using stream data model
 // -----------------------------------------------------------------------------
 // RR
-std::size_t RR::setData(const std::uint8_t *data, std::size_t size)
+void RR::decode(chen::dns::decoder &decoder)
 {
-    auto need = sizeof(this->rdlength);
-
-    if (size < need)
-        throw error_size(str::format("record data size is not enough, require %d bytes", need));
-
-    // rdlength
-    std::uint16_t rdlength = static_cast<std::uint16_t>((data[0] << 8) + data[1]);
-
-    if (size - need < rdlength)
-        throw error_size("record data size is too small");
-    else
-        this->rdlength = rdlength;
-
-    return need;
+    decoder.unpack(this->rdlength);
 }
 
 
 // -----------------------------------------------------------------------------
 // RAW
-std::vector<std::uint8_t> Raw::data() const
+void Raw::encode(chen::dns::encoder &encoder) const
 {
-    return this->rdata;
+    encoder.pack(this->rdata, this->rdata.size());
 }
 
-std::size_t Raw::setData(const std::uint8_t *data, std::size_t size)
+void Raw::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-
-    // rdata
-    this->rdata.clear();
-    this->rdata.insert(this->rdata.begin(), data + temp, data + this->rdlength);
-
-    return this->rdlength + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->rdata, this->rdlength);
 }
 
 
 // -----------------------------------------------------------------------------
 // A
-std::vector<std::uint8_t> A::data() const
+void A::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->address, store);
-    return std::move(store);
+    encoder.pack(this->address);
 }
 
-std::size_t A::setData(const std::uint8_t *data, std::size_t size)
+void A::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->address, data + temp, size - temp) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->address);
 }
 
 
 // -----------------------------------------------------------------------------
 // NS
-std::vector<std::uint8_t> NS::data() const
+void NS::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->nsdname, store, true);
-    return std::move(store);
+    encoder.pack(this->nsdname, true);
 }
 
-std::size_t NS::setData(const std::uint8_t *data, std::size_t size)
+void NS::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->nsdname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->nsdname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // MD
-std::vector<std::uint8_t> MD::data() const
+void MD::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->madname, store, true);
-    return std::move(store);
+    encoder.pack(this->madname, true);
 }
 
-std::size_t MD::setData(const std::uint8_t *data, std::size_t size)
+void MD::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->madname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->madname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // MF
-std::vector<std::uint8_t> MF::data() const
+void MF::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->madname, store, true);
-    return std::move(store);
+    encoder.pack(this->madname, true);
 }
 
-std::size_t MF::setData(const std::uint8_t *data, std::size_t size)
+void MF::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->madname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->madname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // CNAME
-std::vector<std::uint8_t> CNAME::data() const
+void CNAME::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->cname, store, true);
-    return std::move(store);
+    encoder.pack(this->cname, true);
 }
 
-std::size_t CNAME::setData(const std::uint8_t *data, std::size_t size)
+void CNAME::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->cname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->cname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // SOA
-std::vector<std::uint8_t> SOA::data() const
+void SOA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->mname, store, true);
-    codec::pack(this->rname, store, true);
-    codec::pack(this->serial, store);
-    codec::pack(this->refresh, store);
-    codec::pack(this->retry, store);
-    codec::pack(this->expire, store);
-    codec::pack(this->minimum, store);
-    return std::move(store);
+    encoder.pack(this->mname, true);
+    encoder.pack(this->rname, true);
+    encoder.pack(this->serial);
+    encoder.pack(this->refresh);
+    encoder.pack(this->retry);
+    encoder.pack(this->expire);
+    encoder.pack(this->minimum);
 }
 
-std::size_t SOA::setData(const std::uint8_t *data, std::size_t size)
+void SOA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->mname, data + temp, size - temp, true);
-    temp += codec::unpack(this->rname, data + temp, size - temp, true);
-    temp += codec::unpack(this->serial, data + temp, size - temp);
-    temp += codec::unpack(this->refresh, data + temp, size - temp);
-    temp += codec::unpack(this->retry, data + temp, size - temp);
-    temp += codec::unpack(this->expire, data + temp, size - temp);
-    temp += codec::unpack(this->minimum, data + temp, size - temp);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->mname, true);
+    decoder.unpack(this->rname, true);
+    decoder.unpack(this->serial);
+    decoder.unpack(this->refresh);
+    decoder.unpack(this->retry);
+    decoder.unpack(this->expire);
+    decoder.unpack(this->minimum);
 }
 
 
 // -----------------------------------------------------------------------------
 // MB
-std::vector<std::uint8_t> MB::data() const
+void MB::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->madname, store, true);
-    return std::move(store);
+    encoder.pack(this->madname, true);
 }
 
-std::size_t MB::setData(const std::uint8_t *data, std::size_t size)
+void MB::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->madname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->madname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // MG
-std::vector<std::uint8_t> MG::data() const
+void MG::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->mgmname, store, true);
-    return std::move(store);
+    encoder.pack(this->mgmname, true);
 }
 
-std::size_t MG::setData(const std::uint8_t *data, std::size_t size)
+void MG::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->mgmname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->mgmname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // MR
-std::vector<std::uint8_t> MR::data() const
+void MR::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->newname, store, true);
-    return std::move(store);
+    encoder.pack(this->newname, true);
 }
 
-std::size_t MR::setData(const std::uint8_t *data, std::size_t size)
+void MR::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->newname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->newname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // RNULL
-std::vector<std::uint8_t> RNULL::data() const
+void RNULL::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    store.insert(store.begin(), this->anything.begin(), this->anything.end());
-    return std::move(store);
+    encoder.pack(this->anything, this->anything.size());
 }
 
-std::size_t RNULL::setData(const std::uint8_t *data, std::size_t size)
+void RNULL::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-
-    this->anything.clear();
-    this->anything.insert(this->anything.begin(), data + temp, data + size - temp);
-
-    return size;
+    RR::decode(decoder);
+    decoder.unpack(this->anything, this->rdlength);
 }
 
 
 // -----------------------------------------------------------------------------
 // WKS
-std::vector<std::uint8_t> WKS::data() const
+void WKS::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->address, store);
-    codec::pack(this->protocol, store);
-    store.insert(store.begin(), this->bitmap.begin(), this->bitmap.end());
-    return std::move(store);
+    encoder.pack(this->address);
+    encoder.pack(this->protocol);
+    encoder.pack(this->bitmap, this->bitmap.size());
 }
 
-std::size_t WKS::setData(const std::uint8_t *data, std::size_t size)
+void WKS::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
+    RR::decode(decoder);
 
-    temp += codec::unpack(this->address, data + temp, size - temp);
-    temp += codec::unpack(this->protocol, data + temp, size - temp);
+    decoder.unpack(this->address);
+    decoder.unpack(this->protocol);
 
-    this->bitmap.clear();
-    this->bitmap.insert(this->bitmap.begin(), data + temp, data + size);
-
-    return size;
+    // todo determine size
+//    this->bitmap.clear();
+//    this->bitmap.insert(this->bitmap.begin(), data + temp, data + size);
 }
 
 
 // -----------------------------------------------------------------------------
 // PTR
-std::vector<std::uint8_t> PTR::data() const
+void PTR::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->ptrdname, store, true);
-    return std::move(store);
+    encoder.pack(this->ptrdname, true);
 }
 
-std::size_t PTR::setData(const std::uint8_t *data, std::size_t size)
+void PTR::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->ptrdname, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->ptrdname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // HINFO
-std::vector<std::uint8_t> HINFO::data() const
+void HINFO::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->cpu, store, false);
-    codec::pack(this->os, store, false);
-    return std::move(store);
+    encoder.pack(this->cpu, false);
+    encoder.pack(this->os, false);
 }
 
-std::size_t HINFO::setData(const std::uint8_t *data, std::size_t size)
+void HINFO::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->cpu, data + temp, size - temp, false);
-    temp += codec::unpack(this->os, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->cpu, false);
+    decoder.unpack(this->os, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // MINFO
-std::vector<std::uint8_t> MINFO::data() const
+void MINFO::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->rmailbx, store, true);
-    codec::pack(this->emailbx, store, true);
-    return std::move(store);
+    encoder.pack(this->rmailbx, true);
+    encoder.pack(this->emailbx, true);
 }
 
-std::size_t MINFO::setData(const std::uint8_t *data, std::size_t size)
+void MINFO::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->rmailbx, data + temp, size - temp, true);
-    temp += codec::unpack(this->emailbx, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->rmailbx, true);
+    decoder.unpack(this->emailbx, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // MX
-std::vector<std::uint8_t> MX::data() const
+void MX::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->exchange, store, true);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->exchange, true);
 }
 
-std::size_t MX::setData(const std::uint8_t *data, std::size_t size)
+void MX::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->exchange, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->exchange, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // TXT
-std::vector<std::uint8_t> TXT::data() const
+void TXT::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->txt_data, store, false);
-    return std::move(store);
+    encoder.pack(this->txt_data, false);
 }
 
-std::size_t TXT::setData(const std::uint8_t *data, std::size_t size)
+void TXT::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->txt_data, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->txt_data, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // RP
-std::vector<std::uint8_t> RP::data() const
+void RP::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->mbox_dname, store, true);
-    codec::pack(this->txt_dname, store, true);
-    return std::move(store);
+    encoder.pack(this->mbox_dname, true);
+    encoder.pack(this->txt_dname, true);
 }
 
-std::size_t RP::setData(const std::uint8_t *data, std::size_t size)
+void RP::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->mbox_dname, data + temp, size - temp, true);
-    temp += codec::unpack(this->txt_dname, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->mbox_dname, true);
+    decoder.unpack(this->txt_dname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // AFSDB
-std::vector<std::uint8_t> AFSDB::data() const
+void AFSDB::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->subtype, store);
-    codec::pack(this->hostname, store, true);
-    return std::move(store);
+    encoder.pack(this->subtype);
+    encoder.pack(this->hostname, true);
 }
 
-std::size_t AFSDB::setData(const std::uint8_t *data, std::size_t size)
+void AFSDB::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->subtype, data + temp, size - temp);
-    temp += codec::unpack(this->hostname, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->subtype);
+    decoder.unpack(this->hostname, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // X25
-std::vector<std::uint8_t> X25::data() const
+void X25::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->psdn_address, store, false);
-    return std::move(store);
+    encoder.pack(this->psdn_address, false);
 }
 
-std::size_t X25::setData(const std::uint8_t *data, std::size_t size)
+void X25::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->psdn_address, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->psdn_address, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // ISDN
-std::vector<std::uint8_t> ISDN::data() const
+void ISDN::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->isdn_address, store, false);
-    codec::pack(this->sa, store, false);
-    return std::move(store);
+    encoder.pack(this->isdn_address, false);
+    encoder.pack(this->sa, false);
 }
 
-std::size_t ISDN::setData(const std::uint8_t *data, std::size_t size)
+void ISDN::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->isdn_address, data + temp, size - temp, false);
-    temp += codec::unpack(this->sa, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->isdn_address, false);
+    decoder.unpack(this->sa, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // RT
-std::vector<std::uint8_t> RT::data() const
+void RT::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->intermediate_host, store, true);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->intermediate_host, true);
 }
 
-std::size_t RT::setData(const std::uint8_t *data, std::size_t size)
+void RT::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->intermediate_host, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->intermediate_host, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSAP
-std::vector<std::uint8_t> NSAP::data() const
+void NSAP::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->nsap, store, false);
-    return std::move(store);
+    encoder.pack(this->nsap, false);
 }
 
-std::size_t NSAP::setData(const std::uint8_t *data, std::size_t size)
+void NSAP::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->nsap, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->nsap, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSAPPTR
-std::vector<std::uint8_t> NSAPPTR::data() const
+void NSAPPTR::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->owner, store, true);
-    return std::move(store);
+    encoder.pack(this->owner, true);
 }
 
-std::size_t NSAPPTR::setData(const std::uint8_t *data, std::size_t size)
+void NSAPPTR::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->owner, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->owner, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // SIG
-std::vector<std::uint8_t> SIG::data() const
+void SIG::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->type_covered, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->labels, store);
-    codec::pack(this->original, store);
-    codec::pack(this->expiration, store);
-    codec::pack(this->inception, store);
-    codec::pack(this->key_tag, store);
-    codec::pack(this->signer, store, true);
-    codec::pack(this->signature, store, false);
-    return std::move(store);
+    encoder.pack(this->type_covered);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->labels);
+    encoder.pack(this->original);
+    encoder.pack(this->expiration);
+    encoder.pack(this->inception);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->signer, true);
+    encoder.pack(this->signature, false);
 }
 
-std::size_t SIG::setData(const std::uint8_t *data, std::size_t size)
+void SIG::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->type_covered, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->labels, data + temp, size - temp);
-    temp += codec::unpack(this->original, data + temp, size - temp);
-    temp += codec::unpack(this->expiration, data + temp, size - temp);
-    temp += codec::unpack(this->inception, data + temp, size - temp);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->signer, data + temp, size - temp, true);
-    temp += codec::unpack(this->signature, data + temp, size - temp, false);
-    return temp;
+    decoder.unpack(this->type_covered);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->labels);
+    decoder.unpack(this->original);
+    decoder.unpack(this->expiration);
+    decoder.unpack(this->inception);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->signer, true);
+    decoder.unpack(this->signature, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // KEY
-std::vector<std::uint8_t> KEY::data() const
+void KEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->flags, store);
-    codec::pack(this->protocol, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->publickey, store, false);
-    return std::move(store);
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 }
 
-std::size_t KEY::setData(const std::uint8_t *data, std::size_t size)
+void KEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->protocol, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->publickey, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // PX
-std::vector<std::uint8_t> PX::data() const
+void PX::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->map822, store, true);
-    codec::pack(this->mapx400, store, true);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->map822, true);
+    encoder.pack(this->mapx400, true);
 }
 
-std::size_t PX::setData(const std::uint8_t *data, std::size_t size)
+void PX::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->map822, data + temp, size - temp, true);
-    temp += codec::unpack(this->mapx400, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->map822, true);
+    decoder.unpack(this->mapx400, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // GPOS
-std::vector<std::uint8_t> GPOS::data() const
+void GPOS::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->longitude, store, false);
-    codec::pack(this->latitude, store, false);
-    codec::pack(this->altitude, store, false);
-    return std::move(store);
+    encoder.pack(this->longitude, false);
+    encoder.pack(this->latitude, false);
+    encoder.pack(this->altitude, false);
 }
 
-std::size_t GPOS::setData(const std::uint8_t *data, std::size_t size)
+void GPOS::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->longitude, data + temp, size - temp, false);
-    temp += codec::unpack(this->latitude, data + temp, size - temp, false);
-    temp += codec::unpack(this->altitude, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->longitude, false);
+    decoder.unpack(this->latitude, false);
+    decoder.unpack(this->altitude, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // AAAA
-std::vector<std::uint8_t> AAAA::data() const
+void AAAA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    store.insert(store.begin(), this->address.begin(), this->address.end());
-    return std::move(store);
+    encoder.pack(this->address);
 }
 
-std::size_t AAAA::setData(const std::uint8_t *data, std::size_t size)
+void AAAA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-
-    data += temp;
-    size -= temp;
-
-    auto need = this->address.size();
-
-    if (size < need)
-        throw error_size(str::format("codec unpack AAAA size is not enough, require %d bytes", need));
-
-    std::copy(data, data + need, this->address.begin());
-
-    return need + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->address);
 }
 
 
 // -----------------------------------------------------------------------------
 // LOC
-std::vector<std::uint8_t> LOC::data() const
+void LOC::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->version, store);
-    codec::pack(this->size, store);
-    codec::pack(this->horiz_pre, store);
-    codec::pack(this->vert_pre, store);
-    codec::pack(this->longitude, store);
-    codec::pack(this->latitude, store);
-    codec::pack(this->altitude, store);
-    return std::move(store);
+    encoder.pack(this->version);
+    encoder.pack(this->size);
+    encoder.pack(this->horiz_pre);
+    encoder.pack(this->vert_pre);
+    encoder.pack(this->longitude);
+    encoder.pack(this->latitude);
+    encoder.pack(this->altitude);
 }
 
-std::size_t LOC::setData(const std::uint8_t *data, std::size_t size)
+void LOC::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp = codec::unpack(this->version, data + temp, size - temp);
-    temp += codec::unpack(this->size, data + temp, size - temp);
-    temp += codec::unpack(this->horiz_pre, data + temp, size - temp);
-    temp += codec::unpack(this->vert_pre, data + temp, size - temp);
-    temp += codec::unpack(this->longitude, data + temp, size - temp);
-    temp += codec::unpack(this->latitude, data + temp, size - temp);
-    temp += codec::unpack(this->altitude, data + temp, size - temp);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->version);
+    decoder.unpack(this->size);
+    decoder.unpack(this->horiz_pre);
+    decoder.unpack(this->vert_pre);
+    decoder.unpack(this->longitude);
+    decoder.unpack(this->latitude);
+    decoder.unpack(this->altitude);
 }
 
 
 // -----------------------------------------------------------------------------
 // NXT
-std::vector<std::uint8_t> NXT::data() const
+void NXT::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->next_domain, store, true);
-    store.insert(store.begin(), this->type_bitmap.begin(), this->type_bitmap.end());
-    return std::move(store);
+    encoder.pack(this->next_domain, true);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-std::size_t NXT::setData(const std::uint8_t *data, std::size_t size)
+void NXT::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->next_domain, data + temp, size - temp, true);
+    RR::decode(decoder);
+    decoder.unpack(this->next_domain, true);
 
-    this->type_bitmap.clear();
-    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
-
-    return size;
+    // todo determine size
+//    this->type_bitmap.clear();
+//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
 }
 
 
 // -----------------------------------------------------------------------------
 // EID
-std::vector<std::uint8_t> EID::data() const
+void EID::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->endpoint, store, false);
-    return std::move(store);
+    encoder.pack(this->endpoint, false);
 }
 
-std::size_t EID::setData(const std::uint8_t *data, std::size_t size)
+void EID::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->endpoint, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->endpoint, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NIMLOC
-std::vector<std::uint8_t> NIMLOC::data() const
+void NIMLOC::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->locator, store, false);
-    return std::move(store);
+    encoder.pack(this->locator, false);
 }
 
-std::size_t NIMLOC::setData(const std::uint8_t *data, std::size_t size)
+void NIMLOC::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->locator, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->locator, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // SRV
-std::vector<std::uint8_t> SRV::data() const
+void SRV::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->priority, store);
-    codec::pack(this->weight, store);
-    codec::pack(this->port, store);
-    codec::pack(this->target, store, true);
-    return std::move(store);
+    encoder.pack(this->priority);
+    encoder.pack(this->weight);
+    encoder.pack(this->port);
+    encoder.pack(this->target, true);
 }
 
-std::size_t SRV::setData(const std::uint8_t *data, std::size_t size)
+void SRV::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->priority, data + temp, size - temp);
-    temp += codec::unpack(this->weight, data + temp, size - temp);
-    temp += codec::unpack(this->port, data + temp, size - temp);
-    temp += codec::unpack(this->target, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->priority);
+    decoder.unpack(this->weight);
+    decoder.unpack(this->port);
+    decoder.unpack(this->target, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // ATMA
-std::vector<std::uint8_t> ATMA::data() const
+void ATMA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->format, store);
-    codec::pack(this->address, store, false);
-    return std::move(store);
+    encoder.pack(this->format);
+    encoder.pack(this->address, false);
 }
 
-std::size_t ATMA::setData(const std::uint8_t *data, std::size_t size)
+void ATMA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->format, data + temp, size - temp);
-    temp += codec::unpack(this->address, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->format);
+    decoder.unpack(this->address, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NAPTR
-std::vector<std::uint8_t> NAPTR::data() const
+void NAPTR::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->order, store);
-    codec::pack(this->preference, store);
-    codec::pack(this->flags, store, false);
-    codec::pack(this->services, store, false);
-    codec::pack(this->regexp, store, false);
-    codec::pack(this->replacement, store, true);
-    return std::move(store);
+    encoder.pack(this->order);
+    encoder.pack(this->preference);
+    encoder.pack(this->flags, false);
+    encoder.pack(this->services, false);
+    encoder.pack(this->regexp, false);
+    encoder.pack(this->replacement, true);
 }
 
-std::size_t NAPTR::setData(const std::uint8_t *data, std::size_t size)
+void NAPTR::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->order, data + temp, size - temp);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->flags, data + temp, size - temp, false);
-    temp += codec::unpack(this->services, data + temp, size - temp, false);
-    temp += codec::unpack(this->regexp, data + temp, size - temp, false);
-    temp += codec::unpack(this->replacement, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->order);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->flags, false);
+    decoder.unpack(this->services, false);
+    decoder.unpack(this->regexp, false);
+    decoder.unpack(this->replacement, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // KX
-std::vector<std::uint8_t> KX::data() const
+void KX::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->exchanger, store, true);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->exchanger, true);
 }
 
-std::size_t KX::setData(const std::uint8_t *data, std::size_t size)
+void KX::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->exchanger, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->exchanger, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // CERT
-std::vector<std::uint8_t> CERT::data() const
+void CERT::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->type, store);
-    codec::pack(this->key_tag, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->certificate, store, false);
-    return std::move(store);
+    encoder.pack(this->type);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->certificate, false);
 }
 
-std::size_t CERT::setData(const std::uint8_t *data, std::size_t size)
+void CERT::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->type, data + temp, size - temp);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->certificate, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->type);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->certificate, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // DNAME
-std::vector<std::uint8_t> DNAME::data() const
+void DNAME::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->target, store, true);
-    return std::move(store);
+    encoder.pack(this->target, true);
 }
 
-std::size_t DNAME::setData(const std::uint8_t *data, std::size_t size)
+void DNAME::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->target, data + temp, size - temp, true) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->target, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // SINK
-std::vector<std::uint8_t> SINK::data() const
+void SINK::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->coding, store);
-    codec::pack(this->subcoding, store);
-    store.insert(store.end(), this->sdata.begin(), this->sdata.end());
-    return std::move(store);
+    encoder.pack(this->coding);
+    encoder.pack(this->subcoding);
+    encoder.pack(this->sdata, this->sdata.size());
 }
 
-std::size_t SINK::setData(const std::uint8_t *data, std::size_t size)
+void SINK::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->coding, data + temp, size - temp);
-    temp += codec::unpack(this->subcoding, data + temp, size - temp);
+    RR::decode(decoder);
+    decoder.unpack(this->coding);
+    decoder.unpack(this->subcoding);
 
-    this->sdata.clear();
-    this->sdata.insert(this->sdata.begin(), data + temp, data + size);
-
-    return size;
+    // todo determine size
+//    this->sdata.clear();
+//    this->sdata.insert(this->sdata.begin(), data + temp, data + size);
 }
 
 
 // -----------------------------------------------------------------------------
 // DS
-std::vector<std::uint8_t> DS::data() const
+void DS::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->key_tag, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->digest_type, store);
-    codec::pack(this->digest, store, false);
-    return std::move(store);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 }
 
-std::size_t DS::setData(const std::uint8_t *data, std::size_t size)
+void DS::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->digest_type, data + temp, size - temp);
-    temp += codec::unpack(this->digest, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // SSHFP
-std::vector<std::uint8_t> SSHFP::data() const
+void SSHFP::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->algorithm, store);
-    codec::pack(this->fptype, store);
-    codec::pack(this->fingerprint, store, false);
-    return std::move(store);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->fptype);
+    encoder.pack(this->fingerprint, false);
 }
 
-std::size_t SSHFP::setData(const std::uint8_t *data, std::size_t size)
+void SSHFP::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->fptype, data + temp, size - temp);
-    temp += codec::unpack(this->fingerprint, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->fptype);
+    decoder.unpack(this->fingerprint, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // IPSECKEY
-std::vector<std::uint8_t> IPSECKEY::data() const
+void IPSECKEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->precedence, store);
-    codec::pack(this->gateway_type, store);
-    codec::pack(this->algorithm, store);
+    encoder.pack(this->precedence);
+    encoder.pack(this->gateway_type);
+    encoder.pack(this->algorithm);
 
     switch (static_cast<GatewayType>(this->gateway_type))
     {
         case GatewayType::None:
-            codec::pack(".", store, false);
+            encoder.pack(".", false);
             break;
 
         case GatewayType::IPv4:
-            store.insert(store.end(), this->gateway.begin(), this->gateway.begin() + 4);
+            encoder.pack(this->gateway, 4);
             break;
 
         case GatewayType::IPv6:
-            store.insert(store.end(), this->gateway.begin(), this->gateway.begin() + 16);
+            encoder.pack(this->gateway, 16);
             break;
 
         case GatewayType::Domain:
         {
             std::string domain(this->gateway.begin(), this->gateway.end());
-            codec::pack(domain, store, true);
+            encoder.pack(domain, true);
         }
             break;
     }
 
-    codec::pack(this->publickey, store, false);
-    return std::move(store);
+    encoder.pack(this->publickey, false);
 }
 
-std::size_t IPSECKEY::setData(const std::uint8_t *data, std::size_t size)
+void IPSECKEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->precedence, data + temp, size - temp);
-    temp += codec::unpack(this->gateway_type, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
+    RR::decode(decoder);
+    decoder.unpack(this->precedence);
+    decoder.unpack(this->gateway_type);
+    decoder.unpack(this->algorithm);
 
     this->gateway.clear();
 
     switch (static_cast<GatewayType>(this->gateway_type))
     {
         case GatewayType::None:
-            this->gateway.push_back(static_cast<std::uint8_t>('.'));
-            ++temp;
+            decoder.unpack(this->gateway, 1);
             break;
 
         case GatewayType::IPv4:
-            if (size - temp < 4)
-                throw error_size(str::format("codec unpack IPSECKEY size is not enough, require 4 bytes"));
-
-            this->gateway.insert(this->gateway.begin(), data + temp, data + temp + 4);
-
-            temp += 4;
+            decoder.unpack(this->gateway, 4);
             break;
 
         case GatewayType::IPv6:
-            if (size - temp < 16)
-                throw error_size(str::format("codec unpack IPSECKEY size is not enough, require 16 bytes"));
-
-            this->gateway.insert(this->gateway.begin(), data + temp, data + temp + 16);
-
-            temp += 16;
+            decoder.unpack(this->gateway, 16);
             break;
 
         case GatewayType::Domain:
         {
             std::string domain;
-            temp += codec::unpack(domain, data, size, true);
+            decoder.unpack(domain, true);
 
             this->gateway.insert(this->gateway.begin(), domain.begin(), domain.end());
         }
             break;
     }
 
-    temp += codec::unpack(this->publickey, data + temp, size - temp, false);
-    return temp;
+    decoder.unpack(this->publickey, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // RRSIG
-std::vector<std::uint8_t> RRSIG::data() const
+void RRSIG::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->type_covered, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->labels, store);
-    codec::pack(this->original, store);
-    codec::pack(this->expiration, store);
-    codec::pack(this->inception, store);
-    codec::pack(this->key_tag, store);
-    codec::pack(this->signer, store, true);
-    codec::pack(this->signature, store, false);
-    return std::move(store);
+    encoder.pack(this->type_covered);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->labels);
+    encoder.pack(this->original);
+    encoder.pack(this->expiration);
+    encoder.pack(this->inception);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->signer, true);
+    encoder.pack(this->signature, false);
 }
 
-std::size_t RRSIG::setData(const std::uint8_t *data, std::size_t size)
+void RRSIG::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->type_covered, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->labels, data + temp, size - temp);
-    temp += codec::unpack(this->original, data + temp, size - temp);
-    temp += codec::unpack(this->expiration, data + temp, size - temp);
-    temp += codec::unpack(this->inception, data + temp, size - temp);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->signer, data + temp, size - temp, true);
-    temp += codec::unpack(this->signature, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->type_covered);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->labels);
+    decoder.unpack(this->original);
+    decoder.unpack(this->expiration);
+    decoder.unpack(this->inception);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->signer, true);
+    decoder.unpack(this->signature, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSEC
-std::vector<std::uint8_t> NSEC::data() const
+void NSEC::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->next_domain, store, true);
-    store.insert(store.end(), this->type_bitmap.begin(), this->type_bitmap.end());
-    return std::move(store);
+    encoder.pack(this->next_domain, true);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-std::size_t NSEC::setData(const std::uint8_t *data, std::size_t size)
+void NSEC::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->next_domain, data + temp, size - temp, true);
+    RR::decode(decoder);
+    decoder.unpack(this->next_domain, true);
 
-    this->type_bitmap.clear();
-    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
-
-    return size;
+    // todo determine size
+//    this->type_bitmap.clear();
+//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
 }
 
 
 // -----------------------------------------------------------------------------
 // DNSKEY
-std::vector<std::uint8_t> DNSKEY::data() const
+void DNSKEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->flags, store);
-    codec::pack(this->protocol, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->publickey, store, false);
-    return std::move(store);
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 }
 
-std::size_t DNSKEY::setData(const std::uint8_t *data, std::size_t size)
+void DNSKEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->protocol, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->publickey, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // DHCID
-std::vector<std::uint8_t> DHCID::data() const
+void DHCID::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->digest, store, false);
-    return std::move(store);
+    encoder.pack(this->digest, false);
 }
 
-std::size_t DHCID::setData(const std::uint8_t *data, std::size_t size)
+void DHCID::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->digest, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->digest, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSEC3
-std::vector<std::uint8_t> NSEC3::data() const
+void NSEC3::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->hash, store);
-    codec::pack(this->flags, store);
-    codec::pack(this->iterations, store);
-    codec::pack(this->salt_length, store);
-    store.insert(store.begin(), this->salt.begin(), this->salt.begin() + this->salt_length);
-    codec::pack(this->hash_length, store);
-    codec::pack(this->next_owner, store, false);
-    store.insert(store.begin(), this->type_bitmap.begin(), this->type_bitmap.end());
-    return std::move(store);
+    encoder.pack(this->hash);
+    encoder.pack(this->flags);
+    encoder.pack(this->iterations);
+    encoder.pack(this->salt_length);
+    encoder.pack(this->salt, this->salt_length);
+    encoder.pack(this->hash_length);
+    encoder.pack(this->next_owner, false);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-std::size_t NSEC3::setData(const std::uint8_t *data, std::size_t size)
+void NSEC3::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->hash, data + temp, size - temp);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->iterations, data + temp, size - temp);
-    temp += codec::unpack(this->salt_length, data + temp, size - temp);
+    RR::decode(decoder);
+    decoder.unpack(this->hash);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->iterations);
+    decoder.unpack(this->salt_length);
+    decoder.unpack(this->salt, this->salt_length);
+    decoder.unpack(this->hash_length);
+    decoder.unpack(this->next_owner, false);
 
-    this->salt.clear();
-    this->salt.insert(this->salt.begin(), data + temp, data + temp + this->salt_length);
-
-    temp += codec::unpack(this->hash_length, data + temp, size - temp);
-    temp += codec::unpack(this->next_owner, data + temp, size - temp, false);
-
-    this->type_bitmap.clear();
-    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
-
-    return size;
+    // todo determine size
+//    this->type_bitmap.clear();
+//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSEC3PARAM
-std::vector<std::uint8_t> NSEC3PARAM::data() const
+void NSEC3PARAM::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->hash, store);
-    codec::pack(this->flags, store);
-    codec::pack(this->iterations, store);
-    codec::pack(this->salt_length, store);
-    store.insert(store.begin(), this->salt.begin(), this->salt.begin() + this->salt_length);
-    return std::move(store);
+    encoder.pack(this->hash);
+    encoder.pack(this->flags);
+    encoder.pack(this->iterations);
+    encoder.pack(this->salt_length);
+    encoder.pack(this->salt, this->salt_length);
 }
 
-std::size_t NSEC3PARAM::setData(const std::uint8_t *data, std::size_t size)
+void NSEC3PARAM::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->hash, data + temp, size - temp);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->iterations, data + temp, size - temp);
-    temp += codec::unpack(this->salt_length, data + temp, size - temp);
-
-    this->salt.clear();
-    this->salt.insert(this->salt.begin(), data + temp, data + temp + this->salt_length);
-
-    return temp + this->salt_length;
+    RR::decode(decoder);
+    decoder.unpack(this->hash);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->iterations);
+    decoder.unpack(this->salt_length);
+    decoder.unpack(this->salt, this->salt_length);
 }
 
 
 // -----------------------------------------------------------------------------
 // TLSA
-std::vector<std::uint8_t> TLSA::data() const
+void TLSA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->usage, store);
-    codec::pack(this->selector, store);
-    codec::pack(this->matching_type, store);
-    codec::pack(this->certificate, store, false);
-    return std::move(store);
+    encoder.pack(this->usage);
+    encoder.pack(this->selector);
+    encoder.pack(this->matching_type);
+    encoder.pack(this->certificate, false);
 }
 
-std::size_t TLSA::setData(const std::uint8_t *data, std::size_t size)
+void TLSA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->usage, data + temp, size - temp);
-    temp += codec::unpack(this->selector, data + temp, size - temp);
-    temp += codec::unpack(this->matching_type, data + temp, size - temp);
-    temp += codec::unpack(this->certificate, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->usage);
+    decoder.unpack(this->selector);
+    decoder.unpack(this->matching_type);
+    decoder.unpack(this->certificate, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // SMIMEA
-std::vector<std::uint8_t> SMIMEA::data() const
+void SMIMEA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->usage, store);
-    codec::pack(this->selector, store);
-    codec::pack(this->matching_type, store);
-    codec::pack(this->certificate, store, false);
-    return std::move(store);
+    encoder.pack(this->usage);
+    encoder.pack(this->selector);
+    encoder.pack(this->matching_type);
+    encoder.pack(this->certificate, false);
 }
 
-std::size_t SMIMEA::setData(const std::uint8_t *data, std::size_t size)
+void SMIMEA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->usage, data + temp, size - temp);
-    temp += codec::unpack(this->selector, data + temp, size - temp);
-    temp += codec::unpack(this->matching_type, data + temp, size - temp);
-    temp += codec::unpack(this->certificate, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->usage);
+    decoder.unpack(this->selector);
+    decoder.unpack(this->matching_type);
+    decoder.unpack(this->certificate, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // HIP
-std::vector<std::uint8_t> HIP::data() const
+void HIP::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->hit_length, store);
-    codec::pack(this->pk_algorithm, store);
-    codec::pack(this->pk_length, store);
-    codec::pack(this->hit, store, false);
-    codec::pack(this->publickey, store, false);
-    codec::pack(this->rendezvous_servers, store, false);
-    return std::move(store);
+    encoder.pack(this->hit_length);
+    encoder.pack(this->pk_algorithm);
+    encoder.pack(this->pk_length);
+    encoder.pack(this->hit, false);
+    encoder.pack(this->publickey, false);
+    encoder.pack(this->rendezvous_servers, false);
 }
 
-std::size_t HIP::setData(const std::uint8_t *data, std::size_t size)
+void HIP::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->hit_length, data + temp, size - temp);
-    temp += codec::unpack(this->pk_algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->pk_length, data + temp, size - temp);
-    temp += codec::unpack(this->hit, data + temp, size - temp, false);
-    temp += codec::unpack(this->publickey, data + temp, size - temp, false);
-    temp += codec::unpack(this->rendezvous_servers, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->hit_length);
+    decoder.unpack(this->pk_algorithm);
+    decoder.unpack(this->pk_length);
+    decoder.unpack(this->hit, false);
+    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->rendezvous_servers, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NINFO
-std::vector<std::uint8_t> NINFO::data() const
+void NINFO::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->zs_data, store, false);
-    return std::move(store);
+    encoder.pack(this->zs_data, false);
 }
 
-std::size_t NINFO::setData(const std::uint8_t *data, std::size_t size)
+void NINFO::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->zs_data, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->zs_data, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // RKEY
-std::vector<std::uint8_t> RKEY::data() const
+void RKEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->flags, store);
-    codec::pack(this->protocol, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->publickey, store, false);
-    return std::move(store);
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 }
 
-std::size_t RKEY::setData(const std::uint8_t *data, std::size_t size)
+void RKEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->protocol, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->publickey, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // TALINK
-std::vector<std::uint8_t> TALINK::data() const
+void TALINK::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->previous_name, store, true);
-    codec::pack(this->next_name, store, true);
-    return std::move(store);
+    encoder.pack(this->previous_name, true);
+    encoder.pack(this->next_name, true);
 }
 
-std::size_t TALINK::setData(const std::uint8_t *data, std::size_t size)
+void TALINK::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->previous_name, data + temp, size - temp, true);
-    temp += codec::unpack(this->next_name, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->previous_name, true);
+    decoder.unpack(this->next_name, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // CDS
-std::vector<std::uint8_t> CDS::data() const
+void CDS::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->key_tag, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->digest_type, store);
-    codec::pack(this->digest, store, false);
-    return std::move(store);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 }
 
-std::size_t CDS::setData(const std::uint8_t *data, std::size_t size)
+void CDS::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->digest_type, data + temp, size - temp);
-    temp += codec::unpack(this->digest, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // CDNSKEY
-std::vector<std::uint8_t> CDNSKEY::data() const
+void CDNSKEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->flags, store);
-    codec::pack(this->protocol, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->publickey, store, false);
-    return std::move(store);
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 }
 
-std::size_t CDNSKEY::setData(const std::uint8_t *data, std::size_t size)
+void CDNSKEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->protocol, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->publickey, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // OPENPGPKEY
-std::vector<std::uint8_t> OPENPGPKEY::data() const
+void OPENPGPKEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->publickey, store, false);
-    return std::move(store);
+    encoder.pack(this->publickey, false);
 }
 
-std::size_t OPENPGPKEY::setData(const std::uint8_t *data, std::size_t size)
+void OPENPGPKEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->publickey, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->publickey, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // CSYNC
-std::vector<std::uint8_t> CSYNC::data() const
+void CSYNC::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->serial, store);
-    codec::pack(this->flags, store);
-    store.insert(store.end(), this->type_bitmap.begin(), this->type_bitmap.end());
-    return std::move(store);
+    encoder.pack(this->serial);
+    encoder.pack(this->flags);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-std::size_t CSYNC::setData(const std::uint8_t *data, std::size_t size)
+void CSYNC::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->serial, data + temp, size - temp);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
+    RR::decode(decoder);
+    decoder.unpack(this->serial);
+    decoder.unpack(this->flags);
 
-    this->type_bitmap.clear();
-    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
-
-    return size;
+    // todo determine size
+//    this->type_bitmap.clear();
+//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
 }
 
 
 // -----------------------------------------------------------------------------
 // SPF
-std::vector<std::uint8_t> SPF::data() const
+void SPF::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->txt, store, false);
-    return std::move(store);
+    encoder.pack(this->txt, false);
 }
 
-std::size_t SPF::setData(const std::uint8_t *data, std::size_t size)
+void SPF::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->txt, data + temp, size - temp, false) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->txt, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // NID
-std::vector<std::uint8_t> NID::data() const
+void NID::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->node_id, store);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->node_id);
 }
 
-std::size_t NID::setData(const std::uint8_t *data, std::size_t size)
+void NID::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->node_id, data + temp, size - temp);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->node_id);
 }
 
 
 // -----------------------------------------------------------------------------
 // L32
-std::vector<std::uint8_t> L32::data() const
+void L32::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->locator32, store);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->locator32);
 }
 
-std::size_t L32::setData(const std::uint8_t *data, std::size_t size)
+void L32::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->locator32, data + temp, size - temp);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->locator32);
 }
 
 
 // -----------------------------------------------------------------------------
 // L64
-std::vector<std::uint8_t> L64::data() const
+void L64::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->locator64, store);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->locator64);
 }
 
-std::size_t L64::setData(const std::uint8_t *data, std::size_t size)
+void L64::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->locator64, data + temp, size - temp);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->locator64);
 }
 
 
 // -----------------------------------------------------------------------------
 // LP
-std::vector<std::uint8_t> LP::data() const
+void LP::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->preference, store);
-    codec::pack(this->fqdn, store, true);
-    return std::move(store);
+    encoder.pack(this->preference);
+    encoder.pack(this->fqdn, true);
 }
 
-std::size_t LP::setData(const std::uint8_t *data, std::size_t size)
+void LP::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->preference, data + temp, size - temp);
-    temp += codec::unpack(this->fqdn, data + temp, size - temp, true);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->fqdn, true);
 }
 
 
 // -----------------------------------------------------------------------------
 // EUI48
-std::vector<std::uint8_t> EUI48::data() const
+void EUI48::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    store.insert(store.begin(), this->address.begin(), this->address.end());
-    return std::move(store);
+    encoder.pack(this->address);
 }
 
-std::size_t EUI48::setData(const std::uint8_t *data, std::size_t size)
+void EUI48::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-
-    data += temp;
-    size -= temp;
-
-    std::size_t need = this->address.size();
-
-    if (size < need)
-        throw error_size(str::format("codec unpack EUI48 size is not enough, require %d bytes", need));
-
-    std::copy(data, data + need, this->address.begin());
-    return need + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->address);
 }
 
 
 // -----------------------------------------------------------------------------
 // EUI64
-std::vector<std::uint8_t> EUI64::data() const
+void EUI64::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->address, store);
-    return std::move(store);
+    encoder.pack(this->address);
 }
 
-std::size_t EUI64::setData(const std::uint8_t *data, std::size_t size)
+void EUI64::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    return codec::unpack(this->address, data + temp, size - temp) + temp;
+    RR::decode(decoder);
+    decoder.unpack(this->address);
 }
 
 
 // -----------------------------------------------------------------------------
 // TKEY
-std::vector<std::uint8_t> TKEY::data() const
+void TKEY::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->algorithm, store, true);
-    codec::pack(this->inception, store);
-    codec::pack(this->expiration, store);
-    codec::pack(this->mode, store);
-    codec::pack(this->error, store);
-    codec::pack(this->key_size, store);
-    store.insert(store.end(), this->key.begin(), this->key.begin() + this->key_size);
-    codec::pack(this->other_len, store);
-    store.insert(store.end(), this->other_data.begin(), this->other_data.begin() + this->other_len);
-    return std::move(store);
+    encoder.pack(this->algorithm, true);
+    encoder.pack(this->inception);
+    encoder.pack(this->expiration);
+    encoder.pack(this->mode);
+    encoder.pack(this->error);
+    encoder.pack(this->key_size);
+    encoder.pack(this->key, this->key_size);
+    encoder.pack(this->other_len);
+    encoder.pack(this->other_data, this->other_len);
 }
 
-std::size_t TKEY::setData(const std::uint8_t *data, std::size_t size)
+void TKEY::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp, true);
-    temp += codec::unpack(this->inception, data + temp, size - temp);
-    temp += codec::unpack(this->expiration, data + temp, size - temp);
-    temp += codec::unpack(this->mode, data + temp, size - temp);
-    temp += codec::unpack(this->error, data + temp, size - temp);
-    temp += codec::unpack(this->key_size, data + temp, size - temp);
-
-    this->key.clear();
-    this->key.insert(this->key.begin(), data + temp, data + temp + this->key_size);
-
-    temp += this->key_size;
-    temp += codec::unpack(this->other_len, data + temp, size - temp);
-
-    this->other_data.clear();
-    this->other_data.insert(this->other_data.begin(), data + temp, data + temp + this->other_len);
-
-    temp += this->other_len;
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->algorithm, true);
+    decoder.unpack(this->inception);
+    decoder.unpack(this->expiration);
+    decoder.unpack(this->mode);
+    decoder.unpack(this->error);
+    decoder.unpack(this->key_size);
+    decoder.unpack(this->key, this->key_size);
+    decoder.unpack(this->other_len);
+    decoder.unpack(this->other_data, this->other_len);
 }
 
 
 // -----------------------------------------------------------------------------
 // TSIG
-std::vector<std::uint8_t> TSIG::data() const
+void TSIG::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->algorithm, store, true);
-    std::copy(this->time_signed.begin(), this->time_signed.end(), store.end());
-    codec::pack(this->fudge, store);
-    codec::pack(this->mac_size, store);
-    store.insert(store.begin(), this->mac.begin(), this->mac.begin() + this->mac_size);
-    codec::pack(this->original_id, store);
-    codec::pack(this->error, store);
-    codec::pack(this->other_len, store);
-    store.insert(store.begin(), this->other_data.begin(), this->other_data.begin() + this->other_len);
-    return std::move(store);
+    encoder.pack(this->algorithm, true);
+    encoder.pack(this->time_signed);
+    encoder.pack(this->fudge);
+    encoder.pack(this->mac_size);
+    encoder.pack(this->mac, this->mac_size);
+    encoder.pack(this->original_id);
+    encoder.pack(this->error);
+    encoder.pack(this->other_len);
+    encoder.pack(this->other_data, this->other_len);
 }
 
-std::size_t TSIG::setData(const std::uint8_t *data, std::size_t size)
+void TSIG::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp, true);
-
-    auto need = this->time_signed.size();
-
-    if (size < need)
-        throw error_size(str::format("codec unpack TSIG size is not enough, require %d bytes", need));
-
-    std::copy(data + temp, data + temp + need, this->time_signed.begin());
-
-    temp += need;
-    temp += codec::unpack(this->fudge, data + temp, size - temp);
-    temp += codec::unpack(this->mac_size, data + temp, size - temp);
-
-    this->mac.clear();
-    this->mac.insert(this->mac.begin(), data + temp, data + temp + this->mac_size);
-
-    temp += this->mac_size;
-    temp += codec::unpack(this->original_id, data + temp, size - temp);
-    temp += codec::unpack(this->error, data + temp, size - temp);
-    temp += codec::unpack(this->other_len, data + temp, size - temp);
-
-    this->other_data.clear();
-    this->other_data.insert(this->other_data.begin(), data + temp, data + temp + this->other_len);
-
-    temp += this->other_len;
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->algorithm, true);
+    decoder.unpack(this->time_signed);
+    decoder.unpack(this->fudge);
+    decoder.unpack(this->mac_size);
+    decoder.unpack(this->mac, this->mac_size);
+    decoder.unpack(this->original_id);
+    decoder.unpack(this->error);
+    decoder.unpack(this->other_len);
+    decoder.unpack(this->other_data, this->other_len);
 }
 
 
 // -----------------------------------------------------------------------------
 // URI
-std::vector<std::uint8_t> URI::data() const
+void URI::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->priority, store);
-    codec::pack(this->weight, store);
-    codec::pack(this->target, store, false);
-    return std::move(store);
+    encoder.pack(this->priority);
+    encoder.pack(this->weight);
+    encoder.pack(this->target, false);
 }
 
-std::size_t URI::setData(const std::uint8_t *data, std::size_t size)
+void URI::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->priority, data + temp, size - temp);
-    temp += codec::unpack(this->weight, data + temp, size - temp);
-    temp += codec::unpack(this->target, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->priority);
+    decoder.unpack(this->weight);
+    decoder.unpack(this->target, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // CAA
-std::vector<std::uint8_t> CAA::data() const
+void CAA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->flags, store);
-    codec::pack(this->tag, store, false);
-    codec::pack(this->value, store, false);
-    return std::move(store);
+    encoder.pack(this->flags);
+    encoder.pack(this->tag, false);
+    encoder.pack(this->value, false);
 }
 
-std::size_t CAA::setData(const std::uint8_t *data, std::size_t size)
+void CAA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->flags, data + temp, size - temp);
-    temp += codec::unpack(this->tag, data + temp, size - temp, false);
-    temp += codec::unpack(this->value, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->tag, false);
+    decoder.unpack(this->value, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // TA
-std::vector<std::uint8_t> TA::data() const
+void TA::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->key_tag, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->digest_type, store);
-    codec::pack(this->digest, store, false);
-    return std::move(store);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 }
 
-std::size_t TA::setData(const std::uint8_t *data, std::size_t size)
+void TA::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->digest_type, data + temp, size - temp);
-    temp += codec::unpack(this->digest, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
 }
 
 
 // -----------------------------------------------------------------------------
 // DLV
-std::vector<std::uint8_t> DLV::data() const
+void DLV::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> store;
-    codec::pack(this->key_tag, store);
-    codec::pack(this->algorithm, store);
-    codec::pack(this->digest_type, store);
-    codec::pack(this->digest, store, false);
-    return std::move(store);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 }
 
-std::size_t DLV::setData(const std::uint8_t *data, std::size_t size)
+void DLV::decode(chen::dns::decoder &decoder)
 {
-    std::size_t temp = RR::setData(data, size);
-    temp += codec::unpack(this->key_tag, data + temp, size - temp);
-    temp += codec::unpack(this->algorithm, data + temp, size - temp);
-    temp += codec::unpack(this->digest_type, data + temp, size - temp);
-    temp += codec::unpack(this->digest, data + temp, size - temp, false);
-    return temp;
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
 }
