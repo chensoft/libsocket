@@ -7,6 +7,7 @@
 #include "dns_client.hpp"
 #include "dns_error.hpp"
 #include "dns_codec.hpp"
+#include <chen/net/udp/udp_define.hpp>
 #include <array>
 
 using namespace chen;
@@ -45,7 +46,7 @@ chen::dns::response client::query(const std::string &qname,
     this->_udp.send(b.data(), b.size(), this->_ns_addr, this->_ns_port);
 
     // recv response
-    std::array<std::uint8_t, 65507> packet;
+    std::array<std::uint8_t, udp::SIZE_LIMIT_PACKET> packet;
     std::string addr;
     std::uint16_t port = 0;
     std::size_t size = packet.size();

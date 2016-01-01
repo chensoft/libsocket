@@ -16,6 +16,10 @@ using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // codec
+codec::~codec()
+{
+
+}
 
 // binary
 const std::vector<std::uint8_t>& codec::binary() const
@@ -201,7 +205,10 @@ void encoder::pack(const chen::dns::RR &rr)
         if (temp > std::numeric_limits<std::uint16_t>::max())
             throw error_size("codec pack rdata size is overflow");
 
-        this->pack(static_cast<std::uint16_t>(temp));
+        std::uint16_t rdlength = static_cast<std::uint16_t>(temp);
+
+        this->_binary.insert(this->_binary.end() - rdlength, static_cast<std::uint8_t>(rdlength >> 8 & 0xFF));
+        this->_binary.insert(this->_binary.end() - rdlength, static_cast<std::uint8_t>(rdlength & 0xFF));
     }
     catch (...)
     {
@@ -509,17 +516,13 @@ void decoder::unpack(std::shared_ptr<chen::dns::RR> &rr)
     std::int32_t ttl = 0;
     this->unpack(ttl);
 
-    // rdlength
-    std::uint16_t rdlength = 0;
-    this->unpack(rdlength);
-
     // build
     std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
 
     if (!record)
         record.reset(new chen::dns::Unknown);
 
-    // rdata
+    // rdlength && rdata
     record->decode(*this);
 
     // set
@@ -655,6 +658,9 @@ void decoder::unpack(chen::dns::response &response)
     // set
     response.setHeader(header);
     response.setQuestion(std::move(question));
+    response.setAnswer(std::move(answer));
+    response.setAuthority(std::move(authority));
+    response.setAdditional(std::move(additional));
 }
 
 // assign

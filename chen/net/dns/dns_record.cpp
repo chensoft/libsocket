@@ -14,6 +14,11 @@ using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // RR
+RR::~RR()
+{
+
+}
+
 void RR::decode(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->rdlength);

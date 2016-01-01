@@ -61,7 +61,7 @@ namespace chen
             NotAuth   = 9,   // rfc2136, the server is not authoritative for the zone named in the Zone Section
             NotZone   = 10,  // rfc2136, a name used in the Prerequisite or Update Section is not within the zone denoted by the Zone Section
             BadVers   = 16,  // rfc6891, bad OPT version
-            BadSig    = 16,  // rfc2845, TSIG signature failure
+            BadSig    = 16,  // rfc2845, TSIG signature failure, same value as BadVers
             BadKey    = 17,  // rfc2845, key not recognized
             BadTime   = 18,  // rfc2845, signature out of time window
             BadMode   = 19,  // rfc2930, bad TKEY mode
@@ -73,7 +73,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // Flag
+        // Flag pos & mask
         static const std::uint16_t FLAG_POS_QR     = 15;
         static const std::uint16_t FLAG_POS_OPCODE = 11;
         static const std::uint16_t FLAG_POS_AA     = 10;

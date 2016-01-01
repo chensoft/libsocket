@@ -7,7 +7,6 @@
 #pragma once
 
 #include "dns_define.hpp"
-#include <cstdint>
 #include <string>
 
 namespace chen

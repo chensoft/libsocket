@@ -5,6 +5,7 @@
  * @link   http://www.chensoft.com
  */
 #include "udp_server.hpp"
+#include "udp_define.hpp"
 
 using namespace chen;
 using namespace chen::udp;
@@ -21,9 +22,7 @@ void server::start()
     }
 
     // define maximum udp buffer
-    // 65535 − 8 byte UDP header − 20 byte IP header = 65507
-    // see https://en.wikipedia.org/wiki/User_Datagram_Protocol
-    std::size_t length = 65507;
+    std::size_t length = SIZE_LIMIT_PACKET;
     std::unique_ptr<std::uint8_t> pointer(new std::uint8_t[length]);
     std::uint8_t *buffer = pointer.get();
 

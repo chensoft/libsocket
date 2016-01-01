@@ -25,6 +25,7 @@
 #include <chen/net/ip/ip_addr.hpp>
 
 #include <chen/net/udp/udp_error.hpp>
+#include <chen/net/udp/udp_define.hpp>
 #include <chen/net/udp/udp_socket.hpp>
 #include <chen/net/udp/udp_client.hpp>
 #include <chen/net/udp/udp_server.hpp>
