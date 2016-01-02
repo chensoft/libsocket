@@ -24,6 +24,15 @@ void RR::decode(chen::dns::decoder &decoder)
     decoder.unpack(this->rdlength);
 }
 
+std::size_t RR::remain(chen::dns::decoder &decoder, std::size_t origin) const
+{
+    std::size_t used = decoder.cursor() - origin;
+    if (this->rdlength < used)
+        throw error_size("codec rdata is overflow");
+
+    return this->rdlength - used;
+}
+
 
 // -----------------------------------------------------------------------------
 // RAW
@@ -202,14 +211,15 @@ void WKS::encode(chen::dns::encoder &encoder) const
 
 void WKS::decode(chen::dns::decoder &decoder)
 {
+    auto origin = decoder.cursor();
+
     RR::decode(decoder);
 
     decoder.unpack(this->address);
     decoder.unpack(this->protocol);
 
-    // todo determine size
-//    this->bitmap.clear();
-//    this->bitmap.insert(this->bitmap.begin(), data + temp, data + size);
+    this->bitmap.clear();
+    decoder.unpack(this->bitmap, this->remain(decoder, origin));
 }
 
 
@@ -530,12 +540,13 @@ void NXT::encode(chen::dns::encoder &encoder) const
 
 void NXT::decode(chen::dns::decoder &decoder)
 {
+    auto origin = decoder.cursor();
+
     RR::decode(decoder);
     decoder.unpack(this->next_domain, true);
 
-    // todo determine size
-//    this->type_bitmap.clear();
-//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
 }
 
 
@@ -688,13 +699,14 @@ void SINK::encode(chen::dns::encoder &encoder) const
 
 void SINK::decode(chen::dns::decoder &decoder)
 {
+    auto origin = decoder.cursor();
+
     RR::decode(decoder);
     decoder.unpack(this->coding);
     decoder.unpack(this->subcoding);
 
-    // todo determine size
-//    this->sdata.clear();
-//    this->sdata.insert(this->sdata.begin(), data + temp, data + size);
+    this->sdata.clear();
+    decoder.unpack(this->sdata, this->remain(decoder, origin));
 }
 
 
@@ -747,7 +759,7 @@ void IPSECKEY::encode(chen::dns::encoder &encoder) const
     switch (static_cast<GatewayType>(this->gateway_type))
     {
         case GatewayType::None:
-            encoder.pack(".", false);
+            encoder.pack(this->gateway, 1);
             break;
 
         case GatewayType::IPv4:
@@ -846,12 +858,13 @@ void NSEC::encode(chen::dns::encoder &encoder) const
 
 void NSEC::decode(chen::dns::decoder &decoder)
 {
+    auto origin = decoder.cursor();
+
     RR::decode(decoder);
     decoder.unpack(this->next_domain, true);
 
-    // todo determine size
-//    this->type_bitmap.clear();
-//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
 }
 
 
@@ -905,6 +918,8 @@ void NSEC3::encode(chen::dns::encoder &encoder) const
 
 void NSEC3::decode(chen::dns::decoder &decoder)
 {
+    auto origin = decoder.cursor();
+
     RR::decode(decoder);
     decoder.unpack(this->hash);
     decoder.unpack(this->flags);
@@ -914,9 +929,8 @@ void NSEC3::decode(chen::dns::decoder &decoder)
     decoder.unpack(this->hash_length);
     decoder.unpack(this->next_owner, false);
 
-    // todo determine size
-//    this->type_bitmap.clear();
-//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
 }
 
 
@@ -1121,13 +1135,14 @@ void CSYNC::encode(chen::dns::encoder &encoder) const
 
 void CSYNC::decode(chen::dns::decoder &decoder)
 {
+    auto origin = decoder.cursor();
+
     RR::decode(decoder);
     decoder.unpack(this->serial);
     decoder.unpack(this->flags);
 
-    // todo determine size
-//    this->type_bitmap.clear();
-//    this->type_bitmap.insert(this->type_bitmap.begin(), data + temp, data + size);
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
 }
 
 
