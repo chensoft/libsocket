@@ -19,7 +19,17 @@ chen::log& log::standard()
     return inst;
 }
 
-void log::flush(const std::string &text)
+void log::limit(Level level)
+{
+    this->_level = level;
+}
+
+log::Level log::level() const
+{
+    return this->_level;
+}
+
+void log::output(const std::string &text)
 {
     std::lock_guard<std::mutex> lock(log::_mutex);
 
