@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace chen
 {
@@ -23,5 +24,22 @@ namespace chen
         static std::uint16_t swap(std::uint16_t value);
         static std::uint32_t swap(std::uint32_t value);
         static std::uint64_t swap(std::uint64_t value);
+
+        /**
+         * To string(cross-platform)
+         */
+        static std::string str(bool value);
+
+        static std::string str(int value);
+        static std::string str(long value);
+        static std::string str(long long value);
+
+        static std::string str(unsigned int value);
+        static std::string str(unsigned long value);
+        static std::string str(unsigned long long value);
+
+        static std::string str(float value);
+        static std::string str(double value);
+        static std::string str(long double value);
     };
 }
