@@ -60,5 +60,5 @@ chen::dns::response client::query(const std::string &qname,
     d.assign(std::vector<std::uint8_t>(packet.begin(), packet.begin() + size));
     d.unpack(r);
 
-    return std::move(r);
+    return r;
 }

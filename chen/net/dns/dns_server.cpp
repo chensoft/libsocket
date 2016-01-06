@@ -48,7 +48,7 @@ void server::detach()
 void server::notify(const chen::dns::request &request)
 {
     if (this->_callback)
-        this->_callback(std::move(request));
+        this->_callback(request);
 }
 
 // address

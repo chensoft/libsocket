@@ -3,6 +3,7 @@
  * @since  2015.07.24
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://www.chensoft.com
+ * // todo build a modern CLI parser, each action contains various arguments, inspired by http://docopt.org/
  * -----------------------------------------------------------------------------
  * Full command line format can be viewed in http://docopt.org/
  * We only implement a subset of the format

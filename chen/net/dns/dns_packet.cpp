@@ -146,20 +146,20 @@ void response::setHeader(const chen::dns::header &value)
 
 void response::setQuestion(const q_type &value)
 {
-    this->_question = std::move(value);
+    this->_question = value;
 }
 
 void response::setAnswer(const rr_type &value)
 {
-    this->_answer = std::move(value);
+    this->_answer = value;
 }
 
 void response::setAuthority(const rr_type &value)
 {
-    this->_authority = std::move(value);
+    this->_authority = value;
 }
 
 void response::setAdditional(const rr_type &value)
 {
-    this->_additional = std::move(value);
+    this->_additional = value;
 }

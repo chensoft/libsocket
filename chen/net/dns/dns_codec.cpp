@@ -29,7 +29,7 @@ const std::vector<std::uint8_t>& codec::binary() const
 
 void codec::assign(const std::vector<std::uint8_t> &value)
 {
-    this->_binary = std::move(value);
+    this->_binary = value;
 }
 
 // clear
