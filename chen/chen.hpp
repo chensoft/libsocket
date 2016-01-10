@@ -2,7 +2,7 @@
  * libchen: The Foundation C++ Library
  * @version   0.1.0
  * @author    Jian Chen <admin@chensoft.com>
- * @link      http://www.chensoft.com
+ * @link      http://chensoft.com
  * @license   Licensed under MIT license
  * @copyright Copyright 2015 Jian Chen
  */

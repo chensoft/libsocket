@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2015.12.13
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  */
 #include "dns_table.hpp"
 #include "dns_record.hpp"

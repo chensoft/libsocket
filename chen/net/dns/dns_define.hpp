@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2015.11.27
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  * @link   https://tools.ietf.org/html/rfc1035
  * @link   https://en.wikipedia.org/wiki/List_of_DNS_record_types
  * @link   http://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml

@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2015.08.17
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  * @link   https://en.wikipedia.org/wiki/Classful_network
  */
 #include "ip_addr.hpp"

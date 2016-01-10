@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2015.12.02
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  */
 #pragma once
 
@@ -35,7 +35,7 @@ namespace chen
             /**
              * Get binary data
              */
-            const std::vector<std::uint8_t>& binary() const;
+            virtual const std::vector<std::uint8_t>& binary() const;
 
             /**
              * Set binary data

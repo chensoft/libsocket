@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2015.11.28
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  */
 #include "dns_header.hpp"
 

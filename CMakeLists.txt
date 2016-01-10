@@ -1,6 +1,6 @@
 # libchen: The Foundation C++ Library
 # Jian Chen <admin@chensoft.com>
-# http://www.chensoft.com
+# http://chensoft.com
 # Licensed under MIT license
 # Copyright 2015 Jian Chen
 

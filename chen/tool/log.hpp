@@ -4,7 +4,7 @@
  * Prefix "PI" stands for PinIdea, the company I work from 2011.11
  * @since  2015.07.21
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  */
 #pragma once
 

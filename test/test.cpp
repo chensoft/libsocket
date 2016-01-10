@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2015.07.25
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  */
 #include "test.hpp"
 #include "test_cmd.hpp"
@@ -21,8 +21,9 @@ test& test::instance()
 
 test::test()
 {
+    // todo
     // register all unit test
-    this->_store["cmd"] = std::unique_ptr<test_base>(new test_cmd);
+//    this->_store["cmd"] = std::unique_ptr<test_base>(new test_cmd);
     this->_store["ip"]  = std::unique_ptr<test_base>(new test_ip);
     this->_store["udp"] = std::unique_ptr<test_base>(new test_udp);
 }

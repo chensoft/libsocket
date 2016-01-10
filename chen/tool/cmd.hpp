@@ -1,20 +1,29 @@
 /**
- * Created by Jian Chen
- * @since  2015.07.24
+ * A modern command line parser
+ * @since  2016.01.09
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
- * // todo build a modern CLI parser, each action contains various arguments, inspired by http://docopt.org/
+ * @link   http://chensoft.com
+ * @link   http://docopt.org
  * -----------------------------------------------------------------------------
- * Full command line format can be viewed in http://docopt.org/
- * We only implement a subset of the format
- * :-) program command
- * :-) program -abc
- * :-) program -option <argument>
- * :-) program -option=<argument>
- * :-) program --option <argument>
- * :-) program --option=<argument>
+ * We accept the following usage format:
+ * :-) app
+ * :-) app -opt1=val --opt2=val ...
+ * :-) app action
+ * :-) app action -opt1=val --opt2=val ...
+ * :-) app action object1 object2 -opt1=val --opt2=val ...
+ * :-) app action sub-action object1 object2 -opt1=val --opt2=val ...
  * -----------------------------------------------------------------------------
- * Usage:
+ * The main three parts is Action + Object + Option
+ * Action: the operation that user want to do
+ *    e.g: git clone, "clone" is the action
+ * Object: the operation target
+ *    e.g: git clone https://github.com/chensoft/libchen.git, url is the object
+ * Option: the action flags
+ *    e.g: git --version, "version" is the flag
+ * Sub-action: an action can contain a sub-action
+ *    e.g: git submodule update, "update" is the sub-action of "submodule"
+ * -----------------------------------------------------------------------------
+ * Usage: todo
  * >> chen::cmd flag;
  * >>
  * >> flag.define<bool>("help", "h", "show help");
@@ -27,399 +36,243 @@
  */
 #pragma once
 
-#include <algorithm>
-#include <cstdlib>
+#include "str.hpp"
+#include <stdexcept>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <memory>
-#include <limits>
-#include <map>
+#include <vector>
+#include <set>
 
 namespace chen
 {
-    class cmd_option_base;
-
-    /**
-     * Command line parser
-     */
+    // -------------------------------------------------------------------------
+    // cmd
     class cmd
     {
     public:
-        cmd() = default;
-        ~cmd() = default;
+        cmd(const std::string &app = "");
+        virtual ~cmd() = default;
+
+    protected:
+        // action + object + option
+        class action;
+        class object;
+        class option;
+        class error;
+
+        // predicate
+        template <typename T>
+        class one_of_helper;
+
+        template <typename T>
+        class range_of_helper;
 
     public:
         /**
-         * Define an option with default value
+         * Parse command line
+         */
+        virtual void parse(int argc, const char *const argv[]);
+
+        /**
+         * Define action, sub-action's name is separated by dots
+         * e.g: git clone, name is "action"
+         * e.g: git submodule init, name is "submodule.init"
+         */
+        virtual void action(const std::string &name,
+                            const std::string &desc,
+                            std::function<void (chen::cmd &cmd)> bind = nullptr);
+
+        /**
+         * Define object
+         * @param action identify which action has this object
+         * @param limit the max count of object
+         */
+        virtual void object(const std::string &action, int limit);
+
+        /**
+         * Define option
+         * @param action identify which action has this option
+         * @param full complete name of option, e.g: app --help, "help" is the full name
+         * @param tiny short name of option, e.g: app -h, "h" is the short name
+         * @param desc description of the option
+         * @param def the default value when the option is not specified
          */
         template <typename T>
-        void define(const std::string &name,
-                    const std::string &tiny = "",
-                    const T &def = T(),
-                    const std::string &desc = "");
+        void option(const std::string &action,
+                    const std::string &full,
+                    const std::string &tiny,
+                    const std::string &desc,
+                    const T &def = T())
+        {
+
+        }
 
     public:
         /**
-         * Parse command line argv
+         * Get current matched action name
          */
-        void parse(int argc, const char *const argv[]);
+        virtual std::string action() const;
 
         /**
-         * Print options info
+         * Rest unresolved arguments
          */
-        std::string usage();
+        virtual const std::vector<std::string>& rest() const;
 
         /**
-         * Clear all options
+         * Get the value of the option
+         * if the current action doesn't has this option, an error will be thrown
+         * support bool, int, int64, double, string, it's enough to get value about cli
+         * @param option complete or short name of the option
          */
-        void clear();
+        virtual bool boolVal(const std::string &option) const;
+        virtual int intVal(const std::string &option) const;
+        virtual std::string strVal(const std::string &option) const;
+
+        virtual long long int64Val(const std::string &option) const;
+        virtual double doubleVal(const std::string &option) const;
+
+    public:
+        /**
+         * Show usage info
+         */
+        virtual void usage();
+
+        /**
+         * The text before the usage body
+         */
+        virtual void prefix(const std::string &text);
+
+        /**
+         * The text after the usage body
+         */
+        virtual void suffix(const std::string &text);
 
     protected:
         /**
-         * Update value in store
+         * Print usage info
          */
-        void update(const std::string &text, const std::string &name, const std::string &value);
+        template <typename ... Args>
+        void print(const char *format, Args ... args)
+        {
+            this->output(str::format(format, args...));
+        }
+
+        /**
+         * Final output
+         */
+        virtual void output(const std::string &text);
 
     public:
         /**
-         * Get value of an option
+         * Predicate
          */
+        template <typename T, typename ... Args>
+        static one_of_helper<T> one_of(Args ... args)
+        {
+            return one_of_helper<T>({args...});
+        }
+
         template <typename T>
-        T get(const std::string &name) const;
+        static range_of_helper<T> range_of(T beg, T end)
+        {
+            return range_of_helper<T>(beg, end);
+        }
 
     protected:
-        std::map<std::string, std::unique_ptr<cmd_option_base>> _store;
-        std::map<std::string, std::string> _tiny;
+        std::string _app;
+        std::string _prefix;
+        std::string _suffix;
+
+        std::vector<std::string> _rest;
     };
 
 
-    /**
-     * Option base class (internal use)
-     */
-    class cmd_option_base
+    // -------------------------------------------------------------------------
+    // action
+    class cmd::action
     {
-        friend class cmd;
 
-    protected:
-        cmd_option_base(const std::string &name,
-                        const std::string &tiny,
-                        const std::string &desc)
-        : _name(name)
-        , _tiny(tiny)
-        , _desc(desc)
-        {
-        }
-
-    public:
-        virtual ~cmd_option_base() = default;
-
-    public:
-        std::string name() const;
-        std::string tiny() const;
-        std::string desc() const;
-
-    public:
-        virtual void setParse(bool parse);
-        virtual void setValue(const std::string &value) = 0;
-
-    private:
-        cmd_option_base() = delete;
-
-    protected:
-        std::string _name;
-        std::string _tiny;
-        std::string _desc;
-
-        bool _parse = false;
     };
 
 
-    /**
-     * Option template class (internal use)
-     */
-    template <typename T>
-    class cmd_option : public cmd_option_base
+    // -------------------------------------------------------------------------
+    // object
+    class cmd::object
     {
-        friend class cmd;
 
-    protected:
-        cmd_option(const std::string &name,
-                   const std::string &tiny,
-                   const T &def,
-                   const std::string &desc)
-        : cmd_option_base(name, tiny, desc)
-        , _def(def)
-        , _val(T())
-        {
-
-        }
-
-    public:
-        virtual void setValue(const std::string &value) override;
-
-    public:
-        T def() const;
-        T val() const;
-
-    private:
-        cmd_option() = delete;
-
-    private:
-        T _def;
-        T _val;
     };
-}
 
 
-namespace chen
-{
-    /**
-     * Option
-     */
+    // -------------------------------------------------------------------------
+    // option
+    class cmd::option
+    {
+
+    };
+
+
+    // -------------------------------------------------------------------------
+    // error
+    class cmd::error : public std::runtime_error
+    {
+    public:
+        explicit error(const std::string &what) : std::runtime_error(what) {}
+    };
+
+
+    // -------------------------------------------------------------------------
+    // one_of_helper, used for string or number
     template <typename T>
-    T cmd_option<T>::def() const
+    class cmd::one_of_helper
     {
-        return this->_def;
-    }
+    public:
+        one_of_helper(std::initializer_list<T> init)
+                : _data(init)
+        {
 
+        }
+
+        bool operator()(const std::string &val)
+        {
+            T dst;
+
+            std::istringstream ss(val);
+            ss >> dst;
+
+            return this->_data.find(dst) != this->_data.end();
+        }
+
+    private:
+        std::set<T> _data;
+    };
+
+
+    // -------------------------------------------------------------------------
+    // range_of_helper, [beg, end], mainly used for number
     template <typename T>
-    T cmd_option<T>::val() const
+    class cmd::range_of_helper
     {
-        // if user provided option (even no argument), should use val, otherwise use def
-        return this->_parse ? this->_val : this->_def;
-    }
-
-    /**
-     * Option specialization
-     */
-    template <>
-    inline void cmd_option<bool>::setValue(const std::string &value)
-    {
-        // The following options are considered true
-        // program -h
-        // program -h=true
-        if (value.empty() || (value == "true"))
-            this->_val = true;
-        else if (value == "false")
-            this->_val = false;
-        else
-            throw std::invalid_argument("option: value invalid, require true or false");
-    }
-
-    template <>
-    inline void cmd_option<short>::setValue(const std::string &value)
-    {
-        // check range overflow
-        int val = 0;
-
-        try
+    public:
+        range_of_helper(T beg, T end)
+        : _beg(beg)
+        , _end(end)
         {
-            val = std::stoi(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require short");
+
         }
 
-        if (val > std::numeric_limits<short>::max())
-            throw std::range_error("option: value large than short");
-        else
-            this->_val = static_cast<short>(val);
-    }
+        bool operator()(const std::string &val)
+        {
+            T dst;
 
-    template <>
-    inline void cmd_option<int>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stoi(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require int");
-        }
-    }
+            std::istringstream ss(val);
+            ss >> dst;
 
-    template <>
-    inline void cmd_option<long>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stol(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require long");
-        }
-    }
-
-    template <>
-    inline void cmd_option<long long>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stoll(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require long long");
-        }
-    }
-
-    template <>
-    inline void cmd_option<unsigned int>::setValue(const std::string &value)
-    {
-        unsigned long val = 0;
-
-        try
-        {
-            val = std::stoul(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require unsigned int");
+            return (dst >= this->_beg) && (dst <= this->_end);
         }
 
-        if (val > std::numeric_limits<unsigned int>::max())
-            throw std::range_error("option: value large than unsigned int");
-        else
-            this->_val = static_cast<unsigned int>(val);
-    }
-
-    template <>
-    inline void cmd_option<unsigned long>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stoul(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require unsigned long");
-        }
-    }
-
-    template <>
-    inline void cmd_option<unsigned long long>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stoull(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require unsigned long long");
-        }
-    }
-
-    template <>
-    inline void cmd_option<float>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stof(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require float");
-        }
-    }
-
-    template <>
-    inline void cmd_option<double>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stod(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require double");
-        }
-    }
-
-    template <>
-    inline void cmd_option<long double>::setValue(const std::string &value)
-    {
-        try
-        {
-            this->_val = std::stold(value);
-        }
-        catch (...)
-        {
-            throw std::invalid_argument("option: value invalid, require long double");
-        }
-    }
-
-    template <>
-    inline void cmd_option<char>::setValue(const std::string &value)
-    {
-        // char's type is decide by compiler, maybe signed or unsigned
-        if (value.empty())
-            this->_val = char();
-        else if (value.size() == 1)
-            this->_val = value[0];
-        else
-            throw std::invalid_argument("option: value invalid, require only one char");
-    }
-
-    template <>
-    inline void cmd_option<std::string>::setValue(const std::string &value)
-    {
-        this->_val = value;
-    }
-
-    /**
-     * Cmd
-     */
-    template <typename T>
-    void cmd::define(const std::string &name,
-                     const std::string &tiny,
-                     const T &def,
-                     const std::string &desc)
-    {
-        // name can't be null
-        if (name.empty())
-            throw std::invalid_argument("cmd: option is null");
-
-        // name must be unique
-        if (this->_store.count(name))
-            throw std::runtime_error("cmd: option is not unique: " + name);
-
-        // tiny must be unique
-        if (!tiny.empty() && this->_tiny.count(tiny))
-            throw std::runtime_error("cmd: tiny is not unique: " + tiny + ", name: " + name);
-
-        // insert into store
-        this->_store[name] = std::unique_ptr<cmd_option_base>(new cmd_option<T>(name, tiny, def, desc));
-
-        // set tiny name
-        if (!tiny.empty())
-            this->_tiny[tiny] = name;
-    }
-
-    template <typename T>
-    T cmd::get(const std::string &name) const
-    {
-        std::string tiny;
-
-        auto it_tiny = this->_tiny.find(name);
-
-        if (it_tiny != this->_tiny.end())
-            tiny = it_tiny->second;
-        else
-            tiny = name;
-
-        auto it_store = this->_store.find(tiny);
-
-        if (it_store == this->_store.end())
-            throw std::runtime_error("cmd: option not defined: " + tiny);
-
-        auto *p = dynamic_cast<cmd_option<T> *>(it_store->second.get());
-
-        if (!p)
-            throw std::runtime_error("cmd: option defined but type is wrong: " + tiny);
-
-        return p->val();
-    }
+    private:
+        T _beg;
+        T _end;
+    };
 }

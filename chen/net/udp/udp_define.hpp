@@ -2,7 +2,7 @@
  * Created by Jian Chen
  * @since  2016.01.01
  * @author Jian Chen <admin@chensoft.com>
- * @link   http://www.chensoft.com
+ * @link   http://chensoft.com
  * @link   https://en.wikipedia.org/wiki/User_Datagram_Protocol
  */
 #pragma once
