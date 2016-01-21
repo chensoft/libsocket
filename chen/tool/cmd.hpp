@@ -5,7 +5,7 @@
  * @link   http://chensoft.com
  * @link   http://docopt.org
  * -----------------------------------------------------------------------------
- * We accept the following usage format:
+ * We accept the following usage:
  * :-) app
  * :-) app -opt1=val --opt2=val ...
  * :-) app action
@@ -36,7 +36,7 @@
  */
 #pragma once
 
-#include "str.hpp"
+#include "any.hpp"
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
@@ -54,20 +54,6 @@ namespace chen
         cmd(const std::string &app = "");
         virtual ~cmd() = default;
 
-    protected:
-        // action + object + option
-        class action;
-        class object;
-        class option;
-        class error;
-
-        // predicate
-        template <typename T>
-        class one_of_helper;
-
-        template <typename T>
-        class range_of_helper;
-
     public:
         /**
          * Parse command line
@@ -76,12 +62,12 @@ namespace chen
 
         /**
          * Define action, sub-action's name is separated by dots
-         * e.g: git clone, name is "action"
+         * e.g: git clone, name is "clone"
          * e.g: git submodule init, name is "submodule.init"
          */
         virtual void action(const std::string &name,
                             const std::string &desc,
-                            std::function<void (chen::cmd &cmd)> bind = nullptr);
+                            std::function<void (const chen::cmd &cmd)> bind = nullptr);
 
         /**
          * Define object
@@ -97,16 +83,14 @@ namespace chen
          * @param tiny short name of option, e.g: app -h, "h" is the short name
          * @param desc description of the option
          * @param def the default value when the option is not specified
+         * @param pre the predicate, you can use predefined like range_of or write you own
          */
-        template <typename T>
         void option(const std::string &action,
                     const std::string &full,
                     const std::string &tiny,
                     const std::string &desc,
-                    const T &def = T())
-        {
-
-        }
+                    const chen::any &def = chen::any(),
+                    const chen::any &pre = chen::any());
 
     public:
         /**
@@ -120,7 +104,7 @@ namespace chen
         virtual const std::vector<std::string>& rest() const;
 
         /**
-         * Get the value of the option
+         * Get the value of the option which belongs to the current action
          * if the current action doesn't has this option, an error will be thrown
          * support bool, int, int64, double, string, it's enough to get value about cli
          * @param option complete or short name of the option
@@ -136,7 +120,7 @@ namespace chen
         /**
          * Show usage info
          */
-        virtual void usage();
+        virtual void usage() const;
 
         /**
          * The text before the usage body
@@ -148,20 +132,28 @@ namespace chen
          */
         virtual void suffix(const std::string &text);
 
+        /**
+         * Provide a suggestion for a specific action
+         * @param alias action alias
+         * @param action action name
+         * e.g: app has an action: "remove", if user input "delete", cmd will prompt user "Did you mean remove?"
+         */
+        virtual void suggest(const std::string &alias, const std::string &action);
+
     protected:
         /**
-         * Print usage info
+         * Final usage output
          */
-        template <typename ... Args>
-        void print(const char *format, Args ... args)
-        {
-            this->output(str::format(format, args...));
-        }
+        virtual void output(const std::string &text) const;
 
         /**
-         * Final output
+         * Predicate Declare
          */
-        virtual void output(const std::string &text);
+        template <typename T>
+        class one_of_helper;
+
+        template <typename T>
+        class range_of_helper;
 
     public:
         /**
@@ -180,11 +172,18 @@ namespace chen
         }
 
     protected:
-        std::string _app;
-        std::string _prefix;
-        std::string _suffix;
+        // action + object + option
+        class action;
+        class object;
+        class option;
+        class error;
 
-        std::vector<std::string> _rest;
+    protected:
+        std::string _app;     // app name
+        std::string _prefix;  // usage prefix
+        std::string _suffix;  // usage suffix
+
+        std::vector<std::string> _rest;  // rest unresolved params
     };
 
 
@@ -192,7 +191,16 @@ namespace chen
     // action
     class cmd::action
     {
+    public:
+        action(const std::string &name,
+               const std::string &desc,
+               std::function<void (const chen::cmd &cmd)> bind = nullptr);
+        virtual ~action() = default;
 
+    protected:
+        std::string _name;
+        std::string _desc;
+        std::function<void (const chen::cmd &cmd)> _bind;
     };
 
 
@@ -200,7 +208,12 @@ namespace chen
     // object
     class cmd::object
     {
+    public:
+        object(int limit);
+        virtual ~object() = default;
 
+    protected:
+        int _limit = 0;
     };
 
 
@@ -208,7 +221,23 @@ namespace chen
     // option
     class cmd::option
     {
+    public:
+        option(const std::string &full,
+               const std::string &tiny,
+               const std::string &desc,
+               const chen::any &def,
+               const chen::any &pre);
 
+        virtual ~option() = default;
+
+    protected:
+        std::string _full;
+        std::string _tiny;
+        std::string _desc;
+
+        chen::any _val;
+        chen::any _def;
+        chen::any _pre;
     };
 
 
@@ -228,7 +257,7 @@ namespace chen
     {
     public:
         one_of_helper(std::initializer_list<T> init)
-                : _data(init)
+        : _data(init)
         {
 
         }

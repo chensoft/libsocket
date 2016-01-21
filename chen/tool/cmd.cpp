@@ -19,6 +19,7 @@ cmd::cmd(const std::string &app)
 // parse
 void cmd::parse(int argc, const char *const argv[])
 {
+    // todo throw
     if (argc <= 1)
         return;
 
@@ -30,13 +31,24 @@ void cmd::parse(int argc, const char *const argv[])
 // action
 void cmd::action(const std::string &name,
                  const std::string &desc,
-                 std::function<void (chen::cmd &cmd)> bind)
+                 std::function<void (const chen::cmd &cmd)> bind)
 {
 
 }
 
 // object
 void cmd::object(const std::string &action, int limit)
+{
+
+}
+
+// option
+void cmd::option(const std::string &action,
+                 const std::string &full,
+                 const std::string &tiny,
+                 const std::string &desc,
+                 const any &def,
+                 const any &pre)
 {
 
 }
@@ -80,9 +92,9 @@ double cmd::doubleVal(const std::string &option) const
 }
 
 // usage
-void cmd::usage()
+void cmd::usage() const
 {
-    this->print("xxx");
+    this->output("xxx");
 }
 
 void cmd::prefix(const std::string &text)
@@ -95,8 +107,52 @@ void cmd::suffix(const std::string &text)
     this->_suffix = text;
 }
 
+void cmd::suggest(const std::string &alias, const std::string &action)
+{
+
+}
+
 // output
-void cmd::output(const std::string &text)
+void cmd::output(const std::string &text) const
 {
     std::cout << text << std::endl;
+}
+
+
+// -----------------------------------------------------------------------------
+// action
+cmd::action::action(const std::string &name,
+                    const std::string &desc,
+                    std::function<void (const chen::cmd &cmd)> bind)
+: _name(name)
+, _desc(desc)
+, _bind(bind)
+{
+
+}
+
+
+// -----------------------------------------------------------------------------
+// object
+cmd::object::object(int limit)
+: _limit(limit)
+{
+
+}
+
+
+// -----------------------------------------------------------------------------
+// option
+cmd::option::option(const std::string &full,
+                    const std::string &tiny,
+                    const std::string &desc,
+                    const chen::any &def,
+                    const chen::any &pre)
+: _full(full)
+, _tiny(tiny)
+, _desc(desc)
+, _def(def)
+, _pre(pre)
+{
+
 }
