@@ -47,7 +47,7 @@ namespace chen
          * e.g: Any a(15); int i = a;
          */
         template <typename T>
-        operator T()
+        operator T() const
         {
             auto d = dynamic_cast<data<T>*>(this->_ptr);
             return d ? d->val : T();

@@ -7,17 +7,17 @@
 #include "cmd.hpp"
 
 using namespace chen;
+using namespace chen::cmd;
 
 // -----------------------------------------------------------------------------
-// cmd
-cmd::cmd(const std::string &app)
+// parser
+parser::parser(const std::string &app)
 : _app(app)
 {
-
 }
 
 // parse
-void cmd::parse(int argc, const char *const argv[])
+void parser::parse(int argc, const char *const argv[])
 {
     // todo throw
     if (argc <= 1)
@@ -29,91 +29,185 @@ void cmd::parse(int argc, const char *const argv[])
 }
 
 // action
-void cmd::action(const std::string &name,
-                 const std::string &desc,
-                 std::function<void (const chen::cmd &cmd)> bind)
+void parser::action(const std::string &name,
+                    const std::string &desc,
+                    std::function<void (const chen::cmd::parser &parser)> bind)
 {
-
+    this->_define.emplace(name, chen::cmd::action(name, desc, bind));
 }
 
 // object
-void cmd::object(const std::string &action, int limit)
+void parser::object(const std::string &action,
+                    const std::string &name,
+                    int limit)
 {
+    auto it = this->_define.find(action);
 
+    if (it != this->_define.end())
+        it->second.add(name, chen::cmd::object(limit));
+    else
+        throw chen::cmd::error("cmd define object action not found");
 }
 
 // option
-void cmd::option(const std::string &action,
-                 const std::string &full,
-                 const std::string &tiny,
-                 const std::string &desc,
-                 const any &def,
-                 const any &pre)
+void parser::option(const std::string &action,
+                    const std::string &full,
+                    const std::string &tiny,
+                    const std::string &desc,
+                    const any &def,
+                    const any &pre)
 {
+    auto it = this->_define.find(action);
 
+    if (it != this->_define.end())
+        it->second.add(full, chen::cmd::option(full, tiny, desc, def, pre));
+    else
+        throw chen::cmd::error("cmd define option action not found");
 }
 
 // matched
-std::string cmd::action() const
+std::string parser::action() const
 {
-    return "";
+    return this->_action;
 }
 
 // rest
-const std::vector<std::string>& cmd::rest() const
+const std::vector<std::string>& parser::rest() const
 {
     return this->_rest;
 }
 
 // value
-bool cmd::boolVal(const std::string &option) const
+bool parser::boolVal(const std::string &option) const
 {
-    return false;
+    auto it = this->_define.find(this->_action);
+
+    if (it != this->_define.end())
+    {
+        auto temp = it->second.options();
+        auto find = temp.find(option);
+
+        if (find != temp.end())
+            return find->second.val();
+        else
+            return false;
+    }
+    else
+    {
+        throw chen::cmd::error("cmd bool value current action not found");
+    }
 }
 
-int cmd::intVal(const std::string &option) const
+int parser::intVal(const std::string &option) const
 {
-    return 0;
+    auto it = this->_define.find(this->_action);
+
+    if (it != this->_define.end())
+    {
+        auto temp = it->second.options();
+        auto find = temp.find(option);
+
+        if (find != temp.end())
+            return find->second.val();
+        else
+            return 0;
+    }
+    else
+    {
+        throw chen::cmd::error("cmd int value current action not found");
+    }
 }
 
-std::string cmd::strVal(const std::string &option) const
+std::string parser::strVal(const std::string &option) const
 {
-    return "";
+    auto it = this->_define.find(this->_action);
+
+    if (it != this->_define.end())
+    {
+        auto temp = it->second.options();
+        auto find = temp.find(option);
+
+        if (find != temp.end())
+            return find->second.val();
+        else
+            return "";
+    }
+    else
+    {
+        throw chen::cmd::error("cmd str value current action not found");
+    }
 }
 
-long long cmd::int64Val(const std::string &option) const
+long long parser::int64Val(const std::string &option) const
 {
-    return 0;
+    auto it = this->_define.find(this->_action);
+
+    if (it != this->_define.end())
+    {
+        auto temp = it->second.options();
+        auto find = temp.find(option);
+
+        if (find != temp.end())
+            return find->second.val();
+        else
+            return 0;
+    }
+    else
+    {
+        throw chen::cmd::error("cmd int64 value current action not found");
+    }
 }
 
-double cmd::doubleVal(const std::string &option) const
+double parser::doubleVal(const std::string &option) const
 {
-    return 0.0;
+    auto it = this->_define.find(this->_action);
+
+    if (it != this->_define.end())
+    {
+        auto temp = it->second.options();
+        auto find = temp.find(option);
+
+        if (find != temp.end())
+            return find->second.val();
+        else
+            return 0.0;
+    }
+    else
+    {
+        throw chen::cmd::error("cmd double value current action not found");
+    }
 }
 
 // usage
-void cmd::usage() const
+void parser::usage() const
 {
+    if (!this->_prefix.empty())
+        this->output(this->_prefix);
+
+    // todo
     this->output("xxx");
+
+    if (!this->_suffix.empty())
+        this->output(this->_suffix);
 }
 
-void cmd::prefix(const std::string &text)
+void parser::prefix(const std::string &text)
 {
     this->_prefix = text;
 }
 
-void cmd::suffix(const std::string &text)
+void parser::suffix(const std::string &text)
 {
     this->_suffix = text;
 }
 
-void cmd::suggest(const std::string &alias, const std::string &action)
+void parser::suggest(const std::string &alias, const std::string &action)
 {
-
+    this->_suggest[alias] = action;
 }
 
 // output
-void cmd::output(const std::string &text) const
+void parser::output(const std::string &text) const
 {
     std::cout << text << std::endl;
 }
@@ -121,38 +215,105 @@ void cmd::output(const std::string &text) const
 
 // -----------------------------------------------------------------------------
 // action
-cmd::action::action(const std::string &name,
-                    const std::string &desc,
-                    std::function<void (const chen::cmd &cmd)> bind)
+action::action(const std::string &name,
+               const std::string &desc,
+               std::function<void (const chen::cmd::parser &parser)> bind)
 : _name(name)
 , _desc(desc)
 , _bind(bind)
 {
+}
 
+void action::add(const std::string &name, const chen::cmd::object &object)
+{
+    this->_objects.emplace(name, object);
+}
+
+void action::add(const std::string &name, const chen::cmd::option &option)
+{
+    this->_options.emplace(name, option);
+}
+
+const std::string& action::name() const
+{
+    return this->_name;
+}
+
+const std::string& action::desc() const
+{
+    return this->_desc;
+}
+
+const std::function<void (const chen::cmd::parser &parser)>& action::bind() const
+{
+    return this->_bind;
+}
+
+const std::map<std::string, chen::cmd::object>& action::objects() const
+{
+    return this->_objects;
+}
+
+const std::map<std::string, chen::cmd::option>& action::options() const
+{
+    return this->_options;
 }
 
 
 // -----------------------------------------------------------------------------
 // object
-cmd::object::object(int limit)
+object::object(int limit)
 : _limit(limit)
 {
+}
 
+int object::limit() const
+{
+    return this->_limit;
 }
 
 
 // -----------------------------------------------------------------------------
 // option
-cmd::option::option(const std::string &full,
-                    const std::string &tiny,
-                    const std::string &desc,
-                    const chen::any &def,
-                    const chen::any &pre)
+option::option(const std::string &full,
+               const std::string &tiny,
+               const std::string &desc,
+               const chen::any &def,
+               const chen::any &pre)
 : _full(full)
 , _tiny(tiny)
 , _desc(desc)
 , _def(def)
 , _pre(pre)
 {
+}
 
+const std::string& option::full() const
+{
+    return this->_full;
+}
+
+const std::string& option::tiny() const
+{
+    return this->_tiny;
+}
+
+const std::string& option::desc() const
+{
+    return this->_desc;
+}
+
+const chen::any& option::val() const
+{
+    return this->_val;
+}
+
+const chen::any& option::def() const
+{
+    return this->_def;
+}
+
+const chen::any& option::pre() const
+{
+    return this->_pre;
 }

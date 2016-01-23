@@ -24,7 +24,7 @@
  *    e.g: git submodule update, "update" is the sub-action of "submodule"
  * -----------------------------------------------------------------------------
  * Usage: todo
- * >> chen::cmd flag;
+ * >> chen::cmd::parser flag;
  * >>
  * >> flag.define<bool>("help", "h", "show help");
  * >> flag.define<int>("port", "p", "server port (default: 53)", 53);
@@ -42,266 +42,299 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <set>
 
 namespace chen
 {
-    // -------------------------------------------------------------------------
-    // cmd
-    class cmd
+    namespace cmd
     {
-    public:
-        cmd(const std::string &app = "");
-        virtual ~cmd() = default;
+        class action;
+        class object;
+        class option;
 
-    public:
-        /**
-         * Parse command line
-         */
-        virtual void parse(int argc, const char *const argv[]);
+        // -------------------------------------------------------------------------
+        // parser
+        class parser
+        {
+        public:
+            parser(const std::string &app = "");
+            virtual ~parser() = default;
 
-        /**
-         * Define action, sub-action's name is separated by dots
-         * e.g: git clone, name is "clone"
-         * e.g: git submodule init, name is "submodule.init"
-         */
-        virtual void action(const std::string &name,
-                            const std::string &desc,
-                            std::function<void (const chen::cmd &cmd)> bind = nullptr);
+        public:
+            /**
+             * Parse the command line
+             */
+            virtual void parse(int argc, const char *const argv[]);
 
-        /**
-         * Define object
-         * @param action identify which action has this object
-         * @param limit the max count of object
-         */
-        virtual void object(const std::string &action, int limit);
+            /**
+             * Define action, sub-action's name is separated by dots
+             * e.g: git clone, name is "clone"
+             * e.g: git submodule init, name is "submodule.init"
+             */
+            virtual void action(const std::string &name,
+                                const std::string &desc,
+                                std::function<void (const chen::cmd::parser &parser)> bind = nullptr);
 
-        /**
-         * Define option
-         * @param action identify which action has this option
-         * @param full complete name of option, e.g: app --help, "help" is the full name
-         * @param tiny short name of option, e.g: app -h, "h" is the short name
-         * @param desc description of the option
-         * @param def the default value when the option is not specified
-         * @param pre the predicate, you can use predefined like range_of or write you own
-         */
-        void option(const std::string &action,
-                    const std::string &full,
-                    const std::string &tiny,
-                    const std::string &desc,
-                    const chen::any &def = chen::any(),
-                    const chen::any &pre = chen::any());
+            /**
+             * Define object
+             * @param action identify which action has this object
+             * @param limit the max count of object
+             */
+            virtual void object(const std::string &action,
+                                const std::string &name,
+                                int limit);
 
-    public:
-        /**
-         * Get current matched action name
-         */
-        virtual std::string action() const;
+            /**
+             * Define option
+             * @param action identify which action has this option
+             * @param full complete name of option, e.g: app --help, "help" is the full name
+             * @param tiny short name of option, e.g: app -h, "h" is the short name
+             * @param desc description of the option
+             * @param def the default value when the option is not specified
+             * @param pre the predicate, you can use predefined like range_of or write you own
+             */
+            void option(const std::string &action,
+                        const std::string &full,
+                        const std::string &tiny,
+                        const std::string &desc,
+                        const chen::any &def = chen::any(),
+                        const chen::any &pre = chen::any());
 
-        /**
-         * Rest unresolved arguments
-         */
-        virtual const std::vector<std::string>& rest() const;
+        public:
+            /**
+             * Get current matched action name
+             */
+            virtual std::string action() const;
 
-        /**
-         * Get the value of the option which belongs to the current action
-         * if the current action doesn't has this option, an error will be thrown
-         * support bool, int, int64, double, string, it's enough to get value about cli
-         * @param option complete or short name of the option
-         */
-        virtual bool boolVal(const std::string &option) const;
-        virtual int intVal(const std::string &option) const;
-        virtual std::string strVal(const std::string &option) const;
+            /**
+             * Rest unresolved arguments
+             */
+            virtual const std::vector<std::string>& rest() const;
 
-        virtual long long int64Val(const std::string &option) const;
-        virtual double doubleVal(const std::string &option) const;
+            /**
+             * Get the value of the option which belongs to the current action
+             * if the current action doesn't has this option, an error will be thrown
+             * support bool, int, int64, double, string, it's enough to get value about cli
+             * @param option the full name of the option
+             */
+            virtual bool boolVal(const std::string &option) const;
+            virtual int intVal(const std::string &option) const;
+            virtual std::string strVal(const std::string &option) const;
 
-    public:
-        /**
-         * Show usage info
-         */
-        virtual void usage() const;
+            virtual long long int64Val(const std::string &option) const;
+            virtual double doubleVal(const std::string &option) const;
 
-        /**
-         * The text before the usage body
-         */
-        virtual void prefix(const std::string &text);
+            // todo add object access
 
-        /**
-         * The text after the usage body
-         */
-        virtual void suffix(const std::string &text);
+        public:
+            /**
+             * Show usage info
+             */
+            virtual void usage() const;
 
-        /**
-         * Provide a suggestion for a specific action
-         * @param alias action alias
-         * @param action action name
-         * e.g: app has an action: "remove", if user input "delete", cmd will prompt user "Did you mean remove?"
-         */
-        virtual void suggest(const std::string &alias, const std::string &action);
+            /**
+             * The text before the usage body
+             */
+            virtual void prefix(const std::string &text);
 
-    protected:
-        /**
-         * Final usage output
-         */
-        virtual void output(const std::string &text) const;
+            /**
+             * The text after the usage body
+             */
+            virtual void suffix(const std::string &text);
 
-        /**
-         * Predicate Declare
-         */
+            /**
+             * Provide a suggestion for a specific action
+             * @param alias action alias
+             * @param action action name
+             * e.g: app has an action: "remove", if user input "delete", parser will prompt user "Did you mean remove?"
+             */
+            virtual void suggest(const std::string &alias, const std::string &action);
+
+        protected:
+            /**
+             * Final usage output
+             */
+            virtual void output(const std::string &text) const;
+
+        protected:
+            std::string _app;     // app name
+            std::string _prefix;  // usage prefix
+            std::string _suffix;  // usage suffix
+            std::string _action;  // current action
+
+            std::vector<std::string> _rest;  // rest unresolved params
+
+            std::map<std::string, std::string> _suggest;  // intelligent suggest
+            std::map<std::string, chen::cmd::action> _define;  // action defines
+        };
+
+
+        // -------------------------------------------------------------------------
+        // action
+        class action
+        {
+        public:
+            action(const std::string &name,
+                   const std::string &desc,
+                   std::function<void (const chen::cmd::parser &parser)> bind = nullptr);
+            virtual ~action() = default;
+
+        public:
+            /**
+             * Associate an object with this action
+             */
+            virtual void add(const std::string &name, const chen::cmd::object &object);
+
+            /**
+             * Associate an option with this action
+             */
+            virtual void add(const std::string &name, const chen::cmd::option &option);
+
+        public:
+            /**
+             * Properties
+             */
+            virtual const std::string& name() const;
+            virtual const std::string& desc() const;
+            virtual const std::function<void (const chen::cmd::parser &parser)>& bind() const;
+
+            virtual const std::map<std::string, chen::cmd::object>& objects() const;
+            virtual const std::map<std::string, chen::cmd::option>& options() const;
+
+        protected:
+            std::string _name;
+            std::string _desc;
+            std::function<void (const chen::cmd::parser &parser)> _bind;
+
+            std::map<std::string, chen::cmd::object> _objects;  // todo use vector?
+            std::map<std::string, chen::cmd::option> _options;
+        };
+
+
+        // -------------------------------------------------------------------------
+        // object
+        class object
+        {
+        public:
+            object(int limit);
+            virtual ~object() = default;
+
+        public:
+            /**
+             * Properties
+             */
+            virtual int limit() const;
+
+        protected:
+            int _limit = 0;
+        };
+
+
+        // -------------------------------------------------------------------------
+        // option
+        class option
+        {
+        public:
+            option(const std::string &full,
+                   const std::string &tiny,
+                   const std::string &desc,
+                   const chen::any &def,
+                   const chen::any &pre);
+            virtual ~option() = default;
+
+        public:
+            /**
+             * Properties
+             */
+            virtual const std::string& full() const;
+            virtual const std::string& tiny() const;
+            virtual const std::string& desc() const;
+
+            virtual const chen::any& val() const;
+            virtual const chen::any& def() const;
+            virtual const chen::any& pre() const;
+
+        protected:
+            std::string _full;
+            std::string _tiny;
+            std::string _desc;
+
+            chen::any _val;
+            chen::any _def;
+            chen::any _pre;
+        };
+
+
+        // -------------------------------------------------------------------------
+        // error
+        class error : public std::runtime_error
+        {
+        public:
+            explicit error(const std::string &what) : std::runtime_error(what) {}
+        };
+
+
+        // -------------------------------------------------------------------------
+        // one_of_helper, used for string or number
         template <typename T>
-        class one_of_helper;
+        class one_of_helper
+        {
+        public:
+            one_of_helper(std::initializer_list<T> init) : _data(init)
+            {
+            }
 
-        template <typename T>
-        class range_of_helper;
+            bool operator()(const std::string &val)
+            {
+                T dst;
 
-    public:
-        /**
-         * Predicate
-         */
+                std::istringstream ss(val);
+                ss >> dst;
+
+                return this->_data.find(dst) != this->_data.end();
+            }
+
+        private:
+            std::set<T> _data;
+        };
+
         template <typename T, typename ... Args>
         static one_of_helper<T> one_of(Args ... args)
         {
             return one_of_helper<T>({args...});
         }
 
+
+        // -------------------------------------------------------------------------
+        // range_of_helper, [beg, end], mainly used for number
+        template <typename T>
+        class range_of_helper
+        {
+        public:
+            range_of_helper(T beg, T end) : _beg(beg) , _end(end)
+            {
+            }
+
+            bool operator()(const std::string &val)
+            {
+                T dst;
+
+                std::istringstream ss(val);
+                ss >> dst;
+
+                return (dst >= this->_beg) && (dst <= this->_end);
+            }
+
+        private:
+            T _beg;
+            T _end;
+        };
+
         template <typename T>
         static range_of_helper<T> range_of(T beg, T end)
         {
             return range_of_helper<T>(beg, end);
         }
-
-    protected:
-        // action + object + option
-        class action;
-        class object;
-        class option;
-        class error;
-
-    protected:
-        std::string _app;     // app name
-        std::string _prefix;  // usage prefix
-        std::string _suffix;  // usage suffix
-
-        std::vector<std::string> _rest;  // rest unresolved params
-    };
-
-
-    // -------------------------------------------------------------------------
-    // action
-    class cmd::action
-    {
-    public:
-        action(const std::string &name,
-               const std::string &desc,
-               std::function<void (const chen::cmd &cmd)> bind = nullptr);
-        virtual ~action() = default;
-
-    protected:
-        std::string _name;
-        std::string _desc;
-        std::function<void (const chen::cmd &cmd)> _bind;
-    };
-
-
-    // -------------------------------------------------------------------------
-    // object
-    class cmd::object
-    {
-    public:
-        object(int limit);
-        virtual ~object() = default;
-
-    protected:
-        int _limit = 0;
-    };
-
-
-    // -------------------------------------------------------------------------
-    // option
-    class cmd::option
-    {
-    public:
-        option(const std::string &full,
-               const std::string &tiny,
-               const std::string &desc,
-               const chen::any &def,
-               const chen::any &pre);
-
-        virtual ~option() = default;
-
-    protected:
-        std::string _full;
-        std::string _tiny;
-        std::string _desc;
-
-        chen::any _val;
-        chen::any _def;
-        chen::any _pre;
-    };
-
-
-    // -------------------------------------------------------------------------
-    // error
-    class cmd::error : public std::runtime_error
-    {
-    public:
-        explicit error(const std::string &what) : std::runtime_error(what) {}
-    };
-
-
-    // -------------------------------------------------------------------------
-    // one_of_helper, used for string or number
-    template <typename T>
-    class cmd::one_of_helper
-    {
-    public:
-        one_of_helper(std::initializer_list<T> init)
-        : _data(init)
-        {
-
-        }
-
-        bool operator()(const std::string &val)
-        {
-            T dst;
-
-            std::istringstream ss(val);
-            ss >> dst;
-
-            return this->_data.find(dst) != this->_data.end();
-        }
-
-    private:
-        std::set<T> _data;
-    };
-
-
-    // -------------------------------------------------------------------------
-    // range_of_helper, [beg, end], mainly used for number
-    template <typename T>
-    class cmd::range_of_helper
-    {
-    public:
-        range_of_helper(T beg, T end)
-        : _beg(beg)
-        , _end(end)
-        {
-
-        }
-
-        bool operator()(const std::string &val)
-        {
-            T dst;
-
-            std::istringstream ss(val);
-            ss >> dst;
-
-            return (dst >= this->_beg) && (dst <= this->_end);
-        }
-
-    private:
-        T _beg;
-        T _end;
-    };
+    }
 }
