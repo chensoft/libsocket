@@ -39,19 +39,20 @@ void parser::action(const std::string &name,
 // object
 void parser::object(const std::string &action,
                     const std::string &name,
-                    int limit)
+                    int min,
+                    int max)
 {
     auto it = this->_define.find(action);
 
     if (it != this->_define.end())
-        it->second.add(name, chen::cmd::object(limit));
+        it->second.add(chen::cmd::object(name, min, max));
     else
         throw chen::cmd::error("cmd define object action not found");
 }
 
 // option
 void parser::option(const std::string &action,
-                    const std::string &full,
+                    const std::string &name,
                     const std::string &tiny,
                     const std::string &desc,
                     const any &def,
@@ -60,13 +61,13 @@ void parser::option(const std::string &action,
     auto it = this->_define.find(action);
 
     if (it != this->_define.end())
-        it->second.add(full, chen::cmd::option(full, tiny, desc, def, pre));
+        it->second.add(name, chen::cmd::option(name, tiny, desc, def, pre));
     else
         throw chen::cmd::error("cmd define option action not found");
 }
 
 // matched
-std::string parser::action() const
+std::string parser::current() const
 {
     return this->_action;
 }
@@ -224,9 +225,9 @@ action::action(const std::string &name,
 {
 }
 
-void action::add(const std::string &name, const chen::cmd::object &object)
+void action::add(const chen::cmd::object &object)
 {
-    this->_objects.emplace(name, object);
+    this->_objects.push_back(object);
 }
 
 void action::add(const std::string &name, const chen::cmd::option &option)
@@ -249,7 +250,7 @@ const std::function<void (const chen::cmd::parser &parser)>& action::bind() cons
     return this->_bind;
 }
 
-const std::map<std::string, chen::cmd::object>& action::objects() const
+const std::vector<chen::cmd::object>& action::objects() const
 {
     return this->_objects;
 }
@@ -262,25 +263,37 @@ const std::map<std::string, chen::cmd::option>& action::options() const
 
 // -----------------------------------------------------------------------------
 // object
-object::object(int limit)
-: _limit(limit)
+object::object(const std::string &name, int min, int max)
+: _name(name)
+, _min(min)
+, _max(max)
 {
 }
 
-int object::limit() const
+const std::string& object::name() const
 {
-    return this->_limit;
+    return this->_name;
+}
+
+int object::min() const
+{
+    return this->_min;
+}
+
+int object::max() const
+{
+    return this->_max;
 }
 
 
 // -----------------------------------------------------------------------------
 // option
-option::option(const std::string &full,
+option::option(const std::string &name,
                const std::string &tiny,
                const std::string &desc,
                const chen::any &def,
                const chen::any &pre)
-: _full(full)
+: _name(name)
 , _tiny(tiny)
 , _desc(desc)
 , _def(def)
@@ -288,9 +301,9 @@ option::option(const std::string &full,
 {
 }
 
-const std::string& option::full() const
+const std::string& option::name() const
 {
-    return this->_full;
+    return this->_name;
 }
 
 const std::string& option::tiny() const

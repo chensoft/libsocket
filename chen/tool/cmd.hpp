@@ -79,23 +79,25 @@ namespace chen
             /**
              * Define object
              * @param action identify which action has this object
-             * @param limit the max count of object
+             * @param min the minimum count of object
+             * @param max the maximum count of object, if zero means unlimited
              */
             virtual void object(const std::string &action,
                                 const std::string &name,
-                                int limit);
+                                int min,
+                                int max);
 
             /**
              * Define option
              * @param action identify which action has this option
-             * @param full complete name of option, e.g: app --help, "help" is the full name
+             * @param name complete name of option, e.g: app --help, "help" is the full name
              * @param tiny short name of option, e.g: app -h, "h" is the short name
              * @param desc description of the option
              * @param def the default value when the option is not specified
              * @param pre the predicate, you can use predefined like range_of or write you own
              */
             void option(const std::string &action,
-                        const std::string &full,
+                        const std::string &name,
                         const std::string &tiny,
                         const std::string &desc,
                         const chen::any &def = chen::any(),
@@ -105,7 +107,7 @@ namespace chen
             /**
              * Get current matched action name
              */
-            virtual std::string action() const;
+            virtual std::string current() const;
 
             /**
              * Rest unresolved arguments
@@ -184,7 +186,7 @@ namespace chen
             /**
              * Associate an object with this action
              */
-            virtual void add(const std::string &name, const chen::cmd::object &object);
+            virtual void add(const chen::cmd::object &object);
 
             /**
              * Associate an option with this action
@@ -199,7 +201,7 @@ namespace chen
             virtual const std::string& desc() const;
             virtual const std::function<void (const chen::cmd::parser &parser)>& bind() const;
 
-            virtual const std::map<std::string, chen::cmd::object>& objects() const;
+            virtual const std::vector<chen::cmd::object>& objects() const;
             virtual const std::map<std::string, chen::cmd::option>& options() const;
 
         protected:
@@ -207,7 +209,7 @@ namespace chen
             std::string _desc;
             std::function<void (const chen::cmd::parser &parser)> _bind;
 
-            std::map<std::string, chen::cmd::object> _objects;  // todo use vector?
+            std::vector<chen::cmd::object> _objects;
             std::map<std::string, chen::cmd::option> _options;
         };
 
@@ -217,17 +219,21 @@ namespace chen
         class object
         {
         public:
-            object(int limit);
+            object(const std::string &name, int min, int max);
             virtual ~object() = default;
 
         public:
             /**
              * Properties
              */
-            virtual int limit() const;
+            virtual const std::string& name() const;
+            virtual int min() const;
+            virtual int max() const;
 
         protected:
-            int _limit = 0;
+            std::string _name;
+            int _min = 0;
+            int _max = 0;
         };
 
 
@@ -236,7 +242,7 @@ namespace chen
         class option
         {
         public:
-            option(const std::string &full,
+            option(const std::string &name,
                    const std::string &tiny,
                    const std::string &desc,
                    const chen::any &def,
@@ -247,7 +253,7 @@ namespace chen
             /**
              * Properties
              */
-            virtual const std::string& full() const;
+            virtual const std::string& name() const;
             virtual const std::string& tiny() const;
             virtual const std::string& desc() const;
 
@@ -256,7 +262,7 @@ namespace chen
             virtual const chen::any& pre() const;
 
         protected:
-            std::string _full;
+            std::string _name;
             std::string _tiny;
             std::string _desc;
 
