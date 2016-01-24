@@ -30,13 +30,11 @@ namespace chen
          */
         static std::string str(bool value);
 
-        static std::string str(int value);
-        static std::string str(long value);
-        static std::string str(long long value);
+        static std::string str(std::int32_t value);
+        static std::string str(std::int64_t value);
 
-        static std::string str(unsigned int value);
-        static std::string str(unsigned long value);
-        static std::string str(unsigned long long value);
+        static std::string str(std::uint32_t value);
+        static std::string str(std::uint64_t value);
 
         static std::string str(float value);
         static std::string str(double value);

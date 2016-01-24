@@ -22,7 +22,7 @@ namespace chen
         typedef std::function<void ()> job_type;
 
     public:
-        threadpool(unsigned int count = 0);
+        threadpool(int count = 0);
         ~threadpool();
 
     public:

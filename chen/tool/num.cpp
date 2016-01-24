@@ -55,17 +55,12 @@ std::string num::str(bool value)
     return value ? "true" : "false";
 }
 
-std::string num::str(int value)
+std::string num::str(std::int32_t value)
 {
     return num::str(static_cast<long long>(value));
 }
 
-std::string num::str(long value)
-{
-    return num::str(static_cast<long long>(value));
-}
-
-std::string num::str(long long value)
+std::string num::str(std::int64_t value)
 {
     std::string temp;
     bool sign = false;
@@ -87,17 +82,12 @@ std::string num::str(long long value)
     return temp;
 }
 
-std::string num::str(unsigned int value)
+std::string num::str(std::uint32_t value)
 {
     return num::str(static_cast<unsigned long long>(value));
 }
 
-std::string num::str(unsigned long value)
-{
-    return num::str(static_cast<unsigned long long>(value));
-}
-
-std::string num::str(unsigned long long value)
+std::string num::str(std::uint64_t value)
 {
     std::string temp;
 

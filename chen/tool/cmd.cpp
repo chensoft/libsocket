@@ -66,19 +66,38 @@ void parser::option(const std::string &action,
         throw chen::cmd::error("cmd define option action not found");
 }
 
-// matched
+// current
 std::string parser::current() const
 {
     return this->_action;
 }
 
-// rest
-const std::vector<std::string>& parser::rest() const
+// object value
+std::vector<std::string> parser::objVal(const std::string &object) const
 {
-    return this->_rest;
+    auto it = this->_define.find(this->_action);
+
+    if (it != this->_define.end())
+    {
+        auto temp = it->second.objects();
+
+        for (auto &obj : temp)
+        {
+            if (obj.name() == object)
+            {
+                return obj.val();
+            }
+        }
+
+        throw chen::cmd::error("cmd object value object not found");
+    }
+    else
+    {
+        throw chen::cmd::error("cmd object value current action not found");
+    }
 }
 
-// value
+// option value
 bool parser::boolVal(const std::string &option) const
 {
     auto it = this->_define.find(this->_action);
@@ -99,7 +118,7 @@ bool parser::boolVal(const std::string &option) const
     }
 }
 
-int parser::intVal(const std::string &option) const
+std::int32_t parser::intVal(const std::string &option) const
 {
     auto it = this->_define.find(this->_action);
 
@@ -139,7 +158,7 @@ std::string parser::strVal(const std::string &option) const
     }
 }
 
-long long parser::int64Val(const std::string &option) const
+std::int64_t parser::int64Val(const std::string &option) const
 {
     auto it = this->_define.find(this->_action);
 
@@ -177,6 +196,12 @@ double parser::doubleVal(const std::string &option) const
     {
         throw chen::cmd::error("cmd double value current action not found");
     }
+}
+
+// rest
+const std::vector<std::string>& parser::rest() const
+{
+    return this->_rest;
 }
 
 // usage
@@ -283,6 +308,11 @@ int object::min() const
 int object::max() const
 {
     return this->_max;
+}
+
+const std::vector<std::string>& object::val() const
+{
+    return this->_val;
 }
 
 

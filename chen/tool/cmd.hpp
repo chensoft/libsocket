@@ -110,9 +110,11 @@ namespace chen
             virtual std::string current() const;
 
             /**
-             * Rest unresolved arguments
+             * Get the value of the object which belongs to the current action
+             * @param object the name of the object
+             * @result the matched params array
              */
-            virtual const std::vector<std::string>& rest() const;
+            virtual std::vector<std::string> objVal(const std::string &object) const;
 
             /**
              * Get the value of the option which belongs to the current action
@@ -121,13 +123,16 @@ namespace chen
              * @param option the full name of the option
              */
             virtual bool boolVal(const std::string &option) const;
-            virtual int intVal(const std::string &option) const;
+            virtual std::int32_t intVal(const std::string &option) const;
             virtual std::string strVal(const std::string &option) const;
 
-            virtual long long int64Val(const std::string &option) const;
+            virtual std::int64_t int64Val(const std::string &option) const;
             virtual double doubleVal(const std::string &option) const;
 
-            // todo add object access
+            /**
+             * Rest unresolved arguments
+             */
+            virtual const std::vector<std::string>& rest() const;
 
         public:
             /**
@@ -229,11 +234,15 @@ namespace chen
             virtual const std::string& name() const;
             virtual int min() const;
             virtual int max() const;
+            virtual const std::vector<std::string>& val() const;
 
         protected:
             std::string _name;
+
             int _min = 0;
             int _max = 0;
+
+            std::vector<std::string> _val;
         };
 
 

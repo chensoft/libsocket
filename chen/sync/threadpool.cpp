@@ -10,13 +10,13 @@ using namespace chen;
 
 // ------------------------------------------------------------------
 // threadpool
-threadpool::threadpool(unsigned int count)
+threadpool::threadpool(int count)
 {
     // assign thread count according to cpu count
-    if (!count)
+    if (count <= 0)
         count = std::max(1u, std::thread::hardware_concurrency());
 
-    for (unsigned int i = 0; i < count; ++i)
+    for (int i = 0; i < count; ++i)
         this->_pool.push_back(std::thread(std::bind(&threadpool::run, this)));
 }
 
