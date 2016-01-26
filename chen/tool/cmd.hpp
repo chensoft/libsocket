@@ -37,6 +37,7 @@
 #pragma once
 
 #include "any.hpp"
+#include <functional>
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
