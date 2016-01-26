@@ -7,21 +7,30 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace chen
 {
     class str
     {
     public:
+        // todo add more string algorithms
         /**
-         * Date string
+         * Regex match
          */
-        static std::string date(const std::string &sep = "-", bool utc = true);
+        static bool match(const std::string &pattern, const std::string &text);
 
         /**
-         * Time string
+         * Regex replace
          */
-        static std::string time(const std::string &sep = ":", bool utc = true, bool milliseconds = false);
+        static std::string replace(const std::string &pattern,
+                                   const std::string &replacement,
+                                   const std::string &text);
+
+        /**
+         * Regex group catch
+         */
+        static std::vector<std::string> group(const std::string &pattern, const std::string &text);
 
         /**
          * Format string using std::vsnprintf

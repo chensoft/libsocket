@@ -21,6 +21,7 @@
 #include <chen/tool/cmd.hpp>
 #include <chen/tool/num.hpp>
 #include <chen/tool/str.hpp>
+#include <chen/tool/sys.hpp>
 #include <chen/tool/date.hpp>
 
 #include <chen/net/ip/ip_error.hpp>

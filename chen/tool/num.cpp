@@ -57,7 +57,7 @@ std::string num::str(bool value)
 
 std::string num::str(std::int32_t value)
 {
-    return num::str(static_cast<long long>(value));
+    return num::str(static_cast<std::int64_t>(value));
 }
 
 std::string num::str(std::int64_t value)
@@ -84,7 +84,7 @@ std::string num::str(std::int64_t value)
 
 std::string num::str(std::uint32_t value)
 {
-    return num::str(static_cast<unsigned long long>(value));
+    return num::str(static_cast<std::uint64_t>(value));
 }
 
 std::string num::str(std::uint64_t value)

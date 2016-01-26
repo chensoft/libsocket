@@ -19,13 +19,15 @@ parser::parser(const std::string &app)
 // parse
 void parser::parse(int argc, const char *const argv[])
 {
-    // todo throw
+    // argc must be greater than 1
     if (argc <= 1)
-        return;
+        throw chen::cmd::error("cmd count is zero");
 
-    // app name, if empty then use the first argument
+    // if app is empty then use first argument
     if (this->_app.empty())
         this->_app = argv[0];
+
+    //
 }
 
 // action

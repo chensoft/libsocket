@@ -5,42 +5,41 @@
  * @link   http://chensoft.com
  */
 #include "str.hpp"
-#include "date.hpp"
 #include <cstdarg>
-#include <chrono>
+#include <regex>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // str
-std::string str::date(const std::string &sep, bool utc)
+bool str::match(const std::string &pattern, const std::string &text)
 {
-    std::time_t time = std::time(nullptr);
-    struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
-
-    auto year  = now.tm_year + 1900;
-    auto month = now.tm_mon  + 1;
-    auto day   = now.tm_mday;
-
-    return str::format("%d%s%02d%s%02d", year, sep.c_str(), month, sep.c_str(), day);
+    return std::regex_search(text, std::regex(pattern));
 }
 
-std::string str::time(const std::string &sep, bool utc, bool milliseconds)
+std::string str::replace(const std::string &pattern,
+                         const std::string &replacement,
+                         const std::string &text)
 {
-    auto high = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    auto last = high - high / 1000 * 1000;
+    return std::regex_replace(text, std::regex(pattern), replacement);
+}
 
-    std::time_t time = (time_t)(high / 1000);
-    struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
+std::vector<std::string> str::group(const std::string &pattern,
+                                      const std::string &text)
+{
+    std::vector<std::string> ret;
 
-    auto hour   = now.tm_hour;
-    auto minute = now.tm_min;
-    auto second = now.tm_sec;
+    std::smatch mt;
 
-    if (milliseconds)
-        return str::format("%02d%s%02d%s%02d.%03lld", hour, sep.c_str(), minute, sep.c_str(), second, last);
-    else
-        return str::format("%02d%s%02d%s%02d", hour, sep.c_str(), minute, sep.c_str(), second);
+    if (std::regex_search(text, mt, std::regex(pattern)))
+    {
+        for (auto &str : mt)
+        {
+            ret.push_back(str.str());
+        }
+    }
+
+    return ret;
 }
 
 std::string str::format(const char *fmt, ...)

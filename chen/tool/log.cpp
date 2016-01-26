@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "log.hpp"
+#include "sys.hpp"
 #include <iostream>
 
 using namespace chen;
@@ -33,6 +34,6 @@ void log::output(const std::string &text)
 {
     std::lock_guard<std::mutex> lock(log::_mutex);
 
-    std::string prefix(chen::str::date() + " " + chen::str::time(":", true, true) + " UTC ");
+    std::string prefix(chen::sys::date() + " " + chen::sys::time(":", true, true) + " UTC ");
     std::cout << prefix << text << std::endl;
 }
