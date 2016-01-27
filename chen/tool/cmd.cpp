@@ -111,8 +111,8 @@ bool parser::boolVal(const std::string &option) const
 
         if (find != temp.end())
             return find->second.val();
-        else
-            return false;
+
+        throw chen::cmd::error("cmd bool value option not found");
     }
     else
     {
@@ -131,8 +131,8 @@ std::int32_t parser::intVal(const std::string &option) const
 
         if (find != temp.end())
             return find->second.val();
-        else
-            return 0;
+
+        throw chen::cmd::error("cmd int value option not found");
     }
     else
     {
@@ -151,8 +151,8 @@ std::string parser::strVal(const std::string &option) const
 
         if (find != temp.end())
             return find->second.val();
-        else
-            return "";
+
+        throw chen::cmd::error("cmd str value option not found");
     }
     else
     {
@@ -171,8 +171,8 @@ std::int64_t parser::int64Val(const std::string &option) const
 
         if (find != temp.end())
             return find->second.val();
-        else
-            return 0;
+
+        throw chen::cmd::error("cmd int64 value option not found");
     }
     else
     {
@@ -191,8 +191,8 @@ double parser::doubleVal(const std::string &option) const
 
         if (find != temp.end())
             return find->second.val();
-        else
-            return 0.0;
+
+        throw chen::cmd::error("cmd double value option not found");
     }
     else
     {
