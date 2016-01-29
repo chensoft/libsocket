@@ -14,16 +14,6 @@ namespace chen
     {
     public:
         /**
-         * Date string
-         */
-        static std::string date(const std::string &sep = "-", bool utc = true);
-
-        /**
-         * Time string
-         */
-        static std::string time(const std::string &sep = ":", bool utc = true, bool milliseconds = false);
-
-        /**
          * UUID string
          */
         static std::string uuid();

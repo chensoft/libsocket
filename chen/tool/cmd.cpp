@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "cmd.hpp"
+#include "path.hpp"
 
 using namespace chen;
 using namespace chen::cmd;
@@ -19,15 +20,33 @@ parser::parser(const std::string &app)
 // parse
 void parser::parse(int argc, const char *const argv[])
 {
-    // argc must be greater than 1
-    if (argc <= 1)
+    // first param must be app name
+    if (argc < 1)
         throw chen::cmd::error("cmd count is zero");
 
     // if app is empty then use first argument
     if (this->_app.empty())
         this->_app = argv[0];
 
-    //
+    // if param count is 1 then return
+    if (argc == 1)
+        return;
+
+    // check action
+    int index = 1;
+    std::string action;
+
+    while (index < argc)
+    {
+        auto param = argv[index];
+
+        if (param && (param[0] == '-'))
+            break;
+        else
+            action = !action.empty() ? action + "." + param : action + param;
+
+        ++index;
+    }
 }
 
 // action

@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <string>
 #include <ctime>
 
 namespace chen
@@ -14,9 +15,19 @@ namespace chen
     {
     public:
         /**
-         * Thread safe functions
+         * GMT & Local time, thread safe
          */
         static struct tm gmtime(std::time_t time);
         static struct tm localtime(std::time_t time);
+
+        /**
+         * Date stamp
+         */
+        static std::string stamp(const std::string &sep = "-", bool utc = true);
+
+        /**
+         * Time string
+         */
+        static std::string time(const std::string &sep = ":", bool utc = true, bool milliseconds = false);
     };
 }
