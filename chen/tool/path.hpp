@@ -36,8 +36,11 @@ namespace chen
         /**
          * Directory name of the path, without the trailing slash
          * e.g: /home/staff/Downloads/file.txt, dirname is "/home/staff/Downloads"
-         * e.g: /usr/, dirname is "/", not "/usr", because single "/" isn't a effective name
          * e.g: /usr/., dirname is "/usr", because "." is represent current folder
+         * e.g: /usr/, dirname is "/", not "/usr", because single "/" isn't a effective name
+         * e.g: /usr///, dirname is "/", because the trailing slash will be ignored
+         * e.g: /, dirname is "/", because it's the root folder
+         * e.g: file.txt, dirname is ".", because it doesn't has a absolute dir
          */
         static std::string dirname(const std::string &path);
 
@@ -53,6 +56,6 @@ namespace chen
          * @param path full path
          * @param dots max dots count of the extension
          */
-        static std::string extname(const std::string &path, int dots = 1);
+        static std::string extname(const std::string &path, std::size_t dots = 1);
     };
 }
