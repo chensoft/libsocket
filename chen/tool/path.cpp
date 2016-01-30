@@ -24,28 +24,50 @@ std::string path::separator()
 
 std::string path::dirname(const std::string &path)
 {
-//    auto beg  = path.rbegin();
-//    auto end  = path.rend();
-//    bool flag = false;
-//
-//    for (auto it = beg; it != end; ++it)
-//    {
-//        if ((*it == '/') || (*it == '\\'))
-//        {
-//            if (flag)
-//            {
-//                auto len = end - it;
-//                if (len > 1)
-//                    return path.substr(0, static_cast<std::size_t>(len) - 1);
-//            }
-//        }
-//        else
-//        {
-//            flag = true;
-//        }
-//    }
-//
-//    return path.empty() ? "" : (path[0] == '/' ? "/" : ".");
+    // todo handle windows
+    if (path.empty())
+        return "";
+
+    auto beg = path.rbegin();
+    auto end = path.rend();
+    auto idx = beg;
+
+    auto flag = false;
+
+    for (; idx != end; ++idx)
+    {
+        if ((*idx == '/') || (*idx == '\\'))
+        {
+            auto next = idx + 1;
+
+            if (flag && (*next != '/') && (*next != '\\'))
+            {
+                ++idx;
+                break;
+            }
+        }
+        else if (!flag)
+        {
+            flag = true;
+        }
+    }
+
+    if (flag)
+    {
+        if (idx != end)
+        {
+            return path.substr(0, static_cast<std::size_t>(end - idx));
+        }
+        else
+        {
+            auto first = path[0];
+            return (first == '/') || (first == '\\') ? "/" : ".";  // using root folder or current folder
+        }
+    }
+    else
+    {
+        return "/";  // all chars are '/'
+    }
 }
 
 std::string path::basename(const std::string &path)
