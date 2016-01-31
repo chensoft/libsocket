@@ -26,7 +26,7 @@ void parser::parse(int argc, const char *const argv[])
 
     // if app is empty then use first argument
     if (this->_app.empty())
-        this->_app = argv[0];
+        this->_app = path::basename(argv[0]);
 
     // if param count is 1 then return
     if (argc == 1)

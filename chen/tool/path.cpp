@@ -6,28 +6,46 @@
  */
 #include "path.hpp"
 #include "log.hpp"
+#include <sys/stat.h>
+#include <dirent.h>
+#include <utime.h>
+#include <pwd.h>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // path
-std::string path::separator()
+std::string path::home()
 {
-#if defined(CHEN_OS_WIN32)
-    return "\\";
-#elif defined(CHEN_OS_UNIX)
-    return "/";
-#else
-    #error system not supported
-#endif
+    // check env variable first
+    auto env = ::getenv("HOME");
+    if (env)
+        return env;
+
+    // check login info
+    struct passwd *pw = ::getpwuid(::getuid());
+    return pw->pw_dir;
+}
+
+std::string path::current()
+{
+    char cwd[PATH_MAX] = {0};
+    ::getcwd(cwd, PATH_MAX);
+
+    return std::string(cwd);
+}
+
+char path::separator()
+{
+    return '/';
 }
 
 std::string path::dirname(const std::string &path)
 {
-    // todo handle windows
     if (path.empty())
         return "";
 
+    auto sep = path::separator();
     auto beg = path.rbegin();
     auto end = path.rend();
     auto idx = beg;
@@ -36,11 +54,11 @@ std::string path::dirname(const std::string &path)
 
     for (; idx != end; ++idx)
     {
-        if ((*idx == '/') || (*idx == '\\'))
+        if (*idx == sep)
         {
             auto next = idx + 1;
 
-            if (flag && (*next != '/') && (*next != '\\'))
+            if (flag && (*next != sep))
             {
                 ++idx;
                 break;
@@ -61,7 +79,7 @@ std::string path::dirname(const std::string &path)
         else
         {
             auto first = path[0];
-            return (first == '/') || (first == '\\') ? "/" : ".";  // using root folder or current folder
+            return (first == sep) ? "/" : ".";  // using root directory or current directory
         }
     }
     else
@@ -72,6 +90,7 @@ std::string path::dirname(const std::string &path)
 
 std::string path::basename(const std::string &path)
 {
+    auto sep = path::separator();
     auto beg = path.rbegin();
     auto end = path.rend();
 
@@ -80,7 +99,7 @@ std::string path::basename(const std::string &path)
 
     for (auto idx = beg; idx != end; ++idx)
     {
-        if ((*idx == '/') || (*idx == '\\'))
+        if (*idx == sep)
         {
             if (flag_b != end)
             {
@@ -105,6 +124,7 @@ std::string path::extname(const std::string &path, std::size_t dots)
     if (!dots)
         return "";
 
+    auto sep = path::separator();
     auto beg = path.rbegin();
     auto end = path.rend();
     auto idx = beg;
@@ -113,7 +133,7 @@ std::string path::extname(const std::string &path, std::size_t dots)
 
     for (; idx != end; ++idx)
     {
-        if ((*idx == '/') || (*idx == '\\'))
+        if (*idx == sep)
         {
             break;
         }
@@ -127,4 +147,234 @@ std::string path::extname(const std::string &path, std::size_t dots)
     }
 
     return num ? path.substr(static_cast<std::size_t>(end - cur), static_cast<std::size_t>(cur - beg)) : "";
+}
+
+// exist
+bool path::isExist(const std::string &path)
+{
+    return !::access(path.c_str(), F_OK);
+}
+
+bool path::isDir(const std::string &path, bool strict)
+{
+    struct stat st = {0};
+    auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
+    return ok && S_ISDIR(st.st_mode);
+}
+
+bool path::isFile(const std::string &path, bool strict)
+{
+    struct stat st = {0};
+    auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
+    return ok && S_ISREG(st.st_mode);
+}
+
+bool path::isLink(const std::string &path)
+{
+    struct stat st = {0};
+    return !::lstat(path.c_str(), &st) && S_ISLNK(st.st_mode);
+}
+
+bool path::isAbsolute(const std::string &path)
+{
+    auto sep = path::separator();
+    return !path.empty() && (path[0] == sep);
+}
+
+bool path::isRelative(const std::string &path)
+{
+    return !path::isAbsolute(path);
+}
+
+bool path::isReadable(const std::string &path)
+{
+    return !::access(path.c_str(), R_OK);
+}
+
+bool path::isWritable(const std::string &path)
+{
+    return !::access(path.c_str(), W_OK);
+}
+
+bool path::isExecutable(const std::string &path)
+{
+    return !::access(path.c_str(), X_OK);
+}
+
+// time
+time_t path::atime(const std::string &path)
+{
+    struct stat st = {0};
+    return !::stat(path.c_str(), &st) ? st.st_atime : 0;
+}
+
+time_t path::mtime(const std::string &path)
+{
+    struct stat st = {0};
+    return !::stat(path.c_str(), &st) ? st.st_mtime : 0;
+}
+
+time_t path::ctime(const std::string &path)
+{
+    struct stat st = {0};
+    return !::stat(path.c_str(), &st) ? st.st_ctime : 0;
+}
+
+// size
+off_t path::filesize(const std::string &file)
+{
+    struct stat st = {0};
+    return !::stat(file.c_str(), &st) ? st.st_size : 0;
+}
+
+// create
+bool path::touch(const std::string &file, time_t mtime, time_t atime)
+{
+    // using current time if it's zero
+    if (!mtime)
+        mtime = ::time(nullptr);
+
+    // using mtime if it's zero
+    if (!atime)
+        atime = mtime;
+
+    // create file if not exist
+    FILE *fp = ::fopen(file.c_str(), "ab+");
+    ::fclose(fp);
+
+    // modify mtime and atime
+    struct stat st = {0};
+
+    if (!::stat(file.c_str(), &st))
+    {
+        struct utimbuf time = {0};
+
+        time.modtime = mtime;
+        time.actime  = atime;
+
+        return !::utime(file.c_str(), &time);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool path::create(const std::string &dir)
+{
+    if (!path::isDir(dir))
+    {
+        auto success = true;
+        auto dirname = path::dirname(dir);
+
+        if (!dirname.empty())
+            success = path::create(dirname) && success;
+
+        return !::mkdir(dir.c_str(), S_IRWXU) && success;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool path::rename(const std::string &file_old, const std::string &file_new)
+{
+    // remove new file if it's already exist
+    if (!path::remove(file_new))
+        path::create(path::dirname(file_new));  // create new directory
+
+    // rename
+    return !::rename(file_old.c_str(), file_new.c_str());
+}
+
+bool path::remove(const std::string &path)
+{
+    if (path::isFile(path))
+    {
+        return !::remove(path.c_str());
+    }
+    else
+    {
+        DIR    *dir = ::opendir(path.c_str());
+        dirent *cur = nullptr;
+
+        if (!dir)
+            return false;
+
+        auto ok  = true;
+        auto sep = path::separator();
+
+        while ((cur = ::readdir(dir)))
+        {
+            std::string name(cur->d_name);
+
+            if ((name == ".") || (name == ".."))
+                continue;
+
+            std::string full(*path.end() == sep ? path + name : path + "/" + name);
+
+            if (path::isDir(full))
+            {
+                ok = path::remove(full) && ok;
+                ok = ::rmdir(full.c_str()) && ok;
+            }
+            else
+            {
+                ok = ::remove(full.c_str()) && ok;
+            }
+        }
+
+        ::closedir(dir);
+
+        return ok;
+    }
+}
+
+// change
+bool path::change(const std::string &directory)
+{
+    return !::chdir(directory.c_str());
+}
+
+// visit
+void path::visit(const std::string &directory,
+                 bool recursive,
+                 std::function<void (const std::string &path)> callback)
+{
+    DIR    *dir = ::opendir(directory.c_str());
+    dirent *cur = nullptr;
+
+    if (!dir)
+        return;
+
+    auto sep = path::separator();
+
+    while ((cur = ::readdir(dir)))
+    {
+        std::string name(cur->d_name);
+
+        if ((name == ".") || (name == ".."))
+            continue;
+
+        std::string full(*directory.end() == sep ? directory + name : directory + "/" + name);
+
+        callback(full);
+
+        if (recursive && path::isDir(full))
+            path::visit(full, recursive, callback);
+    }
+
+    ::closedir(dir);
+}
+
+std::vector<std::string> path::visit(const std::string &directory, bool recursive)
+{
+    std::vector<std::string> store;
+
+    path::visit(directory, recursive, [&store] (const std::string &path) {
+        store.push_back(path);
+    });
+
+    return store;
 }
