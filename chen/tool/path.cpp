@@ -8,6 +8,7 @@
 #include "log.hpp"
 #include <sys/stat.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <utime.h>
 #include <pwd.h>
 
