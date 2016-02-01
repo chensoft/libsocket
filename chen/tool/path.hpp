@@ -148,7 +148,7 @@ namespace chen
 
     public:
         /**
-         * Set access and modification time of the file, create if it's not exist
+         * Set access and modification time of the file, create file and its dir if it's not exist
          * @param file the file to be access or create
          * @param mtime modification time, if zero then use current time
          * @param atime access time, if zero then use mtime
@@ -157,14 +157,14 @@ namespace chen
 
         /**
          * Create a directory recursively
+         * @param mode default mode is rwxr-xr-x
          */
-        static bool create(const std::string &dir);
+        static bool create(const std::string &dir, mode_t mode = 0);
 
         /**
-         * todo add support for rename folder
-         * Rename a file
+         * Rename a file or directory
          */
-        static bool rename(const std::string &file_old, const std::string &file_new);
+        static bool rename(const std::string &path_old, const std::string &path_new);
 
         /**
          * Remove a file or directory

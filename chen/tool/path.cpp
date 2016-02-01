@@ -238,6 +238,9 @@ bool path::touch(const std::string &file, time_t mtime, time_t atime)
     if (!atime)
         atime = mtime;
 
+    // create directory
+    path::create(path::dirname(file));
+
     // create file if not exist
     FILE *fp = ::fopen(file.c_str(), "ab+");
     ::fclose(fp);
@@ -260,17 +263,20 @@ bool path::touch(const std::string &file, time_t mtime, time_t atime)
     }
 }
 
-bool path::create(const std::string &dir)
+bool path::create(const std::string &dir, mode_t mode)
 {
+    if (!mode)
+        mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+
     if (!path::isDir(dir))
     {
         auto success = true;
         auto dirname = path::dirname(dir);
 
         if (!dirname.empty())
-            success = path::create(dirname) && success;
+            success = path::create(dirname, mode) && success;
 
-        return !::mkdir(dir.c_str(), S_IRWXU) && success;
+        return !::mkdir(dir.c_str(), mode) && success;
     }
     else
     {
@@ -278,14 +284,14 @@ bool path::create(const std::string &dir)
     }
 }
 
-bool path::rename(const std::string &file_old, const std::string &file_new)
+bool path::rename(const std::string &path_old, const std::string &path_new)
 {
-    // remove new file if it's already exist
-    if (!path::remove(file_new))
-        path::create(path::dirname(file_new));  // create new directory
+    // remove new path if it's already exist
+    if (!path::remove(path_new))
+        path::create(path::dirname(path_new));  // create new directory
 
-    // rename
-    return !::rename(file_old.c_str(), file_new.c_str());
+    // rename old path to new path
+    return !::rename(path_old.c_str(), path_new.c_str());
 }
 
 bool path::remove(const std::string &path)
@@ -305,6 +311,7 @@ bool path::remove(const std::string &path)
         auto ok  = true;
         auto sep = path::separator();
 
+        // remove sub items
         while ((cur = ::readdir(dir)))
         {
             std::string name(cur->d_name);
@@ -315,17 +322,16 @@ bool path::remove(const std::string &path)
             std::string full(*path.end() == sep ? path + name : path + "/" + name);
 
             if (path::isDir(full))
-            {
                 ok = path::remove(full) && ok;
-                ok = ::rmdir(full.c_str()) && ok;
-            }
             else
-            {
-                ok = ::remove(full.c_str()) && ok;
-            }
+                ok = !::remove(full.c_str()) && ok;
         }
 
         ::closedir(dir);
+
+        // remove itself
+        if (ok)
+            ok = !::rmdir(path.c_str());
 
         return ok;
     }
