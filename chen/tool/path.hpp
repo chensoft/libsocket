@@ -17,14 +17,32 @@ namespace chen
     {
     public:
         /**
+         * Current system drive directory
+         * e.g: "C:\" on Windows, "/" on other os
+         */
+        static std::string root();
+
+        /**
          * Current home directory
          */
         static std::string home();
 
         /**
+         * Current temp directory
+         * the separator maybe append to the end of path depends on the os
+         */
+        static std::string temp();
+
+        /**
          * Current working directory
          */
         static std::string current();
+
+        /**
+         * On Windows return "C:\", "D:\" and so on
+         * On other os return "/"
+         */
+        static std::vector<std::string> drives();
 
         /**
          * Separator on this platform
@@ -34,23 +52,26 @@ namespace chen
 
         /**
          * todo
-         * Normalize path, remove ".", ".." and redundant separators
-         * e.g: a/./b to a/b, a///b to a/b
+         * expand '~' as home directory
          */
-        static std::string normalize(const std::string &path);
+        static std::string realpath(const std::string &path);
 
         /**
          * todo
          * Absolute path, append to current working directory, without ".", ".." and separators
+         * notice this function didn't check the existence of the path
+         * if the path is a symbolic link, it doesn't follow it
          * e.g: if cwd is /home/staff/Downloads, then path "file.txt" will be appended to cwd
          */
         static std::string absolute(const std::string &path);
 
         /**
          * todo
-         * expand '~' as home directory
+         * Normalize path, remove ".", ".." and redundant separators
+         * notice this function didn't check the existence of the path
+         * e.g: a/./b to a/b, a///b to a/b
          */
-        static std::string realpath(const std::string &path);
+        static std::string normalize(const std::string &path);
 
         /**
          * Directory name of the path, without the trailing slash

@@ -16,6 +16,15 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // path
+std::string path::root()
+{
+#if defined(CHEN_OS_WIN32)
+#error todo
+#else
+    return "/";
+#endif
+}
+
 std::string path::home()
 {
     // check env variable first
@@ -28,12 +37,31 @@ std::string path::home()
     return pw->pw_dir;
 }
 
+std::string path::temp()
+{
+#if defined(CHEN_OS_WIN32)
+#error todo maybe GetTempPath API function
+#else
+    auto env = ::getenv("TMPDIR");
+    return env ? env : "/tmp";
+#endif
+}
+
 std::string path::current()
 {
     char cwd[PATH_MAX] = {0};
     ::getcwd(cwd, PATH_MAX);
 
     return std::string(cwd);
+}
+
+std::vector<std::string> path::drives()
+{
+#if defined(CHEN_OS_WIN32)
+#error todo
+#else
+    return {"/"};
+#endif
 }
 
 char path::separator()
