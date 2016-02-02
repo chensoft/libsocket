@@ -179,11 +179,22 @@ namespace chen
 
         /**
          * Visit the directory items, exclude '.' and '..'
+         * @param recursive check items recursively
          */
         static void visit(const std::string &directory,
                           bool recursive,
                           std::function<void (const std::string &path)> callback);
 
         static std::vector<std::string> visit(const std::string &directory, bool recursive);
+
+        /**
+         * The files and directories count in the directory
+         * @param contain_file calculate the files count
+         * @param contain_dir calculate the directories count
+         */
+        static std::size_t count(const std::string &directory,
+                                 bool recursive,
+                                 bool contain_file = true,
+                                 bool contain_dir = true);
     };
 }

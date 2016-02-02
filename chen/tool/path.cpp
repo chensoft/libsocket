@@ -385,3 +385,26 @@ std::vector<std::string> path::visit(const std::string &directory, bool recursiv
 
     return store;
 }
+
+// count
+std::size_t path::count(const std::string &directory,
+                        bool recursive,
+                        bool contain_file,
+                        bool contain_dir)
+{
+    if (!contain_file && !contain_dir)
+        return 0;
+
+    std::size_t num = 0;
+
+    path::visit(directory, recursive, [&] (const std::string &path) {
+        if ((contain_file && contain_dir) ||
+            (contain_file && path::isFile(path)) ||
+            (contain_dir && path::isDir(path)))
+        {
+            ++num;
+        }
+    });
+
+    return num;
+}
