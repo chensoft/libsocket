@@ -69,6 +69,15 @@ char path::separator()
     return '/';
 }
 
+std::string path::realpath(const std::string &path)
+{
+    char buf[PATH_MAX] = {0};
+    ::realpath(path.c_str(), buf);
+
+    std::string ret(buf);
+    return path::isExist(ret) ? ret : "";
+}
+
 std::string path::dirname(const std::string &path)
 {
     if (path.empty())

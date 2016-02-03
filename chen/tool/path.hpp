@@ -51,8 +51,8 @@ namespace chen
         static char separator();
 
         /**
-         * todo
-         * expand '~' as home directory
+         * Expand all symbolic links and remove ".", ".." and redundant separators
+         * this function will check the existence of the path, if path is invalid will return empty
          */
         static std::string realpath(const std::string &path);
 
