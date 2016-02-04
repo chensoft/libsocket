@@ -43,7 +43,21 @@ std::string path::temp()
 #error todo maybe GetTempPath API function
 #else
     auto env = ::getenv("TMPDIR");
-    return env ? env : "/tmp";
+
+    if (env)
+    {
+        // remove the trailing slash
+        auto len = ::strlen(env);
+
+        if (env[len - 1] == '/')
+            return std::string(env, len - 1);
+        else
+            return env;
+    }
+    else
+    {
+        return "/tmp";
+    }
 #endif
 }
 
@@ -76,6 +90,20 @@ std::string path::realpath(const std::string &path)
 
     std::string ret(buf);
     return path::isExist(ret) ? ret : "";
+}
+
+std::string path::absolute(const std::string &path)
+{
+    if (path::isRelative(path))
+        return path::current() + path::separator() + path::normalize(path);
+    else
+        return path::normalize(path);
+}
+
+std::string path::normalize(const std::string &path)
+{
+    // todo
+    return "";
 }
 
 std::string path::dirname(const std::string &path)

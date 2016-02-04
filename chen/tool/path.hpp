@@ -29,7 +29,6 @@ namespace chen
 
         /**
          * Current temp directory
-         * the separator maybe append to the end of path depends on the os
          */
         static std::string temp();
 
@@ -57,18 +56,15 @@ namespace chen
         static std::string realpath(const std::string &path);
 
         /**
-         * todo
          * Absolute path, append to current working directory, without ".", ".." and separators
-         * notice this function didn't check the existence of the path
-         * if the path is a symbolic link, it doesn't follow it
+         * this function didn't check the existence of the path and didn't follow symbolic link
          * e.g: if cwd is /home/staff/Downloads, then path "file.txt" will be appended to cwd
          */
         static std::string absolute(const std::string &path);
 
         /**
-         * todo
          * Normalize path, remove ".", ".." and redundant separators
-         * notice this function didn't check the existence of the path
+         * this function didn't check the existence of the path and didn't follow symbolic link
          * e.g: a/./b to a/b, a///b to a/b
          */
         static std::string normalize(const std::string &path);
