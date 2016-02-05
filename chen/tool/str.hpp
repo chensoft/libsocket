@@ -16,6 +16,17 @@ namespace chen
     public:
         // todo add more string algorithms
         /**
+         * Format string using std::vsnprintf
+         */
+        static std::string format(const char *fmt, ...);
+
+        /**
+         * Test if two strings are equal
+         */
+        static bool equal(const char *str1, std::size_t size1,
+                          const char *str2, std::size_t size2);
+
+        /**
          * Regex match
          */
         static bool match(const std::string &pattern, const std::string &text);
@@ -31,10 +42,5 @@ namespace chen
          * Regex group catch
          */
         static std::vector<std::string> group(const std::string &pattern, const std::string &text);
-
-        /**
-         * Format string using std::vsnprintf
-         */
-        static std::string format(const char *fmt, ...);
     };
 }

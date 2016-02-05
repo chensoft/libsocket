@@ -6,6 +6,7 @@
  */
 #include "path.hpp"
 #include "log.hpp"
+#include "str.hpp"
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -102,51 +103,66 @@ std::string path::absolute(const std::string &path)
 
 std::string path::normalize(const std::string &path)
 {
-    // todo improve performance
+    if (path.empty())
+        return "";
+
     auto sep = path::separator();
-    auto abs = path::isAbsolute(path);
-    auto idx = abs ? path.begin() + 1 : path.begin();
+    auto abs = (path[0] == sep);
 
-    std::string cur;
-    std::vector<std::string> store;  // store path segments
+    std::size_t ptr = 0;  // current segment cursor
+    std::size_t len = 0;  // current segment length
 
-    for (auto end = path.end(), over = end + 1; idx != over; ++idx)
+    std::vector<std::pair<std::size_t, std::size_t>> store;  // segments cache
+
+    for (std::size_t i = 0, l = path.size(); (i < l) || len; ++i)
     {
-        if ((idx == end) || (*idx == sep))
+        if ((i == l) || (path[i] == sep))
         {
-            if (!cur.empty())
+            if (len > 0)
             {
                 // store a segment
-                if ((cur == "..") && !store.empty() && (store.back() != ".."))
-                    store.pop_back();
-                else if (cur != ".")
-                    store.push_back(cur);
+                if (str::equal(&path[ptr], len, "..", 2))
+                {
+                    if (!store.empty() && !str::equal(&path[store.back().first], store.back().second, "..", 2))
+                        store.pop_back();
+                    else
+                        store.push_back(std::make_pair(ptr, len));
+                }
+                else if (!str::equal(&path[ptr], len, ".", 1))
+                {
+                    store.push_back(std::make_pair(ptr, len));
+                }
 
-                cur.clear();
+                ptr = len = 0;
             }
         }
         else
         {
-            cur.append(1, *idx);
+            if (!len)
+            {
+                ptr = i;
+                len = 1;
+            }
+            else
+            {
+                ++len;
+            }
         }
     }
 
     // concat
-    cur = abs ? "/" : "";
+    std::string ret(abs ? "/" : "");
 
-    if (!store.empty())
+    for (std::size_t i = 0, l = store.size(); i < l; ++i)
     {
-        for (auto &str : store)
-        {
-            cur.append(str);
-            cur.append(1, sep);
-        }
+        auto &pair = store[i];
+        ret.append(&path[pair.first], pair.second);
 
-        // remove last slash
-        cur.erase(cur.end() - 1);
+        if (i < l - 1)
+            ret.append(1, sep);
     }
 
-    return cur;
+    return ret;
 }
 
 std::string path::dirname(const std::string &path)
@@ -428,7 +444,7 @@ bool path::remove(const std::string &path)
             if ((name == ".") || (name == ".."))
                 continue;
 
-            std::string full(*path.end() == sep ? path + name : path + "/" + name);
+            std::string full(*path.end() == sep ? path + name : path + sep + name);
 
             if (path::isDir(full))
                 ok = path::remove(full) && ok;
@@ -472,7 +488,7 @@ void path::visit(const std::string &directory,
         if ((name == ".") || (name == ".."))
             continue;
 
-        std::string full(*directory.end() == sep ? directory + name : directory + "/" + name);
+        std::string full(*directory.end() == sep ? directory + name : directory + sep + name);
 
         callback(full);
 
