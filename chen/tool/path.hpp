@@ -65,7 +65,9 @@ namespace chen
         /**
          * Normalize path, remove ".", ".." and redundant separators
          * this function didn't check the existence of the path and didn't follow symbolic link
-         * e.g: a/./b to a/b, a///b to a/b
+         * e.g: ./a to a, a/./b to a/b, a///b to a/b
+         * e.g: a/.../b to a/...b because the "..." is invalid path characters, it will be ignored
+         * e.g: a/../../b to ../b because the path is relative and second ".." can't be removed
          */
         static std::string normalize(const std::string &path);
 

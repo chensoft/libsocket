@@ -102,8 +102,51 @@ std::string path::absolute(const std::string &path)
 
 std::string path::normalize(const std::string &path)
 {
-    // todo
-    return "";
+    // todo improve performance
+    auto sep = path::separator();
+    auto abs = path::isAbsolute(path);
+    auto idx = abs ? path.begin() + 1 : path.begin();
+
+    std::string cur;
+    std::vector<std::string> store;  // store path segments
+
+    for (auto end = path.end(), over = end + 1; idx != over; ++idx)
+    {
+        if ((idx == end) || (*idx == sep))
+        {
+            if (!cur.empty())
+            {
+                // store a segment
+                if ((cur == "..") && !store.empty() && (store.back() != ".."))
+                    store.pop_back();
+                else if (cur != ".")
+                    store.push_back(cur);
+
+                cur.clear();
+            }
+        }
+        else
+        {
+            cur.append(1, *idx);
+        }
+    }
+
+    // concat
+    cur = abs ? "/" : "";
+
+    if (!store.empty())
+    {
+        for (auto &str : store)
+        {
+            cur.append(str);
+            cur.append(1, sep);
+        }
+
+        // remove last slash
+        cur.erase(cur.end() - 1);
+    }
+
+    return cur;
 }
 
 std::string path::dirname(const std::string &path)
