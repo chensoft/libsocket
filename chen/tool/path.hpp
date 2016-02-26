@@ -190,6 +190,12 @@ namespace chen
          */
         static bool remove(const std::string &path);
 
+        /**
+         * todo
+         * Copy a file or directory
+         */
+        static bool copy();
+
     public:
         /**
          * Change current working directory

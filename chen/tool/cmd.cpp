@@ -60,8 +60,8 @@ void parser::action(const std::string &name,
 // object
 void parser::object(const std::string &action,
                     const std::string &name,
-                    int min,
-                    int max)
+                    std::size_t min,
+                    std::size_t max)
 {
     auto it = this->_define.find(action);
 
@@ -309,7 +309,7 @@ const std::map<std::string, chen::cmd::option>& action::options() const
 
 // -----------------------------------------------------------------------------
 // object
-object::object(const std::string &name, int min, int max)
+object::object(const std::string &name, std::size_t min, std::size_t max)
 : _name(name)
 , _min(min)
 , _max(max)
@@ -321,12 +321,12 @@ const std::string& object::name() const
     return this->_name;
 }
 
-int object::min() const
+std::size_t object::min() const
 {
     return this->_min;
 }
 
-int object::max() const
+std::size_t object::max() const
 {
     return this->_max;
 }

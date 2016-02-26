@@ -85,8 +85,8 @@ namespace chen
              */
             virtual void object(const std::string &action,
                                 const std::string &name,
-                                int min,
-                                int max);
+                                std::size_t min,
+                                std::size_t max);
 
             /**
              * Define option
@@ -225,7 +225,7 @@ namespace chen
         class object
         {
         public:
-            object(const std::string &name, int min, int max);
+            object(const std::string &name, std::size_t min, std::size_t max);
             virtual ~object() = default;
 
         public:
@@ -233,15 +233,15 @@ namespace chen
              * Properties
              */
             virtual const std::string& name() const;
-            virtual int min() const;
-            virtual int max() const;
+            virtual std::size_t min() const;
+            virtual std::size_t max() const;
             virtual const std::vector<std::string>& val() const;
 
         protected:
             std::string _name;
 
-            int _min = 0;
-            int _max = 0;
+            std::size_t _min = 0;
+            std::size_t _max = 0;
 
             std::vector<std::string> _val;
         };
