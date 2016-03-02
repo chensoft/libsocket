@@ -72,6 +72,9 @@ namespace chen
              * Define action, sub-action's name is separated by dots
              * e.g: git clone, name is "clone"
              * e.g: git submodule init, name is "submodule.init"
+             * @param name action name pass a empty string if you don't want a named action
+             * @param desc action description
+             * @param bind trigger when encounter this action
              */
             virtual void action(const std::string &name,
                                 const std::string &desc,
@@ -169,7 +172,8 @@ namespace chen
             std::string _app;     // app name
             std::string _prefix;  // usage prefix
             std::string _suffix;  // usage suffix
-            std::string _action;  // current action
+
+            chen::cmd::action *_action = nullptr;  // current action, weak ref
 
             std::vector<std::string> _rest;  // rest unresolved params
 

@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "cmd.hpp"
+#include "log.hpp"
 #include "path.hpp"
 
 using namespace chen;
@@ -13,40 +14,61 @@ using namespace chen::cmd;
 // -----------------------------------------------------------------------------
 // parser
 parser::parser(const std::string &app)
-: _app(app)
+        : _app(app)
 {
 }
 
 // parse
 void parser::parse(int argc, const char *const argv[])
 {
-    // first param must be app name
+    // arguments count must greater than 1
     if (argc < 1)
         throw chen::cmd::error("cmd count is zero");
+    else if (argc == 1)
+        return;
 
     // if app is empty then use first argument
     if (this->_app.empty())
         this->_app = path::basename(argv[0]);
 
-    // if param count is 1 then return
-    if (argc == 1)
-        return;
+    // get current action, action is the first component
+    int cursor = 1;
+    std::string name;
 
-    // check action
-    int index = 1;
-    std::string action;
-
-    while (index < argc)
+    while (cursor < argc)
     {
-        auto param = argv[index];
+        auto param = argv[cursor];
 
-        if (param && (param[0] == '-'))
+        if (param[0] == '-')
+        {
+            // '-' means the trailing part isn't an action
             break;
+        }
         else
-            action = !action.empty() ? action + "." + param : action + param;
+        {
+            std::string temp(!name.empty() ? name + "." + param : param);
 
-        ++index;
+            // if find means the action is defined, otherwise the param is not a part of action
+            if (this->_define.find(temp) != this->_define.end())
+                name = temp;
+            else
+                break;
+        }
+
+        ++cursor;
     }
+
+    auto find = this->_define.find(name);
+    if (find == this->_define.end())
+        throw chen::cmd::error("cmd current action not found");
+
+    chen::cmd::action *action = &find->second;
+
+    // parse the trailing components
+
+    // call the action callback if defined
+    if (action->bind())
+        action->bind()(*this);
 }
 
 // action
@@ -79,6 +101,9 @@ void parser::option(const std::string &action,
                     const any &def,
                     const any &pre)
 {
+    if (tiny.size() > 1)
+        throw chen::cmd::error("cmd option tiny name must be one character");
+
     auto it = this->_define.find(action);
 
     if (it != this->_define.end())
@@ -90,17 +115,15 @@ void parser::option(const std::string &action,
 // current
 std::string parser::current() const
 {
-    return this->_action;
+    return this->_action ? this->_action->name() : "";
 }
 
 // object value
 std::vector<std::string> parser::objVal(const std::string &object) const
 {
-    auto it = this->_define.find(this->_action);
-
-    if (it != this->_define.end())
+    if (this->_action)
     {
-        auto temp = it->second.objects();
+        auto temp = this->_action->objects();
 
         for (auto &obj : temp)
         {
@@ -121,11 +144,9 @@ std::vector<std::string> parser::objVal(const std::string &object) const
 // option value
 bool parser::boolVal(const std::string &option) const
 {
-    auto it = this->_define.find(this->_action);
-
-    if (it != this->_define.end())
+    if (this->_action)
     {
-        auto temp = it->second.options();
+        auto temp = this->_action->options();
         auto find = temp.find(option);
 
         if (find != temp.end())
@@ -141,11 +162,9 @@ bool parser::boolVal(const std::string &option) const
 
 std::int32_t parser::intVal(const std::string &option) const
 {
-    auto it = this->_define.find(this->_action);
-
-    if (it != this->_define.end())
+    if (this->_action)
     {
-        auto temp = it->second.options();
+        auto temp = this->_action->options();
         auto find = temp.find(option);
 
         if (find != temp.end())
@@ -161,11 +180,9 @@ std::int32_t parser::intVal(const std::string &option) const
 
 std::string parser::strVal(const std::string &option) const
 {
-    auto it = this->_define.find(this->_action);
-
-    if (it != this->_define.end())
+    if (this->_action)
     {
-        auto temp = it->second.options();
+        auto temp = this->_action->options();
         auto find = temp.find(option);
 
         if (find != temp.end())
@@ -181,11 +198,9 @@ std::string parser::strVal(const std::string &option) const
 
 std::int64_t parser::int64Val(const std::string &option) const
 {
-    auto it = this->_define.find(this->_action);
-
-    if (it != this->_define.end())
+    if (this->_action)
     {
-        auto temp = it->second.options();
+        auto temp = this->_action->options();
         auto find = temp.find(option);
 
         if (find != temp.end())
@@ -201,11 +216,9 @@ std::int64_t parser::int64Val(const std::string &option) const
 
 double parser::doubleVal(const std::string &option) const
 {
-    auto it = this->_define.find(this->_action);
-
-    if (it != this->_define.end())
+    if (this->_action)
     {
-        auto temp = it->second.options();
+        auto temp = this->_action->options();
         auto find = temp.find(option);
 
         if (find != temp.end())
@@ -265,9 +278,9 @@ void parser::output(const std::string &text) const
 action::action(const std::string &name,
                const std::string &desc,
                std::function<void (const chen::cmd::parser &parser)> bind)
-: _name(name)
-, _desc(desc)
-, _bind(bind)
+        : _name(name)
+        , _desc(desc)
+        , _bind(bind)
 {
 }
 
@@ -310,9 +323,9 @@ const std::map<std::string, chen::cmd::option>& action::options() const
 // -----------------------------------------------------------------------------
 // object
 object::object(const std::string &name, std::size_t min, std::size_t max)
-: _name(name)
-, _min(min)
-, _max(max)
+        : _name(name)
+        , _min(min)
+        , _max(max)
 {
 }
 
@@ -344,11 +357,11 @@ option::option(const std::string &name,
                const std::string &desc,
                const chen::any &def,
                const chen::any &pre)
-: _name(name)
-, _tiny(tiny)
-, _desc(desc)
-, _def(def)
-, _pre(pre)
+        : _name(name)
+        , _tiny(tiny)
+        , _desc(desc)
+        , _def(def)
+        , _pre(pre)
 {
 }
 
