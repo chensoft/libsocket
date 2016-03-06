@@ -186,6 +186,7 @@ namespace chen
         class action
         {
         public:
+            action() = default;
             action(const std::string &name,
                    const std::string &desc,
                    std::function<void (const chen::cmd::parser &parser)> bind = nullptr);
@@ -228,6 +229,7 @@ namespace chen
         class object
         {
         public:
+            object() = default;
             object(const std::string &name, std::size_t min, std::size_t max);
             virtual ~object() = default;
 
@@ -266,6 +268,7 @@ namespace chen
         class option
         {
         public:
+            option() = default;
             option(const std::string &name,
                    const std::string &tiny,
                    const std::string &desc,

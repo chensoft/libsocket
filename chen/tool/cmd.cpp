@@ -57,11 +57,9 @@ void parser::parse(int argc, const char *const argv[])
         ++index;
     }
 
+    // using empty action if not found
     auto it = this->_define.find(name);
-    if (it == this->_define.end())
-        throw new chen::cmd::error("cmd can not find current action");
-
-    std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(it->second));
+    std::unique_ptr<chen::cmd::action> action(it != this->_define.end() ? new chen::cmd::action(it->second) : new chen::cmd::action);
 
     // parse the objects and options
     auto objects = action->objects();
