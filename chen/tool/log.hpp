@@ -12,6 +12,7 @@
 #include <mutex>
 #include "str.hpp"
 
+// todo add method to redirect output text to another place
 // log
 namespace chen
 {

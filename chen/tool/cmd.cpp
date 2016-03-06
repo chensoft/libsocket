@@ -7,6 +7,7 @@
 #include "cmd.hpp"
 #include "log.hpp"
 #include "path.hpp"
+#include <iostream>
 
 using namespace chen;
 using namespace chen::cmd;
@@ -14,61 +15,13 @@ using namespace chen::cmd;
 // -----------------------------------------------------------------------------
 // parser
 parser::parser(const std::string &app)
-        : _app(app)
+: _app(app)
 {
 }
 
 // parse
 void parser::parse(int argc, const char *const argv[])
 {
-    // arguments count must greater than 1
-    if (argc < 1)
-        throw chen::cmd::error("cmd count is zero");
-    else if (argc == 1)
-        return;
-
-    // if app is empty then use first argument
-    if (this->_app.empty())
-        this->_app = path::basename(argv[0]);
-
-    // get current action, action is the first component
-    int cursor = 1;
-    std::string name;
-
-    while (cursor < argc)
-    {
-        auto param = argv[cursor];
-
-        if (param[0] == '-')
-        {
-            // '-' means the trailing part isn't an action
-            break;
-        }
-        else
-        {
-            std::string temp(!name.empty() ? name + "." + param : param);
-
-            // if find means the action is defined, otherwise the param is not a part of action
-            if (this->_define.find(temp) != this->_define.end())
-                name = temp;
-            else
-                break;
-        }
-
-        ++cursor;
-    }
-
-    auto find = this->_define.find(name);
-    if (find == this->_define.end())
-        throw chen::cmd::error("cmd current action not found");
-
-    chen::cmd::action *action = &find->second;
-
-    // parse the trailing components
-
-    // call the action callback if defined
-    if (action->bind())
-        action->bind()(*this);
 }
 
 // action
@@ -90,7 +43,7 @@ void parser::object(const std::string &action,
     if (it != this->_define.end())
         it->second.add(chen::cmd::object(name, min, max));
     else
-        throw chen::cmd::error("cmd define object action not found");
+        throw chen::cmd::error_action("cmd action not found");
 }
 
 // option
@@ -102,20 +55,23 @@ void parser::option(const std::string &action,
                     const any &pre)
 {
     if (tiny.size() > 1)
-        throw chen::cmd::error("cmd option tiny name must be one character");
+        throw chen::cmd::error("cmd tiny name can be only one character");
 
     auto it = this->_define.find(action);
 
     if (it != this->_define.end())
         it->second.add(name, chen::cmd::option(name, tiny, desc, def, pre));
     else
-        throw chen::cmd::error("cmd define option action not found");
+        throw chen::cmd::error_action("cmd action not found");
 }
 
 // current
 std::string parser::current() const
 {
-    return this->_action ? this->_action->name() : "";
+    if (this->_action)
+        return this->_action->name();
+    else
+        throw chen::cmd::error_action("cmd current action not found");
 }
 
 // object value
@@ -133,11 +89,11 @@ std::vector<std::string> parser::objVal(const std::string &object) const
             }
         }
 
-        throw chen::cmd::error("cmd object value object not found");
+        return std::vector<std::string>();
     }
     else
     {
-        throw chen::cmd::error("cmd object value current action not found");
+        throw chen::cmd::error_action("cmd current action not found");
     }
 }
 
@@ -148,15 +104,11 @@ bool parser::boolVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-
-        if (find != temp.end())
-            return find->second.val();
-
-        throw chen::cmd::error("cmd bool value option not found");
+        return find != temp.end() ? find->second.val() : false;
     }
     else
     {
-        throw chen::cmd::error("cmd bool value current action not found");
+        throw chen::cmd::error_action("cmd current action not found");
     }
 }
 
@@ -166,15 +118,11 @@ std::int32_t parser::intVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-
-        if (find != temp.end())
-            return find->second.val();
-
-        throw chen::cmd::error("cmd int value option not found");
+        return find != temp.end() ? find->second.val() : 0;
     }
     else
     {
-        throw chen::cmd::error("cmd int value current action not found");
+        throw chen::cmd::error_action("cmd current action not found");
     }
 }
 
@@ -184,15 +132,11 @@ std::string parser::strVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-
-        if (find != temp.end())
-            return find->second.val();
-
-        throw chen::cmd::error("cmd str value option not found");
+        return find != temp.end() ? find->second.val() : "";
     }
     else
     {
-        throw chen::cmd::error("cmd str value current action not found");
+        throw chen::cmd::error_action("cmd current action not found");
     }
 }
 
@@ -202,15 +146,11 @@ std::int64_t parser::int64Val(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-
-        if (find != temp.end())
-            return find->second.val();
-
-        throw chen::cmd::error("cmd int64 value option not found");
+        return find != temp.end() ? find->second.val() : 0;
     }
     else
     {
-        throw chen::cmd::error("cmd int64 value current action not found");
+        throw chen::cmd::error_action("cmd current action not found");
     }
 }
 
@@ -220,15 +160,11 @@ double parser::doubleVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-
-        if (find != temp.end())
-            return find->second.val();
-
-        throw chen::cmd::error("cmd double value option not found");
+        return find != temp.end() ? find->second.val() : 0.0;
     }
     else
     {
-        throw chen::cmd::error("cmd double value current action not found");
+        throw chen::cmd::error_action("cmd current action not found");
     }
 }
 
@@ -278,9 +214,9 @@ void parser::output(const std::string &text) const
 action::action(const std::string &name,
                const std::string &desc,
                std::function<void (const chen::cmd::parser &parser)> bind)
-        : _name(name)
-        , _desc(desc)
-        , _bind(bind)
+: _name(name)
+, _desc(desc)
+, _bind(bind)
 {
 }
 
@@ -323,9 +259,9 @@ const std::map<std::string, chen::cmd::option>& action::options() const
 // -----------------------------------------------------------------------------
 // object
 object::object(const std::string &name, std::size_t min, std::size_t max)
-        : _name(name)
-        , _min(min)
-        , _max(max)
+: _name(name)
+, _min(min)
+, _max(max)
 {
 }
 
@@ -357,11 +293,11 @@ option::option(const std::string &name,
                const std::string &desc,
                const chen::any &def,
                const chen::any &pre)
-        : _name(name)
-        , _tiny(tiny)
-        , _desc(desc)
-        , _def(def)
-        , _pre(pre)
+: _name(name)
+, _tiny(tiny)
+, _desc(desc)
+, _def(def)
+, _pre(pre)
 {
 }
 

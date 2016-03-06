@@ -39,8 +39,8 @@
 #include "any.hpp"
 #include <functional>
 #include <stdexcept>
-#include <iostream>
 #include <sstream>
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
@@ -122,8 +122,8 @@ namespace chen
 
             /**
              * Get the value of the option which belongs to the current action
-             * if the current action doesn't has this option, an error will be thrown
-             * support bool, int, int64, double, string, it's enough to get value about cli
+             * if the current action doesn't has this option, it will return a default value
+             * support bool, int, int64, double, string
              * @param option the full name of the option
              */
             virtual bool boolVal(const std::string &option) const;
@@ -173,11 +173,10 @@ namespace chen
             std::string _prefix;  // usage prefix
             std::string _suffix;  // usage suffix
 
-            chen::cmd::action *_action = nullptr;  // current action, weak ref
+            std::unique_ptr<chen::cmd::action> _action;  // current action
+            std::vector<std::string> _rest;              // rest unresolved params
 
-            std::vector<std::string> _rest;  // rest unresolved params
-
-            std::map<std::string, std::string> _suggest;  // intelligent suggest
+            std::map<std::string, std::string> _suggest;       // intelligent suggest
             std::map<std::string, chen::cmd::action> _define;  // action defines
         };
 
@@ -292,6 +291,27 @@ namespace chen
         {
         public:
             explicit error(const std::string &what) : std::runtime_error(what) {}
+        };
+
+
+        class error_action : public std::runtime_error
+        {
+        public:
+            explicit error_action(const std::string &what) : std::runtime_error(what) {}
+        };
+
+
+        class error_object : public std::runtime_error
+        {
+        public:
+            explicit error_object(const std::string &what) : std::runtime_error(what) {}
+        };
+
+
+        class error_option : public std::runtime_error
+        {
+        public:
+            explicit error_option(const std::string &what) : std::runtime_error(what) {}
         };
 
 
