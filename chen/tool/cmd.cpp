@@ -22,16 +22,125 @@ parser::parser(const std::string &app)
 // parse
 void parser::parse(int argc, const char *const argv[])
 {
-    // arguments count must greater than 1
+    // argc must greater than 1
     if (argc <= 1)
         return;
 
-    // if app is empty then use first argument
+    // set app name if it's empty
     if (this->_app.empty())
         this->_app = path::basename(argv[0]);
 
-    // todo
-    PILogE("chen: %s", this->_app.c_str());
+    // find current action first
+    int index = 1;
+    std::string name;
+
+    while (index < argc)
+    {
+        auto param = argv[index];
+
+        if (param[0] != '-')
+        {
+            // sub-action is joined by dots
+            std::string temp(!name.empty() ? name + "." + param : param);
+
+            if (this->_define.find(temp) != this->_define.end())
+                name = temp;
+            else
+                break;
+        }
+        else
+        {
+            break;
+        }
+
+        ++index;
+    }
+
+    auto it = this->_define.find(name);
+    if (it == this->_define.end())
+        throw new chen::cmd::error("cmd can not find current action");
+
+    std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(it->second));
+
+    // parse the objects and options
+    auto objects = action->objects();
+    auto options = action->options();
+
+    std::vector<chen::cmd::object>::iterator object = objects.begin();
+
+    while (index < argc)
+    {
+        auto param = argv[index];
+
+        if (param[0] == '-')
+        {
+            // handle option
+            auto curr = (strlen(param) >= 2) && (param[1] == '-') ? std::string(param + 2) : std::string(param + 1);
+            auto next = (index + 1 < argc) ? argv[index + 1] : nullptr;
+            auto find = options.find(curr);
+
+            if (find != options.end())
+            {
+                if (next && (next[0] != '-'))
+                {
+                    find->second.set(next);
+                    index += 2;
+                }
+                else
+                {
+                    find->second.set();
+                    ++index;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        else
+        {
+            // handle object
+            if (object != objects.end())
+            {
+                auto min = object->min();
+                auto max = object->max();
+                auto cur = index;
+
+                while (++index < argc)
+                {
+                    auto temp = argv[index];
+
+                    if (temp[0] != '-')
+                        object->add(temp);
+                    else
+                        break;
+                }
+
+                // check length
+                auto len = object->val().size();
+
+                if ((len < min) || (len > max))
+                {
+                    // length is error
+                    index = cur;
+                    object->clear();
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    // the rest unresolved params
+    this->_rest.clear();
+
+    for (; index < argc; ++index)
+        this->_rest.push_back(argv[index]);
+
+    // store the current action
+    this->_action.swap(action);
 }
 
 // action
@@ -48,6 +157,12 @@ void parser::object(const std::string &action,
                     std::size_t min,
                     std::size_t max)
 {
+    if (!max)
+        throw new chen::cmd::error_object("cmd object max count must greater than 1");
+
+    if (max > min)
+        throw new chen::cmd::error_object("cmd object max can not greater than min");
+
     auto it = this->_define.find(action);
 
     if (it != this->_define.end())
@@ -65,7 +180,7 @@ void parser::option(const std::string &action,
                     const any &pre)
 {
     if (tiny.size() > 1)
-        throw chen::cmd::error("cmd tiny name can be only one character");
+        throw chen::cmd::error_option("cmd tiny name can be only one character");
 
     auto it = this->_define.find(action);
 
@@ -275,6 +390,16 @@ object::object(const std::string &name, std::size_t min, std::size_t max)
 {
 }
 
+void object::add(const std::string &val)
+{
+    this->_val.push_back(val);
+}
+
+void object::clear()
+{
+    this->_val.clear();
+}
+
 const std::string& object::name() const
 {
     return this->_name;
@@ -311,6 +436,23 @@ option::option(const std::string &name,
 {
 }
 
+void option::set()
+{
+    this->_set = true;
+}
+
+void option::set(const chen::any &val)
+{
+    this->_set = true;
+    this->_val = val;
+}
+
+void option::clear()
+{
+    this->_set = false;
+    this->_val = chen::any();
+}
+
 const std::string& option::name() const
 {
     return this->_name;
@@ -339,4 +481,9 @@ const chen::any& option::def() const
 const chen::any& option::pre() const
 {
     return this->_pre;
+}
+
+const bool option::valid() const
+{
+    return this->_set;
 }

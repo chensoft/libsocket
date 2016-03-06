@@ -233,6 +233,17 @@ namespace chen
 
         public:
             /**
+             * Add value
+             */
+            virtual void add(const std::string &val);
+
+            /**
+             * Clear value
+             */
+            virtual void clear();
+
+        public:
+            /**
              * Properties
              */
             virtual const std::string& name() const;
@@ -264,6 +275,18 @@ namespace chen
 
         public:
             /**
+             * Set value
+             */
+            virtual void set();  // indicate the option is valid
+            virtual void set(const chen::any &val);  // set option with user value
+
+            /**
+             * Clear value
+             */
+            virtual void clear();
+
+        public:
+            /**
              * Properties
              */
             virtual const std::string& name() const;
@@ -274,6 +297,8 @@ namespace chen
             virtual const chen::any& def() const;
             virtual const chen::any& pre() const;
 
+            virtual const bool valid() const;
+
         protected:
             std::string _name;
             std::string _tiny;
@@ -282,6 +307,8 @@ namespace chen
             chen::any _val;
             chen::any _def;
             chen::any _pre;
+
+            bool _set = false;
         };
 
 
