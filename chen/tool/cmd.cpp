@@ -22,6 +22,16 @@ parser::parser(const std::string &app)
 // parse
 void parser::parse(int argc, const char *const argv[])
 {
+    // arguments count must greater than 1
+    if (argc <= 1)
+        return;
+
+    // if app is empty then use first argument
+    if (this->_app.empty())
+        this->_app = path::basename(argv[0]);
+
+    // todo
+    PILogE("chen: %s", this->_app.c_str());
 }
 
 // action
@@ -104,7 +114,7 @@ bool parser::boolVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-        return find != temp.end() ? find->second.val() : false;
+        return find != temp.end() ? static_cast<bool>(find->second.val()) : false;
     }
     else
     {
@@ -118,7 +128,7 @@ std::int32_t parser::intVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-        return find != temp.end() ? find->second.val() : 0;
+        return find != temp.end() ? static_cast<std::int32_t>(find->second.val()) : 0;
     }
     else
     {
@@ -146,7 +156,7 @@ std::int64_t parser::int64Val(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-        return find != temp.end() ? find->second.val() : 0;
+        return find != temp.end() ? static_cast<std::int64_t>(find->second.val()) : 0;
     }
     else
     {
@@ -160,7 +170,7 @@ double parser::doubleVal(const std::string &option) const
     {
         auto temp = this->_action->options();
         auto find = temp.find(option);
-        return find != temp.end() ? find->second.val() : 0.0;
+        return find != temp.end() ? static_cast<double>(find->second.val()) : 0.0;
     }
     else
     {

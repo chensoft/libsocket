@@ -238,7 +238,7 @@ std::string path::basename(const std::string &path)
         }
     }
 
-    if ((flag_a != end) && (flag_b != end))
+    if (flag_b != end)
         return path.substr(static_cast<std::size_t>(end - flag_a), static_cast<std::size_t>(flag_a - flag_b));
     else
         return "";

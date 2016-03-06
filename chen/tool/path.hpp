@@ -85,6 +85,7 @@ namespace chen
         /**
          * Base name of the path
          * e.g: /home/staff/Downloads/file.txt, basename is "file.txt"
+         * e.g: file.txt, basename is "file.txt"
          */
         static std::string basename(const std::string &path);
 
