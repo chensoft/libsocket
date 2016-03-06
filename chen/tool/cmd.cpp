@@ -7,6 +7,7 @@
 #include "cmd.hpp"
 #include "log.hpp"
 #include "path.hpp"
+#include <string.h>
 #include <iostream>
 
 using namespace chen;

@@ -7,6 +7,7 @@
 #include "path.hpp"
 #include "log.hpp"
 #include "str.hpp"
+#include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
