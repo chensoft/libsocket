@@ -101,11 +101,10 @@ void parser::parse(int argc, const char *const argv[])
             // handle object
             if (object != objects.end())
             {
-                auto min = object->min();
-                auto max = object->max();
+                auto len = object->size();
                 auto cur = index;
 
-                while (++index < argc)
+                while ((index < argc) && (index - cur < len))
                 {
                     auto temp = argv[index];
 
@@ -113,16 +112,23 @@ void parser::parse(int argc, const char *const argv[])
                         object->add(temp);
                     else
                         break;
+
+                    ++index;
                 }
 
-                // check length
-                auto len = object->val().size();
+                // restore if the object is not reach len
+                auto size = object->val().size();
 
-                if ((len < min) || (len > max))
+                if (len && (size < len))
                 {
                     // length is error
                     index = cur;
                     object->clear();
+                    break;
+                }
+                else
+                {
+                    ++object;
                 }
             }
             else
@@ -153,19 +159,12 @@ void parser::action(const std::string &name,
 // object
 void parser::object(const std::string &action,
                     const std::string &name,
-                    std::size_t min,
-                    std::size_t max)
+                    std::size_t size)
 {
-    if (!max)
-        throw new chen::cmd::error_object("cmd object max count must greater than 1");
-
-    if (max > min)
-        throw new chen::cmd::error_object("cmd object max can not greater than min");
-
     auto it = this->_define.find(action);
 
     if (it != this->_define.end())
-        it->second.add(chen::cmd::object(name, min, max));
+        it->second.add(chen::cmd::object(name, size));
     else
         throw chen::cmd::error_action("cmd action not found");
 }
@@ -382,10 +381,9 @@ const std::map<std::string, chen::cmd::option>& action::options() const
 
 // -----------------------------------------------------------------------------
 // object
-object::object(const std::string &name, std::size_t min, std::size_t max)
+object::object(const std::string &name, std::size_t size)
 : _name(name)
-, _min(min)
-, _max(max)
+, _size(size)
 {
 }
 
@@ -404,14 +402,9 @@ const std::string& object::name() const
     return this->_name;
 }
 
-std::size_t object::min() const
+std::size_t object::size() const
 {
-    return this->_min;
-}
-
-std::size_t object::max() const
-{
-    return this->_max;
+    return this->_size;
 }
 
 const std::vector<std::string>& object::val() const

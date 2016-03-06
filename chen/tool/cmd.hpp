@@ -83,13 +83,12 @@ namespace chen
             /**
              * Define object
              * @param action identify which action has this object
-             * @param min the minimum count of object
-             * @param max the maximum count of object, if zero means unlimited
+             * @param name the name of the object
+             * @param size the count of the object, if zero means unlimited
              */
             virtual void object(const std::string &action,
                                 const std::string &name,
-                                std::size_t min,
-                                std::size_t max);
+                                std::size_t size);
 
             /**
              * Define option
@@ -230,7 +229,7 @@ namespace chen
         {
         public:
             object() = default;
-            object(const std::string &name, std::size_t min, std::size_t max);
+            object(const std::string &name, std::size_t size);
             virtual ~object() = default;
 
         public:
@@ -249,15 +248,12 @@ namespace chen
              * Properties
              */
             virtual const std::string& name() const;
-            virtual std::size_t min() const;
-            virtual std::size_t max() const;
+            virtual std::size_t size() const;
             virtual const std::vector<std::string>& val() const;
 
         protected:
             std::string _name;
-
-            std::size_t _min = 0;
-            std::size_t _max = 0;
+            std::size_t _size = 0;
 
             std::vector<std::string> _val;
         };
