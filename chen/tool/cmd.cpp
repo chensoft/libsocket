@@ -65,10 +65,8 @@ void parser::parse(int argc, const char *const argv[])
     std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(it->second));
 
     // parse the objects and options
-    auto objects = action->objects();
     auto options = action->options();
-
-    std::vector<chen::cmd::object>::iterator object = objects.begin();
+    std::vector<std::string> object;
 
     while (index < argc)
     {
@@ -102,48 +100,13 @@ void parser::parse(int argc, const char *const argv[])
         else
         {
             // handle object
-            if (object != objects.end())
-            {
-                auto len = object->size();
-                auto cur = index;
-
-                while ((index < argc) && (index - cur < len))
-                {
-                    auto temp = argv[index];
-
-                    if (temp[0] != '-')
-                        object->add(temp);
-                    else
-                        break;
-
-                    ++index;
-                }
-
-                // restore if the object is not reach len
-                if (len && (index - cur < len))
-                {
-                    // length is error
-                    index = cur;
-                    object->clear();
-                    break;
-                }
-                else
-                {
-                    ++object;
-                }
-            }
-            else
-            {
-                break;
-            }
+            object.push_back(param);
+            ++index;
         }
     }
 
     // the rest unresolved params
-    this->_rest.clear();
-
-    for (; index < argc; ++index)
-        this->_rest.push_back(argv[index]);
+    this->_object = std::move(object);
 
     // store the current action
     this->_action.swap(action);
@@ -155,19 +118,6 @@ void parser::action(const std::string &name,
                     std::function<void (const chen::cmd::parser &parser)> bind)
 {
     this->_define.emplace(name, chen::cmd::action(name, desc, bind));
-}
-
-// object
-void parser::object(const std::string &action,
-                    const std::string &name,
-                    std::size_t size)
-{
-    auto it = this->_define.find(action);
-
-    if (it != this->_define.end())
-        it->second.add(chen::cmd::object(name, size));
-    else
-        throw chen::cmd::error_action("cmd action not found");
 }
 
 // option
@@ -196,29 +146,6 @@ std::string parser::current() const
         return this->_action->name();
     else
         throw chen::cmd::error_action("cmd current action not found");
-}
-
-// object value
-std::vector<std::string> parser::objVal(const std::string &object) const
-{
-    if (this->_action)
-    {
-        auto temp = this->_action->objects();
-
-        for (auto &obj : temp)
-        {
-            if (obj.name() == object)
-            {
-                return obj.val();
-            }
-        }
-
-        return std::vector<std::string>();
-    }
-    else
-    {
-        throw chen::cmd::error_action("cmd current action not found");
-    }
 }
 
 // option value
@@ -292,10 +219,10 @@ double parser::doubleVal(const std::string &option) const
     }
 }
 
-// rest
-const std::vector<std::string>& parser::rest() const
+// object value
+const std::vector<std::string>& parser::objVal() const
 {
-    return this->_rest;
+    return this->_object;
 }
 
 // usage
@@ -344,11 +271,6 @@ action::action(const std::string &name,
 {
 }
 
-void action::add(const chen::cmd::object &object)
-{
-    this->_objects.push_back(object);
-}
-
 void action::add(const std::string &name, const chen::cmd::option &option)
 {
     this->_options.emplace(name, option);
@@ -369,48 +291,9 @@ const std::function<void (const chen::cmd::parser &parser)>& action::bind() cons
     return this->_bind;
 }
 
-const std::vector<chen::cmd::object>& action::objects() const
-{
-    return this->_objects;
-}
-
 const std::map<std::string, chen::cmd::option>& action::options() const
 {
     return this->_options;
-}
-
-
-// -----------------------------------------------------------------------------
-// object
-object::object(const std::string &name, std::size_t size)
-: _name(name)
-, _size(size)
-{
-}
-
-void object::add(const std::string &val)
-{
-    this->_val.push_back(val);
-}
-
-void object::clear()
-{
-    this->_val.clear();
-}
-
-const std::string& object::name() const
-{
-    return this->_name;
-}
-
-std::size_t object::size() const
-{
-    return this->_size;
-}
-
-const std::vector<std::string>& object::val() const
-{
-    return this->_val;
 }
 
 

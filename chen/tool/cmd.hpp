@@ -10,16 +10,16 @@
  * :-) app -opt1=val --opt2=val ...
  * :-) app action
  * :-) app action -opt1=val --opt2=val ...
- * :-) app action object1 object2 -opt1=val --opt2=val ...
- * :-) app action sub-action object1 object2 -opt1=val --opt2=val ...
+ * :-) app action -opt1=val --opt2=val object1 object2 ...
+ * :-) app action sub-action -opt1=val --opt2=val object1 object2 ...
  * -----------------------------------------------------------------------------
- * The main three parts is Action + Object + Option
+ * The main three parts is Action + Option + Object
  * Action: the operation that user want to do
  *    e.g: git clone, "clone" is the action
- * Object: the operation target
- *    e.g: git clone https://github.com/chensoft/libchen.git, url is the object
  * Option: the action flags
  *    e.g: git --version, "version" is the flag
+ * Object: the unresolved arguments
+ *    e.g: git clone https://github.com/chensoft/libchen.git, url is the object
  * Sub-action: an action can contain a sub-action
  *    e.g: git submodule update, "update" is the sub-action of "submodule"
  * -----------------------------------------------------------------------------
@@ -51,7 +51,6 @@ namespace chen
     namespace cmd
     {
         class action;
-        class object;
         class option;
 
         // -------------------------------------------------------------------------
@@ -81,16 +80,6 @@ namespace chen
                                 std::function<void (const chen::cmd::parser &parser)> bind = nullptr);
 
             /**
-             * Define object
-             * @param action identify which action has this object
-             * @param name the name of the object
-             * @param size the count of the object, if zero means unlimited
-             */
-            virtual void object(const std::string &action,
-                                const std::string &name,
-                                std::size_t size);
-
-            /**
              * Define option
              * @param action identify which action has this option
              * @param name complete name of option, e.g: app --help, "help" is the full name
@@ -113,13 +102,6 @@ namespace chen
             virtual std::string current() const;
 
             /**
-             * Get the value of the object which belongs to the current action
-             * @param object the name of the object
-             * @result the matched params array
-             */
-            virtual std::vector<std::string> objVal(const std::string &object) const;
-
-            /**
              * Get the value of the option which belongs to the current action
              * if the current action doesn't has this option, it will return a default value
              * support bool, int, int64, double, string
@@ -133,9 +115,10 @@ namespace chen
             virtual double doubleVal(const std::string &option) const;
 
             /**
-             * Rest unresolved arguments
+             * Get the current object, which is also the unresolved arguments
+             * @result the matched params array
              */
-            virtual const std::vector<std::string>& rest() const;
+            virtual const std::vector<std::string>& objVal() const;
 
         public:
             /**
@@ -173,7 +156,7 @@ namespace chen
             std::string _suffix;  // usage suffix
 
             std::unique_ptr<chen::cmd::action> _action;  // current action
-            std::vector<std::string> _rest;              // rest unresolved params
+            std::vector<std::string> _object;            // rest unresolved params
 
             std::map<std::string, std::string> _suggest;       // intelligent suggest
             std::map<std::string, chen::cmd::action> _define;  // action defines
@@ -193,11 +176,6 @@ namespace chen
 
         public:
             /**
-             * Associate an object with this action
-             */
-            virtual void add(const chen::cmd::object &object);
-
-            /**
              * Associate an option with this action
              */
             virtual void add(const std::string &name, const chen::cmd::option &option);
@@ -210,7 +188,6 @@ namespace chen
             virtual const std::string& desc() const;
             virtual const std::function<void (const chen::cmd::parser &parser)>& bind() const;
 
-            virtual const std::vector<chen::cmd::object>& objects() const;
             virtual const std::map<std::string, chen::cmd::option>& options() const;
 
         protected:
@@ -218,44 +195,7 @@ namespace chen
             std::string _desc;
             std::function<void (const chen::cmd::parser &parser)> _bind;
 
-            std::vector<chen::cmd::object> _objects;
             std::map<std::string, chen::cmd::option> _options;
-        };
-
-
-        // -------------------------------------------------------------------------
-        // object
-        class object
-        {
-        public:
-            object() = default;
-            object(const std::string &name, std::size_t size);
-            virtual ~object() = default;
-
-        public:
-            /**
-             * Add value
-             */
-            virtual void add(const std::string &val);
-
-            /**
-             * Clear value
-             */
-            virtual void clear();
-
-        public:
-            /**
-             * Properties
-             */
-            virtual const std::string& name() const;
-            virtual std::size_t size() const;
-            virtual const std::vector<std::string>& val() const;
-
-        protected:
-            std::string _name;
-            std::size_t _size = 0;
-
-            std::vector<std::string> _val;
         };
 
 
@@ -324,13 +264,6 @@ namespace chen
         {
         public:
             explicit error_action(const std::string &what) : std::runtime_error(what) {}
-        };
-
-
-        class error_object : public std::runtime_error
-        {
-        public:
-            explicit error_object(const std::string &what) : std::runtime_error(what) {}
         };
 
 
