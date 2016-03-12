@@ -11,7 +11,7 @@ using namespace chen;
 // -----------------------------------------------------------------------------
 // any
 any::any(const any &o)
-: _ptr(o._ptr->clone())
+: _ptr(o._ptr ? o._ptr->clone() : nullptr)
 {
 }
 

@@ -73,7 +73,7 @@ namespace chen
              * e.g: git submodule init, name is "submodule.init"
              * @param name action name pass a empty string if you don't want a named action
              * @param desc action description
-             * @param bind trigger when encounter this action
+             * @param bind call the function when parse this action
              */
             virtual void action(const std::string &name,
                                 const std::string &desc,
@@ -97,7 +97,7 @@ namespace chen
 
         public:
             /**
-             * Get current matched action name
+             * Get the current action name
              */
             virtual std::string current() const;
 
@@ -188,14 +188,16 @@ namespace chen
             virtual const std::string& desc() const;
             virtual const std::function<void (const chen::cmd::parser &parser)>& bind() const;
 
-            virtual const std::map<std::string, chen::cmd::option>& options() const;
+            virtual const std::map<std::string, chen::cmd::option>& option() const;
+            virtual const std::map<std::string, std::string>& alias() const;
 
         protected:
             std::string _name;
             std::string _desc;
             std::function<void (const chen::cmd::parser &parser)> _bind;
 
-            std::map<std::string, chen::cmd::option> _options;
+            std::map<std::string, chen::cmd::option> _option;
+            std::map<std::string, std::string> _alias;
         };
 
 

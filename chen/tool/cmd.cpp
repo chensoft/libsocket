@@ -32,20 +32,20 @@ void parser::parse(int argc, const char *const argv[])
         this->_app = path::basename(argv[0]);
 
     // find current action first
-    int index = 1;
-    std::string name;
+    int idx = 1;
+    chen::cmd::action *cur = nullptr;
 
-    while (index < argc)
+    while (idx < argc)
     {
-        auto param = argv[index];
+        auto param = argv[idx];
 
         if (param[0] != '-')
         {
             // sub-action is joined by dots
-            std::string temp(!name.empty() ? name + "." + param : param);
+            auto it = this->_define.find(cur ? cur->name() + "." + param : param);
 
-            if (this->_define.find(temp) != this->_define.end())
-                name = temp;
+            if (it != this->_define.end())
+                cur = &it->second;
             else
                 break;
         }
@@ -54,54 +54,131 @@ void parser::parse(int argc, const char *const argv[])
             break;
         }
 
-        ++index;
+        ++idx;
     }
 
-    // using empty action if not found
-    auto it = this->_define.find(name);
-    if (it == this->_define.end())
-        throw chen::cmd::error_action("cmd can not find current action");
+    // find the root action
+    if (!cur)
+    {
+        auto it = this->_define.find("");
 
-    std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(it->second));
+        if (it != this->_define.end())
+            cur = &it->second;
+        else
+            throw chen::cmd::error_action("cmd can not find current action");
+    }
 
-    // parse the objects and options
-    auto options = action->options();
+    std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(*cur));
+
+    // parse the option and object
+    auto option = action->option();
+    auto alias  = action->alias();
+
+    std::string key;
+    std::string val;
+
     std::vector<std::string> object;
 
-    while (index < argc)
+    while (idx < argc)
     {
-        auto param = argv[index];
+        auto param = argv[idx];
 
         if (param[0] == '-')
         {
-            // handle option
-            auto curr = (strlen(param) >= 2) && (param[1] == '-') ? std::string(param + 2) : std::string(param + 1);
-            auto next = (index + 1 < argc) ? argv[index + 1] : nullptr;
-            auto find = options.find(curr);
-
-            if (find != options.end())
+            // parse option
+            if (param[1] == '-')
             {
-                if (next && (next[0] != '-'))
+                // long option
+                // e.g: --help, --user=root, --user root
+                param += 2;
+
+                while (*param && (*param != '='))
+                    key += *param++;
+
+                if (*param == '=')
                 {
-                    find->second.set(next);
-                    index += 2;
+                    while (*param)
+                        val += *++param;
                 }
-                else
+                else if (++idx < argc)
                 {
-                    find->second.set();
-                    ++index;
+                    param = argv[idx];
+
+                    if (param[0] != '-')
+                    {
+                        val = param;
+                        ++idx;
+                    }
                 }
             }
             else
             {
-                break;
+                // short option
+                // e.g: -h, -u=root, -u root
+                ++param;
+
+                key += *param++;
+
+                if (*param == '=')
+                {
+                    while (*param)
+                        val += *++param;
+                }
+                else if (++idx < argc)
+                {
+                    param = argv[idx];
+
+                    if (param[0] != '-')
+                    {
+                        val = param;
+                        ++idx;
+                    }
+                }
             }
+
+            // handle option
+            if (!key.empty())
+            {
+                chen::cmd::option *opt = nullptr;
+
+                if (key.size() > 1)
+                {
+                    // long
+                    auto it = option.find(key);
+                    if (it != option.end())
+                        opt = &it->second;
+                    else
+                        ;  // todo show option not found usage
+                }
+                else
+                {
+                    // short
+                    auto it = alias.find(key);
+                    if (it != alias.end())
+                        opt = &option[it->second];
+                    else
+                        ;  // todo show option not found usage
+                }
+
+                if (!val.empty())
+                    opt->set(val);
+                else
+                    opt->set();
+            }
+            else
+            {
+                // todo show error option key not found
+            }
+
+            // clear key & val
+            key.clear();
+            val.clear();
         }
         else
         {
             // handle object
             object.push_back(param);
-            ++index;
+            ++idx;
         }
     }
 
@@ -109,7 +186,12 @@ void parser::parse(int argc, const char *const argv[])
     this->_object = std::move(object);
 
     // store the current action
-    this->_action.swap(action);
+    this->_action = std::move(action);
+
+    // call the callback if exist
+    auto bind = this->_action->bind();
+    if (bind)
+        bind(*this);
 }
 
 // action
@@ -153,9 +235,13 @@ bool parser::boolVal(const std::string &option) const
 {
     if (this->_action)
     {
-        auto temp = this->_action->options();
+        auto temp = this->_action->option();
         auto find = temp.find(option);
-        return find != temp.end() ? static_cast<bool>(find->second.val()) : false;
+
+        if (find != temp.end())
+            return static_cast<bool>(find->second.val());
+        else
+            throw chen::cmd::error_option("cmd option not found: " + option);
     }
     else
     {
@@ -167,9 +253,13 @@ std::int32_t parser::intVal(const std::string &option) const
 {
     if (this->_action)
     {
-        auto temp = this->_action->options();
+        auto temp = this->_action->option();
         auto find = temp.find(option);
-        return find != temp.end() ? static_cast<std::int32_t>(find->second.val()) : 0;
+
+        if (find != temp.end())
+            return static_cast<std::int32_t>(find->second.val());
+        else
+            throw chen::cmd::error_option("cmd option not found: " + option);
     }
     else
     {
@@ -181,9 +271,13 @@ std::string parser::strVal(const std::string &option) const
 {
     if (this->_action)
     {
-        auto temp = this->_action->options();
+        auto temp = this->_action->option();
         auto find = temp.find(option);
-        return find != temp.end() ? find->second.val() : "";
+
+        if (find != temp.end())
+            return find->second.val();
+        else
+            throw chen::cmd::error_option("cmd option not found: " + option);
     }
     else
     {
@@ -195,9 +289,13 @@ std::int64_t parser::int64Val(const std::string &option) const
 {
     if (this->_action)
     {
-        auto temp = this->_action->options();
+        auto temp = this->_action->option();
         auto find = temp.find(option);
-        return find != temp.end() ? static_cast<std::int64_t>(find->second.val()) : 0;
+
+        if (find != temp.end())
+            return static_cast<std::int64_t>(find->second.val());
+        else
+            throw chen::cmd::error_option("cmd option not found: " + option);
     }
     else
     {
@@ -209,9 +307,13 @@ double parser::doubleVal(const std::string &option) const
 {
     if (this->_action)
     {
-        auto temp = this->_action->options();
+        auto temp = this->_action->option();
         auto find = temp.find(option);
-        return find != temp.end() ? static_cast<double>(find->second.val()) : 0.0;
+
+        if (find != temp.end())
+            return static_cast<double>(find->second.val());
+        else
+            throw chen::cmd::error_option("cmd option not found: " + option);
     }
     else
     {
@@ -273,7 +375,8 @@ action::action(const std::string &name,
 
 void action::add(const std::string &name, const chen::cmd::option &option)
 {
-    this->_options.emplace(name, option);
+    this->_option.emplace(name, option);
+    this->_alias.emplace(option.tiny(), option.name());
 }
 
 const std::string& action::name() const
@@ -291,10 +394,15 @@ const std::function<void (const chen::cmd::parser &parser)>& action::bind() cons
     return this->_bind;
 }
 
-const std::map<std::string, chen::cmd::option>& action::options() const
+const std::map<std::string, chen::cmd::option>& action::option() const
 {
-    return this->_options;
+    return this->_option;
 }
+
+const std::map<std::string, std::string>& action::alias() const
+{
+    return this->_alias;
+};
 
 
 // -----------------------------------------------------------------------------
