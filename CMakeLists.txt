@@ -2,7 +2,7 @@
 # Jian Chen <admin@chensoft.com>
 # http://chensoft.com
 # Licensed under MIT license
-# Copyright 2015 Jian Chen
+# Copyright 2016 Jian Chen
 
 cmake_minimum_required(VERSION 2.8)
 project(chen)

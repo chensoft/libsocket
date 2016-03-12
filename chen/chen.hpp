@@ -4,7 +4,7 @@
  * @author    Jian Chen <admin@chensoft.com>
  * @link      http://chensoft.com
  * @license   Licensed under MIT license
- * @copyright Copyright 2015 Jian Chen
+ * @copyright Copyright 2016 Jian Chen
  */
 #pragma once
 
