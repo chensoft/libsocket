@@ -64,7 +64,7 @@ void cmd::define(const std::string &name,
         throw std::runtime_error("cmd option tiny name already exist");
 
     // add this option
-    chen::cmd::option opt;
+    struct chen::cmd::option opt;
     opt.name = name;
     opt.tiny = tiny;
     opt.desc = desc;
@@ -205,7 +205,7 @@ void cmd::parse(int argc, const char *const argv[])
             // handle option
             if (!key.empty())
             {
-                chen::cmd::option *opt = nullptr;
+                struct chen::cmd::option *opt = nullptr;
 
                 if (key.size() > 1)
                 {
@@ -225,11 +225,13 @@ void cmd::parse(int argc, const char *const argv[])
                     else
                         ;  // todo show option not found usage
                 }
+                
+                opt->set = true;
 
                 if (!val.empty())
                     opt->val = val;
                 else
-                    opt->val = true;  // treat null value option as boolean
+                    opt->val = "true";  // treat null value option as boolean
             }
             else
             {
@@ -272,112 +274,49 @@ std::string cmd::current() const
 // option value
 bool cmd::boolVal(const std::string &name) const
 {
-    if (this->_action)
-    {
-        auto &option = this->_action->option;
-        auto &alias  = this->_action->alias;
-
-        auto it = option.find(name);
-        if (it == option.end())
-            it = option.find(alias[name]);
-
-        if (it != option.end())
-            return static_cast<bool>(it->second.val);
-        else
-            throw std::runtime_error("cmd option not found: " + name);
-    }
-    else
-    {
-        throw std::runtime_error("cmd current action not found");
-    }
+    auto option = this->option(name);
+    return option.set ? (option.val == "true") : static_cast<bool>(option.def);
 }
 
 std::int32_t cmd::intVal(const std::string &name) const
 {
-    if (this->_action)
-    {
-        auto &option = this->_action->option;
-        auto &alias  = this->_action->alias;
-
-        auto it = option.find(name);
-        if (it == option.end())
-            it = option.find(alias[name]);
-
-        if (it != option.end())
-            return static_cast<std::int32_t>(it->second.val);
-        else
-            throw std::runtime_error("cmd option not found: " + name);
-    }
-    else
-    {
-        throw std::runtime_error("cmd current action not found");
-    }
+    auto option = this->option(name);
+    return option.set ? std::atoi(option.val.c_str()) : static_cast<std::int32_t>(option.def);
 }
 
 std::string cmd::strVal(const std::string &name) const
 {
-    if (this->_action)
+    auto option = this->option(name);
+
+    if (option.set)
     {
-        auto &option = this->_action->option;
-        auto &alias  = this->_action->alias;
-
-        auto it = option.find(name);
-        if (it == option.end())
-            it = option.find(alias[name]);
-
-        if (it != option.end())
-            return it->second.val;
-        else
-            throw std::runtime_error("cmd option not found: " + name);
+        return option.val;
     }
     else
     {
-        throw std::runtime_error("cmd current action not found");
+        auto tmp1 = static_cast<const char*>(option.def);
+        if (tmp1)
+            return tmp1;
+
+        auto tmp2 = static_cast<char*>(option.def);
+        if (tmp2)
+            return tmp2;
+
+        std::string tmp3 = option.def;
+        return tmp3;
     }
 }
 
 std::int64_t cmd::int64Val(const std::string &name) const
 {
-    if (this->_action)
-    {
-        auto &option = this->_action->option;
-        auto &alias  = this->_action->alias;
-
-        auto it = option.find(name);
-        if (it == option.end())
-            it = option.find(alias[name]);
-
-        if (it != option.end())
-            return static_cast<std::int64_t>(it->second.val);
-        else
-            throw std::runtime_error("cmd option not found: " + name);
-    }
-    else
-    {
-        throw std::runtime_error("cmd current action not found");
-    }
+    auto option = this->option(name);
+    return option.set ? std::atoll(option.val.c_str()) : static_cast<std::int64_t>(option.def);
 }
 
 double cmd::doubleVal(const std::string &name) const
 {
-    if (this->_action)
-    {
-        auto &option = this->_action->option;
-        auto &alias  = this->_action->alias;
-
-        auto it = option.find(name);
-        if (it == option.end())
-            it = option.find(alias[name]);
-
-        if (it != option.end())
-            return static_cast<double>(it->second.val);
-        else
-            throw std::runtime_error("cmd option not found: " + name);
-    }
-    else
-    {
-        throw std::runtime_error("cmd current action not found");
-    }
+    auto option = this->option(name);
+    return option.set ? std::atof(option.val.c_str()) : static_cast<double>(option.def);
 }
 
 // object value
@@ -401,4 +340,27 @@ std::string cmd::usage() const
 void cmd::suggest(const std::string &alias, const std::string &action)
 {
     this->_suggest[alias] = action;
+}
+
+// option
+const struct chen::cmd::option& cmd::option(const std::string &name) const
+{
+    if (this->_action)
+    {
+        auto &option = this->_action->option;
+        auto &alias  = this->_action->alias;
+
+        auto it = option.find(name);
+        if ((it == option.end()) && (name.size() == 1))
+            it = option.find(alias[name]);
+
+        if (it != option.end())
+            return it->second;
+        else
+            throw std::runtime_error("cmd option not found: " + name);
+    }
+    else
+    {
+        throw std::runtime_error("cmd current action not found");
+    }
 }

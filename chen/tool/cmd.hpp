@@ -77,7 +77,7 @@ namespace chen
         virtual void define(const std::string &name,
                             const std::string &tiny,
                             const std::string &desc,
-                            const chen::any &def = chen::any());
+                            const chen::any &def);
 
         /**
          * Change the action
@@ -141,8 +141,10 @@ namespace chen
             std::string tiny;
             std::string desc;
 
-            chen::any val;
-            chen::any def;
+            std::string val;
+            chen::any   def;
+
+            bool set = false;
         };
 
         struct action
@@ -154,6 +156,12 @@ namespace chen
             std::map<std::string, chen::cmd::option> option;
             std::map<std::string, std::string> alias;
         };
+
+    protected:
+        /**
+         * Find current action's option
+         */
+        virtual const struct chen::cmd::option& option(const std::string &name) const;
 
     protected:
         std::string _app;  // app name
