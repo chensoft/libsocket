@@ -63,7 +63,7 @@ namespace chen
          * @param bind call the function when parse this action
          */
         virtual void create(const std::string &name,
-                            const std::string &desc = "",
+                            const std::string &desc,
                             std::function<void (const chen::cmd &cmd)> bind = nullptr);
 
         /**
@@ -78,6 +78,11 @@ namespace chen
                             const std::string &tiny,
                             const std::string &desc,
                             const chen::any &def = chen::any());
+
+        /**
+         * Change the action
+         */
+        virtual void change(const std::string &name);
 
     public:
         /**
@@ -111,6 +116,11 @@ namespace chen
         virtual const std::vector<std::string>& object() const;
 
     public:
+        /**
+         * App name
+         */
+        virtual std::string app() const;
+
         /**
          * Get usage info
          */

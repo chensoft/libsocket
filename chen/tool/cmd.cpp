@@ -17,12 +17,14 @@ using namespace chen;
 cmd::cmd(const std::string &app)
 : _app(app)
 {
+    // create root action
+    this->create("", "");
 }
 
 // action
 void cmd::create(const std::string &name,
-                    const std::string &desc,
-                    std::function<void (const chen::cmd &cmd)> bind)
+                 const std::string &desc,
+                 std::function<void (const chen::cmd &cmd)> bind)
 {
     if (this->_define.find(name) == this->_define.end())
     {
@@ -40,14 +42,10 @@ void cmd::create(const std::string &name,
 
 // define
 void cmd::define(const std::string &name,
-                    const std::string &tiny,
-                    const std::string &desc,
-                    const any &def)
+                 const std::string &tiny,
+                 const std::string &desc,
+                 const any &def)
 {
-    // create root action if no action defined
-    if (!this->_cursor)
-        this->create("");
-
     // full name can't be null
     if (name.empty())
         throw std::runtime_error("cmd full name can't be null");
@@ -76,6 +74,16 @@ void cmd::define(const std::string &name,
 
     if (!tiny.empty())
         alias[tiny] = name;
+}
+
+void cmd::change(const std::string &name)
+{
+    auto it = this->_define.find(name);
+
+    if (it != this->_define.end())
+        this->_cursor = &it->second;
+    else
+        throw std::runtime_error("cmd action already exist");
 }
 
 // parse
@@ -220,6 +228,8 @@ void cmd::parse(int argc, const char *const argv[])
 
                 if (!val.empty())
                     opt->val = val;
+                else
+                    opt->val = true;  // treat null value option as boolean
             }
             else
             {
@@ -374,6 +384,12 @@ double cmd::doubleVal(const std::string &name) const
 const std::vector<std::string>& cmd::object() const
 {
     return this->_object;
+}
+
+// app
+std::string cmd::app() const
+{
+    return this->_app;
 }
 
 // usage
