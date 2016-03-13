@@ -23,16 +23,16 @@
  * Sub-action: an action can contain a sub-action
  *    e.g: git submodule update, "update" is the sub-action of "submodule"
  * -----------------------------------------------------------------------------
- * Usage: todo
- * >> chen::cmd::parser flag;
+ * Usage:
+ * >> chen::cmd cmd;
  * >>
- * >> flag.define<bool>("help", "h", "show help");
- * >> flag.define<int>("port", "p", "server port (default: 53)", 53);
- * >> flag.define<std::string>("zone", "z", "zone folder", "");
+ * >> cmd.define("help", "h", "show help", false);
+ * >> cmd.define("port", "p", "server port (default: 53)", 53);
+ * >> cmd.define("zone", "z", "zone folder", "");
  * >>
- * >> flag.parse(argc, argv);
+ * >> cmd.parse(argc, argv);
  * >>
- * >> bool help = flag.get<bool>("help");
+ * >> bool help = cmd.boolVal("help");
  */
 #pragma once
 

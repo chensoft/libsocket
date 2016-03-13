@@ -147,7 +147,7 @@ void cmd::parse(int argc, const char *const argv[])
 
     while (idx < argc)
     {
-        auto param = argv[idx];
+        auto param = argv[idx++];
 
         if (param[0] == '-')
         {
@@ -166,7 +166,7 @@ void cmd::parse(int argc, const char *const argv[])
                     while (*param)
                         val += *++param;
                 }
-                else if (++idx < argc)
+                else if (idx < argc)
                 {
                     param = argv[idx];
 
@@ -183,14 +183,15 @@ void cmd::parse(int argc, const char *const argv[])
                 // e.g: -h, -u=root, -u root
                 ++param;
 
-                key += *param++;
+                if (*param)
+                    key += *param++;
 
                 if (*param == '=')
                 {
                     while (*param)
                         val += *++param;
                 }
-                else if (++idx < argc)
+                else if (idx < argc)
                 {
                     param = argv[idx];
 
@@ -246,7 +247,6 @@ void cmd::parse(int argc, const char *const argv[])
         {
             // handle object
             object.push_back(param);
-            ++idx;
         }
     }
 
