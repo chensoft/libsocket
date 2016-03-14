@@ -58,23 +58,22 @@ namespace chen
          * sub-action's name is separated by dots
          * e.g: git clone, name is "clone"
          * e.g: git submodule init, name is "submodule.init"
-         * @param name action name pass a empty string if you don't want a named action
+         * @param action the action name
          * @param desc action description
          * @param bind call the function when parse this action
          */
-        virtual void create(const std::string &name,
+        virtual void create(const std::string &action,
                             const std::string &desc,
                             std::function<void (const chen::cmd &cmd)> bind = nullptr);
 
         /**
          * Define option of the action
-         * @param action identify which action has this option
-         * @param name complete name of option, e.g: app --help, "help" is the full name
+         * @param option complete name of option, e.g: app --help, "help" is the full name
          * @param tiny short name of option, e.g: app -h, "h" is the short name
          * @param desc description of the option
          * @param def the default value when the option is not specified
          */
-        virtual void define(const std::string &name,
+        virtual void define(const std::string &option,
                             const std::string &tiny,
                             const std::string &desc,
                             const chen::any &def);
@@ -82,7 +81,7 @@ namespace chen
         /**
          * Change the action
          */
-        virtual void change(const std::string &name);
+        virtual void change(const std::string &action);
 
     public:
         /**
@@ -107,12 +106,12 @@ namespace chen
          * support bool, int, int64, double, string
          * @param option the full name or tiny name of the option
          */
-        virtual bool boolVal(const std::string &name) const;
-        virtual std::int32_t intVal(const std::string &name) const;
-        virtual std::string strVal(const std::string &name) const;
+        virtual bool boolVal(const std::string &option) const;
+        virtual std::int32_t intVal(const std::string &option) const;
+        virtual std::string strVal(const std::string &option) const;
 
-        virtual std::int64_t int64Val(const std::string &name) const;
-        virtual double doubleVal(const std::string &name) const;
+        virtual std::int64_t int64Val(const std::string &option) const;
+        virtual double doubleVal(const std::string &option) const;
 
         /**
          * Get the object, which is also the unresolved arguments
@@ -139,7 +138,7 @@ namespace chen
             std::string desc;
             std::function<void (const chen::cmd &cmd)> bind;
 
-            std::map<std::string, chen::cmd::option> option;
+            std::map<std::string, chen::cmd::option> options;
             std::map<std::string, std::string> alias;
         };
 

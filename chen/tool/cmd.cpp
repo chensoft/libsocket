@@ -22,17 +22,17 @@ cmd::cmd(const std::string &app)
 }
 
 // action
-void cmd::create(const std::string &name,
+void cmd::create(const std::string &action,
                  const std::string &desc,
                  std::function<void (const chen::cmd &cmd)> bind)
 {
-    if (this->_define.find(name) == this->_define.end())
+    if (this->_define.find(action) == this->_define.end())
     {
-        chen::cmd::action action;
-        action.name = name;
-        action.desc = desc;
-        action.bind = bind;
-        this->_cursor = &this->_define.emplace(name, action).first->second;
+        chen::cmd::action act;
+        act.name = action;
+        act.desc = desc;
+        act.bind = bind;
+        this->_cursor = &this->_define.emplace(action, act).first->second;
     }
     else
     {
@@ -41,13 +41,13 @@ void cmd::create(const std::string &name,
 }
 
 // define
-void cmd::define(const std::string &name,
+void cmd::define(const std::string &option,
                  const std::string &tiny,
                  const std::string &desc,
                  const any &def)
 {
     // full name can't be null
-    if (name.empty())
+    if (option.empty())
         throw chen::cmd::error_general("cmd full name can't be null");
 
     // short name must be 1 character
@@ -55,30 +55,30 @@ void cmd::define(const std::string &name,
         throw chen::cmd::error_general("cmd tiny name must be a character");
 
     // don't allow duplicate option
-    auto &option = this->_cursor->option;
-    auto &alias  = this->_cursor->alias;
+    auto &options = this->_cursor->options;
+    auto &alias   = this->_cursor->alias;
 
-    if (option.find(name) != option.end())
+    if (options.find(option) != options.end())
         throw chen::cmd::error_general("cmd option full name already exist");
     else if (!tiny.empty() && (alias.find(tiny) != alias.end()))
         throw chen::cmd::error_general("cmd option tiny name already exist");
 
     // add this option
     chen::cmd::option opt;
-    opt.name = name;
+    opt.name = option;
     opt.tiny = tiny;
     opt.desc = desc;
     opt.def  = def;
 
-    option[name] = opt;
+    options[option] = opt;
 
     if (!tiny.empty())
-        alias[tiny] = name;
+        alias[tiny] = option;
 }
 
-void cmd::change(const std::string &name)
+void cmd::change(const std::string &action)
 {
-    auto it = this->_define.find(name);
+    auto it = this->_define.find(action);
 
     if (it != this->_define.end())
         this->_cursor = &it->second;
@@ -137,8 +137,8 @@ void cmd::parse(int argc, const char *const argv[])
     std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(*cur));
 
     // parse the option and object
-    auto &option = action->option;
-    auto &alias  = action->alias;
+    auto &options = action->options;
+    auto &alias   = action->alias;
 
     std::string key;
     std::string val;
@@ -211,8 +211,8 @@ void cmd::parse(int argc, const char *const argv[])
                 if (key.size() > 1)
                 {
                     // long
-                    auto it = option.find(key);
-                    if (it != option.end())
+                    auto it = options.find(key);
+                    if (it != options.end())
                         opt = &it->second;
                     else
                         throw chen::cmd::error_parse("cmd option not found: " + key, key);
@@ -222,7 +222,7 @@ void cmd::parse(int argc, const char *const argv[])
                     // short
                     auto it = alias.find(key);
                     if (it != alias.end())
-                        opt = &option[it->second];
+                        opt = &options[it->second];
                     else
                         throw chen::cmd::error_parse("cmd option not found: " + key, key);
                 }
@@ -278,21 +278,21 @@ std::string cmd::current() const
 }
 
 // option value
-bool cmd::boolVal(const std::string &name) const
+bool cmd::boolVal(const std::string &option) const
 {
-    auto opt = this->opt(name);
+    auto opt = this->opt(option);
     return opt.set ? (opt.val == "true") : static_cast<bool>(opt.def);
 }
 
-std::int32_t cmd::intVal(const std::string &name) const
+std::int32_t cmd::intVal(const std::string &option) const
 {
-    auto opt = this->opt(name);
+    auto opt = this->opt(option);
     return opt.set ? std::atoi(opt.val.c_str()) : static_cast<std::int32_t>(opt.def);
 }
 
-std::string cmd::strVal(const std::string &name) const
+std::string cmd::strVal(const std::string &option) const
 {
-    auto opt = this->opt(name);
+    auto opt = this->opt(option);
 
     if (opt.set)
     {
@@ -313,15 +313,15 @@ std::string cmd::strVal(const std::string &name) const
     }
 }
 
-std::int64_t cmd::int64Val(const std::string &name) const
+std::int64_t cmd::int64Val(const std::string &option) const
 {
-    auto opt = this->opt(name);
+    auto opt = this->opt(option);
     return opt.set ? std::atoll(opt.val.c_str()) : static_cast<std::int64_t>(opt.def);
 }
 
-double cmd::doubleVal(const std::string &name) const
+double cmd::doubleVal(const std::string &option) const
 {
-    auto opt = this->opt(name);
+    auto opt = this->opt(option);
     return opt.set ? std::atof(opt.val.c_str()) : static_cast<double>(opt.def);
 }
 
@@ -374,7 +374,7 @@ void cmd::visit(const std::string &action,
     auto &act = find->second;
     std::vector<std::string> keys;
 
-    for (auto it : act.option)
+    for (auto it : act.options)
         keys.push_back(it.first);
 
     if (compare)
@@ -384,7 +384,7 @@ void cmd::visit(const std::string &action,
 
     // visit options
     for (auto &str : keys)
-        callback(act.option.at(str));
+        callback(act.options.at(str));
 }
 
 void cmd::suggest(const std::string &alias, const std::string &action)
@@ -397,19 +397,19 @@ const chen::cmd::option& cmd::opt(const std::string &name) const
 {
     if (this->_action)
     {
-        auto &option = this->_action->option;
-        auto &alias  = this->_action->alias;
+        auto &options = this->_action->options;
+        auto &alias   = this->_action->alias;
 
-        auto it = option.find(name);
+        auto it = options.find(name);
 
-        if ((it == option.end()) && (name.size() == 1))
+        if ((it == options.end()) && (name.size() == 1))
         {
             auto temp = alias.find(name);
             if (temp != alias.end())
-                it = option.find(temp->second);
+                it = options.find(temp->second);
         }
 
-        if (it != option.end())
+        if (it != options.end())
             return it->second;
         else
             throw chen::cmd::error_general("cmd option not found: " + name);
