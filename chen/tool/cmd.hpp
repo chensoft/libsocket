@@ -37,6 +37,7 @@
 #pragma once
 
 #include "any.hpp"
+#include "str.hpp"
 #include <functional>
 #include <stdexcept>
 #include <memory>
@@ -114,10 +115,10 @@ namespace chen
         virtual double doubleVal(const std::string &option) const;
 
         /**
-         * Get the object, which is also the unresolved arguments
+         * Get the objects, which is also the unresolved arguments
          * @result the matched params array
          */
-        virtual const std::vector<std::string>& object() const;
+        virtual const std::vector<std::string>& objects() const;
 
     public:
         struct option
@@ -171,17 +172,13 @@ namespace chen
         virtual std::string usage(const chen::cmd::error_parse &error) const;
 
         /**
-         * Visit actions
+         * Visit actions and options
          * empty name means it's the root action
          */
-        virtual void visit(std::function<void (const chen::cmd::action &action)> callback,
+        virtual void visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
                            std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
-
-        /**
-         * Visit action's options
-         */
         virtual void visit(const std::string &action,
-                           std::function<void (const chen::cmd::option &option)> callback,
+                           std::function<void (const chen::cmd::option &option, std::size_t idx, std::size_t len)> callback,
                            std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
 
         /**
@@ -202,7 +199,7 @@ namespace chen
         std::string _app;  // app name
 
         std::unique_ptr<chen::cmd::action> _action;  // resolved action
-        std::vector<std::string> _object;            // unresolved params
+        std::vector<std::string> _objects;           // unresolved params
 
         chen::cmd::action *_cursor = nullptr;              // cursor action, weak ref
         std::map<std::string, chen::cmd::action> _define;  // action defines

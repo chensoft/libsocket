@@ -6,9 +6,9 @@
  */
 #include "cmd.hpp"
 #include "log.hpp"
+#include "num.hpp"
 #include "path.hpp"
 #include <string.h>
-#include <iostream>
 
 using namespace chen;
 
@@ -123,6 +123,8 @@ void cmd::parse(int argc, const char *const argv[])
         ++idx;
     }
 
+    // todo add key intelligent suggestion
+
     // find the root action
     if (!cur)
     {
@@ -136,18 +138,19 @@ void cmd::parse(int argc, const char *const argv[])
 
     std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(*cur));
 
-    // parse the option and object
+    // parse the options and objects
     auto &options = action->options;
     auto &alias   = action->alias;
 
     std::string key;
     std::string val;
 
-    std::vector<std::string> object;
+    std::vector<std::string> objects;
 
     while (idx < argc)
     {
         auto param = argv[idx++];
+        auto store = param;
 
         if (param[0] == '-')
         {
@@ -215,7 +218,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != options.end())
                         opt = &it->second;
                     else
-                        throw chen::cmd::error_parse("cmd option not found: " + key, key);
+                        throw chen::cmd::error_parse("cmd option not found: " + key, store);
                 }
                 else
                 {
@@ -224,9 +227,9 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != alias.end())
                         opt = &options[it->second];
                     else
-                        throw chen::cmd::error_parse("cmd option not found: " + key, key);
+                        throw chen::cmd::error_parse("cmd option not found: " + key, store);
                 }
-                
+
                 opt->set = true;
 
                 if (!val.empty())
@@ -236,7 +239,7 @@ void cmd::parse(int argc, const char *const argv[])
             }
             else
             {
-                throw chen::cmd::error_parse("cmd option is empty", "");
+                throw chen::cmd::error_parse("cmd option is empty", store);
             }
 
             // clear key & val
@@ -246,12 +249,12 @@ void cmd::parse(int argc, const char *const argv[])
         else
         {
             // handle object
-            object.push_back(param);
+            objects.push_back(param);
         }
     }
 
     // the rest unresolved params
-    this->_object = std::move(object);
+    this->_objects = std::move(objects);
 
     // store the current action
     this->_action = std::move(action);
@@ -326,25 +329,76 @@ double cmd::doubleVal(const std::string &option) const
 }
 
 // object value
-const std::vector<std::string>& cmd::object() const
+const std::vector<std::string>& cmd::objects() const
 {
-    return this->_object;
+    return this->_objects;
 }
 
 // usage
 std::string cmd::usage() const
 {
-    // todo
-    return "xxx";
+    std::string ret;
+
+    if (this->_define.size() == 1)
+    {
+        // has root action, show root's options
+        ret += "Options:\n";
+
+        std::size_t full = 0;  // full name width
+
+        this->visit("", [&full] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
+            full = std::max(full, option.name.size());
+        });
+
+        std::string fmt("--%-" + num::str(full + 2) + "s%s");
+
+        this->visit("", [&ret, &fmt] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
+            // tiny name
+            if (!option.tiny.empty())
+                ret += "  -" + option.tiny + " ";
+            else
+                ret += "     ";
+
+            // full name
+            ret += str::format(fmt.c_str(), option.name.c_str(), option.desc.c_str());
+
+            if (idx < len - 1)
+                ret += "\n";
+        });
+    }
+    else
+    {
+        // multiple actions, show all actions
+        ret += "Actions:\n";
+
+        std::size_t max = 0;  // max width
+
+        this->visit([&max] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
+            max = std::max(max, action.name.size());
+        });
+
+        std::string fmt("  %-" + num::str(max + 2) + "s%s");  // action + spacing
+
+        this->visit([&ret, &fmt] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
+            if (!action.name.empty())
+            {
+                ret += str::format(fmt.c_str(), action.name.c_str(), action.desc.c_str());
+
+                if (idx < len - 1)
+                    ret += "\n";
+            }
+        });
+    }
+
+    return ret;
 }
 
 std::string cmd::usage(const chen::cmd::error_parse &error) const
 {
-    // todo
-    return "";
+    return "Error: option " + error.option + " not found";
 }
 
-void cmd::visit(std::function<void (const chen::cmd::action &action)> callback,
+void cmd::visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
                 std::function<bool (const std::string &a, const std::string &b)> compare) const
 {
     // sort the keys
@@ -358,12 +412,12 @@ void cmd::visit(std::function<void (const chen::cmd::action &action)> callback,
         std::sort(keys.begin(), keys.end());
 
     // visit actions
-    for (auto &str : keys)
-        callback(this->_define.at(str));
+    for (std::size_t i = 0, len = keys.size(); i < len; ++i)
+        callback(this->_define.at(keys[i]), i, len);
 }
 
 void cmd::visit(const std::string &action,
-                std::function<void (const chen::cmd::option &option)> callback,
+                std::function<void (const chen::cmd::option &option, std::size_t idx, std::size_t len)> callback,
                 std::function<bool (const std::string &a, const std::string &b)> compare) const
 {
     auto find = this->_define.find(action);
@@ -383,8 +437,8 @@ void cmd::visit(const std::string &action,
         std::sort(keys.begin(), keys.end());
 
     // visit options
-    for (auto &str : keys)
-        callback(act.options.at(str));
+    for (std::size_t i = 0, len = keys.size(); i < len; ++i)
+        callback(act.options.at(keys[i]), i, len);
 }
 
 void cmd::suggest(const std::string &alias, const std::string &action)
