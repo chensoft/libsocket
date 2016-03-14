@@ -92,6 +92,11 @@ namespace chen
 
     public:
         /**
+         * App name
+         */
+        virtual std::string app() const;
+
+        /**
          * Get the current resolved action name
          */
         virtual std::string current() const;
@@ -116,25 +121,6 @@ namespace chen
         virtual const std::vector<std::string>& object() const;
 
     public:
-        /**
-         * App name
-         */
-        virtual std::string app() const;
-
-        /**
-         * Get usage info
-         */
-        virtual std::string usage() const;
-
-        /**
-         * Provide a suggestion for a specific action
-         * @param alias action alias
-         * @param action action name
-         * e.g: app has an action: "remove", if user input "delete", parser will prompt user "Did you mean remove?"
-         */
-        virtual void suggest(const std::string &alias, const std::string &action);
-
-    protected:
         struct option
         {
             std::string name;
@@ -157,11 +143,61 @@ namespace chen
             std::map<std::string, std::string> alias;
         };
 
+        class error : public std::runtime_error
+        {
+        public:
+            explicit error(const std::string &what) : std::runtime_error(what) {}
+        };
+
+        class error_general : public chen::cmd::error
+        {
+        public:
+            explicit error_general(const std::string &what) : chen::cmd::error(what) {}
+        };
+
+        class error_parse : public chen::cmd::error
+        {
+        public:
+            explicit error_parse(const std::string &what, const std::string &option) : chen::cmd::error(what), option(option) {}
+
+        public:
+            std::string option;
+        };
+
+    public:
+        /**
+         * Get usage info
+         */
+        virtual std::string usage() const;
+        virtual std::string usage(const chen::cmd::error_parse &error) const;
+
+        /**
+         * Visit actions
+         * empty name means it's the root action
+         */
+        virtual void visit(std::function<void (const chen::cmd::action &action)> callback,
+                           std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
+
+        /**
+         * Visit action's options
+         */
+        virtual void visit(const std::string &action,
+                           std::function<void (const chen::cmd::option &option)> callback,
+                           std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
+
+        /**
+         * Provide a suggestion for a specific action
+         * @param alias action alias
+         * @param action action name
+         * e.g: app has an action: "remove", if user input "delete", parser will prompt user "Did you mean remove?"
+         */
+        virtual void suggest(const std::string &alias, const std::string &action);
+
     protected:
         /**
          * Find current action's option
          */
-        virtual const struct chen::cmd::option& option(const std::string &name) const;
+        virtual const chen::cmd::option& opt(const std::string &name) const;
 
     protected:
         std::string _app;  // app name

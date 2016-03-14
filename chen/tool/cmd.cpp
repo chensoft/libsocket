@@ -36,7 +36,7 @@ void cmd::create(const std::string &name,
     }
     else
     {
-        throw std::runtime_error("cmd action already exist");
+        throw chen::cmd::error_general("cmd action already exist");
     }
 }
 
@@ -48,23 +48,23 @@ void cmd::define(const std::string &name,
 {
     // full name can't be null
     if (name.empty())
-        throw std::runtime_error("cmd full name can't be null");
+        throw chen::cmd::error_general("cmd full name can't be null");
 
     // short name must be 1 character
     if (tiny.size() > 1)
-        throw std::runtime_error("cmd tiny name must be a character");
+        throw chen::cmd::error_general("cmd tiny name must be a character");
 
     // don't allow duplicate option
     auto &option = this->_cursor->option;
     auto &alias  = this->_cursor->alias;
 
     if (option.find(name) != option.end())
-        throw std::runtime_error("cmd option full name already exist");
+        throw chen::cmd::error_general("cmd option full name already exist");
     else if (!tiny.empty() && (alias.find(tiny) != alias.end()))
-        throw std::runtime_error("cmd option tiny name already exist");
+        throw chen::cmd::error_general("cmd option tiny name already exist");
 
     // add this option
-    struct chen::cmd::option opt;
+    chen::cmd::option opt;
     opt.name = name;
     opt.tiny = tiny;
     opt.desc = desc;
@@ -83,7 +83,7 @@ void cmd::change(const std::string &name)
     if (it != this->_define.end())
         this->_cursor = &it->second;
     else
-        throw std::runtime_error("cmd action already exist");
+        throw chen::cmd::error_general("cmd action already exist");
 }
 
 // parse
@@ -131,7 +131,7 @@ void cmd::parse(int argc, const char *const argv[])
         if (it != this->_define.end())
             cur = &it->second;
         else
-            throw std::runtime_error("cmd can not find current action");
+            throw chen::cmd::error_general("cmd can not find current action");
     }
 
     std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(*cur));
@@ -183,7 +183,7 @@ void cmd::parse(int argc, const char *const argv[])
                 // e.g: -h, -u=root, -u root
                 ++param;
 
-                if (*param)
+                if (*param && (*(param + 1) == '\0'))
                     key += *param++;
 
                 if (*param == '=')
@@ -206,7 +206,7 @@ void cmd::parse(int argc, const char *const argv[])
             // handle option
             if (!key.empty())
             {
-                struct chen::cmd::option *opt = nullptr;
+                chen::cmd::option *opt = nullptr;
 
                 if (key.size() > 1)
                 {
@@ -215,7 +215,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != option.end())
                         opt = &it->second;
                     else
-                        ;  // todo show option not found usage
+                        throw chen::cmd::error_parse("cmd option not found: " + key, key);
                 }
                 else
                 {
@@ -224,7 +224,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != alias.end())
                         opt = &option[it->second];
                     else
-                        ;  // todo show option not found usage
+                        throw chen::cmd::error_parse("cmd option not found: " + key, key);
                 }
                 
                 opt->set = true;
@@ -236,7 +236,7 @@ void cmd::parse(int argc, const char *const argv[])
             }
             else
             {
-                // todo show error option key not found
+                throw chen::cmd::error_parse("cmd option is empty", "");
             }
 
             // clear key & val
@@ -262,61 +262,67 @@ void cmd::parse(int argc, const char *const argv[])
         bind(*this);
 }
 
+// app
+std::string cmd::app() const
+{
+    return this->_app;
+}
+
 // current
 std::string cmd::current() const
 {
     if (this->_action)
         return this->_action->name;
     else
-        throw std::runtime_error("cmd current action not found");
+        throw chen::cmd::error_general("cmd current action not found");
 }
 
 // option value
 bool cmd::boolVal(const std::string &name) const
 {
-    auto option = this->option(name);
-    return option.set ? (option.val == "true") : static_cast<bool>(option.def);
+    auto opt = this->opt(name);
+    return opt.set ? (opt.val == "true") : static_cast<bool>(opt.def);
 }
 
 std::int32_t cmd::intVal(const std::string &name) const
 {
-    auto option = this->option(name);
-    return option.set ? std::atoi(option.val.c_str()) : static_cast<std::int32_t>(option.def);
+    auto opt = this->opt(name);
+    return opt.set ? std::atoi(opt.val.c_str()) : static_cast<std::int32_t>(opt.def);
 }
 
 std::string cmd::strVal(const std::string &name) const
 {
-    auto option = this->option(name);
+    auto opt = this->opt(name);
 
-    if (option.set)
+    if (opt.set)
     {
-        return option.val;
+        return opt.val;
     }
     else
     {
-        auto tmp1 = static_cast<const char*>(option.def);
+        auto tmp1 = static_cast<const char*>(opt.def);
         if (tmp1)
             return tmp1;
 
-        auto tmp2 = static_cast<char*>(option.def);
+        auto tmp2 = static_cast<char*>(opt.def);
         if (tmp2)
             return tmp2;
 
-        std::string tmp3 = option.def;
+        std::string tmp3 = opt.def;
         return tmp3;
     }
 }
 
 std::int64_t cmd::int64Val(const std::string &name) const
 {
-    auto option = this->option(name);
-    return option.set ? std::atoll(option.val.c_str()) : static_cast<std::int64_t>(option.def);
+    auto opt = this->opt(name);
+    return opt.set ? std::atoll(opt.val.c_str()) : static_cast<std::int64_t>(opt.def);
 }
 
 double cmd::doubleVal(const std::string &name) const
 {
-    auto option = this->option(name);
-    return option.set ? std::atof(option.val.c_str()) : static_cast<double>(option.def);
+    auto opt = this->opt(name);
+    return opt.set ? std::atof(opt.val.c_str()) : static_cast<double>(opt.def);
 }
 
 // object value
@@ -325,16 +331,60 @@ const std::vector<std::string>& cmd::object() const
     return this->_object;
 }
 
-// app
-std::string cmd::app() const
-{
-    return this->_app;
-}
-
 // usage
 std::string cmd::usage() const
 {
+    // todo
     return "xxx";
+}
+
+std::string cmd::usage(const chen::cmd::error_parse &error) const
+{
+    // todo
+    return "";
+}
+
+void cmd::visit(std::function<void (const chen::cmd::action &action)> callback,
+                std::function<bool (const std::string &a, const std::string &b)> compare) const
+{
+    // sort the keys
+    std::vector<std::string> keys;
+    for (auto it : this->_define)
+        keys.push_back(it.first);
+
+    if (compare)
+        std::sort(keys.begin(), keys.end(), compare);
+    else
+        std::sort(keys.begin(), keys.end());
+
+    // visit actions
+    for (auto &str : keys)
+        callback(this->_define.at(str));
+}
+
+void cmd::visit(const std::string &action,
+                std::function<void (const chen::cmd::option &option)> callback,
+                std::function<bool (const std::string &a, const std::string &b)> compare) const
+{
+    auto find = this->_define.find(action);
+    if (find == this->_define.end())
+        throw chen::cmd::error_general("cmd action not found: " + action);
+
+    // sort the keys
+    auto &act = find->second;
+    std::vector<std::string> keys;
+
+    for (auto it : act.option)
+        keys.push_back(it.first);
+
+    if (compare)
+        std::sort(keys.begin(), keys.end(), compare);
+    else
+        std::sort(keys.begin(), keys.end());
+
+    // visit options
+    for (auto &str : keys)
+        callback(act.option.at(str));
 }
 
 void cmd::suggest(const std::string &alias, const std::string &action)
@@ -343,7 +393,7 @@ void cmd::suggest(const std::string &alias, const std::string &action)
 }
 
 // option
-const struct chen::cmd::option& cmd::option(const std::string &name) const
+const chen::cmd::option& cmd::opt(const std::string &name) const
 {
     if (this->_action)
     {
@@ -351,16 +401,21 @@ const struct chen::cmd::option& cmd::option(const std::string &name) const
         auto &alias  = this->_action->alias;
 
         auto it = option.find(name);
+
         if ((it == option.end()) && (name.size() == 1))
-            it = option.find(alias[name]);
+        {
+            auto temp = alias.find(name);
+            if (temp != alias.end())
+                it = option.find(temp->second);
+        }
 
         if (it != option.end())
             return it->second;
         else
-            throw std::runtime_error("cmd option not found: " + name);
+            throw chen::cmd::error_general("cmd option not found: " + name);
     }
     else
     {
-        throw std::runtime_error("cmd current action not found");
+        throw chen::cmd::error_general("cmd current action not found");
     }
 }
