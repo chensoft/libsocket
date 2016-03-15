@@ -8,6 +8,7 @@
 #include "log.hpp"
 #include "num.hpp"
 #include "path.hpp"
+#include <algorithm>
 
 using namespace chen;
 
