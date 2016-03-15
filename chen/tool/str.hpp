@@ -42,5 +42,11 @@ namespace chen
          * Regex group catch
          */
         static std::vector<std::string> group(const std::string &pattern, const std::string &text);
+
+        /**
+         * Levenshtein distance
+         * @link https://en.wikipedia.org/wiki/Levenshtein_distance
+         */
+        static std::size_t levenshtein(const char *s, std::size_t len_s, const char *t, std::size_t len_t);
     };
 }

@@ -82,3 +82,27 @@ std::vector<std::string> str::group(const std::string &pattern,
 
     return ret;
 }
+
+std::size_t str::levenshtein(const char *s, std::size_t len_s, const char *t, std::size_t len_t)
+{
+    // copy from https://en.wikipedia.org/wiki/Levenshtein_distance
+    std::size_t cost = 0;
+
+    /* base case: empty strings */
+    if (len_s == 0)
+        return len_t;
+
+    if (len_t == 0)
+        return len_s;
+
+    /* test if last characters of the strings match */
+    if (s[len_s-1] == t[len_t-1])
+        cost = 0;
+    else
+        cost = 1;
+
+    /* return minimum of delete char from s, delete char from t, and delete char from both */
+    return std::min({str::levenshtein(s, len_s - 1, t, len_t    ) + 1,
+                     str::levenshtein(s, len_s    , t, len_t - 1) + 1,
+                     str::levenshtein(s, len_s - 1, t, len_t - 1) + cost});
+}

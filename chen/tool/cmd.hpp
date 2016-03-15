@@ -8,12 +8,12 @@
  * We accept the following usage:
  * :-) app
  * :-) app -opt1=val --opt2=val ...
- * :-) app action
+ * :-) app action ...
  * :-) app action -opt1=val --opt2=val ...
  * :-) app action -opt1=val --opt2=val object1 object2 ...
  * :-) app action sub-action -opt1=val --opt2=val object1 object2 ...
  * -----------------------------------------------------------------------------
- * The main three parts is Action + Option + Object
+ * The core concepts are Action + Option + Object
  * Action: the operation that user want to do
  *    e.g: git clone, "clone" is the action
  * Option: the action flags
@@ -26,13 +26,24 @@
  * Usage:
  * >> chen::cmd cmd;
  * >>
- * >> cmd.define("help", "h", "show help", false);
- * >> cmd.define("port", "p", "server port (default: 53)", 53);
- * >> cmd.define("zone", "z", "zone folder", "");
+ * >> try
+ * >> {
+ * >>     cmd.define("help", "h", "show help", false);
+ * >>     cmd.define("port", "p", "server port (default: 53)", 53);
+ * >>     cmd.define("zone", "z", "zone folder", "");
  * >>
- * >> cmd.parse(argc, argv);
+ * >>     cmd.parse(argc, argv);
  * >>
- * >> bool help = cmd.boolVal("help");
+ * >>     bool help = cmd.boolVal("help");
+ * >> }
+ * >> catch (const chen::cmd::error_parse &e)
+ * >> {
+ * >>     std::cout << cmd.usage(e) << std::endl;
+ * >> }
+ * >> catch (const chen::cmd::error &e)
+ * >> {
+ * >>     std::cout << cmd.usage() << std::endl;
+ * >> }
  */
 #pragma once
 
@@ -97,13 +108,12 @@ namespace chen
         virtual std::string app() const;
 
         /**
-         * Get the current resolved action name
+         * Current resolved action name
          */
         virtual std::string current() const;
 
         /**
          * Get the value of the option which belongs to the current resolved action
-         * if the current action doesn't has this option, it will return a default value
          * support bool, int, int64, double, string
          * @param option the full name or tiny name of the option
          */
@@ -116,7 +126,6 @@ namespace chen
 
         /**
          * Get the objects, which is also the unresolved arguments
-         * @result the matched params array
          */
         virtual const std::vector<std::string>& objects() const;
 
@@ -158,9 +167,13 @@ namespace chen
         class error_parse : public chen::cmd::error
         {
         public:
-            explicit error_parse(const std::string &what, const std::string &option) : chen::cmd::error(what), option(option) {}
+            explicit error_parse(const std::string &what,
+                                 const std::string &action,
+                                 const std::string &option)
+                    : chen::cmd::error(what), action(action), option(option) {}
 
         public:
+            std::string action;
             std::string option;
         };
 
@@ -204,6 +217,6 @@ namespace chen
         chen::cmd::action *_cursor = nullptr;              // cursor action, weak ref
         std::map<std::string, chen::cmd::action> _define;  // action defines
 
-        std::map<std::string, std::string> _suggest;  // intelligent suggest
+        std::map<std::string, std::string> _suggest;  // intelligent suggestion
     };
 }

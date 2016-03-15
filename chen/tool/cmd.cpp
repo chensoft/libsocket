@@ -8,7 +8,6 @@
 #include "log.hpp"
 #include "num.hpp"
 #include "path.hpp"
-#include <string.h>
 
 using namespace chen;
 
@@ -76,6 +75,7 @@ void cmd::define(const std::string &option,
         alias[tiny] = option;
 }
 
+// change
 void cmd::change(const std::string &action)
 {
     auto it = this->_define.find(action);
@@ -83,7 +83,7 @@ void cmd::change(const std::string &action)
     if (it != this->_define.end())
         this->_cursor = &it->second;
     else
-        throw chen::cmd::error_general("cmd action already exist");
+        throw chen::cmd::error_general("cmd action not found: " + action);
 }
 
 // parse
@@ -97,43 +97,52 @@ void cmd::parse(int argc, const char *const argv[])
     if (this->_app.empty())
         this->_app = path::basename(argv[0]);
 
-    // find current action first
+    // find the current action
     int idx = 1;
     chen::cmd::action *cur = nullptr;
 
-    while (idx < argc)
+    if ((argc == 1) || (argv[1][0] == '-') || (this->_define.size() == 1))
     {
-        auto param = argv[idx];
-
-        if (param[0] != '-')
-        {
-            // sub-action is joined by dots
-            auto it = this->_define.find(cur ? cur->name + "." + param : param);
-
-            if (it != this->_define.end())
-                cur = &it->second;
-            else
-                break;
-        }
-        else
-        {
-            break;
-        }
-
-        ++idx;
+        // use root action
+        cur = &this->_define[""];
     }
-
-    // todo add key intelligent suggestion
-
-    // find the root action
-    if (!cur)
+    else
     {
-        auto it = this->_define.find("");
+        // find action, throw error if not found
+        auto param = argv[idx++];
+        auto find  = this->_define.find(param);
 
-        if (it != this->_define.end())
-            cur = &it->second;
+        if (find != this->_define.end())
+        {
+            // find sub-actions
+            cur = &find->second;
+
+            while (idx < argc)
+            {
+                param = argv[idx];
+
+                if (param[0] != '-')
+                {
+                    // sub-action is joined by dots
+                    auto it = this->_define.find(cur ? cur->name + "." + param : param);
+
+                    if (it != this->_define.end())
+                        cur = &it->second;
+                    else
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+
+                ++idx;
+            }
+        }
         else
-            throw chen::cmd::error_general("cmd can not find current action");
+        {
+            throw chen::cmd::error_parse("cmd action not found", param, "");
+        }
     }
 
     std::unique_ptr<chen::cmd::action> action(new chen::cmd::action(*cur));
@@ -218,7 +227,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != options.end())
                         opt = &it->second;
                     else
-                        throw chen::cmd::error_parse("cmd option not found: " + key, store);
+                        throw chen::cmd::error_parse("cmd option not found: " + key, action->name, store);
                 }
                 else
                 {
@@ -227,7 +236,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != alias.end())
                         opt = &options[it->second];
                     else
-                        throw chen::cmd::error_parse("cmd option not found: " + key, store);
+                        throw chen::cmd::error_parse("cmd option not found: " + key, action->name, store);
                 }
 
                 opt->set = true;
@@ -239,7 +248,7 @@ void cmd::parse(int argc, const char *const argv[])
             }
             else
             {
-                throw chen::cmd::error_parse("cmd option is empty", store);
+                throw chen::cmd::error_parse("cmd option is empty", action->name, store);
             }
 
             // clear key & val
@@ -311,8 +320,7 @@ std::string cmd::strVal(const std::string &option) const
         if (tmp2)
             return tmp2;
 
-        std::string tmp3 = opt.def;
-        return tmp3;
+        return opt.def;
     }
 }
 
@@ -395,7 +403,98 @@ std::string cmd::usage() const
 
 std::string cmd::usage(const chen::cmd::error_parse &error) const
 {
-    return "Error: option " + error.option + " not found";
+    if (!error.option.empty())
+    {
+        // option not found
+        return str::format("Error: unknown option \"%s\"", error.option.c_str());
+    }
+    else
+    {
+        // action not found
+        std::string ret(str::format("Error: unknown action \"%s\" for \"%s\"", error.action.c_str(), this->_app.c_str()));
+
+        // give more hint
+        if (this->_define.size() > 1)
+        {
+            std::vector<std::string> hint;
+
+            do
+            {
+                // direct get suggest actions
+                auto it = this->_suggest.find(error.action);
+
+                if (it != this->_suggest.end())
+                {
+                    hint.push_back(it->second);
+                    break;
+                }
+
+                // try levenshtein algorithm
+                std::size_t size = error.action.size();
+                std::size_t cost = std::numeric_limits<std::size_t>::max();
+
+                for (auto p : this->_define)
+                {
+                    if (p.first.empty())
+                        continue;
+
+                    std::size_t temp = str::levenshtein(error.action.c_str(),
+                                                        error.action.size(),
+                                                        p.first.c_str(),
+                                                        p.first.size());
+
+                    if (temp < std::max(size, p.first.size()))
+                    {
+                        if (temp < cost)
+                        {
+                            cost = temp;
+
+                            hint.clear();
+                            hint.push_back(p.first);
+                        }
+                        else if (temp == cost)
+                        {
+                            hint.push_back(p.first);
+                        }
+                    }
+                }
+
+                // try suggest actions
+                for (auto p : this->_suggest)
+                {
+                    std::size_t temp = str::levenshtein(error.action.c_str(),
+                                                        error.action.size(),
+                                                        p.first.c_str(),
+                                                        p.first.size());
+
+                    if (temp < std::max(size, p.first.size()))
+                    {
+                        if (temp < cost)
+                        {
+                            cost = temp;
+
+                            hint.clear();
+                            hint.push_back(p.second);
+                        }
+                        else if (temp == cost)
+                        {
+                            hint.push_back(p.second);
+                        }
+                    }
+                }
+            } while (false);
+
+            if (!hint.empty())
+            {
+                ret += "\n\nDid you mean this?\n";
+
+                for (std::size_t i = 0, len = hint.size(); i < len; ++i)
+                    ret += "        " + hint[i] + (i < len -1 ? "\n" : "");
+            }
+        }
+
+        return ret;
+    }
 }
 
 void cmd::visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
