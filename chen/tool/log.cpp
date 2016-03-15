@@ -35,5 +35,14 @@ void log::output(const std::string &text)
     std::lock_guard<std::mutex> lock(log::_mutex);
 
     std::string prefix(chen::date::stamp() + " " + chen::date::time(":", true, true) + " UTC ");
-    std::cout << prefix << text << std::endl;
+
+    if (this->_redirect)
+        this->_redirect(prefix + text);
+    else
+        std::cout << prefix << text << std::endl;
+}
+
+void log::redirect(std::function<void (const std::string &text)> callback)
+{
+    this->_redirect = callback;
 }

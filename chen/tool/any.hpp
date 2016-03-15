@@ -6,7 +6,6 @@
  */
 #pragma once
 
-// todo add stream output support, use null if ptr is empty
 namespace chen
 {
     class any

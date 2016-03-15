@@ -8,11 +8,11 @@
  */
 #pragma once
 
+#include <functional>
 #include <cstdlib>
 #include <mutex>
 #include "str.hpp"
 
-// todo add method to redirect output text to another place
 // log
 namespace chen
 {
@@ -116,10 +116,17 @@ namespace chen
          */
         virtual void output(const std::string &text);
 
-    protected:
-        Level _level = Level::Trace;
+    public:
+        /**
+         * Redirect output
+         */
+        virtual void redirect(std::function<void (const std::string &text)> callback);
 
+    protected:
         static std::mutex _mutex;
+
+        Level _level = Level::Trace;
+        std::function<void (const std::string &text)> _redirect;
     };
 }
 

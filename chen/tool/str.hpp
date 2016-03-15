@@ -14,7 +14,6 @@ namespace chen
     class str
     {
     public:
-        // todo add more string algorithms
         /**
          * Format string using std::vsnprintf
          */
