@@ -42,7 +42,7 @@
  * >> }
  * >> catch (const chen::cmd::error &e)
  * >> {
- * >>     std::cout << cmd.usage() << std::endl;
+ * >>     std::cout << e.what() << std::endl;
  * >> }
  */
 #pragma once

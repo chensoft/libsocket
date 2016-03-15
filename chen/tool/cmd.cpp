@@ -49,6 +49,10 @@ void cmd::define(const std::string &option,
     if (option.empty())
         throw chen::cmd::error_general("cmd full name can't be null");
 
+    // full name must greater than 1
+    if (option.size() == 1)
+        throw chen::cmd::error_general("cmd full name size must greater than 1");
+
     // short name must be 1 character
     if (tiny.size() > 1)
         throw chen::cmd::error_general("cmd tiny name must be a character");
@@ -172,6 +176,10 @@ void cmd::parse(int argc, const char *const argv[])
 
                 while (*param && (*param != '='))
                     key += *param++;
+
+                // long option name must greater than 1
+                if (key.size() == 1)
+                    key.clear();
 
                 if (*param == '=')
                 {
