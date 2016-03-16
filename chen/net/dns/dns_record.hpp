@@ -204,8 +204,8 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // RNULL(rfc1035, section 3.3.10, can store anything)
-        struct RNULL : public Raw
+        // NULL(rfc1035, section 3.3.10, can store anything)
+        struct NUL : public Raw
         {
         public:
             virtual void encode(chen::dns::encoder &encoder) const override;

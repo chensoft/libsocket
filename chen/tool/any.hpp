@@ -8,7 +8,7 @@
 
 namespace chen
 {
-    class any
+    class any final
     {
     public:
         any() = default;

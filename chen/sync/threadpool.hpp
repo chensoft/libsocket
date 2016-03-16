@@ -14,7 +14,6 @@
 
 namespace chen
 {
-    // todo add unit test
     // todo maybe use template in future
     class threadpool final
     {

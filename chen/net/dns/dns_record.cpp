@@ -187,13 +187,13 @@ void MR::decode(chen::dns::decoder &decoder)
 
 
 // -----------------------------------------------------------------------------
-// RNULL
-void RNULL::encode(chen::dns::encoder &encoder) const
+// NUL
+void NUL::encode(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->anything, this->anything.size());
 }
 
-void RNULL::decode(chen::dns::decoder &decoder)
+void NUL::decode(chen::dns::decoder &decoder)
 {
     RR::decode(decoder);
     decoder.unpack(this->anything, this->rdlength);

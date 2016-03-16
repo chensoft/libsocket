@@ -24,7 +24,7 @@ std::map<chen::dns::RRType, table::rr_build_type> table::_rr_build = {
         {chen::dns::RRType::MB, [] () -> rr_pointer { return rr_pointer(new chen::dns::MB); }},
         {chen::dns::RRType::MG, [] () -> rr_pointer { return rr_pointer(new chen::dns::MG); }},
         {chen::dns::RRType::MR, [] () -> rr_pointer { return rr_pointer(new chen::dns::MR); }},
-        {chen::dns::RRType::RNULL, [] () -> rr_pointer { return rr_pointer(new chen::dns::RNULL); }},
+        {chen::dns::RRType::NUL, [] () -> rr_pointer { return rr_pointer(new chen::dns::NUL); }},
         {chen::dns::RRType::WKS, [] () -> rr_pointer { return rr_pointer(new chen::dns::WKS); }},
         {chen::dns::RRType::PTR, [] () -> rr_pointer { return rr_pointer(new chen::dns::PTR); }},
         {chen::dns::RRType::HINFO, [] () -> rr_pointer { return rr_pointer(new chen::dns::HINFO); }},
@@ -105,7 +105,7 @@ std::map<chen::dns::RRType, std::string> table::_rr_type_text = {
         {chen::dns::RRType::MB, "MB"},
         {chen::dns::RRType::MG, "MG"},
         {chen::dns::RRType::MR, "MR"},
-        {chen::dns::RRType::RNULL, "NULL"},  // NULL is the official name
+        {chen::dns::RRType::NUL, "NULL"},  // NULL is the official name
         {chen::dns::RRType::WKS, "WKS"},
         {chen::dns::RRType::PTR, "PTR"},
         {chen::dns::RRType::HINFO, "HINFO"},

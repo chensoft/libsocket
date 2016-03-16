@@ -11,7 +11,6 @@
 
 namespace chen
 {
-    // todo add unit test
     class semaphore final
     {
     public:
