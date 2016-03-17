@@ -96,10 +96,43 @@ json::json(bool v)
 
 }
 
-// parse
-void json::parse(const std::string &text)
+// copy & move
+json& json::operator=(const json &o)
+{
+    if (this == &o)
+        return *this;
+
+    this->clear();
+
+    this->_type = o._type;
+    this->_data = o._data;
+
+    return *this;
+}
+
+json& json::operator=(json &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->clear();
+
+    this->_type = o._type;
+    this->_data = o._data;
+
+    return *this;
+}
+
+// decode
+void json::decode(const std::string &text)
 {
 
+}
+
+// encode
+std::string json::encode(bool pretty) const
+{
+    return "";
 }
 
 // clear
@@ -233,7 +266,6 @@ std::string json::asString() const
 
         case JsonType::Number:
         {
-            // todo check if prevent extra zeros
             double d = static_cast<double>(this->_data);
             std::int64_t i = static_cast<std::int64_t>(d);
             return (d - i == 0) ? num::str(i) : num::str(d);
@@ -280,29 +312,15 @@ bool json::asBool() const
     }
 }
 
-// copy & move
-json& json::operator=(const json &o)
+// parse & stringify
+chen::json json::parse(const std::string &text)
 {
-    if (this == &o)
-        return *this;
-
-    this->clear();
-
-    this->_type = o._type;
-    this->_data = o._data;
-
-    return *this;
+    chen::json json;
+    json.decode(text);
+    return json;
 }
 
-json& json::operator=(json &&o)
+std::string json::stringify(const chen::json &json, bool pretty)
 {
-    if (this == &o)
-        return *this;
-
-    this->clear();
-
-    this->_type = o._type;
-    this->_data = o._data;
-
-    return *this;
+    return json.encode(pretty);
 }

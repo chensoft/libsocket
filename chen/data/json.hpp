@@ -66,11 +66,23 @@ namespace chen
 
         virtual ~json() = default;
 
+        /**
+         * Copy & Move
+         */
+        json& operator=(const json &o);
+        json& operator=(json &&o);
+
     public:
         /**
-         * Parse the json text, throw exception if found error
+         * Decode the json text, throw exception if found error
          */
-        virtual void parse(const std::string &text);
+        virtual void decode(const std::string &text);
+
+        /**
+         * Encode the json object to a string
+         * @param pretty enable pretty print
+         */
+        virtual std::string encode(bool pretty = false) const;
 
         /**
          * Clear the internal state
@@ -97,6 +109,7 @@ namespace chen
         virtual bool isBool() const;
 
     public:
+        // todo use const reference, don't use any type
         /**
          * Get the json value
          * convert to the desired type as possible
@@ -109,10 +122,11 @@ namespace chen
 
     public:
         /**
-         * Copy & Move
+         * Json parse and stringify helper
+         * use encode and decode internally
          */
-        json& operator=(const json &o);
-        json& operator=(json &&o);
+        static chen::json parse(const std::string &text);
+        static std::string stringify(const chen::json &json, bool pretty = false);
 
     protected:
         JsonType _type = JsonType::Null;
