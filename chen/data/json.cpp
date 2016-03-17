@@ -256,6 +256,32 @@ double json::asNumber() const
     }
 }
 
+int json::asInteger() const
+{
+    switch (this->_type)
+    {
+        case JsonType::Object:
+        case JsonType::Array:
+            return 0;
+
+        case JsonType::Number:
+            return static_cast<int>(static_cast<double>(this->_data));
+
+        case JsonType::String:
+        {
+            std::string d = this->_data;
+            return std::atoi(d.c_str());
+        }
+
+        case JsonType::True:
+            return 1;
+
+        case JsonType::False:
+        case JsonType::Null:
+            return 0;
+    }
+}
+
 std::string json::asString() const
 {
     switch (this->_type)

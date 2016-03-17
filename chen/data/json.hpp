@@ -117,6 +117,7 @@ namespace chen
         virtual chen::json::object asObject() const;
         virtual chen::json::array asArray() const;
         virtual double asNumber() const;
+        virtual int asInteger() const;  // maybe losing precision
         virtual std::string asString() const;
         virtual bool asBool() const;
 
