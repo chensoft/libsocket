@@ -28,10 +28,13 @@
  */
 #pragma once
 
+#include <exception>
 #include <string>
 #include <vector>
 #include <map>
 #include <chen/tool/any.hpp>
+// todo support initialize list
+// todo benchmark with js engine
 
 namespace chen
 {
@@ -43,8 +46,33 @@ namespace chen
 
         enum class JsonType {Object, Array, Number, String, True, False, Null};
 
+        // encode options
+        static const std::uint32_t EOptionNone = 0;  // default
+
+        // todo use union
+        union
+        {
+//            std::string *s;
+        };
+
+        class error : public std::runtime_error
+        {
+        public:
+            explicit error(const std::string &what) : std::runtime_error(what) {}
+        };
+
+        class error_syntax : public chen::json::error
+        {
+        public:
+            explicit error_syntax(const std::string &what, std::size_t line, std::size_t column) : chen::json::error(what) {}
+
+            std::size_t line = 0;
+            std::size_t column = 0;
+        };
+
     public:
         json() = default;
+        json(std::nullptr_t);
 
         json(const json &o);
         json(json &&o);
@@ -80,9 +108,9 @@ namespace chen
 
         /**
          * Encode the json object to a string
-         * @param pretty enable pretty print
          */
-        virtual std::string encode(bool pretty = false) const;
+        virtual std::string encode(std::size_t space = 0,
+                                   std::uint32_t option = chen::json::EOptionNone) const;
 
         /**
          * Clear the internal state
@@ -121,13 +149,39 @@ namespace chen
         virtual std::string asString() const;
         virtual bool asBool() const;
 
+    protected:
+        /**
+         * Encode helper
+         */
+        virtual std::string encode(std::size_t space,
+                                   std::size_t &indent,
+                                   std::uint32_t option = chen::json::EOptionNone) const;
+
+        /**
+         * Encode specific type
+         */
+        virtual std::string encode(const chen::json::object &v,
+                                   std::size_t space,
+                                   std::size_t &indent,
+                                   std::uint32_t option) const;
+        virtual std::string encode(const chen::json::array &v,
+                                   std::size_t space,
+                                   std::size_t &indent,
+                                   std::uint32_t option) const;
+        virtual std::string encode(double v, std::uint32_t option) const;
+        virtual std::string encode(const std::string &v, std::uint32_t option) const;
+        virtual std::string encode(bool v, std::uint32_t option) const;
+        virtual std::string encode(std::nullptr_t, std::uint32_t option) const;
+
     public:
         /**
          * Json parse and stringify helper
          * use encode and decode internally
          */
         static chen::json parse(const std::string &text);
-        static std::string stringify(const chen::json &json, bool pretty = false);
+        static std::string stringify(const chen::json &json,
+                                     std::size_t space = 0,
+                                     std::uint32_t option = chen::json::EOptionNone);
 
     protected:
         JsonType _type = JsonType::Null;

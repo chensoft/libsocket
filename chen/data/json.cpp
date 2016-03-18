@@ -12,6 +12,11 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // json
+json::json(std::nullptr_t)
+{
+
+}
+
 json::json(const json &o)
 : _type(o._type)
 , _data(o._data)
@@ -130,9 +135,10 @@ void json::decode(const std::string &text)
 }
 
 // encode
-std::string json::encode(bool pretty) const
+std::string json::encode(std::size_t space, std::uint32_t option) const
 {
-    return "";
+    std::size_t indent = 0;
+    return this->encode(space, indent, option);
 }
 
 // clear
@@ -338,6 +344,141 @@ bool json::asBool() const
     }
 }
 
+// encode helper
+std::string json::encode(std::size_t space, std::size_t &indent, std::uint32_t option) const
+{
+    switch (this->_type)
+    {
+        case JsonType::Object:
+            return this->encode(this->asObject(), space, indent, option);
+
+        case JsonType::Array:
+            return this->encode(this->asArray(), space, indent, option);
+
+        case JsonType::Number:
+            return this->encode(this->asNumber(), option);
+
+        case JsonType::String:
+            return this->encode(this->asString(), option);
+
+        case JsonType::True:
+        case JsonType::False:
+            return this->encode(this->asBool(), option);
+
+        case JsonType::Null:
+            return this->encode(nullptr, option);
+    }
+}
+
+// encode specific
+std::string json::encode(const chen::json::object &v, std::size_t space, std::size_t &indent, std::uint32_t option) const
+{
+    std::string ret("{");
+
+    if (space && !v.empty())
+    {
+        indent += space;
+        ret.append("\n");
+    }
+
+    auto beg = v.begin();
+    auto end = v.end();
+
+    for (auto it = beg; it != end; ++it)
+    {
+        auto &key = it->first;
+        auto &val = it->second;
+
+        if (it != beg)
+        {
+            ret.append(",");
+
+            if (space)
+                ret.append("\n");
+        }
+
+        if (indent)
+            ret.append(indent, ' ');
+
+        ret.append("\"" + key + "\":");
+
+        if (space)
+            ret.append(" ");
+
+        ret.append(val.encode(space, indent, option));
+    }
+
+    if (space && !v.empty())
+    {
+        indent -= space;
+        ret.append("\n");
+        ret.append(indent, ' ');
+    }
+
+    ret.append("}");
+
+    return ret;
+}
+
+std::string json::encode(const chen::json::array &v, std::size_t space, std::size_t &indent, std::uint32_t option) const
+{
+    std::string ret("[");
+
+    if (space && !v.empty())
+    {
+        indent += space;
+        ret.append("\n");
+    }
+
+    for (std::size_t i = 0, len = v.size(); i < len; ++i)
+    {
+        if (i)
+        {
+            ret.append(",");
+
+            if (space)
+                ret.append("\n");
+        }
+
+        if (indent)
+            ret.append(indent, ' ');
+
+        ret.append(v[i].encode(space, indent, option));
+    }
+
+    if (space && !v.empty())
+    {
+        indent -= space;
+        ret.append("\n");
+        ret.append(indent, ' ');
+    }
+
+    ret.append("]");
+
+    return ret;
+}
+
+std::string json::encode(double v, std::uint32_t option) const
+{
+    return num::str(v);
+}
+
+std::string json::encode(const std::string &v, std::uint32_t option) const
+{
+    // todo handle escape
+    return "\"" + v + "\"";
+}
+
+std::string json::encode(bool v, std::uint32_t option) const
+{
+    return num::str(v);
+}
+
+std::string json::encode(std::nullptr_t, std::uint32_t option) const
+{
+    return "null";
+}
+
 // parse & stringify
 chen::json json::parse(const std::string &text)
 {
@@ -346,7 +487,7 @@ chen::json json::parse(const std::string &text)
     return json;
 }
 
-std::string json::stringify(const chen::json &json, bool pretty)
+std::string json::stringify(const chen::json &json, std::size_t space, std::uint32_t option)
 {
-    return json.encode(pretty);
+    return json.encode(space, option);
 }
