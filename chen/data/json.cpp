@@ -135,12 +135,12 @@ void json::decode(const std::string &text)
 }
 
 // encode
-std::string json::encode(std::size_t space, std::uint32_t option) const
+std::string json::encode(std::size_t space) const
 {
-    std::string out;
+    std::string output;
     std::size_t indent = 0;
-    this->encode(out, space, indent, option);
-    return out;
+    this->encode(output, space, indent);
+    return output;
 }
 
 // clear
@@ -347,40 +347,40 @@ bool json::asBool() const
 }
 
 // encode helper
-void json::encode(std::string &out, std::size_t space, std::size_t &indent, std::uint32_t option) const
+void json::encode(std::string &output, std::size_t space, std::size_t &indent) const
 {
     switch (this->_type)
     {
         case JsonType::Object:
-            return this->encode(this->asObject(), out, space, indent, option);
+            return this->encode(this->asObject(), output, space, indent);
 
         case JsonType::Array:
-            return this->encode(this->asArray(), out, space, indent, option);
+            return this->encode(this->asArray(), output, space, indent);
 
         case JsonType::Number:
-            return this->encode(this->asNumber(), out, option);
+            return this->encode(this->asNumber(), output);
 
         case JsonType::String:
-            return this->encode(this->asString(), out, option);
+            return this->encode(this->asString(), output);
 
         case JsonType::True:
         case JsonType::False:
-            return this->encode(this->asBool(), out, option);
+            return this->encode(this->asBool(), output);
 
         case JsonType::Null:
-            return this->encode(nullptr, out, option);
+            return this->encode(nullptr, output);
     }
 }
 
 // encode specific
-void json::encode(const chen::json::object &v, std::string &out, std::size_t space, std::size_t &indent, std::uint32_t option) const
+void json::encode(const chen::json::object &v, std::string &output, std::size_t space, std::size_t &indent) const
 {
-    out.append("{");
+    output += '{';
 
     if (space && !v.empty())
     {
         indent += space;
-        out.append("\n");
+        output += '\n';
     }
 
     auto beg = v.begin();
@@ -393,88 +393,136 @@ void json::encode(const chen::json::object &v, std::string &out, std::size_t spa
 
         if (it != beg)
         {
-            out.append(",");
+            output += ',';
 
             if (space)
-                out.append("\n");
+                output += '\n';
         }
 
         if (indent)
-            out.append(indent, ' ');
+            output.append(indent, ' ');
 
-        out.append("\"" + key + "\":");
+        output += '"';
+        output.append(key);
+        output.append("\":");
 
         if (space)
-            out.append(" ");
+            output += ' ';
 
-        val.encode(out, space, indent, option);
+        val.encode(output, space, indent);
     }
 
     if (space && !v.empty())
     {
         indent -= space;
-        out.append("\n");
-        out.append(indent, ' ');
+        output += '\n';
+        output.append(indent, ' ');
     }
 
-    out.append("}");
+    output += '}';
 }
 
-void json::encode(const chen::json::array &v, std::string &out, std::size_t space, std::size_t &indent, std::uint32_t option) const
+void json::encode(const chen::json::array &v, std::string &output, std::size_t space, std::size_t &indent) const
 {
-    out.append("[");
+    output += '[';
 
     if (space && !v.empty())
     {
         indent += space;
-        out.append("\n");
+        output += '\n';
     }
 
     for (std::size_t i = 0, len = v.size(); i < len; ++i)
     {
         if (i)
         {
-            out.append(",");
+            output += ',';
 
             if (space)
-                out.append("\n");
+                output += '\n';
         }
 
         if (indent)
-            out.append(indent, ' ');
+            output.append(indent, ' ');
 
-        v[i].encode(out, space, indent, option);
+        v[i].encode(output, space, indent);
     }
 
     if (space && !v.empty())
     {
         indent -= space;
-        out.append("\n");
-        out.append(indent, ' ');
+        output += '\n';
+        output.append(indent, ' ');
     }
 
-    out.append("]");
+    output += ']';
 }
 
-void json::encode(double v, std::string &out, std::uint32_t option) const
+void json::encode(double v, std::string &output) const
 {
-    out.append(num::str(v));
+    output.append(num::str(v));
 }
 
-void json::encode(const std::string &v, std::string &out, std::uint32_t option) const
+void json::encode(const std::string &v, std::string &output) const
 {
-    // todo handle escape
-    out.append("\"" + v + "\"");
+    // escape the control characters only
+    // json can accept unicode chars, so we don't escape unicode
+    // see http://www.json.org
+    output += '"';
+
+    for (auto ch : v)
+    {
+        switch (ch)
+        {
+            case '"':
+                output.append("\\\"");
+                break;
+
+            case '\\':
+                output.append("\\\\");
+                break;
+
+            case '/':
+                output.append("\\/");
+                break;
+
+            case '\b':
+                output.append("\\b");
+                break;
+
+            case '\f':
+                output.append("\\f");
+                break;
+
+            case '\n':
+                output.append("\\n");
+                break;
+
+            case '\r':
+                output.append("\\r");
+                break;
+
+            case '\t':
+                output.append("\\t");
+                break;
+
+            default:
+                output += ch;
+                break;
+        }
+    }
+
+    output += '"';
 }
 
-void json::encode(bool v, std::string &out, std::uint32_t option) const
+void json::encode(bool v, std::string &output) const
 {
-    out.append(num::str(v));
+    output.append(num::str(v));
 }
 
-void json::encode(std::nullptr_t, std::string &out, std::uint32_t option) const
+void json::encode(std::nullptr_t, std::string &output) const
 {
-    out.append("null");
+    output.append("null");
 }
 
 // parse & stringify
@@ -485,7 +533,7 @@ chen::json json::parse(const std::string &text)
     return json;
 }
 
-std::string json::stringify(const chen::json &json, std::size_t space, std::uint32_t option)
+std::string json::stringify(const chen::json &json, std::size_t space)
 {
-    return json.encode(space, option);
+    return json.encode(space);
 }

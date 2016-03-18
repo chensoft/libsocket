@@ -46,9 +46,6 @@ namespace chen
 
         enum class JsonType {Object, Array, Number, String, True, False, Null};
 
-        // encode options
-        static const std::uint32_t EOptionNone = 0;  // default
-
         // todo use union
         union
         {
@@ -111,8 +108,7 @@ namespace chen
         /**
          * Encode the json object to a string
          */
-        virtual std::string encode(std::size_t space = 0,
-                                   std::uint32_t option = chen::json::EOptionNone) const;
+        virtual std::string encode(std::size_t space = 0) const;
 
         /**
          * Clear the internal state
@@ -155,28 +151,25 @@ namespace chen
         /**
          * Encode helper
          */
-        virtual void encode(std::string &out,
+        virtual void encode(std::string &output,
                             std::size_t space,
-                            std::size_t &indent,
-                            std::uint32_t option = chen::json::EOptionNone) const;
+                            std::size_t &indent) const;
 
         /**
          * Encode specific type
          */
         virtual void encode(const chen::json::object &v,
-                            std::string &out,
+                            std::string &output,
                             std::size_t space,
-                            std::size_t &indent,
-                            std::uint32_t option) const;
+                            std::size_t &indent) const;
         virtual void encode(const chen::json::array &v,
-                            std::string &out,
+                            std::string &output,
                             std::size_t space,
-                            std::size_t &indent,
-                            std::uint32_t option) const;
-        virtual void encode(double v, std::string &out, std::uint32_t option) const;
-        virtual void encode(const std::string &v, std::string &out, std::uint32_t option) const;
-        virtual void encode(bool v, std::string &out, std::uint32_t option) const;
-        virtual void encode(std::nullptr_t, std::string &out, std::uint32_t option) const;
+                            std::size_t &indent) const;
+        virtual void encode(double v, std::string &output) const;
+        virtual void encode(const std::string &v, std::string &output) const;
+        virtual void encode(bool v, std::string &output) const;
+        virtual void encode(std::nullptr_t, std::string &output) const;
 
     public:
         /**
@@ -185,8 +178,7 @@ namespace chen
          */
         static chen::json parse(const std::string &text);
         static std::string stringify(const chen::json &json,
-                                     std::size_t space = 0,
-                                     std::uint32_t option = chen::json::EOptionNone);
+                                     std::size_t space = 0);
 
     protected:
         JsonType _type = JsonType::Null;
