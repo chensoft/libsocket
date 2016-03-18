@@ -101,6 +101,8 @@ namespace chen
         json& operator=(json &&o);
 
     public:
+        // todo add stream support, read chars from stream
+        // todo add file support, read from file stream
         /**
          * Decode the json text, throw exception if found error
          */
@@ -153,25 +155,28 @@ namespace chen
         /**
          * Encode helper
          */
-        virtual std::string encode(std::size_t space,
-                                   std::size_t &indent,
-                                   std::uint32_t option = chen::json::EOptionNone) const;
+        virtual void encode(std::string &out,
+                            std::size_t space,
+                            std::size_t &indent,
+                            std::uint32_t option = chen::json::EOptionNone) const;
 
         /**
          * Encode specific type
          */
-        virtual std::string encode(const chen::json::object &v,
-                                   std::size_t space,
-                                   std::size_t &indent,
-                                   std::uint32_t option) const;
-        virtual std::string encode(const chen::json::array &v,
-                                   std::size_t space,
-                                   std::size_t &indent,
-                                   std::uint32_t option) const;
-        virtual std::string encode(double v, std::uint32_t option) const;
-        virtual std::string encode(const std::string &v, std::uint32_t option) const;
-        virtual std::string encode(bool v, std::uint32_t option) const;
-        virtual std::string encode(std::nullptr_t, std::uint32_t option) const;
+        virtual void encode(const chen::json::object &v,
+                            std::string &out,
+                            std::size_t space,
+                            std::size_t &indent,
+                            std::uint32_t option) const;
+        virtual void encode(const chen::json::array &v,
+                            std::string &out,
+                            std::size_t space,
+                            std::size_t &indent,
+                            std::uint32_t option) const;
+        virtual void encode(double v, std::string &out, std::uint32_t option) const;
+        virtual void encode(const std::string &v, std::string &out, std::uint32_t option) const;
+        virtual void encode(bool v, std::string &out, std::uint32_t option) const;
+        virtual void encode(std::nullptr_t, std::string &out, std::uint32_t option) const;
 
     public:
         /**
