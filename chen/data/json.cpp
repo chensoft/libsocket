@@ -18,87 +18,81 @@ json::json(std::nullptr_t)
 }
 
 json::json(const json &o)
-: _type(o._type)
-, _data(o._data)
 {
-
+    *this = o;
 }
 
 json::json(json &&o)
 : _type(o._type)
 , _data(o._data)
 {
-
+    o._type = JsonType::Null;
+    o._data = {nullptr};
 }
 
 json::json(const chen::json::object &v)
 : _type(JsonType::Object)
-, _data(v)
 {
-
+    this->_data.o = new chen::json::object(v);
 }
 
 json::json(chen::json::object &&v)
 : _type(JsonType::Object)
-, _data(chen::json::object(v))
 {
-
+    this->_data.o = new chen::json::object(v);
 }
 
 json::json(const chen::json::array &v)
 : _type(JsonType::Array)
-, _data(v)
 {
-
+    this->_data.a = new chen::json::array(v);
 }
 
 json::json(chen::json::array &&v)
 : _type(JsonType::Array)
-, _data(chen::json::array(v))
 {
-
+    this->_data.a = new chen::json::array(v);
 }
 
 json::json(double v)
 : _type(JsonType::Number)
-, _data(v)
 {
-
+    this->_data.d = v;
 }
 
 json::json(int v)
 : _type(JsonType::Number)
-, _data(static_cast<double>(v))
 {
-
+    this->_data.d = v;
 }
 
 json::json(const std::string &v)
 : _type(JsonType::String)
-, _data(std::string(v))
 {
-
+    this->_data.s = new std::string(v);
 }
 
 json::json(std::string &&v)
 : _type(JsonType::String)
-, _data(std::string(v))
 {
-
+    this->_data.s = new std::string(v);
 }
 
 json::json(const char *v)
 : _type(JsonType::String)
-, _data(std::string(v))
 {
-
+    this->_data.s = new std::string(v);
 }
 
 json::json(bool v)
 : _type(v ? JsonType::True : JsonType::False)
-, _data(v)
 {
+    this->_data.b = v;
+}
 
+json::~json()
+{
+    this->clear();
 }
 
 // copy & move
@@ -110,7 +104,33 @@ json& json::operator=(const json &o)
     this->clear();
 
     this->_type = o._type;
-    this->_data = o._data;
+
+    switch (this->_type)
+    {
+        case JsonType::Object:
+            this->_data.o = new chen::json::object(*o._data.o);
+            break;
+
+        case JsonType::Array:
+            this->_data.a = new chen::json::array(*o._data.a);
+            break;
+
+        case JsonType::Number:
+            this->_data.d = o._data.d;
+            break;
+
+        case JsonType::String:
+            this->_data.s = new std::string(*o._data.s);
+            break;
+
+        case JsonType::True:
+        case JsonType::False:
+            this->_data.b = o._data.b;
+            break;
+
+        case JsonType::Null:
+            break;
+    }
 
     return *this;
 }
@@ -125,7 +145,23 @@ json& json::operator=(json &&o)
     this->_type = o._type;
     this->_data = o._data;
 
+    o._type = JsonType::Null;
+    o._data = {nullptr};
+
     return *this;
+}
+
+// parse & stringify
+chen::json json::parse(const std::string &text)
+{
+    chen::json json;
+    json.decode(text);
+    return json;
+}
+
+std::string json::stringify(const chen::json &json, std::size_t space)
+{
+    return json.encode(space);
 }
 
 // decode
@@ -146,8 +182,31 @@ std::string json::encode(std::size_t space) const
 // clear
 void json::clear()
 {
+    switch (this->_type)
+    {
+        case JsonType::Object:
+            delete this->_data.o;
+            break;
+
+        case JsonType::Array:
+            delete this->_data.a;
+            break;
+
+        case JsonType::Number:
+            break;
+
+        case JsonType::String:
+            delete this->_data.s;
+            break;
+
+        case JsonType::True:
+        case JsonType::False:
+        case JsonType::Null:
+            break;
+    }
+
     this->_type = JsonType::Null;
-    this->_data.clear();
+    this->_data = {nullptr};
 }
 
 // type
@@ -197,15 +256,64 @@ bool json::isBool() const
     return (this->_type == JsonType::True) || (this->_type == JsonType::False);
 }
 
-// value
-chen::json::object json::asObject() const
+// get value
+const chen::json::object& json::getObject() const
+{
+    if (this->_type == JsonType::Object)
+        return *this->_data.o;
+    else
+        throw error_general("json type is not object");
+}
+
+const chen::json::array& json::getArray() const
+{
+    if (this->_type == JsonType::Array)
+        return *this->_data.a;
+    else
+        throw error_general("json type is not array");
+}
+
+double json::getNumber() const
+{
+    if (this->_type == JsonType::Number)
+        return this->_data.d;
+    else
+        throw error_general("json type is not number");
+}
+
+int json::getInteger() const
+{
+    if (this->_type == JsonType::Number)
+        return static_cast<int>(this->_data.d);
+    else
+        throw error_general("json type is not number");
+}
+
+const std::string& json::getString() const
+{
+    if (this->_type == JsonType::String)
+        return *this->_data.s;
+    else
+        throw error_general("json type is not string");
+}
+
+bool json::getBool() const
+{
+    if ((this->_type == JsonType::True) || (this->_type == JsonType::False))
+        return this->_data.b;
+    else
+        throw error_general("json type is not bool");
+}
+
+// convert value
+chen::json::object json::toObject() const
 {
     static chen::json::object object;
 
     switch (this->_type)
     {
         case JsonType::Object:
-            return this->_data;
+            return *this->_data.o;
 
         case JsonType::Array:
         case JsonType::Number:
@@ -217,7 +325,7 @@ chen::json::object json::asObject() const
     }
 }
 
-chen::json::array json::asArray() const
+chen::json::array json::toArray() const
 {
     static chen::json::array array;
 
@@ -227,7 +335,7 @@ chen::json::array json::asArray() const
             return array;
 
         case JsonType::Array:
-            return this->_data;
+            return *this->_data.a;
 
         case JsonType::Number:
         case JsonType::String:
@@ -238,7 +346,7 @@ chen::json::array json::asArray() const
     }
 }
 
-double json::asNumber() const
+double json::toNumber() const
 {
     switch (this->_type)
     {
@@ -247,11 +355,11 @@ double json::asNumber() const
             return 0.0;
 
         case JsonType::Number:
-            return static_cast<double>(this->_data);
+            return this->_data.d;
 
         case JsonType::String:
         {
-            std::string d = this->_data;
+            std::string &d = *this->_data.s;
             return std::atof(d.c_str());
         }
 
@@ -264,7 +372,7 @@ double json::asNumber() const
     }
 }
 
-int json::asInteger() const
+int json::toInteger() const
 {
     switch (this->_type)
     {
@@ -273,11 +381,11 @@ int json::asInteger() const
             return 0;
 
         case JsonType::Number:
-            return static_cast<int>(static_cast<double>(this->_data));
+            return static_cast<int>(this->_data.d);
 
         case JsonType::String:
         {
-            std::string d = this->_data;
+            std::string &d = *this->_data.s;
             return std::atoi(d.c_str());
         }
 
@@ -290,7 +398,7 @@ int json::asInteger() const
     }
 }
 
-std::string json::asString() const
+std::string json::toString() const
 {
     switch (this->_type)
     {
@@ -300,13 +408,12 @@ std::string json::asString() const
 
         case JsonType::Number:
         {
-            double d = static_cast<double>(this->_data);
-            std::int64_t i = static_cast<std::int64_t>(d);
-            return (d - i == 0) ? num::str(i) : num::str(d);
+            std::int64_t i = static_cast<std::int64_t>(this->_data.d);
+            return (this->_data.d - i == 0) ? num::str(i) : num::str(this->_data.d);
         }
 
         case JsonType::String:
-            return this->_data;
+            return *this->_data.s;
 
         case JsonType::True:
             return "true";
@@ -319,7 +426,7 @@ std::string json::asString() const
     }
 }
 
-bool json::asBool() const
+bool json::toBool() const
 {
     switch (this->_type)
     {
@@ -329,13 +436,10 @@ bool json::asBool() const
             return true;
 
         case JsonType::Number:
-            return static_cast<double>(this->_data) != 0.0;
+            return this->_data.d != 0.0;
 
         case JsonType::String:
-        {
-            std::string d = this->_data;
-            return !d.empty();
-        }
+            return !this->_data.s->empty();
 
         case JsonType::True:
             return true;
@@ -352,20 +456,20 @@ void json::encode(std::string &output, std::size_t space, std::size_t &indent) c
     switch (this->_type)
     {
         case JsonType::Object:
-            return this->encode(this->asObject(), output, space, indent);
+            return this->encode(this->getObject(), output, space, indent);
 
         case JsonType::Array:
-            return this->encode(this->asArray(), output, space, indent);
+            return this->encode(this->getArray(), output, space, indent);
 
         case JsonType::Number:
-            return this->encode(this->asNumber(), output);
+            return this->encode(this->getNumber(), output);
 
         case JsonType::String:
-            return this->encode(this->asString(), output);
+            return this->encode(this->getString(), output);
 
         case JsonType::True:
         case JsonType::False:
-            return this->encode(this->asBool(), output);
+            return this->encode(this->getBool(), output);
 
         case JsonType::Null:
             return this->encode(nullptr, output);
@@ -523,17 +627,4 @@ void json::encode(bool v, std::string &output) const
 void json::encode(std::nullptr_t, std::string &output) const
 {
     output.append("null");
-}
-
-// parse & stringify
-chen::json json::parse(const std::string &text)
-{
-    chen::json json;
-    json.decode(text);
-    return json;
-}
-
-std::string json::stringify(const chen::json &json, std::size_t space)
-{
-    return json.encode(space);
 }

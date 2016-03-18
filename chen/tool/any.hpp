@@ -8,6 +8,8 @@
 
 namespace chen
 {
+    // todo prevent three copies when construct a any object
+    // e.g: chen::any x(object); object is copied many times
     class any final
     {
     public:

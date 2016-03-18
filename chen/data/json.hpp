@@ -32,7 +32,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <chen/tool/any.hpp>
 // todo support initialize list
 // todo benchmark with js engine
 
@@ -41,15 +40,18 @@ namespace chen
     class json
     {
     public:
-        typedef std::vector<chen::json> array;
         typedef std::map<std::string, chen::json> object;
+        typedef std::vector<chen::json> array;
 
         enum class JsonType {Object, Array, Number, String, True, False, Null};
 
-        // todo use union
-        union
+        union JsonData
         {
-//            std::string *s;
+            chen::json::object *o;
+            chen::json::array *a;
+            double d;
+            std::string *s;
+            bool b;
         };
 
         class error : public std::runtime_error
@@ -58,12 +60,18 @@ namespace chen
             explicit error(const std::string &what) : std::runtime_error(what) {}
         };
 
+        class error_general : public chen::json::error
+        {
+        public:
+            explicit error_general(const std::string &what) : chen::json::error(what) {}
+        };
+
         class error_syntax : public chen::json::error
         {
         public:
             explicit error_syntax(const std::string &what, std::size_t line, std::size_t column) : chen::json::error(what) {}
 
-            std::size_t line = 0;
+            std::size_t line   = 0;
             std::size_t column = 0;
         };
 
@@ -89,13 +97,22 @@ namespace chen
 
         json(bool v);
 
-        virtual ~json() = default;
+        virtual ~json();
 
         /**
          * Copy & Move
          */
         json& operator=(const json &o);
         json& operator=(json &&o);
+
+    public:
+        /**
+         * Json parse and stringify helper
+         * use encode and decode internally
+         */
+        static chen::json parse(const std::string &text);
+        static std::string stringify(const chen::json &json,
+                                     std::size_t space = 0);
 
     public:
         // todo add stream support, read chars from stream
@@ -135,17 +152,27 @@ namespace chen
         virtual bool isBool() const;
 
     public:
-        // todo use const reference, don't use any type
         /**
-         * Get the json value
-         * convert to the desired type as possible
+         * Get value, throw exception if type is incorrect
          */
-        virtual chen::json::object asObject() const;
-        virtual chen::json::array asArray() const;
-        virtual double asNumber() const;
-        virtual int asInteger() const;  // maybe losing precision
-        virtual std::string asString() const;
-        virtual bool asBool() const;
+        virtual const chen::json::object& getObject() const;
+        virtual const chen::json::array& getArray() const;
+        virtual double getNumber() const;
+        virtual int getInteger() const;  // maybe losing precision
+        virtual const std::string& getString() const;
+        virtual bool getBool() const;
+
+        // todo add set value
+
+        /**
+         * Convert value to the desired type as possible
+         */
+        virtual chen::json::object toObject() const;
+        virtual chen::json::array toArray() const;
+        virtual double toNumber() const;
+        virtual int toInteger() const;  // maybe losing precision
+        virtual std::string toString() const;
+        virtual bool toBool() const;
 
     protected:
         /**
@@ -171,17 +198,8 @@ namespace chen
         virtual void encode(bool v, std::string &output) const;
         virtual void encode(std::nullptr_t, std::string &output) const;
 
-    public:
-        /**
-         * Json parse and stringify helper
-         * use encode and decode internally
-         */
-        static chen::json parse(const std::string &text);
-        static std::string stringify(const chen::json &json,
-                                     std::size_t space = 0);
-
     protected:
         JsonType _type = JsonType::Null;
-        chen::any _data;
+        JsonData _data = {nullptr};
     };
 }
