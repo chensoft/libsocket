@@ -112,6 +112,7 @@ std::string num::str(unsigned long long value)
 std::string num::str(float value)
 {
     std::ostringstream ss;
+    ss.precision(10);
     ss << value;
     return ss.str();
 }
@@ -119,6 +120,7 @@ std::string num::str(float value)
 std::string num::str(double value)
 {
     std::ostringstream ss;
+    ss.precision(std::numeric_limits<double>::digits10);
     ss << value;
     return ss.str();
 }
@@ -126,6 +128,7 @@ std::string num::str(double value)
 std::string num::str(long double value)
 {
     std::ostringstream ss;
+    ss.precision(std::numeric_limits<long double>::digits10);
     ss << value;
     return ss.str();
 }
