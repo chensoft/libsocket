@@ -681,7 +681,85 @@ void json::decode(chen::json &out, const std::string &text, std::string::const_i
 
 void json::decode(chen::json::object &out, const std::string &text, std::string::const_iterator &it)
 {
+    auto end = text.end();
 
+    if (it == end)
+        throw error_syntax("json unexpected end of input", text, it);
+    else if (*it != '{')
+        throw error_syntax(str::format("json unexpected token '%c'", *it), text, it);
+
+    ++it;
+
+    while (it != end)
+    {
+        // todo allow space, line break and more white char
+        if ((*it == ' ') && (++it != end))
+            continue;
+
+        if (*it == '}')
+            break;
+
+        // find key
+        if (*it != '"')
+            throw error_syntax(str::format("json unexpected token '%c'", *it), text, it);
+
+        std::string key;
+        this->decode(key, text, it);
+
+        // find separator
+        // todo make this to a function
+        for (; (it != end) && (*it == ' '); ++it)
+            ;
+
+        if (it == end)
+            throw error_syntax("json unexpected end of input", text, it);
+        else if (*it != ':')  // separator
+            throw error_syntax(str::format("json unexpected token '%c'", *it), text, it);
+
+        ++it;
+
+        for (; (it != end) && (*it == ' '); ++it)
+            ;
+
+        if (it == end)
+            throw error_syntax("json unexpected end of input", text, it);
+
+        // find value
+        chen::json item;
+        this->decode(item, text, it);
+
+        out[key] = item;
+
+        // find comma or ending
+        for (; (it != end) && (*it == ' '); ++it)
+            ;
+
+        if (it != end)
+        {
+            if (*it == ',')
+            {
+                ++it;
+                continue;
+            }
+            else if (*it == '}')
+            {
+                break;
+            }
+            else
+            {
+                throw error_syntax(str::format("json unexpected token '%c'", *it), text, it);
+            }
+        }
+        else
+        {
+            throw error_syntax("json unexpected end of input", text, it);
+        }
+    }
+
+    if (it == end)
+        throw error_syntax("json unexpected end of input", text, it);
+
+    ++it;
 }
 
 void json::decode(chen::json::array &out, const std::string &text, std::string::const_iterator &it)
@@ -699,12 +777,11 @@ void json::decode(chen::json::array &out, const std::string &text, std::string::
 
     while (it != end)
     {
-        if (*it == ' ')
-        {
-            ++it;
+        // todo allow space, line break and more white char
+        if ((*it == ' ') && (++it != end))
             continue;
-        }
-        else if (*it == ',')
+
+        if (*it == ',')
         {
             if (!sep)
                 sep = true;
@@ -731,6 +808,8 @@ void json::decode(chen::json::array &out, const std::string &text, std::string::
 
     if (it == end)
         throw error_syntax("json unexpected end of input", text, it);
+
+    ++it;
 }
 
 void json::decode(double &out, const std::string &text, std::string::const_iterator &it)

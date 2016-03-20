@@ -198,6 +198,7 @@ namespace chen
         virtual bool toBool() const;
 
     protected:
+        // todo remove text, using offset instead of line and column
         /**
          * Decode specific type
          */
