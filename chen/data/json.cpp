@@ -302,18 +302,10 @@ void json::decode(const std::string &text)
 {
     auto cur = text.begin();
     auto end = text.end();
-
-    for (; (cur != end) && (*cur == ' '); ++cur)
-        ;
-
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(text.begin(), cur));
+    this->advance(cur, cur, end);
 
     chen::json item;
     this->decode(item, cur, text.begin(), end);
-
-    if (item.type() == JsonType::None)
-        throw error_syntax("json unexpected end of input", std::distance(text.begin(), cur));
 
     *this = std::move(item);
 }
@@ -616,6 +608,18 @@ bool json::toBool() const
     }
 }
 
+// advance
+void json::advance(std::string::const_iterator &cur,
+                   std::string::const_iterator beg,
+                   std::string::const_iterator end)
+{
+    for (; (cur != end) && std::isspace(*cur); ++cur)
+        ;
+
+    if (cur == end)
+        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+}
+
 // decode type
 void json::decode(chen::json &out,
                   std::string::const_iterator &cur,
@@ -695,9 +699,7 @@ void json::decode(chen::json::object &out,
 
     while (cur != end)
     {
-        // todo allow space, line break and more white char
-        if ((*cur == ' ') && (++cur != end))
-            continue;
+        this->advance(cur, beg, end);
 
         if (*cur == '}')
             break;
@@ -710,22 +712,14 @@ void json::decode(chen::json::object &out,
         this->decode(key, cur, beg, end);
 
         // find separator
-        // todo make this to a function
-        for (; (cur != end) && (*cur == ' '); ++cur)
-            ;
+        this->advance(cur, beg, end);
 
-        if (cur == end)
-            throw error_syntax("json unexpected end of input", std::distance(beg, cur));
-        else if (*cur != ':')  // separator
+        if (*cur != ':')  // separator
             throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
 
         ++cur;
 
-        for (; (cur != end) && (*cur == ' '); ++cur)
-            ;
-
-        if (cur == end)
-            throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+        this->advance(cur, beg, end);
 
         // find value
         chen::json item;
@@ -734,28 +728,20 @@ void json::decode(chen::json::object &out,
         out[key] = item;
 
         // find comma or ending
-        for (; (cur != end) && (*cur == ' '); ++cur)
-            ;
+        this->advance(cur, beg, end);
 
-        if (cur != end)
+        if (*cur == ',')
         {
-            if (*cur == ',')
-            {
-                ++cur;
-                continue;
-            }
-            else if (*cur == '}')
-            {
-                break;
-            }
-            else
-            {
-                throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
-            }
+            ++cur;
+            continue;
+        }
+        else if (*cur == '}')
+        {
+            break;
         }
         else
         {
-            throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
         }
     }
 
@@ -781,9 +767,7 @@ void json::decode(chen::json::array &out,
 
     while (cur != end)
     {
-        // todo allow space, line break and more white char
-        if ((*cur == ' ') && (++cur != end))
-            continue;
+        this->advance(cur, beg, end);
 
         if (*cur == ',')
         {
@@ -830,7 +814,7 @@ void json::decode(double &out,
     if ((*it != '-') && (!std::isdigit(*it) || ((*it - '0') <= 0)))
         throw error_syntax(str::format("json unexpected token '%c'", *it), std::distance(beg, it));
 
-    std::string str(1, *it++);
+    std::string str(1, *cur++);
 
     // second char can't be 0 if first char is '-'
     if ((*it == '-') && (cur != end))

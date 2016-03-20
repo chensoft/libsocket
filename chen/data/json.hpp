@@ -196,6 +196,13 @@ namespace chen
 
     protected:
         /**
+         * Advance the iterator, filter all white spaces
+         */
+        virtual void advance(std::string::const_iterator &cur,
+                             std::string::const_iterator beg,
+                             std::string::const_iterator end);
+
+        /**
          * Decode specific type
          */
         virtual void decode(chen::json &out,
