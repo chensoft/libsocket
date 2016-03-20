@@ -70,12 +70,9 @@ namespace chen
         {
         public:
             explicit error_syntax(const std::string &what,
-                                  const std::string &text,
-                                  std::string::const_iterator it);
-            virtual const char* what() const noexcept;
+                                  std::string::difference_type offset) : chen::json::error(what), offset(offset) {};
 
-        private:
-            std::string _what;
+            std::string::difference_type offset = 0;
         };
 
     public:
@@ -198,18 +195,38 @@ namespace chen
         virtual bool toBool() const;
 
     protected:
-        // todo remove text, using offset instead of line and column
         /**
          * Decode specific type
          */
-        virtual void decode(chen::json &out, const std::string &text, std::string::const_iterator &it);
+        virtual void decode(chen::json &out,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
 
-        virtual void decode(chen::json::object &out, const std::string &text, std::string::const_iterator &it);
-        virtual void decode(chen::json::array &out, const std::string &text, std::string::const_iterator &it);
-        virtual void decode(double &out, const std::string &text, std::string::const_iterator &it);
-        virtual void decode(std::string &out, const std::string &text, std::string::const_iterator &it);
-        virtual void decode(bool v, const std::string &text, std::string::const_iterator &it);
-        virtual void decode(const std::string &text, std::string::const_iterator &it);
+        virtual void decode(chen::json::object &out,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
+        virtual void decode(chen::json::array &out,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
+        virtual void decode(double &out,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
+        virtual void decode(std::string &out,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
+        virtual void decode(bool v,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
+        virtual void decode(std::nullptr_t,
+                            std::string::const_iterator &cur,
+                            std::string::const_iterator beg,
+                            std::string::const_iterator end);
 
         /**
          * Encode specific type
