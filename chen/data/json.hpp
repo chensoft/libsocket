@@ -1,5 +1,5 @@
 /**
- * A tiny json parser
+ * A tiny json parser, support utf-8 only
  * @since  2016.03.16
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
@@ -43,7 +43,7 @@ namespace chen
         typedef std::map<std::string, chen::json> object;
         typedef std::vector<chen::json> array;
 
-        enum class JsonType {Object, Array, Number, String, True, False, Null};
+        enum class JsonType {None, Object, Array, Number, String, True, False, Null};
 
         union JsonData
         {
@@ -69,13 +69,19 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
-            explicit error_syntax(const std::string &what, std::size_t line, std::size_t column) : chen::json::error(what) {}
+            explicit error_syntax(const std::string &what,
+                                  const std::string &text,
+                                  std::string::const_iterator it);
+            virtual const char* what() const noexcept;
 
-            std::size_t line   = 0;
-            std::size_t column = 0;
+        private:
+            std::string _what;
         };
 
     public:
+        /**
+         * Constructor
+         */
         json() = default;
         json(std::nullptr_t);
 
@@ -100,10 +106,27 @@ namespace chen
         virtual ~json();
 
         /**
-         * Copy & Move
+         * Assignment
          */
+        json& operator=(std::nullptr_t);
+
         json& operator=(const json &o);
         json& operator=(json &&o);
+
+        json& operator=(const chen::json::object &v);
+        json& operator=(chen::json::object &&v);
+
+        json& operator=(const chen::json::array &v);
+        json& operator=(chen::json::array &&v);
+
+        json& operator=(double v);
+        json& operator=(int v);
+
+        json& operator=(const std::string &v);
+        json& operator=(std::string &&v);
+        json& operator=(const char *v);
+
+        json& operator=(bool v);
 
     public:
         /**
@@ -124,6 +147,7 @@ namespace chen
 
         /**
          * Encode the json object to a string
+         * @param space the indent count when using pretty print
          */
         virtual std::string encode(std::size_t space = 0) const;
 
@@ -150,6 +174,7 @@ namespace chen
         virtual bool isNull() const;
 
         virtual bool isBool() const;
+        virtual bool isNone() const;
 
     public:
         /**
@@ -176,15 +201,22 @@ namespace chen
 
     protected:
         /**
-         * Encode helper
+         * Decode specific type
          */
-        virtual void encode(std::string &output,
-                            std::size_t space,
-                            std::size_t &indent) const;
+        virtual void decode(chen::json &out, const std::string &text, std::string::const_iterator &it);
+
+        virtual void decode(chen::json::object &out, const std::string &text, std::string::const_iterator &it);
+        virtual void decode(chen::json::array &out, const std::string &text, std::string::const_iterator &it);
+        virtual void decode(double &out, const std::string &text, std::string::const_iterator &it);
+        virtual void decode(std::string &out, const std::string &text, std::string::const_iterator &it);
+        virtual void decode(bool v, const std::string &text, std::string::const_iterator &it);
+        virtual void decode(const std::string &text, std::string::const_iterator &it);
 
         /**
          * Encode specific type
          */
+        virtual void encode(std::string &output, std::size_t space, std::size_t &indent) const;
+
         virtual void encode(const chen::json::object &v,
                             std::string &output,
                             std::size_t space,
@@ -199,7 +231,7 @@ namespace chen
         virtual void encode(std::nullptr_t, std::string &output) const;
 
     protected:
-        JsonType _type = JsonType::Null;
+        JsonType _type = JsonType::None;
         JsonData _data = {nullptr};
     };
 }

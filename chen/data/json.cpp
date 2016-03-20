@@ -6,13 +6,18 @@
  */
 #include "json.hpp"
 #include <cstdlib>
+#include <codecvt>
+#include <locale>
+#include <cmath>
 #include <chen/tool/num.hpp>
+#include <chen/tool/str.hpp>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // json
 json::json(std::nullptr_t)
+: _type(JsonType::Null)
 {
 
 }
@@ -26,7 +31,7 @@ json::json(json &&o)
 : _type(o._type)
 , _data(o._data)
 {
-    o._type = JsonType::Null;
+    o._type = JsonType::None;
     o._data = {nullptr};
 }
 
@@ -95,7 +100,16 @@ json::~json()
     this->clear();
 }
 
-// copy & move
+// assignment
+json& json::operator=(std::nullptr_t)
+{
+    this->clear();
+
+    this->_type = JsonType::Null;
+
+    return *this;
+}
+
 json& json::operator=(const json &o)
 {
     if (this == &o)
@@ -107,6 +121,9 @@ json& json::operator=(const json &o)
 
     switch (this->_type)
     {
+        case JsonType::None:
+            break;
+
         case JsonType::Object:
             this->_data.o = new chen::json::object(*o._data.o);
             break;
@@ -145,8 +162,124 @@ json& json::operator=(json &&o)
     this->_type = o._type;
     this->_data = o._data;
 
-    o._type = JsonType::Null;
+    o._type = JsonType::None;
     o._data = {nullptr};
+
+    return *this;
+}
+
+json& json::operator=(const chen::json::object &v)
+{
+    if ((this->_type == JsonType::Object) && (this->_data.o == &v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::Object;
+    this->_data.o = new chen::json::object(v);
+
+    return *this;
+}
+
+json& json::operator=(chen::json::object &&v)
+{
+    if ((this->_type == JsonType::Object) && (this->_data.o == &v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::Object;
+    this->_data.o = new chen::json::object(v);
+
+    return *this;
+}
+
+json& json::operator=(const chen::json::array &v)
+{
+    if ((this->_type == JsonType::Array) && (this->_data.a == &v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::Array;
+    this->_data.a = new chen::json::array(v);
+
+    return *this;
+}
+
+json& json::operator=(chen::json::array &&v)
+{
+    if ((this->_type == JsonType::Array) && (this->_data.a == &v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::Array;
+    this->_data.a = new chen::json::array(v);
+
+    return *this;
+}
+
+json& json::operator=(double v)
+{
+    this->clear();
+
+    this->_type   = JsonType::Number;
+    this->_data.d = v;
+
+    return *this;
+}
+
+json& json::operator=(int v)
+{
+    return *this = static_cast<double>(v);
+}
+
+json& json::operator=(const std::string &v)
+{
+    if ((this->_type == JsonType::String) && (this->_data.s == &v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::String;
+    this->_data.s = new std::string(v);
+
+    return *this;
+}
+
+json& json::operator=(std::string &&v)
+{
+    if ((this->_type == JsonType::String) && (this->_data.s == &v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::String;
+    this->_data.s = new std::string(v);
+
+    return *this;
+}
+
+json& json::operator=(const char *v)
+{
+    if ((this->_type == JsonType::String) && (this->_data.s->c_str() == v))
+        return *this;
+
+    this->clear();
+
+    this->_type   = JsonType::String;
+    this->_data.s = new std::string(v);
+
+    return *this;
+}
+
+json& json::operator=(bool v)
+{
+    this->clear();
+
+    this->_type   = v ? JsonType::True : JsonType::False;
+    this->_data.b = v;
 
     return *this;
 }
@@ -167,7 +300,15 @@ std::string json::stringify(const chen::json &json, std::size_t space)
 // decode
 void json::decode(const std::string &text)
 {
+    auto begin = text.begin();
+    chen::json item;
 
+    this->decode(item, text, begin);
+
+    if (item.type() == JsonType::None)
+        throw error_syntax("json unexpected end of input", text, begin);
+
+    *this = std::move(item);
 }
 
 // encode
@@ -184,6 +325,9 @@ void json::clear()
 {
     switch (this->_type)
     {
+        case JsonType::None:
+            return;
+
         case JsonType::Object:
             delete this->_data.o;
             break;
@@ -205,7 +349,7 @@ void json::clear()
             break;
     }
 
-    this->_type = JsonType::Null;
+    this->_type = JsonType::None;
     this->_data = {nullptr};
 }
 
@@ -254,6 +398,11 @@ bool json::isNull() const
 bool json::isBool() const
 {
     return (this->_type == JsonType::True) || (this->_type == JsonType::False);
+}
+
+bool json::isNone() const
+{
+    return this->_type == JsonType::None;
 }
 
 // get value
@@ -312,6 +461,9 @@ chen::json::object json::toObject() const
 
     switch (this->_type)
     {
+        case JsonType::None:
+            return object;
+
         case JsonType::Object:
             return *this->_data.o;
 
@@ -331,6 +483,7 @@ chen::json::array json::toArray() const
 
     switch (this->_type)
     {
+        case JsonType::None:
         case JsonType::Object:
             return array;
 
@@ -350,6 +503,7 @@ double json::toNumber() const
 {
     switch (this->_type)
     {
+        case JsonType::None:
         case JsonType::Object:
         case JsonType::Array:
             return 0.0;
@@ -376,6 +530,7 @@ int json::toInteger() const
 {
     switch (this->_type)
     {
+        case JsonType::None:
         case JsonType::Object:
         case JsonType::Array:
             return 0;
@@ -402,6 +557,7 @@ std::string json::toString() const
 {
     switch (this->_type)
     {
+        case JsonType::None:
         case JsonType::Object:
         case JsonType::Array:
             return "";
@@ -430,6 +586,9 @@ bool json::toBool() const
 {
     switch (this->_type)
     {
+        case JsonType::None:
+            return false;
+
         // treat object as true, like javascript
         case JsonType::Object:
         case JsonType::Array:
@@ -450,11 +609,320 @@ bool json::toBool() const
     }
 }
 
-// encode helper
+// decode type
+void json::decode(chen::json &out, const std::string &text, std::string::const_iterator &it)
+{
+    auto end = text.end();
+
+    while (it != end)
+    {
+        if (*it == ' ')
+        {
+            ++it;
+            continue;
+        }
+
+        switch (*it)
+        {
+            case '{':  // object
+            {
+                chen::json::object o;
+                this->decode(o, text, it);
+                out = std::move(o);
+            }
+                break;
+
+            case '[':  // array
+            {
+                chen::json::array a;
+                this->decode(a, text, it);
+                out = std::move(a);
+            }
+                break;
+
+            case '"':  // string
+            {
+                std::string s;
+                this->decode(s, text, it);
+                out = std::move(s);
+            }
+                break;
+
+            case 't':  // true
+                this->decode(true, text, it);
+                out = true;
+                break;
+
+            case 'f':  // false
+                this->decode(false, text, it);
+                out = false;
+                break;
+
+            case 'n':  // null
+                this->decode(text, it);
+                out = nullptr;
+                break;
+
+            default:
+                if (std::isdigit(*it) || (*it == '-'))  // number
+                {
+                    double d = 0;
+                    this->decode(d, text, it);
+                    out = d;
+                }
+                else
+                {
+                    throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+                }
+                break;
+        }
+    }
+}
+
+void json::decode(chen::json::object &out, const std::string &text, std::string::const_iterator &it)
+{
+
+}
+
+void json::decode(chen::json::array &out, const std::string &text, std::string::const_iterator &it)
+{
+
+}
+
+void json::decode(double &out, const std::string &text, std::string::const_iterator &it)
+{
+    auto cur = it;
+    auto end = text.end();
+
+    if (cur == end)
+        throw error_syntax("json unexpected end of input", text, cur);
+
+    // must begin with '-' or '1' ~ '9'
+    if ((*cur != '-') && (!std::isdigit(*cur) || ((*cur - '0') <= 0)))
+        throw error_syntax(str::format("json unexpected token %c", *cur), text, cur);
+
+    std::string str(1, *it++);
+
+    // second char can't be 0 if first char is '-'
+    if ((*cur == '-') && (it != end))
+    {
+        if (!std::isdigit(*it) || (*it - '0' <= 0))
+            throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+
+        str += *it++;
+    }
+
+    // collect integer parts
+    while (it != end)
+    {
+        if (!std::isdigit(*it))
+            break;
+
+        str += *it++;
+    }
+
+    // collect decimal parts
+    if ((it != end) && (*it == '.'))
+    {
+        str += *it++;
+
+        // digits
+        while (it != end)
+        {
+            if (!std::isdigit(*it))
+                break;
+
+            str += *it++;
+        }
+    }
+
+    // 'e' or 'E'
+    if ((it != end) && ((*it == 'e') || (*it == 'E')))
+    {
+        str += *it++;
+
+        // '+', '-' or digits
+        if ((it != end) && ((*it == '+') || (*it == '-') || std::isdigit(*it)))
+        {
+            str += *it++;
+
+            while (it != end)
+            {
+                if (!std::isdigit(*it))
+                    break;
+
+                str += *it++;
+            }
+        }
+    }
+
+    // check if number is overflow
+    double d = std::atof(str.c_str());
+
+    if (std::isinf(d))
+        throw error_syntax("json number is overflow: " + str, text, it);
+    else if (std::isnan(d))
+        throw error_syntax("json number is incorrect: " + str, text, it);
+
+    out = d;
+}
+
+void json::decode(std::string &out, const std::string &text, std::string::const_iterator &it)
+{
+    auto end = text.end();
+
+    if (it == end)
+        throw error_syntax("json unexpected end of input", text, it);
+    else if (*it != '"')  // begin quote
+        throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+
+    ++it;
+
+    std::string str;
+
+    while (it != end)
+    {
+        if (*it == '"')
+            break;
+
+        // control characters must use escape
+        if ((*it >= 0) && (*it <= 31))  // see ASCII
+            throw error_syntax("json control character is not escaped", text, it);
+
+        // unescape characters
+        if (*it == '\\')
+        {
+            switch (*++it)
+            {
+                case '"':
+                case '\\':
+                case '/':
+                    str += *it++;
+                    break;
+
+                case 'b':
+                    str += '\b';
+                    ++it;
+                    break;
+
+                case 'f':
+                    str += '\f';
+                    ++it;
+                    break;
+
+                case 'n':
+                    str += '\n';
+                    ++it;
+                    break;
+
+                case 'r':
+                    str += '\r';
+                    ++it;
+                    break;
+
+                case 't':
+                    str += '\t';
+                    ++it;
+                    break;
+
+                case 'u':
+                {
+                    // handle unicode character
+                    char unicode[5] = {0};
+
+                    for (auto i = 0; i < 4; ++i)
+                    {
+                        if (++it == end)
+                            throw error_syntax("json unexpected end of input", text, it);
+
+                        char ch = *it;
+
+                        // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
+                        if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
+                            unicode[i] = ch;
+                        else
+                            throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+                    }
+
+                    // convert utf-16 to utf-8
+                    try
+                    {
+                        std::u16string source(1, static_cast<char16_t>(std::strtol(unicode, nullptr, 16)));
+                        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+
+                        str.append(convert.to_bytes(source));
+                    }
+                    catch (...)
+                    {
+                        // e.g: \uD83D\uDE00, it's a emoji character
+                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), text, it);
+                    }
+
+                    ++it;
+                }
+                    break;
+
+                default:
+                    throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+            }
+        }
+        else
+        {
+            str += *it++;
+        }
+    }
+
+    if (it == end)
+        throw error_syntax("json unexpected end of input", text, it);
+    else if (*it != '"')  // end quote
+        throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+
+    ++it;
+
+    out = std::move(str);
+}
+
+void json::decode(bool v, const std::string &text, std::string::const_iterator &it)
+{
+    static const std::string t("true");
+    static const std::string f("false");
+
+    auto end = text.end();
+    auto &s  = v ? t : f;
+
+    for (std::size_t i = 0, l = s.size(); i < l; ++i, ++it)
+    {
+        if (it == end)
+            throw error_syntax("json unexpected end of input", text, it);
+
+        if (*it != s[i])
+            throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+    }
+}
+
+void json::decode(const std::string &text, std::string::const_iterator &it)
+{
+    static const std::string n("null");
+    auto end = text.end();
+
+    for (std::size_t i = 0, l = n.size(); i < l; ++i, ++it)
+    {
+        if (it == end)
+            throw error_syntax("json unexpected end of input", text, it);
+
+        if (*it != n[i])
+            throw error_syntax(str::format("json unexpected token %c", *it), text, it);
+    }
+}
+
+// encode type
 void json::encode(std::string &output, std::size_t space, std::size_t &indent) const
 {
     switch (this->_type)
     {
+        case JsonType::None:
+            break;
+
         case JsonType::Object:
             return this->encode(this->getObject(), output, space, indent);
 
@@ -476,7 +944,6 @@ void json::encode(std::string &output, std::size_t space, std::size_t &indent) c
     }
 }
 
-// encode specific
 void json::encode(const chen::json::object &v, std::string &output, std::size_t space, std::size_t &indent) const
 {
     output += '{';
@@ -627,4 +1094,23 @@ void json::encode(bool v, std::string &output) const
 void json::encode(std::nullptr_t, std::string &output) const
 {
     output.append("null");
+}
+
+
+// -----------------------------------------------------------------------------
+// error_syntax
+json::error_syntax::error_syntax(const std::string &what,
+                                 const std::string &text,
+                                 std::string::const_iterator it)
+: chen::json::error(what)
+{
+    // todo calc the line and column
+    std::size_t line   = 0;
+    std::size_t column = 0;
+    this->_what = str::format("%s, at line %u, column %u", json::error::what(), line, column);
+}
+
+const char* json::error_syntax::what() const noexcept
+{
+    return this->_what.c_str();
 }
