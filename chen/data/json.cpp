@@ -725,24 +725,17 @@ void json::decode(chen::json::object &out,
         chen::json item;
         this->decode(item, cur, beg, end);
 
-        out[key] = item;
+        out[std::move(key)] = std::move(item);
 
         // find comma or ending
         this->advance(cur, beg, end);
 
         if (*cur == ',')
-        {
             ++cur;
-            continue;
-        }
         else if (*cur == '}')
-        {
             break;
-        }
         else
-        {
             throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
-        }
     }
 
     if (cur == end)
@@ -763,35 +756,28 @@ void json::decode(chen::json::array &out,
 
     ++cur;
 
-    bool sep = false;
-
     while (cur != end)
     {
         this->advance(cur, beg, end);
 
-        if (*cur == ',')
-        {
-            if (!sep)
-                sep = true;
-            else
-                throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+        if (*cur == ']')
+            break;
 
-            ++cur;
-            continue;
-        }
-        else if (*cur == ']')
-        {
-            if (sep)
-                throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
-            else
-                break;
-        }
-
-        sep = false;
-
+        // find value
         chen::json item;
         this->decode(item, cur, beg, end);
-        out.push_back(item);
+
+        out.push_back(std::move(item));
+
+        // find comma or ending
+        this->advance(cur, beg, end);
+
+        if (*cur == ',')
+            ++cur;
+        else if (*cur == ']')
+            break;
+        else
+            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
     }
 
     if (cur == end)
@@ -806,12 +792,11 @@ void json::decode(double &out,
                   std::string::const_iterator end)
 {
     auto it = cur;
-
     if (it == end)
         throw error_syntax("json unexpected end of input", std::distance(beg, it));
 
     // must begin with '-' or '1' ~ '9'
-    if ((*it != '-') && (!std::isdigit(*it) || ((*it - '0') <= 0)))
+    if ((*it != '-') && (!std::isdigit(*it) || ((*it == '0') && std::isdigit(*(it + 1)))))
         throw error_syntax(str::format("json unexpected token '%c'", *it), std::distance(beg, it));
 
     std::string str(1, *cur++);
@@ -826,13 +811,8 @@ void json::decode(double &out,
     }
 
     // collect integer parts
-    while (cur != end)
-    {
-        if (!std::isdigit(*cur))
-            break;
-
+    while ((cur != end) && std::isdigit(*cur))
         str += *cur++;
-    }
 
     // collect decimal parts
     if ((cur != end) && (*cur == '.'))
@@ -840,13 +820,8 @@ void json::decode(double &out,
         str += *cur++;
 
         // digits
-        while (cur != end)
-        {
-            if (!std::isdigit(*cur))
-                break;
-
+        while ((cur != end) && std::isdigit(*cur))
             str += *cur++;
-        }
     }
 
     // 'e' or 'E'
@@ -859,13 +834,8 @@ void json::decode(double &out,
         {
             str += *cur++;
 
-            while (cur != end)
-            {
-                if (!std::isdigit(*cur))
-                    break;
-
+            while ((cur != end) && std::isdigit(*cur))
                 str += *cur++;
-            }
         }
     }
 
@@ -892,13 +862,8 @@ void json::decode(std::string &out,
 
     ++cur;
 
-    std::string str;
-
-    while (cur != end)
+    while ((cur != end) && (*cur != '"'))
     {
-        if (*cur == '"')
-            break;
-
         // control characters must use escape
         if ((*cur >= 0) && (*cur <= 31))  // see ASCII
             throw error_syntax("json control character is not escaped", std::distance(beg, cur));
@@ -911,31 +876,31 @@ void json::decode(std::string &out,
                 case '"':
                 case '\\':
                 case '/':
-                    str += *cur++;
+                    out += *cur++;
                     break;
 
                 case 'b':
-                    str += '\b';
+                    out += '\b';
                     ++cur;
                     break;
 
                 case 'f':
-                    str += '\f';
+                    out += '\f';
                     ++cur;
                     break;
 
                 case 'n':
-                    str += '\n';
+                    out += '\n';
                     ++cur;
                     break;
 
                 case 'r':
-                    str += '\r';
+                    out += '\r';
                     ++cur;
                     break;
 
                 case 't':
-                    str += '\t';
+                    out += '\t';
                     ++cur;
                     break;
 
@@ -964,7 +929,7 @@ void json::decode(std::string &out,
                         std::u16string source(1, static_cast<char16_t>(std::strtol(unicode, nullptr, 16)));
                         std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
 
-                        str.append(convert.to_bytes(source));
+                        out.append(convert.to_bytes(source));
                     }
                     catch (...)
                     {
@@ -982,18 +947,14 @@ void json::decode(std::string &out,
         }
         else
         {
-            str += *cur++;
+            out += *cur++;
         }
     }
 
     if (cur == end)
         throw error_syntax("json unexpected end of input", std::distance(beg, cur));
-    else if (*cur != '"')  // end quote
-        throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
 
     ++cur;
-
-    out = std::move(str);
 }
 
 void json::decode(bool v,

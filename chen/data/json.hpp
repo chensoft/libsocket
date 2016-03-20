@@ -8,23 +8,16 @@
  * A JSON value can be an object, array, number, string, true, false, or null
  * we represent the number as double type, like the javascript
  * -----------------------------------------------------------------------------
- * Usage:  // todo
- * >> chen::cmd cmd;
+ * Usage:
+ * >> // parse json string to object
+ * >> auto dict = chen::json::parse("{\"author\": \"Jian Chen\", \"time\": 1458480325}");
+ * >> auto json = dict.getObject();
  * >>
- * >> try
- * >> {
- * >>     cmd.define("help", "h", "show help", false);
- * >>     cmd.define("port", "p", "server port (default: 53)", 53);
- * >>     cmd.define("zone", "z", "zone folder", "");
- * >>
- * >>     cmd.parse(argc, argv);
- * >>
- * >>     bool help = cmd.boolVal("help");
- * >> }
- * >> catch (const chen::cmd::error_parse &e)
- * >> {
- * >>     std::cout << cmd.usage(e) << std::endl;
- * >> }
+ * >> std::cout << "author: " << json.at("author").getString() << std::endl;
+ * >> std::cout << "time: " << json.at("time").getInteger() << std::endl;
+ *
+ * >> // encode json object to string
+ * >> std::cout << chen::json::stringify(dict, 2) << std::endl;
  */
 #pragma once
 
@@ -33,7 +26,6 @@
 #include <vector>
 #include <map>
 // todo support initialize list
-// todo benchmark with js engine
 
 namespace chen
 {
