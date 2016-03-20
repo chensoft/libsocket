@@ -187,8 +187,6 @@ namespace chen
         virtual const std::string& getString() const;
         virtual bool getBool() const;
 
-        // todo add set value
-
         /**
          * Convert value to the desired type as possible
          */
