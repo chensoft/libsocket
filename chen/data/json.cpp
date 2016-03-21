@@ -337,8 +337,8 @@ void json::decode(std::istream &stream)
     this->advance(stream, false);
 
     // should reach end
-    if (stream && !stream.eof())
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+    if (!stream.eof())
+        this->exception(stream);
 
     // assign item
     *this = std::move(item);
@@ -642,21 +642,31 @@ bool json::toBool() const
     }
 }
 
-// advance
-void json::advance(std::istream &stream, bool check)
+// exception
+void json::exception(std::istream &stream) const
 {
-    for (; stream && !stream.eof() && std::isspace(stream.peek()); stream.ignore())
+    // todo set offset
+    if (stream.eof())
+        throw error_syntax("json unexpected end of input", 0);
+    else
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), 0);
+}
+
+// advance
+void json::advance(std::istream &stream, bool check) const
+{
+    for (; !stream.eof() && std::isspace(stream.peek()); stream.ignore())
         ;
 
-    if (check && (!stream || stream.eof()))
-        throw error_syntax("json unexpected end of input", stream);
+    if (check && stream.eof())
+        this->exception(stream);
 }
 
 // decode type
-void json::decode(chen::json &out, std::istream &stream)
+void json::decode(chen::json &out, std::istream &stream) const
 {
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
+    if (stream.eof())
+        this->exception(stream);
 
     switch (stream.peek())
     {
@@ -708,22 +718,20 @@ void json::decode(chen::json &out, std::istream &stream)
             }
             else
             {
-                throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+                this->exception(stream);
             }
             break;
     }
 }
 
-void json::decode(chen::json::object &out, std::istream &stream)
+void json::decode(chen::json::object &out, std::istream &stream) const
 {
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
-    else if (stream.peek() != '{')
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+    if (stream.eof() || (stream.peek() != '{'))
+        this->exception(stream);
 
     stream.ignore();
 
-    while (stream && !stream.eof())
+    while (!stream.eof())
     {
         this->advance(stream);
 
@@ -732,7 +740,7 @@ void json::decode(chen::json::object &out, std::istream &stream)
 
         // find key
         if (stream.peek() != '"')
-            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+            this->exception(stream);
 
         std::string key;
         this->decode(key, stream);
@@ -741,7 +749,7 @@ void json::decode(chen::json::object &out, std::istream &stream)
         this->advance(stream);
 
         if (stream.peek() != ':')  // separator
-            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+            this->exception(stream);
 
         stream.ignore();
 
@@ -761,26 +769,23 @@ void json::decode(chen::json::object &out, std::istream &stream)
         else if (stream.peek() == '}')
             break;
         else
-            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+            this->exception(stream);
     }
 
-    // todo always false?
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
+    if (stream.eof())
+        this->exception(stream);
 
     stream.ignore();
 }
 
-void json::decode(chen::json::array &out, std::istream &stream)
+void json::decode(chen::json::array &out, std::istream &stream) const
 {
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
-    else if (stream.peek() != '[')
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+    if (stream.eof() || (stream.peek() != '['))
+        this->exception(stream);
 
     stream.ignore();
 
-    while (stream && !stream.eof())
+    while (!stream.eof())
     {
         this->advance(stream);
 
@@ -801,23 +806,19 @@ void json::decode(chen::json::array &out, std::istream &stream)
         else if (stream.peek() == ']')
             break;
         else
-            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+            this->exception(stream);
     }
 
-    // todo always false?
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
+    if (stream.eof())
+        this->exception(stream);
 
     stream.ignore();
 }
 
-void json::decode(double &out, std::istream &stream)
+void json::decode(double &out, std::istream &stream) const
 {
-    // todo add two error methods, to throw end of input and token
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
-    else if ((stream.peek() != '-') && !std::isdigit(stream.peek()))
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+    if (stream.eof() || ((stream.peek() != '-') && !std::isdigit(stream.peek())))
+        this->exception(stream);
 
     std::string str(1, stream.get());
 
@@ -827,9 +828,9 @@ void json::decode(double &out, std::istream &stream)
         // todo add method to detect stream status and get next char
         stream.peek();
 
-        if (!stream || stream.eof())
+        if (stream.eof())
         {
-            throw error_syntax("json unexpected end of input", stream);
+            this->exception(stream);
         }
         else if (stream.peek() == '0')
         {
@@ -838,41 +839,41 @@ void json::decode(double &out, std::istream &stream)
             if (std::isdigit(stream.peek()))
             {
                 stream.unget();
-                throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+                this->exception(stream);
             }
         }
     }
     else if ((str[0] == '0') && std::isdigit(stream.peek()))
     {
         // if the first char is '0', then the whole number must be 0
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+        this->exception(stream);
     }
 
     // collect integer parts
-    while (stream && !stream.eof() && std::isdigit(stream.peek()))
+    while (!stream.eof() && std::isdigit(stream.peek()))
         str += stream.get();
 
     // collect decimal parts
-    if (stream && !stream.eof() && (stream.peek() == '.'))
+    if (!stream.eof() && (stream.peek() == '.'))
     {
         str += stream.get();
 
         // digits
-        while (stream && !stream.eof() && std::isdigit(stream.peek()))
+        while (!stream.eof() && std::isdigit(stream.peek()))
             str += stream.get();
     }
 
     // 'e' or 'E'
-    if (stream && !stream.eof() && ((stream.peek() == 'e') || (stream.peek() == 'E')))
+    if (!stream.eof() && ((stream.peek() == 'e') || (stream.peek() == 'E')))
     {
         str += stream.get();
 
         // '+', '-' or digits
-        if (stream && !stream.eof() && ((stream.peek() == '+') || (stream.peek() == '-') || std::isdigit(stream.peek())))
+        if (!stream.eof() && ((stream.peek() == '+') || (stream.peek() == '-') || std::isdigit(stream.peek())))
         {
             str += stream.get();
 
-            while (stream && !stream.eof() && std::isdigit(stream.peek()))
+            while (!stream.eof() && std::isdigit(stream.peek()))
                 str += stream.get();
         }
     }
@@ -880,28 +881,28 @@ void json::decode(double &out, std::istream &stream)
     // check if number is overflow
     double d = std::atof(str.c_str());
 
+    // todo set offset
     if (std::isinf(d))
-        throw error_syntax("json number is overflow: " + str, stream);
+        throw error_syntax("json number is overflow: " + str, 0);
     else if (std::isnan(d))
-        throw error_syntax("json number is incorrect: " + str, stream);
+        throw error_syntax("json number is incorrect: " + str, 0);
 
     out = d;
 }
 
-void json::decode(std::string &out, std::istream &stream)
+void json::decode(std::string &out, std::istream &stream) const
 {
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
-    else if (stream.peek() != '"')  // begin quote
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+    if (stream.eof() || (stream.peek() != '"'))
+        this->exception(stream);
 
     stream.ignore();
 
-    while (stream && !stream.eof() && (stream.peek() != '"'))
+    while (!stream.eof() && (stream.peek() != '"'))
     {
         // control characters must use escape
+        // todo set offset
         if ((stream.peek() >= 0) && (stream.peek() <= 31))  // see ASCII
-            throw error_syntax("json control character is not escaped", stream);
+            throw error_syntax("json control character is not escaped", 0);
 
         // unescape characters
         if (stream.peek() == '\\')
@@ -952,12 +953,10 @@ void json::decode(std::string &out, std::istream &stream)
                     {
                         char ch = static_cast<char>(stream.get());
 
-                        if (ch < 0)
-                            throw error_syntax("json unexpected end of input", stream);
-                        else if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
+                        if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
                             unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
                         else
-                            throw error_syntax(str::format("json unexpected token '%c'", ch), stream);
+                            this->exception(stream);
                     }
 
                     // convert utf-16 to utf-8
@@ -970,14 +969,15 @@ void json::decode(std::string &out, std::istream &stream)
                     }
                     catch (...)
                     {
+                        // todo set offset
                         // e.g: \uD83D\uDE00, it's a emoji character
-                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), stream);
+                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), 0);
                     }
                 }
                     break;
 
                 default:
-                    throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+                    this->exception(stream);
             }
         }
         else
@@ -986,13 +986,13 @@ void json::decode(std::string &out, std::istream &stream)
         }
     }
 
-    if (!stream || stream.eof())
-        throw error_syntax("json unexpected end of input", stream);
+    if (stream.eof())
+        this->exception(stream);
 
     stream.ignore();
 }
 
-void json::decode(bool v, std::istream &stream)
+void json::decode(bool v, std::istream &stream) const
 {
     static const std::string t("true");
     static const std::string f("false");
@@ -1001,27 +1001,25 @@ void json::decode(bool v, std::istream &stream)
 
     for (std::size_t i = 0, l = s.size(); i < l; ++i)
     {
-        char ch = static_cast<char>(stream.get());
+        char ch = static_cast<char>(stream.peek());
+        if ((ch < 0) || (ch != s[i]))
+            this->exception(stream);
 
-        if (ch < 0)
-            throw error_syntax("json unexpected end of input", stream);
-        else if (ch != s[i])
-            throw error_syntax(str::format("json unexpected token '%c'", ch), stream);
+        stream.ignore();
     }
 }
 
-void json::decode(std::nullptr_t, std::istream &stream)
+void json::decode(std::nullptr_t, std::istream &stream) const
 {
     static const std::string n("null");
 
     for (std::size_t i = 0, l = n.size(); i < l; ++i)
     {
-        char ch = static_cast<char>(stream.get());
+        char ch = static_cast<char>(stream.peek());
+        if ((ch < 0) || ch != n[i])
+            this->exception(stream);
 
-        if (ch < 0)
-            throw error_syntax("json unexpected end of input", stream);
-        else if (ch != n[i])
-            throw error_syntax(str::format("json unexpected token '%c'", ch), stream);
+        stream.ignore();
     }
 }
 
@@ -1204,14 +1202,4 @@ void json::encode(bool v, std::string &output) const
 void json::encode(std::nullptr_t, std::string &output) const
 {
     output.append("null");
-}
-
-
-// -----------------------------------------------------------------------------
-// error_syntax
-chen::json::error_syntax::error_syntax(const std::string &what, std::istream &stream)
-: chen::json::error(what)
-{
-    // todo offset is -1 when error?
-//    this->offset = stream.tellg();
 }

@@ -61,9 +61,9 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
-            explicit error_syntax(const std::string &what, std::istream &stream);
+            explicit error_syntax(const std::string &what, std::size_t offset) : chen::json::error(what), offset(offset) {}
 
-            std::streamoff offset = 0;
+            std::size_t offset = 0;
         };
 
     public:
@@ -186,21 +186,26 @@ namespace chen
 
     protected:
         /**
+         * Throw syntax exception
+         */
+        virtual void exception(std::istream &stream) const;
+
+        /**
          * Advance the iterator, filter all white spaces
          */
-        virtual void advance(std::istream &stream, bool check = true);
+        virtual void advance(std::istream &stream, bool check = true) const;
 
         /**
          * Decode specific type
          */
-        virtual void decode(chen::json &out, std::istream &stream);
+        virtual void decode(chen::json &out, std::istream &stream) const;
 
-        virtual void decode(chen::json::object &out, std::istream &stream);
-        virtual void decode(chen::json::array &out, std::istream &stream);
-        virtual void decode(double &out, std::istream &stream);
-        virtual void decode(std::string &out, std::istream &stream);
-        virtual void decode(bool v, std::istream &stream);
-        virtual void decode(std::nullptr_t, std::istream &stream);
+        virtual void decode(chen::json::object &out, std::istream &stream) const;
+        virtual void decode(chen::json::array &out, std::istream &stream) const;
+        virtual void decode(double &out, std::istream &stream) const;
+        virtual void decode(std::string &out, std::istream &stream) const;
+        virtual void decode(bool v, std::istream &stream) const;
+        virtual void decode(std::nullptr_t, std::istream &stream) const;
 
         /**
          * Encode specific type
