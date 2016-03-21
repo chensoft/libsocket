@@ -61,10 +61,9 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
-            explicit error_syntax(const std::string &what,
-                                  std::string::difference_type offset) : chen::json::error(what), offset(offset) {};
+            explicit error_syntax(const std::string &what, std::istream &stream);
 
-            std::string::difference_type offset = 0;
+            std::streamoff offset = 0;
         };
 
     public:
@@ -122,17 +121,16 @@ namespace chen
          * Json parse and stringify helper
          * use encode and decode internally
          */
-        static chen::json parse(const std::string &text);
+        static chen::json parse(const std::string &text, bool file = false);
         static std::string stringify(const chen::json &json,
                                      std::size_t space = 0);
 
     public:
-        // todo add stream support, read chars from stream
-        // todo add file support, read from file stream
         /**
          * Decode the json text, throw exception if found error
          */
-        virtual void decode(const std::string &text);
+        virtual void decode(const std::string &text, bool file = false);
+        virtual void decode(std::istream &stream);
 
         /**
          * Encode the json object to a string
@@ -190,42 +188,19 @@ namespace chen
         /**
          * Advance the iterator, filter all white spaces
          */
-        virtual void advance(std::string::const_iterator &cur,
-                             std::string::const_iterator beg,
-                             std::string::const_iterator end);
+        virtual void advance(std::istream &stream, bool check = true);
 
         /**
          * Decode specific type
          */
-        virtual void decode(chen::json &out,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
+        virtual void decode(chen::json &out, std::istream &stream);
 
-        virtual void decode(chen::json::object &out,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
-        virtual void decode(chen::json::array &out,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
-        virtual void decode(double &out,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
-        virtual void decode(std::string &out,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
-        virtual void decode(bool v,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
-        virtual void decode(std::nullptr_t,
-                            std::string::const_iterator &cur,
-                            std::string::const_iterator beg,
-                            std::string::const_iterator end);
+        virtual void decode(chen::json::object &out, std::istream &stream);
+        virtual void decode(chen::json::array &out, std::istream &stream);
+        virtual void decode(double &out, std::istream &stream);
+        virtual void decode(std::string &out, std::istream &stream);
+        virtual void decode(bool v, std::istream &stream);
+        virtual void decode(std::nullptr_t, std::istream &stream);
 
         /**
          * Encode specific type

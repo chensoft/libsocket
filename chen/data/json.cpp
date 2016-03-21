@@ -7,6 +7,8 @@
 #include "json.hpp"
 #include <cstdlib>
 #include <codecvt>
+#include <sstream>
+#include <fstream>
 #include <locale>
 #include <cmath>
 #include <chen/tool/num.hpp>
@@ -285,10 +287,10 @@ json& json::operator=(bool v)
 }
 
 // parse & stringify
-chen::json json::parse(const std::string &text)
+chen::json json::parse(const std::string &text, bool file)
 {
     chen::json json;
-    json.decode(text);
+    json.decode(text, file);
     return json;
 }
 
@@ -298,15 +300,47 @@ std::string json::stringify(const chen::json &json, std::size_t space)
 }
 
 // decode
-void json::decode(const std::string &text)
+void json::decode(const std::string &text, bool file)
 {
-    auto cur = text.begin();
-    auto end = text.end();
-    this->advance(cur, cur, end);
+    try
+    {
+        if (file)
+        {
+            std::ifstream stream;
+            stream.exceptions(std::ios::failbit | std::ios::badbit);
+            stream.open(text.c_str(), std::ios_base::in | std::ios_base::binary);
+            this->decode(stream);
+        }
+        else
+        {
+            std::istringstream stream(text);
+            stream.exceptions(std::ios::failbit | std::ios::badbit);
+            this->decode(stream);
+        }
+    }
+    catch (const std::ios_base::failure &e)
+    {
+        throw error_general(std::strerror(errno));
+    }
+}
 
+void json::decode(std::istream &stream)
+{
+    // trim left spaces
+    this->advance(stream);
+
+    // decode item
     chen::json item;
-    this->decode(item, cur, text.begin(), end);
+    this->decode(item, stream);
 
+    // trim right spaces
+    this->advance(stream, false);
+
+    // should reach end
+    if (stream && !stream.eof())
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+
+    // assign item
     *this = std::move(item);
 }
 
@@ -609,32 +643,27 @@ bool json::toBool() const
 }
 
 // advance
-void json::advance(std::string::const_iterator &cur,
-                   std::string::const_iterator beg,
-                   std::string::const_iterator end)
+void json::advance(std::istream &stream, bool check)
 {
-    for (; (cur != end) && std::isspace(*cur); ++cur)
+    for (; stream && !stream.eof() && std::isspace(stream.peek()); stream.ignore())
         ;
 
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+    if (check && (!stream || stream.eof()))
+        throw error_syntax("json unexpected end of input", stream);
 }
 
 // decode type
-void json::decode(chen::json &out,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(chen::json &out, std::istream &stream)
 {
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
 
-    switch (*cur)
+    switch (stream.peek())
     {
         case '{':  // object
         {
             chen::json::object o;
-            this->decode(o, cur, beg, end);
+            this->decode(o, stream);
             out = std::move(o);
         }
             break;
@@ -642,7 +671,7 @@ void json::decode(chen::json &out,
         case '[':  // array
         {
             chen::json::array a;
-            this->decode(a, cur, beg, end);
+            this->decode(a, stream);
             out = std::move(a);
         }
             break;
@@ -650,192 +679,201 @@ void json::decode(chen::json &out,
         case '"':  // string
         {
             std::string s;
-            this->decode(s, cur, beg, end);
+            this->decode(s, stream);
             out = std::move(s);
         }
             break;
 
         case 't':  // true
-            this->decode(true, cur, beg, end);
+            this->decode(true, stream);
             out = true;
             break;
 
         case 'f':  // false
-            this->decode(false, cur, beg, end);
+            this->decode(false, stream);
             out = false;
             break;
 
         case 'n':  // null
-            this->decode(nullptr, cur, beg, end);
+            this->decode(nullptr, stream);
             out = nullptr;
             break;
 
         default:
-            if (std::isdigit(*cur) || (*cur == '-'))  // number
+            if (std::isdigit(stream.peek()) || (stream.peek() == '-'))  // number
             {
                 double d = 0;
-                this->decode(d, cur, beg, end);
+                this->decode(d, stream);
                 out = d;
             }
             else
             {
-                throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+                throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
             }
             break;
     }
 }
 
-void json::decode(chen::json::object &out,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(chen::json::object &out, std::istream &stream)
 {
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
-    else if (*cur != '{')
-        throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
+    else if (stream.peek() != '{')
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
 
-    ++cur;
+    stream.ignore();
 
-    while (cur != end)
+    while (stream && !stream.eof())
     {
-        this->advance(cur, beg, end);
+        this->advance(stream);
 
-        if (*cur == '}')
+        if (stream.peek() == '}')
             break;
 
         // find key
-        if (*cur != '"')
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+        if (stream.peek() != '"')
+            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
 
         std::string key;
-        this->decode(key, cur, beg, end);
+        this->decode(key, stream);
 
         // find separator
-        this->advance(cur, beg, end);
+        this->advance(stream);
 
-        if (*cur != ':')  // separator
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+        if (stream.peek() != ':')  // separator
+            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
 
-        ++cur;
+        stream.ignore();
 
-        this->advance(cur, beg, end);
+        this->advance(stream);
 
         // find value
         chen::json item;
-        this->decode(item, cur, beg, end);
+        this->decode(item, stream);
 
         out[std::move(key)] = std::move(item);
 
         // find comma or ending
-        this->advance(cur, beg, end);
+        this->advance(stream);
 
-        if (*cur == ',')
-            ++cur;
-        else if (*cur == '}')
+        if (stream.peek() == ',')
+            stream.ignore();
+        else if (stream.peek() == '}')
             break;
         else
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
     }
 
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+    // todo always false?
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
 
-    ++cur;
+    stream.ignore();
 }
 
-void json::decode(chen::json::array &out,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(chen::json::array &out, std::istream &stream)
 {
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
-    else if (*cur != '[')
-        throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
+    else if (stream.peek() != '[')
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
 
-    ++cur;
+    stream.ignore();
 
-    while (cur != end)
+    while (stream && !stream.eof())
     {
-        this->advance(cur, beg, end);
+        this->advance(stream);
 
-        if (*cur == ']')
+        if (stream.peek() == ']')
             break;
 
         // find value
         chen::json item;
-        this->decode(item, cur, beg, end);
+        this->decode(item, stream);
 
         out.push_back(std::move(item));
 
         // find comma or ending
-        this->advance(cur, beg, end);
+        this->advance(stream);
 
-        if (*cur == ',')
-            ++cur;
-        else if (*cur == ']')
+        if (stream.peek() == ',')
+            stream.ignore();
+        else if (stream.peek() == ']')
             break;
         else
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+            throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
     }
 
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+    // todo always false?
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
 
-    ++cur;
+    stream.ignore();
 }
 
-void json::decode(double &out,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(double &out, std::istream &stream)
 {
-    auto it = cur;
-    if (it == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, it));
+    // todo add two error methods, to throw end of input and token
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
+    else if ((stream.peek() != '-') && !std::isdigit(stream.peek()))
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+
+    std::string str(1, stream.get());
 
     // must begin with '-' or '1' ~ '9'
-    if ((*it != '-') && (!std::isdigit(*it) || ((*it == '0') && std::isdigit(*(it + 1)))))
-        throw error_syntax(str::format("json unexpected token '%c'", *it), std::distance(beg, it));
-
-    std::string str(1, *cur++);
-
-    // second char can't be 0 if first char is '-'
-    if ((*it == '-') && (cur != end))
+    if (str[0] == '-')
     {
-        if (!std::isdigit(*cur) || (*cur - '0' <= 0))
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+        // todo add method to detect stream status and get next char
+        stream.peek();
 
-        str += *cur++;
+        if (!stream || stream.eof())
+        {
+            throw error_syntax("json unexpected end of input", stream);
+        }
+        else if (stream.peek() == '0')
+        {
+            str += stream.get();
+
+            if (std::isdigit(stream.peek()))
+            {
+                stream.unget();
+                throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
+            }
+        }
+    }
+    else if ((str[0] == '0') && std::isdigit(stream.peek()))
+    {
+        // if the first char is '0', then the whole number must be 0
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
     }
 
     // collect integer parts
-    while ((cur != end) && std::isdigit(*cur))
-        str += *cur++;
+    while (stream && !stream.eof() && std::isdigit(stream.peek()))
+        str += stream.get();
 
     // collect decimal parts
-    if ((cur != end) && (*cur == '.'))
+    if (stream && !stream.eof() && (stream.peek() == '.'))
     {
-        str += *cur++;
+        str += stream.get();
 
         // digits
-        while ((cur != end) && std::isdigit(*cur))
-            str += *cur++;
+        while (stream && !stream.eof() && std::isdigit(stream.peek()))
+            str += stream.get();
     }
 
     // 'e' or 'E'
-    if ((cur != end) && ((*cur == 'e') || (*cur == 'E')))
+    if (stream && !stream.eof() && ((stream.peek() == 'e') || (stream.peek() == 'E')))
     {
-        str += *cur++;
+        str += stream.get();
 
         // '+', '-' or digits
-        if ((cur != end) && ((*cur == '+') || (*cur == '-') || std::isdigit(*cur)))
+        if (stream && !stream.eof() && ((stream.peek() == '+') || (stream.peek() == '-') || std::isdigit(stream.peek())))
         {
-            str += *cur++;
+            str += stream.get();
 
-            while ((cur != end) && std::isdigit(*cur))
-                str += *cur++;
+            while (stream && !stream.eof() && std::isdigit(stream.peek()))
+                str += stream.get();
         }
     }
 
@@ -843,84 +881,83 @@ void json::decode(double &out,
     double d = std::atof(str.c_str());
 
     if (std::isinf(d))
-        throw error_syntax("json number is overflow: " + str, std::distance(beg, cur));
+        throw error_syntax("json number is overflow: " + str, stream);
     else if (std::isnan(d))
-        throw error_syntax("json number is incorrect: " + str, std::distance(beg, cur));
+        throw error_syntax("json number is incorrect: " + str, stream);
 
     out = d;
 }
 
-void json::decode(std::string &out,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(std::string &out, std::istream &stream)
 {
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
-    else if (*cur != '"')  // begin quote
-        throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
+    else if (stream.peek() != '"')  // begin quote
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
 
-    ++cur;
+    stream.ignore();
 
-    while ((cur != end) && (*cur != '"'))
+    while (stream && !stream.eof() && (stream.peek() != '"'))
     {
         // control characters must use escape
-        if ((*cur >= 0) && (*cur <= 31))  // see ASCII
-            throw error_syntax("json control character is not escaped", std::distance(beg, cur));
+        if ((stream.peek() >= 0) && (stream.peek() <= 31))  // see ASCII
+            throw error_syntax("json control character is not escaped", stream);
 
         // unescape characters
-        if (*cur == '\\')
+        if (stream.peek() == '\\')
         {
-            switch (*++cur)
+            stream.ignore();
+
+            switch (stream.peek())
             {
                 case '"':
                 case '\\':
                 case '/':
-                    out += *cur++;
+                    out += stream.get();
                     break;
 
                 case 'b':
                     out += '\b';
-                    ++cur;
+                    stream.ignore();
                     break;
 
                 case 'f':
                     out += '\f';
-                    ++cur;
+                    stream.ignore();
                     break;
 
                 case 'n':
                     out += '\n';
-                    ++cur;
+                    stream.ignore();
                     break;
 
                 case 'r':
                     out += '\r';
-                    ++cur;
+                    stream.ignore();
                     break;
 
                 case 't':
                     out += '\t';
-                    ++cur;
+                    stream.ignore();
                     break;
 
                 case 'u':
                 {
+                    stream.ignore();
+
                     // handle unicode character
                     char unicode[5] = {0};
 
                     for (auto i = 0; i < 4; ++i)
                     {
-                        if (++cur == end)
-                            throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+                        char ch = static_cast<char>(stream.get());
 
-                        char ch = *cur;
-
-                        // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
-                        if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
-                            unicode[i] = ch;
+                        if (ch < 0)
+                            throw error_syntax("json unexpected end of input", stream);
+                        else if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
+                            unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
                         else
-                            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+                            throw error_syntax(str::format("json unexpected token '%c'", ch), stream);
                     }
 
                     // convert utf-16 to utf-8
@@ -934,63 +971,57 @@ void json::decode(std::string &out,
                     catch (...)
                     {
                         // e.g: \uD83D\uDE00, it's a emoji character
-                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), std::distance(beg, cur));
+                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), stream);
                     }
-
-                    ++cur;
                 }
                     break;
 
                 default:
-                    throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+                    throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
             }
         }
         else
         {
-            out += *cur++;
+            out += stream.get();
         }
     }
 
-    if (cur == end)
-        throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+    if (!stream || stream.eof())
+        throw error_syntax("json unexpected end of input", stream);
 
-    ++cur;
+    stream.ignore();
 }
 
-void json::decode(bool v,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(bool v, std::istream &stream)
 {
     static const std::string t("true");
     static const std::string f("false");
 
     auto &s = v ? t : f;
 
-    for (std::size_t i = 0, l = s.size(); i < l; ++i, ++cur)
+    for (std::size_t i = 0, l = s.size(); i < l; ++i)
     {
-        if (cur == end)
-            throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+        char ch = static_cast<char>(stream.get());
 
-        if (*cur != s[i])
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+        if (ch < 0)
+            throw error_syntax("json unexpected end of input", stream);
+        else if (ch != s[i])
+            throw error_syntax(str::format("json unexpected token '%c'", ch), stream);
     }
 }
 
-void json::decode(std::nullptr_t,
-                  std::string::const_iterator &cur,
-                  std::string::const_iterator beg,
-                  std::string::const_iterator end)
+void json::decode(std::nullptr_t, std::istream &stream)
 {
     static const std::string n("null");
 
-    for (std::size_t i = 0, l = n.size(); i < l; ++i, ++cur)
+    for (std::size_t i = 0, l = n.size(); i < l; ++i)
     {
-        if (cur == end)
-            throw error_syntax("json unexpected end of input", std::distance(beg, cur));
+        char ch = static_cast<char>(stream.get());
 
-        if (*cur != n[i])
-            throw error_syntax(str::format("json unexpected token '%c'", *cur), std::distance(beg, cur));
+        if (ch < 0)
+            throw error_syntax("json unexpected end of input", stream);
+        else if (ch != n[i])
+            throw error_syntax(str::format("json unexpected token '%c'", ch), stream);
     }
 }
 
@@ -1173,4 +1204,14 @@ void json::encode(bool v, std::string &output) const
 void json::encode(std::nullptr_t, std::string &output) const
 {
     output.append("null");
+}
+
+
+// -----------------------------------------------------------------------------
+// error_syntax
+chen::json::error_syntax::error_syntax(const std::string &what, std::istream &stream)
+: chen::json::error(what)
+{
+    // todo offset is -1 when error?
+//    this->offset = stream.tellg();
 }
