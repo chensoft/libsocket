@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "json.hpp"
+#include <string.h>
 #include <cstdlib>
 #include <codecvt>
 #include <sstream>
@@ -320,7 +321,7 @@ void json::decode(const std::string &text, bool file)
     }
     catch (const std::ios_base::failure &e)
     {
-        throw error_general(std::strerror(errno));
+        throw error_general(::strerror(errno));
     }
 }
 
