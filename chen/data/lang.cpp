@@ -4,15 +4,15 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "locale.hpp"
+#include "lang.hpp"
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
-// locale
-locale& locale::standard()
+// lang
+lang& lang::standard()
 {
-    static locale inst;
+    static lang inst;
     return inst;
 }
 

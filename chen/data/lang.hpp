@@ -11,14 +11,14 @@
 // todo no implement now
 namespace chen
 {
-    class locale
+    class lang
     {
     public:
-        static locale& standard();
+        static lang& standard();
 
     public:
-        locale() = default;
-        virtual ~locale() = default;
+        lang() = default;
+        virtual ~lang() = default;
 
     public:
         /**
@@ -31,5 +31,5 @@ namespace chen
 // using helper _T to wrap a text that need to translate
 inline std::string _T(const std::string &text)
 {
-    return chen::locale::standard().translate(text);
+    return chen::lang::standard().translate(text);
 }

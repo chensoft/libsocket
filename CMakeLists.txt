@@ -19,7 +19,6 @@ include_directories(./)
 
 # source codes
 aux_source_directory(./chen/data SRC_DATA)
-aux_source_directory(./chen/lang SRC_LANG)
 aux_source_directory(./chen/sync SRC_SYNC)
 aux_source_directory(./chen/tool SRC_TOOL)
 aux_source_directory(./chen/net/ip SRC_NET_IP)
@@ -46,4 +45,4 @@ else()
 endif()
 
 # generate lib
-add_library(chen STATIC ${SRC_DATA} ${SRC_LANG} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_TEST})
+add_library(chen STATIC ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_TEST})

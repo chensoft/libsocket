@@ -191,7 +191,7 @@ namespace chen
         virtual void exception(std::istream &stream) const;
 
         /**
-         * Advance the iterator, filter all white spaces
+         * Advance the stream, filter all white spaces
          */
         virtual void advance(std::istream &stream, bool check = true) const;
 
