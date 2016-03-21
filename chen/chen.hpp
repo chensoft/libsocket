@@ -9,6 +9,7 @@
 #pragma once
 
 #include <chen/data/json.hpp>
+#include <chen/data/lang.hpp>
 
 #include <chen/sync/routine.hpp>
 #include <chen/sync/semaphore.hpp>
