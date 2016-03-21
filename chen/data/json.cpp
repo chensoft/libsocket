@@ -321,21 +321,21 @@ void json::decode(const std::string &text, bool file)
     }
     catch (const std::ios_base::failure &e)
     {
-        throw error_general(::strerror(errno));
+        throw error_general(errno ? ::strerror(errno) : "json decode error");
     }
 }
 
 void json::decode(std::istream &stream)
 {
     // trim left spaces
-    this->advance(stream);
+    this->advance(stream, std::isspace);
 
     // decode item
     chen::json item;
     this->decode(item, stream);
 
     // trim right spaces
-    this->advance(stream, false);
+    this->advance(stream, std::isspace, false);
 
     // should reach end
     if (!stream.eof())
@@ -654,22 +654,32 @@ void json::exception(std::istream &stream) const
 }
 
 // advance
-void json::advance(std::istream &stream, bool check) const
+char json::advance(std::istream &stream, int (*filter)(int), bool require) const
 {
-    for (; !stream.eof() && std::isspace(stream.peek()); stream.ignore())
-        ;
+    char ch = stream.eof() ? static_cast<char>(-1) : static_cast<char>(stream.peek());
 
-    if (check && stream.eof())
+    while (!stream.eof())
+    {
+        if (filter && filter(ch))
+            stream.ignore();
+        else
+            break;
+
+        ch = static_cast<char>(stream.peek());
+    }
+
+    if (require && stream.eof())
         this->exception(stream);
+
+    return ch;
 }
 
 // decode type
 void json::decode(chen::json &out, std::istream &stream) const
 {
-    if (stream.eof())
-        this->exception(stream);
+    auto ch = this->advance(stream);
 
-    switch (stream.peek())
+    switch (ch)
     {
         case '{':  // object
         {
@@ -711,7 +721,7 @@ void json::decode(chen::json &out, std::istream &stream) const
             break;
 
         default:
-            if (std::isdigit(stream.peek()) || (stream.peek() == '-'))  // number
+            if (std::isdigit(ch) || (ch == '-'))  // number
             {
                 double d = 0;
                 this->decode(d, stream);
@@ -727,34 +737,36 @@ void json::decode(chen::json &out, std::istream &stream) const
 
 void json::decode(chen::json::object &out, std::istream &stream) const
 {
-    if (stream.eof() || (stream.peek() != '{'))
+    if (this->advance(stream) != '{')
         this->exception(stream);
 
     stream.ignore();
 
     while (!stream.eof())
     {
-        this->advance(stream);
+        this->advance(stream, std::isspace);
 
-        if (stream.peek() == '}')
+        auto ch = this->advance(stream);
+
+        if (ch == '}')
             break;
 
         // find key
-        if (stream.peek() != '"')
+        if (ch != '"')
             this->exception(stream);
 
         std::string key;
         this->decode(key, stream);
 
         // find separator
-        this->advance(stream);
+        this->advance(stream, std::isspace);
 
-        if (stream.peek() != ':')  // separator
+        if (this->advance(stream) != ':')  // separator
             this->exception(stream);
 
         stream.ignore();
 
-        this->advance(stream);
+        this->advance(stream, std::isspace);
 
         // find value
         chen::json item;
@@ -763,11 +775,13 @@ void json::decode(chen::json::object &out, std::istream &stream) const
         out[std::move(key)] = std::move(item);
 
         // find comma or ending
-        this->advance(stream);
+        this->advance(stream, std::isspace);
 
-        if (stream.peek() == ',')
+        ch = this->advance(stream);
+
+        if (ch == ',')
             stream.ignore();
-        else if (stream.peek() == '}')
+        else if (ch == '}')
             break;
         else
             this->exception(stream);
@@ -781,16 +795,16 @@ void json::decode(chen::json::object &out, std::istream &stream) const
 
 void json::decode(chen::json::array &out, std::istream &stream) const
 {
-    if (stream.eof() || (stream.peek() != '['))
+    if (this->advance(stream) != '[')
         this->exception(stream);
 
     stream.ignore();
 
     while (!stream.eof())
     {
-        this->advance(stream);
+        this->advance(stream, std::isspace);
 
-        if (stream.peek() == ']')
+        if (this->advance(stream) == ']')
             break;
 
         // find value
@@ -800,11 +814,14 @@ void json::decode(chen::json::array &out, std::istream &stream) const
         out.push_back(std::move(item));
 
         // find comma or ending
-        this->advance(stream);
+        this->advance(stream, std::isspace);
 
-        if (stream.peek() == ',')
+        auto ch = this->advance(stream);
+
+        // todo check [1,] should error
+        if (ch == ',')
             stream.ignore();
-        else if (stream.peek() == ']')
+        else if (ch == ']')
             break;
         else
             this->exception(stream);
@@ -818,64 +835,78 @@ void json::decode(chen::json::array &out, std::istream &stream) const
 
 void json::decode(double &out, std::istream &stream) const
 {
-    if (stream.eof() || ((stream.peek() != '-') && !std::isdigit(stream.peek())))
+    auto ch = this->advance(stream);
+    if ((ch != '-') && !std::isdigit(ch))
         this->exception(stream);
 
-    std::string str(1, stream.get());
+    std::string str(1, ch);
+    stream.ignore();
 
     // must begin with '-' or '1' ~ '9'
     if (str[0] == '-')
     {
-        // todo add method to detect stream status and get next char
-        stream.peek();
+        ch = this->advance(stream);
 
-        if (stream.eof())
+        if (ch == '0')
         {
-            this->exception(stream);
-        }
-        else if (stream.peek() == '0')
-        {
-            str += stream.get();
+            str += ch;
+            stream.ignore();
 
-            if (std::isdigit(stream.peek()))
+            if (std::isdigit(this->advance(stream, nullptr, false)))
             {
                 stream.unget();
                 this->exception(stream);
             }
         }
     }
-    else if ((str[0] == '0') && std::isdigit(stream.peek()))
+    else if ((str[0] == '0') && std::isdigit(this->advance(stream, nullptr, false)))
     {
         // if the first char is '0', then the whole number must be 0
         this->exception(stream);
     }
 
     // collect integer parts
-    while (!stream.eof() && std::isdigit(stream.peek()))
-        str += stream.get();
+    while (std::isdigit(ch = this->advance(stream, nullptr, false)))
+    {
+        str += ch;
+        stream.ignore();
+    }
 
     // collect decimal parts
-    if (!stream.eof() && (stream.peek() == '.'))
+    if ((ch = this->advance(stream, nullptr, false)) == '.')
     {
-        str += stream.get();
+        str += ch;
+        stream.ignore();
 
         // digits
-        while (!stream.eof() && std::isdigit(stream.peek()))
-            str += stream.get();
+        while (std::isdigit(ch = this->advance(stream, nullptr, false)))
+        {
+            str += ch;
+            stream.ignore();
+        }
     }
 
     // 'e' or 'E'
-    if (!stream.eof() && ((stream.peek() == 'e') || (stream.peek() == 'E')))
+    ch = this->advance(stream, nullptr, false);
+
+    if ((ch == 'e') || (ch == 'E'))
     {
-        str += stream.get();
+        str += ch;
+        stream.ignore();
 
         // '+', '-' or digits
-        if (!stream.eof() && ((stream.peek() == '+') || (stream.peek() == '-') || std::isdigit(stream.peek())))
-        {
-            str += stream.get();
+        ch = this->advance(stream);
 
-            while (!stream.eof() && std::isdigit(stream.peek()))
-                str += stream.get();
+        if ((ch == '+') || (ch == '-') || std::isdigit(ch))
+        {
+            str += ch;
+            stream.ignore();
+
+            while (std::isdigit(ch = this->advance(stream, nullptr, false)))
+            {
+                str += ch;
+                stream.ignore();
+            }
         }
     }
 
@@ -893,29 +924,34 @@ void json::decode(double &out, std::istream &stream) const
 
 void json::decode(std::string &out, std::istream &stream) const
 {
-    if (stream.eof() || (stream.peek() != '"'))
+    if (this->advance(stream) != '"')
         this->exception(stream);
 
     stream.ignore();
 
-    while (!stream.eof() && (stream.peek() != '"'))
+    auto ch = this->advance(stream);
+
+    while (ch != '"')
     {
         // control characters must use escape
         // todo set offset
-        if ((stream.peek() >= 0) && (stream.peek() <= 31))  // see ASCII
+        if ((ch >= 0) && (ch <= 31))  // see ASCII
             throw error_syntax("json control character is not escaped", 0);
 
         // unescape characters
-        if (stream.peek() == '\\')
+        if (ch == '\\')
         {
             stream.ignore();
 
-            switch (stream.peek())
+            ch = this->advance(stream);
+
+            switch (ch)
             {
                 case '"':
                 case '\\':
                 case '/':
-                    out += stream.get();
+                    out += ch;
+                    stream.ignore();
                     break;
 
                 case 'b':
@@ -952,7 +988,8 @@ void json::decode(std::string &out, std::istream &stream) const
 
                     for (auto i = 0; i < 4; ++i)
                     {
-                        char ch = static_cast<char>(stream.get());
+                        ch = this->advance(stream);
+                        stream.ignore();
 
                         if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
                             unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
@@ -983,12 +1020,14 @@ void json::decode(std::string &out, std::istream &stream) const
         }
         else
         {
-            out += stream.get();
+            out += ch;
+
+            stream.ignore();
+            ch = this->advance(stream);
         }
     }
 
-    if (stream.eof())
-        this->exception(stream);
+    this->advance(stream);
 
     stream.ignore();
 }
@@ -1002,7 +1041,7 @@ void json::decode(bool v, std::istream &stream) const
 
     for (std::size_t i = 0, l = s.size(); i < l; ++i)
     {
-        char ch = static_cast<char>(stream.peek());
+        char ch = this->advance(stream);
         if ((ch < 0) || (ch != s[i]))
             this->exception(stream);
 
@@ -1016,7 +1055,7 @@ void json::decode(std::nullptr_t, std::istream &stream) const
 
     for (std::size_t i = 0, l = n.size(); i < l; ++i)
     {
-        char ch = static_cast<char>(stream.peek());
+        char ch = this->advance(stream);
         if ((ch < 0) || ch != n[i])
             this->exception(stream);
 
