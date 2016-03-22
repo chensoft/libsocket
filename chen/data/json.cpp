@@ -894,6 +894,10 @@ void json::decode(double &out, std::istream &stream) const
                 this->exception(stream);
             }
         }
+        else if (!std::isdigit(ch))
+        {
+            this->exception(stream);
+        }
     }
     else if ((str[0] == '0') && std::isdigit(this->advance(stream, false)))
     {
@@ -969,6 +973,10 @@ void json::decode(double &out, std::istream &stream) const
                 str += ch;
                 this->forward(stream);
             }
+        }
+        else
+        {
+            this->exception(stream);
         }
     }
 

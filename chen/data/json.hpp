@@ -125,9 +125,11 @@ namespace chen
                                      std::size_t space = 0);
 
     public:
+
         /**
          * Decode the json text, throw exception if found error
          */
+        // todo use iterator instead of stringstream to avoid string copy?
         virtual void decode(const std::string &text, bool file = false);
         virtual void decode(std::istream &stream);
 
