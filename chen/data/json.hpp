@@ -61,9 +61,9 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
-            explicit error_syntax(const std::string &what, std::size_t offset) : chen::json::error(what), offset(offset) {}
+            explicit error_syntax(const std::string &what, std::istream &stream);
 
-            std::size_t offset = 0;
+            std::streamoff offset = 0;  // -1 means eof
         };
 
     public:

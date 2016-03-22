@@ -646,11 +646,10 @@ bool json::toBool() const
 // exception
 void json::exception(std::istream &stream) const
 {
-    // todo set offset
     if (stream.eof())
-        throw error_syntax("json unexpected end of input", 0);
+        throw error_syntax("json unexpected end of input", stream);
     else
-        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), 0);
+        throw error_syntax(str::format("json unexpected token '%c'", stream.peek()), stream);
 }
 
 // filter
@@ -977,11 +976,10 @@ void json::decode(double &out, std::istream &stream) const
     // check if number is overflow
     double d = std::atof(str.c_str());
 
-    // todo set offset
     if (std::isinf(d))
-        throw error_syntax("json number is overflow: " + str, 0);
+        throw error_syntax("json number is overflow: " + str, stream);
     else if (std::isnan(d))
-        throw error_syntax("json number is incorrect: " + str, 0);
+        throw error_syntax("json number is incorrect: " + str, stream);
 
     out = d;
 }
@@ -998,9 +996,8 @@ void json::decode(std::string &out, std::istream &stream) const
     while (ch != '"')
     {
         // control characters must use escape
-        // todo set offset
         if ((ch >= 0) && (ch <= 31))  // see ASCII
-            throw error_syntax("json control character is not escaped", 0);
+            throw error_syntax("json control character is not escaped", stream);
 
         // unescape characters
         if (ch == '\\')
@@ -1071,9 +1068,8 @@ void json::decode(std::string &out, std::istream &stream) const
                     }
                     catch (...)
                     {
-                        // todo set offset
                         // e.g: \uD83D\uDE00, it's a emoji character
-                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), 0);
+                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode), stream);
                     }
                 }
                     break;
@@ -1302,4 +1298,13 @@ void json::encode(bool v, std::string &output) const
 void json::encode(std::nullptr_t, std::string &output) const
 {
     output.append("null");
+}
+
+
+// -----------------------------------------------------------------------------
+// error_syntax
+chen::json::error_syntax::error_syntax(const std::string &what, std::istream &stream)
+: chen::json::error(what)
+{
+    this->offset = stream.eof() ? static_cast<std::streamoff>(-1) : static_cast<std::streamoff>(stream.tellg());
 }
