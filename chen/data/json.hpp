@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 #include <map>
-// todo support initialize list
 
 namespace chen
 {
