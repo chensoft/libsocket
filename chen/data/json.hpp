@@ -191,14 +191,19 @@ namespace chen
         virtual void exception(std::istream &stream) const;
 
         /**
-         * Advance the stream
-         * todo add ignore to this function
-         * todo add filter method to do filter job
-         * todo make require not optional
+         * Filter the beginning white spaces
          */
-        virtual char advance(std::istream &stream,
-                             int (*filter)(int) = nullptr,
-                             bool require = true) const;
+        virtual void filter(std::istream &stream, bool require) const;
+
+        /**
+         * Skip current character
+         */
+        virtual char forward(std::istream &stream) const;
+
+        /**
+         * Advance to the next character
+         */
+        virtual char advance(std::istream &stream, bool require) const;
 
         /**
          * Decode specific type
