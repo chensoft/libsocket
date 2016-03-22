@@ -6,7 +6,6 @@
  */
 #include "cmd.hpp"
 #include "log.hpp"
-#include "num.hpp"
 #include "path.hpp"
 #include <algorithm>
 
@@ -367,7 +366,7 @@ std::string cmd::usage() const
             full = std::max(full, option.name.size());
         });
 
-        std::string fmt("--%-" + num::str(full + 2) + "s%s");
+        std::string fmt("--%-" + std::to_string(full + 2) + "s%s");
 
         this->visit("", [&ret, &fmt] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
             // tiny name
@@ -394,7 +393,7 @@ std::string cmd::usage() const
             max = std::max(max, action.name.size());
         });
 
-        std::string fmt("  %-" + num::str(max + 2) + "s%s");  // action + spacing
+        std::string fmt("  %-" + std::to_string(max + 2) + "s%s");  // action + spacing
 
         this->visit([&ret, &fmt] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
             if (!action.name.empty())

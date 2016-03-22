@@ -10,7 +10,6 @@
 #include <bitset>
 #include <cctype>
 #include <chen/tool/str.hpp>
-#include <chen/tool/num.hpp>
 
 using namespace chen;
 using namespace chen::ip;
@@ -100,7 +99,7 @@ std::uint32_t address::mask() const
 
 std::string address::full() const
 {
-    return this->str() + "/" + num::str(this->subnet());
+    return this->str() + "/" + std::to_string(this->subnet());
 }
 
 std::uint8_t address::subnet() const

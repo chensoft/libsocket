@@ -12,7 +12,6 @@
 #include <fstream>
 #include <locale>
 #include <cmath>
-#include <chen/tool/num.hpp>
 #include <chen/tool/str.hpp>
 
 using namespace chen;
@@ -599,7 +598,7 @@ std::string json::toString() const
         case JsonType::Number:
         {
             std::int64_t i = static_cast<std::int64_t>(this->_data.d);
-            return (this->_data.d - i == 0) ? num::str(i) : num::str(this->_data.d);
+            return (this->_data.d - i == 0) ? std::to_string(i) : std::to_string(this->_data.d);
         }
 
         case JsonType::String:
@@ -1235,7 +1234,7 @@ void json::encode(const chen::json::array &v, std::string &output, std::size_t s
 
 void json::encode(double v, std::string &output) const
 {
-    output.append(num::str(v));
+    output.append(std::to_string(v));
 }
 
 void json::encode(const std::string &v, std::string &output) const
@@ -1292,7 +1291,7 @@ void json::encode(const std::string &v, std::string &output) const
 
 void json::encode(bool v, std::string &output) const
 {
-    output.append(num::str(v));
+    output.append(v ? "true" : "false");
 }
 
 void json::encode(std::nullptr_t, std::string &output) const

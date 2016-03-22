@@ -6,8 +6,6 @@
  */
 #include "num.hpp"
 #include <algorithm>
-#include <sstream>
-#include <cstdlib>
 
 using namespace chen;
 
@@ -47,88 +45,4 @@ std::uint64_t num::swap(std::uint64_t value)
     std::uint8_t *ptr = reinterpret_cast<std::uint8_t*>(&value);
     std::reverse(ptr, ptr + sizeof(value));
     return value;
-}
-
-// str
-std::string num::str(bool value)
-{
-    return value ? "true" : "false";
-}
-
-std::string num::str(int value)
-{
-    return num::str(static_cast<long long>(value));
-}
-
-std::string num::str(long value)
-{
-    return num::str(static_cast<long long>(value));
-}
-
-std::string num::str(long long value)
-{
-    std::string temp;
-    bool sign = false;
-
-    if (value < 0)
-    {
-        sign  = true;
-        value = -value;
-    }
-
-    do
-    {
-        temp = static_cast<char>((value % 10 + '0')) + temp;
-    } while ((value /= 10) > 0);
-
-    if (sign)
-        temp = "-" + temp;
-
-    return temp;
-}
-
-std::string num::str(unsigned int value)
-{
-    return num::str(static_cast<unsigned long long>(value));
-}
-
-std::string num::str(unsigned long value)
-{
-    return num::str(static_cast<unsigned long long>(value));
-}
-
-std::string num::str(unsigned long long value)
-{
-    std::string temp;
-
-    do
-    {
-        temp = static_cast<char>((value % 10 + '0')) + temp;
-    } while ((value /= 10) > 0);
-
-    return temp;
-}
-
-std::string num::str(float value)
-{
-    std::ostringstream ss;
-    ss.precision(10);
-    ss << value;
-    return ss.str();
-}
-
-std::string num::str(double value)
-{
-    std::ostringstream ss;
-    ss.precision(std::numeric_limits<double>::digits10);
-    ss << value;
-    return ss.str();
-}
-
-std::string num::str(long double value)
-{
-    std::ostringstream ss;
-    ss.precision(std::numeric_limits<long double>::digits10);
-    ss << value;
-    return ss.str();
 }
