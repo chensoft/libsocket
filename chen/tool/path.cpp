@@ -389,7 +389,7 @@ bool path::touch(const std::string &file, time_t mtime, time_t atime)
     }
 }
 
-bool path::create(const std::string &dir, mode_t mode)
+bool path::create(const std::string &dir, std::uint16_t mode)
 {
     if (!mode)
         mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;

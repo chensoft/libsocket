@@ -179,7 +179,7 @@ namespace chen
          * Create a directory recursively
          * @param mode default mode is rwxr-xr-x
          */
-        static bool create(const std::string &dir, mode_t mode = 0);
+        static bool create(const std::string &dir, std::uint16_t mode = 0);
 
         /**
          * Rename a file or directory
