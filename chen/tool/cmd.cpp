@@ -25,7 +25,9 @@ void cmd::create(const std::string &action,
                  const std::string &desc,
                  std::function<void (const chen::cmd &cmd)> bind)
 {
-    if (this->_define.find(action) == this->_define.end())
+    auto it = this->_define.find(action);
+
+    if (it == this->_define.end())
     {
         chen::cmd::action act;
         act.name = action;
@@ -35,7 +37,10 @@ void cmd::create(const std::string &action,
     }
     else
     {
-        throw chen::cmd::error_general("cmd action already exist");
+        this->_cursor = &it->second;
+        this->_cursor->name = action;
+        this->_cursor->desc = desc;
+        this->_cursor->bind = bind;
     }
 }
 
