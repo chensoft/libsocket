@@ -60,9 +60,7 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
-            explicit error_syntax(const std::string &what, std::istream &stream);
-
-            std::streamoff offset = 0;  // -1 means eof
+            explicit error_syntax(const std::string &what) : chen::json::error(what) {}
         };
 
     public:
@@ -125,13 +123,13 @@ namespace chen
                                      std::size_t space = 0);
 
     public:
-
         /**
          * Decode the json text, throw exception if found error
          */
-        // todo use iterator instead of stringstream to avoid string copy?
         virtual void decode(const std::string &text, bool file = false);
-        virtual void decode(std::istream &stream);
+
+        template <class InputIterator>
+        void decode(InputIterator cur, InputIterator end);
 
         /**
          * Encode the json object to a string
@@ -189,34 +187,50 @@ namespace chen
         /**
          * Throw syntax exception
          */
-        virtual void exception(std::istream &stream) const;
+        template <class InputIterator>
+        void exception(InputIterator &cur, InputIterator end) const;
 
         /**
          * Filter the beginning white spaces
          */
-        virtual void filter(std::istream &stream, bool require) const;
+        template <class InputIterator>
+        void filter(InputIterator &cur, InputIterator end, bool require) const;
 
         /**
          * Skip current character
          */
-        virtual char forward(std::istream &stream) const;
+        template <class InputIterator>
+        char forward(InputIterator &cur, InputIterator end) const;
 
         /**
          * Advance to the next character
          */
-        virtual char advance(std::istream &stream, bool require) const;
+        template <class InputIterator>
+        char advance(InputIterator &cur, InputIterator end, bool require) const;
 
         /**
          * Decode specific type
          */
-        virtual void decode(chen::json &out, std::istream &stream) const;
+        template <class InputIterator>
+        void decode(chen::json &out, InputIterator &cur, InputIterator end) const;
 
-        virtual void decode(chen::json::object &out, std::istream &stream) const;
-        virtual void decode(chen::json::array &out, std::istream &stream) const;
-        virtual void decode(double &out, std::istream &stream) const;
-        virtual void decode(std::string &out, std::istream &stream) const;
-        virtual void decode(bool v, std::istream &stream) const;
-        virtual void decode(std::nullptr_t, std::istream &stream) const;
+        template <class InputIterator>
+        void decode(chen::json::object &out, InputIterator &cur, InputIterator end) const;
+
+        template <class InputIterator>
+        void decode(chen::json::array &out, InputIterator &cur, InputIterator end) const;
+
+        template <class InputIterator>
+        void decode(double &out, InputIterator &cur, InputIterator end) const;
+
+        template <class InputIterator>
+        void decode(std::string &out, InputIterator &cur, InputIterator end) const;
+
+        template <class InputIterator>
+        void decode(bool v, InputIterator &cur, InputIterator end) const;
+
+        template <class InputIterator>
+        void decode(std::nullptr_t, InputIterator &cur, InputIterator end) const;
 
         /**
          * Encode specific type
@@ -241,3 +255,6 @@ namespace chen
         JsonData _data = {nullptr};
     };
 }
+
+// include the template definition
+#include "json.inl"
