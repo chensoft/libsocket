@@ -60,6 +60,7 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
+            // todo record line and column as chen::json data member
             explicit error_syntax(const std::string &what) : chen::json::error(what) {}
         };
 

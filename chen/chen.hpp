@@ -8,6 +8,7 @@
  */
 #pragma once
 
+#include <chen/data/ini.hpp>
 #include <chen/data/json.hpp>
 #include <chen/data/lang.hpp>
 
