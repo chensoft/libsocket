@@ -53,6 +53,24 @@ bool str::equal(const char *str1, std::size_t size1,
     return true;
 }
 
+// trim
+void str::trim(std::string &text)
+{
+    str::ltrim(text);
+    str::rtrim(text);
+}
+
+void str::ltrim(std::string &text)
+{
+    text.erase(text.begin(), std::find_if(text.begin(), text.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+}
+
+void str::rtrim(std::string &text)
+{
+    text.erase(std::find_if(text.rbegin(), text.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), text.end());
+}
+
+// regex
 bool str::match(const std::string &pattern, const std::string &text)
 {
     return std::regex_search(text, std::regex(pattern));
@@ -83,6 +101,7 @@ std::vector<std::string> str::group(const std::string &pattern,
     return ret;
 }
 
+// levenshtein
 std::size_t str::levenshtein(const char *s, std::size_t len_s, const char *t, std::size_t len_t)
 {
     // copy from https://en.wikipedia.org/wiki/Levenshtein_distance

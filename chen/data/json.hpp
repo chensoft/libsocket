@@ -195,49 +195,49 @@ namespace chen
          * Throw syntax exception
          */
         template <class InputIterator>
-        void exception(InputIterator &cur, InputIterator end) const;
+        void exception(InputIterator &cur, InputIterator &end) const;
 
         /**
          * Filter the beginning white spaces
          */
         template <class InputIterator>
-        void filter(InputIterator &cur, InputIterator end, bool require) const;
+        void filter(InputIterator &cur, InputIterator &end, bool require) const;
 
         /**
          * Skip current character
          */
         template <class InputIterator>
-        char forward(InputIterator &cur, InputIterator end) const;
+        char forward(InputIterator &cur, InputIterator &end) const;
 
         /**
          * Advance to the next character
          */
         template <class InputIterator>
-        char advance(InputIterator &cur, InputIterator end, bool require) const;
+        char advance(InputIterator &cur, InputIterator &end, bool require) const;
 
         /**
          * Decode specific type
          */
         template <class InputIterator>
-        void decode(chen::json &out, InputIterator &cur, InputIterator end) const;
+        void decode(chen::json &out, InputIterator &cur, InputIterator &end) const;
 
         template <class InputIterator>
-        void decode(chen::json::object &out, InputIterator &cur, InputIterator end) const;
+        void decode(chen::json::object &out, InputIterator &cur, InputIterator &end) const;
 
         template <class InputIterator>
-        void decode(chen::json::array &out, InputIterator &cur, InputIterator end) const;
+        void decode(chen::json::array &out, InputIterator &cur, InputIterator &end) const;
 
         template <class InputIterator>
-        void decode(double &out, InputIterator &cur, InputIterator end) const;
+        void decode(double &out, InputIterator &cur, InputIterator &end) const;
 
         template <class InputIterator>
-        void decode(std::string &out, InputIterator &cur, InputIterator end) const;
+        void decode(std::string &out, InputIterator &cur, InputIterator &end) const;
 
         template <class InputIterator>
-        void decode(bool v, InputIterator &cur, InputIterator end) const;
+        void decode(bool v, InputIterator &cur, InputIterator &end) const;
 
         template <class InputIterator>
-        void decode(std::nullptr_t, InputIterator &cur, InputIterator end) const;
+        void decode(std::nullptr_t, InputIterator &cur, InputIterator &end) const;
 
         /**
          * Encode specific type
@@ -287,7 +287,7 @@ void chen::json::decode(InputIterator cur, InputIterator end)
 
 // exception
 template <class InputIterator>
-void chen::json::exception(InputIterator &cur, InputIterator end) const
+void chen::json::exception(InputIterator &cur, InputIterator &end) const
 {
     if (cur == end)
         throw error_syntax("json unexpected end of input");
@@ -297,7 +297,7 @@ void chen::json::exception(InputIterator &cur, InputIterator end) const
 
 // filter
 template <class InputIterator>
-void chen::json::filter(InputIterator &cur, InputIterator end, bool require) const
+void chen::json::filter(InputIterator &cur, InputIterator &end, bool require) const
 {
     for (; (cur != end) && std::isspace(*cur); ++cur)
         ;
@@ -308,7 +308,7 @@ void chen::json::filter(InputIterator &cur, InputIterator end, bool require) con
 
 // forward
 template <class InputIterator>
-char chen::json::forward(InputIterator &cur, InputIterator end) const
+char chen::json::forward(InputIterator &cur, InputIterator &end) const
 {
     if (cur == end)
         this->exception(cur, end);
@@ -320,7 +320,7 @@ char chen::json::forward(InputIterator &cur, InputIterator end) const
 // todo remove this
 // advance
 template <class InputIterator>
-char chen::json::advance(InputIterator &cur, InputIterator end, bool require) const
+char chen::json::advance(InputIterator &cur, InputIterator &end, bool require) const
 {
     if (cur == end)
     {
@@ -340,7 +340,7 @@ char chen::json::advance(InputIterator &cur, InputIterator end, bool require) co
 
 // decode type
 template <class InputIterator>
-void chen::json::decode(chen::json &out, InputIterator &cur, InputIterator end) const
+void chen::json::decode(chen::json &out, InputIterator &cur, InputIterator &end) const
 {
     auto ch = this->advance(cur, end, true);
 
@@ -401,7 +401,7 @@ void chen::json::decode(chen::json &out, InputIterator &cur, InputIterator end) 
 }
 
 template <class InputIterator>
-void chen::json::decode(chen::json::object &out, InputIterator &cur, InputIterator end) const
+void chen::json::decode(chen::json::object &out, InputIterator &cur, InputIterator &end) const
 {
     if (this->advance(cur, end, true) != '{')
         this->exception(cur, end);
@@ -469,7 +469,7 @@ void chen::json::decode(chen::json::object &out, InputIterator &cur, InputIterat
 }
 
 template <class InputIterator>
-void chen::json::decode(chen::json::array &out, InputIterator &cur, InputIterator end) const
+void chen::json::decode(chen::json::array &out, InputIterator &cur, InputIterator &end) const
 {
     if (this->advance(cur, end, true) != '[')
         this->exception(cur, end);
@@ -519,7 +519,7 @@ void chen::json::decode(chen::json::array &out, InputIterator &cur, InputIterato
 }
 
 template <class InputIterator>
-void chen::json::decode(double &out, InputIterator &cur, InputIterator end) const
+void chen::json::decode(double &out, InputIterator &cur, InputIterator &end) const
 {
     auto ch = this->advance(cur, end, true);
     if ((ch != '-') && !std::isdigit(ch))
@@ -645,7 +645,7 @@ void chen::json::decode(double &out, InputIterator &cur, InputIterator end) cons
 }
 
 template <class InputIterator>
-void chen::json::decode(std::string &out, InputIterator &cur, InputIterator end) const
+void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end) const
 {
     if (this->advance(cur, end, true) != '"')
         this->exception(cur, end);
@@ -752,7 +752,7 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator end)
 }
 
 template <class InputIterator>
-void chen::json::decode(bool v, InputIterator &cur, InputIterator end) const
+void chen::json::decode(bool v, InputIterator &cur, InputIterator &end) const
 {
     static const std::string t("true");
     static const std::string f("false");
@@ -769,7 +769,7 @@ void chen::json::decode(bool v, InputIterator &cur, InputIterator end) const
 }
 
 template <class InputIterator>
-void chen::json::decode(std::nullptr_t, InputIterator &cur, InputIterator end) const
+void chen::json::decode(std::nullptr_t, InputIterator &cur, InputIterator &end) const
 {
     static const std::string n("null");
 

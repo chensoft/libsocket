@@ -5,14 +5,37 @@
  * @link   http://chensoft.com
  */
 #include "ini.hpp"
+#include <fstream>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // ini
+chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
+{
+    if (file)
+    {
+        try
+        {
+            std::ifstream stream;
+            stream.exceptions(std::ios::failbit | std::ios::badbit);
+            stream.open(text.c_str(), std::ios_base::in | std::ios_base::binary);
 
-// dump
-std::string chen::ini::dump(const chen::ini::section_type &map)
+            std::istreambuf_iterator<char> cur(stream);
+            return chen::ini::decode(cur, std::istreambuf_iterator<char>());
+        }
+        catch (const std::ios_base::failure &e)
+        {
+            throw error(errno ? ::strerror(errno) : "ini decode error");
+        }
+    }
+    else
+    {
+        return chen::ini::decode(text.begin(), text.end());
+    }
+}
+
+std::string chen::ini::dump(const chen::ini::value_type &map)
 {
     std::string ret;
     std::size_t idx = 0;

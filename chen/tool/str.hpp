@@ -26,6 +26,13 @@ namespace chen
                           const char *str2, std::size_t size2);
 
         /**
+         * Trim white spaces
+         */
+        static void trim(std::string &text);
+        static void ltrim(std::string &text);
+        static void rtrim(std::string &text);
+
+        /**
          * Regex match
          */
         static bool match(const std::string &pattern, const std::string &text);
