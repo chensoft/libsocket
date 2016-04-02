@@ -58,7 +58,7 @@ void cmd::define(const std::string &option,
     if (option.size() == 1)
         throw chen::cmd::error_general("cmd full name size must greater than 1");
 
-    // short name must be 1 character
+    // short name must be empty or 1 character
     if (tiny.size() > 1)
         throw chen::cmd::error_general("cmd tiny name must be a character");
 

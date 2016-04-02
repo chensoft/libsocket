@@ -37,7 +37,7 @@ namespace chen
         void trace(const char *format, Args ... args)
         {
             if (this->_level <= Level::Trace)
-                this->output("[TRACE] " + chen::str::format(format, args...));
+                this->output("[T] " + chen::str::format(format, args...));
         }
 
         /**
@@ -48,7 +48,7 @@ namespace chen
         void debug(const char *format, Args ... args)
         {
             if (this->_level <= Level::Debug)
-                this->output("[DEBUG] " + chen::str::format(format, args...));
+                this->output("[D] " + chen::str::format(format, args...));
         }
 
         /**
@@ -59,7 +59,7 @@ namespace chen
         void info(const char *format, Args ... args)
         {
             if (this->_level <= Level::Info)
-                this->output("[INFO] " + chen::str::format(format, args...));
+                this->output("[I] " + chen::str::format(format, args...));
         }
 
         /**
@@ -70,7 +70,7 @@ namespace chen
         void warn(const char *format, Args ... args)
         {
             if (this->_level <= Level::Warn)
-                this->output("[WARN] " + chen::str::format(format, args...));
+                this->output("[W] " + chen::str::format(format, args...));
         }
 
         /**
@@ -81,7 +81,7 @@ namespace chen
         void error(const char *format, Args ... args)
         {
             if (this->_level <= Level::Error)
-                this->output("[ERROR] " + chen::str::format(format, args...));
+                this->output("[E] " + chen::str::format(format, args...));
         }
 
         /**
@@ -93,7 +93,7 @@ namespace chen
         {
             if (this->_level <= Level::Fatal)
             {
-                this->output("[FATAL] " + chen::str::format(format, args...));
+                this->output("[F] " + chen::str::format(format, args...));
                 std::exit(EXIT_FAILURE);
             }
         }
