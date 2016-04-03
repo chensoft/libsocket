@@ -54,20 +54,20 @@ std::string date::stamp(const std::string &sep, bool utc)
     return str::format("%d%s%02d%s%02d", year, sep.c_str(), month, sep.c_str(), day);
 }
 
-std::string date::time(const std::string &sep, bool utc, bool milliseconds)
+std::string date::time(const std::string &sep, bool utc, bool microseconds)
 {
-    auto high = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    auto last = high - high / 1000 * 1000;
+    auto high = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    auto last = high - high / 1000000 * 1000000;
 
-    std::time_t time = (time_t)(high / 1000);
+    std::time_t time = (time_t)(high / 1000000);
     struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
 
     auto hour   = now.tm_hour;
     auto minute = now.tm_min;
     auto second = now.tm_sec;
 
-    if (milliseconds)
-        return str::format("%02d%s%02d%s%02d.%03lld", hour, sep.c_str(), minute, sep.c_str(), second, last);
+    if (microseconds)
+        return str::format("%02d%s%02d%s%02d.%06lld", hour, sep.c_str(), minute, sep.c_str(), second, last);
     else
         return str::format("%02d%s%02d%s%02d", hour, sep.c_str(), minute, sep.c_str(), second);
 }

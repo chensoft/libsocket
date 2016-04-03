@@ -28,6 +28,6 @@ namespace chen
         /**
          * Time string
          */
-        static std::string time(const std::string &sep = ":", bool utc = true, bool milliseconds = false);
+        static std::string time(const std::string &sep = ":", bool utc = true, bool microseconds = false);
     };
 }
