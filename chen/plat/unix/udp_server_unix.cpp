@@ -36,8 +36,11 @@ void server::bind(const std::string &addr, std::uint16_t port)
     if (::bind(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
         throw error_bind(std::strerror(errno));
 
-    this->_addr = addr;
-    this->_port = port;
+    socklen_t len = sizeof(in);
+    ::getsockname(this->_impl->_socket, (struct sockaddr*)&in, &len);
+
+    this->_addr = ::inet_ntoa(in.sin_addr);
+    this->_port = ntohs(in.sin_port);
 }
 
 #endif
