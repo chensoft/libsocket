@@ -18,7 +18,12 @@ void server::start()
     {
         // reset quit variable
         std::lock_guard<std::mutex> lock(this->_mutex);
-        this->_quit = false;
+
+        if (this->_quit)
+        {
+            this->_quit = false;
+            return;
+        }
     }
 
     // define maximum udp buffer

@@ -39,6 +39,7 @@ namespace chen
              */
             virtual void start();
 
+            // todo shutdown immediately
             /**
              * Shutdown the server
              */
