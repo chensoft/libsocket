@@ -95,6 +95,11 @@ namespace chen
          */
         virtual void change(const std::string &action);
 
+        /**
+         * Check if the action or option exist
+         */
+        virtual bool exist(const std::string &action, const std::string &option = "") const;
+
     public:
         /**
          * Parse the command line
@@ -182,6 +187,8 @@ namespace chen
          * Get usage info
          */
         virtual std::string usage() const;
+        virtual std::string usage(const std::string &action) const;
+        virtual std::string usage(const std::string &action, const std::string &option) const;
         virtual std::string usage(const chen::cmd::error_parse &error) const;
 
         /**

@@ -95,6 +95,16 @@ void cmd::change(const std::string &action)
         throw chen::cmd::error_general("cmd action not found: " + action);
 }
 
+// exist
+bool cmd::exist(const std::string &action, const std::string &option) const
+{
+    auto it = this->_define.find(action);
+    if (it == this->_define.end())
+        return false;
+
+    return option.empty() ? true : (it->second.options.find(option) != it->second.options.end());
+}
+
 // parse
 void cmd::parse(int argc, const char *const argv[])
 {
@@ -358,40 +368,15 @@ const std::vector<std::string>& cmd::objects() const
 // usage
 std::string cmd::usage() const
 {
-    std::string ret;
-
     if (this->_define.size() == 1)
     {
         // has root action, show root's options
-        ret += "Options:\n";
-
-        std::size_t full = 0;  // full name width
-
-        this->visit("", [&full] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
-            full = std::max(full, option.name.size());
-        });
-
-        std::string fmt("--%-" + std::to_string(full + 2) + "s%s");
-
-        this->visit("", [&ret, &fmt] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
-            // tiny name
-            if (!option.tiny.empty())
-                ret += "  -" + option.tiny + " ";
-            else
-                ret += "     ";
-
-            // full name
-            ret += str::format(fmt.c_str(), option.name.c_str(), option.desc.c_str());
-
-            if (idx < len - 1)
-                ret += "\n";
-        });
+        return this->usage("");
     }
     else
     {
         // multiple actions, show all actions
-        ret += "Actions:\n";
-
+        std::string ret("Actions:\n");
         std::size_t max = 0;  // max width
 
         this->visit([&max] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
@@ -409,22 +394,53 @@ std::string cmd::usage() const
                     ret += "\n";
             }
         });
+
+        return ret;
     }
+}
+
+std::string cmd::usage(const std::string &action) const
+{
+    if (this->_define.find(action) == this->_define.end())
+        return this->usage(action, "");
+
+    std::string ret("Options:\n");
+    std::size_t full = 0;  // full name width
+
+    this->visit(action, [&full] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
+        full = std::max(full, option.name.size());
+    });
+
+    std::string fmt("--%-" + std::to_string(full + 2) + "s%s");
+
+    this->visit(action, [&ret, &fmt] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
+        // tiny name
+        if (!option.tiny.empty())
+            ret += "  -" + option.tiny + " ";
+        else
+            ret += "     ";
+
+        // full name
+        ret += str::format(fmt.c_str(), option.name.c_str(), option.desc.c_str());
+
+        if (idx < len - 1)
+            ret += "\n";
+    });
 
     return ret;
 }
 
-std::string cmd::usage(const chen::cmd::error_parse &error) const
+std::string cmd::usage(const std::string &action, const std::string &option) const
 {
-    if (!error.option.empty())
+    if (!option.empty())
     {
         // option not found
-        return str::format("Error: unknown option \"%s\"", error.option.c_str());
+        return str::format("Error: unknown option \"%s\"", option.c_str());
     }
     else
     {
         // action not found
-        std::string ret(str::format("Error: unknown action \"%s\" for \"%s\"", error.action.c_str(), this->_app.c_str()));
+        std::string ret(str::format("Error: unknown action \"%s\" for \"%s\"", action.c_str(), this->_app.c_str()));
 
         // give more hint
         if (this->_define.size() > 1)
@@ -434,7 +450,7 @@ std::string cmd::usage(const chen::cmd::error_parse &error) const
             do
             {
                 // direct get suggest actions
-                auto it = this->_suggest.find(error.action);
+                auto it = this->_suggest.find(action);
 
                 if (it != this->_suggest.end())
                 {
@@ -443,7 +459,7 @@ std::string cmd::usage(const chen::cmd::error_parse &error) const
                 }
 
                 // try levenshtein algorithm
-                std::size_t size = error.action.size();
+                std::size_t size = action.size();
                 std::size_t cost = std::numeric_limits<std::size_t>::max();
 
                 for (auto p : this->_define)
@@ -451,8 +467,8 @@ std::string cmd::usage(const chen::cmd::error_parse &error) const
                     if (p.first.empty())
                         continue;
 
-                    std::size_t temp = str::levenshtein(error.action.c_str(),
-                                                        error.action.size(),
+                    std::size_t temp = str::levenshtein(action.c_str(),
+                                                        action.size(),
                                                         p.first.c_str(),
                                                         p.first.size());
 
@@ -475,8 +491,8 @@ std::string cmd::usage(const chen::cmd::error_parse &error) const
                 // try suggest actions
                 for (auto p : this->_suggest)
                 {
-                    std::size_t temp = str::levenshtein(error.action.c_str(),
-                                                        error.action.size(),
+                    std::size_t temp = str::levenshtein(action.c_str(),
+                                                        action.size(),
                                                         p.first.c_str(),
                                                         p.first.size());
 
@@ -508,6 +524,11 @@ std::string cmd::usage(const chen::cmd::error_parse &error) const
 
         return ret;
     }
+}
+
+std::string cmd::usage(const chen::cmd::error_parse &error) const
+{
+    return this->usage(error.action, error.option);
 }
 
 void cmd::visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
