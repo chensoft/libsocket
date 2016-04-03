@@ -218,7 +218,7 @@ void cmd::parse(int argc, const char *const argv[])
                 // e.g: -h, -u=root, -u root
                 ++param;
 
-                if (*param && (*(param + 1) == '\0'))
+                if (*param && ((*(param + 1) == '\0') || (*(param + 1) == '=')))
                     key += *param++;
 
                 if (*param == '=')
