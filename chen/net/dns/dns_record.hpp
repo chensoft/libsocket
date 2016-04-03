@@ -13,6 +13,7 @@
 
 namespace chen
 {
+    // todo should many int fields be unsigned?
     namespace dns
     {
         class encoder;

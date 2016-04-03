@@ -457,15 +457,17 @@ void decoder::unpack(std::string &value, bool domain)
                 if (length > SIZE_LIMIT_LABEL)
                     throw error_size(str::format("codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-                for (std::size_t i = 0, len = length - 1; i < len; ++i)
+                for (std::size_t i = 1; i < length; ++i)
                 {
-                    value += data[i + 1];
+                    value += data[i];
                 }
 
                 data  += length;
                 value += ".";
-                total += 1 + length;
+                total += length;
             }
+
+            total += 1;  // the padding zero
         }
         catch (...)
         {
@@ -538,7 +540,7 @@ void decoder::unpack(std::shared_ptr<chen::dns::RR> &rr)
 void decoder::unpack(chen::dns::header &header)
 {
     // id
-    std::int16_t id = 0;
+    std::uint16_t id = 0;
     this->unpack(id);
 
     // flag

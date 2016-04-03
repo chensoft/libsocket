@@ -21,7 +21,7 @@ namespace chen
             /**
              * Get filed value
              */
-            std::int16_t  id()      const;  // identifier
+            std::uint16_t id()      const;  // identifier
             std::uint16_t flag()    const;  // dns flags
             std::uint16_t qdcount() const;  // question count
             std::uint16_t ancount() const;  // answer count
@@ -45,7 +45,7 @@ namespace chen
             /**
              * Set filed value
              */
-            void setId(std::int16_t value = 0);  // use random id when value is zero
+            void setId(std::uint16_t value = 0);  // use random id when value is zero
             void setFlag(std::uint16_t value);
             void setQdcount(std::uint16_t value);
             void setAncount(std::uint16_t value);
@@ -70,10 +70,10 @@ namespace chen
             /**
              * Random identifier
              */
-            static std::int16_t random();
+            static std::uint16_t random();
 
         private:
-            std::int16_t  _id      = 0;  // the identifier of a query
+            std::uint16_t  _id     = 0;  // the identifier of a query
             std::uint16_t _flag    = 0;  // QR, OPCODE, AA, TC, RD, RA, Z, RCODE
             std::uint16_t _qdcount = 0;  // question count, always be 1 in query
             std::uint16_t _ancount = 0;  // the number of resource records in the answer section

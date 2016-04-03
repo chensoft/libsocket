@@ -16,7 +16,7 @@ using namespace chen::dns;
 // header
 
 // filed value
-std::int16_t header::id() const
+std::uint16_t header::id() const
 {
     return this->_id;
 }
@@ -98,7 +98,7 @@ chen::dns::RCODE header::rcode() const
 }
 
 // set filed value
-void header::setId(std::int16_t value)
+void header::setId(std::uint16_t value)
 {
     this->_id = value ? value : header::random();
 }
@@ -180,14 +180,14 @@ void header::setRcode(chen::dns::RCODE value)
 }
 
 // random
-std::int16_t header::random()
+std::uint16_t header::random()
 {
     std::random_device device;
     std::mt19937 engine(device());
-    std::uniform_int_distribution<std::int16_t> uniform(1, static_cast<std::int16_t>(0xFFFF));
+    std::uniform_int_distribution<std::uint16_t> uniform(1, static_cast<std::uint16_t>(0xFFFF));
 
     auto high = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    return uniform(engine) ^ static_cast<int16_t>(high);
+    return uniform(engine) ^ static_cast<uint16_t>(high);
 }
 
 
