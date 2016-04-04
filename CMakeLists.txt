@@ -3,7 +3,6 @@
 # http://chensoft.com
 # Licensed under MIT license
 # Copyright 2016 Jian Chen
-
 cmake_minimum_required(VERSION 2.8)
 project(chen)
 
@@ -44,5 +43,9 @@ else()
     message("-- Unit test disabled")
 endif()
 
+# export
+set(CHEN_LIBRARIES chen CACHE INTERNAL "")
+set(CHEN_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
+
 # generate lib
-add_library(chen STATIC ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_UNIT})
+add_library(chen ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_UNIT})
