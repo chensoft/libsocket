@@ -195,7 +195,7 @@ std::uint16_t header::random()
 // question
 
 // get filed value
-std::string question::qname() const
+const std::string& question::qname() const
 {
     return this->_qname;
 }

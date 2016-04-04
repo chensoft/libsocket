@@ -35,7 +35,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
     }
 }
 
-std::string chen::ini::dump(const chen::ini::value_type &map)
+std::string chen::ini::stringify(const chen::ini::value_type &map)
 {
     std::string ret;
     std::size_t idx = 0;

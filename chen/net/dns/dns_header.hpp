@@ -90,7 +90,7 @@ namespace chen
             /**
              * Get field value
              */
-            std::string qname()         const;
+            const std::string& qname()  const;
             chen::dns::RRType qtype()   const;
             chen::dns::RRClass qclass() const;
 

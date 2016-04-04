@@ -52,10 +52,10 @@ namespace chen
 
     public:
         /**
-         * Ini parse and dump
+         * Ini parse and stringify
          */
         static chen::ini::value_type parse(const std::string &text, bool file = false);
-        static std::string dump(const chen::ini::value_type &map);
+        static std::string stringify(const chen::ini::value_type &map);
 
         /**
          * Decode ini, throw exception if found error

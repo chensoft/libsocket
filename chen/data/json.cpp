@@ -282,19 +282,6 @@ json& json::operator=(bool v)
 // parse & stringify
 chen::json json::parse(const std::string &text, bool file)
 {
-    chen::json json;
-    json.decode(text, file);
-    return json;
-}
-
-std::string json::stringify(const chen::json &json, std::size_t space)
-{
-    return json.encode(space);
-}
-
-// decode
-void json::decode(const std::string &text, bool file)
-{
     if (file)
     {
         try
@@ -304,7 +291,7 @@ void json::decode(const std::string &text, bool file)
             stream.open(text.c_str(), std::ios_base::in | std::ios_base::binary);
 
             std::istreambuf_iterator<char> cur(stream);
-            this->decode(cur, std::istreambuf_iterator<char>());
+            return json::decode(cur, std::istreambuf_iterator<char>());
         }
         catch (const std::ios_base::failure &e)
         {
@@ -313,50 +300,16 @@ void json::decode(const std::string &text, bool file)
     }
     else
     {
-        this->decode(text.begin(), text.end());
+        return json::decode(text.begin(), text.end());
     }
 }
 
-// encode
-std::string json::encode(std::size_t space) const
+std::string json::stringify(const chen::json &json, std::size_t space)
 {
     std::string output;
     std::size_t indent = 0;
-    this->encode(output, space, indent);
+    json::encode(json, output, space, indent);
     return output;
-}
-
-// clear
-void json::clear()
-{
-    switch (this->_type)
-    {
-        case JsonType::None:
-            return;
-
-        case JsonType::Object:
-            delete this->_data.o;
-            break;
-
-        case JsonType::Array:
-            delete this->_data.a;
-            break;
-
-        case JsonType::Number:
-            break;
-
-        case JsonType::String:
-            delete this->_data.s;
-            break;
-
-        case JsonType::True:
-        case JsonType::False:
-        case JsonType::Null:
-            break;
-    }
-
-    this->_type = JsonType::None;
-    this->_data = {nullptr};
 }
 
 // type
@@ -615,36 +568,69 @@ bool json::toBool() const
     }
 }
 
-// encode type
-void json::encode(std::string &output, std::size_t space, std::size_t &indent) const
+// clear
+void json::clear()
 {
     switch (this->_type)
+    {
+        case JsonType::None:
+            return;
+
+        case JsonType::Object:
+            delete this->_data.o;
+            break;
+
+        case JsonType::Array:
+            delete this->_data.a;
+            break;
+
+        case JsonType::Number:
+            break;
+
+        case JsonType::String:
+            delete this->_data.s;
+            break;
+
+        case JsonType::True:
+        case JsonType::False:
+        case JsonType::Null:
+            break;
+    }
+
+    this->_type = JsonType::None;
+    this->_data = {nullptr};
+}
+
+// encode type
+void json::encode(const chen::json &v, std::string &output, std::size_t space, std::size_t &indent)
+{
+    switch (v.type())
     {
         case JsonType::None:
             break;
 
         case JsonType::Object:
-            return this->encode(this->getObject(), output, space, indent);
+            return json::encode(v.getObject(), output, space, indent);
 
         case JsonType::Array:
-            return this->encode(this->getArray(), output, space, indent);
+            return json::encode(v.getArray(), output, space, indent);
 
         case JsonType::Number:
-            return this->encode(this->getNumber(), output);
+            return json::encode(v.getNumber(), output);
 
         case JsonType::String:
-            return this->encode(this->getString(), output);
+            return json::encode(v.getString(), output);
 
         case JsonType::True:
         case JsonType::False:
-            return this->encode(this->getBool(), output);
+            return json::encode(v.getBool(), output);
 
         case JsonType::Null:
-            return this->encode(nullptr, output);
+            return json::encode(nullptr, output);
     }
 }
 
-void json::encode(const chen::json::object &v, std::string &output, std::size_t space, std::size_t &indent) const
+void json::encode(const chen::json::object &v, std::string &output, std::size_t space, std::size_t &indent)
 {
     output += '{';
 
@@ -680,7 +666,7 @@ void json::encode(const chen::json::object &v, std::string &output, std::size_t 
         if (space)
             output += ' ';
 
-        val.encode(output, space, indent);
+        json::encode(val, output, space, indent);
     }
 
     if (space && !v.empty())
@@ -693,7 +679,7 @@ void json::encode(const chen::json::object &v, std::string &output, std::size_t 
     output += '}';
 }
 
-void json::encode(const chen::json::array &v, std::string &output, std::size_t space, std::size_t &indent) const
+void json::encode(const chen::json::array &v, std::string &output, std::size_t space, std::size_t &indent)
 {
     output += '[';
 
@@ -716,7 +702,7 @@ void json::encode(const chen::json::array &v, std::string &output, std::size_t s
         if (indent)
             output.append(indent, ' ');
 
-        v[i].encode(output, space, indent);
+        json::encode(v[i], output, space, indent);
     }
 
     if (space && !v.empty())
@@ -729,12 +715,12 @@ void json::encode(const chen::json::array &v, std::string &output, std::size_t s
     output += ']';
 }
 
-void json::encode(double v, std::string &output) const
+void json::encode(double v, std::string &output)
 {
     output.append(std::to_string(v));
 }
 
-void json::encode(const std::string &v, std::string &output) const
+void json::encode(const std::string &v, std::string &output)
 {
     // escape the control characters only
     // json can accept unicode chars, so we don't escape unicode
@@ -786,12 +772,12 @@ void json::encode(const std::string &v, std::string &output) const
     output += '"';
 }
 
-void json::encode(bool v, std::string &output) const
+void json::encode(bool v, std::string &output)
 {
     output.append(v ? "true" : "false");
 }
 
-void json::encode(std::nullptr_t, std::string &output) const
+void json::encode(std::nullptr_t, std::string &output)
 {
     output.append("null");
 }
