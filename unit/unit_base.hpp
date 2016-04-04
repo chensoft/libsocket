@@ -10,10 +10,10 @@
 
 namespace chen
 {
-    class test_base
+    class unit_base
     {
     public:
-        virtual ~test_base() = default;
+        virtual ~unit_base() = default;
 
     public:
         /**

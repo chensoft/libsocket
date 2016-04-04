@@ -37,12 +37,12 @@ else()
 endif()
 
 # unit test
-if ((NOT CMAKE_BUILD_TYPE) OR  (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_TEST STREQUAL "true"))
-    message("-- Test enabled")
-    aux_source_directory(./test SRC_TEST)
+if ((NOT CMAKE_BUILD_TYPE) OR  (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_UNIT STREQUAL "true"))
+    message("-- Unit test enabled")
+    aux_source_directory(./unit SRC_UNIT)
 else()
-    message("-- Test disabled")
+    message("-- Unit test disabled")
 endif()
 
 # generate lib
-add_library(chen STATIC ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_TEST})
+add_library(chen STATIC ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_UNIT})

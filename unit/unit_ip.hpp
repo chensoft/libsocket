@@ -6,12 +6,12 @@
  */
 #pragma once
 
-#include "test_base.hpp"
+#include "unit_base.hpp"
 #include <chen/net/ip/ip_addr.hpp>
 
 namespace chen
 {
-    class test_ip : public test_base
+    class unit_ip : public unit_base
     {
     public:
         virtual void check() override

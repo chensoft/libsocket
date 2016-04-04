@@ -3,3 +3,5 @@
 -) add demo folder to add some example usage in it
 
 -) add c++ test framework to do unit test
+
+-) json decode just store pointer, don't copy string if not needed

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "test_base.hpp"
+#include "unit_base.hpp"
 #include <chen/net/udp/udp_client.hpp>
 #include <chen/net/udp/udp_server.hpp>
 #include <cstring>
@@ -14,7 +14,7 @@
 
 namespace chen
 {
-    class test_udp : public test_base
+    class unit_udp : public unit_base
     {
     public:
         virtual void check() override

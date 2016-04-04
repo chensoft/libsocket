@@ -4,37 +4,37 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "test.hpp"
-#include "test_cmd.hpp"
-#include "test_ip.hpp"
-#include "test_udp.hpp"
+#include "unit.hpp"
+#include "unit_cmd.hpp"
+#include "unit_ip.hpp"
+#include "unit_udp.hpp"
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // test
-test& test::instance()
+unit& unit::instance()
 {
-    static test inst;
+    static unit inst;
     return inst;
 }
 
-test::test()
+unit::unit()
 {
     // todo
     // register all unit test
-//    this->_store["cmd"] = std::unique_ptr<test_base>(new test_cmd);
-    this->_store["ip"]  = std::unique_ptr<test_base>(new test_ip);
-    this->_store["udp"] = std::unique_ptr<test_base>(new test_udp);
+//    this->_store["cmd"] = std::unique_ptr<unit_base>(new unit_cmd);
+    this->_store["ip"]  = std::unique_ptr<unit_base>(new unit_ip);
+    this->_store["udp"] = std::unique_ptr<unit_base>(new unit_udp);
 }
 
-void test::check()
+void unit::check()
 {
     for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
         it->second->check();
 }
 
-void test::bench()
+void unit::bench()
 {
     for (auto it = this->_store.begin(); it != this->_store.end(); ++it)
         it->second->bench();
