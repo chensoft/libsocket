@@ -28,6 +28,11 @@
 #include <chen/net/ip/ip_error.hpp>
 #include <chen/net/ip/ip_addr.hpp>
 
+#include <chen/net/tcp/tcp_error.hpp>
+#include <chen/net/tcp/tcp_define.hpp>
+#include <chen/net/tcp/tcp_socket.hpp>
+#include <chen/net/tcp/tcp_client.hpp>
+
 #include <chen/net/udp/udp_error.hpp>
 #include <chen/net/udp/udp_define.hpp>
 #include <chen/net/udp/udp_socket.hpp>
