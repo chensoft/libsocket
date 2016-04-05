@@ -21,9 +21,10 @@ namespace chen
 
         public:
             socket();
-            virtual ~socket();
+            virtual ~socket() = 0;
 
         public:
+            // todo replace addr to host, user can use domain here
             /**
              * Send packet to remote
              */

@@ -16,10 +16,6 @@ namespace chen
         {
         public:
             client();
-
-        private:
-            client(const client&) = delete;
-            client& operator=(const client&) = delete;
         };
     }
 }

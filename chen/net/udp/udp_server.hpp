@@ -79,10 +79,6 @@ namespace chen
              */
             virtual std::uint16_t port() const;
 
-        private:
-            server(const server&) = delete;
-            server& operator=(const server&) = delete;
-
         protected:
             std::string _addr;
             std::uint16_t _port = 0;

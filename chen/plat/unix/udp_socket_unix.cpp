@@ -33,14 +33,14 @@ socket::~socket()
 void socket::send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
 {
     if (!this->_impl)
-        throw error("udp: socket invalid");
+        throw error("udp socket invalid");
 
     struct timeval tv;
     tv.tv_sec  = static_cast<int>(timeout);
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) == -1)
-        throw error_recv(std::strerror(errno));
+        throw error_send(std::strerror(errno));
 
     struct sockaddr_in in;
 
@@ -56,13 +56,13 @@ void socket::send(const std::uint8_t *data, std::size_t size, const std::string 
     if (ret == -1)
         throw error_send(std::strerror(errno));
     else if (ret != size)
-        throw error_send("udp: send packet length is error");
+        throw error_send("udp send packet length is error");
 }
 
 void socket::recv(std::uint8_t *data, std::size_t &size, std::string &addr, std::uint16_t &port, float timeout)
 {
     if (!this->_impl)
-        throw error("udp: socket invalid");
+        throw error("udp socket invalid");
 
     struct timeval tv;
     tv.tv_sec  = static_cast<int>(timeout);

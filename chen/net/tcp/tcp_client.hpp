@@ -17,9 +17,39 @@ namespace chen
         public:
             client();
 
-        private:
-            client(const client&) = delete;
-            client& operator=(const client&) = delete;
+        public:
+            /**
+             * Connect & Disconnect
+             */
+            virtual void connect(const std::string &host, std::uint16_t port, float timeout = 0);
+            virtual void disconnect();
+
+        public:
+            /**
+             * Remote server info
+             */
+            virtual std::string remoteHost() const;
+            virtual std::string remoteAddr() const;
+            virtual std::uint16_t remotePort() const;
+
+            /**
+             * Local client info
+             */
+            virtual std::string localAddr() const;
+            virtual std::uint16_t localPort() const;
+
+            /**
+             * Is connected
+             */
+            virtual bool isConnected() const;
+
+        protected:
+            std::string _remote_host;
+            std::string _remote_addr;
+            std::uint16_t _remote_port = 0;
+
+            std::string _local_addr;
+            std::uint16_t _local_port = 0;
         };
     }
 }

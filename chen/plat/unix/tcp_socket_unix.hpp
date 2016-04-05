@@ -6,3 +6,19 @@
  */
 #pragma once
 
+#ifdef CHEN_OS_UNIX
+
+#include <chen/net/tcp/tcp_socket.hpp>
+
+namespace chen
+{
+    namespace tcp
+    {
+        struct socket::impl
+        {
+            int _socket = 0;
+        };
+    }
+}
+
+#endif  // CHEN_OS_UNIX
