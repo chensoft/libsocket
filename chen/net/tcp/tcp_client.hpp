@@ -19,10 +19,14 @@ namespace chen
 
         public:
             /**
-             * Connect & Disconnect
+             * Connect
              */
             virtual void connect(const std::string &host, std::uint16_t port, float timeout = 0);
-            virtual void disconnect();
+
+            /**
+             * Close socket
+             */
+            virtual void close() override;
 
         public:
             /**
@@ -50,6 +54,8 @@ namespace chen
 
             std::string _local_addr;
             std::uint16_t _local_port = 0;
+
+            bool _connected = false;
         };
     }
 }
