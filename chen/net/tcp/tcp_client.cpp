@@ -16,6 +16,18 @@ client::client()
 
 }
 
+// connect
+void client::reconnect(float timeout)
+{
+    this->connect(this->_remote_host, this->_remote_port, timeout);
+}
+
+void client::disconnect()
+{
+    this->shutdown(socket::Shutdown::Both);
+    this->close();
+}
+
 // close
 void client::close()
 {
@@ -51,7 +63,7 @@ std::uint16_t client::localPort() const
 }
 
 // property
-bool client::isConnected() const
+bool client::connected() const
 {
     return this->_connected;
 }

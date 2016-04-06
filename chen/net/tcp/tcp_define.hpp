@@ -10,8 +10,5 @@ namespace chen
 {
     namespace tcp
     {
-        // ---------------------------------------------------------------------
-        // Size
-        static const std::size_t SIZE_BUFFER = 4096;  // tcp buffer size
     }
 }
