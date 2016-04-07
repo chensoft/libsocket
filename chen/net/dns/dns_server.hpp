@@ -21,7 +21,7 @@ namespace chen
             /**
              * Callback type: request
              */
-            typedef std::function<void (const chen::dns::request&)> callback_type;
+            typedef std::function<void (const chen::dns::request &request)> callback_type;
 
         public:
             server();

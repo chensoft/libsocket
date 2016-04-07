@@ -3,6 +3,11 @@
  * @since  2015.11.22
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
+ * -----------------------------------------------------------------------------
+ * Notice:
+ * By default OS X has limited the maximum UDP-package to be 9216 bytes, see:
+ * http://stackoverflow.com/questions/22819214/udp-message-too-long
+ * You can alter this limit by: sudo sysctl -w net.inet.udp.maxdgram=65507
  */
 #pragma once
 

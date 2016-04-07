@@ -21,9 +21,9 @@ namespace chen
             /**
              * Callback type: data, addr, port
              */
-            typedef std::function<void (const std::vector<std::uint8_t>&,
-                                        const std::string&,
-                                        std::uint16_t)> callback_type;
+            typedef std::function<void (const std::vector<std::uint8_t> &data,
+                                        const std::string &addr,
+                                        std::uint16_t port)> callback_type;
 
         public:
             server() = default;
