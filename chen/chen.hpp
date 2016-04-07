@@ -24,6 +24,7 @@
 #include <chen/tool/sys.hpp>
 #include <chen/tool/date.hpp>
 #include <chen/tool/path.hpp>
+#include <chen/tool/time.hpp>
 
 #include <chen/net/ip/ip_error.hpp>
 #include <chen/net/ip/ip_addr.hpp>
