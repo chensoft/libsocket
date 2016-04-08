@@ -30,7 +30,7 @@ socket::~socket()
         this->close();
 }
 
-void socket::send(const std::uint8_t *data, std::size_t size, float timeout)
+void socket::send(const void *data, std::size_t size, float timeout)
 {
     if (!this->_impl)
         throw error("tcp socket invalid");
@@ -51,7 +51,7 @@ void socket::send(const std::uint8_t *data, std::size_t size, float timeout)
         throw error_send("tcp send packet length is error");
 }
 
-void socket::recv(std::uint8_t *data, std::size_t &size, float timeout)
+void socket::recv(void *data, std::size_t &size, float timeout)
 {
     if (!this->_impl)
         throw error("tcp socket invalid");

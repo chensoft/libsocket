@@ -33,7 +33,7 @@ namespace chen
             /**
              * Send packet to remote
              */
-            virtual void send(const std::uint8_t *data,
+            virtual void send(const void *data,
                               std::size_t size,
                               const std::string &addr,
                               std::uint16_t port,
@@ -45,7 +45,7 @@ namespace chen
              * @param addr received remote address
              * @param port received remote port
              */
-            virtual void recv(std::uint8_t *data,
+            virtual void recv(void *data,
                               std::size_t &size,
                               std::string &addr,
                               std::uint16_t &port,

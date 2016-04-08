@@ -30,7 +30,7 @@ socket::~socket()
         this->close();
 }
 
-void socket::send(const std::uint8_t *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
+void socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
 {
     if (!this->_impl)
         throw error("udp socket invalid");
@@ -59,7 +59,7 @@ void socket::send(const std::uint8_t *data, std::size_t size, const std::string 
         throw error_send("udp send packet length is error");
 }
 
-void socket::recv(std::uint8_t *data, std::size_t &size, std::string &addr, std::uint16_t &port, float timeout)
+void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_t &port, float timeout)
 {
     if (!this->_impl)
         throw error("udp socket invalid");

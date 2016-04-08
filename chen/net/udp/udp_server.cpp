@@ -38,12 +38,12 @@ void server::start()
         std::uint16_t port = 0;
         std::size_t size = length;
 
-        // set timeout, let server can quit gracefully
+        // set timeout, let server quit gracefully
         this->recv(buffer, size, addr, port, 1);
 
         // post result to callback
         if (size)
-            this->notify(std::vector<std::uint8_t>(buffer, buffer + size), addr, port);
+            this->notify(std::vector<std::uint8_t>(buffer, buffer + size), std::move(addr), port);
     }
 
     this->close();
@@ -76,10 +76,10 @@ void server::detach()
     this->_callback = nullptr;
 }
 
-void server::notify(const std::vector<std::uint8_t> &data, const std::string &addr, std::uint16_t port)
+void server::notify(std::vector<std::uint8_t> data, std::string addr, std::uint16_t port)
 {
     if (this->_callback)
-        this->_callback(data, addr, port);
+        this->_callback(std::move(data), std::move(addr), port);
 }
 
 std::string server::addr() const

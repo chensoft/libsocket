@@ -27,14 +27,14 @@ namespace chen
             /**
              * Send packet to remote
              */
-            virtual void send(const std::uint8_t *data,
+            virtual void send(const void *data,
                               std::size_t size,
                               float timeout = 0);
 
             /**
              * Recv packet from remote
              */
-            virtual void recv(std::uint8_t *data,
+            virtual void recv(void *data,
                               std::size_t &size,
                               float timeout = 0);
 
