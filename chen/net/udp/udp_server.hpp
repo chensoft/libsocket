@@ -32,7 +32,6 @@ namespace chen
             virtual void start();
             virtual void start(const std::string &addr, std::uint16_t port);
 
-            // todo shutdown immediately
             /**
              * Stop the server
              */
@@ -81,9 +80,6 @@ namespace chen
         protected:
             std::string _addr;
             std::uint16_t _port = 0;
-
-            bool _quit = false;
-            std::mutex _mutex;
 
             callback_type _callback;
         };

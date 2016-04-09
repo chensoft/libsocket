@@ -76,10 +76,11 @@ void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_
 
     auto ret = ::recvfrom(this->_impl->_socket, data, size, 0, (struct sockaddr*)&in, &len);
 
-    if (ret == -1)
+    if (ret <= 0)
     {
-        // don't treat timeout as an error
-        if (errno == EAGAIN)
+        // errno will be EAGAIN if timeout
+        // errno will be EBADF if call shutdown and close
+        if ((errno == EAGAIN) || (errno == EBADF))
         {
             // timeout or non-blocking
             size = 0;
