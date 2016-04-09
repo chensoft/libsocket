@@ -7,6 +7,8 @@
  */
 #pragma once
 
+#include <cstddef>
+
 namespace chen
 {
     namespace udp

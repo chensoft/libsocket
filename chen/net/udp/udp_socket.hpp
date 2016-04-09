@@ -29,14 +29,12 @@ namespace chen
             virtual ~socket() = 0;
 
         public:
-            // todo replace addr to host, user can use domain here
+            // todo force user use ip address here, use chen::ip_addr instead
             /**
              * Send packet to remote
              */
-            virtual void send(const void *data,
-                              std::size_t size,
-                              const std::string &addr,
-                              std::uint16_t port,
+            virtual void send(const void *data, std::size_t size,
+                              const std::string &addr, std::uint16_t port,
                               float timeout = 0);
 
             /**
@@ -45,10 +43,8 @@ namespace chen
              * @param addr received remote address
              * @param port received remote port
              */
-            virtual void recv(void *data,
-                              std::size_t &size,
-                              std::string &addr,
-                              std::uint16_t &port,
+            virtual void recv(void *data, std::size_t &size,
+                              std::string &addr, std::uint16_t &port,
                               float timeout = 0);
 
             /**

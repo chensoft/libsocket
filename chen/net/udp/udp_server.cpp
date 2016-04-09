@@ -12,7 +12,6 @@ using namespace chen::udp;
 
 // -----------------------------------------------------------------------------
 // server
-
 void server::start()
 {
     {
@@ -49,24 +48,20 @@ void server::start()
     this->close();
 }
 
+void server::start(const std::string &addr, std::uint16_t port)
+{
+    this->bind(addr, port);
+    this->start();
+}
+
 void server::stop()
 {
     std::lock_guard<std::mutex> lock(this->_mutex);
     this->_quit = true;
 }
 
-void server::close()
-{
-    socket::close();
-
-    this->_addr.clear();
-    this->_port = 0;
-
-    std::lock_guard<std::mutex> lock(this->_mutex);
-    this->_quit = true;
-}
-
-void server::attach(const callback_type &callback)
+// callback
+void server::attach(callback_type callback)
 {
     this->_callback = callback;
 }
@@ -82,6 +77,7 @@ void server::notify(std::vector<std::uint8_t> data, std::string addr, std::uint1
         this->_callback(std::move(data), std::move(addr), port);
 }
 
+// property
 std::string server::addr() const
 {
     return this->_addr;
@@ -90,4 +86,16 @@ std::string server::addr() const
 std::uint16_t server::port() const
 {
     return this->_port;
+}
+
+// close
+void server::close()
+{
+    socket::close();
+
+    this->_addr.clear();
+    this->_port = 0;
+
+    std::lock_guard<std::mutex> lock(this->_mutex);
+    this->_quit = true;
 }

@@ -19,42 +19,30 @@ namespace chen
         {
         public:
             /**
-             * Callback type: data, addr, port
+             * Receive Callback
              */
             typedef std::function<void (std::vector<std::uint8_t> data,
                                         std::string addr,
                                         std::uint16_t port)> callback_type;
 
         public:
-            server() = default;
-
-        public:
-            /**
-             * Bind socket to specific port
-             */
-            virtual void bind(const std::string &addr, std::uint16_t port);
-
             /**
              * Start the server
              */
             virtual void start();
+            virtual void start(const std::string &addr, std::uint16_t port);
 
             // todo shutdown immediately
             /**
-             * Shutdown the server
+             * Stop the server
              */
             virtual void stop();
-
-            /**
-             * Close socket
-             */
-            virtual void close() override;
 
         public:
             /**
              * Set observer for server
              */
-            virtual void attach(const callback_type &callback);
+            virtual void attach(callback_type callback);
 
             /**
              * Set observer to empty
@@ -78,6 +66,17 @@ namespace chen
              * Server port
              */
             virtual std::uint16_t port() const;
+
+        public:
+            /**
+             * Bind socket to specific port
+             */
+            virtual void bind(const std::string &addr, std::uint16_t port);
+
+            /**
+             * Close socket
+             */
+            virtual void close() override;
 
         protected:
             std::string _addr;

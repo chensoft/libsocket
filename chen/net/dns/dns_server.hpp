@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <chen/net/udp/udp_server.hpp>
+#include "dns_packet.hpp"
 
 namespace chen
 {
@@ -19,9 +20,9 @@ namespace chen
         {
         public:
             /**
-             * Callback type: request
+             * DNS Callback
              */
-            typedef std::function<void (const chen::dns::request &request)> callback_type;
+            typedef std::function<void (chen::dns::request request)> callback_type;
 
         public:
             server();
@@ -29,14 +30,10 @@ namespace chen
 
         public:
             /**
-             * Bind socket to specific port
-             */
-            virtual void bind(const std::string &addr, std::uint16_t port);
-
-            /**
              * Start the server
              */
             virtual void start();
+            virtual void start(const std::string &addr, std::uint16_t port);
 
             /**
              * Shutdown the server
@@ -47,7 +44,7 @@ namespace chen
             /**
              * Set observer for server
              */
-            virtual void attach(const callback_type &callback);
+            virtual void attach(callback_type callback);
 
             /**
              * Set observer to empty
@@ -57,7 +54,7 @@ namespace chen
             /**
              * Notify the observer
              */
-            virtual void notify(const chen::dns::request &request);
+            virtual void notify(chen::dns::request request);
 
         public:
             /**
@@ -70,17 +67,23 @@ namespace chen
              */
             virtual std::uint16_t port() const;
 
-        private:
-            server(const server&) = delete;
-            server& operator=(const server&) = delete;
+        public:
+            /**
+             * Bind socket to specific port
+             */
+            virtual void bind(const std::string &addr, std::uint16_t port);
 
         protected:
             /**
              * Receive server packet
              */
-            virtual void onPacket(const std::vector<std::uint8_t> &data,
-                                  const std::string &addr,
+            virtual void onPacket(std::vector<std::uint8_t> data,
+                                  std::string addr,
                                   std::uint16_t port);
+
+        private:
+            server(const server&) = delete;
+            server& operator=(const server&) = delete;
 
         protected:
             // todo add tcp server

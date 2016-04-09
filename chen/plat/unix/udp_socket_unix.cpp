@@ -56,7 +56,7 @@ void socket::send(const void *data, std::size_t size, const std::string &addr, s
     if (ret == -1)
         throw error_send(std::strerror(errno));
     else if (ret != size)
-        throw error_send("udp send packet length is error");
+        throw error_send("udp send packet length error");
 }
 
 void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_t &port, float timeout)
@@ -101,11 +101,11 @@ void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_
 
 void socket::close()
 {
-    if (this->_impl)
-    {
-        ::close(this->_impl->_socket);
-        this->_impl.reset();
-    }
+    if (!this->_impl)
+        return;
+
+    ::close(this->_impl->_socket);
+    this->_impl.reset();
 }
 
 void socket::shutdown(Shutdown flag)

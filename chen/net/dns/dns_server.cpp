@@ -19,14 +19,14 @@ server::server()
 }
 
 // start
-void server::bind(const std::string &addr, std::uint16_t port)
-{
-    this->_udp.bind(addr, port);
-}
-
 void server::start()
 {
     this->_udp.start();
+}
+
+void server::start(const std::string &addr, std::uint16_t port)
+{
+    this->_udp.start(addr, port);
 }
 
 void server::stop()
@@ -35,7 +35,7 @@ void server::stop()
 }
 
 // callback
-void server::attach(const callback_type &callback)
+void server::attach(callback_type callback)
 {
     this->_callback = callback;
 }
@@ -45,10 +45,10 @@ void server::detach()
     this->_callback = nullptr;
 }
 
-void server::notify(const chen::dns::request &request)
+void server::notify(chen::dns::request request)
 {
     if (this->_callback)
-        this->_callback(request);
+        this->_callback(std::move(request));
 }
 
 // address
@@ -62,9 +62,15 @@ std::uint16_t server::port() const
     return this->_udp.port();
 }
 
+// bind
+void server::bind(const std::string &addr, std::uint16_t port)
+{
+    this->_udp.bind(addr, port);
+}
+
 // handler
-void server::onPacket(const std::vector<std::uint8_t> &data,
-                      const std::string &addr,
+void server::onPacket(std::vector<std::uint8_t> data,
+                      std::string addr,
                       std::uint16_t port)
 {
     request q;
@@ -76,5 +82,5 @@ void server::onPacket(const std::vector<std::uint8_t> &data,
     d.assign(data);
     d.unpack(q);
 
-    this->notify(q);
+    this->notify(std::move(q));
 }
