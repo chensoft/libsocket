@@ -27,11 +27,10 @@ void server::start()
     while (true)
     {
         // receive data from remote
-        std::size_t size = length;
         std::string addr;
         std::uint16_t port = 0;
 
-        this->recv(buffer, size, addr, port);
+        std::size_t size = this->recv(buffer, length, addr, port);
 
         // post result to callback
         if (size)

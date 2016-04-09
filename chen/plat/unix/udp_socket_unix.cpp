@@ -59,7 +59,7 @@ void socket::send(const void *data, std::size_t size, const std::string &addr, s
         throw error_send("udp send packet length error");
 }
 
-void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_t &port, float timeout)
+std::size_t socket::recv(void *data, std::size_t size, std::string &addr, std::uint16_t &port, float timeout)
 {
     if (!this->_impl)
         throw error("udp socket invalid");
@@ -83,9 +83,9 @@ void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_
         if (!errno || (errno == EAGAIN) || (errno == EBADF))
         {
             // timeout or non-blocking
-            size = 0;
             addr = "";
             port = 0;
+            return 0;
         }
         else
         {
@@ -94,9 +94,9 @@ void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_
     }
     else
     {
-        size = static_cast<std::size_t>(ret);
         addr = ::inet_ntoa(in.sin_addr);
         port = ntohs(in.sin_port);
+        return static_cast<std::size_t>(ret);
     }
 }
 

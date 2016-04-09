@@ -39,13 +39,14 @@ namespace chen
 
             /**
              * Recv packet from remote
-             * @param size buffer size & received length
-             * @param addr received remote address
-             * @param port received remote port
+             * @param size buffer size
+             * @param addr remote address
+             * @param port remote port
+             * @result received length
              */
-            virtual void recv(void *data, std::size_t &size,
-                              std::string &addr, std::uint16_t &port,
-                              float timeout = 0);
+            virtual std::size_t recv(void *data, std::size_t size,
+                                     std::string &addr, std::uint16_t &port,
+                                     float timeout = 0);
 
             /**
              * Close socket
