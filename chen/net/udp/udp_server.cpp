@@ -6,6 +6,7 @@
  */
 #include "udp_server.hpp"
 #include "udp_define.hpp"
+#include "udp_error.hpp"
 
 using namespace chen;
 using namespace chen::udp;
@@ -25,6 +26,10 @@ void server::start()
         }
     }
 
+    // check if bind
+    if (this->_addr.empty())
+        throw error_bind("udp not bind");
+
     // define maximum udp buffer
     std::size_t length = SIZE_LIMIT_PACKET;
     std::unique_ptr<std::uint8_t> pointer(new std::uint8_t[length]);
@@ -33,12 +38,11 @@ void server::start()
     while (!this->_quit)
     {
         // receive data from remote
+        std::size_t size = length;
         std::string addr;
         std::uint16_t port = 0;
-        std::size_t size = length;
 
-        // set timeout, let server quit gracefully
-        this->recv(buffer, size, addr, port, 1);
+        this->recv(buffer, size, addr, port);
 
         // post result to callback
         if (size)
