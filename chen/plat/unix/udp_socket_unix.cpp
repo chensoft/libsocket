@@ -80,7 +80,7 @@ void socket::recv(void *data, std::size_t &size, std::string &addr, std::uint16_
     {
         // errno will be EAGAIN if timeout
         // errno will be EBADF if call shutdown and close
-        if ((errno == EAGAIN) || (errno == EBADF))
+        if (!errno || (errno == EAGAIN) || (errno == EBADF))
         {
             // timeout or non-blocking
             size = 0;
