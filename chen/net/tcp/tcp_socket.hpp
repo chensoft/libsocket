@@ -6,61 +6,36 @@
  */
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <memory>
+#include <cstddef>
+#include <chen/net/so/so_socket.hpp>
 
 namespace chen
 {
     namespace tcp
     {
-        class socket
+        class socket : public chen::so::socket
         {
         public:
-            enum class Shutdown {Read, Write, Both};
-
-        public:
             socket();
-            virtual ~socket() = 0;
 
         public:
+            // todo force user use ip address here, use chen::ip_addr instead
             /**
              * Send packet to remote
              */
-            virtual void send(const void *data,
-                              std::size_t size,
-                              float timeout = 0);
+            virtual void send(const void *data, std::size_t size, float timeout = 0);
 
             /**
              * Recv packet from remote
+             * @result received length
              */
-            virtual void recv(void *data,
-                              std::size_t &size,
-                              float timeout = 0);
-
-            /**
-             * Close socket
-             */
-            virtual void close();
-
-            /**
-             * Shutdown socket
-             */
-            virtual void shutdown(Shutdown flag = Shutdown::Both);
+            virtual std::size_t recv(void *data, std::size_t size, float timeout = 0);
 
         protected:
             /**
              * Build socket
              */
             virtual void build();
-
-        private:
-            socket(const socket&) = delete;
-            socket& operator=(const socket&) = delete;
-
-        protected:
-            struct impl;
-            std::unique_ptr<impl> _impl;
         };
     }
 }

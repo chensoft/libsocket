@@ -6,8 +6,9 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "tcp_socket_unix.hpp"
-#include <chen/net/tcp/tcp_error.hpp>
+#include "base_socket_unix.hpp"
+#include <chen/net/so/so_error.hpp>
+#include <chen/net/tcp/tcp_socket.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -15,22 +16,17 @@
 #include <cerrno>
 
 using namespace chen;
+using namespace chen::so;
 using namespace chen::tcp;
 
 // -----------------------------------------------------------------------------
 // socket
-socket::socket()
+chen::tcp::socket::socket()
 {
     this->build();
 }
 
-socket::~socket()
-{
-    if (this->_impl)
-        this->close();
-}
-
-void socket::send(const void *data, std::size_t size, float timeout)
+void chen::tcp::socket::send(const void *data, std::size_t size, float timeout)
 {
     if (!this->_impl)
         throw error("tcp socket invalid");
@@ -48,10 +44,10 @@ void socket::send(const void *data, std::size_t size, float timeout)
     if (ret == -1)
         throw error_send(std::strerror(errno));
     else if (ret != size)
-        throw error_send("tcp send packet length is error");
+        throw error_send("tcp send packet length error");
 }
 
-void socket::recv(void *data, std::size_t &size, float timeout)
+std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
 {
     if (!this->_impl)
         throw error("tcp socket invalid");
@@ -65,13 +61,14 @@ void socket::recv(void *data, std::size_t &size, float timeout)
 
     auto ret = ::recv(this->_impl->_socket, data, size, 0);
 
-    if (ret == -1)
+    if (ret <= 0)
     {
-        // don't treat timeout as an error
-        if (errno == EAGAIN)
+        // errno will be EAGAIN if timeout
+        // errno will be EBADF if call shutdown and close
+        if (!errno || (errno == EAGAIN) || (errno == EBADF))
         {
             // timeout or non-blocking
-            size = 0;
+            return 0;
         }
         else
         {
@@ -80,33 +77,11 @@ void socket::recv(void *data, std::size_t &size, float timeout)
     }
     else
     {
-        size = static_cast<std::size_t>(ret);
+        return static_cast<std::size_t>(ret);
     }
 }
 
-void socket::close()
-{
-    if (this->_impl)
-    {
-        ::close(this->_impl->_socket);
-        this->_impl.reset();
-    }
-}
-
-void socket::shutdown(Shutdown flag)
-{
-    if (!this->_impl)
-        return;
-
-    if (flag == Shutdown::Read)
-        ::shutdown(this->_impl->_socket, SHUT_RD);
-    else if (flag == Shutdown::Write)
-        ::shutdown(this->_impl->_socket, SHUT_WR);
-    else if (flag == Shutdown::Both)
-        ::shutdown(this->_impl->_socket, SHUT_RDWR);
-}
-
-void socket::build()
+void chen::tcp::socket::build()
 {
     if (this->_impl)
         this->close();

@@ -13,20 +13,16 @@
 
 #include <cstdint>
 #include <string>
-#include <memory>
+#include <chen/net/so/so_socket.hpp>
 
 namespace chen
 {
     namespace udp
     {
-        class socket
+        class socket : public chen::so::socket
         {
         public:
-            enum class Shutdown {Read, Write, Both};
-
-        public:
             socket();
-            virtual ~socket() = 0;
 
         public:
             // todo force user use ip address here, use chen::ip_addr instead
@@ -48,29 +44,11 @@ namespace chen
                                      std::string &addr, std::uint16_t &port,
                                      float timeout = 0);
 
-            /**
-             * Close socket
-             */
-            virtual void close();
-
-            /**
-             * Shutdown socket
-             */
-            virtual void shutdown(Shutdown flag = Shutdown::Both);
-
         protected:
             /**
              * Build socket
              */
             virtual void build();
-
-        private:
-            socket(const socket&) = delete;
-            socket& operator=(const socket&) = delete;
-
-        protected:
-            struct impl;
-            std::unique_ptr<impl> _impl;
         };
     }
 }

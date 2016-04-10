@@ -6,7 +6,7 @@
  */
 #include "udp_server.hpp"
 #include "udp_define.hpp"
-#include "udp_error.hpp"
+#include <chen/net/so/so_error.hpp>
 
 using namespace chen;
 using namespace chen::udp;
@@ -17,7 +17,7 @@ void server::start()
 {
     // check if bind
     if (this->_addr.empty())
-        throw error_bind("udp not bind");
+        throw so::error_bind("udp not bind");
 
     // maximum udp buffer
     std::size_t length = SIZE_LIMIT_PACKET;

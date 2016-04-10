@@ -6,8 +6,9 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "udp_socket_unix.hpp"
-#include <chen/net/udp/udp_error.hpp>
+#include "base_socket_unix.hpp"
+#include <chen/net/udp/udp_socket.hpp>
+#include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -15,22 +16,17 @@
 #include <cerrno>
 
 using namespace chen;
+using namespace chen::so;
 using namespace chen::udp;
 
 // -----------------------------------------------------------------------------
 // socket
-socket::socket()
+chen::udp::socket::socket()
 {
     this->build();
 }
 
-socket::~socket()
-{
-    if (this->_impl)
-        this->close();
-}
-
-void socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
+void chen::udp::socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
 {
     if (!this->_impl)
         throw error("udp socket invalid");
@@ -59,7 +55,7 @@ void socket::send(const void *data, std::size_t size, const std::string &addr, s
         throw error_send("udp send packet length error");
 }
 
-std::size_t socket::recv(void *data, std::size_t size, std::string &addr, std::uint16_t &port, float timeout)
+std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &addr, std::uint16_t &port, float timeout)
 {
     if (!this->_impl)
         throw error("udp socket invalid");
@@ -100,29 +96,7 @@ std::size_t socket::recv(void *data, std::size_t size, std::string &addr, std::u
     }
 }
 
-void socket::close()
-{
-    if (!this->_impl)
-        return;
-
-    ::close(this->_impl->_socket);
-    this->_impl.reset();
-}
-
-void socket::shutdown(Shutdown flag)
-{
-    if (!this->_impl)
-        return;
-
-    if (flag == Shutdown::Read)
-        ::shutdown(this->_impl->_socket, SHUT_RD);
-    else if (flag == Shutdown::Write)
-        ::shutdown(this->_impl->_socket, SHUT_WR);
-    else if (flag == Shutdown::Both)
-        ::shutdown(this->_impl->_socket, SHUT_RDWR);
-}
-
-void socket::build()
+void chen::udp::socket::build()
 {
     if (this->_impl)
         this->close();

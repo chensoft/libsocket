@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * @since  2016.04.05
+ * @since  2015.08.23
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
@@ -11,10 +11,10 @@
 
 namespace chen
 {
-    namespace tcp
+    namespace so
     {
         /**
-         * TCP general error
+         * Socket general error
          */
         class error : public std::runtime_error
         {

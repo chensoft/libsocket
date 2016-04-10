@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <cstdint>
+#include <string>
 #include "tcp_socket.hpp"
 
 namespace chen
@@ -33,11 +35,6 @@ namespace chen
              */
             virtual void disconnect();
 
-            /**
-             * Close socket
-             */
-            virtual void close() override;
-
         public:
             /**
              * Remote server info
@@ -56,6 +53,12 @@ namespace chen
              * Is connected
              */
             virtual bool connected() const;
+
+        public:
+            /**
+             * Close socket
+             */
+            virtual void close() override;
 
         protected:
             std::string   _remote_host;

@@ -28,13 +28,6 @@ void client::disconnect()
     this->close();
 }
 
-// close
-void client::close()
-{
-    socket::close();
-    this->_connected = false;
-}
-
 // remote
 std::string client::remoteHost() const
 {
@@ -66,4 +59,11 @@ std::uint16_t client::localPort() const
 bool client::connected() const
 {
     return this->_connected;
+}
+
+// close
+void client::close()
+{
+    socket::close();
+    this->_connected = false;
 }

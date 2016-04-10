@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * @since  2015.08.23
+ * @since  2016.04.10
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
@@ -8,11 +8,11 @@
 
 #ifdef CHEN_OS_UNIX
 
-#include <chen/net/udp/udp_socket.hpp>
+#include <chen/net/so/so_socket.hpp>
 
 namespace chen
 {
-    namespace udp
+    namespace so
     {
         struct socket::impl
         {

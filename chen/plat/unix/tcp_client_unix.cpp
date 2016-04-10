@@ -6,15 +6,16 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "tcp_socket_unix.hpp"
+#include "base_socket_unix.hpp"
+#include <chen/net/so/so_error.hpp>
 #include <chen/net/tcp/tcp_client.hpp>
-#include <chen/net/tcp/tcp_error.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cstring>
 #include <cerrno>
 
 using namespace chen;
+using namespace chen::so;
 using namespace chen::tcp;
 
 // -----------------------------------------------------------------------------
