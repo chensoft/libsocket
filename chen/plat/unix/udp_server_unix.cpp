@@ -22,7 +22,7 @@ using namespace chen::udp;
 void server::bind(const std::string &addr, std::uint16_t port)
 {
     // check already bind
-    if (!this->_addr.empty())
+    if (!this->_addr.empty() || !this->_impl)
         this->build();  // rebuild
 
     // bind address and port
