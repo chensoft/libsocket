@@ -7,8 +7,8 @@
 #ifdef CHEN_OS_UNIX
 
 #include "base_socket_unix.hpp"
-#include <chen/net/so/so_error.hpp>
 #include <chen/net/tcp/tcp_client.hpp>
+#include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cstring>
@@ -20,33 +20,24 @@ using namespace chen::tcp;
 
 // -----------------------------------------------------------------------------
 // client
-void client::connect(const std::string &host, std::uint16_t port, float timeout)
+void client::connect(const std::string &addr, std::uint16_t port, float timeout)
 {
-    if (!this->_remote_host.empty())
+    if (!this->_impl || this->remotePort())
         this->build();
 
     struct sockaddr_in in;
     ::memset(&in, 0, sizeof(in));
 
     in.sin_family      = AF_INET;
-    in.sin_addr.s_addr = ::inet_addr(host.c_str());
+    in.sin_addr.s_addr = ::inet_addr(addr.c_str());
     in.sin_port        = htons(port);
 
     if (::connect(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
         throw error_bind(std::strerror(errno));
 
-    // todo resolve host to ip address
-    this->_remote_host = host;
-    this->_remote_addr = host;
-    this->_remote_port = port;
-
-    socklen_t len = sizeof(in);
-    ::getsockname(this->_impl->_socket, (struct sockaddr*)&in, &len);
-
-    this->_local_addr = ::inet_ntoa(in.sin_addr);
-    this->_local_port = ntohs(in.sin_port);
-
-    this->_connected = true;
+    this->_recent_addr = addr;
+    this->_recent_port = port;
+    this->_connected   = true;
 }
 
 #endif

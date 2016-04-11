@@ -51,17 +51,6 @@ void server::notify(chen::dns::request request)
         this->_callback(std::move(request));
 }
 
-// address
-std::string server::addr() const
-{
-    return this->_udp.addr();
-}
-
-std::uint16_t server::port() const
-{
-    return this->_udp.port();
-}
-
 // bind
 void server::bind(const std::string &addr, std::uint16_t port)
 {

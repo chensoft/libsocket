@@ -10,6 +10,7 @@
 #include <chen/net/udp/udp_server.hpp>
 #include "dns_packet.hpp"
 
+// todo re-design
 namespace chen
 {
     namespace dns
@@ -55,17 +56,6 @@ namespace chen
              * Notify the observer
              */
             virtual void notify(chen::dns::request request);
-
-        public:
-            /**
-             * Server address
-             */
-            virtual std::string addr() const;
-
-            /**
-             * Server port
-             */
-            virtual std::uint16_t port() const;
 
         public:
             /**

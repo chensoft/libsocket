@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include <cstddef>
 #include <chen/net/so/so_socket.hpp>
 
 namespace chen
@@ -19,7 +18,6 @@ namespace chen
             socket();
 
         public:
-            // todo force user use ip address here, use chen::ip_addr instead
             /**
              * Send packet to remote
              */

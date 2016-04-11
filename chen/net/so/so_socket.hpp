@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#include <cstdint>
+#include <string>
 #include <memory>
 
 namespace chen
@@ -31,6 +33,19 @@ namespace chen
              * Shutdown socket
              */
             virtual void shutdown(Shutdown flag = Shutdown::Both);
+
+        public:
+            /**
+             * Remote server info
+             */
+            virtual std::string   remoteAddr() const;
+            virtual std::uint16_t remotePort() const;
+
+            /**
+             * Local client info
+             */
+            virtual std::string   localAddr() const;
+            virtual std::uint16_t localPort() const;
 
         private:
             socket(const socket&) = delete;

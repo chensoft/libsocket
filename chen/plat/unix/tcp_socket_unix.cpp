@@ -7,8 +7,8 @@
 #ifdef CHEN_OS_UNIX
 
 #include "base_socket_unix.hpp"
-#include <chen/net/so/so_error.hpp>
 #include <chen/net/tcp/tcp_socket.hpp>
+#include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -26,6 +26,7 @@ chen::tcp::socket::socket()
     this->build();
 }
 
+// send & recv
 void chen::tcp::socket::send(const void *data, std::size_t size, float timeout)
 {
     if (!this->_impl)
@@ -81,6 +82,7 @@ std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
     }
 }
 
+// build
 void chen::tcp::socket::build()
 {
     if (this->_impl)

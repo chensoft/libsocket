@@ -11,8 +11,6 @@
  */
 #pragma once
 
-#include <cstdint>
-#include <string>
 #include <chen/net/so/so_socket.hpp>
 
 namespace chen

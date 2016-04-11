@@ -23,7 +23,7 @@ using namespace chen::udp;
 void server::bind(const std::string &addr, std::uint16_t port)
 {
     // check already bind
-    if (!this->_addr.empty() || !this->_impl)
+    if (!this->_impl || this->localPort())
         this->build();  // rebuild
 
     // bind address and port
@@ -36,12 +36,6 @@ void server::bind(const std::string &addr, std::uint16_t port)
 
     if (::bind(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
         throw error_bind(std::strerror(errno));
-
-    socklen_t len = sizeof(in);
-    ::getsockname(this->_impl->_socket, (struct sockaddr*)&in, &len);
-
-    this->_addr = ::inet_ntoa(in.sin_addr);
-    this->_port = ntohs(in.sin_port);
 }
 
 #endif

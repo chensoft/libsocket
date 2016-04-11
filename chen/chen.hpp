@@ -35,6 +35,8 @@
 #include <chen/net/tcp/tcp_define.hpp>
 #include <chen/net/tcp/tcp_socket.hpp>
 #include <chen/net/tcp/tcp_client.hpp>
+#include <chen/net/tcp/tcp_server.hpp>
+#include <chen/net/tcp/tcp_conn.hpp>
 
 #include <chen/net/udp/udp_define.hpp>
 #include <chen/net/udp/udp_socket.hpp>

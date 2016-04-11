@@ -9,7 +9,6 @@
 #include "udp_socket.hpp"
 #include <functional>
 #include <vector>
-#include <mutex>
 
 namespace chen
 {
@@ -37,6 +36,11 @@ namespace chen
              */
             virtual void stop();
 
+            /**
+             * Bind socket to specific port
+             */
+            virtual void bind(const std::string &addr, std::uint16_t port);
+
         public:
             /**
              * Set observer for server
@@ -55,32 +59,7 @@ namespace chen
                                 std::string addr,
                                 std::uint16_t port);
 
-        public:
-            /**
-             * Server address
-             */
-            virtual std::string addr() const;
-
-            /**
-             * Server port
-             */
-            virtual std::uint16_t port() const;
-
-        public:
-            /**
-             * Bind socket to specific port
-             */
-            virtual void bind(const std::string &addr, std::uint16_t port);
-
-            /**
-             * Close socket
-             */
-            virtual void close() override;
-
         protected:
-            std::string _addr;
-            std::uint16_t _port = 0;
-
             callback_type _callback;
         };
     }

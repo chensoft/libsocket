@@ -16,7 +16,7 @@ using namespace chen::udp;
 void server::start()
 {
     // check if bind
-    if (this->_addr.empty())
+    if (!this->localPort())
         throw so::error_bind("udp not bind");
 
     // maximum udp buffer
@@ -50,7 +50,7 @@ void server::start(const std::string &addr, std::uint16_t port)
 
 void server::stop()
 {
-    this->shutdown(server::Shutdown::Both);
+    this->shutdown();
     this->close();
 }
 
@@ -69,24 +69,4 @@ void server::notify(std::vector<std::uint8_t> data, std::string addr, std::uint1
 {
     if (this->_callback)
         this->_callback(std::move(data), std::move(addr), port);
-}
-
-// property
-std::string server::addr() const
-{
-    return this->_addr;
-}
-
-std::uint16_t server::port() const
-{
-    return this->_port;
-}
-
-// close
-void server::close()
-{
-    socket::close();
-
-    this->_addr.clear();
-    this->_port = 0;
 }
