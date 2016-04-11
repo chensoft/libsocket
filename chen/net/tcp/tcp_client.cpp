@@ -29,6 +29,16 @@ void client::disconnect()
 }
 
 // property
+std::string client::recentAddr() const
+{
+    return this->_recent_addr;
+}
+
+std::uint16_t client::recentPort() const
+{
+    return this->_recent_port;
+}
+
 bool client::connected() const
 {
     return this->_connected;

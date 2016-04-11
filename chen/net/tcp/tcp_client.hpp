@@ -35,6 +35,12 @@ namespace chen
 
         public:
             /**
+             * Recent connected remote address and port
+             */
+            virtual std::string   recentAddr() const;
+            virtual std::uint16_t recentPort() const;
+
+            /**
              * Is connected
              */
             virtual bool connected() const;
