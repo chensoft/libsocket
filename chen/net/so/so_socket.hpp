@@ -47,6 +47,13 @@ namespace chen
             virtual std::string   localAddr() const;
             virtual std::uint16_t localPort() const;
 
+        protected:
+            /**
+             * Create socket
+             */
+            virtual void build() = 0;
+            virtual void build(int domain, int type, int protocol);
+
         private:
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;

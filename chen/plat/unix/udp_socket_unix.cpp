@@ -6,7 +6,7 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "base_socket_unix.hpp"
+#include "so_socket_unix.hpp"
 #include <chen/net/udp/udp_socket.hpp>
 #include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
@@ -98,17 +98,7 @@ std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &a
 
 void chen::udp::socket::build()
 {
-    if (this->_impl)
-        this->close();
-
-    this->_impl.reset(new socket::impl);
-
-    auto sock = ::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-    if (sock == -1)
-        throw error_build(std::strerror(errno));
-    else
-        this->_impl->_socket = sock;
+    so::socket::build(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 }
 
 #endif  // CHEN_OS_UNIX

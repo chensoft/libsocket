@@ -6,12 +6,13 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include "base_socket_unix.hpp"
+#include "so_socket_unix.hpp"
 #include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
+#include <cerrno>
 
 using namespace chen;
 using namespace chen::so;
@@ -115,6 +116,22 @@ std::uint16_t socket::localPort() const
         return 0;
     else
         return ntohs(in.sin_port);
+}
+
+// build
+void socket::build(int domain, int type, int protocol)
+{
+    if (this->_impl)
+        this->close();
+
+    this->_impl.reset(new socket::impl);
+
+    auto sock = ::socket(domain, type, protocol);
+
+    if (sock == -1)
+        throw error_build(std::strerror(errno));
+    else
+        this->_impl->_socket = sock;
 }
 
 #endif  // CHEN_OS_UNIX
