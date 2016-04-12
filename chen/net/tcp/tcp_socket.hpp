@@ -28,12 +28,6 @@ namespace chen
              * @result received length
              */
             virtual std::size_t recv(void *data, std::size_t size, float timeout = 0);
-
-        protected:
-            /**
-             * Build socket
-             */
-            virtual void build();
         };
     }
 }

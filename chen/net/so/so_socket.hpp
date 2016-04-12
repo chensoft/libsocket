@@ -20,7 +20,7 @@ namespace chen
             enum class Shutdown {Read, Write, Both};
 
         public:
-            socket();
+            socket(int domain, int type, int protocol);
             virtual ~socket() = 0;
 
         public:
@@ -51,8 +51,7 @@ namespace chen
             /**
              * Create socket
              */
-            virtual void build() = 0;
-            virtual void build(int domain, int type, int protocol);
+            void build();
 
         private:
             socket(const socket&) = delete;

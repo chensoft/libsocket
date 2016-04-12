@@ -22,8 +22,9 @@ using namespace chen::tcp;
 // -----------------------------------------------------------------------------
 // socket
 chen::tcp::socket::socket()
+: chen::so::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)
 {
-    this->build();
+
 }
 
 // send & recv
@@ -80,12 +81,6 @@ std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
     {
         return static_cast<std::size_t>(ret);
     }
-}
-
-// build
-void chen::tcp::socket::build()
-{
-    so::socket::build(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 }
 
 #endif  // CHEN_OS_UNIX

@@ -16,7 +16,10 @@ namespace chen
     {
         struct socket::impl
         {
-            int _socket = 0;
+            int _socket   = 0;
+            int _domain   = 0;
+            int _type     = 0;
+            int _protocol = 0;
         };
     }
 }

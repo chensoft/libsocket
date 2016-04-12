@@ -22,8 +22,9 @@ using namespace chen::udp;
 // -----------------------------------------------------------------------------
 // socket
 chen::udp::socket::socket()
+: chen::so::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)
 {
-    this->build();
+
 }
 
 void chen::udp::socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
@@ -94,11 +95,6 @@ std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &a
         port = ntohs(in.sin_port);
         return static_cast<std::size_t>(ret);
     }
-}
-
-void chen::udp::socket::build()
-{
-    so::socket::build(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 }
 
 #endif  // CHEN_OS_UNIX

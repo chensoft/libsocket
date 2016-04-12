@@ -41,12 +41,6 @@ namespace chen
             virtual std::size_t recv(void *data, std::size_t size,
                                      std::string &addr, std::uint16_t &port,
                                      float timeout = 0);
-
-        protected:
-            /**
-             * Build socket
-             */
-            virtual void build();
         };
     }
 }

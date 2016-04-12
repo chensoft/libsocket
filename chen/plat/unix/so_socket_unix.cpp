@@ -19,8 +19,11 @@ using namespace chen::so;
 
 // -----------------------------------------------------------------------------
 // socket
-socket::socket()
+socket::socket(int domain, int type, int protocol)
 {
+    this->_impl->_domain   = domain;
+    this->_impl->_type     = type;
+    this->_impl->_protocol = protocol;
 }
 
 socket::~socket()
@@ -119,14 +122,14 @@ std::uint16_t socket::localPort() const
 }
 
 // build
-void socket::build(int domain, int type, int protocol)
+void socket::build()
 {
     if (this->_impl)
         this->close();
 
     this->_impl.reset(new socket::impl);
 
-    auto sock = ::socket(domain, type, protocol);
+    auto sock = ::socket(this->_impl->_domain, this->_impl->_type, this->_impl->_protocol);
 
     if (sock == -1)
         throw error_build(std::strerror(errno));
