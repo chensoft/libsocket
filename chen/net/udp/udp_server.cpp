@@ -17,7 +17,7 @@ void server::start()
 {
     // check if bind
     if (!this->localPort())
-        throw so::error_bind("udp not bind");
+        throw so::error_bind("udp socket not bind");
 
     // maximum udp buffer
     std::size_t length = SIZE_LIMIT_PACKET;
@@ -38,8 +38,6 @@ void server::start()
         else
             break;
     }
-
-    this->stop();
 }
 
 void server::start(const std::string &addr, std::uint16_t port)

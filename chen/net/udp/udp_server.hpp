@@ -36,11 +36,6 @@ namespace chen
              */
             virtual void stop();
 
-            /**
-             * Bind socket to specific port
-             */
-            virtual void bind(const std::string &addr, std::uint16_t port);
-
         public:
             /**
              * Set observer for server
@@ -58,6 +53,13 @@ namespace chen
             virtual void notify(std::vector<std::uint8_t> data,
                                 std::string addr,
                                 std::uint16_t port);
+
+        public:
+            /**
+             * Bind socket to specific port
+             * use `start` method is more convenient
+             */
+            virtual void bind(const std::string &addr, std::uint16_t port);
 
         protected:
             callback_type _callback;
