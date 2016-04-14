@@ -22,7 +22,7 @@ using namespace chen::tcp;
 // client
 void client::connect(const std::string &addr, std::uint16_t port, float timeout)
 {
-    if (!this->_impl || this->remotePort())
+    if (!this->_impl->_socket || this->remotePort())
         this->build();
 
     struct sockaddr_in in;

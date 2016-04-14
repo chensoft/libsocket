@@ -30,7 +30,7 @@ chen::tcp::socket::socket()
 // send & recv
 void chen::tcp::socket::send(const void *data, std::size_t size, float timeout)
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         throw error("tcp socket invalid");
 
     struct timeval tv;
@@ -51,7 +51,7 @@ void chen::tcp::socket::send(const void *data, std::size_t size, float timeout)
 
 std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         throw error("tcp socket invalid");
 
     struct timeval tv;

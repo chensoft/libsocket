@@ -20,31 +20,34 @@ using namespace chen::so;
 // -----------------------------------------------------------------------------
 // socket
 socket::socket(int domain, int type, int protocol)
+: _impl(new socket::impl)
 {
     this->_impl->_domain   = domain;
     this->_impl->_type     = type;
     this->_impl->_protocol = protocol;
+
+    this->build();
 }
 
 socket::~socket()
 {
-    if (this->_impl)
+    if (this->_impl->_socket)
         this->close();
 }
 
 // close
 void socket::close()
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         return;
 
     ::close(this->_impl->_socket);
-    this->_impl.reset();
+    this->_impl->_socket = 0;
 }
 
 void socket::shutdown(Shutdown flag)
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         return;
 
     if (flag == Shutdown::Read)
@@ -58,7 +61,7 @@ void socket::shutdown(Shutdown flag)
 // remote
 std::string socket::remoteAddr() const
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         return "";
 
     struct sockaddr_in in;
@@ -74,7 +77,7 @@ std::string socket::remoteAddr() const
 
 std::uint16_t socket::remotePort() const
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         return 0;
 
     struct sockaddr_in in;
@@ -91,7 +94,7 @@ std::uint16_t socket::remotePort() const
 // local
 std::string socket::localAddr() const
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         return "";
 
     struct sockaddr_in in;
@@ -107,7 +110,7 @@ std::string socket::localAddr() const
 
 std::uint16_t socket::localPort() const
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         return 0;
 
     struct sockaddr_in in;
@@ -124,10 +127,8 @@ std::uint16_t socket::localPort() const
 // build
 void socket::build()
 {
-    if (this->_impl)
+    if (this->_impl->_socket)
         this->close();
-
-    this->_impl.reset(new socket::impl);
 
     auto sock = ::socket(this->_impl->_domain, this->_impl->_type, this->_impl->_protocol);
 

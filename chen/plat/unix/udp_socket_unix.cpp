@@ -29,7 +29,7 @@ chen::udp::socket::socket()
 
 void chen::udp::socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         throw error("udp socket invalid");
 
     struct timeval tv;
@@ -58,7 +58,7 @@ void chen::udp::socket::send(const void *data, std::size_t size, const std::stri
 
 std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &addr, std::uint16_t &port, float timeout)
 {
-    if (!this->_impl)
+    if (!this->_impl->_socket)
         throw error("udp socket invalid");
 
     struct timeval tv;

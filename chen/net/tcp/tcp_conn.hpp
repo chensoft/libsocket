@@ -15,7 +15,12 @@ namespace chen
         class conn : public socket
         {
         public:
-            conn();
+            /**
+             * Construct with a new socket
+             */
+            explicit conn(int val);
+
+            virtual ~conn();
         };
     }
 }
