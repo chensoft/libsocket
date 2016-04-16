@@ -78,9 +78,16 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     else
     {
         if (::connect(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
-            throw error_connect(std::strerror(errno));
-
-        this->_connected = true;
+        {
+            if ((errno == ECONNABORTED) || (errno == ETIMEDOUT))
+                this->_connected = false;
+            else
+                throw error_connect(std::strerror(errno));
+        }
+        else
+        {
+            this->_connected = true;
+        }
     }
 
     this->_recent_addr = addr;
