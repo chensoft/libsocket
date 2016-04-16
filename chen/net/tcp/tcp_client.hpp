@@ -20,13 +20,14 @@ namespace chen
         public:
             /**
              * Connect to remote server
+             * @result true if connected, false if timeout, exception if occur error
              */
-            virtual void connect(const std::string &addr, std::uint16_t port, float timeout = 0);
+            virtual bool connect(const std::string &addr, std::uint16_t port, float timeout = 0);
 
             /**
              * Reconnect use last remote info
              */
-            virtual void reconnect(float timeout = 0);
+            virtual bool reconnect(float timeout = 0);
 
             /**
              * Shutdown and close
@@ -43,7 +44,13 @@ namespace chen
             /**
              * Is connected
              */
-            virtual bool connected() const;
+            virtual bool isConnected() const;
+
+            /**
+             * Is blocking or non-blocking
+             */
+            virtual bool isBlocking() const;
+            virtual bool isNonBlocking() const;
 
         public:
             /**

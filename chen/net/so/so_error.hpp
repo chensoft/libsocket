@@ -64,6 +64,16 @@ namespace chen
 
 
         /**
+         * Socket connect error
+         */
+        class error_connect : public error
+        {
+        public:
+            explicit error_connect(const std::string &what) : error(what) {}
+        };
+
+
+        /**
          * Socket send error
          */
         class error_send : public error

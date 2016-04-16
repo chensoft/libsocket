@@ -17,9 +17,9 @@ client::client()
 }
 
 // connect
-void client::reconnect(float timeout)
+bool client::reconnect(float timeout)
 {
-    this->connect(this->_recent_addr, this->_recent_port, timeout);
+    return this->connect(this->_recent_addr, this->_recent_port, timeout);
 }
 
 void client::disconnect()
@@ -39,7 +39,7 @@ std::uint16_t client::recentPort() const
     return this->_recent_port;
 }
 
-bool client::connected() const
+bool client::isConnected() const
 {
     return this->_connected;
 }

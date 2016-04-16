@@ -14,7 +14,6 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <cerrno>
-#include <fcntl.h>
 
 using namespace chen;
 using namespace chen::so;
@@ -59,26 +58,17 @@ std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
 
     auto ret = ::select(this->_impl->_socket + 1, &set, nullptr, nullptr, timeout ? &tv : nullptr);
 
-    printf("chen: %d\n", errno);
-
-    if (ret > 0)
+    if (ret == 1)
     {
-        if (FD_ISSET(this->_impl->_socket, &set))
-        {
-            struct sockaddr_in in;
-            socklen_t len = sizeof(in);
+        struct sockaddr_in in;
+        socklen_t len = sizeof(in);
 
-            auto so = ::accept(this->_impl->_socket, (struct sockaddr*)&in, &len);
+        auto so = ::accept(this->_impl->_socket, (struct sockaddr*)&in, &len);
 
-            if (so != -1)
-                return std::unique_ptr<chen::tcp::conn>(new chen::tcp::conn(&so));
-            else
-                throw error_accept(std::strerror(errno));
-        }
+        if (so != -1)
+            return std::unique_ptr<chen::tcp::conn>(new chen::tcp::conn(&so));
         else
-        {
             throw error_accept(std::strerror(errno));
-        }
     }
     else if (!ret || (errno == EBADF))
     {
