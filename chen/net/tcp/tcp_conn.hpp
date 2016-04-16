@@ -15,12 +15,7 @@ namespace chen
         class conn : public socket
         {
         public:
-            /**
-             * Construct with a new socket
-             * @param so socket after accept, int on Unix, SOCKET on Windows
-             */
             explicit conn(void *so);
-
             virtual ~conn();
         };
     }

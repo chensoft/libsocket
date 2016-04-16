@@ -21,6 +21,7 @@ namespace chen
         {
         public:
             socket();
+            explicit socket(void *so);
 
         public:
             // todo force user use ip address here, use chen::ip_addr instead

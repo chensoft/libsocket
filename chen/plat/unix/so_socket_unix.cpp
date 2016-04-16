@@ -26,8 +26,16 @@ socket::socket(int domain, int type, int protocol)
     this->_impl->_type     = type;
     this->_impl->_protocol = protocol;
 
-    if (!this->_impl->_socket)
-        this->build();
+    this->build();
+}
+
+socket::socket(void *so, int domain, int type, int protocol)
+: _impl(new socket::impl)
+{
+    this->_impl->_socket   = *static_cast<int*>(so);
+    this->_impl->_domain   = domain;
+    this->_impl->_type     = type;
+    this->_impl->_protocol = protocol;
 }
 
 socket::~socket()

@@ -16,6 +16,7 @@ namespace chen
         {
         public:
             socket();
+            explicit socket(void *so);
 
         public:
             /**

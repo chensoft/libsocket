@@ -20,7 +20,17 @@ namespace chen
             enum class Shutdown {Read, Write, Both};
 
         public:
+            /**
+             * Construct using domain, type and protocol
+             */
             socket(int domain, int type, int protocol);
+
+            /**
+             * Construct with a new socket
+             * @param so socket after accept, int on Unix, SOCKET on Windows
+             */
+            explicit socket(void *so, int domain, int type, int protocol);
+
             virtual ~socket() = 0;
 
         public:
