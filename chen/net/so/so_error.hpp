@@ -44,6 +44,26 @@ namespace chen
 
 
         /**
+         * Socket listen error
+         */
+        class error_listen : public error
+        {
+        public:
+            explicit error_listen(const std::string &what) : error(what) {}
+        };
+
+
+        /**
+         * Socket accept error
+         */
+        class error_accept : public error
+        {
+        public:
+            explicit error_accept(const std::string &what) : error(what) {}
+        };
+
+
+        /**
          * Socket send error
          */
         class error_send : public error

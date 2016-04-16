@@ -15,9 +15,9 @@ using namespace chen::tcp;
 
 // -----------------------------------------------------------------------------
 // conn
-conn::conn(int val)
+conn::conn(void *val)
 {
-    this->_impl->_socket = val;
+    this->_impl->_socket = *static_cast<int*>(val);
 }
 
 #endif

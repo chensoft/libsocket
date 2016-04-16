@@ -10,9 +10,11 @@
 #include <chen/net/tcp/tcp_server.hpp>
 #include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <arpa/inet.h>
 #include <cstring>
 #include <cerrno>
+#include <fcntl.h>
 
 using namespace chen;
 using namespace chen::so;
@@ -41,19 +43,52 @@ void server::bind(const std::string &addr, std::uint16_t port)
 void server::listen()
 {
     if (::listen(this->_impl->_socket, SOMAXCONN) == -1)
-        throw error_bind(std::strerror(errno));
+        throw error_listen(std::strerror(errno));
 }
 
-std::unique_ptr<chen::tcp::conn> server::accept()
+std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
 {
-    struct sockaddr_in in;
-    socklen_t len = sizeof(in);
+    struct timeval tv;
+    tv.tv_sec  = static_cast<int>(timeout);
+    tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
-    auto so = ::accept(this->_impl->_socket, (struct sockaddr*)&in, &len);
-    if (so == -1)
-        throw error_bind(std::strerror(errno));
+    fd_set set;
 
-    return std::unique_ptr<chen::tcp::conn>(new chen::tcp::conn(so));
+    FD_ZERO(&set);
+    FD_SET(this->_impl->_socket, &set);
+
+    auto ret = ::select(this->_impl->_socket + 1, &set, nullptr, nullptr, timeout ? &tv : nullptr);
+
+    printf("chen: %d\n", errno);
+
+    if (ret > 0)
+    {
+        if (FD_ISSET(this->_impl->_socket, &set))
+        {
+            struct sockaddr_in in;
+            socklen_t len = sizeof(in);
+
+            auto so = ::accept(this->_impl->_socket, (struct sockaddr*)&in, &len);
+
+            if (so != -1)
+                return std::unique_ptr<chen::tcp::conn>(new chen::tcp::conn(&so));
+            else
+                throw error_accept(std::strerror(errno));
+        }
+        else
+        {
+            throw error_accept(std::strerror(errno));
+        }
+    }
+    else if (!ret || (errno == EBADF))
+    {
+        // timeout or shutdown or close
+        return nullptr;
+    }
+    else
+    {
+        throw error_accept(std::strerror(errno));
+    }
 }
 
 #endif

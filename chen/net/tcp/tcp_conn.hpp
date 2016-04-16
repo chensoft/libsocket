@@ -17,8 +17,9 @@ namespace chen
         public:
             /**
              * Construct with a new socket
+             * @param so socket after accept, int on Unix, SOCKET on Windows
              */
-            explicit conn(int val);
+            explicit conn(void *so);
 
             virtual ~conn();
         };

@@ -67,7 +67,7 @@ namespace chen
              * Accept new connection
              * use `start` method is more convenient
              */
-            virtual std::unique_ptr<chen::tcp::conn> accept();
+            virtual std::unique_ptr<chen::tcp::conn> accept(float timeout = 0);
 
         protected:
             callback_type _callback;
