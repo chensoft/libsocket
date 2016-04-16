@@ -26,7 +26,8 @@ socket::socket(int domain, int type, int protocol)
     this->_impl->_type     = type;
     this->_impl->_protocol = protocol;
 
-    this->build();
+    if (!this->_impl->_socket)
+        this->build();
 }
 
 socket::~socket()
