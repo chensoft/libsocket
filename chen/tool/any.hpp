@@ -7,6 +7,7 @@
 #pragma once
 
 #include <type_traits>
+#include <stdexcept>
 #include <utility>
 
 namespace chen
@@ -81,7 +82,36 @@ namespace chen
         operator T() const
         {
             auto d = dynamic_cast<data<T>*>(this->_ptr);
-            return d ? d->val : T();
+
+            if (d)
+                return d->val;
+            else
+                throw std::runtime_error("any bad cast");
+        }
+
+        /**
+         * Reference, avoid copy
+         */
+        template <typename T>
+        T& ref()
+        {
+            auto d = dynamic_cast<data<T>*>(this->_ptr);
+
+            if (d)
+                return d->val;
+            else
+                throw std::runtime_error("any bad cast");
+        }
+
+        template <typename T>
+        const T& cref() const
+        {
+            auto d = dynamic_cast<data<T>*>(this->_ptr);
+
+            if (d)
+                return d->val;
+            else
+                throw std::runtime_error("any bad cast");
         }
 
     public:
