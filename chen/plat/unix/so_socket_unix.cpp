@@ -44,6 +44,25 @@ socket::~socket()
         this->close();
 }
 
+socket::socket(socket &&o)
+: _impl(std::move(o._impl))
+{
+    o._impl.reset(new socket::impl);
+}
+
+so::socket& socket::operator=(socket &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->close();
+
+    this->_impl = std::move(o._impl);
+    o._impl.reset(new socket::impl);
+
+    return *this;
+}
+
 // close
 void socket::close()
 {

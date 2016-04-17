@@ -29,9 +29,15 @@ namespace chen
              * Construct with a new socket
              * @param so socket after accept, int on Unix, SOCKET on Windows
              */
-            explicit socket(void *so, int domain, int type, int protocol);
+            socket(void *so, int domain, int type, int protocol);
 
             virtual ~socket() = 0;
+
+            /**
+             * Move
+             */
+            socket(socket &&o);
+            socket& operator=(socket &&o);
 
         public:
             /**
@@ -64,6 +70,9 @@ namespace chen
             void build();
 
         private:
+            /**
+             * Disable copy
+             */
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;
 
