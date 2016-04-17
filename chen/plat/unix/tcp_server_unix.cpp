@@ -10,7 +10,7 @@
 #include <chen/net/tcp/tcp_server.hpp>
 #include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
-#include <sys/select.h>
+#include <sys/poll.h>
 #include <arpa/inet.h>
 #include <cstring>
 #include <cerrno>
@@ -47,18 +47,14 @@ void server::listen()
 
 std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
 {
-    struct timeval tv;
-    tv.tv_sec  = static_cast<int>(timeout);
-    tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
+    struct pollfd poll;
 
-    fd_set set;
+    poll.fd     = this->_impl->_socket;
+    poll.events = POLLIN;
 
-    FD_ZERO(&set);
-    FD_SET(this->_impl->_socket, &set);
+    auto ret = ::poll(&poll, 1, timeout ? static_cast<int>(timeout * 1000) : -1);
 
-    auto ret = ::select(this->_impl->_socket + 1, &set, nullptr, nullptr, timeout ? &tv : nullptr);
-
-    if (ret == 1)
+    if ((ret == 1) && (poll.revents & POLLIN))
     {
         struct sockaddr_in in;
         socklen_t len = sizeof(in);
