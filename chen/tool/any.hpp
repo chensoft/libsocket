@@ -6,10 +6,10 @@
  */
 #pragma once
 
+#include <type_traits>
+
 namespace chen
 {
-    // todo prevent three copies when construct a any object
-    // e.g: chen::any x(object); object is copied many times
     class any final
     {
     public:
@@ -18,8 +18,20 @@ namespace chen
         any(any &&o);
 
         template <typename T>
-        any(T val)
-        : _ptr(new data<T>(val))
+        any(T &val)
+        : _ptr(new data<typename std::decay<T>::type>(val))
+        {
+        }
+
+        template <typename T>
+        any(const T &val)
+        : _ptr(new data<typename std::remove_cv<typename std::decay<const T>::type>::type>(val))
+        {
+        }
+
+        template <typename T>
+        any(T &&val)
+        : _ptr(new data<typename std::decay<T>::type>(std::move(val)))
         {
         }
 
@@ -37,10 +49,26 @@ namespace chen
          * e.g: Any a; a = 15;
          */
         template <typename T>
-        any& operator=(T val)
+        any& operator=(T &val)
         {
             this->clear();
-            this->_ptr = new data<T>(val);
+            this->_ptr = new data<typename std::decay<T>::type>(val);
+            return *this;
+        }
+
+        template <typename T>
+        any& operator=(const T &val)
+        {
+            this->clear();
+            this->_ptr = new data<typename std::remove_cv<typename std::decay<const T>::type>::type>(val);
+            return *this;
+        }
+
+        template <typename T>
+        any& operator=(T &&val)
+        {
+            this->clear();
+            this->_ptr = new data<typename std::decay<T>::type>(std::move(val));
             return *this;
         }
 
@@ -86,7 +114,11 @@ namespace chen
         template <typename T>
         struct data : base
         {
-            data(T v) : val(v)
+            data(const T &v) : val(v)
+            {
+            }
+
+            data(T &&v) : val(std::move(v))
             {
             }
 
