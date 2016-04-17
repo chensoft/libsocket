@@ -10,6 +10,7 @@
 #include <chen/net/tcp/tcp_client.hpp>
 #include <chen/net/so/so_error.hpp>
 #include <sys/socket.h>
+#include <sys/poll.h>
 #include <sys/time.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -34,60 +35,39 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     in.sin_addr.s_addr = ::inet_addr(addr.c_str());
     in.sin_port        = htons(port);
 
-    if (timeout)
+    // make non-blocking first
+    auto flag = ::fcntl(this->_impl->_socket, F_GETFL);
+    ::fcntl(this->_impl->_socket, F_SETFL, flag | O_NONBLOCK);
+
+    ::connect(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in));
+
+    if (errno != EINPROGRESS)
     {
-        // make non-blocking first
-        auto flag = ::fcntl(this->_impl->_socket, F_GETFL);
-        ::fcntl(this->_impl->_socket, F_SETFL, flag | O_NONBLOCK);
-
-        ::connect(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in));
-
-        if (errno != EINPROGRESS)
-        {
-            ::fcntl(this->_impl->_socket, F_SETFL, flag);
-            throw error_connect(std::strerror(errno));
-        }
-
-        struct timeval tv;
-        tv.tv_sec  = static_cast<int>(timeout);
-        tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
-
-        fd_set set;
-
-        FD_ZERO(&set);
-        FD_SET(this->_impl->_socket, &set);
-
-        auto ret = ::select(this->_impl->_socket + 1, nullptr, &set, nullptr, &tv);
-
         ::fcntl(this->_impl->_socket, F_SETFL, flag);
+        throw error_connect(std::strerror(errno));
+    }
 
-        if ((ret == 1) && !errno)
-        {
-            this->_connected = true;
-        }
-        else if (!ret || (errno == EBADF) || (errno == EINPROGRESS))
-        {
-            // timeout or shutdown or close or cancelled when connect
-            this->_connected = false;
-        }
-        else
-        {
-            throw error_accept(std::strerror(errno));
-        }
+    struct pollfd poll;
+
+    poll.fd     = this->_impl->_socket;
+    poll.events = POLLOUT;
+
+    auto ret = ::poll(&poll, 1, timeout ? static_cast<int>(timeout * 1000) : -1);
+
+    ::fcntl(this->_impl->_socket, F_SETFL, flag);
+
+    if ((ret == 1) && (poll.revents & POLLOUT))
+    {
+        this->_connected = true;
+    }
+    else if (!ret || (errno == EBADF) || (errno == EINPROGRESS))
+    {
+        // timeout or shutdown or close or cancelled when connect
+        this->_connected = false;
     }
     else
     {
-        if (::connect(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
-        {
-            if ((errno == ECONNABORTED) || (errno == ETIMEDOUT))
-                this->_connected = false;
-            else
-                throw error_connect(std::strerror(errno));
-        }
-        else
-        {
-            this->_connected = true;
-        }
+        throw error_connect(std::strerror(errno));
     }
 
     this->_recent_addr = addr;
