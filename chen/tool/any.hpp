@@ -104,6 +104,12 @@ namespace chen
         }
 
         template <typename T>
+        const T& ref() const
+        {
+            return this->cref<T>();
+        }
+
+        template <typename T>
         const T& cref() const
         {
             auto d = dynamic_cast<data<T>*>(this->_ptr);
