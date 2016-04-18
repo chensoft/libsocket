@@ -209,7 +209,7 @@ namespace chen
          */
         static void visit(const std::string &directory,
                           bool recursive,
-                          std::function<void (const std::string &path)> callback);
+                          std::function<bool (const std::string &path)> callback);
 
         static std::vector<std::string> visit(const std::string &directory, bool recursive);
 

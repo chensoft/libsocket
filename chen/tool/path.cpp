@@ -472,7 +472,7 @@ bool path::change(const std::string &directory)
 // visit
 void path::visit(const std::string &directory,
                  bool recursive,
-                 std::function<void (const std::string &path)> callback)
+                 std::function<bool (const std::string &path)> callback)
 {
     DIR    *dir = ::opendir(directory.c_str());
     dirent *cur = nullptr;
@@ -491,7 +491,8 @@ void path::visit(const std::string &directory,
 
         std::string full(*directory.end() == sep ? directory + name : directory + sep + name);
 
-        callback(full);
+        if (!callback(full))
+            break;
 
         if (recursive && path::isDir(full))
             path::visit(full, recursive, callback);
@@ -504,8 +505,9 @@ std::vector<std::string> path::visit(const std::string &directory, bool recursiv
 {
     std::vector<std::string> store;
 
-    path::visit(directory, recursive, [&store] (const std::string &path) {
+    path::visit(directory, recursive, [&store] (const std::string &path) -> bool {
         store.push_back(path);
+        return true;
     });
 
     return store;
@@ -522,13 +524,15 @@ std::size_t path::count(const std::string &directory,
 
     std::size_t num = 0;
 
-    path::visit(directory, recursive, [&] (const std::string &path) {
+    path::visit(directory, recursive, [&] (const std::string &path) -> bool {
         if ((contain_file && contain_dir) ||
             (contain_file && path::isFile(path)) ||
             (contain_dir && path::isDir(path)))
         {
             ++num;
         }
+
+        return true;
     });
 
     return num;
