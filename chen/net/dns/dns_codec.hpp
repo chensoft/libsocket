@@ -121,7 +121,7 @@ namespace chen
             {
                 auto need = value.size();
                 if (this->remain() < need)
-                    throw error_size(str::format("codec unpack array size is not enough, require %d bytes", need));
+                    throw error_size(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
 
                 std::copy(this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need, value.begin());
                 this->_cursor += need;

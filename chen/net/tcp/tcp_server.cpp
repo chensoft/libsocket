@@ -16,7 +16,7 @@ void server::start()
 {
     // check if bind
     if (!this->localPort())
-        throw so::error_bind("tcp socket not bind");
+        throw so::error_bind("tcp: socket not bind");
 
     // listen
     this->listen();

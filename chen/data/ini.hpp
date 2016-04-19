@@ -138,9 +138,9 @@ void chen::ini::exception(InputIterator &cur, InputIterator &end)
 {
     // todo report line and column
     if (cur == end)
-        throw error("ini unexpected end of input");
+        throw error("ini: unexpected end of input");
     else
-        throw error(str::format("ini unexpected token '%c'", *cur));
+        throw error(str::format("ini: unexpected token '%c'", *cur));
 }
 
 // decode
@@ -219,7 +219,7 @@ chen::ini::property_type chen::ini::decodeProperty(InputIterator &cur, InputIter
         if (property.find(key) == property.end())
             property.emplace(key, val);
         else
-            throw error("ini duplicate key found: " + key);
+            throw error("ini: duplicate key found: " + key);
 
         // skip
         if ((cur != end) && (*cur == '\n'))
@@ -339,7 +339,7 @@ std::string chen::ini::decodeString(InputIterator &cur, InputIterator &end)
                 catch (...)
                 {
                     // e.g: \xD83D\xDE00, it's a emoji character
-                    throw error(str::format("ini invalid unicode char \\x%s", unicode));
+                    throw error(str::format("ini: invalid unicode char \\x%s", unicode));
                 }
             }
                 break;

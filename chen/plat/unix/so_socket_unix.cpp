@@ -161,7 +161,7 @@ void socket::build()
     auto sock = ::socket(this->_impl->_domain, this->_impl->_type, this->_impl->_protocol);
 
     if (sock == -1)
-        throw error_build(std::strerror(errno));
+        throw error_build(std::string("so: ") + std::strerror(errno));
     else
         this->_impl->_socket = sock;
 }

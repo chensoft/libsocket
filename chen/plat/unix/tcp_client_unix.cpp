@@ -44,7 +44,7 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     if (errno != EINPROGRESS)
     {
         ::fcntl(this->_impl->_socket, F_SETFL, flag);
-        throw error_connect(std::strerror(errno));
+        throw error_connect(std::string("tcp: ") + std::strerror(errno));
     }
 
     struct pollfd poll;
@@ -67,7 +67,7 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     }
     else
     {
-        throw error_connect(std::strerror(errno));
+        throw error_connect(std::string("tcp: ") + std::strerror(errno));
     }
 
     this->_recent_addr = addr;

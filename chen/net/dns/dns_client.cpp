@@ -30,7 +30,7 @@ chen::dns::response client::query(const std::string &qname,
 {
     // check nameserver
     if (this->_ns_addr.empty() || !this->_ns_port)
-        throw error_nameserver("client query nameserver ip or port is empty");
+        throw error_nameserver("dns: client query nameserver ip or port is empty");
 
     // build request
     request q;

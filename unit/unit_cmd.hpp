@@ -130,7 +130,7 @@ namespace chen
 //                flag.parse(3, argv);
 //
 //                if (flag.get<std::string>("string") != "test")
-//                    throw std::runtime_error("test -option argument failed");
+//                    throw std::runtime_error("test: -option argument failed");
 //            }
 //            catch (const std::exception &e)
 //            {
@@ -148,7 +148,7 @@ namespace chen
 //                flag.parse(2, argv);
 //
 //                if (flag.get<std::string>("string") != "test")
-//                    throw std::runtime_error("test -option=argument failed");
+//                    throw std::runtime_error("test: -option=argument failed");
 //            }
 //            catch (const std::exception &e)
 //            {
@@ -174,7 +174,7 @@ namespace chen
 //                flag.parse(3, argv);
 //
 //                if (flag.get<std::string>("string") != "test")
-//                    throw std::runtime_error("test --option argument failed");
+//                    throw std::runtime_error("test: --option argument failed");
 //            }
 //            catch (const std::exception &e)
 //            {
@@ -192,7 +192,7 @@ namespace chen
 //                flag.parse(2, argv);
 //
 //                if (flag.get<std::string>("string") != "test")
-//                    throw std::runtime_error("test --option=argument failed");
+//                    throw std::runtime_error("test: --option=argument failed");
 //            }
 //            catch (const std::exception &e)
 //            {

@@ -295,7 +295,7 @@ chen::json json::parse(const std::string &text, bool file)
         }
         catch (const std::ios_base::failure &e)
         {
-            throw error_general(errno ? ::strerror(errno) : "json decode error");
+            throw error_general(str::format("json: decode %s: %s", text.c_str(), errno ? ::strerror(errno) : "unknown error"));
         }
     }
     else
@@ -370,7 +370,7 @@ const chen::json::object& json::getObject() const
     if (this->_type == JsonType::Object)
         return *this->_data.o;
     else
-        throw error_general("json type is not object");
+        throw error_general("json: type is not object");
 }
 
 const chen::json::array& json::getArray() const
@@ -378,7 +378,7 @@ const chen::json::array& json::getArray() const
     if (this->_type == JsonType::Array)
         return *this->_data.a;
     else
-        throw error_general("json type is not array");
+        throw error_general("json: type is not array");
 }
 
 double json::getNumber() const
@@ -386,7 +386,7 @@ double json::getNumber() const
     if (this->_type == JsonType::Number)
         return this->_data.d;
     else
-        throw error_general("json type is not number");
+        throw error_general("json: type is not number");
 }
 
 int json::getInteger() const
@@ -394,7 +394,7 @@ int json::getInteger() const
     if (this->_type == JsonType::Number)
         return static_cast<int>(this->_data.d);
     else
-        throw error_general("json type is not number");
+        throw error_general("json: type is not number");
 }
 
 const std::string& json::getString() const
@@ -402,7 +402,7 @@ const std::string& json::getString() const
     if (this->_type == JsonType::String)
         return *this->_data.s;
     else
-        throw error_general("json type is not string");
+        throw error_general("json: type is not string");
 }
 
 bool json::getBool() const
@@ -410,7 +410,7 @@ bool json::getBool() const
     if ((this->_type == JsonType::True) || (this->_type == JsonType::False))
         return this->_data.b;
     else
-        throw error_general("json type is not bool");
+        throw error_general("json: type is not bool");
 }
 
 // convert value

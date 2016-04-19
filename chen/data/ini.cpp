@@ -26,7 +26,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
         }
         catch (const std::ios_base::failure &e)
         {
-            throw error(errno ? ::strerror(errno) : "ini decode error");
+            throw error(str::format("ini: decode %s: %s", text.c_str(), errno ? ::strerror(errno) : "unknown error"));
         }
     }
     else

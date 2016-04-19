@@ -35,14 +35,14 @@ socket::socket(void *so)
 void chen::udp::socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)
 {
     if (!this->_impl->_socket)
-        throw so::error("udp socket invalid");
+        throw so::error("udp: socket invalid");
 
     struct timeval tv;
     tv.tv_sec  = static_cast<int>(timeout);
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) == -1)
-        throw so::error_send(std::strerror(errno));
+        throw so::error_send(std::string("udp: ") + std::strerror(errno));
 
     struct sockaddr_in in;
 
@@ -56,22 +56,22 @@ void chen::udp::socket::send(const void *data, std::size_t size, const std::stri
 
     // timeout is also an error when send, because the data sent failure
     if (ret == -1)
-        throw so::error_send(std::strerror(errno));
+        throw so::error_send(std::string("udp: ") + std::strerror(errno));
     else if (ret != size)
-        throw so::error_send("udp send packet length error");
+        throw so::error_send("udp: send packet length error");
 }
 
 std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &addr, std::uint16_t &port, float timeout)
 {
     if (!this->_impl->_socket)
-        throw so::error("udp socket invalid");
+        throw so::error("udp: socket invalid");
 
     struct timeval tv;
     tv.tv_sec  = static_cast<int>(timeout);
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) == -1)
-        throw so::error_recv(std::strerror(errno));
+        throw so::error_recv(std::string("udp: ") + std::strerror(errno));
 
     struct sockaddr_in in;
     socklen_t len = sizeof(in);
@@ -91,7 +91,7 @@ std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &a
         }
         else
         {
-            throw so::error_recv(std::strerror(errno));
+            throw so::error_recv(std::string("udp: ") + std::strerror(errno));
         }
     }
     else

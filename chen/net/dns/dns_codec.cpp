@@ -118,14 +118,14 @@ void encoder::pack(const std::string &value, bool domain)
 
         // check fqdn
         if (codec::isFqdn(value))
-            throw error_fqdn("codec pack domain is not fqdn");
+            throw error_fqdn("dns: codec pack domain is not fqdn");
 
         // check total length
         // caution: this limit isn't name's length, it's the bytes after encoded
         // example: www.chensoft.com. will encoded as [3, w, w, w, 8, c, h, e, n, s, o, f, t, 3, c, o, m, 0]
         // the encoded bytes can't exceed than SIZE_LIMIT_DOMAIN
         if (value.size() + 1 > SIZE_LIMIT_DOMAIN)
-            throw error_size(str::format("codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
+            throw error_size(str::format("dns: codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
 
         // generate binary
         std::size_t origin = this->_binary.size();
@@ -151,7 +151,7 @@ void encoder::pack(const std::string &value, bool domain)
                     ++length;
 
                     if (length > SIZE_LIMIT_LABEL)
-                        throw error_size(str::format("codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+                        throw error_size(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
                     this->_binary.push_back(static_cast<std::uint8_t>(c));
                 }
@@ -169,7 +169,7 @@ void encoder::pack(const std::string &value, bool domain)
         // value is plain text
         // one byte length + characters
         if (value.size() > SIZE_LIMIT_STRING)
-            throw error_size(str::format("codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
+            throw error_size(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
         this->_binary.push_back(static_cast<std::uint8_t>(value.size()));
         this->_binary.insert(this->_binary.end(), value.begin(), value.end());
@@ -179,7 +179,7 @@ void encoder::pack(const std::string &value, bool domain)
 void encoder::pack(const std::vector<std::uint8_t> &value, std::size_t need)
 {
     if (value.size() < need)
-        throw error_size(str::format("codec pack vector size is not enough, require %d bytes", need));
+        throw error_size(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
 
     this->_binary.insert(this->_binary.end(), value.begin(), value.begin() + need);
 }
@@ -203,7 +203,7 @@ void encoder::pack(const chen::dns::RR &rr)
         // rdlength
         temp = this->_binary.size() - temp;
         if (temp > std::numeric_limits<std::uint16_t>::max())
-            throw error_size("codec pack rdata size is overflow");
+            throw error_size("dns: codec pack rdata size is overflow");
 
         std::uint16_t rdlength = static_cast<std::uint16_t>(temp);
 
@@ -370,7 +370,7 @@ void decoder::unpack(std::int64_t &value)
 void decoder::unpack(std::uint8_t &value)
 {
     if (this->remain() < 1)
-        throw error_size("codec unpack size is not enough, require 1 bytes");
+        throw error_size("dns: codec unpack size is not enough, require 1 bytes");
 
     value = this->_binary[this->_cursor];
 
@@ -380,7 +380,7 @@ void decoder::unpack(std::uint8_t &value)
 void decoder::unpack(std::uint16_t &value)
 {
     if (this->remain() < 2)
-        throw error_size("codec unpack size is not enough, require 2 bytes");
+        throw error_size("dns: codec unpack size is not enough, require 2 bytes");
 
     auto ptr = reinterpret_cast<std::uint16_t*>(&this->_binary[this->_cursor]);
     value    = num::swap(*ptr);
@@ -391,7 +391,7 @@ void decoder::unpack(std::uint16_t &value)
 void decoder::unpack(std::uint32_t &value)
 {
     if (this->remain() < 4)
-        throw error_size("codec unpack size is not enough, require 4 bytes");
+        throw error_size("dns: codec unpack size is not enough, require 4 bytes");
 
     auto ptr = reinterpret_cast<std::uint32_t*>(&this->_binary[this->_cursor]);
     value    = num::swap(*ptr);
@@ -402,7 +402,7 @@ void decoder::unpack(std::uint32_t &value)
 void decoder::unpack(std::uint64_t &value)
 {
     if (this->remain() < 8)
-        throw error_size("codec unpack size is not enough, require 8 bytes");
+        throw error_size("dns: codec unpack size is not enough, require 8 bytes");
 
     auto ptr = reinterpret_cast<std::uint64_t*>(&this->_binary[this->_cursor]);
     value    = num::swap(*ptr);
@@ -429,7 +429,7 @@ void decoder::unpack(chen::dns::RRClass &value)
 void decoder::unpack(std::string &value, bool domain)
 {
     if (this->remain() < 1)
-        throw error_size("codec unpack size is zero");
+        throw error_size("dns: codec unpack size is zero");
 
     std::size_t total = 0;
 
@@ -451,11 +451,11 @@ void decoder::unpack(std::string &value, bool domain)
                 length = static_cast<std::size_t>(data[0]) + 1;
 
                 if (size < length)
-                    throw error_size(str::format("codec unpack domain size is not enough, require %d bytes", length));
+                    throw error_size(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
 
                 // check limit
                 if (length > SIZE_LIMIT_LABEL)
-                    throw error_size(str::format("codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+                    throw error_size(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
                 for (std::size_t i = 1; i < length; ++i)
                 {
@@ -483,7 +483,7 @@ void decoder::unpack(std::string &value, bool domain)
         total = static_cast<std::size_t>(this->_binary[this->_cursor]) + 1;
 
         if (this->remain() < total)
-            throw error_size(str::format("codec unpack string size is not enough, require %d bytes", total));
+            throw error_size(str::format("dns: codec unpack string size is not enough, require %d bytes", total));
 
         value.insert(value.size(), reinterpret_cast<const char*>(this->_binary[this->_cursor + 1]), total - 1);
     }
@@ -494,7 +494,7 @@ void decoder::unpack(std::string &value, bool domain)
 void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need)
 {
     if (this->remain() < need)
-        throw error_size(str::format("codec unpack vector size is not enough, require %d bytes", need));
+        throw error_size(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
     value.insert(value.end(), this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need);
     this->_cursor += need;

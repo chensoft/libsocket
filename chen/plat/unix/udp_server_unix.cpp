@@ -35,7 +35,7 @@ void server::bind(const std::string &addr, std::uint16_t port)
     in.sin_port        = htons(port);
 
     if (::bind(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
-        throw error_bind(std::strerror(errno));
+        throw error_bind(std::string("udp: ") + std::strerror(errno));
 }
 
 #endif

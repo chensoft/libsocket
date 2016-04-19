@@ -52,24 +52,24 @@ void cmd::define(const std::string &option,
 {
     // full name can't be null
     if (option.empty())
-        throw chen::cmd::error_general("cmd full name can't be null");
+        throw chen::cmd::error_general("cmd: full name can't be null");
 
     // full name must greater than 1
     if (option.size() == 1)
-        throw chen::cmd::error_general("cmd full name size must greater than 1");
+        throw chen::cmd::error_general("cmd: full name size must greater than 1");
 
     // short name must be empty or 1 character
     if (tiny.size() > 1)
-        throw chen::cmd::error_general("cmd tiny name must be a character");
+        throw chen::cmd::error_general("cmd: tiny name must be a character");
 
     // don't allow duplicate option
     auto &options = this->_cursor->options;
     auto &alias   = this->_cursor->alias;
 
     if (options.find(option) != options.end())
-        throw chen::cmd::error_general("cmd option full name already exist");
+        throw chen::cmd::error_general("cmd: option full name already exist");
     else if (!tiny.empty() && (alias.find(tiny) != alias.end()))
-        throw chen::cmd::error_general("cmd option tiny name already exist");
+        throw chen::cmd::error_general("cmd: option tiny name already exist");
 
     // add this option
     chen::cmd::option opt;
@@ -92,7 +92,7 @@ void cmd::change(const std::string &action)
     if (it != this->_define.end())
         this->_cursor = &it->second;
     else
-        throw chen::cmd::error_general("cmd action not found: " + action);
+        throw chen::cmd::error_general("cmd: action not found: " + action);
 }
 
 // exist
@@ -160,7 +160,7 @@ void cmd::parse(int argc, const char *const argv[])
         }
         else
         {
-            throw chen::cmd::error_parse("cmd action not found", param, "");
+            throw chen::cmd::error_parse("cmd: action not found", param, "");
         }
     }
 
@@ -250,7 +250,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != options.end())
                         opt = &it->second;
                     else
-                        throw chen::cmd::error_parse("cmd option not found: " + key, action->name, store);
+                        throw chen::cmd::error_parse("cmd: option not found: " + key, action->name, store);
                 }
                 else
                 {
@@ -259,7 +259,7 @@ void cmd::parse(int argc, const char *const argv[])
                     if (it != alias.end())
                         opt = &options[it->second];
                     else
-                        throw chen::cmd::error_parse("cmd option not found: " + key, action->name, store);
+                        throw chen::cmd::error_parse("cmd: option not found: " + key, action->name, store);
                 }
 
                 opt->set = true;
@@ -271,7 +271,7 @@ void cmd::parse(int argc, const char *const argv[])
             }
             else
             {
-                throw chen::cmd::error_parse("cmd option is empty", action->name, store);
+                throw chen::cmd::error_parse("cmd: option is empty", action->name, store);
             }
 
             // clear key & val
@@ -309,7 +309,7 @@ std::string cmd::current() const
     if (this->_action)
         return this->_action->name;
     else
-        throw chen::cmd::error_general("cmd current action not found");
+        throw chen::cmd::error_general("cmd: current action not found");
 }
 
 // option value
@@ -555,7 +555,7 @@ void cmd::visit(const std::string &action,
 {
     auto find = this->_define.find(action);
     if (find == this->_define.end())
-        throw chen::cmd::error_general("cmd action not found: " + action);
+        throw chen::cmd::error_general("cmd: action not found: " + action);
 
     // sort the keys
     auto &act = find->second;
@@ -599,10 +599,10 @@ const chen::cmd::option& cmd::opt(const std::string &name) const
         if (it != options.end())
             return it->second;
         else
-            throw chen::cmd::error_general("cmd option not found: " + name);
+            throw chen::cmd::error_general("cmd: option not found: " + name);
     }
     else
     {
-        throw chen::cmd::error_general("cmd current action not found");
+        throw chen::cmd::error_general("cmd: current action not found");
     }
 }

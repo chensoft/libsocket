@@ -36,35 +36,35 @@ socket::socket(void *so)
 void chen::tcp::socket::send(const void *data, std::size_t size, float timeout)
 {
     if (!this->_impl->_socket)
-        throw so::error("tcp socket invalid");
+        throw so::error("tcp: socket invalid");
 
     struct timeval tv;
     tv.tv_sec  = static_cast<int>(timeout);
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) == -1)
-        throw so::error_send(std::strerror(errno));
+        throw so::error_send(std::string("tcp: ") + std::strerror(errno));
 
     auto ret = ::send(this->_impl->_socket, data, size, 0);
 
     // timeout is also an error when send, because the data sent failure
     if (ret == -1)
-        throw so::error_send(std::strerror(errno));
+        throw so::error_send(std::string("tcp: ") + std::strerror(errno));
     else if (ret != size)
-        throw so::error_send("tcp send packet length error");
+        throw so::error_send("tcp: send packet length error");
 }
 
 std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
 {
     if (!this->_impl->_socket)
-        throw so::error("tcp socket invalid");
+        throw so::error("tcp: socket invalid");
 
     struct timeval tv;
     tv.tv_sec  = static_cast<int>(timeout);
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) == -1)
-        throw so::error_recv(std::strerror(errno));
+        throw so::error_recv(std::string("tcp: ") + std::strerror(errno));
 
     auto ret = ::recv(this->_impl->_socket, data, size, 0);
 
@@ -79,7 +79,7 @@ std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
         }
         else
         {
-            throw so::error_recv(std::strerror(errno));
+            throw so::error_recv(std::string("tcp: ") + std::strerror(errno));
         }
     }
     else

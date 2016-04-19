@@ -84,11 +84,11 @@ void request::setQuery(const std::string &qname,
 {
     // check empty
     if (qname.empty())
-        throw error_size("request query name is empty");
+        throw error_size("dns: request query name is empty");
 
     // check fqdn
     if (!codec::isFqdn(qname))
-        throw error_fqdn("request query name is not fqdn");
+        throw error_fqdn("dns: request query name is not fqdn");
 
     // set opcode
     this->_header.setOpcode(chen::dns::OPCODE::Query);

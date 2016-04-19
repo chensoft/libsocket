@@ -36,13 +36,13 @@ void server::bind(const std::string &addr, std::uint16_t port)
     in.sin_port        = htons(port);
 
     if (::bind(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
-        throw error_bind(std::strerror(errno));
+        throw error_bind(std::string("tcp: ") + std::strerror(errno));
 }
 
 void server::listen()
 {
     if (::listen(this->_impl->_socket, SOMAXCONN) == -1)
-        throw error_listen(std::strerror(errno));
+        throw error_listen(std::string("tcp: ") + std::strerror(errno));
 }
 
 std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
@@ -64,7 +64,7 @@ std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
         if (so != -1)
             return std::unique_ptr<chen::tcp::conn>(new chen::tcp::conn(&so));
         else
-            throw error_accept(std::strerror(errno));
+            throw error_accept(std::string("tcp: ") + std::strerror(errno));
     }
     else if (!ret || (errno == EBADF))
     {
@@ -73,7 +73,7 @@ std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
     }
     else
     {
-        throw error_accept(std::strerror(errno));
+        throw error_accept(std::string("tcp: ") + std::strerror(errno));
     }
 }
 

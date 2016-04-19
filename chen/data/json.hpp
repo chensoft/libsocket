@@ -279,9 +279,9 @@ template <class InputIterator>
 void chen::json::exception(InputIterator &cur, InputIterator &end)
 {
     if (cur == end)
-        throw error_syntax("json unexpected end of input");
+        throw error_syntax("json: unexpected end of input");
     else
-        throw error_syntax(str::format("json unexpected token '%c'", *cur));
+        throw error_syntax(str::format("json: unexpected token '%c'", *cur));
 }
 
 // filter
@@ -626,9 +626,9 @@ void chen::json::decode(double &out, InputIterator &cur, InputIterator &end)
     double d = std::atof(str.c_str());
 
     if (std::isinf(d))
-        throw error_syntax("json number is overflow: " + str);
+        throw error_syntax("json: number is overflow: " + str);
     else if (std::isnan(d))
-        throw error_syntax("json number is incorrect: " + str);
+        throw error_syntax("json: number is incorrect: " + str);
 
     out = d;
 }
@@ -647,7 +647,7 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end
     {
         // control characters must use escape
         if ((ch >= 0) && (ch <= 31))  // see ASCII
-            throw error_syntax("json control character is not escaped");
+            throw error_syntax("json: control character is not escaped");
 
         // unescape characters
         if (ch == '\\')
@@ -719,7 +719,7 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end
                     catch (...)
                     {
                         // e.g: \uD83D\uDE00, it's a emoji character
-                        throw error_syntax(str::format("json invalid unicode char \\u%s", unicode));
+                        throw error_syntax(str::format("json: invalid unicode char \\u%s", unicode));
                     }
                 }
                     break;

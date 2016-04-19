@@ -86,7 +86,7 @@ namespace chen
             if (d)
                 return d->val;
             else
-                throw std::runtime_error("any bad cast");
+                throw std::runtime_error("any: bad cast");
         }
 
         /**
@@ -101,7 +101,7 @@ namespace chen
             if (d)
                 return d->val;
             else
-                throw std::runtime_error("any bad cast");
+                throw std::runtime_error("any: bad cast");
         }
 
         template <typename T>
@@ -118,7 +118,7 @@ namespace chen
             if (d)
                 return d->val;
             else
-                throw std::runtime_error("any bad cast");
+                throw std::runtime_error("any: bad cast");
         }
 
     public:

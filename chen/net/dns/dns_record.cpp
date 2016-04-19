@@ -28,7 +28,7 @@ std::size_t RR::remain(chen::dns::decoder &decoder, std::size_t origin) const
 {
     std::size_t used = decoder.cursor() - origin;
     if (this->rdlength < used)
-        throw error_size("codec rdata is overflow");
+        throw error_size("dns: codec rdata is overflow");
 
     return this->rdlength - used;
 }
