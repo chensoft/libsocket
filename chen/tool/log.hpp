@@ -37,7 +37,7 @@ namespace chen
         void trace(const char *format, Args ... args)
         {
             if (this->_level <= Level::Trace)
-                this->output("[T] " + chen::str::format(format, args...));
+                this->output(chen::str::format(format, args...), Level::Trace);
         }
 
         /**
@@ -48,7 +48,7 @@ namespace chen
         void debug(const char *format, Args ... args)
         {
             if (this->_level <= Level::Debug)
-                this->output("[D] " + chen::str::format(format, args...));
+                this->output(chen::str::format(format, args...), Level::Debug);
         }
 
         /**
@@ -59,7 +59,7 @@ namespace chen
         void info(const char *format, Args ... args)
         {
             if (this->_level <= Level::Info)
-                this->output("[I] " + chen::str::format(format, args...));
+                this->output(chen::str::format(format, args...), Level::Info);
         }
 
         /**
@@ -70,7 +70,7 @@ namespace chen
         void warn(const char *format, Args ... args)
         {
             if (this->_level <= Level::Warn)
-                this->output("[W] " + chen::str::format(format, args...));
+                this->output(chen::str::format(format, args...), Level::Warn);
         }
 
         /**
@@ -81,7 +81,7 @@ namespace chen
         void error(const char *format, Args ... args)
         {
             if (this->_level <= Level::Error)
-                this->output("[E] " + chen::str::format(format, args...));
+                this->output(chen::str::format(format, args...), Level::Error);
         }
 
         /**
@@ -93,7 +93,7 @@ namespace chen
         {
             if (this->_level <= Level::Fatal)
             {
-                this->output("[F] " + chen::str::format(format, args...));
+                this->output(chen::str::format(format, args...), Level::Fatal);
                 std::exit(EXIT_FAILURE);
             }
         }
@@ -114,19 +114,19 @@ namespace chen
         /**
          * Final output
          */
-        virtual void output(const std::string &text);
+        virtual void output(const std::string &text, chen::log::Level level);
 
     public:
         /**
          * Redirect output
          */
-        virtual void redirect(std::function<void (const std::string &text)> callback);
+        virtual void redirect(std::function<void (const std::string &text, chen::log::Level level)> callback);
 
     protected:
         static std::mutex _mutex;
 
         Level _level = Level::Trace;
-        std::function<void (const std::string &text)> _redirect;
+        std::function<void (const std::string &text, chen::log::Level level)> _redirect;
     };
 }
 
