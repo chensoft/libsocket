@@ -91,6 +91,7 @@ namespace chen
 
         /**
          * Reference, avoid copy
+         * if you store string literal, use 'const char*' for T
          */
         template <typename T>
         T& ref()
