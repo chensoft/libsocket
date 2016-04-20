@@ -15,6 +15,6 @@ namespace chen
     {
         // ---------------------------------------------------------------------
         // Size limit
-        static const std::size_t SIZE_LIMIT_PACKET = 65507;  // 65535 − 8 byte UDP header − 20 byte IP header = 65507
+        constexpr std::size_t SIZE_LIMIT_PACKET = 65507;  // 65535 − 8 byte UDP header − 20 byte IP header = 65507
     }
 }

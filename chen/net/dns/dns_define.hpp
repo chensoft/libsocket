@@ -74,27 +74,27 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // Flag pos & mask
-        static const std::uint16_t FLAG_POS_QR     = 15;
-        static const std::uint16_t FLAG_POS_OPCODE = 11;
-        static const std::uint16_t FLAG_POS_AA     = 10;
-        static const std::uint16_t FLAG_POS_TC     = 9;
-        static const std::uint16_t FLAG_POS_RD     = 8;
-        static const std::uint16_t FLAG_POS_RA     = 7;
-        static const std::uint16_t FLAG_POS_Z      = 6;
-        static const std::uint16_t FLAG_POS_AD     = 5;
-        static const std::uint16_t FLAG_POS_CD     = 4;
-        static const std::uint16_t FLAG_POS_RCODE  = 0;
+        constexpr std::uint16_t FLAG_POS_QR     = 15;
+        constexpr std::uint16_t FLAG_POS_OPCODE = 11;
+        constexpr std::uint16_t FLAG_POS_AA     = 10;
+        constexpr std::uint16_t FLAG_POS_TC     = 9;
+        constexpr std::uint16_t FLAG_POS_RD     = 8;
+        constexpr std::uint16_t FLAG_POS_RA     = 7;
+        constexpr std::uint16_t FLAG_POS_Z      = 6;
+        constexpr std::uint16_t FLAG_POS_AD     = 5;
+        constexpr std::uint16_t FLAG_POS_CD     = 4;
+        constexpr std::uint16_t FLAG_POS_RCODE  = 0;
 
-        static const std::uint16_t FLAG_MASK_QR     = 1 << FLAG_POS_QR;
-        static const std::uint16_t FLAG_MASK_OPCODE = 1 << FLAG_POS_OPCODE;
-        static const std::uint16_t FLAG_MASK_AA     = 1 << FLAG_POS_AA;
-        static const std::uint16_t FLAG_MASK_TC     = 1 << FLAG_POS_TC;
-        static const std::uint16_t FLAG_MASK_RD     = 1 << FLAG_POS_RD;
-        static const std::uint16_t FLAG_MASK_RA     = 1 << FLAG_POS_RA;
-        static const std::uint16_t FLAG_MASK_Z      = 1 << FLAG_POS_Z;
-        static const std::uint16_t FLAG_MASK_AD     = 1 << FLAG_POS_AD;
-        static const std::uint16_t FLAG_MASK_CD     = 1 << FLAG_POS_CD;
-        static const std::uint16_t FLAG_MASK_RCODE  = 1 << FLAG_POS_RCODE;
+        constexpr std::uint16_t FLAG_MASK_QR     = 1 << FLAG_POS_QR;
+        constexpr std::uint16_t FLAG_MASK_OPCODE = 1 << FLAG_POS_OPCODE;
+        constexpr std::uint16_t FLAG_MASK_AA     = 1 << FLAG_POS_AA;
+        constexpr std::uint16_t FLAG_MASK_TC     = 1 << FLAG_POS_TC;
+        constexpr std::uint16_t FLAG_MASK_RD     = 1 << FLAG_POS_RD;
+        constexpr std::uint16_t FLAG_MASK_RA     = 1 << FLAG_POS_RA;
+        constexpr std::uint16_t FLAG_MASK_Z      = 1 << FLAG_POS_Z;
+        constexpr std::uint16_t FLAG_MASK_AD     = 1 << FLAG_POS_AD;
+        constexpr std::uint16_t FLAG_MASK_CD     = 1 << FLAG_POS_CD;
+        constexpr std::uint16_t FLAG_MASK_RCODE  = 1 << FLAG_POS_RCODE;
 
 
         // ---------------------------------------------------------------------
@@ -204,8 +204,8 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // Size limit(rfc1035, section 2.3.4)
-        static const std::size_t SIZE_LIMIT_STRING = 255;  // plain text's size
-        static const std::size_t SIZE_LIMIT_DOMAIN = 255;  // domain's total size(fqdn)
-        static const std::size_t SIZE_LIMIT_LABEL  = 63;   // label's max size
+        constexpr std::size_t SIZE_LIMIT_STRING = 255;  // plain text's size
+        constexpr std::size_t SIZE_LIMIT_DOMAIN = 255;  // domain's total size(fqdn)
+        constexpr std::size_t SIZE_LIMIT_LABEL  = 63;   // label's max size
     }
 }
