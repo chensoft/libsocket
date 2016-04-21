@@ -45,9 +45,8 @@ socket::~socket()
 }
 
 socket::socket(socket &&o)
-: _impl(std::move(o._impl))
 {
-    o._impl.reset(new socket::impl);
+    *this = std::move(o);
 }
 
 so::socket& socket::operator=(socket &&o)
@@ -66,7 +65,7 @@ so::socket& socket::operator=(socket &&o)
 // close
 void socket::close()
 {
-    if (!this->_impl->_socket)
+    if (!this->_impl || !this->_impl->_socket)
         return;
 
     ::close(this->_impl->_socket);

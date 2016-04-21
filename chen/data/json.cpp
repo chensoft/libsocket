@@ -23,11 +23,8 @@ json::json(const json &o)
 }
 
 json::json(json &&o)
-: _type(o._type)
-, _data(o._data)
 {
-    o._type = JsonType::None;
-    o._data = {nullptr};
+    *this = std::move(o);
 }
 
 json::json(const chen::json::object &v)

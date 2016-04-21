@@ -16,9 +16,8 @@ any::any(const any &o)
 }
 
 any::any(any &&o)
-: _ptr(o._ptr)
 {
-    o._ptr = nullptr;
+    *this = std::move(o);
 }
 
 any::~any()
