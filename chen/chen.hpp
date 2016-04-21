@@ -50,5 +50,3 @@
 #include <chen/net/dns/dns_record.hpp>
 #include <chen/net/dns/dns_header.hpp>
 #include <chen/net/dns/dns_packet.hpp>
-#include <chen/net/dns/dns_client.hpp>
-#include <chen/net/dns/dns_server.hpp>
