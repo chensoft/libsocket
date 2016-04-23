@@ -15,15 +15,19 @@ namespace chen
     class routine final
     {
     public:
+        routine() = default;
+        ~routine() = default;
+
+        routine(routine &&o);
+        routine& operator=(routine &&o);
+
+    public:
         /**
          * Async run a job
          */
         static void async(const std::function<void ()> &job);
 
     private:
-        routine() = default;
-        ~routine() = default;
-
         routine(const routine&) = delete;
         routine& operator=(const routine&) = delete;
     };

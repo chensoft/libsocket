@@ -111,6 +111,43 @@ void request::setRecursionDesired(bool value)
 
 // -----------------------------------------------------------------------------
 // response
+response::response(const response &o)
+{
+    *this = o;
+}
+
+response& response::operator=(const response &o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_header     = o._header;
+    this->_question   = o._question;
+    this->_answer     = o._answer;
+    this->_authority  = o._authority;
+    this->_additional = o._additional;
+
+    return *this;
+}
+
+response::response(response &&o)
+{
+    *this = std::move(o);
+}
+
+response& response::operator=(response &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_header     = std::move(o._header);
+    this->_question   = std::move(o._question);
+    this->_answer     = std::move(o._answer);
+    this->_authority  = std::move(o._authority);
+    this->_additional = std::move(o._additional);
+
+    return *this;
+}
 
 // get
 const chen::dns::header& response::header() const

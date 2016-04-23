@@ -62,6 +62,7 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     }
     else if (!ret || (errno == EBADF) || (errno == EINPROGRESS))
     {
+        // todo connect to a closed port also goes here, it's wrong
         // timeout or shutdown or close or cancelled when connect
         this->_connected = false;
     }

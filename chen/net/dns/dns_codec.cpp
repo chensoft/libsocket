@@ -21,6 +21,36 @@ codec::~codec()
 
 }
 
+codec::codec(const codec &o)
+{
+    *this = o;
+}
+
+codec& codec::operator=(const codec &o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_binary = o._binary;
+
+    return *this;
+}
+
+codec::codec(codec &&o)
+{
+    *this = std::move(o);
+}
+
+codec& codec::operator=(codec &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_binary = std::move(o._binary);
+
+    return *this;
+}
+
 // binary
 const std::vector<std::uint8_t>& codec::binary() const
 {

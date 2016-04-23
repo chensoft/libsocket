@@ -29,7 +29,14 @@ namespace chen
         class codec
         {
         public:
+            codec() = default;
             virtual ~codec() = 0;
+
+            codec(const codec &o);
+            codec& operator=(const codec &o);
+
+            codec(codec &&o);
+            codec& operator=(codec &&o);
 
         public:
             /**

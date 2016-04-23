@@ -90,6 +90,16 @@ namespace chen
             typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
 
         public:
+            response() = default;
+            ~response() = default;
+
+            response(const response &o);
+            response& operator=(const response &o);
+
+            response(response &&o);
+            response& operator=(response &&o);
+
+        public:
             /**
              * Get field value
              */
