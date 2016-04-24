@@ -34,7 +34,7 @@ void log::output(const std::string &text, chen::log::Level level)
 {
     std::lock_guard<std::mutex> lock(log::_mutex);
 
-    if (!this->_redirect)
+    if (!this->_hook)
     {
         std::cout << chen::date::stamp() << " " << chen::date::time(":", true, true) << " UTC [";
 
@@ -69,11 +69,11 @@ void log::output(const std::string &text, chen::log::Level level)
     }
     else
     {
-        this->_redirect(text, level);
+        this->_hook(text, level);
     }
 }
 
-void log::redirect(std::function<void (const std::string &text, chen::log::Level level)> callback)
+void log::hook(std::function<void (const std::string &text, chen::log::Level level)> callback)
 {
-    this->_redirect = callback;
+    this->_hook = callback;
 }

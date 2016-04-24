@@ -118,15 +118,15 @@ namespace chen
 
     public:
         /**
-         * Redirect output
+         * Hook the output
          */
-        virtual void redirect(std::function<void (const std::string &text, chen::log::Level level)> callback);
+        virtual void hook(std::function<void (const std::string &text, chen::log::Level level)> callback);
 
     protected:
         static std::mutex _mutex;
 
         Level _level = Level::Trace;
-        std::function<void (const std::string &text, chen::log::Level level)> _redirect;
+        std::function<void (const std::string &text, chen::log::Level level)> _hook;
     };
 }
 
