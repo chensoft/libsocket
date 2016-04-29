@@ -25,6 +25,7 @@
 #include <chen/tool/date.hpp>
 #include <chen/tool/path.hpp>
 #include <chen/tool/time.hpp>
+#include <chen/tool/regex.hpp>
 
 #include <chen/net/so/so_socket.hpp>
 #include <chen/net/so/so_error.hpp>

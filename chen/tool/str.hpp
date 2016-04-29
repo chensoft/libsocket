@@ -7,7 +7,6 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 namespace chen
 {
@@ -31,23 +30,6 @@ namespace chen
         static void trim(std::string &text);
         static void ltrim(std::string &text);
         static void rtrim(std::string &text);
-
-        /**
-         * Regex match
-         */
-        static bool match(const std::string &pattern, const std::string &text);
-
-        /**
-         * Regex replace
-         */
-        static std::string replace(const std::string &pattern,
-                                   const std::string &replacement,
-                                   const std::string &text);
-
-        /**
-         * Regex group catch
-         */
-        static std::vector<std::string> group(const std::string &pattern, const std::string &text);
 
         /**
          * Levenshtein distance

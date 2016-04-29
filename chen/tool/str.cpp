@@ -5,8 +5,8 @@
  * @link   http://chensoft.com
  */
 #include "str.hpp"
+#include <functional>
 #include <cstdarg>
-#include <regex>
 
 using namespace chen;
 
@@ -68,37 +68,6 @@ void str::ltrim(std::string &text)
 void str::rtrim(std::string &text)
 {
     text.erase(std::find_if(text.rbegin(), text.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), text.end());
-}
-
-// regex
-bool str::match(const std::string &pattern, const std::string &text)
-{
-    return std::regex_search(text, std::regex(pattern));
-}
-
-std::string str::replace(const std::string &pattern,
-                         const std::string &replacement,
-                         const std::string &text)
-{
-    return std::regex_replace(text, std::regex(pattern), replacement);
-}
-
-std::vector<std::string> str::group(const std::string &pattern,
-                                    const std::string &text)
-{
-    std::vector<std::string> ret;
-
-    std::smatch mt;
-
-    if (std::regex_search(text, mt, std::regex(pattern)))
-    {
-        for (auto &str : mt)
-        {
-            ret.push_back(str.str());
-        }
-    }
-
-    return ret;
 }
 
 // levenshtein
