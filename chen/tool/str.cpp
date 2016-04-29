@@ -19,18 +19,12 @@ std::string str::format(const char *fmt, ...)
     va_start(v1, fmt);
     va_copy(v2, v1);
 
-    auto tmp = std::vsnprintf(nullptr, 0, fmt, v1) + 1;
-
-    if (tmp <= 0)
+    auto len = std::vsnprintf(nullptr, 0, fmt, v1);
+    if (len <= 0)
         return "";
 
-    auto len = static_cast<std::size_t>(tmp);
-    auto buf = new char[len];
-
-    std::vsnprintf(buf, len, fmt, v2);
-    std::string ret(buf);
-
-    delete[] buf;
+    std::string ret(len + 1, '\0');
+    std::vsnprintf(&ret[0], ret.size(), fmt, v2);
 
     va_end(v1);
     va_end(v2);
