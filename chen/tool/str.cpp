@@ -25,6 +25,7 @@ std::string str::format(const char *fmt, ...)
 
     std::string ret(len + 1, '\0');
     std::vsnprintf(&ret[0], ret.size(), fmt, v2);
+    ret.erase(ret.begin() + len);  // remove the redundant '\0'
 
     va_end(v1);
     va_end(v2);
