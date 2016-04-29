@@ -204,14 +204,18 @@ namespace chen
         static bool change(const std::string &directory);
 
         /**
-         * Visit the directory items, exclude '.' and '..'
-         * @param recursive check items recursively
+         * Visit the directory items use depth-first traversal, exclude '.' and '..'
+         * @param recursive (optional) check items recursively
          */
         static void visit(const std::string &directory,
-                          bool recursive,
-                          std::function<bool (const std::string &path)> callback);
+                          std::function<bool (const std::string &path)> callback,
+                          bool recursive = true);
 
-        static std::vector<std::string> visit(const std::string &directory, bool recursive);
+        /**
+         * Collect all items in the directory, exclude '.' and '..'
+         */
+        static std::vector<std::string> collect(const std::string &directory,
+                                                bool recursive = true);
 
         /**
          * The files and directories count in the directory
@@ -219,7 +223,7 @@ namespace chen
          * @param contain_dir calculate the directories count
          */
         static std::size_t count(const std::string &directory,
-                                 bool recursive,
+                                 bool recursive = true,
                                  bool contain_file = true,
                                  bool contain_dir = true);
     };
