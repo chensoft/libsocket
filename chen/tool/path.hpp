@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-// todo add support for windows
 namespace chen
 {
     class path

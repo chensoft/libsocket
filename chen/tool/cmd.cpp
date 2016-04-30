@@ -5,9 +5,9 @@
  * @link   http://chensoft.com
  */
 #include "cmd.hpp"
-#include "log.hpp"
 #include "path.hpp"
 #include <algorithm>
+#include <cstdlib>
 
 using namespace chen;
 
