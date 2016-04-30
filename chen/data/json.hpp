@@ -40,9 +40,9 @@ namespace chen
         typedef std::map<std::string, chen::json> object;
         typedef std::vector<chen::json> array;
 
-        enum class JsonType {None, Object, Array, Number, String, True, False, Null};
+        enum class Type {None, Object, Array, Number, String, True, False, Null};
 
-        union JsonData
+        union Data
         {
             chen::json::object *o;
             chen::json::array *a;
@@ -138,7 +138,7 @@ namespace chen
         /**
          * Get the json type
          */
-        virtual chen::json::JsonType type() const;
+        virtual chen::json::Type type() const;
 
         /**
          * Check the json type
@@ -248,8 +248,8 @@ namespace chen
         static void encode(std::nullptr_t, std::string &output);
 
     protected:
-        JsonType _type = JsonType::None;
-        JsonData _data = {nullptr};
+        Type _type = Type::None;
+        Data _data = {nullptr};
     };
 }
 
