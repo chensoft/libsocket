@@ -21,7 +21,7 @@ namespace chen
         class RR;
         class header;
         class question;
-        class request;
+        class query;
         class response;
 
         // ---------------------------------------------------------------------
@@ -97,7 +97,7 @@ namespace chen
             virtual void pack(const chen::dns::RR &rr);
             virtual void pack(const chen::dns::header &header);
             virtual void pack(const chen::dns::question &question);
-            virtual void pack(const chen::dns::request &request);
+            virtual void pack(const chen::dns::query &query);
             virtual void pack(const chen::dns::response &response);
         };
 
@@ -137,7 +137,7 @@ namespace chen
             virtual void unpack(std::shared_ptr<chen::dns::RR> &rr);
             virtual void unpack(chen::dns::header &header);
             virtual void unpack(chen::dns::question &question);
-            virtual void unpack(chen::dns::request &request);
+            virtual void unpack(chen::dns::query &query);
             virtual void unpack(chen::dns::response &response);
 
         public:

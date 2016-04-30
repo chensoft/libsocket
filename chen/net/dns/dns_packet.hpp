@@ -26,11 +26,11 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // request
-        class request : public message
+        // query
+        class query : public message
         {
         public:
-            request();
+            query();
 
         public:
             /**
@@ -75,7 +75,7 @@ namespace chen
             chen::dns::header _header;
             chen::dns::question _question;
 
-            // for client send request to server
+            // client information
             std::string _addr;
             std::uint16_t _port = 0;
         };

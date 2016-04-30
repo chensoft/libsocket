@@ -20,8 +20,8 @@ message::~message()
 
 
 // -----------------------------------------------------------------------------
-// request
-request::request()
+// query
+query::query()
 {
     // random id
     this->_header.setId();
@@ -34,51 +34,51 @@ request::request()
 }
 
 // get
-const chen::dns::header& request::header() const
+const chen::dns::header& query::header() const
 {
     return this->_header;
 }
 
-const chen::dns::question& request::question() const
+const chen::dns::question& query::question() const
 {
     return this->_question;
 }
 
 // address
-std::string request::addr() const
+std::string query::addr() const
 {
     return this->_addr;
 }
 
-std::uint16_t request::port() const
+std::uint16_t query::port() const
 {
     return this->_port;
 }
 
 // set
-void request::setHeader(const chen::dns::header &value)
+void query::setHeader(const chen::dns::header &value)
 {
     this->_header = value;
 }
 
-void request::setQuestion(const chen::dns::question &value)
+void query::setQuestion(const chen::dns::question &value)
 {
     this->_question = value;
 }
 
 // address
-void request::setAddr(const std::string &value)
+void query::setAddr(const std::string &value)
 {
     this->_addr = value;
 }
 
-void request::setPort(std::uint16_t value)
+void query::setPort(std::uint16_t value)
 {
     this->_port = value;
 }
 
 // set query
-void request::setQuery(const std::string &qname,
+void query::setQuery(const std::string &qname,
                        chen::dns::RRType qtype,
                        chen::dns::RRClass qclass)
 {
@@ -103,7 +103,7 @@ void request::setQuery(const std::string &qname,
 }
 
 // flag
-void request::setRecursionDesired(bool value)
+void query::setRecursionDesired(bool value)
 {
     this->_header.setRecursionDesired(value);
 }

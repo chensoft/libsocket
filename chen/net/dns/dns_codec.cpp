@@ -303,17 +303,17 @@ void encoder::pack(const chen::dns::question &question)
     }
 }
 
-void encoder::pack(const chen::dns::request &request)
+void encoder::pack(const chen::dns::query &query)
 {
     auto size = this->_binary.size();
 
     try
     {
         // header
-        this->pack(request.header());
+        this->pack(query.header());
 
         // question
-        this->pack(request.question());
+        this->pack(query.question());
     }
     catch (...)
     {
@@ -622,7 +622,7 @@ void decoder::unpack(chen::dns::question &question)
     question.setQclass(qclass);
 }
 
-void decoder::unpack(chen::dns::request &request)
+void decoder::unpack(chen::dns::query &query)
 {
     // header
     chen::dns::header header;
@@ -633,8 +633,8 @@ void decoder::unpack(chen::dns::request &request)
     this->unpack(question);
 
     // set
-    request.setHeader(header);
-    request.setQuestion(question);
+    query.setHeader(header);
+    query.setQuestion(question);
 }
 
 void decoder::unpack(chen::dns::response &response)
