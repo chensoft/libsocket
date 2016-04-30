@@ -110,17 +110,18 @@ namespace chen
          */
         virtual Level level() const;
 
+    public:
+        /**
+         * Hook the output
+         * user shall not call log's method again in callback, otherwise will deadlock
+         */
+        virtual void hook(std::function<void (const std::string &text, chen::log::Level level)> callback);
+
     protected:
         /**
          * Final output
          */
         virtual void output(const std::string &text, chen::log::Level level);
-
-    public:
-        /**
-         * Hook the output
-         */
-        virtual void hook(std::function<void (const std::string &text, chen::log::Level level)> callback);
 
     protected:
         static std::mutex _mutex;

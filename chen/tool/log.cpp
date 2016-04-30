@@ -7,6 +7,7 @@
 #include "log.hpp"
 #include "date.hpp"
 #include <iostream>
+#include <map>
 
 using namespace chen;
 
@@ -30,6 +31,11 @@ log::Level log::level() const
     return this->_level;
 }
 
+void log::hook(std::function<void (const std::string &text, chen::log::Level level)> callback)
+{
+    this->_hook = callback;
+}
+
 void log::output(const std::string &text, chen::log::Level level)
 {
     std::lock_guard<std::mutex> lock(log::_mutex);
@@ -38,42 +44,19 @@ void log::output(const std::string &text, chen::log::Level level)
     {
         std::cout << chen::date::stamp() << " " << chen::date::time(":", true, true) << " UTC [";
 
-        switch (level)
-        {
-            case Level::Trace:
-                std::cout << "T";
-                break;
+        static std::map<chen::log::Level, std::string> map = {
+                {Level::Trace, "T"},
+                {Level::Debug, "D"},
+                {Level::Info,  "I"},
+                {Level::Warn,  "W"},
+                {Level::Error, "E"},
+                {Level::Fatal, "F"},
+        };
 
-            case Level::Debug:
-                std::cout << "D";
-                break;
-
-            case Level::Info:
-                std::cout << "I";
-                break;
-
-            case Level::Warn:
-                std::cout << "W";
-                break;
-
-            case Level::Error:
-                std::cout << "E";
-                break;
-
-            case Level::Fatal:
-                std::cout << "F";
-                break;
-        }
-
-        std::cout << "] " << text << std::endl;
+        std::cout << map[level] << "] " << text << std::endl;
     }
     else
     {
         this->_hook(text, level);
     }
-}
-
-void log::hook(std::function<void (const std::string &text, chen::log::Level level)> callback)
-{
-    this->_hook = callback;
 }
