@@ -241,7 +241,7 @@ bool path::remove(const std::string &path)
             if ((name == ".") || (name == ".."))
                 continue;
 
-            std::string full(*path.end() == sep ? path + name : path + sep + name);
+            std::string full(*(path.end() - 1) == sep ? path + name : path + sep + name);
 
             if (path::isDir(full))
                 ok = path::remove(full) && ok;
@@ -285,7 +285,7 @@ void path::visit(const std::string &directory,
         if ((name == ".") || (name == ".."))
             continue;
 
-        std::string full(*directory.end() == sep ? directory + name : directory + sep + name);
+        std::string full(*(directory.end() - 1) == sep ? directory + name : directory + sep + name);
 
         if (!callback(full))
             break;
