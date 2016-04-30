@@ -176,10 +176,11 @@ namespace chen
         static bool touch(const std::string &file, time_t mtime = 0, time_t atime = 0);
 
         /**
-         * Create a directory recursively
+         * Create a directory
          * @param mode default mode is rwxr-xr-x
+         * @param recursive recursively or not
          */
-        static bool create(const std::string &dir, std::uint16_t mode = 0);
+        static bool create(const std::string &dir, std::uint16_t mode = 0, bool recursive = true);
 
         /**
          * Rename a file or directory
@@ -192,10 +193,9 @@ namespace chen
         static bool remove(const std::string &path);
 
         /**
-         * todo
          * Copy a file or directory
          */
-        static bool copy();
+        static bool copy(const std::string &path_old, const std::string &path_new);
 
     public:
         /**

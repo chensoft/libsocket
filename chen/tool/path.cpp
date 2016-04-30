@@ -7,6 +7,7 @@
 #include "path.hpp"
 #include "log.hpp"
 #include "str.hpp"
+#include <fstream>
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -389,20 +390,27 @@ bool path::touch(const std::string &file, time_t mtime, time_t atime)
     }
 }
 
-bool path::create(const std::string &dir, std::uint16_t mode)
+bool path::create(const std::string &dir, std::uint16_t mode, bool recursive)
 {
     if (!mode)
         mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 
     if (!path::isDir(dir))
     {
-        auto success = true;
-        auto dirname = path::dirname(dir);
+        if (recursive)
+        {
+            auto success = true;
+            auto dirname = path::dirname(dir);
 
-        if (!dirname.empty())
-            success = path::create(dirname, mode) && success;
+            if (!dirname.empty())
+                success = path::create(dirname, mode, recursive) && success;
 
-        return !::mkdir(dir.c_str(), mode) && success;
+            return !::mkdir(dir.c_str(), mode) && success;
+        }
+        else
+        {
+            return !::mkdir(dir.c_str(), mode);
+        }
     }
     else
     {
@@ -460,6 +468,58 @@ bool path::remove(const std::string &path)
             ok = !::rmdir(path.c_str());
 
         return ok;
+    }
+}
+
+bool path::copy(const std::string &path_old, const std::string &path_new)
+{
+    if (path::isFile(path_old))
+    {
+        auto folder = path::dirname(path_new);
+        if (folder.empty())
+            return false;
+
+        if (!path::create(folder))
+            return false;
+
+        std::ifstream in(path_old, std::ios_base::binary);
+        if (!in)
+            return false;
+
+        std::ofstream out(path_new, std::ios_base::binary);
+        if (!out)
+            return false;
+
+        out << in.rdbuf();
+        out.close();
+
+        return true;
+    }
+    else if (path::isDir(path_old, true))
+    {
+        if (!path::create(path_new))
+            return false;
+
+        auto size = path_old.size();
+        auto ret  = true;
+
+        path::visit(path_old, [size, &ret, path_new] (const std::string &name) -> bool {
+            auto sub = name.substr(size, name.size() - size);
+
+            if (path::isFile(name))
+                ret = path::copy(name, path_new + sub);
+            else
+                ret = path::create(path_new + sub, 0, false);
+
+            // exit if occur an error
+            return ret;
+        });
+
+        return ret;
+    }
+    else
+    {
+        return false;
     }
 }
 

@@ -285,7 +285,7 @@ chen::json json::parse(const std::string &text, bool file)
         {
             std::ifstream stream;
             stream.exceptions(std::ios::failbit | std::ios::badbit);
-            stream.open(text.c_str(), std::ios_base::in | std::ios_base::binary);
+            stream.open(text.c_str(), std::ios_base::binary);
 
             std::istreambuf_iterator<char> cur(stream);
             return json::decode(cur, std::istreambuf_iterator<char>());
