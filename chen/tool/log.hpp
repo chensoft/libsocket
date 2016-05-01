@@ -9,7 +9,9 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <cstdlib>
+#include <memory>
 #include <mutex>
 #include "str.hpp"
 
@@ -25,8 +27,11 @@ namespace chen
         enum class Level {Trace, Debug, Info, Warn, Error, Fatal};
 
     public:
-        log() = default;
+        log();
         virtual ~log() = default;
+
+        log(log &&o);
+        log& operator=(log &&o);
 
     public:
         /**
@@ -117,17 +122,34 @@ namespace chen
          */
         virtual void hook(std::function<void (const std::string &text, chen::log::Level level)> callback);
 
+        /**
+         * Redirect output to another stream
+         * e.g: write standard log to a file
+         * >> std::unique_ptr<std::ofstream> p(new std::ofstream("yourpath.log"));
+         * >> chen::log::standard().redirect(std::move(p));
+         * then all the log will write into the file
+         */
+        virtual void redirect(std::unique_ptr<std::ostream> &&stream);
+
     protected:
         /**
          * Final output
          */
         virtual void output(const std::string &text, chen::log::Level level);
 
-    protected:
-        static std::mutex _mutex;
+    private:
+        log(const log&) = delete;
+        log& operator=(const log&) = delete;
 
+    protected:
         Level _level = Level::Trace;
+        std::ostream *_stream = nullptr;  // weak
+
         std::function<void (const std::string &text, chen::log::Level level)> _hook;
+        std::unique_ptr<std::ostream> _redirect;
+
+    protected:
+        static std::mutex _mutex;  // ensure the output order
     };
 }
 
