@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace chen
 {
@@ -21,6 +22,11 @@ namespace chen
          * @link http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
          */
         static void daemon();
+
+        /**
+         * Get current thread's call stack
+         */
+        static std::vector<std::string> stack();
 
         /**
          * UUID string
