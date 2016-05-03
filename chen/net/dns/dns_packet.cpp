@@ -20,8 +20,8 @@ message::~message()
 
 
 // -----------------------------------------------------------------------------
-// query
-query::query()
+// request
+request::request()
 {
     // random id
     this->_header.setId();
@@ -34,51 +34,51 @@ query::query()
 }
 
 // get
-const chen::dns::header& query::header() const
+const chen::dns::header& request::header() const
 {
     return this->_header;
 }
 
-const chen::dns::question& query::question() const
+const chen::dns::question& request::question() const
 {
     return this->_question;
 }
 
 // address
-std::string query::addr() const
+std::string request::addr() const
 {
     return this->_addr;
 }
 
-std::uint16_t query::port() const
+std::uint16_t request::port() const
 {
     return this->_port;
 }
 
 // set
-void query::setHeader(const chen::dns::header &value)
+void request::setHeader(const chen::dns::header &value)
 {
     this->_header = value;
 }
 
-void query::setQuestion(const chen::dns::question &value)
+void request::setQuestion(const chen::dns::question &value)
 {
     this->_question = value;
 }
 
 // address
-void query::setAddr(const std::string &value)
+void request::setAddr(const std::string &value)
 {
     this->_addr = value;
 }
 
-void query::setPort(std::uint16_t value)
+void request::setPort(std::uint16_t value)
 {
     this->_port = value;
 }
 
 // set query
-void query::setQuery(const std::string &qname,
+void request::setQuery(const std::string &qname,
                        chen::dns::RRType qtype,
                        chen::dns::RRClass qclass)
 {
@@ -103,7 +103,7 @@ void query::setQuery(const std::string &qname,
 }
 
 // flag
-void query::setRecursionDesired(bool value)
+void request::setRecursionDesired(bool value)
 {
     this->_header.setRecursionDesired(value);
 }
@@ -173,6 +173,27 @@ const response::rr_type& response::authority() const
 const response::rr_type& response::additional() const
 {
     return this->_additional;
+}
+
+// add
+void response::addQuestion(const chen::dns::question &value)
+{
+    this->_question.push_back(value);
+}
+
+void response::addAnswer(std::shared_ptr<chen::dns::RR> value)
+{
+    this->_answer.push_back(value);
+}
+
+void response::addAuthority(std::shared_ptr<chen::dns::RR> value)
+{
+    this->_authority.push_back(value);
+}
+
+void response::addAdditional(std::shared_ptr<chen::dns::RR> value)
+{
+    this->_additional.push_back(value);
 }
 
 // set

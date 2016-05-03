@@ -125,12 +125,12 @@ namespace chen
             /**
              * Convert int ip to string
              */
-            static std::string to_string(std::uint32_t addr);
+            static std::string toString(std::uint32_t addr);
 
             /**
              * Convert string ip to int
              */
-            static std::uint32_t to_integer(const std::string &addr);
+            static std::uint32_t toInteger(const std::string &addr);
 
             /**
              * A loopback address

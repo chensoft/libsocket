@@ -30,6 +30,7 @@ void server::start()
         std::string addr;
         std::uint16_t port = 0;
 
+        // todo recv maybe throw exception, how to handle it?
         std::size_t size = this->recv(buffer, length, addr, port);
 
         // post result to callback

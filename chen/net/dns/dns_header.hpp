@@ -87,6 +87,12 @@ namespace chen
         class question
         {
         public:
+            question() = default;
+            question(const std::string &qname,
+                     chen::dns::RRType qtype,
+                     chen::dns::RRClass qclass = chen::dns::RRClass::IN);
+
+        public:
             /**
              * Get field value
              */

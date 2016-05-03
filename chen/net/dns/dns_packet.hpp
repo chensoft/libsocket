@@ -26,11 +26,11 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // query
-        class query : public message
+        // request
+        class request : public message
         {
         public:
-            query();
+            request();
 
         public:
             /**
@@ -108,6 +108,15 @@ namespace chen
             const rr_type& answer()           const;
             const rr_type& authority()        const;
             const rr_type& additional()       const;
+
+        public:
+            /**
+             * Add field value
+             */
+            void addQuestion(const chen::dns::question &value);
+            void addAnswer(std::shared_ptr<chen::dns::RR> value);
+            void addAuthority(std::shared_ptr<chen::dns::RR> value);
+            void addAdditional(std::shared_ptr<chen::dns::RR> value);
 
         public:
             /**

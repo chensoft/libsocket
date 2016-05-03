@@ -73,7 +73,7 @@ bool address::isClassC() const
 // raw
 std::string address::str() const
 {
-    return address::to_string(this->_addr);
+    return address::toString(this->_addr);
 }
 
 std::uint32_t address::addr() const
@@ -157,11 +157,11 @@ void address::assign(std::uint32_t addr, std::uint8_t subnet)
 
 void address::assign(const std::string &addr, std::uint8_t subnet)
 {
-    this->assign(address::to_integer(addr), subnet);
+    this->assign(address::toInteger(addr), subnet);
 }
 
 // convert
-std::string address::to_string(std::uint32_t addr)
+std::string address::toString(std::uint32_t addr)
 {
     return str::format("%u.%u.%u.%u",
                        (addr >> 24) & 0xFF,
@@ -170,7 +170,7 @@ std::string address::to_string(std::uint32_t addr)
                        (addr) & 0xFF);
 }
 
-std::uint32_t address::to_integer(const std::string &addr)
+std::uint32_t address::toInteger(const std::string &addr)
 {
     int idx = -1;
     std::uint32_t val = 0;

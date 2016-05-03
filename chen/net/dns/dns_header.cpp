@@ -193,6 +193,15 @@ std::uint16_t header::random()
 
 // -----------------------------------------------------------------------------
 // question
+question::question(const std::string &qname,
+                   chen::dns::RRType qtype,
+                   chen::dns::RRClass qclass)
+: _qname(qname)
+, _qtype(qtype)
+, _qclass(qclass)
+{
+
+}
 
 // get filed value
 const std::string& question::qname() const

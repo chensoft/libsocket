@@ -21,7 +21,7 @@ namespace chen
         class RR;
         class header;
         class question;
-        class query;
+        class request;
         class response;
 
         // ---------------------------------------------------------------------
@@ -43,11 +43,6 @@ namespace chen
              * Get binary data
              */
             virtual const std::vector<std::uint8_t>& binary() const;
-
-            /**
-             * Set binary data
-             */
-            virtual void assign(const std::vector<std::uint8_t> &value);
 
         public:
             /**
@@ -97,7 +92,7 @@ namespace chen
             virtual void pack(const chen::dns::RR &rr);
             virtual void pack(const chen::dns::header &header);
             virtual void pack(const chen::dns::question &question);
-            virtual void pack(const chen::dns::query &query);
+            virtual void pack(const chen::dns::request &request);
             virtual void pack(const chen::dns::response &response);
         };
 
@@ -137,14 +132,14 @@ namespace chen
             virtual void unpack(std::shared_ptr<chen::dns::RR> &rr);
             virtual void unpack(chen::dns::header &header);
             virtual void unpack(chen::dns::question &question);
-            virtual void unpack(chen::dns::query &query);
+            virtual void unpack(chen::dns::request &request);
             virtual void unpack(chen::dns::response &response);
 
         public:
             /**
              * Set binary data
              */
-            virtual void assign(const std::vector<std::uint8_t> &value) override;
+            virtual void assign(const std::vector<std::uint8_t> &value);
 
             /**
              * Stream state

@@ -5,6 +5,7 @@
  * @since  2015.07.21
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
+ * @link   https://github.com/nlog/nlog/wiki/Log-levels
  */
 #pragma once
 

@@ -57,11 +57,6 @@ const std::vector<std::uint8_t>& codec::binary() const
     return this->_binary;
 }
 
-void codec::assign(const std::vector<std::uint8_t> &value)
-{
-    this->_binary = value;
-}
-
 // clear
 void codec::clear()
 {
@@ -147,7 +142,7 @@ void encoder::pack(const std::string &value, bool domain)
         // one byte label length + label characters + ... + one byte ending
 
         // check fqdn
-        if (codec::isFqdn(value))
+        if (!codec::isFqdn(value))
             throw error_fqdn("dns: codec pack domain is not fqdn");
 
         // check total length
@@ -303,17 +298,17 @@ void encoder::pack(const chen::dns::question &question)
     }
 }
 
-void encoder::pack(const chen::dns::query &query)
+void encoder::pack(const chen::dns::request &request)
 {
     auto size = this->_binary.size();
 
     try
     {
         // header
-        this->pack(query.header());
+        this->pack(request.header());
 
         // question
-        this->pack(query.question());
+        this->pack(request.question());
     }
     catch (...)
     {
@@ -622,7 +617,7 @@ void decoder::unpack(chen::dns::question &question)
     question.setQclass(qclass);
 }
 
-void decoder::unpack(chen::dns::query &query)
+void decoder::unpack(chen::dns::request &request)
 {
     // header
     chen::dns::header header;
@@ -633,8 +628,8 @@ void decoder::unpack(chen::dns::query &query)
     this->unpack(question);
 
     // set
-    query.setHeader(header);
-    query.setQuestion(question);
+    request.setHeader(header);
+    request.setQuestion(question);
 }
 
 void decoder::unpack(chen::dns::response &response)
@@ -698,7 +693,7 @@ void decoder::unpack(chen::dns::response &response)
 // assign
 void decoder::assign(const std::vector<std::uint8_t> &value)
 {
-    codec::assign(value);
+    this->_binary = value;
     this->reset();
 }
 
