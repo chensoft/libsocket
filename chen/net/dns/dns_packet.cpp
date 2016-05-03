@@ -21,16 +21,41 @@ message::~message()
 
 // -----------------------------------------------------------------------------
 // request
-request::request()
-{
-    // random id
-    this->_header.setId();
 
-    // set query
+// question
+void request::setQuestion(const std::string &qname,
+                          chen::dns::RRType qtype,
+                          chen::dns::RRClass qclass,
+                          std::uint16_t id,
+                          bool recursionDesired)
+{
+    // check empty
+    if (qname.empty())
+        throw error_size("dns: request query name is empty");
+
+    // check fqdn
+    if (!codec::isFqdn(qname))
+        throw error_fqdn("dns: request query name is not fqdn");
+
+    // set id
+    this->_header.setId(id);
+
+    // set qr
     this->_header.setQr(QR::Query);
 
-    // set rd
-    this->setRecursionDesired(true);
+    // set opcode
+    this->_header.setOpcode(chen::dns::OPCODE::Query);
+
+    // set qdcount
+    this->_header.setQdcount(1);
+
+    // set recursion desired
+    this->_header.setRecursionDesired(recursionDesired);
+
+    // set question
+    this->_question.setQname(qname);
+    this->_question.setQtype(qtype);
+    this->_question.setQclass(qclass);
 }
 
 // get
@@ -44,15 +69,14 @@ const chen::dns::question& request::question() const
     return this->_question;
 }
 
-// address
-std::string request::addr() const
+chen::dns::header& request::header()
 {
-    return this->_addr;
+    return this->_header;
 }
 
-std::uint16_t request::port() const
+chen::dns::question& request::question()
 {
-    return this->_port;
+    return this->_question;
 }
 
 // set
@@ -67,6 +91,16 @@ void request::setQuestion(const chen::dns::question &value)
 }
 
 // address
+std::string request::addr() const
+{
+    return this->_addr;
+}
+
+std::uint16_t request::port() const
+{
+    return this->_port;
+}
+
 void request::setAddr(const std::string &value)
 {
     this->_addr = value;
@@ -75,37 +109,6 @@ void request::setAddr(const std::string &value)
 void request::setPort(std::uint16_t value)
 {
     this->_port = value;
-}
-
-// set query
-void request::setQuery(const std::string &qname,
-                       chen::dns::RRType qtype,
-                       chen::dns::RRClass qclass)
-{
-    // check empty
-    if (qname.empty())
-        throw error_size("dns: request query name is empty");
-
-    // check fqdn
-    if (!codec::isFqdn(qname))
-        throw error_fqdn("dns: request query name is not fqdn");
-
-    // set opcode
-    this->_header.setOpcode(chen::dns::OPCODE::Query);
-
-    // set qdcount
-    this->_header.setQdcount(1);
-
-    // set query
-    this->_question.setQname(qname);
-    this->_question.setQtype(qtype);
-    this->_question.setQclass(qclass);
-}
-
-// flag
-void request::setRecursionDesired(bool value)
-{
-    this->_header.setRecursionDesired(value);
 }
 
 

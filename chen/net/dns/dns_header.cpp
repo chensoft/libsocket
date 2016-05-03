@@ -46,6 +46,37 @@ std::uint16_t header::arcount() const
     return this->_arcount;
 }
 
+// set filed value
+void header::setId(std::uint16_t value)
+{
+    this->_id = value ? value : header::random();
+}
+
+void header::setFlag(std::uint16_t value)
+{
+    this->_flag = value;
+}
+
+void header::setQdcount(std::uint16_t value)
+{
+    this->_qdcount = value;
+}
+
+void header::setAncount(std::uint16_t value)
+{
+    this->_ancount = value;
+}
+
+void header::setNscount(std::uint16_t value)
+{
+    this->_nscount = value;
+}
+
+void header::setArcount(std::uint16_t value)
+{
+    this->_arcount = value;
+}
+
 // flag value
 chen::dns::QR header::qr() const
 {
@@ -95,37 +126,6 @@ bool header::checkingDisabled() const
 chen::dns::RCODE header::rcode() const
 {
     return static_cast<chen::dns::RCODE>(this->_flag & FLAG_MASK_RCODE);
-}
-
-// set filed value
-void header::setId(std::uint16_t value)
-{
-    this->_id = value ? value : header::random();
-}
-
-void header::setFlag(std::uint16_t value)
-{
-    this->_flag = value;
-}
-
-void header::setQdcount(std::uint16_t value)
-{
-    this->_qdcount = value;
-}
-
-void header::setAncount(std::uint16_t value)
-{
-    this->_ancount = value;
-}
-
-void header::setNscount(std::uint16_t value)
-{
-    this->_nscount = value;
-}
-
-void header::setArcount(std::uint16_t value)
-{
-    this->_arcount = value;
 }
 
 // set flag value

@@ -29,6 +29,17 @@ namespace chen
             std::uint16_t arcount() const;  // additional count
 
             /**
+             * Set filed value
+             */
+            void setId(std::uint16_t value = 0);  // use random id when value is zero
+            void setFlag(std::uint16_t value);
+            void setQdcount(std::uint16_t value);
+            void setAncount(std::uint16_t value);
+            void setNscount(std::uint16_t value);
+            void setArcount(std::uint16_t value);
+
+        public:
+            /**
              * Get flag value
              */
             chen::dns::QR qr()         const;  // query or response
@@ -41,16 +52,6 @@ namespace chen
             bool authenticData()       const;  // authentic data
             bool checkingDisabled()    const;  // checking disabled
             chen::dns::RCODE rcode()   const;  // response code
-
-            /**
-             * Set filed value
-             */
-            void setId(std::uint16_t value = 0);  // use random id when value is zero
-            void setFlag(std::uint16_t value);
-            void setQdcount(std::uint16_t value);
-            void setAncount(std::uint16_t value);
-            void setNscount(std::uint16_t value);
-            void setArcount(std::uint16_t value);
 
             /**
              * Set flag value
@@ -73,7 +74,7 @@ namespace chen
             static std::uint16_t random();
 
         private:
-            std::uint16_t  _id     = 0;  // the identifier of a query
+            std::uint16_t _id      = 0;  // the identifier of a query
             std::uint16_t _flag    = 0;  // QR, OPCODE, AA, TC, RD, RA, Z, RCODE
             std::uint16_t _qdcount = 0;  // question count, always be 1 in query
             std::uint16_t _ancount = 0;  // the number of resource records in the answer section

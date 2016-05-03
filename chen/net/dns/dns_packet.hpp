@@ -30,7 +30,14 @@ namespace chen
         class request : public message
         {
         public:
-            request();
+            /**
+             * Set question
+             */
+            void setQuestion(const std::string &qname,
+                             chen::dns::RRType qtype,
+                             chen::dns::RRClass qclass = chen::dns::RRClass::IN,
+                             std::uint16_t id = 0,
+                             bool recursionDesired = true);
 
         public:
             /**
@@ -40,42 +47,36 @@ namespace chen
             const chen::dns::question& question() const;
 
             /**
-             * Get address and port
+             * Get filed and modify it
+             * usually you don't need to do so
              */
-            std::string addr()   const;
-            std::uint16_t port() const;
+            chen::dns::header& header();
+            chen::dns::question& question();
 
-        public:
             /**
              * Set field value
              */
             void setHeader(const chen::dns::header &value);
             void setQuestion(const chen::dns::question &value);
 
+        public:
             /**
-             * Set address and port
+             * Get client address and port
+             */
+            std::string addr()   const;
+            std::uint16_t port() const;
+
+            /**
+             * Set client address and port
              */
             void setAddr(const std::string &value);
             void setPort(std::uint16_t value);
-
-        public:
-            /**
-             * Set query data
-             */
-            void setQuery(const std::string &qname,
-                          chen::dns::RRType qtype,
-                          chen::dns::RRClass qclass = chen::dns::RRClass::IN);
-
-            /**
-             * Enable RD flag, default is true
-             */
-            void setRecursionDesired(bool value);
 
         private:
             chen::dns::header _header;
             chen::dns::question _question;
 
-            // client information
+            // client information when receive request
             std::string _addr;
             std::uint16_t _port = 0;
         };
