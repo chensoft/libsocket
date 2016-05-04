@@ -19,6 +19,33 @@ message::~message()
 
 }
 
+// property
+const chen::dns::header& message::header() const
+{
+    return this->_header;
+}
+
+chen::dns::header& message::header()
+{
+    return this->_header;
+}
+
+void message::setHeader(const chen::dns::header &value)
+{
+    this->_header = value;
+}
+
+// codec
+std::vector<std::uint8_t> message::encode() const
+{
+    return this->_header.encode();
+}
+
+void message::decode(const std::vector<std::uint8_t> &data)
+{
+    this->_header.decode(data);
+}
+
 
 // -----------------------------------------------------------------------------
 // request
@@ -60,19 +87,9 @@ void request::setQuestion(const std::string &qname,
 }
 
 // get
-const chen::dns::header& request::header() const
-{
-    return this->_header;
-}
-
 const chen::dns::question& request::question() const
 {
     return this->_question;
-}
-
-chen::dns::header& request::header()
-{
-    return this->_header;
 }
 
 chen::dns::question& request::question()
@@ -81,11 +98,6 @@ chen::dns::question& request::question()
 }
 
 // set
-void request::setHeader(const chen::dns::header &value)
-{
-    this->_header = value;
-}
-
 void request::setQuestion(const chen::dns::question &value)
 {
     this->_question = value;
@@ -115,7 +127,7 @@ void request::setPort(std::uint16_t value)
 // codec
 std::vector<std::uint8_t> request::encode() const
 {
-    auto ret = this->_header.encode();
+    auto ret = message::encode();
     auto tmp = this->_question.encode();
 
     ret.insert(ret.end(), tmp.begin(), tmp.end());
@@ -125,13 +137,19 @@ std::vector<std::uint8_t> request::encode() const
 void request::decode(const std::vector<std::uint8_t> &data)
 {
     // todo avoid copy
-    this->_header.decode(data);
+    message::decode(data);
     this->_question.decode(std::vector<std::uint8_t>(data.begin() + 0, data.end()));  // todo add correct bytes
 }
 
 
 // -----------------------------------------------------------------------------
 // response
+response::response(std::uint16_t id)
+{
+    this->_header.setId(id);
+    this->_header.setQr(chen::dns::QR::Response);
+}
+
 response::response(const response &o)
 {
     *this = o;
@@ -142,7 +160,7 @@ response& response::operator=(const response &o)
     if (this == &o)
         return *this;
 
-    this->_header     = o._header;
+    // todo base class header member?
     this->_question   = o._question;
     this->_answer     = o._answer;
     this->_authority  = o._authority;
@@ -161,7 +179,7 @@ response& response::operator=(response &&o)
     if (this == &o)
         return *this;
 
-    this->_header     = std::move(o._header);
+    // todo base class header member?
     this->_question   = std::move(o._question);
     this->_answer     = std::move(o._answer);
     this->_authority  = std::move(o._authority);
@@ -170,12 +188,32 @@ response& response::operator=(response &&o)
     return *this;
 }
 
-// get
-const chen::dns::header& response::header() const
+// add
+void response::addQuestion(const chen::dns::question &value)
 {
-    return this->_header;
+    this->_question.push_back(value);
+    this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
+void response::addAnswer(std::shared_ptr<chen::dns::RR> value)
+{
+    this->_answer.push_back(value);
+    this->_header.setAncount(static_cast<std::uint16_t>(this->_question.size()));
+}
+
+void response::addAuthority(std::shared_ptr<chen::dns::RR> value)
+{
+    this->_authority.push_back(value);
+    this->_header.setNscount(static_cast<std::uint16_t>(this->_question.size()));
+}
+
+void response::addAdditional(std::shared_ptr<chen::dns::RR> value)
+{
+    this->_additional.push_back(value);
+    this->_header.setArcount(static_cast<std::uint16_t>(this->_question.size()));
+}
+
+// get
 const response::q_type& response::question() const
 {
     return this->_question;
@@ -196,51 +234,29 @@ const response::rr_type& response::additional() const
     return this->_additional;
 }
 
-// add
-void response::addQuestion(const chen::dns::question &value)
-{
-    this->_question.push_back(value);
-}
-
-void response::addAnswer(std::shared_ptr<chen::dns::RR> value)
-{
-    this->_answer.push_back(value);
-}
-
-void response::addAuthority(std::shared_ptr<chen::dns::RR> value)
-{
-    this->_authority.push_back(value);
-}
-
-void response::addAdditional(std::shared_ptr<chen::dns::RR> value)
-{
-    this->_additional.push_back(value);
-}
-
 // set
-void response::setHeader(const chen::dns::header &value)
-{
-    this->_header = value;
-}
-
 void response::setQuestion(const q_type &value)
 {
     this->_question = value;
+    this->_header.setQdcount(static_cast<std::uint16_t>(value.size()));
 }
 
 void response::setAnswer(const rr_type &value)
 {
     this->_answer = value;
+    this->_header.setAncount(static_cast<std::uint16_t>(value.size()));
 }
 
 void response::setAuthority(const rr_type &value)
 {
     this->_authority = value;
+    this->_header.setNscount(static_cast<std::uint16_t>(value.size()));
 }
 
 void response::setAdditional(const rr_type &value)
 {
     this->_additional = value;
+    this->_header.setArcount(static_cast<std::uint16_t>(value.size()));
 }
 
 // codec
@@ -248,7 +264,7 @@ std::vector<std::uint8_t> response::encode() const
 {
     // todo avoid copy
     // header
-    auto ret = this->_header.encode();
+    auto ret = message::encode();
 
     // question
     for (auto &val : this->_question)
@@ -284,7 +300,7 @@ std::vector<std::uint8_t> response::encode() const
 void response::decode(const std::vector<std::uint8_t> &data)
 {
     // header
-    this->_header.decode(data);
+    message::decode(data);
 
     // question
     this->_question.clear();

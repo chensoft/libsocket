@@ -22,6 +22,29 @@ namespace chen
         {
         public:
             virtual ~message() = 0;
+
+        public:
+            /**
+             * Get field value
+             */
+            const chen::dns::header& header() const;
+            chen::dns::header& header();
+
+            /**
+             * Set field value
+             */
+            void setHeader(const chen::dns::header &value);
+
+        public:
+            /**
+             * Encode & Decode
+             * todo return remain bytes or use iterator when use decode?
+             */
+            virtual std::vector<std::uint8_t> encode() const;
+            virtual void decode(const std::vector<std::uint8_t> &data);
+
+        protected:
+            chen::dns::header _header;
         };
 
 
@@ -43,20 +66,12 @@ namespace chen
             /**
              * Get field value
              */
-            const chen::dns::header& header()     const;
             const chen::dns::question& question() const;
-
-            /**
-             * Get filed and modify it
-             * usually you don't need to do so
-             */
-            chen::dns::header& header();
             chen::dns::question& question();
 
             /**
              * Set field value
              */
-            void setHeader(const chen::dns::header &value);
             void setQuestion(const chen::dns::question &value);
 
         public:
@@ -77,11 +92,10 @@ namespace chen
              * Encode & Decode
              * todo return remain bytes or use iterator when use decode?
              */
-            std::vector<std::uint8_t> encode() const;
-            void decode(const std::vector<std::uint8_t> &data);
+            virtual std::vector<std::uint8_t> encode() const override;
+            virtual void decode(const std::vector<std::uint8_t> &data) override;
 
-        private:
-            chen::dns::header _header;
+        protected:
             chen::dns::question _question;
 
             // client information when receive request
@@ -99,7 +113,7 @@ namespace chen
             typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
 
         public:
-            response() = default;
+            response(std::uint16_t id = 0);
             ~response() = default;
 
             response(const response &o);
@@ -107,16 +121,6 @@ namespace chen
 
             response(response &&o);
             response& operator=(response &&o);
-
-        public:
-            /**
-             * Get field value
-             */
-            const chen::dns::header& header() const;
-            const q_type& question()          const;
-            const rr_type& answer()           const;
-            const rr_type& authority()        const;
-            const rr_type& additional()       const;
 
         public:
             /**
@@ -129,9 +133,17 @@ namespace chen
 
         public:
             /**
+             * Get field value
+             */
+            const q_type& question()    const;
+            const rr_type& answer()     const;
+            const rr_type& authority()  const;
+            const rr_type& additional() const;
+
+        public:
+            /**
              * Set field value
              */
-            void setHeader(const chen::dns::header &value);
             void setQuestion(const q_type &value);
             void setAnswer(const rr_type &value);
             void setAuthority(const rr_type &value);
@@ -142,12 +154,10 @@ namespace chen
              * Encode & Decode
              * todo return remain bytes or use iterator when use decode?
              */
-            std::vector<std::uint8_t> encode() const;
-            void decode(const std::vector<std::uint8_t> &data);
+            virtual std::vector<std::uint8_t> encode() const override;
+            virtual void decode(const std::vector<std::uint8_t> &data) override;
 
-        private:
-            chen::dns::header _header;
-
+        protected:
             q_type  _question;
             rr_type _answer;
             rr_type _authority;
