@@ -113,8 +113,7 @@ namespace chen
             typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
 
         public:
-            response(std::uint16_t id = 0);
-            ~response() = default;
+            response();
 
             response(const response &o);
             response& operator=(const response &o);
@@ -126,6 +125,7 @@ namespace chen
             /**
              * Add field value
              */
+            void addQuestion(const chen::dns::request &value);
             void addQuestion(const chen::dns::question &value);
             void addAnswer(std::shared_ptr<chen::dns::RR> value);
             void addAuthority(std::shared_ptr<chen::dns::RR> value);

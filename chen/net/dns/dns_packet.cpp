@@ -144,9 +144,8 @@ void request::decode(const std::vector<std::uint8_t> &data)
 
 // -----------------------------------------------------------------------------
 // response
-response::response(std::uint16_t id)
+response::response()
 {
-    this->_header.setId(id);
     this->_header.setQr(chen::dns::QR::Response);
 }
 
@@ -189,6 +188,12 @@ response& response::operator=(response &&o)
 }
 
 // add
+void response::addQuestion(const chen::dns::request &value)
+{
+    this->_header.setId(value.header().id());
+    this->addQuestion(value.question());
+}
+
 void response::addQuestion(const chen::dns::question &value)
 {
     this->_question.push_back(value);
