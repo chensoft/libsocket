@@ -7,6 +7,7 @@
 #include "path.hpp"
 #include "str.hpp"
 #include <fstream>
+#include <climits>
 
 using namespace chen;
 

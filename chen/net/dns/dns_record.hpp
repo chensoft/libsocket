@@ -9,6 +9,7 @@
 #include "dns_define.hpp"
 #include <string>
 #include <vector>
+#include <memory>
 #include <array>
 
 namespace chen

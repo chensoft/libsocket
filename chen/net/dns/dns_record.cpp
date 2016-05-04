@@ -9,6 +9,7 @@
 #include "dns_codec.hpp"
 #include "dns_table.hpp"
 #include <chen/tool/str.hpp>
+#include <limits>
 
 using namespace chen;
 using namespace chen::dns;

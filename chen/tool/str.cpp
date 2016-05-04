@@ -6,6 +6,7 @@
  */
 #include "str.hpp"
 #include <functional>
+#include <algorithm>
 #include <cstdarg>
 
 using namespace chen;
@@ -23,7 +24,7 @@ std::string str::format(const char *fmt, ...)
     if (len <= 0)
         return "";
 
-    std::string ret(len + 1, '\0');
+    std::string ret(static_cast<std::size_t>(len + 1), '\0');
     std::vsnprintf(&ret[0], ret.size(), fmt, v2);
     ret.erase(ret.begin() + len);  // remove the redundant '\0'
 
