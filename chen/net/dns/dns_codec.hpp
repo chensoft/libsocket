@@ -29,22 +29,19 @@ namespace chen
         class codec
         {
         public:
-            codec() = default;
             virtual ~codec() = 0;
-
-            codec(const codec &o);
-            codec& operator=(const codec &o);
-
-            codec(codec &&o);
-            codec& operator=(codec &&o);
 
         public:
             /**
-             * Get binary data
+             * Get binary data via move
+             */
+            virtual std::vector<std::uint8_t> retrieve();
+
+            /**
+             * Get binary data via const ref
              */
             virtual const std::vector<std::uint8_t>& binary() const;
 
-        public:
             /**
              * Clear binary cache
              */
@@ -89,11 +86,10 @@ namespace chen
                 this->_binary.insert(this->_binary.end(), value.begin(), value.end());
             }
 
-            virtual void pack(const chen::dns::RR &rr);
-            virtual void pack(const chen::dns::header &header);
-            virtual void pack(const chen::dns::question &question);
-            virtual void pack(const chen::dns::request &request);
-            virtual void pack(const chen::dns::response &response);
+//            virtual void pack(const chen::dns::header &header);
+//            virtual void pack(const chen::dns::question &question);
+//            virtual void pack(const chen::dns::request &request);
+//            virtual void pack(const chen::dns::response &response);
         };
 
 
@@ -129,11 +125,10 @@ namespace chen
                 this->_cursor += need;
             }
 
-            virtual void unpack(std::shared_ptr<chen::dns::RR> &rr);
-            virtual void unpack(chen::dns::header &header);
-            virtual void unpack(chen::dns::question &question);
-            virtual void unpack(chen::dns::request &request);
-            virtual void unpack(chen::dns::response &response);
+//            virtual void unpack(chen::dns::header &header);
+//            virtual void unpack(chen::dns::question &question);
+//            virtual void unpack(chen::dns::request &request);
+//            virtual void unpack(chen::dns::response &response);
 
         public:
             /**

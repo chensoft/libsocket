@@ -7,6 +7,7 @@
 #include "dns_record.hpp"
 #include "dns_error.hpp"
 #include "dns_codec.hpp"
+#include "dns_table.hpp"
 #include <chen/tool/str.hpp>
 
 using namespace chen;
@@ -17,6 +18,77 @@ using namespace chen::dns;
 RR::~RR()
 {
 
+}
+
+std::vector<std::uint8_t> RR::encode() const
+{
+    chen::dns::encoder encoder;
+
+    // common
+    encoder.pack(this->name, true);
+    encoder.pack(this->rrtype);
+    encoder.pack(this->rrclass);
+    encoder.pack(this->ttl);
+
+    // rdlength, placeholder here
+    encoder.pack(static_cast<std::uint16_t>(0));
+
+    // rdata
+    auto beg = encoder.binary().size();
+    this->encode(encoder);
+
+    // rdlength, real value
+    auto off = encoder.binary().size() - beg;
+    if (off > std::numeric_limits<std::uint16_t>::max())
+        throw error_size("dns: codec pack rdata size is overflow");
+
+    auto rdlength = static_cast<std::uint16_t>(off);
+    auto binary   = encoder.retrieve();
+
+    binary[beg - 2] = static_cast<std::uint8_t>(rdlength >> 8 & 0xFF);
+    binary[beg - 1] = static_cast<std::uint8_t>(rdlength & 0xFF);
+
+    // todo test performance with std::move
+    return binary;
+}
+
+std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
+{
+    chen::dns::decoder decoder;
+    decoder.assign(data);  // todo avoid copy, don't store vector?
+
+    // name
+    std::string name;
+    decoder.unpack(name, true);
+
+    // rrtype
+    chen::dns::RRType rrtype = chen::dns::RRType::None;
+    decoder.unpack(rrtype);
+
+    // rrclass
+    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
+    decoder.unpack(rrclass);
+
+    // ttl
+    std::int32_t ttl = 0;
+    decoder.unpack(ttl);
+
+    // build
+    // todo test if table build return nullptr?
+    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
+    if (!record)
+        record.reset(new chen::dns::Unknown);
+
+    // rdlength && rdata
+    record->decode(decoder);
+
+    // set
+    record->name    = name;
+    record->rrtype  = rrtype;
+    record->rrclass = rrclass;
+    record->ttl     = ttl;
+
+    return record;  // todo use move?
 }
 
 void RR::decode(chen::dns::decoder &decoder)

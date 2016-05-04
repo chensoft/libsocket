@@ -28,16 +28,22 @@ namespace chen
 
         public:
             /**
-             * Pack data to binary
+             * Encode rr to binary data
              */
-            virtual void encode(chen::dns::encoder &encoder) const = 0;
+            virtual std::vector<std::uint8_t> encode() const;
 
             /**
-             * Unpack data from binary
+             * Decode, auto detect rr's type
              */
-            virtual void decode(chen::dns::decoder &decoder) = 0;
+            static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
 
         protected:
+            /**
+             * Encode & Decode helper
+             */
+            virtual void encode(chen::dns::encoder &encoder) const = 0;
+            virtual void decode(chen::dns::decoder &decoder) = 0;
+
             /**
              * Check remain data when decode
              */
@@ -62,7 +68,7 @@ namespace chen
         // Raw(raw resource record, with rdata)
         struct Raw : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -85,7 +91,7 @@ namespace chen
         // A(rfc1035, section 3.4.1)
         struct A : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -98,7 +104,7 @@ namespace chen
         // NS(rfc1035, section 3.3.11)
         struct NS : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -111,7 +117,7 @@ namespace chen
         // MD(rfc1035, section 3.3.4)
         struct MD : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -124,7 +130,7 @@ namespace chen
         // MF(rfc1035, section 3.3.5)
         struct MF : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -137,7 +143,7 @@ namespace chen
         // CNAME(rfc1035, section 3.3.1)
         struct CNAME : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -150,7 +156,7 @@ namespace chen
         // SOA(rfc1035, section 3.3.13)
         struct SOA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -169,7 +175,7 @@ namespace chen
         // MB(rfc1035, section 3.3.3)
         struct MB : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -182,7 +188,7 @@ namespace chen
         // MG(rfc1035, section 3.3.6)
         struct MG : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -195,7 +201,7 @@ namespace chen
         // MR(rfc1035, section 3.3.8)
         struct MR : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -208,7 +214,7 @@ namespace chen
         // NULL(rfc1035, section 3.3.10, can store anything)
         struct NUL : public Raw
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -221,7 +227,7 @@ namespace chen
         // WKS(rfc1035, section 3.4.2)
         struct WKS : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -236,7 +242,7 @@ namespace chen
         // PTR(rfc1035, section 3.3.12)
         struct PTR : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -249,7 +255,7 @@ namespace chen
         // HINFO(rfc1035, section 3.3.2)
         struct HINFO : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -263,7 +269,7 @@ namespace chen
         // MINFO(rfc1035, section 3.3.7)
         struct MINFO : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -277,7 +283,7 @@ namespace chen
         // MX(rfc1035, section 3.3.9)
         struct MX : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -291,7 +297,7 @@ namespace chen
         // TXT(rfc1035, section 3.3.14)
         struct TXT : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -304,7 +310,7 @@ namespace chen
         // RP(rfc1183, section 2.2)
         struct RP : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -318,7 +324,7 @@ namespace chen
         // AFSDB(rfc1183, section 1)
         struct AFSDB : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -332,7 +338,7 @@ namespace chen
         // X25(rfc1183, section 3.1)
         struct X25 : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -345,7 +351,7 @@ namespace chen
         // ISDN(rfc1183, section 3.2)
         struct ISDN : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -359,7 +365,7 @@ namespace chen
         // RT(rfc1183, section 3.3)
         struct RT : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -373,7 +379,7 @@ namespace chen
         // NSAP(rfc1706, section 5)
         struct NSAP : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -386,7 +392,7 @@ namespace chen
         // NSAPPTR(rfc1348)
         struct NSAPPTR : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -399,7 +405,7 @@ namespace chen
         // SIG(rfc2535, section 4.1)
         struct SIG : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -420,7 +426,7 @@ namespace chen
         // KEY(rfc2535, section 3.1)
         struct KEY : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -436,7 +442,7 @@ namespace chen
         // PX(rfc2163, section 4)
         struct PX : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -451,7 +457,7 @@ namespace chen
         // GPOS(rfc1712, section 3)
         struct GPOS : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -466,7 +472,7 @@ namespace chen
         // AAAA(rfc3596, section 2.2)
         struct AAAA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -479,7 +485,7 @@ namespace chen
         // LOC(rfc1876, section 2)
         struct LOC : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -499,7 +505,7 @@ namespace chen
         // NXT(rfc2535, section 5.2)
         struct NXT : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -513,7 +519,7 @@ namespace chen
         // EID(draft-lewis-dns-undocumented-types-01)
         struct EID : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -526,7 +532,7 @@ namespace chen
         // NIMLOC(draft-lewis-dns-undocumented-types-01)
         struct NIMLOC : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -539,7 +545,7 @@ namespace chen
         // SRV(rfc2782)
         struct SRV : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -555,7 +561,7 @@ namespace chen
         // ATMA(ATM Name System Specification Version 1.0)
         struct ATMA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -569,7 +575,7 @@ namespace chen
         // NAPTR(rfc3403, section 4.1)
         struct NAPTR : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -587,7 +593,7 @@ namespace chen
         // KX(rfc2230, section 3.1)
         struct KX : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -601,7 +607,7 @@ namespace chen
         // CERT(rfc4398, section 2)
         struct CERT : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -624,7 +630,7 @@ namespace chen
         // DNAME(rfc2672, section 3)
         struct DNAME : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -637,7 +643,7 @@ namespace chen
         // SINK(draft-eastlake-kitchen-sink-02)
         struct SINK : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -659,7 +665,7 @@ namespace chen
         // DS(rfc4034, section 5.1)
         struct DS : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -675,7 +681,7 @@ namespace chen
         // SSHFP(rfc4255, section 3.1)
         struct SSHFP : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -693,7 +699,7 @@ namespace chen
         public:
             enum class GatewayType {None, IPv4, IPv6, Domain};
 
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -710,7 +716,7 @@ namespace chen
         // RRSIG(rfc4034, section 3.1)
         struct RRSIG : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -731,7 +737,7 @@ namespace chen
         // NSEC(rfc4034, section 4.1)
         struct NSEC : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -745,7 +751,7 @@ namespace chen
         // DNSKEY(rfc4034, section 2.1)
         struct DNSKEY : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -761,7 +767,7 @@ namespace chen
         // DHCID(rfc4701, section 3.1)
         struct DHCID : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -774,7 +780,7 @@ namespace chen
         // NSEC3(rfc5155, section 3.2)
         struct NSEC3 : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -794,7 +800,7 @@ namespace chen
         // NSEC3PARAM(rfc5155, section 4.2)
         struct NSEC3PARAM : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -811,7 +817,7 @@ namespace chen
         // TLSA(rfc6698, section 2.1)
         struct TLSA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -827,7 +833,7 @@ namespace chen
         // SMIMEA(draft-ietf-dane-smime, section 2)
         struct SMIMEA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -843,7 +849,7 @@ namespace chen
         // HIP(rfc5205, section 5)
         struct HIP : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -861,7 +867,7 @@ namespace chen
         // NINFO(draft-lewis-dns-undocumented-types-01)
         struct NINFO : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -874,7 +880,7 @@ namespace chen
         // RKEY(draft-lewis-dns-undocumented-types-01)
         struct RKEY : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -890,7 +896,7 @@ namespace chen
         // TALINK(draft-lewis-dns-undocumented-types-01)
         struct TALINK : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -904,7 +910,7 @@ namespace chen
         // CDS(rfc7344, section 3.1)
         struct CDS : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -920,7 +926,7 @@ namespace chen
         // CDNSKEY(rfc7344, section 3.2)
         struct CDNSKEY : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -936,7 +942,7 @@ namespace chen
         // OPENPGPKEY(draft-ietf-dane-openpgpkey, section 2.1)
         struct OPENPGPKEY : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -949,7 +955,7 @@ namespace chen
         // CSYNC(rfc7477, section 2.1.1)
         struct CSYNC : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -964,7 +970,7 @@ namespace chen
         // SPF(rfc4408, section 3)
         struct SPF : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1005,7 +1011,7 @@ namespace chen
         // NID(rfc6742, section 2.1.1)
         struct NID : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1019,7 +1025,7 @@ namespace chen
         // L32(rfc6742, section 2.2.1)
         struct L32 : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1033,7 +1039,7 @@ namespace chen
         // L64(rfc6742, section 2.3.1)
         struct L64 : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1047,7 +1053,7 @@ namespace chen
         // LP(rfc6742, section 2.4.1)
         struct LP : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1061,7 +1067,7 @@ namespace chen
         // EUI48(rfc7043, section 3.1)
         struct EUI48 : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1074,7 +1080,7 @@ namespace chen
         // EUI64(rfc7043, section 4.1)
         struct EUI64 : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1087,7 +1093,7 @@ namespace chen
         // TKEY(rfc2930, section 2)
         struct TKEY : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1108,7 +1114,7 @@ namespace chen
         // TSIG(rfc2845, section 2.3)
         struct TSIG : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1129,7 +1135,7 @@ namespace chen
         // URI(rfc7553, section 4.5)
         struct URI : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1144,7 +1150,7 @@ namespace chen
         // CAA(rfc6844, section 5.1.1)
         struct CAA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1159,7 +1165,7 @@ namespace chen
         // TA(Deploying DNSSEC Without a Signed Root)
         struct TA : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
@@ -1175,7 +1181,7 @@ namespace chen
         // DLV(rfc4431, section 2)
         struct DLV : public RR
         {
-        public:
+        protected:
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
 
