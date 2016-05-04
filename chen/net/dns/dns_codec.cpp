@@ -185,61 +185,6 @@ void encoder::pack(const std::vector<std::uint8_t> &value, std::size_t need)
     this->_binary.insert(this->_binary.end(), value.begin(), value.begin() + need);
 }
 
-//void encoder::pack(const chen::dns::header &header)
-//{
-//    auto size = this->_binary.size();
-//
-//    try
-//    {
-//        // id
-//        this->pack(header.id());
-//
-//        // flag
-//        this->pack(header.flag());
-//
-//        // question
-//        this->pack(header.qdcount());
-//
-//        // answer
-//        this->pack(header.ancount());
-//
-//        // authority
-//        this->pack(header.nscount());
-//
-//        // additional
-//        this->pack(header.arcount());
-//    }
-//    catch (...)
-//    {
-//        // restore
-//        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
-//        throw;
-//    }
-//}
-//
-//void encoder::pack(const chen::dns::question &question)
-//{
-//    auto size = this->_binary.size();
-//
-//    try
-//    {
-//        // qname
-//        this->pack(question.qname(), true);
-//
-//        // qtype
-//        this->pack(question.qtype());
-//
-//        // qclass
-//        this->pack(question.qclass());
-//    }
-//    catch (...)
-//    {
-//        // restore
-//        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
-//        throw;
-//    }
-//}
-//
 //void encoder::pack(const chen::dns::request &request)
 //{
 //    auto size = this->_binary.size();
@@ -467,76 +412,6 @@ void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need)
     this->_cursor += need;
 }
 
-//void decoder::unpack(chen::dns::header &header)
-//{
-//    // id
-//    std::uint16_t id = 0;
-//    this->unpack(id);
-//
-//    // flag
-//    std::uint16_t flag = 0;
-//    this->unpack(flag);
-//
-//    // question
-//    std::uint16_t qdcount = 0;
-//    this->unpack(qdcount);
-//
-//    // answer
-//    std::uint16_t ancount = 0;
-//    this->unpack(ancount);
-//
-//    // authority
-//    std::uint16_t nscount = 0;
-//    this->unpack(nscount);
-//
-//    // additional
-//    std::uint16_t arcount = 0;
-//    this->unpack(arcount);
-//
-//    // set
-//    header.setId(id);
-//    header.setFlag(flag);
-//    header.setQdcount(qdcount);
-//    header.setAncount(ancount);
-//    header.setNscount(nscount);
-//    header.setArcount(arcount);
-//}
-//
-//void decoder::unpack(chen::dns::question &question)
-//{
-//    // qname
-//    std::string qname;
-//    this->unpack(qname, true);
-//
-//    // qtype
-//    chen::dns::RRType qtype = chen::dns::RRType::None;
-//    this->unpack(qtype);
-//
-//    // qclass
-//    chen::dns::RRClass qclass = chen::dns::RRClass::IN;
-//    this->unpack(qclass);
-//
-//    // set
-//    question.setQname(qname);
-//    question.setQtype(qtype);
-//    question.setQclass(qclass);
-//}
-//
-//void decoder::unpack(chen::dns::request &request)
-//{
-//    // header
-//    chen::dns::header header;
-//    this->unpack(header);
-//
-//    // question
-//    chen::dns::question question;
-//    this->unpack(question);
-//
-//    // set
-//    request.setHeader(header);
-//    request.setQuestion(question);
-//}
-//
 //void decoder::unpack(chen::dns::response &response)
 //{
 //    // header

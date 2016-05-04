@@ -5,7 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "dns_header.hpp"
-
+#include "dns_codec.hpp"
 #include <random>
 #include <chrono>
 
@@ -179,6 +179,70 @@ void header::setRcode(chen::dns::RCODE value)
     this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE;
 }
 
+// codec
+std::vector<std::uint8_t> header::encode() const
+{
+    chen::dns::encoder encoder;
+
+    // id
+    encoder.pack(this->_id);
+
+    // flag
+    encoder.pack(this->_flag);
+
+    // question
+    encoder.pack(this->_qdcount);
+
+    // answer
+    encoder.pack(this->_ancount);
+
+    // authority
+    encoder.pack(this->_nscount);
+
+    // additional
+    encoder.pack(this->_arcount);
+
+    return encoder.retrieve();
+}
+
+void header::decode(const std::vector<std::uint8_t> &data)
+{
+    chen::dns::decoder decoder;
+    decoder.assign(data);
+
+    // id
+    std::uint16_t id = 0;
+    decoder.unpack(id);
+
+    // flag
+    std::uint16_t flag = 0;
+    decoder.unpack(flag);
+
+    // question
+    std::uint16_t qdcount = 0;
+    decoder.unpack(qdcount);
+
+    // answer
+    std::uint16_t ancount = 0;
+    decoder.unpack(ancount);
+
+    // authority
+    std::uint16_t nscount = 0;
+    decoder.unpack(nscount);
+
+    // additional
+    std::uint16_t arcount = 0;
+    decoder.unpack(arcount);
+
+    // set
+    this->_id      = id;
+    this->_flag    = flag;
+    this->_qdcount = qdcount;
+    this->_ancount = ancount;
+    this->_nscount = nscount;
+    this->_arcount = arcount;
+}
+
 // random
 std::uint16_t header::random()
 {
@@ -233,4 +297,44 @@ void question::setQtype(chen::dns::RRType value)
 void question::setQclass(chen::dns::RRClass value)
 {
     this->_qclass = value;
+}
+
+// codec
+std::vector<std::uint8_t> question::encode() const
+{
+    chen::dns::encoder encoder;
+
+    // qname
+    encoder.pack(this->_qname, true);
+
+    // qtype
+    encoder.pack(this->_qtype);
+
+    // qclass
+    encoder.pack(this->_qclass);
+
+    return encoder.retrieve();
+}
+
+void question::decode(const std::vector<std::uint8_t> &data)
+{
+    chen::dns::decoder decoder;
+    decoder.assign(data);
+
+    // qname
+    std::string qname;
+    decoder.unpack(qname, true);
+
+    // qtype
+    chen::dns::RRType qtype = chen::dns::RRType::None;
+    decoder.unpack(qtype);
+
+    // qclass
+    chen::dns::RRClass qclass = chen::dns::RRClass::IN;
+    decoder.unpack(qclass);
+
+    // set
+    this->_qname  = qname;
+    this->_qtype  = qtype;
+    this->_qclass = qclass;
 }

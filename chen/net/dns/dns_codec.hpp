@@ -86,7 +86,6 @@ namespace chen
                 this->_binary.insert(this->_binary.end(), value.begin(), value.end());
             }
 
-//            virtual void pack(const chen::dns::header &header);
 //            virtual void pack(const chen::dns::question &question);
 //            virtual void pack(const chen::dns::request &request);
 //            virtual void pack(const chen::dns::response &response);

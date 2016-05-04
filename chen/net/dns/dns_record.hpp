@@ -34,6 +34,7 @@ namespace chen
 
             /**
              * Decode, auto detect rr's type
+             * todo return remain bytes or use iterator when use decode?
              */
             static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
 

@@ -8,6 +8,7 @@
 
 #include "dns_define.hpp"
 #include <string>
+#include <vector>
 
 namespace chen
 {
@@ -69,6 +70,14 @@ namespace chen
 
         public:
             /**
+             * Encode & Decode
+             * todo return remain bytes or use iterator when use decode?
+             */
+            std::vector<std::uint8_t> encode() const;
+            void decode(const std::vector<std::uint8_t> &data);
+
+        public:
+            /**
              * Random identifier
              */
             static std::uint16_t random();
@@ -107,6 +116,14 @@ namespace chen
             void setQname(const std::string &value);
             void setQtype(chen::dns::RRType value);
             void setQclass(chen::dns::RRClass value);
+
+        public:
+            /**
+             * Encode & Decode
+             * todo return remain bytes or use iterator when use decode?
+             */
+            std::vector<std::uint8_t> encode() const;
+            void decode(const std::vector<std::uint8_t> &data);
 
         private:
             std::string _qname;
