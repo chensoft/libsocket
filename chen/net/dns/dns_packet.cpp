@@ -147,6 +147,7 @@ void request::decode(const std::vector<std::uint8_t> &data)
 response::response()
 {
     this->_header.setQr(chen::dns::QR::Response);
+    this->_header.setRcode(chen::dns::RCODE::NoError);
 }
 
 response::response(const response &o)

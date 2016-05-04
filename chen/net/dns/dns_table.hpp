@@ -7,9 +7,7 @@
 #pragma once
 
 #include "dns_define.hpp"
-#include <functional>
 #include <memory>
-#include <map>
 
 namespace chen
 {
@@ -70,32 +68,6 @@ namespace chen
             static void set(chen::dns::QR key, const std::string &val);
             static void set(chen::dns::OPCODE key, const std::string &val);
             static void set(chen::dns::RCODE key, const std::string &val);
-
-        private:
-            /**
-             * Init
-             */
-            static void init();
-
-        private:
-            static bool _init;
-
-            static std::map<chen::dns::RRType, rr_build_type> _rr_build;
-
-            static std::map<chen::dns::RRType, std::string> _rr_type_text;
-            static std::map<std::string, chen::dns::RRType> _rr_text_type;
-
-            static std::map<chen::dns::RRClass, std::string> _rr_class_text;
-            static std::map<std::string, chen::dns::RRClass> _rr_text_class;
-
-            static std::map<chen::dns::QR, std::string> _rr_qr_text;
-            static std::map<std::string, chen::dns::QR> _rr_text_qr;
-
-            static std::map<chen::dns::OPCODE, std::string> _rr_opcode_text;
-            static std::map<std::string, chen::dns::OPCODE> _rr_text_opcode;
-
-            static std::map<chen::dns::RCODE, std::string> _rr_rcode_text;
-            static std::map<std::string, chen::dns::RCODE> _rr_text_rcode;
         };
     }
 }
