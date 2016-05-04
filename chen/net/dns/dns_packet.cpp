@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "dns_packet.hpp"
+#include "dns_record.hpp"
 #include "dns_error.hpp"
 #include "dns_codec.hpp"
 
@@ -109,6 +110,23 @@ void request::setAddr(const std::string &value)
 void request::setPort(std::uint16_t value)
 {
     this->_port = value;
+}
+
+// codec
+std::vector<std::uint8_t> request::encode() const
+{
+    auto ret = this->_header.encode();
+    auto tmp = this->_question.encode();
+
+    ret.insert(ret.end(), tmp.begin(), tmp.end());
+    return ret;
+}
+
+void request::decode(const std::vector<std::uint8_t> &data)
+{
+    // todo avoid copy
+    this->_header.decode(data);
+    this->_question.decode(std::vector<std::uint8_t>(data.begin() + 0, data.end()));  // todo add correct bytes
 }
 
 
@@ -223,4 +241,83 @@ void response::setAuthority(const rr_type &value)
 void response::setAdditional(const rr_type &value)
 {
     this->_additional = value;
+}
+
+// codec
+std::vector<std::uint8_t> response::encode() const
+{
+    // todo avoid copy
+    // header
+    auto ret = this->_header.encode();
+
+    // question
+    for (auto &val : this->_question)
+    {
+        auto tmp = val.encode();
+        ret.insert(ret.end(), tmp.begin(), tmp.end());
+    }
+
+    // answer
+    for (auto &val : this->_answer)
+    {
+        auto tmp = val->encode();
+        ret.insert(ret.end(), tmp.begin(), tmp.end());
+    }
+
+    // authority
+    for (auto &val : this->_authority)
+    {
+        auto tmp = val->encode();
+        ret.insert(ret.end(), tmp.begin(), tmp.end());
+    }
+
+    // additional
+    for (auto &val : this->_additional)
+    {
+        auto tmp = val->encode();
+        ret.insert(ret.end(), tmp.begin(), tmp.end());
+    }
+
+    return ret;
+}
+
+void response::decode(const std::vector<std::uint8_t> &data)
+{
+    // header
+    this->_header.decode(data);
+
+    // question
+    this->_question.clear();
+
+    for (std::uint16_t i = 0, len = this->_header.qdcount(); i < len; ++i)
+    {
+        chen::dns::question q;
+        q.decode(std::vector<std::uint8_t>(data.begin(), data.end()));  // todo add bytes
+
+        this->_question.push_back(q);
+    }
+
+    // answer
+    this->_answer.clear();
+
+    for (std::uint16_t i = 0, len = this->_header.ancount(); i < len; ++i)
+    {
+        this->_answer.push_back(chen::dns::RR::decode(std::vector<std::uint8_t>(data.begin(), data.end())));  // todo add bytes
+    }
+
+    // authority
+    this->_authority.clear();
+
+    for (std::uint16_t i = 0, len = this->_header.nscount(); i < len; ++i)
+    {
+        this->_authority.push_back(chen::dns::RR::decode(std::vector<std::uint8_t>(data.begin(), data.end())));  // todo add bytes
+    }
+
+    // additional
+    this->_additional.clear();
+
+    for (std::uint16_t i = 0, len = this->_header.arcount(); i < len; ++i)
+    {
+        this->_additional.push_back(chen::dns::RR::decode(std::vector<std::uint8_t>(data.begin(), data.end())));  // todo add bytes
+    }
 }

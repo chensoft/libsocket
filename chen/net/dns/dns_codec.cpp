@@ -185,63 +185,6 @@ void encoder::pack(const std::vector<std::uint8_t> &value, std::size_t need)
     this->_binary.insert(this->_binary.end(), value.begin(), value.begin() + need);
 }
 
-//void encoder::pack(const chen::dns::request &request)
-//{
-//    auto size = this->_binary.size();
-//
-//    try
-//    {
-//        // header
-//        this->pack(request.header());
-//
-//        // question
-//        this->pack(request.question());
-//    }
-//    catch (...)
-//    {
-//        // restore
-//        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
-//        throw;
-//    }
-//}
-//
-//void encoder::pack(const chen::dns::response &response)
-//{
-//    auto size = this->_binary.size();
-//
-//    try
-//    {
-//        // header
-//        this->pack(response.header());
-//
-//        // question
-//        auto question = response.question();
-//        for (auto &val : question)
-//            this->pack(val);
-//
-//        // answer
-//        auto answer = response.answer();
-//        for (auto &val : answer)
-//            this->pack(*val);
-//
-//        // authority
-//        auto authority = response.authority();
-//        for (auto &val : authority)
-//            this->pack(*val);
-//
-//        // additional
-//        auto additional = response.additional();
-//        for (auto &val : additional)
-//            this->pack(*val);
-//    }
-//    catch (...)
-//    {
-//        // restore
-//        this->_binary.erase(this->_binary.begin() + size, this->_binary.end());
-//        throw;
-//    }
-//}
-
 
 // -----------------------------------------------------------------------------
 // decoder
@@ -411,64 +354,6 @@ void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need)
     value.insert(value.end(), this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need);
     this->_cursor += need;
 }
-
-//void decoder::unpack(chen::dns::response &response)
-//{
-//    // header
-//    chen::dns::header header;
-//    this->unpack(header);
-//
-//    // question
-//    response::q_type question;
-//
-//    for (std::uint16_t i = 0, len = header.qdcount(); i < len; ++i)
-//    {
-//        chen::dns::question q;
-//        this->unpack(q);
-//
-//        question.push_back(q);
-//    }
-//
-//    // answer
-//    response::rr_type answer;
-//
-//    for (std::uint16_t i = 0, len = header.ancount(); i < len; ++i)
-//    {
-//        std::shared_ptr<chen::dns::RR> r;
-//        this->unpack(r);
-//
-//        answer.push_back(r);
-//    }
-//
-//    // authority
-//    response::rr_type authority;
-//
-//    for (std::uint16_t i = 0, len = header.nscount(); i < len; ++i)
-//    {
-//        std::shared_ptr<chen::dns::RR> r;
-//        this->unpack(r);
-//
-//        authority.push_back(r);
-//    }
-//
-//    // additional
-//    response::rr_type additional;
-//
-//    for (std::uint16_t i = 0, len = header.arcount(); i < len; ++i)
-//    {
-//        std::shared_ptr<chen::dns::RR> r;
-//        this->unpack(r);
-//
-//        additional.push_back(r);
-//    }
-//
-//    // set
-//    response.setHeader(header);
-//    response.setQuestion(std::move(question));
-//    response.setAnswer(std::move(answer));
-//    response.setAuthority(std::move(authority));
-//    response.setAdditional(std::move(additional));
-//}
 
 // assign
 void decoder::assign(const std::vector<std::uint8_t> &value)

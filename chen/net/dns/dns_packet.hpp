@@ -72,6 +72,14 @@ namespace chen
             void setAddr(const std::string &value);
             void setPort(std::uint16_t value);
 
+        public:
+            /**
+             * Encode & Decode
+             * todo return remain bytes or use iterator when use decode?
+             */
+            std::vector<std::uint8_t> encode() const;
+            void decode(const std::vector<std::uint8_t> &data);
+
         private:
             chen::dns::header _header;
             chen::dns::question _question;
@@ -128,6 +136,14 @@ namespace chen
             void setAnswer(const rr_type &value);
             void setAuthority(const rr_type &value);
             void setAdditional(const rr_type &value);
+
+        public:
+            /**
+             * Encode & Decode
+             * todo return remain bytes or use iterator when use decode?
+             */
+            std::vector<std::uint8_t> encode() const;
+            void decode(const std::vector<std::uint8_t> &data);
 
         private:
             chen::dns::header _header;

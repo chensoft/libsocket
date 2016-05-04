@@ -85,10 +85,6 @@ namespace chen
             {
                 this->_binary.insert(this->_binary.end(), value.begin(), value.end());
             }
-
-//            virtual void pack(const chen::dns::question &question);
-//            virtual void pack(const chen::dns::request &request);
-//            virtual void pack(const chen::dns::response &response);
         };
 
 
@@ -123,11 +119,6 @@ namespace chen
                 std::copy(this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need, value.begin());
                 this->_cursor += need;
             }
-
-//            virtual void unpack(chen::dns::header &header);
-//            virtual void unpack(chen::dns::question &question);
-//            virtual void unpack(chen::dns::request &request);
-//            virtual void unpack(chen::dns::response &response);
 
         public:
             /**
