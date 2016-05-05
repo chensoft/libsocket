@@ -23,34 +23,26 @@ RR::~RR()
 
 std::vector<std::uint8_t> RR::encode() const
 {
-    chen::dns::encoder encoder;
+    std::vector<std::uint8_t> out;
+    this->encode(out);
+    return out;  // todo test performance with std::move
+}
 
+void RR::encode(std::vector<std::uint8_t> &out) const
+{
     // common
-    encoder.pack(this->name, true);
-    encoder.pack(this->rrtype);
-    encoder.pack(this->rrclass);
-    encoder.pack(this->ttl);
+    encoder::pack(this->name, true, out);
+    encoder::pack(this->rrtype, out);
+    encoder::pack(this->rrclass, out);
+    encoder::pack(this->ttl, out);
 
     // rdlength, placeholder here
-    encoder.pack(static_cast<std::uint16_t>(0));
+    encoder::pack(static_cast<std::uint16_t>(0), out);
+}
 
-    // rdata
-    auto beg = encoder.binary().size();
-    this->encode(encoder);
-
-    // rdlength, real value
-    auto off = encoder.binary().size() - beg;
-    if (off > std::numeric_limits<std::uint16_t>::max())
-        throw error_size("dns: codec pack rdata size is overflow");
-
-    auto rdlength = static_cast<std::uint16_t>(off);
-    auto binary   = encoder.retrieve();
-
-    binary[beg - 2] = static_cast<std::uint8_t>(rdlength >> 8 & 0xFF);
-    binary[beg - 1] = static_cast<std::uint8_t>(rdlength & 0xFF);
-
-    // todo test performance with std::move
-    return binary;
+void RR::decode(chen::dns::decoder &decoder)
+{
+    decoder.unpack(this->rdlength);
 }
 
 std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
@@ -92,9 +84,16 @@ std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
     return record;  // todo use move?
 }
 
-void RR::decode(chen::dns::decoder &decoder)
+// helper
+void RR::adjust(std::vector<std::uint8_t> &out, std::size_t val) const
 {
-    decoder.unpack(this->rdlength);
+    if (val > std::numeric_limits<std::uint16_t>::max())
+        throw error_size("dns: codec pack rdata size is overflow");
+
+    auto rdlength = static_cast<std::uint16_t>(val);
+
+    out[out.size() - rdlength - 2] = static_cast<std::uint8_t>(rdlength >> 8 & 0xFF);
+    out[out.size() - rdlength - 1] = static_cast<std::uint8_t>(rdlength & 0xFF);
 }
 
 std::size_t RR::remain(chen::dns::decoder &decoder, std::size_t origin) const
@@ -109,9 +108,29 @@ std::size_t RR::remain(chen::dns::decoder &decoder, std::size_t origin) const
 
 // -----------------------------------------------------------------------------
 // RAW
-void Raw::encode(chen::dns::encoder &encoder) const
+void Raw::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->rdata, this->rdata.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->rdata, this->rdata.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void Raw::decode(chen::dns::decoder &decoder)
@@ -123,9 +142,29 @@ void Raw::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // A
-void A::encode(chen::dns::encoder &encoder) const
+void A::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->address);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->address, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void A::decode(chen::dns::decoder &decoder)
@@ -137,9 +176,29 @@ void A::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NS
-void NS::encode(chen::dns::encoder &encoder) const
+void NS::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->nsdname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->nsdname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NS::decode(chen::dns::decoder &decoder)
@@ -151,9 +210,29 @@ void NS::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MD
-void MD::encode(chen::dns::encoder &encoder) const
+void MD::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->madname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->madname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MD::decode(chen::dns::decoder &decoder)
@@ -165,9 +244,29 @@ void MD::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MF
-void MF::encode(chen::dns::encoder &encoder) const
+void MF::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->madname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->madname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MF::decode(chen::dns::decoder &decoder)
@@ -179,9 +278,29 @@ void MF::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // CNAME
-void CNAME::encode(chen::dns::encoder &encoder) const
+void CNAME::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->cname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->cname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void CNAME::decode(chen::dns::decoder &decoder)
@@ -193,15 +312,35 @@ void CNAME::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SOA
-void SOA::encode(chen::dns::encoder &encoder) const
+void SOA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->mname, true);
-    encoder.pack(this->rname, true);
-    encoder.pack(this->serial);
-    encoder.pack(this->refresh);
-    encoder.pack(this->retry);
-    encoder.pack(this->expire);
-    encoder.pack(this->minimum);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->mname, true, out);
+        encoder::pack(this->rname, true, out);
+        encoder::pack(this->serial, out);
+        encoder::pack(this->refresh, out);
+        encoder::pack(this->retry, out);
+        encoder::pack(this->expire, out);
+        encoder::pack(this->minimum, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SOA::decode(chen::dns::decoder &decoder)
@@ -219,9 +358,29 @@ void SOA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MB
-void MB::encode(chen::dns::encoder &encoder) const
+void MB::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->madname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->madname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MB::decode(chen::dns::decoder &decoder)
@@ -233,9 +392,29 @@ void MB::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MG
-void MG::encode(chen::dns::encoder &encoder) const
+void MG::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->mgmname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->mgmname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MG::decode(chen::dns::decoder &decoder)
@@ -247,9 +426,29 @@ void MG::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MR
-void MR::encode(chen::dns::encoder &encoder) const
+void MR::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->newname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->newname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MR::decode(chen::dns::decoder &decoder)
@@ -261,9 +460,29 @@ void MR::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NUL
-void NUL::encode(chen::dns::encoder &encoder) const
+void NUL::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->anything, this->anything.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->anything, this->anything.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NUL::decode(chen::dns::decoder &decoder)
@@ -275,11 +494,31 @@ void NUL::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // WKS
-void WKS::encode(chen::dns::encoder &encoder) const
+void WKS::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->address);
-    encoder.pack(this->protocol);
-    encoder.pack(this->bitmap, this->bitmap.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->address, out);
+        encoder::pack(this->protocol, out);
+        encoder::pack(this->bitmap, this->bitmap.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void WKS::decode(chen::dns::decoder &decoder)
@@ -298,9 +537,29 @@ void WKS::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // PTR
-void PTR::encode(chen::dns::encoder &encoder) const
+void PTR::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->ptrdname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->ptrdname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void PTR::decode(chen::dns::decoder &decoder)
@@ -312,10 +571,30 @@ void PTR::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // HINFO
-void HINFO::encode(chen::dns::encoder &encoder) const
+void HINFO::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->cpu, false);
-    encoder.pack(this->os, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->cpu, false, out);
+        encoder::pack(this->os, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void HINFO::decode(chen::dns::decoder &decoder)
@@ -328,10 +607,30 @@ void HINFO::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MINFO
-void MINFO::encode(chen::dns::encoder &encoder) const
+void MINFO::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->rmailbx, true);
-    encoder.pack(this->emailbx, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->rmailbx, true, out);
+        encoder::pack(this->emailbx, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MINFO::decode(chen::dns::decoder &decoder)
@@ -344,10 +643,30 @@ void MINFO::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // MX
-void MX::encode(chen::dns::encoder &encoder) const
+void MX::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->exchange, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->exchange, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void MX::decode(chen::dns::decoder &decoder)
@@ -360,9 +679,29 @@ void MX::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // TXT
-void TXT::encode(chen::dns::encoder &encoder) const
+void TXT::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->txt_data, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->txt_data, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void TXT::decode(chen::dns::decoder &decoder)
@@ -374,10 +713,30 @@ void TXT::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // RP
-void RP::encode(chen::dns::encoder &encoder) const
+void RP::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->mbox_dname, true);
-    encoder.pack(this->txt_dname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->mbox_dname, true, out);
+        encoder::pack(this->txt_dname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void RP::decode(chen::dns::decoder &decoder)
@@ -390,10 +749,30 @@ void RP::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // AFSDB
-void AFSDB::encode(chen::dns::encoder &encoder) const
+void AFSDB::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->subtype);
-    encoder.pack(this->hostname, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->subtype, out);
+        encoder::pack(this->hostname, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void AFSDB::decode(chen::dns::decoder &decoder)
@@ -406,9 +785,29 @@ void AFSDB::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // X25
-void X25::encode(chen::dns::encoder &encoder) const
+void X25::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->psdn_address, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->psdn_address, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void X25::decode(chen::dns::decoder &decoder)
@@ -420,10 +819,30 @@ void X25::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // ISDN
-void ISDN::encode(chen::dns::encoder &encoder) const
+void ISDN::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->isdn_address, false);
-    encoder.pack(this->sa, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->isdn_address, false, out);
+        encoder::pack(this->sa, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void ISDN::decode(chen::dns::decoder &decoder)
@@ -436,10 +855,30 @@ void ISDN::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // RT
-void RT::encode(chen::dns::encoder &encoder) const
+void RT::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->intermediate_host, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->intermediate_host, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void RT::decode(chen::dns::decoder &decoder)
@@ -452,9 +891,29 @@ void RT::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NSAP
-void NSAP::encode(chen::dns::encoder &encoder) const
+void NSAP::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->nsap, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->nsap, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NSAP::decode(chen::dns::decoder &decoder)
@@ -466,9 +925,29 @@ void NSAP::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NSAPPTR
-void NSAPPTR::encode(chen::dns::encoder &encoder) const
+void NSAPPTR::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->owner, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->owner, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NSAPPTR::decode(chen::dns::decoder &decoder)
@@ -480,17 +959,37 @@ void NSAPPTR::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SIG
-void SIG::encode(chen::dns::encoder &encoder) const
+void SIG::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->type_covered);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->labels);
-    encoder.pack(this->original);
-    encoder.pack(this->expiration);
-    encoder.pack(this->inception);
-    encoder.pack(this->key_tag);
-    encoder.pack(this->signer, true);
-    encoder.pack(this->signature, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->type_covered, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->labels, out);
+        encoder::pack(this->original, out);
+        encoder::pack(this->expiration, out);
+        encoder::pack(this->inception, out);
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->signer, true, out);
+        encoder::pack(this->signature, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SIG::decode(chen::dns::decoder &decoder)
@@ -509,12 +1008,32 @@ void SIG::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // KEY
-void KEY::encode(chen::dns::encoder &encoder) const
+void KEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->flags);
-    encoder.pack(this->protocol);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->flags, out);
+        encoder::pack(this->protocol, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->publickey, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void KEY::decode(chen::dns::decoder &decoder)
@@ -529,11 +1048,31 @@ void KEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // PX
-void PX::encode(chen::dns::encoder &encoder) const
+void PX::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->map822, true);
-    encoder.pack(this->mapx400, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->map822, true, out);
+        encoder::pack(this->mapx400, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void PX::decode(chen::dns::decoder &decoder)
@@ -547,11 +1086,31 @@ void PX::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // GPOS
-void GPOS::encode(chen::dns::encoder &encoder) const
+void GPOS::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->longitude, false);
-    encoder.pack(this->latitude, false);
-    encoder.pack(this->altitude, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->longitude, false, out);
+        encoder::pack(this->latitude, false, out);
+        encoder::pack(this->altitude, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void GPOS::decode(chen::dns::decoder &decoder)
@@ -565,9 +1124,29 @@ void GPOS::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // AAAA
-void AAAA::encode(chen::dns::encoder &encoder) const
+void AAAA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->address);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->address, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void AAAA::decode(chen::dns::decoder &decoder)
@@ -579,15 +1158,35 @@ void AAAA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // LOC
-void LOC::encode(chen::dns::encoder &encoder) const
+void LOC::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->version);
-    encoder.pack(this->size);
-    encoder.pack(this->horiz_pre);
-    encoder.pack(this->vert_pre);
-    encoder.pack(this->longitude);
-    encoder.pack(this->latitude);
-    encoder.pack(this->altitude);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->version, out);
+        encoder::pack(this->size, out);
+        encoder::pack(this->horiz_pre, out);
+        encoder::pack(this->vert_pre, out);
+        encoder::pack(this->longitude, out);
+        encoder::pack(this->latitude, out);
+        encoder::pack(this->altitude, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void LOC::decode(chen::dns::decoder &decoder)
@@ -605,10 +1204,30 @@ void LOC::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NXT
-void NXT::encode(chen::dns::encoder &encoder) const
+void NXT::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->next_domain, true);
-    encoder.pack(this->type_bitmap, this->type_bitmap.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->next_domain, true, out);
+        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NXT::decode(chen::dns::decoder &decoder)
@@ -625,9 +1244,29 @@ void NXT::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // EID
-void EID::encode(chen::dns::encoder &encoder) const
+void EID::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->endpoint, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->endpoint, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void EID::decode(chen::dns::decoder &decoder)
@@ -639,9 +1278,29 @@ void EID::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NIMLOC
-void NIMLOC::encode(chen::dns::encoder &encoder) const
+void NIMLOC::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->locator, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->locator, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NIMLOC::decode(chen::dns::decoder &decoder)
@@ -653,12 +1312,32 @@ void NIMLOC::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SRV
-void SRV::encode(chen::dns::encoder &encoder) const
+void SRV::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->priority);
-    encoder.pack(this->weight);
-    encoder.pack(this->port);
-    encoder.pack(this->target, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->priority, out);
+        encoder::pack(this->weight, out);
+        encoder::pack(this->port, out);
+        encoder::pack(this->target, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SRV::decode(chen::dns::decoder &decoder)
@@ -673,10 +1352,30 @@ void SRV::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // ATMA
-void ATMA::encode(chen::dns::encoder &encoder) const
+void ATMA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->format);
-    encoder.pack(this->address, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->format, out);
+        encoder::pack(this->address, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void ATMA::decode(chen::dns::decoder &decoder)
@@ -689,14 +1388,34 @@ void ATMA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NAPTR
-void NAPTR::encode(chen::dns::encoder &encoder) const
+void NAPTR::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->order);
-    encoder.pack(this->preference);
-    encoder.pack(this->flags, false);
-    encoder.pack(this->services, false);
-    encoder.pack(this->regexp, false);
-    encoder.pack(this->replacement, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->order, out);
+        encoder::pack(this->preference, out);
+        encoder::pack(this->flags, false, out);
+        encoder::pack(this->services, false, out);
+        encoder::pack(this->regexp, false, out);
+        encoder::pack(this->replacement, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NAPTR::decode(chen::dns::decoder &decoder)
@@ -713,10 +1432,30 @@ void NAPTR::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // KX
-void KX::encode(chen::dns::encoder &encoder) const
+void KX::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->exchanger, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->exchanger, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void KX::decode(chen::dns::decoder &decoder)
@@ -729,12 +1468,32 @@ void KX::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // CERT
-void CERT::encode(chen::dns::encoder &encoder) const
+void CERT::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->type);
-    encoder.pack(this->key_tag);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->certificate, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->type, out);
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->certificate, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void CERT::decode(chen::dns::decoder &decoder)
@@ -749,9 +1508,29 @@ void CERT::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // DNAME
-void DNAME::encode(chen::dns::encoder &encoder) const
+void DNAME::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->target, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->target, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void DNAME::decode(chen::dns::decoder &decoder)
@@ -763,11 +1542,31 @@ void DNAME::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SINK
-void SINK::encode(chen::dns::encoder &encoder) const
+void SINK::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->coding);
-    encoder.pack(this->subcoding);
-    encoder.pack(this->sdata, this->sdata.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->coding, out);
+        encoder::pack(this->subcoding, out);
+        encoder::pack(this->sdata, this->sdata.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SINK::decode(chen::dns::decoder &decoder)
@@ -785,12 +1584,32 @@ void SINK::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // DS
-void DS::encode(chen::dns::encoder &encoder) const
+void DS::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->key_tag);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->digest_type, out);
+        encoder::pack(this->digest, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void DS::decode(chen::dns::decoder &decoder)
@@ -805,11 +1624,31 @@ void DS::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SSHFP
-void SSHFP::encode(chen::dns::encoder &encoder) const
+void SSHFP::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->algorithm);
-    encoder.pack(this->fptype);
-    encoder.pack(this->fingerprint, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->fptype, out);
+        encoder::pack(this->fingerprint, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SSHFP::decode(chen::dns::decoder &decoder)
@@ -823,35 +1662,55 @@ void SSHFP::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // IPSECKEY
-void IPSECKEY::encode(chen::dns::encoder &encoder) const
+void IPSECKEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->precedence);
-    encoder.pack(this->gateway_type);
-    encoder.pack(this->algorithm);
+    auto size = out.size();
 
-    switch (static_cast<GatewayType>(this->gateway_type))
+    try
     {
-        case GatewayType::None:
-            encoder.pack(this->gateway, 1);
-            break;
+        // base
+        RR::encode(out);
 
-        case GatewayType::IPv4:
-            encoder.pack(this->gateway, 4);
-            break;
+        // self
+        auto val = out.size();
 
-        case GatewayType::IPv6:
-            encoder.pack(this->gateway, 16);
-            break;
+        encoder::pack(this->precedence, out);
+        encoder::pack(this->gateway_type, out);
+        encoder::pack(this->algorithm, out);
 
-        case GatewayType::Domain:
+        switch (static_cast<GatewayType>(this->gateway_type))
         {
-            std::string domain(this->gateway.begin(), this->gateway.end());
-            encoder.pack(domain, true);
-        }
-            break;
-    }
+            case GatewayType::None:
+                encoder::pack(this->gateway, 1, out);
+                break;
 
-    encoder.pack(this->publickey, false);
+            case GatewayType::IPv4:
+                encoder::pack(this->gateway, 4, out);
+                break;
+
+            case GatewayType::IPv6:
+                encoder::pack(this->gateway, 16, out);
+                break;
+
+            case GatewayType::Domain:
+            {
+                std::string domain(this->gateway.begin(), this->gateway.end());
+                encoder::pack(domain, true, out);
+            }
+                break;
+        }
+
+        encoder::pack(this->publickey, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void IPSECKEY::decode(chen::dns::decoder &decoder)
@@ -893,17 +1752,37 @@ void IPSECKEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // RRSIG
-void RRSIG::encode(chen::dns::encoder &encoder) const
+void RRSIG::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->type_covered);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->labels);
-    encoder.pack(this->original);
-    encoder.pack(this->expiration);
-    encoder.pack(this->inception);
-    encoder.pack(this->key_tag);
-    encoder.pack(this->signer, true);
-    encoder.pack(this->signature, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->type_covered, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->labels, out);
+        encoder::pack(this->original, out);
+        encoder::pack(this->expiration, out);
+        encoder::pack(this->inception, out);
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->signer, true, out);
+        encoder::pack(this->signature, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void RRSIG::decode(chen::dns::decoder &decoder)
@@ -923,10 +1802,30 @@ void RRSIG::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NSEC
-void NSEC::encode(chen::dns::encoder &encoder) const
+void NSEC::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->next_domain, true);
-    encoder.pack(this->type_bitmap, this->type_bitmap.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->next_domain, true, out);
+        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NSEC::decode(chen::dns::decoder &decoder)
@@ -943,12 +1842,32 @@ void NSEC::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // DNSKEY
-void DNSKEY::encode(chen::dns::encoder &encoder) const
+void DNSKEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->flags);
-    encoder.pack(this->protocol);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->flags, out);
+        encoder::pack(this->protocol, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->publickey, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void DNSKEY::decode(chen::dns::decoder &decoder)
@@ -963,9 +1882,29 @@ void DNSKEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // DHCID
-void DHCID::encode(chen::dns::encoder &encoder) const
+void DHCID::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->digest, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->digest, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void DHCID::decode(chen::dns::decoder &decoder)
@@ -977,16 +1916,36 @@ void DHCID::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NSEC3
-void NSEC3::encode(chen::dns::encoder &encoder) const
+void NSEC3::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->hash);
-    encoder.pack(this->flags);
-    encoder.pack(this->iterations);
-    encoder.pack(this->salt_length);
-    encoder.pack(this->salt, this->salt_length);
-    encoder.pack(this->hash_length);
-    encoder.pack(this->next_owner, false);
-    encoder.pack(this->type_bitmap, this->type_bitmap.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->hash, out);
+        encoder::pack(this->flags, out);
+        encoder::pack(this->iterations, out);
+        encoder::pack(this->salt_length, out);
+        encoder::pack(this->salt, this->salt_length, out);
+        encoder::pack(this->hash_length, out);
+        encoder::pack(this->next_owner, false, out);
+        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NSEC3::decode(chen::dns::decoder &decoder)
@@ -1009,13 +1968,33 @@ void NSEC3::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NSEC3PARAM
-void NSEC3PARAM::encode(chen::dns::encoder &encoder) const
+void NSEC3PARAM::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->hash);
-    encoder.pack(this->flags);
-    encoder.pack(this->iterations);
-    encoder.pack(this->salt_length);
-    encoder.pack(this->salt, this->salt_length);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->hash, out);
+        encoder::pack(this->flags, out);
+        encoder::pack(this->iterations, out);
+        encoder::pack(this->salt_length, out);
+        encoder::pack(this->salt, this->salt_length, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NSEC3PARAM::decode(chen::dns::decoder &decoder)
@@ -1031,12 +2010,32 @@ void NSEC3PARAM::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // TLSA
-void TLSA::encode(chen::dns::encoder &encoder) const
+void TLSA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->usage);
-    encoder.pack(this->selector);
-    encoder.pack(this->matching_type);
-    encoder.pack(this->certificate, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->usage, out);
+        encoder::pack(this->selector, out);
+        encoder::pack(this->matching_type, out);
+        encoder::pack(this->certificate, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void TLSA::decode(chen::dns::decoder &decoder)
@@ -1051,12 +2050,32 @@ void TLSA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SMIMEA
-void SMIMEA::encode(chen::dns::encoder &encoder) const
+void SMIMEA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->usage);
-    encoder.pack(this->selector);
-    encoder.pack(this->matching_type);
-    encoder.pack(this->certificate, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->usage, out);
+        encoder::pack(this->selector, out);
+        encoder::pack(this->matching_type, out);
+        encoder::pack(this->certificate, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SMIMEA::decode(chen::dns::decoder &decoder)
@@ -1071,14 +2090,34 @@ void SMIMEA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // HIP
-void HIP::encode(chen::dns::encoder &encoder) const
+void HIP::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->hit_length);
-    encoder.pack(this->pk_algorithm);
-    encoder.pack(this->pk_length);
-    encoder.pack(this->hit, false);
-    encoder.pack(this->publickey, false);
-    encoder.pack(this->rendezvous_servers, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->hit_length, out);
+        encoder::pack(this->pk_algorithm, out);
+        encoder::pack(this->pk_length, out);
+        encoder::pack(this->hit, false, out);
+        encoder::pack(this->publickey, false, out);
+        encoder::pack(this->rendezvous_servers, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void HIP::decode(chen::dns::decoder &decoder)
@@ -1095,9 +2134,29 @@ void HIP::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NINFO
-void NINFO::encode(chen::dns::encoder &encoder) const
+void NINFO::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->zs_data, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->zs_data, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NINFO::decode(chen::dns::decoder &decoder)
@@ -1109,12 +2168,32 @@ void NINFO::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // RKEY
-void RKEY::encode(chen::dns::encoder &encoder) const
+void RKEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->flags);
-    encoder.pack(this->protocol);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->flags, out);
+        encoder::pack(this->protocol, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->publickey, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void RKEY::decode(chen::dns::decoder &decoder)
@@ -1129,10 +2208,30 @@ void RKEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // TALINK
-void TALINK::encode(chen::dns::encoder &encoder) const
+void TALINK::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->previous_name, true);
-    encoder.pack(this->next_name, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->previous_name, true, out);
+        encoder::pack(this->next_name, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void TALINK::decode(chen::dns::decoder &decoder)
@@ -1145,12 +2244,32 @@ void TALINK::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // CDS
-void CDS::encode(chen::dns::encoder &encoder) const
+void CDS::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->key_tag);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->digest_type, out);
+        encoder::pack(this->digest, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void CDS::decode(chen::dns::decoder &decoder)
@@ -1165,12 +2284,32 @@ void CDS::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // CDNSKEY
-void CDNSKEY::encode(chen::dns::encoder &encoder) const
+void CDNSKEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->flags);
-    encoder.pack(this->protocol);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->flags, out);
+        encoder::pack(this->protocol, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->publickey, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void CDNSKEY::decode(chen::dns::decoder &decoder)
@@ -1185,9 +2324,29 @@ void CDNSKEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // OPENPGPKEY
-void OPENPGPKEY::encode(chen::dns::encoder &encoder) const
+void OPENPGPKEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->publickey, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->publickey, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void OPENPGPKEY::decode(chen::dns::decoder &decoder)
@@ -1199,11 +2358,31 @@ void OPENPGPKEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // CSYNC
-void CSYNC::encode(chen::dns::encoder &encoder) const
+void CSYNC::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->serial);
-    encoder.pack(this->flags);
-    encoder.pack(this->type_bitmap, this->type_bitmap.size());
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->serial, out);
+        encoder::pack(this->flags, out);
+        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void CSYNC::decode(chen::dns::decoder &decoder)
@@ -1221,9 +2400,29 @@ void CSYNC::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // SPF
-void SPF::encode(chen::dns::encoder &encoder) const
+void SPF::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->txt, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->txt, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void SPF::decode(chen::dns::decoder &decoder)
@@ -1235,10 +2434,30 @@ void SPF::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // NID
-void NID::encode(chen::dns::encoder &encoder) const
+void NID::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->node_id);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->node_id, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void NID::decode(chen::dns::decoder &decoder)
@@ -1251,10 +2470,30 @@ void NID::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // L32
-void L32::encode(chen::dns::encoder &encoder) const
+void L32::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->locator32);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->locator32, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void L32::decode(chen::dns::decoder &decoder)
@@ -1267,10 +2506,30 @@ void L32::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // L64
-void L64::encode(chen::dns::encoder &encoder) const
+void L64::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->locator64);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->locator64, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void L64::decode(chen::dns::decoder &decoder)
@@ -1283,10 +2542,30 @@ void L64::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // LP
-void LP::encode(chen::dns::encoder &encoder) const
+void LP::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->preference);
-    encoder.pack(this->fqdn, true);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->preference, out);
+        encoder::pack(this->fqdn, true, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void LP::decode(chen::dns::decoder &decoder)
@@ -1299,9 +2578,29 @@ void LP::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // EUI48
-void EUI48::encode(chen::dns::encoder &encoder) const
+void EUI48::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->address);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->address, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void EUI48::decode(chen::dns::decoder &decoder)
@@ -1313,9 +2612,29 @@ void EUI48::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // EUI64
-void EUI64::encode(chen::dns::encoder &encoder) const
+void EUI64::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->address);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->address, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void EUI64::decode(chen::dns::decoder &decoder)
@@ -1327,17 +2646,37 @@ void EUI64::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // TKEY
-void TKEY::encode(chen::dns::encoder &encoder) const
+void TKEY::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->algorithm, true);
-    encoder.pack(this->inception);
-    encoder.pack(this->expiration);
-    encoder.pack(this->mode);
-    encoder.pack(this->error);
-    encoder.pack(this->key_size);
-    encoder.pack(this->key, this->key_size);
-    encoder.pack(this->other_len);
-    encoder.pack(this->other_data, this->other_len);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->algorithm, true, out);
+        encoder::pack(this->inception, out);
+        encoder::pack(this->expiration, out);
+        encoder::pack(this->mode, out);
+        encoder::pack(this->error, out);
+        encoder::pack(this->key_size, out);
+        encoder::pack(this->key, this->key_size, out);
+        encoder::pack(this->other_len, out);
+        encoder::pack(this->other_data, this->other_len, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void TKEY::decode(chen::dns::decoder &decoder)
@@ -1357,17 +2696,37 @@ void TKEY::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // TSIG
-void TSIG::encode(chen::dns::encoder &encoder) const
+void TSIG::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->algorithm, true);
-    encoder.pack(this->time_signed);
-    encoder.pack(this->fudge);
-    encoder.pack(this->mac_size);
-    encoder.pack(this->mac, this->mac_size);
-    encoder.pack(this->original_id);
-    encoder.pack(this->error);
-    encoder.pack(this->other_len);
-    encoder.pack(this->other_data, this->other_len);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->algorithm, true, out);
+        encoder::pack(this->time_signed, out);
+        encoder::pack(this->fudge, out);
+        encoder::pack(this->mac_size, out);
+        encoder::pack(this->mac, this->mac_size, out);
+        encoder::pack(this->original_id, out);
+        encoder::pack(this->error, out);
+        encoder::pack(this->other_len, out);
+        encoder::pack(this->other_data, this->other_len, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void TSIG::decode(chen::dns::decoder &decoder)
@@ -1387,11 +2746,31 @@ void TSIG::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // URI
-void URI::encode(chen::dns::encoder &encoder) const
+void URI::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->priority);
-    encoder.pack(this->weight);
-    encoder.pack(this->target, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->priority, out);
+        encoder::pack(this->weight, out);
+        encoder::pack(this->target, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void URI::decode(chen::dns::decoder &decoder)
@@ -1405,11 +2784,31 @@ void URI::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // CAA
-void CAA::encode(chen::dns::encoder &encoder) const
+void CAA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->flags);
-    encoder.pack(this->tag, false);
-    encoder.pack(this->value, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->flags, out);
+        encoder::pack(this->tag, false, out);
+        encoder::pack(this->value, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void CAA::decode(chen::dns::decoder &decoder)
@@ -1423,12 +2822,32 @@ void CAA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // TA
-void TA::encode(chen::dns::encoder &encoder) const
+void TA::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->key_tag);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->digest_type, out);
+        encoder::pack(this->digest, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void TA::decode(chen::dns::decoder &decoder)
@@ -1443,12 +2862,32 @@ void TA::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // DLV
-void DLV::encode(chen::dns::encoder &encoder) const
+void DLV::encode(std::vector<std::uint8_t> &out) const
 {
-    encoder.pack(this->key_tag);
-    encoder.pack(this->algorithm);
-    encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    auto size = out.size();
+
+    try
+    {
+        // base
+        RR::encode(out);
+
+        // self
+        auto val = out.size();
+
+        encoder::pack(this->key_tag, out);
+        encoder::pack(this->algorithm, out);
+        encoder::pack(this->digest_type, out);
+        encoder::pack(this->digest, false, out);
+
+        // rdlength
+        this->adjust(out, out.size() - val);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void DLV::decode(chen::dns::decoder &decoder)

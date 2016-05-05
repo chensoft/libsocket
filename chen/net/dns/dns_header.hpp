@@ -71,9 +71,10 @@ namespace chen
         public:
             /**
              * Encode & Decode
-             * todo return remain bytes or use iterator when use decode?
              */
             std::vector<std::uint8_t> encode() const;
+            void encode(std::vector<std::uint8_t> &out) const;
+
             void decode(const std::vector<std::uint8_t> &data);
 
         public:
@@ -120,9 +121,10 @@ namespace chen
         public:
             /**
              * Encode & Decode
-             * todo return remain bytes or use iterator when use decode?
              */
             std::vector<std::uint8_t> encode() const;
+            void encode(std::vector<std::uint8_t> &out) const;
+
             void decode(const std::vector<std::uint8_t> &data);
 
         private:

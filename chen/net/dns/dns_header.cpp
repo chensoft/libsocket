@@ -182,27 +182,41 @@ void header::setRcode(chen::dns::RCODE value)
 // codec
 std::vector<std::uint8_t> header::encode() const
 {
-    chen::dns::encoder encoder;
+    std::vector<std::uint8_t> out;
+    this->encode(out);
+    return out;
+}
 
-    // id
-    encoder.pack(this->_id);
+void header::encode(std::vector<std::uint8_t> &out) const
+{
+    auto size = out.size();
 
-    // flag
-    encoder.pack(this->_flag);
+    try
+    {
+        // id
+        encoder::pack(this->_id, out);
 
-    // question
-    encoder.pack(this->_qdcount);
+        // flag
+        encoder::pack(this->_flag, out);
 
-    // answer
-    encoder.pack(this->_ancount);
+        // question
+        encoder::pack(this->_qdcount, out);
 
-    // authority
-    encoder.pack(this->_nscount);
+        // answer
+        encoder::pack(this->_ancount, out);
 
-    // additional
-    encoder.pack(this->_arcount);
+        // authority
+        encoder::pack(this->_nscount, out);
 
-    return encoder.retrieve();
+        // additional
+        encoder::pack(this->_arcount, out);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void header::decode(const std::vector<std::uint8_t> &data)
@@ -302,18 +316,32 @@ void question::setQclass(chen::dns::RRClass value)
 // codec
 std::vector<std::uint8_t> question::encode() const
 {
-    chen::dns::encoder encoder;
+    std::vector<std::uint8_t> out;
+    this->encode(out);
+    return out;
+}
 
-    // qname
-    encoder.pack(this->_qname, true);
+void question::encode(std::vector<std::uint8_t> &out) const
+{
+    auto size = out.size();
 
-    // qtype
-    encoder.pack(this->_qtype);
+    try
+    {
+        // qname
+        encoder::pack(this->_qname, true, out);
 
-    // qclass
-    encoder.pack(this->_qclass);
+        // qtype
+        encoder::pack(this->_qtype, out);
 
-    return encoder.retrieve();
+        // qclass
+        encoder::pack(this->_qclass, out);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void question::decode(const std::vector<std::uint8_t> &data)

@@ -12,7 +12,6 @@
 #include <memory>
 #include <vector>
 #include <array>
-#include <map>
 
 namespace chen
 {
@@ -33,14 +32,10 @@ namespace chen
 
         public:
             /**
-             * Get binary data via move
+             * Get binary data via move or const ref
              */
-            virtual std::vector<std::uint8_t> retrieve();
-
-            /**
-             * Get binary data via const ref
-             */
-            virtual const std::vector<std::uint8_t>& binary() const;
+            std::vector<std::uint8_t> retrieve();
+            const std::vector<std::uint8_t>& binary() const;
 
             /**
              * Clear binary cache
@@ -67,23 +62,23 @@ namespace chen
             /**
              * Pack data
              */
-            virtual void pack(std::int8_t value);
-            virtual void pack(std::int16_t value);
-            virtual void pack(std::int32_t value);
-            virtual void pack(std::int64_t value);
-            virtual void pack(std::uint8_t value);
-            virtual void pack(std::uint16_t value);
-            virtual void pack(std::uint32_t value);
-            virtual void pack(std::uint64_t value);
-            virtual void pack(chen::dns::RRType value);
-            virtual void pack(chen::dns::RRClass value);
-            virtual void pack(const std::string &value, bool domain);
-            virtual void pack(const std::vector<std::uint8_t> &value, std::size_t need);
+            static void pack(std::int8_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::int16_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::int32_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::int64_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::uint8_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::uint16_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::uint32_t val, std::vector<std::uint8_t> &out);
+            static void pack(std::uint64_t val, std::vector<std::uint8_t> &out);
+            static void pack(chen::dns::RRType val, std::vector<std::uint8_t> &out);
+            static void pack(chen::dns::RRClass valj, std::vector<std::uint8_t> &out);
+            static void pack(const std::string &val, bool domain, std::vector<std::uint8_t> &out);
+            static void pack(const std::vector<std::uint8_t> &val, std::size_t need, std::vector<std::uint8_t> &out);
 
             template <std::size_t Size>
-            void pack(const std::array<std::uint8_t, Size> &value)
+            static void pack(const std::array<std::uint8_t, Size> &val, std::vector<std::uint8_t> &out)
             {
-                this->_binary.insert(this->_binary.end(), value.begin(), value.end());
+                out.insert(out.end(), val.begin(), val.end());
             }
         };
 

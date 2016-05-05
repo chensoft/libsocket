@@ -41,6 +41,11 @@ std::vector<std::uint8_t> message::encode() const
     return this->_header.encode();
 }
 
+void message::encode(std::vector<std::uint8_t> &out) const
+{
+    this->_header.encode(out);
+}
+
 void message::decode(const std::vector<std::uint8_t> &data)
 {
     this->_header.decode(data);
@@ -127,11 +132,29 @@ void request::setPort(std::uint16_t value)
 // codec
 std::vector<std::uint8_t> request::encode() const
 {
-    auto ret = message::encode();
-    auto tmp = this->_question.encode();
+    std::vector<std::uint8_t> out;
+    this->encode(out);
+    return out;
+}
 
-    ret.insert(ret.end(), tmp.begin(), tmp.end());
-    return ret;
+void request::encode(std::vector<std::uint8_t> &out) const
+{
+    auto size = out.size();
+
+    try
+    {
+        // header
+        message::encode(out);
+
+        // question
+        this->_question.encode(out);
+    }
+    catch (...)
+    {
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
+    }
 }
 
 void request::decode(const std::vector<std::uint8_t> &data)
@@ -268,39 +291,42 @@ void response::setAdditional(const rr_type &value)
 // codec
 std::vector<std::uint8_t> response::encode() const
 {
-    // todo avoid copy
-    // header
-    auto ret = message::encode();
+    std::vector<std::uint8_t> out;
+    this->encode(out);
+    return out;
+}
 
-    // question
-    for (auto &val : this->_question)
+void response::encode(std::vector<std::uint8_t> &out) const
+{
+    auto size = out.size();
+
+    try
     {
-        auto tmp = val.encode();
-        ret.insert(ret.end(), tmp.begin(), tmp.end());
-    }
+        // header
+        message::encode(out);
 
-    // answer
-    for (auto &val : this->_answer)
+        // question
+        for (auto &val : this->_question)
+            val.encode(out);
+
+        // answer
+        for (auto &val : this->_answer)
+            val->encode(out);
+
+        // authority
+        for (auto &val : this->_authority)
+            val->encode(out);
+
+        // additional
+        for (auto &val : this->_additional)
+            val->encode(out);
+    }
+    catch (...)
     {
-        auto tmp = val->encode();
-        ret.insert(ret.end(), tmp.begin(), tmp.end());
+        // restore
+        out.erase(out.begin() + size, out.end());
+        throw;
     }
-
-    // authority
-    for (auto &val : this->_authority)
-    {
-        auto tmp = val->encode();
-        ret.insert(ret.end(), tmp.begin(), tmp.end());
-    }
-
-    // additional
-    for (auto &val : this->_additional)
-    {
-        auto tmp = val->encode();
-        ret.insert(ret.end(), tmp.begin(), tmp.end());
-    }
-
-    return ret;
 }
 
 void response::decode(const std::vector<std::uint8_t> &data)

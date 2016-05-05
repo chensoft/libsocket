@@ -56,60 +56,60 @@ std::string codec::fqdn(const std::string &name)
 // encoder
 
 // pack
-void encoder::pack(std::int8_t value)
+void encoder::pack(std::int8_t val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint8_t>(value));
+    encoder::pack(static_cast<std::uint8_t>(val), out);
 }
 
-void encoder::pack(std::int16_t value)
+void encoder::pack(std::int16_t val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint16_t>(value));
+    encoder::pack(static_cast<std::uint16_t>(val), out);
 }
 
-void encoder::pack(std::int32_t value)
+void encoder::pack(std::int32_t val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint32_t>(value));
+    encoder::pack(static_cast<std::uint32_t>(val), out);
 }
 
-void encoder::pack(std::int64_t value)
+void encoder::pack(std::int64_t val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint64_t>(value));
+    encoder::pack(static_cast<std::uint64_t>(val), out);
 }
 
-void encoder::pack(std::uint8_t value)
+void encoder::pack(std::uint8_t val, std::vector<std::uint8_t> &out)
 {
-    this->_binary.push_back(value);
+    out.push_back(val);
 }
 
-void encoder::pack(std::uint16_t value)
+void encoder::pack(std::uint16_t val, std::vector<std::uint8_t> &out)
 {
     for (int i = 8; i >= 0; i -= 8)
-        this->_binary.push_back(static_cast<std::uint8_t>(value >> i & 0xFF));
+        out.push_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(std::uint32_t value)
+void encoder::pack(std::uint32_t val, std::vector<std::uint8_t> &out)
 {
     for (int i = 24; i >= 0; i -= 8)
-        this->_binary.push_back(static_cast<std::uint8_t>(value >> i & 0xFF));
+        out.push_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(std::uint64_t value)
+void encoder::pack(std::uint64_t val, std::vector<std::uint8_t> &out)
 {
     for (int i = 56; i >= 0; i -= 8)
-        this->_binary.push_back(static_cast<std::uint8_t>(value >> i & 0xFF));
+        out.push_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(chen::dns::RRType value)
+void encoder::pack(chen::dns::RRType val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint16_t>(value));
+    encoder::pack(static_cast<std::uint16_t>(val), out);
 }
 
-void encoder::pack(chen::dns::RRClass value)
+void encoder::pack(chen::dns::RRClass val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint16_t>(value));
+    encoder::pack(static_cast<std::uint16_t>(val), out);
 }
 
-void encoder::pack(const std::string &value, bool domain)
+void encoder::pack(const std::string &val, bool domain, std::vector<std::uint8_t> &out)
 {
     if (domain)
     {
@@ -118,32 +118,32 @@ void encoder::pack(const std::string &value, bool domain)
         // one byte label length + label characters + ... + one byte ending
 
         // check fqdn
-        if (!codec::isFqdn(value))
+        if (!codec::isFqdn(val))
             throw error_fqdn("dns: codec pack domain is not fqdn");
 
         // check total length
         // caution: this limit isn't name's length, it's the bytes after encoded
         // example: www.chensoft.com. will encoded as [3, w, w, w, 8, c, h, e, n, s, o, f, t, 3, c, o, m, 0]
         // the encoded bytes can't exceed than SIZE_LIMIT_DOMAIN
-        if (value.size() + 1 > SIZE_LIMIT_DOMAIN)
+        if (val.size() + 1 > SIZE_LIMIT_DOMAIN)
             throw error_size(str::format("dns: codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
 
         // generate binary
-        std::size_t origin = this->_binary.size();
+        std::size_t origin = out.size();
         std::size_t length = 0;
 
         try
         {
-            this->_binary.push_back(0);  // size for next label
+            out.push_back(0);  // size for next label
 
-            for (std::size_t i = 0, len = value.size(); i < len; ++i)
+            for (std::size_t i = 0, len = val.size(); i < len; ++i)
             {
-                char c = value[i];
+                char c = val[i];
 
                 if (c == '.')
                 {
-                    this->_binary[this->_binary.size() - length - 1] = static_cast<std::uint8_t>(length);
-                    this->_binary.push_back(0);  // size for next label
+                    out[out.size() - length - 1] = static_cast<std::uint8_t>(length);
+                    out.push_back(0);  // size for next label
 
                     length = 0;
                 }
@@ -154,13 +154,13 @@ void encoder::pack(const std::string &value, bool domain)
                     if (length > SIZE_LIMIT_LABEL)
                         throw error_size(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-                    this->_binary.push_back(static_cast<std::uint8_t>(c));
+                    out.push_back(static_cast<std::uint8_t>(c));
                 }
             }
         }
         catch (...)
         {
-            this->_binary.erase(this->_binary.begin() + origin, this->_binary.end());
+            out.erase(out.begin() + origin, out.end());
             throw;
         }
     }
@@ -169,20 +169,20 @@ void encoder::pack(const std::string &value, bool domain)
         // Note:
         // value is plain text
         // one byte length + characters
-        if (value.size() > SIZE_LIMIT_STRING)
+        if (val.size() > SIZE_LIMIT_STRING)
             throw error_size(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
-        this->_binary.push_back(static_cast<std::uint8_t>(value.size()));
-        this->_binary.insert(this->_binary.end(), value.begin(), value.end());
+        out.push_back(static_cast<std::uint8_t>(val.size()));
+        out.insert(out.end(), val.begin(), val.end());
     }
 }
 
-void encoder::pack(const std::vector<std::uint8_t> &value, std::size_t need)
+void encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need, std::vector<std::uint8_t> &out)
 {
-    if (value.size() < need)
+    if (val.size() < need)
         throw error_size(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
 
-    this->_binary.insert(this->_binary.end(), value.begin(), value.begin() + need);
+    out.insert(out.end(), val.begin(), val.begin() + need);
 }
 
 

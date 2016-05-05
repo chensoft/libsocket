@@ -38,9 +38,10 @@ namespace chen
         public:
             /**
              * Encode & Decode
-             * todo return remain bytes or use iterator when use decode?
              */
             virtual std::vector<std::uint8_t> encode() const;
+            virtual void encode(std::vector<std::uint8_t> &out) const;
+
             virtual void decode(const std::vector<std::uint8_t> &data);
 
         protected:
@@ -90,9 +91,10 @@ namespace chen
         public:
             /**
              * Encode & Decode
-             * todo return remain bytes or use iterator when use decode?
              */
             virtual std::vector<std::uint8_t> encode() const override;
+            virtual void encode(std::vector<std::uint8_t> &out) const override;
+
             virtual void decode(const std::vector<std::uint8_t> &data) override;
 
         protected:
@@ -152,9 +154,10 @@ namespace chen
         public:
             /**
              * Encode & Decode
-             * todo return remain bytes or use iterator when use decode?
              */
             virtual std::vector<std::uint8_t> encode() const override;
+            virtual void encode(std::vector<std::uint8_t> &out) const override;
+
             virtual void decode(const std::vector<std::uint8_t> &data) override;
 
         protected:
