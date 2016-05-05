@@ -76,6 +76,8 @@ namespace chen
             void encode(std::vector<std::uint8_t> &out) const;
 
             void decode(const std::vector<std::uint8_t> &data);
+            void decode(std::vector<std::uint8_t>::const_iterator &cur,
+                        std::vector<std::uint8_t>::const_iterator &end);
 
         public:
             /**
@@ -126,6 +128,8 @@ namespace chen
             void encode(std::vector<std::uint8_t> &out) const;
 
             void decode(const std::vector<std::uint8_t> &data);
+            void decode(std::vector<std::uint8_t>::const_iterator &cur,
+                        std::vector<std::uint8_t>::const_iterator &end);
 
         private:
             std::string _qname;

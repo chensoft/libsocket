@@ -48,7 +48,15 @@ void message::encode(std::vector<std::uint8_t> &out) const
 
 void message::decode(const std::vector<std::uint8_t> &data)
 {
-    this->_header.decode(data);
+    auto cur = data.begin();
+    auto end = data.end();
+    this->decode(cur, end);
+}
+
+void message::decode(std::vector<std::uint8_t>::const_iterator &cur,
+                     std::vector<std::uint8_t>::const_iterator &end)
+{
+    this->_header.decode(cur, end);
 }
 
 
@@ -157,11 +165,11 @@ void request::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void request::decode(const std::vector<std::uint8_t> &data)
+void request::decode(std::vector<std::uint8_t>::const_iterator &cur,
+                     std::vector<std::uint8_t>::const_iterator &end)
 {
-    // todo avoid copy
-    message::decode(data);
-    this->_question.decode(std::vector<std::uint8_t>(data.begin() + 0, data.end()));  // todo add correct bytes
+    message::decode(cur, end);
+    this->_question.decode(cur, end);
 }
 
 
@@ -329,10 +337,11 @@ void response::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void response::decode(const std::vector<std::uint8_t> &data)
+void response::decode(std::vector<std::uint8_t>::const_iterator &cur,
+                      std::vector<std::uint8_t>::const_iterator &end)
 {
     // header
-    message::decode(data);
+    message::decode(cur, end);
 
     // question
     this->_question.clear();
@@ -340,7 +349,7 @@ void response::decode(const std::vector<std::uint8_t> &data)
     for (std::uint16_t i = 0, len = this->_header.qdcount(); i < len; ++i)
     {
         chen::dns::question q;
-        q.decode(std::vector<std::uint8_t>(data.begin(), data.end()));  // todo add bytes
+        q.decode(cur, end);
 
         this->_question.push_back(q);
     }
@@ -350,7 +359,7 @@ void response::decode(const std::vector<std::uint8_t> &data)
 
     for (std::uint16_t i = 0, len = this->_header.ancount(); i < len; ++i)
     {
-        this->_answer.push_back(chen::dns::RR::decode(std::vector<std::uint8_t>(data.begin(), data.end())));  // todo add bytes
+        this->_answer.push_back(chen::dns::RR::decode(cur, end));
     }
 
     // authority
@@ -358,7 +367,7 @@ void response::decode(const std::vector<std::uint8_t> &data)
 
     for (std::uint16_t i = 0, len = this->_header.nscount(); i < len; ++i)
     {
-        this->_authority.push_back(chen::dns::RR::decode(std::vector<std::uint8_t>(data.begin(), data.end())));  // todo add bytes
+        this->_authority.push_back(chen::dns::RR::decode(cur, end));
     }
 
     // additional
@@ -366,6 +375,6 @@ void response::decode(const std::vector<std::uint8_t> &data)
 
     for (std::uint16_t i = 0, len = this->_header.arcount(); i < len; ++i)
     {
-        this->_additional.push_back(chen::dns::RR::decode(std::vector<std::uint8_t>(data.begin(), data.end())));  // todo add bytes
+        this->_additional.push_back(chen::dns::RR::decode(cur, end));
     }
 }

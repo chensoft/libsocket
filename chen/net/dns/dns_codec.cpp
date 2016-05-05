@@ -5,11 +5,6 @@
  * @link   http://chensoft.com
  */
 #include "dns_codec.hpp"
-#include "dns_table.hpp"
-#include "dns_record.hpp"
-#include "dns_packet.hpp"
-#include <chen/tool/num.hpp>
-#include <limits>
 
 using namespace chen;
 using namespace chen::dns;
@@ -21,29 +16,10 @@ codec::~codec()
 
 }
 
-// binary
-std::vector<std::uint8_t> codec::retrieve()
-{
-    // todo performance test
-    return std::move(this->_binary);
-}
-
-const std::vector<std::uint8_t>& codec::binary() const
-{
-    return this->_binary;
-}
-
-// clear
-void codec::clear()
-{
-    this->_binary.clear();
-}
-
 // fqdn
 bool codec::isFqdn(const std::string &name)
 {
-    auto size = name.size();
-    return size ? name[size - 1] == '.' : false;
+    return name.empty() ? false : name.back() == '.';
 }
 
 std::string codec::fqdn(const std::string &name)
@@ -190,100 +166,98 @@ void encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need, std::
 // decoder
 
 // unpack
-void decoder::unpack(std::int8_t &value)
+void decoder::unpack(std::int8_t &value, const_iterator &cur, const_iterator &end)
 {
     auto temp = static_cast<std::uint8_t>(value);
-    this->unpack(temp);
+    decoder::unpack(temp, cur, end);
 
     value = static_cast<std::int8_t>(temp);
 }
 
-void decoder::unpack(std::int16_t &value)
+void decoder::unpack(std::int16_t &value, const_iterator &cur, const_iterator &end)
 {
     auto temp = static_cast<std::uint16_t>(value);
-    this->unpack(temp);
+    decoder::unpack(temp, cur, end);
 
     value = static_cast<std::int16_t>(temp);
 }
 
-void decoder::unpack(std::int32_t &value)
+void decoder::unpack(std::int32_t &value, const_iterator &cur, const_iterator &end)
 {
     auto temp = static_cast<std::uint32_t>(value);
-    this->unpack(temp);
+    decoder::unpack(temp, cur, end);
 
     value = static_cast<std::int32_t>(temp);
 }
 
-void decoder::unpack(std::int64_t &value)
+void decoder::unpack(std::int64_t &value, const_iterator &cur, const_iterator &end)
 {
     auto temp = static_cast<std::uint64_t>(value);
-    this->unpack(temp);
+    decoder::unpack(temp, cur, end);
 
     value = static_cast<std::int64_t>(temp);
 }
 
-void decoder::unpack(std::uint8_t &value)
+void decoder::unpack(std::uint8_t &value, const_iterator &cur, const_iterator &end)
 {
-    if (this->remain() < 1)
+    if (end - cur < 1)
         throw error_size("dns: codec unpack size is not enough, require 1 bytes");
 
-    value = this->_binary[this->_cursor];
-
-    this->_cursor += 1;
+    value = *cur++;
 }
 
-void decoder::unpack(std::uint16_t &value)
+void decoder::unpack(std::uint16_t &value, const_iterator &cur, const_iterator &end)
 {
-    if (this->remain() < 2)
+    if (end - cur < 2)
         throw error_size("dns: codec unpack size is not enough, require 2 bytes");
 
-    auto ptr = reinterpret_cast<std::uint16_t*>(&this->_binary[this->_cursor]);
-    value    = num::swap(*ptr);
+    value = 0;
 
-    this->_cursor += 2;
+    for (std::size_t i = 0, len = sizeof(value); i < len; ++i)
+        value |= *cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(std::uint32_t &value)
+void decoder::unpack(std::uint32_t &value, const_iterator &cur, const_iterator &end)
 {
-    if (this->remain() < 4)
+    if (end - cur < 4)
         throw error_size("dns: codec unpack size is not enough, require 4 bytes");
 
-    auto ptr = reinterpret_cast<std::uint32_t*>(&this->_binary[this->_cursor]);
-    value    = num::swap(*ptr);
+    value = 0;
 
-    this->_cursor += 4;
+    for (std::size_t i = 0, len = sizeof(value); i < len; ++i)
+        value |= *cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(std::uint64_t &value)
+void decoder::unpack(std::uint64_t &value, const_iterator &cur, const_iterator &end)
 {
-    if (this->remain() < 8)
+    if (end - cur < 8)
         throw error_size("dns: codec unpack size is not enough, require 8 bytes");
 
-    auto ptr = reinterpret_cast<std::uint64_t*>(&this->_binary[this->_cursor]);
-    value    = num::swap(*ptr);
+    value = 0;
 
-    this->_cursor += 8;
+    for (std::size_t i = 0, len = sizeof(value); i < len; ++i)
+        value |= *cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(chen::dns::RRType &value)
+void decoder::unpack(chen::dns::RRType &value, const_iterator &cur, const_iterator &end)
 {
     auto temp = static_cast<std::uint16_t>(value);
-    this->unpack(temp);
+    decoder::unpack(temp, cur, end);
 
     value = static_cast<chen::dns::RRType>(temp);
 }
 
-void decoder::unpack(chen::dns::RRClass &value)
+void decoder::unpack(chen::dns::RRClass &value, const_iterator &cur, const_iterator &end)
 {
     auto temp = static_cast<std::uint16_t>(value);
-    this->unpack(temp);
+    decoder::unpack(temp, cur, end);
 
     value = static_cast<chen::dns::RRClass>(temp);
 }
 
-void decoder::unpack(std::string &value, bool domain)
+void decoder::unpack(std::string &value, bool domain, const_iterator &cur, const_iterator &end)
 {
-    if (this->remain() < 1)
+    if (end - cur < 1)
         throw error_size("dns: codec unpack size is zero");
 
     std::size_t total = 0;
@@ -298,14 +272,11 @@ void decoder::unpack(std::string &value, bool domain)
 
         try
         {
-            const std::uint8_t *data = &this->_binary[this->_cursor];
-            std::size_t size = this->remain();
-
-            while (*data)
+            while (*cur)
             {
-                length = static_cast<std::size_t>(data[0]) + 1;
+                length = static_cast<std::size_t>(*cur) + 1;
 
-                if (size < length)
+                if (end - cur < length)
                     throw error_size(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
 
                 // check limit
@@ -313,11 +284,8 @@ void decoder::unpack(std::string &value, bool domain)
                     throw error_size(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
                 for (std::size_t i = 1; i < length; ++i)
-                {
-                    value += data[i];
-                }
+                    value += *++cur;
 
-                data  += length;
                 value += ".";
                 total += length;
             }
@@ -335,52 +303,21 @@ void decoder::unpack(std::string &value, bool domain)
         // Note:
         // value is plain text
         // one byte length + characters
-        total = static_cast<std::size_t>(this->_binary[this->_cursor]) + 1;
+        total = static_cast<std::size_t>(*cur) + 1;
 
-        if (this->remain() < total)
+        if (end - cur < total)
             throw error_size(str::format("dns: codec unpack string size is not enough, require %d bytes", total));
 
-        value.insert(value.size(), reinterpret_cast<const char*>(this->_binary[this->_cursor + 1]), total - 1);
+        for (std::size_t i = 1; i < total; ++i)
+            value += *++cur;
     }
-
-    this->_cursor += total;
 }
 
-void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need)
+void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need, const_iterator &cur, const_iterator &end)
 {
-    if (this->remain() < need)
+    if (end - cur < need)
         throw error_size(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
-    value.insert(value.end(), this->_binary.begin() + this->_cursor, this->_binary.begin() + this->_cursor + need);
-    this->_cursor += need;
-}
-
-// assign
-void decoder::assign(const std::vector<std::uint8_t> &value)
-{
-    this->_binary = value;
-    this->reset();
-}
-
-// state
-std::size_t decoder::cursor() const
-{
-    return this->_cursor;
-}
-
-std::size_t decoder::remain() const
-{
-    return this->_binary.size() - this->_cursor;
-}
-
-// reset & clear
-void decoder::reset()
-{
-    this->_cursor = 0;
-}
-
-void decoder::clear()
-{
-    codec::clear();
-    this->reset();
+    while (need--)
+        value.push_back(*cur++);
 }

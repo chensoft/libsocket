@@ -17,9 +17,6 @@ namespace chen
     // todo should many int fields be unsigned?
     namespace dns
     {
-        class encoder;
-        class decoder;
-
         // ---------------------------------------------------------------------
         // Resource Record(rfc1035, section 3.2.1)
         struct RR
@@ -29,18 +26,25 @@ namespace chen
 
         public:
             /**
-             * Encode & Decode
+             * Encode
              */
             virtual std::vector<std::uint8_t> encode() const;
-            virtual void encode(std::vector<std::uint8_t> &out) const = 0;
-
-            virtual void decode(chen::dns::decoder &decoder) = 0;
+            virtual void encode(std::vector<std::uint8_t> &out) const;
 
             /**
-             * Decode, auto detect rr's type
-             * todo return remain bytes or use iterator when use decode?
+             * Decode, detect rr's type automatically
              */
             static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
+            static std::shared_ptr<chen::dns::RR> decode(std::vector<std::uint8_t>::const_iterator &cur,
+                                                         std::vector<std::uint8_t>::const_iterator &end);
+
+        protected:
+            /**
+             * Helper for encode & decode
+             */
+            virtual void pack(std::vector<std::uint8_t> &out) const = 0;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) = 0;
 
         protected:
             /**
@@ -51,7 +55,8 @@ namespace chen
             /**
              * Check remain data when decode
              */
-            virtual std::size_t remain(chen::dns::decoder &decoder, std::size_t origin) const;
+            virtual std::size_t remain(std::vector<std::uint8_t>::const_iterator &beg,
+                                       std::vector<std::uint8_t>::const_iterator &cur) const;
 
         public:
             std::string name;
@@ -60,7 +65,7 @@ namespace chen
             std::int32_t ttl = 0;
 
         protected:
-            // internal use only, will be set when call decode method
+            // internal use only, will be set when call unpack method
             std::uint16_t rdlength = 0;
         };
 
@@ -73,10 +78,9 @@ namespace chen
         struct Raw : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::vector<std::uint8_t> rdata;
@@ -98,10 +102,9 @@ namespace chen
         struct A : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint32_t address = 0;
@@ -113,10 +116,9 @@ namespace chen
         struct NS : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string nsdname;
@@ -128,10 +130,9 @@ namespace chen
         struct MD : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string madname;
@@ -143,10 +144,9 @@ namespace chen
         struct MF : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string madname;
@@ -158,10 +158,9 @@ namespace chen
         struct CNAME : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string cname;
@@ -173,10 +172,9 @@ namespace chen
         struct SOA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string mname;  // primary nameserver
@@ -194,10 +192,9 @@ namespace chen
         struct MB : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string madname;
@@ -209,10 +206,9 @@ namespace chen
         struct MG : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string mgmname;
@@ -224,10 +220,9 @@ namespace chen
         struct MR : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string newname;
@@ -239,10 +234,9 @@ namespace chen
         struct NUL : public Raw
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::vector<std::uint8_t> anything;
@@ -254,10 +248,9 @@ namespace chen
         struct WKS : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint32_t address = 0;
@@ -271,10 +264,9 @@ namespace chen
         struct PTR : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string ptrdname;
@@ -286,10 +278,9 @@ namespace chen
         struct HINFO : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string cpu;
@@ -302,10 +293,9 @@ namespace chen
         struct MINFO : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string rmailbx;
@@ -318,10 +308,9 @@ namespace chen
         struct MX : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::int16_t preference = 0;
@@ -334,10 +323,9 @@ namespace chen
         struct TXT : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string txt_data;
@@ -349,10 +337,9 @@ namespace chen
         struct RP : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string mbox_dname;
@@ -365,10 +352,9 @@ namespace chen
         struct AFSDB : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::int16_t subtype = 0;
@@ -381,10 +367,9 @@ namespace chen
         struct X25 : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string psdn_address;
@@ -396,10 +381,9 @@ namespace chen
         struct ISDN : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string isdn_address;
@@ -412,10 +396,9 @@ namespace chen
         struct RT : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::int16_t preference = 0;
@@ -428,10 +411,9 @@ namespace chen
         struct NSAP : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string nsap;
@@ -443,10 +425,9 @@ namespace chen
         struct NSAPPTR : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string owner;
@@ -458,10 +439,9 @@ namespace chen
         struct SIG : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -481,10 +461,9 @@ namespace chen
         struct KEY : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -499,10 +478,9 @@ namespace chen
         struct PX : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::int16_t preference = 0;
@@ -516,10 +494,9 @@ namespace chen
         struct GPOS : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string longitude;
@@ -533,10 +510,9 @@ namespace chen
         struct AAAA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::array<std::uint8_t, 16> address;
@@ -548,10 +524,9 @@ namespace chen
         struct LOC : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t version   = 0;
@@ -570,10 +545,9 @@ namespace chen
         struct NXT : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string next_domain;
@@ -586,10 +560,9 @@ namespace chen
         struct EID : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string endpoint;
@@ -601,10 +574,9 @@ namespace chen
         struct NIMLOC : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string locator;
@@ -616,10 +588,9 @@ namespace chen
         struct SRV : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t priority = 0;
@@ -634,10 +605,9 @@ namespace chen
         struct ATMA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t format = 0;
@@ -650,10 +620,9 @@ namespace chen
         struct NAPTR : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t order = 0;
@@ -670,10 +639,9 @@ namespace chen
         struct KX : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t preference = 0;
@@ -686,10 +654,9 @@ namespace chen
         struct CERT : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t type     = 0;
@@ -711,10 +678,9 @@ namespace chen
         struct DNAME : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string target;
@@ -726,10 +692,9 @@ namespace chen
         struct SINK : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t coding    = 0;
@@ -750,10 +715,9 @@ namespace chen
         struct DS : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -768,10 +732,9 @@ namespace chen
         struct SSHFP : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t algorithm = 0;
@@ -788,10 +751,9 @@ namespace chen
             enum class GatewayType {None, IPv4, IPv6, Domain};
 
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t precedence   = 0;
@@ -807,10 +769,9 @@ namespace chen
         struct RRSIG : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -830,10 +791,9 @@ namespace chen
         struct NSEC : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string next_domain;
@@ -846,10 +806,9 @@ namespace chen
         struct DNSKEY : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -864,10 +823,9 @@ namespace chen
         struct DHCID : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string digest;
@@ -879,10 +837,9 @@ namespace chen
         struct NSEC3 : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -901,10 +858,9 @@ namespace chen
         struct NSEC3PARAM : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -920,10 +876,9 @@ namespace chen
         struct TLSA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -938,10 +893,9 @@ namespace chen
         struct SMIMEA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -956,10 +910,9 @@ namespace chen
         struct HIP : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t hit_length   = 0;
@@ -976,10 +929,9 @@ namespace chen
         struct NINFO : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string zs_data;
@@ -991,10 +943,9 @@ namespace chen
         struct RKEY : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1009,10 +960,9 @@ namespace chen
         struct TALINK : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string previous_name;
@@ -1025,10 +975,9 @@ namespace chen
         struct CDS : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1043,10 +992,9 @@ namespace chen
         struct CDNSKEY : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1061,10 +1009,9 @@ namespace chen
         struct OPENPGPKEY : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string publickey;
@@ -1076,10 +1023,9 @@ namespace chen
         struct CSYNC : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint32_t serial = 0;
@@ -1093,10 +1039,9 @@ namespace chen
         struct SPF : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string txt;
@@ -1136,10 +1081,9 @@ namespace chen
         struct NID : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1152,10 +1096,9 @@ namespace chen
         struct L32 : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1168,10 +1111,9 @@ namespace chen
         struct L64 : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1184,10 +1126,9 @@ namespace chen
         struct LP : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1200,10 +1141,9 @@ namespace chen
         struct EUI48 : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::array<std::uint8_t, 6> address;
@@ -1215,10 +1155,9 @@ namespace chen
         struct EUI64 : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint64_t address = 0;
@@ -1230,10 +1169,9 @@ namespace chen
         struct TKEY : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string algorithm;
@@ -1253,10 +1191,9 @@ namespace chen
         struct TSIG : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::string algorithm;
@@ -1276,10 +1213,9 @@ namespace chen
         struct URI : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t priority = 0;
@@ -1293,10 +1229,9 @@ namespace chen
         struct CAA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint8_t flags = 0;
@@ -1310,10 +1245,9 @@ namespace chen
         struct TA : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1328,10 +1262,9 @@ namespace chen
         struct DLV : public RR
         {
         public:
-            using RR::encode;
-
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
             std::uint16_t key_tag    = 0;

@@ -221,32 +221,37 @@ void header::encode(std::vector<std::uint8_t> &out) const
 
 void header::decode(const std::vector<std::uint8_t> &data)
 {
-    chen::dns::decoder decoder;
-    decoder.assign(data);
+    auto cur = data.begin();
+    auto end = data.end();
+    this->decode(cur, end);
+}
 
+void header::decode(std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end)
+{
     // id
     std::uint16_t id = 0;
-    decoder.unpack(id);
+    decoder::unpack(id, cur, end);
 
     // flag
     std::uint16_t flag = 0;
-    decoder.unpack(flag);
+    decoder::unpack(flag, cur, end);
 
     // question
     std::uint16_t qdcount = 0;
-    decoder.unpack(qdcount);
+    decoder::unpack(qdcount, cur, end);
 
     // answer
     std::uint16_t ancount = 0;
-    decoder.unpack(ancount);
+    decoder::unpack(ancount, cur, end);
 
     // authority
     std::uint16_t nscount = 0;
-    decoder.unpack(nscount);
+    decoder::unpack(nscount, cur, end);
 
     // additional
     std::uint16_t arcount = 0;
-    decoder.unpack(arcount);
+    decoder::unpack(arcount, cur, end);
 
     // set
     this->_id      = id;
@@ -346,23 +351,28 @@ void question::encode(std::vector<std::uint8_t> &out) const
 
 void question::decode(const std::vector<std::uint8_t> &data)
 {
-    chen::dns::decoder decoder;
-    decoder.assign(data);
+    auto cur = data.begin();
+    auto end = data.end();
+    this->decode(cur, end);
+}
 
+void question::decode(std::vector<std::uint8_t>::const_iterator &cur,
+                      std::vector<std::uint8_t>::const_iterator &end)
+{
     // qname
     std::string qname;
-    decoder.unpack(qname, true);
+    decoder::unpack(qname, true, cur, end);
 
     // qtype
     chen::dns::RRType qtype = chen::dns::RRType::None;
-    decoder.unpack(qtype);
+    decoder::unpack(qtype, cur, end);
 
     // qclass
     chen::dns::RRClass qclass = chen::dns::RRClass::IN;
-    decoder.unpack(qclass);
+    decoder::unpack(qclass, cur, end);
 
     // set
-    this->_qname  = qname;
+    this->_qname  = std::move(qname);
     this->_qtype  = qtype;
     this->_qclass = qclass;
 }

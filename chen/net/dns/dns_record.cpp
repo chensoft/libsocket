@@ -21,14 +21,65 @@ RR::~RR()
 
 }
 
+// encode & decode
 std::vector<std::uint8_t> RR::encode() const
 {
     std::vector<std::uint8_t> out;
-    this->encode(out);
+    this->pack(out);
     return out;  // todo test performance with std::move
 }
 
 void RR::encode(std::vector<std::uint8_t> &out) const
+{
+    this->pack(out);
+}
+
+std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
+{
+    auto cur = data.begin();
+    auto end = data.end();
+    return RR::decode(cur, end);
+}
+
+std::shared_ptr<chen::dns::RR> RR::decode(std::vector<std::uint8_t>::const_iterator &cur,
+                                          std::vector<std::uint8_t>::const_iterator &end)
+{
+    // name
+    std::string name;
+    decoder::unpack(name, true, cur, end);
+
+    // rrtype
+    chen::dns::RRType rrtype = chen::dns::RRType::None;
+    decoder::unpack(rrtype, cur, end);
+
+    // rrclass
+    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
+    decoder::unpack(rrclass, cur, end);
+
+    // ttl
+    std::int32_t ttl = 0;
+    decoder::unpack(ttl, cur, end);
+
+    // build
+    // todo test if table build return nullptr?
+    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
+    if (!record)
+        record.reset(new chen::dns::Unknown);
+
+    // rdlength && rdata
+    record->unpack(cur, end);
+
+    // set
+    record->name    = std::move(name);
+    record->rrtype  = rrtype;
+    record->rrclass = rrclass;
+    record->ttl     = ttl;
+
+    return record;  // todo use move?
+}
+
+// pack & unpack
+void RR::pack(std::vector<std::uint8_t> &out) const
 {
     // common
     encoder::pack(this->name, true, out);
@@ -40,48 +91,10 @@ void RR::encode(std::vector<std::uint8_t> &out) const
     encoder::pack(static_cast<std::uint16_t>(0), out);
 }
 
-void RR::decode(chen::dns::decoder &decoder)
+void RR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    decoder.unpack(this->rdlength);
-}
-
-std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
-{
-    chen::dns::decoder decoder;
-    decoder.assign(data);  // todo avoid copy, don't store vector?
-
-    // name
-    std::string name;
-    decoder.unpack(name, true);
-
-    // rrtype
-    chen::dns::RRType rrtype = chen::dns::RRType::None;
-    decoder.unpack(rrtype);
-
-    // rrclass
-    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
-    decoder.unpack(rrclass);
-
-    // ttl
-    std::int32_t ttl = 0;
-    decoder.unpack(ttl);
-
-    // build
-    // todo test if table build return nullptr?
-    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
-    if (!record)
-        record.reset(new chen::dns::Unknown);
-
-    // rdlength && rdata
-    record->decode(decoder);
-
-    // set
-    record->name    = name;
-    record->rrtype  = rrtype;
-    record->rrclass = rrclass;
-    record->ttl     = ttl;
-
-    return record;  // todo use move?
+    decoder::unpack(this->rdlength, cur, end);
 }
 
 // helper
@@ -96,19 +109,20 @@ void RR::adjust(std::vector<std::uint8_t> &out, std::size_t val) const
     out[out.size() - rdlength - 1] = static_cast<std::uint8_t>(rdlength & 0xFF);
 }
 
-std::size_t RR::remain(chen::dns::decoder &decoder, std::size_t origin) const
+std::size_t RR::remain(std::vector<std::uint8_t>::const_iterator &beg,
+                       std::vector<std::uint8_t>::const_iterator &cur) const
 {
-    std::size_t used = decoder.cursor() - origin;
+    auto used = cur - beg;
     if (this->rdlength < used)
         throw error_size("dns: codec rdata is overflow");
 
-    return this->rdlength - used;
+    return static_cast<std::size_t>(this->rdlength - used);
 }
 
 
 // -----------------------------------------------------------------------------
 // RAW
-void Raw::encode(std::vector<std::uint8_t> &out) const
+void Raw::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -133,16 +147,17 @@ void Raw::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void Raw::decode(chen::dns::decoder &decoder)
+void Raw::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->rdata, this->rdlength);
+    RR::unpack(cur, end);
+    decoder::unpack(this->rdata, this->rdlength, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // A
-void A::encode(std::vector<std::uint8_t> &out) const
+void A::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -167,16 +182,17 @@ void A::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void A::decode(chen::dns::decoder &decoder)
+void A::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+               std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->address);
+    RR::unpack(cur, end);
+    decoder::unpack(this->address, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NS
-void NS::encode(std::vector<std::uint8_t> &out) const
+void NS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -201,16 +217,17 @@ void NS::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NS::decode(chen::dns::decoder &decoder)
+void NS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->nsdname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->nsdname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MD
-void MD::encode(std::vector<std::uint8_t> &out) const
+void MD::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -235,16 +252,17 @@ void MD::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MD::decode(chen::dns::decoder &decoder)
+void MD::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->madname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->madname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MF
-void MF::encode(std::vector<std::uint8_t> &out) const
+void MF::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -269,16 +287,17 @@ void MF::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MF::decode(chen::dns::decoder &decoder)
+void MF::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->madname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->madname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // CNAME
-void CNAME::encode(std::vector<std::uint8_t> &out) const
+void CNAME::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -303,16 +322,17 @@ void CNAME::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void CNAME::decode(chen::dns::decoder &decoder)
+void CNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->cname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->cname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SOA
-void SOA::encode(std::vector<std::uint8_t> &out) const
+void SOA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -343,22 +363,23 @@ void SOA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SOA::decode(chen::dns::decoder &decoder)
+void SOA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->mname, true);
-    decoder.unpack(this->rname, true);
-    decoder.unpack(this->serial);
-    decoder.unpack(this->refresh);
-    decoder.unpack(this->retry);
-    decoder.unpack(this->expire);
-    decoder.unpack(this->minimum);
+    RR::unpack(cur, end);
+    decoder::unpack(this->mname, true, cur, end);
+    decoder::unpack(this->rname, true, cur, end);
+    decoder::unpack(this->serial, cur, end);
+    decoder::unpack(this->refresh, cur, end);
+    decoder::unpack(this->retry, cur, end);
+    decoder::unpack(this->expire, cur, end);
+    decoder::unpack(this->minimum, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MB
-void MB::encode(std::vector<std::uint8_t> &out) const
+void MB::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -383,16 +404,17 @@ void MB::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MB::decode(chen::dns::decoder &decoder)
+void MB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->madname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->madname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MG
-void MG::encode(std::vector<std::uint8_t> &out) const
+void MG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -417,16 +439,17 @@ void MG::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MG::decode(chen::dns::decoder &decoder)
+void MG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->mgmname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->mgmname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MR
-void MR::encode(std::vector<std::uint8_t> &out) const
+void MR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -451,16 +474,17 @@ void MR::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MR::decode(chen::dns::decoder &decoder)
+void MR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->newname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->newname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NUL
-void NUL::encode(std::vector<std::uint8_t> &out) const
+void NUL::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -485,16 +509,17 @@ void NUL::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NUL::decode(chen::dns::decoder &decoder)
+void NUL::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->anything, this->rdlength);
+    RR::unpack(cur, end);
+    decoder::unpack(this->anything, this->rdlength, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // WKS
-void WKS::encode(std::vector<std::uint8_t> &out) const
+void WKS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -521,23 +546,24 @@ void WKS::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void WKS::decode(chen::dns::decoder &decoder)
+void WKS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    auto origin = decoder.cursor();
+    auto beg = cur;
 
-    RR::decode(decoder);
+    RR::unpack(cur, end);
 
-    decoder.unpack(this->address);
-    decoder.unpack(this->protocol);
+    decoder::unpack(this->address, cur, end);
+    decoder::unpack(this->protocol, cur, end);
 
     this->bitmap.clear();
-    decoder.unpack(this->bitmap, this->remain(decoder, origin));
+    decoder::unpack(this->bitmap, this->remain(beg, cur), cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // PTR
-void PTR::encode(std::vector<std::uint8_t> &out) const
+void PTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -562,16 +588,17 @@ void PTR::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void PTR::decode(chen::dns::decoder &decoder)
+void PTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->ptrdname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->ptrdname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // HINFO
-void HINFO::encode(std::vector<std::uint8_t> &out) const
+void HINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -597,17 +624,18 @@ void HINFO::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void HINFO::decode(chen::dns::decoder &decoder)
+void HINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->cpu, false);
-    decoder.unpack(this->os, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->cpu, false, cur, end);
+    decoder::unpack(this->os, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MINFO
-void MINFO::encode(std::vector<std::uint8_t> &out) const
+void MINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -633,17 +661,18 @@ void MINFO::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MINFO::decode(chen::dns::decoder &decoder)
+void MINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->rmailbx, true);
-    decoder.unpack(this->emailbx, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->rmailbx, true, cur, end);
+    decoder::unpack(this->emailbx, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // MX
-void MX::encode(std::vector<std::uint8_t> &out) const
+void MX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -669,17 +698,18 @@ void MX::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void MX::decode(chen::dns::decoder &decoder)
+void MX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->exchange, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->exchange, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // TXT
-void TXT::encode(std::vector<std::uint8_t> &out) const
+void TXT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -704,16 +734,17 @@ void TXT::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void TXT::decode(chen::dns::decoder &decoder)
+void TXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->txt_data, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->txt_data, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // RP
-void RP::encode(std::vector<std::uint8_t> &out) const
+void RP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -739,17 +770,18 @@ void RP::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void RP::decode(chen::dns::decoder &decoder)
+void RP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->mbox_dname, true);
-    decoder.unpack(this->txt_dname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->mbox_dname, true, cur, end);
+    decoder::unpack(this->txt_dname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // AFSDB
-void AFSDB::encode(std::vector<std::uint8_t> &out) const
+void AFSDB::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -775,17 +807,18 @@ void AFSDB::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void AFSDB::decode(chen::dns::decoder &decoder)
+void AFSDB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->subtype);
-    decoder.unpack(this->hostname, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->subtype, cur, end);
+    decoder::unpack(this->hostname, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // X25
-void X25::encode(std::vector<std::uint8_t> &out) const
+void X25::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -810,16 +843,17 @@ void X25::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void X25::decode(chen::dns::decoder &decoder)
+void X25::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->psdn_address, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->psdn_address, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // ISDN
-void ISDN::encode(std::vector<std::uint8_t> &out) const
+void ISDN::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -845,17 +879,18 @@ void ISDN::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void ISDN::decode(chen::dns::decoder &decoder)
+void ISDN::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->isdn_address, false);
-    decoder.unpack(this->sa, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->isdn_address, false, cur, end);
+    decoder::unpack(this->sa, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // RT
-void RT::encode(std::vector<std::uint8_t> &out) const
+void RT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -881,17 +916,18 @@ void RT::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void RT::decode(chen::dns::decoder &decoder)
+void RT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->intermediate_host, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->intermediate_host, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSAP
-void NSAP::encode(std::vector<std::uint8_t> &out) const
+void NSAP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -916,16 +952,17 @@ void NSAP::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NSAP::decode(chen::dns::decoder &decoder)
+void NSAP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->nsap, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->nsap, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSAPPTR
-void NSAPPTR::encode(std::vector<std::uint8_t> &out) const
+void NSAPPTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -950,16 +987,17 @@ void NSAPPTR::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NSAPPTR::decode(chen::dns::decoder &decoder)
+void NSAPPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                     std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->owner, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->owner, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SIG
-void SIG::encode(std::vector<std::uint8_t> &out) const
+void SIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -992,23 +1030,24 @@ void SIG::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SIG::decode(chen::dns::decoder &decoder)
+void SIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    decoder.unpack(this->type_covered);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->labels);
-    decoder.unpack(this->original);
-    decoder.unpack(this->expiration);
-    decoder.unpack(this->inception);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->signer, true);
-    decoder.unpack(this->signature, false);
+    decoder::unpack(this->type_covered, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->labels, cur, end);
+    decoder::unpack(this->original, cur, end);
+    decoder::unpack(this->expiration, cur, end);
+    decoder::unpack(this->inception, cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->signer, true, cur, end);
+    decoder::unpack(this->signature, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // KEY
-void KEY::encode(std::vector<std::uint8_t> &out) const
+void KEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1036,19 +1075,20 @@ void KEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void KEY::decode(chen::dns::decoder &decoder)
+void KEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->protocol);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->protocol, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->publickey, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // PX
-void PX::encode(std::vector<std::uint8_t> &out) const
+void PX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1075,18 +1115,19 @@ void PX::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void PX::decode(chen::dns::decoder &decoder)
+void PX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->map822, true);
-    decoder.unpack(this->mapx400, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->map822, true, cur, end);
+    decoder::unpack(this->mapx400, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // GPOS
-void GPOS::encode(std::vector<std::uint8_t> &out) const
+void GPOS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1113,18 +1154,19 @@ void GPOS::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void GPOS::decode(chen::dns::decoder &decoder)
+void GPOS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->longitude, false);
-    decoder.unpack(this->latitude, false);
-    decoder.unpack(this->altitude, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->longitude, false, cur, end);
+    decoder::unpack(this->latitude, false, cur, end);
+    decoder::unpack(this->altitude, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // AAAA
-void AAAA::encode(std::vector<std::uint8_t> &out) const
+void AAAA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1149,16 +1191,17 @@ void AAAA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void AAAA::decode(chen::dns::decoder &decoder)
+void AAAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->address);
+    RR::unpack(cur, end);
+    decoder::unpack(this->address, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // LOC
-void LOC::encode(std::vector<std::uint8_t> &out) const
+void LOC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1189,22 +1232,23 @@ void LOC::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void LOC::decode(chen::dns::decoder &decoder)
+void LOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->version);
-    decoder.unpack(this->size);
-    decoder.unpack(this->horiz_pre);
-    decoder.unpack(this->vert_pre);
-    decoder.unpack(this->longitude);
-    decoder.unpack(this->latitude);
-    decoder.unpack(this->altitude);
+    RR::unpack(cur, end);
+    decoder::unpack(this->version, cur, end);
+    decoder::unpack(this->size, cur, end);
+    decoder::unpack(this->horiz_pre, cur, end);
+    decoder::unpack(this->vert_pre, cur, end);
+    decoder::unpack(this->longitude, cur, end);
+    decoder::unpack(this->latitude, cur, end);
+    decoder::unpack(this->altitude, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NXT
-void NXT::encode(std::vector<std::uint8_t> &out) const
+void NXT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1230,21 +1274,22 @@ void NXT::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NXT::decode(chen::dns::decoder &decoder)
+void NXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    auto origin = decoder.cursor();
+    auto beg = cur;
 
-    RR::decode(decoder);
-    decoder.unpack(this->next_domain, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->next_domain, true, cur, end);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
+    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // EID
-void EID::encode(std::vector<std::uint8_t> &out) const
+void EID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1269,16 +1314,17 @@ void EID::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void EID::decode(chen::dns::decoder &decoder)
+void EID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->endpoint, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->endpoint, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NIMLOC
-void NIMLOC::encode(std::vector<std::uint8_t> &out) const
+void NIMLOC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1303,16 +1349,17 @@ void NIMLOC::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NIMLOC::decode(chen::dns::decoder &decoder)
+void NIMLOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->locator, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->locator, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SRV
-void SRV::encode(std::vector<std::uint8_t> &out) const
+void SRV::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1340,19 +1387,20 @@ void SRV::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SRV::decode(chen::dns::decoder &decoder)
+void SRV::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->priority);
-    decoder.unpack(this->weight);
-    decoder.unpack(this->port);
-    decoder.unpack(this->target, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->priority, cur, end);
+    decoder::unpack(this->weight, cur, end);
+    decoder::unpack(this->port, cur, end);
+    decoder::unpack(this->target, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // ATMA
-void ATMA::encode(std::vector<std::uint8_t> &out) const
+void ATMA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1378,17 +1426,18 @@ void ATMA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void ATMA::decode(chen::dns::decoder &decoder)
+void ATMA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->format);
-    decoder.unpack(this->address, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->format, cur, end);
+    decoder::unpack(this->address, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NAPTR
-void NAPTR::encode(std::vector<std::uint8_t> &out) const
+void NAPTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1418,21 +1467,22 @@ void NAPTR::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NAPTR::decode(chen::dns::decoder &decoder)
+void NAPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->order);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->flags, false);
-    decoder.unpack(this->services, false);
-    decoder.unpack(this->regexp, false);
-    decoder.unpack(this->replacement, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->order, cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->flags, false, cur, end);
+    decoder::unpack(this->services, false, cur, end);
+    decoder::unpack(this->regexp, false, cur, end);
+    decoder::unpack(this->replacement, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // KX
-void KX::encode(std::vector<std::uint8_t> &out) const
+void KX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1458,17 +1508,18 @@ void KX::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void KX::decode(chen::dns::decoder &decoder)
+void KX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->exchanger, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->exchanger, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // CERT
-void CERT::encode(std::vector<std::uint8_t> &out) const
+void CERT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1496,19 +1547,20 @@ void CERT::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void CERT::decode(chen::dns::decoder &decoder)
+void CERT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->type);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->certificate, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->type, cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->certificate, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // DNAME
-void DNAME::encode(std::vector<std::uint8_t> &out) const
+void DNAME::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1533,16 +1585,17 @@ void DNAME::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void DNAME::decode(chen::dns::decoder &decoder)
+void DNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->target, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->target, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SINK
-void SINK::encode(std::vector<std::uint8_t> &out) const
+void SINK::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1569,22 +1622,23 @@ void SINK::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SINK::decode(chen::dns::decoder &decoder)
+void SINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    auto origin = decoder.cursor();
+    auto beg = cur;
 
-    RR::decode(decoder);
-    decoder.unpack(this->coding);
-    decoder.unpack(this->subcoding);
+    RR::unpack(cur, end);
+    decoder::unpack(this->coding, cur, end);
+    decoder::unpack(this->subcoding, cur, end);
 
     this->sdata.clear();
-    decoder.unpack(this->sdata, this->remain(decoder, origin));
+    decoder::unpack(this->sdata, this->remain(beg, cur), cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // DS
-void DS::encode(std::vector<std::uint8_t> &out) const
+void DS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1612,19 +1666,20 @@ void DS::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void DS::decode(chen::dns::decoder &decoder)
+void DS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->digest_type, cur, end);
+    decoder::unpack(this->digest, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SSHFP
-void SSHFP::encode(std::vector<std::uint8_t> &out) const
+void SSHFP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1651,18 +1706,19 @@ void SSHFP::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SSHFP::decode(chen::dns::decoder &decoder)
+void SSHFP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->fptype);
-    decoder.unpack(this->fingerprint, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->fptype, cur, end);
+    decoder::unpack(this->fingerprint, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // IPSECKEY
-void IPSECKEY::encode(std::vector<std::uint8_t> &out) const
+void IPSECKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1713,46 +1769,47 @@ void IPSECKEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void IPSECKEY::decode(chen::dns::decoder &decoder)
+void IPSECKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                      std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->precedence);
-    decoder.unpack(this->gateway_type);
-    decoder.unpack(this->algorithm);
+    RR::unpack(cur, end);
+    decoder::unpack(this->precedence, cur, end);
+    decoder::unpack(this->gateway_type, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
 
     this->gateway.clear();
 
     switch (static_cast<GatewayType>(this->gateway_type))
     {
         case GatewayType::None:
-            decoder.unpack(this->gateway, 1);
+            decoder::unpack(this->gateway, 1, cur, end);
             break;
 
         case GatewayType::IPv4:
-            decoder.unpack(this->gateway, 4);
+            decoder::unpack(this->gateway, 4, cur, end);
             break;
 
         case GatewayType::IPv6:
-            decoder.unpack(this->gateway, 16);
+            decoder::unpack(this->gateway, 16, cur, end);
             break;
 
         case GatewayType::Domain:
         {
             std::string domain;
-            decoder.unpack(domain, true);
+            decoder::unpack(domain, true, cur, end);
 
             this->gateway.insert(this->gateway.begin(), domain.begin(), domain.end());
         }
             break;
     }
 
-    decoder.unpack(this->publickey, false);
+    decoder::unpack(this->publickey, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // RRSIG
-void RRSIG::encode(std::vector<std::uint8_t> &out) const
+void RRSIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1785,24 +1842,25 @@ void RRSIG::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void RRSIG::decode(chen::dns::decoder &decoder)
+void RRSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->type_covered);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->labels);
-    decoder.unpack(this->original);
-    decoder.unpack(this->expiration);
-    decoder.unpack(this->inception);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->signer, true);
-    decoder.unpack(this->signature, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->type_covered, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->labels, cur, end);
+    decoder::unpack(this->original, cur, end);
+    decoder::unpack(this->expiration, cur, end);
+    decoder::unpack(this->inception, cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->signer, true, cur, end);
+    decoder::unpack(this->signature, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSEC
-void NSEC::encode(std::vector<std::uint8_t> &out) const
+void NSEC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1828,21 +1886,22 @@ void NSEC::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NSEC::decode(chen::dns::decoder &decoder)
+void NSEC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    auto origin = decoder.cursor();
+    auto beg = cur;
 
-    RR::decode(decoder);
-    decoder.unpack(this->next_domain, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->next_domain, true, cur, end);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
+    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // DNSKEY
-void DNSKEY::encode(std::vector<std::uint8_t> &out) const
+void DNSKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1870,19 +1929,20 @@ void DNSKEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void DNSKEY::decode(chen::dns::decoder &decoder)
+void DNSKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->protocol);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->protocol, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->publickey, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // DHCID
-void DHCID::encode(std::vector<std::uint8_t> &out) const
+void DHCID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1907,16 +1967,17 @@ void DHCID::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void DHCID::decode(chen::dns::decoder &decoder)
+void DHCID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->digest, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->digest, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSEC3
-void NSEC3::encode(std::vector<std::uint8_t> &out) const
+void NSEC3::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1948,27 +2009,28 @@ void NSEC3::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NSEC3::decode(chen::dns::decoder &decoder)
+void NSEC3::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    auto origin = decoder.cursor();
+    auto beg = cur;
 
-    RR::decode(decoder);
-    decoder.unpack(this->hash);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->iterations);
-    decoder.unpack(this->salt_length);
-    decoder.unpack(this->salt, this->salt_length);
-    decoder.unpack(this->hash_length);
-    decoder.unpack(this->next_owner, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->hash, cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->iterations, cur, end);
+    decoder::unpack(this->salt_length, cur, end);
+    decoder::unpack(this->salt, this->salt_length, cur, end);
+    decoder::unpack(this->hash_length, cur, end);
+    decoder::unpack(this->next_owner, false, cur, end);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
+    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NSEC3PARAM
-void NSEC3PARAM::encode(std::vector<std::uint8_t> &out) const
+void NSEC3PARAM::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -1997,20 +2059,21 @@ void NSEC3PARAM::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NSEC3PARAM::decode(chen::dns::decoder &decoder)
+void NSEC3PARAM::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                        std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->hash);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->iterations);
-    decoder.unpack(this->salt_length);
-    decoder.unpack(this->salt, this->salt_length);
+    RR::unpack(cur, end);
+    decoder::unpack(this->hash, cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->iterations, cur, end);
+    decoder::unpack(this->salt_length, cur, end);
+    decoder::unpack(this->salt, this->salt_length, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // TLSA
-void TLSA::encode(std::vector<std::uint8_t> &out) const
+void TLSA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2038,19 +2101,20 @@ void TLSA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void TLSA::decode(chen::dns::decoder &decoder)
+void TLSA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->usage);
-    decoder.unpack(this->selector);
-    decoder.unpack(this->matching_type);
-    decoder.unpack(this->certificate, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->usage, cur, end);
+    decoder::unpack(this->selector, cur, end);
+    decoder::unpack(this->matching_type, cur, end);
+    decoder::unpack(this->certificate, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SMIMEA
-void SMIMEA::encode(std::vector<std::uint8_t> &out) const
+void SMIMEA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2078,19 +2142,20 @@ void SMIMEA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SMIMEA::decode(chen::dns::decoder &decoder)
+void SMIMEA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->usage);
-    decoder.unpack(this->selector);
-    decoder.unpack(this->matching_type);
-    decoder.unpack(this->certificate, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->usage, cur, end);
+    decoder::unpack(this->selector, cur, end);
+    decoder::unpack(this->matching_type, cur, end);
+    decoder::unpack(this->certificate, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // HIP
-void HIP::encode(std::vector<std::uint8_t> &out) const
+void HIP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2120,21 +2185,22 @@ void HIP::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void HIP::decode(chen::dns::decoder &decoder)
+void HIP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->hit_length);
-    decoder.unpack(this->pk_algorithm);
-    decoder.unpack(this->pk_length);
-    decoder.unpack(this->hit, false);
-    decoder.unpack(this->publickey, false);
-    decoder.unpack(this->rendezvous_servers, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->hit_length, cur, end);
+    decoder::unpack(this->pk_algorithm, cur, end);
+    decoder::unpack(this->pk_length, cur, end);
+    decoder::unpack(this->hit, false, cur, end);
+    decoder::unpack(this->publickey, false, cur, end);
+    decoder::unpack(this->rendezvous_servers, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NINFO
-void NINFO::encode(std::vector<std::uint8_t> &out) const
+void NINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2159,16 +2225,17 @@ void NINFO::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NINFO::decode(chen::dns::decoder &decoder)
+void NINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->zs_data, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->zs_data, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // RKEY
-void RKEY::encode(std::vector<std::uint8_t> &out) const
+void RKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2196,19 +2263,20 @@ void RKEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void RKEY::decode(chen::dns::decoder &decoder)
+void RKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->protocol);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->protocol, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->publickey, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // TALINK
-void TALINK::encode(std::vector<std::uint8_t> &out) const
+void TALINK::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2234,17 +2302,18 @@ void TALINK::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void TALINK::decode(chen::dns::decoder &decoder)
+void TALINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->previous_name, true);
-    decoder.unpack(this->next_name, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->previous_name, true, cur, end);
+    decoder::unpack(this->next_name, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // CDS
-void CDS::encode(std::vector<std::uint8_t> &out) const
+void CDS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2272,19 +2341,20 @@ void CDS::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void CDS::decode(chen::dns::decoder &decoder)
+void CDS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->digest_type, cur, end);
+    decoder::unpack(this->digest, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // CDNSKEY
-void CDNSKEY::encode(std::vector<std::uint8_t> &out) const
+void CDNSKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2312,19 +2382,20 @@ void CDNSKEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void CDNSKEY::decode(chen::dns::decoder &decoder)
+void CDNSKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                     std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->protocol);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->protocol, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->publickey, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // OPENPGPKEY
-void OPENPGPKEY::encode(std::vector<std::uint8_t> &out) const
+void OPENPGPKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2349,16 +2420,17 @@ void OPENPGPKEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void OPENPGPKEY::decode(chen::dns::decoder &decoder)
+void OPENPGPKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                        std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->publickey, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->publickey, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // CSYNC
-void CSYNC::encode(std::vector<std::uint8_t> &out) const
+void CSYNC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2385,22 +2457,23 @@ void CSYNC::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void CSYNC::decode(chen::dns::decoder &decoder)
+void CSYNC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    auto origin = decoder.cursor();
+    auto beg = cur;
 
-    RR::decode(decoder);
-    decoder.unpack(this->serial);
-    decoder.unpack(this->flags);
+    RR::unpack(cur, end);
+    decoder::unpack(this->serial, cur, end);
+    decoder::unpack(this->flags, cur, end);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(decoder, origin));
+    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // SPF
-void SPF::encode(std::vector<std::uint8_t> &out) const
+void SPF::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2425,16 +2498,17 @@ void SPF::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void SPF::decode(chen::dns::decoder &decoder)
+void SPF::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->txt, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->txt, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // NID
-void NID::encode(std::vector<std::uint8_t> &out) const
+void NID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2460,17 +2534,18 @@ void NID::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void NID::decode(chen::dns::decoder &decoder)
+void NID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->node_id);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->node_id, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // L32
-void L32::encode(std::vector<std::uint8_t> &out) const
+void L32::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2496,17 +2571,18 @@ void L32::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void L32::decode(chen::dns::decoder &decoder)
+void L32::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->locator32);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->locator32, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // L64
-void L64::encode(std::vector<std::uint8_t> &out) const
+void L64::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2532,17 +2608,18 @@ void L64::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void L64::decode(chen::dns::decoder &decoder)
+void L64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->locator64);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->locator64, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // LP
-void LP::encode(std::vector<std::uint8_t> &out) const
+void LP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2568,17 +2645,18 @@ void LP::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void LP::decode(chen::dns::decoder &decoder)
+void LP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->preference);
-    decoder.unpack(this->fqdn, true);
+    RR::unpack(cur, end);
+    decoder::unpack(this->preference, cur, end);
+    decoder::unpack(this->fqdn, true, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // EUI48
-void EUI48::encode(std::vector<std::uint8_t> &out) const
+void EUI48::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2603,16 +2681,17 @@ void EUI48::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void EUI48::decode(chen::dns::decoder &decoder)
+void EUI48::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->address);
+    RR::unpack(cur, end);
+    decoder::unpack(this->address, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // EUI64
-void EUI64::encode(std::vector<std::uint8_t> &out) const
+void EUI64::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2637,16 +2716,17 @@ void EUI64::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void EUI64::decode(chen::dns::decoder &decoder)
+void EUI64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->address);
+    RR::unpack(cur, end);
+    decoder::unpack(this->address, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // TKEY
-void TKEY::encode(std::vector<std::uint8_t> &out) const
+void TKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2679,24 +2759,25 @@ void TKEY::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void TKEY::decode(chen::dns::decoder &decoder)
+void TKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->algorithm, true);
-    decoder.unpack(this->inception);
-    decoder.unpack(this->expiration);
-    decoder.unpack(this->mode);
-    decoder.unpack(this->error);
-    decoder.unpack(this->key_size);
-    decoder.unpack(this->key, this->key_size);
-    decoder.unpack(this->other_len);
-    decoder.unpack(this->other_data, this->other_len);
+    RR::unpack(cur, end);
+    decoder::unpack(this->algorithm, true, cur, end);
+    decoder::unpack(this->inception, cur, end);
+    decoder::unpack(this->expiration, cur, end);
+    decoder::unpack(this->mode, cur, end);
+    decoder::unpack(this->error, cur, end);
+    decoder::unpack(this->key_size, cur, end);
+    decoder::unpack(this->key, this->key_size, cur, end);
+    decoder::unpack(this->other_len, cur, end);
+    decoder::unpack(this->other_data, this->other_len, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // TSIG
-void TSIG::encode(std::vector<std::uint8_t> &out) const
+void TSIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2729,24 +2810,25 @@ void TSIG::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void TSIG::decode(chen::dns::decoder &decoder)
+void TSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->algorithm, true);
-    decoder.unpack(this->time_signed);
-    decoder.unpack(this->fudge);
-    decoder.unpack(this->mac_size);
-    decoder.unpack(this->mac, this->mac_size);
-    decoder.unpack(this->original_id);
-    decoder.unpack(this->error);
-    decoder.unpack(this->other_len);
-    decoder.unpack(this->other_data, this->other_len);
+    RR::unpack(cur, end);
+    decoder::unpack(this->algorithm, true, cur, end);
+    decoder::unpack(this->time_signed, cur, end);
+    decoder::unpack(this->fudge, cur, end);
+    decoder::unpack(this->mac_size, cur, end);
+    decoder::unpack(this->mac, this->mac_size, cur, end);
+    decoder::unpack(this->original_id, cur, end);
+    decoder::unpack(this->error, cur, end);
+    decoder::unpack(this->other_len, cur, end);
+    decoder::unpack(this->other_data, this->other_len, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // URI
-void URI::encode(std::vector<std::uint8_t> &out) const
+void URI::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2773,18 +2855,19 @@ void URI::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void URI::decode(chen::dns::decoder &decoder)
+void URI::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->priority);
-    decoder.unpack(this->weight);
-    decoder.unpack(this->target, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->priority, cur, end);
+    decoder::unpack(this->weight, cur, end);
+    decoder::unpack(this->target, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // CAA
-void CAA::encode(std::vector<std::uint8_t> &out) const
+void CAA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2811,18 +2894,19 @@ void CAA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void CAA::decode(chen::dns::decoder &decoder)
+void CAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->flags);
-    decoder.unpack(this->tag, false);
-    decoder.unpack(this->value, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->flags, cur, end);
+    decoder::unpack(this->tag, false, cur, end);
+    decoder::unpack(this->value, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // TA
-void TA::encode(std::vector<std::uint8_t> &out) const
+void TA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2850,19 +2934,20 @@ void TA::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void TA::decode(chen::dns::decoder &decoder)
+void TA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->digest_type, cur, end);
+    decoder::unpack(this->digest, false, cur, end);
 }
 
 
 // -----------------------------------------------------------------------------
 // DLV
-void DLV::encode(std::vector<std::uint8_t> &out) const
+void DLV::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
 
@@ -2890,11 +2975,12 @@ void DLV::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
-void DLV::decode(chen::dns::decoder &decoder)
+void DLV::unpack(std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end)
 {
-    RR::decode(decoder);
-    decoder.unpack(this->key_tag);
-    decoder.unpack(this->algorithm);
-    decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    RR::unpack(cur, end);
+    decoder::unpack(this->key_tag, cur, end);
+    decoder::unpack(this->algorithm, cur, end);
+    decoder::unpack(this->digest_type, cur, end);
+    decoder::unpack(this->digest, false, cur, end);
 }
