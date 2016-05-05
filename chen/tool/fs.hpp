@@ -12,7 +12,7 @@
 
 namespace chen
 {
-    class path
+    class fs
     {
     public:
         /**

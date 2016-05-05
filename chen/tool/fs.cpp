@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "path.hpp"
+#include "fs.hpp"
 #include "str.hpp"
 #include <fstream>
 #include <climits>
@@ -13,29 +13,29 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // path
-std::string path::realpath(const std::string &path)
+std::string fs::realpath(const std::string &path)
 {
     char buf[PATH_MAX] = {0};
     ::realpath(path.c_str(), buf);
 
     std::string ret(buf);
-    return path::isExist(ret) ? ret : "";
+    return fs::isExist(ret) ? ret : "";
 }
 
-std::string path::absolute(const std::string &path)
+std::string fs::absolute(const std::string &path)
 {
-    if (path::isRelative(path))
-        return path::current() + path::separator() + path::normalize(path);
+    if (fs::isRelative(path))
+        return fs::current() + fs::separator() + fs::normalize(path);
     else
-        return path::normalize(path);
+        return fs::normalize(path);
 }
 
-std::string path::normalize(const std::string &path)
+std::string fs::normalize(const std::string &path)
 {
     if (path.empty())
         return "";
 
-    auto sep = path::separator();
+    auto sep = fs::separator();
     auto abs = (path[0] == sep);
 
     std::size_t ptr = 0;  // current segment cursor
@@ -94,12 +94,12 @@ std::string path::normalize(const std::string &path)
     return ret;
 }
 
-std::string path::dirname(const std::string &path)
+std::string fs::dirname(const std::string &path)
 {
     if (path.empty())
         return "";
 
-    auto sep = path::separator();
+    auto sep = fs::separator();
     auto beg = path.rbegin();
     auto end = path.rend();
     auto idx = beg;
@@ -142,9 +142,9 @@ std::string path::dirname(const std::string &path)
     }
 }
 
-std::string path::basename(const std::string &path)
+std::string fs::basename(const std::string &path)
 {
-    auto sep = path::separator();
+    auto sep = fs::separator();
     auto beg = path.rbegin();
     auto end = path.rend();
 
@@ -173,12 +173,12 @@ std::string path::basename(const std::string &path)
         return "";
 }
 
-std::string path::extname(const std::string &path, std::size_t dots)
+std::string fs::extname(const std::string &path, std::size_t dots)
 {
     if (!dots)
         return "";
 
-    auto sep = path::separator();
+    auto sep = fs::separator();
     auto beg = path.rbegin();
     auto end = path.rend();
     auto idx = beg;
@@ -204,27 +204,27 @@ std::string path::extname(const std::string &path, std::size_t dots)
 }
 
 // exist
-bool path::isAbsolute(const std::string &path)
+bool fs::isAbsolute(const std::string &path)
 {
-    auto sep = path::separator();
+    auto sep = fs::separator();
     return !path.empty() && (path[0] == sep);
 }
 
-bool path::isRelative(const std::string &path)
+bool fs::isRelative(const std::string &path)
 {
-    return !path::isAbsolute(path);
+    return !fs::isAbsolute(path);
 }
 
 // copy
-bool path::copy(const std::string &path_old, const std::string &path_new)
+bool fs::copy(const std::string &path_old, const std::string &path_new)
 {
-    if (path::isFile(path_old))
+    if (fs::isFile(path_old))
     {
-        auto folder = path::dirname(path_new);
+        auto folder = fs::dirname(path_new);
         if (folder.empty())
             return false;
 
-        if (!path::create(folder))
+        if (!fs::create(folder))
             return false;
 
         std::ifstream in(path_old, std::ios_base::binary);
@@ -240,21 +240,21 @@ bool path::copy(const std::string &path_old, const std::string &path_new)
 
         return true;
     }
-    else if (path::isDir(path_old, true))
+    else if (fs::isDir(path_old, true))
     {
-        if (!path::create(path_new))
+        if (!fs::create(path_new))
             return false;
 
         auto size = path_old.size();
         auto ret  = true;
 
-        path::visit(path_old, [size, &ret, path_new] (const std::string &name) -> bool {
+        fs::visit(path_old, [size, &ret, path_new] (const std::string &name) -> bool {
             auto sub = name.substr(size, name.size() - size);
 
-            if (path::isFile(name))
-                ret = path::copy(name, path_new + sub);
+            if (fs::isFile(name))
+                ret = fs::copy(name, path_new + sub);
             else
-                ret = path::create(path_new + sub, 0, false);
+                ret = fs::create(path_new + sub, 0, false);
 
             // exit if occur an error
             return ret;
@@ -269,11 +269,11 @@ bool path::copy(const std::string &path_old, const std::string &path_new)
 }
 
 // visit
-std::vector<std::string> path::collect(const std::string &directory, bool recursive)
+std::vector<std::string> fs::collect(const std::string &directory, bool recursive)
 {
     std::vector<std::string> store;
 
-    path::visit(directory, [&store] (const std::string &path) -> bool {
+    fs::visit(directory, [&store] (const std::string &path) -> bool {
         store.push_back(path);
         return true;
     }, recursive);
@@ -282,7 +282,7 @@ std::vector<std::string> path::collect(const std::string &directory, bool recurs
 }
 
 // count
-std::size_t path::count(const std::string &directory,
+std::size_t fs::count(const std::string &directory,
                         bool recursive,
                         bool contain_file,
                         bool contain_dir)
@@ -292,10 +292,10 @@ std::size_t path::count(const std::string &directory,
 
     std::size_t num = 0;
 
-    path::visit(directory, [&] (const std::string &path) -> bool {
+    fs::visit(directory, [&] (const std::string &path) -> bool {
         if ((contain_file && contain_dir) ||
-            (contain_file && path::isFile(path)) ||
-            (contain_dir && path::isDir(path)))
+            (contain_file && fs::isFile(path)) ||
+            (contain_dir && fs::isDir(path)))
         {
             ++num;
         }

@@ -5,7 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "cmd.hpp"
-#include "path.hpp"
+#include "fs.hpp"
 #include <algorithm>
 #include <cstdlib>
 
@@ -114,7 +114,7 @@ void cmd::parse(int argc, const char *const argv[])
 
     // set app name if it's empty
     if (this->_app.empty())
-        this->_app = path::basename(argv[0]);
+        this->_app = fs::basename(argv[0]);
 
     // find the current action
     int idx = 1;

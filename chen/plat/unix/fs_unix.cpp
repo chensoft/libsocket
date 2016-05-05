@@ -6,7 +6,7 @@
  */
 #ifdef CHEN_OS_UNIX
 
-#include <chen/tool/path.hpp>
+#include <chen/tool/fs.hpp>
 #include <chen/tool/str.hpp>
 #include <fstream>
 #include <string.h>
@@ -20,12 +20,12 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // path
-std::string path::root()
+std::string fs::root()
 {
     return "/";
 }
 
-std::string path::home()
+std::string fs::home()
 {
     // check env variable first
     auto env = ::getenv("HOME");
@@ -37,7 +37,7 @@ std::string path::home()
     return pw->pw_dir;
 }
 
-std::string path::temp()
+std::string fs::temp()
 {
     auto env = ::getenv("TMPDIR");
 
@@ -57,7 +57,7 @@ std::string path::temp()
     }
 }
 
-std::string path::current()
+std::string fs::current()
 {
     char cwd[PATH_MAX] = {0};
     ::getcwd(cwd, PATH_MAX);
@@ -65,85 +65,85 @@ std::string path::current()
     return std::string(cwd);
 }
 
-std::vector<std::string> path::drives()
+std::vector<std::string> fs::drives()
 {
     return {"/"};
 }
 
-char path::separator()
+char fs::separator()
 {
     return '/';
 }
 
 // exist
-bool path::isExist(const std::string &path)
+bool fs::isExist(const std::string &path)
 {
     return !::access(path.c_str(), F_OK);
 }
 
-bool path::isDir(const std::string &path, bool strict)
+bool fs::isDir(const std::string &path, bool strict)
 {
     struct stat st = {0};
     auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
     return ok && S_ISDIR(st.st_mode);
 }
 
-bool path::isFile(const std::string &path, bool strict)
+bool fs::isFile(const std::string &path, bool strict)
 {
     struct stat st = {0};
     auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
     return ok && S_ISREG(st.st_mode);
 }
 
-bool path::isLink(const std::string &path)
+bool fs::isLink(const std::string &path)
 {
     struct stat st = {0};
     return !::lstat(path.c_str(), &st) && S_ISLNK(st.st_mode);
 }
 
-bool path::isReadable(const std::string &path)
+bool fs::isReadable(const std::string &path)
 {
     return !::access(path.c_str(), R_OK);
 }
 
-bool path::isWritable(const std::string &path)
+bool fs::isWritable(const std::string &path)
 {
     return !::access(path.c_str(), W_OK);
 }
 
-bool path::isExecutable(const std::string &path)
+bool fs::isExecutable(const std::string &path)
 {
     return !::access(path.c_str(), X_OK);
 }
 
 // time
-time_t path::atime(const std::string &path)
+time_t fs::atime(const std::string &path)
 {
     struct stat st = {0};
     return !::stat(path.c_str(), &st) ? st.st_atime : 0;
 }
 
-time_t path::mtime(const std::string &path)
+time_t fs::mtime(const std::string &path)
 {
     struct stat st = {0};
     return !::stat(path.c_str(), &st) ? st.st_mtime : 0;
 }
 
-time_t path::ctime(const std::string &path)
+time_t fs::ctime(const std::string &path)
 {
     struct stat st = {0};
     return !::stat(path.c_str(), &st) ? st.st_ctime : 0;
 }
 
 // size
-off_t path::filesize(const std::string &file)
+off_t fs::filesize(const std::string &file)
 {
     struct stat st = {0};
     return !::stat(file.c_str(), &st) ? st.st_size : 0;
 }
 
 // create
-bool path::touch(const std::string &file, time_t mtime, time_t atime)
+bool fs::touch(const std::string &file, time_t mtime, time_t atime)
 {
     // using current time if it's zero
     if (!mtime)
@@ -154,7 +154,7 @@ bool path::touch(const std::string &file, time_t mtime, time_t atime)
         atime = mtime;
 
     // create directory
-    path::create(path::dirname(file));
+    fs::create(fs::dirname(file));
 
     // create file if not exist
     FILE *fp = ::fopen(file.c_str(), "ab+");
@@ -178,20 +178,20 @@ bool path::touch(const std::string &file, time_t mtime, time_t atime)
     }
 }
 
-bool path::create(const std::string &dir, std::uint16_t mode, bool recursive)
+bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
 {
     if (!mode)
         mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 
-    if (!path::isDir(dir))
+    if (!fs::isDir(dir))
     {
         if (recursive)
         {
             auto success = true;
-            auto dirname = path::dirname(dir);
+            auto dirname = fs::dirname(dir);
 
             if (!dirname.empty())
-                success = path::create(dirname, mode, recursive) && success;
+                success = fs::create(dirname, mode, recursive) && success;
 
             return !::mkdir(dir.c_str(), mode) && success;
         }
@@ -206,19 +206,19 @@ bool path::create(const std::string &dir, std::uint16_t mode, bool recursive)
     }
 }
 
-bool path::rename(const std::string &path_old, const std::string &path_new)
+bool fs::rename(const std::string &path_old, const std::string &path_new)
 {
     // remove new path if it's already exist
-    if (!path::remove(path_new))
-        path::create(path::dirname(path_new));  // create new directory
+    if (!fs::remove(path_new))
+        fs::create(fs::dirname(path_new));  // create new directory
 
     // rename old path to new path
     return !::rename(path_old.c_str(), path_new.c_str());
 }
 
-bool path::remove(const std::string &path)
+bool fs::remove(const std::string &path)
 {
-    if (path::isFile(path))
+    if (fs::isFile(path))
     {
         return !::remove(path.c_str());
     }
@@ -231,7 +231,7 @@ bool path::remove(const std::string &path)
             return false;
 
         auto ok  = true;
-        auto sep = path::separator();
+        auto sep = fs::separator();
 
         // remove sub items
         while ((cur = ::readdir(dir)))
@@ -243,8 +243,8 @@ bool path::remove(const std::string &path)
 
             std::string full(*(path.end() - 1) == sep ? path + name : path + sep + name);
 
-            if (path::isDir(full))
-                ok = path::remove(full) && ok;
+            if (fs::isDir(full))
+                ok = fs::remove(full) && ok;
             else
                 ok = !::remove(full.c_str()) && ok;
         }
@@ -260,13 +260,13 @@ bool path::remove(const std::string &path)
 }
 
 // change
-bool path::change(const std::string &directory)
+bool fs::change(const std::string &directory)
 {
     return !::chdir(directory.c_str());
 }
 
 // visit
-void path::visit(const std::string &directory,
+void fs::visit(const std::string &directory,
                  std::function<bool (const std::string &path)> callback,
                  bool recursive)
 {
@@ -276,7 +276,7 @@ void path::visit(const std::string &directory,
     if (!dir)
         return;
 
-    auto sep = path::separator();
+    auto sep = fs::separator();
 
     while ((cur = ::readdir(dir)))
     {
@@ -290,8 +290,8 @@ void path::visit(const std::string &directory,
         if (!callback(full))
             break;
 
-        if (recursive && path::isDir(full))
-            path::visit(full, callback, recursive);
+        if (recursive && fs::isDir(full))
+            fs::visit(full, callback, recursive);
     }
 
     ::closedir(dir);
