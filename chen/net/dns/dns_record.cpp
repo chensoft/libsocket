@@ -129,7 +129,7 @@ void Raw::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -164,7 +164,7 @@ void A::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -199,7 +199,7 @@ void NS::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -234,7 +234,7 @@ void MD::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -269,7 +269,7 @@ void MF::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -304,7 +304,7 @@ void CNAME::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -339,7 +339,7 @@ void SOA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -386,7 +386,7 @@ void MB::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -421,7 +421,7 @@ void MG::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -456,7 +456,7 @@ void MR::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -491,7 +491,7 @@ void NUL::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -526,7 +526,7 @@ void WKS::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -570,7 +570,7 @@ void PTR::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -605,7 +605,7 @@ void HINFO::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -642,7 +642,7 @@ void MINFO::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -679,7 +679,7 @@ void MX::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -716,7 +716,7 @@ void TXT::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -751,7 +751,7 @@ void RP::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -788,7 +788,7 @@ void AFSDB::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -825,7 +825,7 @@ void X25::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -860,7 +860,7 @@ void ISDN::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -897,7 +897,7 @@ void RT::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -934,7 +934,7 @@ void NSAP::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -969,7 +969,7 @@ void NSAPPTR::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1004,7 +1004,7 @@ void SIG::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1054,7 +1054,7 @@ void KEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1095,7 +1095,7 @@ void PX::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1134,7 +1134,7 @@ void GPOS::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1173,7 +1173,7 @@ void AAAA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1208,7 +1208,7 @@ void LOC::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1255,7 +1255,7 @@ void NXT::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1296,7 +1296,7 @@ void EID::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1331,7 +1331,7 @@ void NIMLOC::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1366,7 +1366,7 @@ void SRV::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1407,7 +1407,7 @@ void ATMA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1444,7 +1444,7 @@ void NAPTR::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1489,7 +1489,7 @@ void KX::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1526,7 +1526,7 @@ void CERT::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1567,7 +1567,7 @@ void DNAME::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1602,7 +1602,7 @@ void SINK::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1645,7 +1645,7 @@ void DS::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1686,7 +1686,7 @@ void SSHFP::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1725,7 +1725,7 @@ void IPSECKEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1816,7 +1816,7 @@ void RRSIG::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1867,7 +1867,7 @@ void NSEC::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1908,7 +1908,7 @@ void DNSKEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1949,7 +1949,7 @@ void DHCID::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -1984,7 +1984,7 @@ void NSEC3::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2037,7 +2037,7 @@ void NSEC3PARAM::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2080,7 +2080,7 @@ void TLSA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2121,7 +2121,7 @@ void SMIMEA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2162,7 +2162,7 @@ void HIP::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2207,7 +2207,7 @@ void NINFO::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2242,7 +2242,7 @@ void RKEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2283,7 +2283,7 @@ void TALINK::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2320,7 +2320,7 @@ void CDS::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2361,7 +2361,7 @@ void CDNSKEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2402,7 +2402,7 @@ void OPENPGPKEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2437,7 +2437,7 @@ void CSYNC::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2480,7 +2480,7 @@ void SPF::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2515,7 +2515,7 @@ void NID::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2552,7 +2552,7 @@ void L32::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2589,7 +2589,7 @@ void L64::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2626,7 +2626,7 @@ void LP::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2663,7 +2663,7 @@ void EUI48::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2698,7 +2698,7 @@ void EUI64::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2733,7 +2733,7 @@ void TKEY::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2784,7 +2784,7 @@ void TSIG::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2835,7 +2835,7 @@ void URI::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2874,7 +2874,7 @@ void CAA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2913,7 +2913,7 @@ void TA::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();
@@ -2954,7 +2954,7 @@ void DLV::pack(std::vector<std::uint8_t> &out) const
     try
     {
         // base
-        RR::encode(out);
+        RR::pack(out);
 
         // self
         auto val = out.size();

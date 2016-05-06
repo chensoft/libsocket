@@ -191,7 +191,6 @@ response& response::operator=(const response &o)
     if (this == &o)
         return *this;
 
-    // todo base class header member?
     this->_question   = o._question;
     this->_answer     = o._answer;
     this->_authority  = o._authority;
@@ -210,7 +209,6 @@ response& response::operator=(response &&o)
     if (this == &o)
         return *this;
 
-    // todo base class header member?
     this->_question   = std::move(o._question);
     this->_answer     = std::move(o._answer);
     this->_authority  = std::move(o._authority);

@@ -77,12 +77,12 @@ void encoder::pack(std::uint64_t val, std::vector<std::uint8_t> &out)
 
 void encoder::pack(chen::dns::RRType val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint16_t>(val), out);
+    encoder::pack(static_cast<std::underlying_type<chen::dns::RRType>::type>(val), out);
 }
 
 void encoder::pack(chen::dns::RRClass val, std::vector<std::uint8_t> &out)
 {
-    encoder::pack(static_cast<std::uint16_t>(val), out);
+    encoder::pack(static_cast<std::underlying_type<chen::dns::RRClass>::type>(val), out);
 }
 
 void encoder::pack(const std::string &val, bool domain, std::vector<std::uint8_t> &out)
@@ -166,108 +166,88 @@ void encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need, std::
 // decoder
 
 // unpack
-void decoder::unpack(std::int8_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::int8_t &val, const_iterator &cur, const_iterator &end)
 {
-    auto temp = static_cast<std::uint8_t>(value);
-    decoder::unpack(temp, cur, end);
-
-    value = static_cast<std::int8_t>(temp);
+    decoder::unpack(reinterpret_cast<std::uint8_t&>(val), cur, end);
 }
 
-void decoder::unpack(std::int16_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::int16_t &val, const_iterator &cur, const_iterator &end)
 {
-    auto temp = static_cast<std::uint16_t>(value);
-    decoder::unpack(temp, cur, end);
-
-    value = static_cast<std::int16_t>(temp);
+    decoder::unpack(reinterpret_cast<std::uint16_t&>(val), cur, end);
 }
 
-void decoder::unpack(std::int32_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::int32_t &val, const_iterator &cur, const_iterator &end)
 {
-    auto temp = static_cast<std::uint32_t>(value);
-    decoder::unpack(temp, cur, end);
-
-    value = static_cast<std::int32_t>(temp);
+    decoder::unpack(reinterpret_cast<std::uint32_t&>(val), cur, end);
 }
 
-void decoder::unpack(std::int64_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::int64_t &val, const_iterator &cur, const_iterator &end)
 {
-    auto temp = static_cast<std::uint64_t>(value);
-    decoder::unpack(temp, cur, end);
-
-    value = static_cast<std::int64_t>(temp);
+    decoder::unpack(reinterpret_cast<std::uint64_t&>(val), cur, end);
 }
 
-void decoder::unpack(std::uint8_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::uint8_t &val, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < 1)
         throw error_size("dns: codec unpack size is not enough, require 1 bytes");
 
-    value = *cur++;
+    val = *cur++;
 }
 
-void decoder::unpack(std::uint16_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::uint16_t &val, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < 2)
         throw error_size("dns: codec unpack size is not enough, require 2 bytes");
 
-    value = 0;
+    val = 0;
 
-    for (std::size_t i = 0, len = sizeof(value); i < len; ++i)
-        value |= *cur++ << (len - i - 1) * 8;
+    for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
+        val |= *cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(std::uint32_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::uint32_t &val, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < 4)
         throw error_size("dns: codec unpack size is not enough, require 4 bytes");
 
-    value = 0;
+    val = 0;
 
-    for (std::size_t i = 0, len = sizeof(value); i < len; ++i)
-        value |= *cur++ << (len - i - 1) * 8;
+    for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
+        val |= *cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(std::uint64_t &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::uint64_t &val, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < 8)
         throw error_size("dns: codec unpack size is not enough, require 8 bytes");
 
-    value = 0;
+    val = 0;
 
-    for (std::size_t i = 0, len = sizeof(value); i < len; ++i)
-        value |= *cur++ << (len - i - 1) * 8;
+    for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
+        val |= *cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(chen::dns::RRType &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(chen::dns::RRType &val, const_iterator &cur, const_iterator &end)
 {
-    auto temp = static_cast<std::uint16_t>(value);
-    decoder::unpack(temp, cur, end);
-
-    value = static_cast<chen::dns::RRType>(temp);
+    decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::RRType>::type&>(val), cur, end);
 }
 
-void decoder::unpack(chen::dns::RRClass &value, const_iterator &cur, const_iterator &end)
+void decoder::unpack(chen::dns::RRClass &val, const_iterator &cur, const_iterator &end)
 {
-    auto temp = static_cast<std::uint16_t>(value);
-    decoder::unpack(temp, cur, end);
-
-    value = static_cast<chen::dns::RRClass>(temp);
+    decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::RRClass>::type&>(val), cur, end);
 }
 
-void decoder::unpack(std::string &value, bool domain, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::string &val, bool domain, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < 1)
         throw error_size("dns: codec unpack size is zero");
-
-    std::size_t total = 0;
 
     if (domain)
     {
         // Note:
         // value contains multiple labels, each label is split by a dot
         // one byte label length + label characters + ... + one byte ending
-        std::size_t origin = value.size();
+        std::size_t origin = val.size();
         std::size_t length = 0;
 
         try
@@ -283,18 +263,19 @@ void decoder::unpack(std::string &value, bool domain, const_iterator &cur, const
                 if (length > SIZE_LIMIT_LABEL)
                     throw error_size(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-                for (std::size_t i = 1; i < length; ++i)
-                    value += *++cur;
+                ++cur;
 
-                value += ".";
-                total += length;
+                for (std::size_t i = 1; i < length; ++i)
+                    val += *cur++;
+
+                val += ".";
             }
 
-            total += 1;  // the padding zero
+            ++cur;  // the padding zero
         }
         catch (...)
         {
-            value.erase(origin, value.size() - origin);
+            val.erase(origin, val.size() - origin);
             throw;
         }
     }
@@ -303,21 +284,23 @@ void decoder::unpack(std::string &value, bool domain, const_iterator &cur, const
         // Note:
         // value is plain text
         // one byte length + characters
-        total = static_cast<std::size_t>(*cur) + 1;
+        auto length = static_cast<std::size_t>(*cur) + 1;
 
-        if (end - cur < total)
-            throw error_size(str::format("dns: codec unpack string size is not enough, require %d bytes", total));
+        if (end - cur < length)
+            throw error_size(str::format("dns: codec unpack string size is not enough, require %d bytes", length));
 
-        for (std::size_t i = 1; i < total; ++i)
-            value += *++cur;
+        ++cur;
+
+        for (std::size_t i = 1; i < length; ++i)
+            val += *cur++;
     }
 }
 
-void decoder::unpack(std::vector<std::uint8_t> &value, std::size_t need, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < need)
         throw error_size(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
     while (need--)
-        value.push_back(*cur++);
+        val.push_back(*cur++);
 }
