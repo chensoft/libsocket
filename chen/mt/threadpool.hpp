@@ -8,13 +8,11 @@
 
 #include <vector>
 #include <thread>
-#include <mutex>
 #include <list>
 #include "semaphore.hpp"
 
 namespace chen
 {
-    // todo maybe use template in future
     class threadpool final
     {
     public:
@@ -25,13 +23,12 @@ namespace chen
         ~threadpool();
 
     public:
-        // todo maybe return std::future in future
         /**
          * Put a job into queue
          */
         void async(const job_type &job);
 
-    protected:
+    private:
         void run();
 
     private:
