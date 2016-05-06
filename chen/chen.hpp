@@ -11,6 +11,7 @@
 #include <chen/base/any.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
+#include <chen/base/utf8.hpp>
 #include <chen/base/date.hpp>
 #include <chen/base/time.hpp>
 #include <chen/base/regex.hpp>
