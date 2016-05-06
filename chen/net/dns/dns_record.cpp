@@ -26,7 +26,7 @@ std::vector<std::uint8_t> RR::encode() const
 {
     std::vector<std::uint8_t> out;
     this->pack(out);
-    return out;  // todo test performance with std::move
+    return out;
 }
 
 void RR::encode(std::vector<std::uint8_t> &out) const
@@ -61,7 +61,6 @@ std::shared_ptr<chen::dns::RR> RR::decode(std::vector<std::uint8_t>::const_itera
     decoder::unpack(ttl, cur, end);
 
     // build
-    // todo test if table build return nullptr?
     std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
     if (!record)
         record.reset(new chen::dns::Unknown);
@@ -75,7 +74,7 @@ std::shared_ptr<chen::dns::RR> RR::decode(std::vector<std::uint8_t>::const_itera
     record->rrclass = rrclass;
     record->ttl     = ttl;
 
-    return record;  // todo use move?
+    return record;
 }
 
 // pack & unpack
