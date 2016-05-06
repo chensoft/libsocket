@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <memory>
 #include <mutex>
-#include "str.hpp"
+#include <chen/base/str.hpp>
 
 // log
 namespace chen

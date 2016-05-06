@@ -17,9 +17,12 @@ endif()
 include_directories(./)
 
 # source codes
+aux_source_directory(./chen/base SRC_BASE)
 aux_source_directory(./chen/data SRC_DATA)
-aux_source_directory(./chen/sync SRC_SYNC)
+aux_source_directory(./chen/mt   SRC_MT)
+aux_source_directory(./chen/sys  SRC_SYS)
 aux_source_directory(./chen/tool SRC_TOOL)
+
 aux_source_directory(./chen/net/ip SRC_NET_IP)
 aux_source_directory(./chen/net/so SRC_NET_SO)
 aux_source_directory(./chen/net/tcp SRC_NET_TCP)
@@ -50,4 +53,18 @@ set(CHEN_LIBRARIES chen CACHE INTERNAL "")
 set(CHEN_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 
 # generate lib
-add_library(chen ${SRC_DATA} ${SRC_SYNC} ${SRC_TOOL} ${SRC_NET_IP} ${SRC_NET_SO} ${SRC_NET_TCP} ${SRC_NET_UDP} ${SRC_NET_DNS} ${SRC_PLAT} ${SRC_UNIT})
+add_library(
+        chen
+        ${SRC_BASE}
+        ${SRC_DATA}
+        ${SRC_MT}
+        ${SRC_SYS}
+        ${SRC_TOOL}
+        ${SRC_NET_IP}
+        ${SRC_NET_SO}
+        ${SRC_NET_TCP}
+        ${SRC_NET_UDP}
+        ${SRC_NET_DNS}
+        ${SRC_PLAT}
+        ${SRC_UNIT}
+)

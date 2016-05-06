@@ -5,7 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "log.hpp"
-#include "date.hpp"
+#include <chen/base/date.hpp>
 #include <map>
 
 using namespace chen;

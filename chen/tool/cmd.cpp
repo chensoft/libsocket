@@ -5,7 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "cmd.hpp"
-#include "fs.hpp"
+#include <chen/sys/fs.hpp>
 #include <algorithm>
 #include <cstdlib>
 

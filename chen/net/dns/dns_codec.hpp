@@ -8,7 +8,7 @@
 
 #include "dns_define.hpp"
 #include "dns_error.hpp"
-#include <chen/tool/str.hpp>
+#include <chen/base/str.hpp>
 #include <vector>
 #include <array>
 

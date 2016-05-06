@@ -5,7 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "fs.hpp"
-#include "str.hpp"
+#include <chen/base/str.hpp>
 #include <fstream>
 #include <climits>
 
