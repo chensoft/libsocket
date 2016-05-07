@@ -19,7 +19,7 @@ namespace chen
     {
         // ---------------------------------------------------------------------
         // Resource Record(rfc1035, section 3.2.1)
-        struct RR
+        class RR
         {
         public:
             virtual ~RR() = 0;
@@ -75,7 +75,7 @@ namespace chen
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
         // Raw(raw resource record, with rdata)
-        struct Raw : public RR
+        class Raw : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -89,7 +89,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // Unknown(unknown record)
-        struct Unknown : public Raw
+        class Unknown : public Raw
         {
         };
 
@@ -99,7 +99,7 @@ namespace chen
         // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
         // A(rfc1035, section 3.4.1)
-        struct A : public RR
+        class A : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -113,7 +113,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NS(rfc1035, section 3.3.11)
-        struct NS : public RR
+        class NS : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -127,7 +127,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MD(rfc1035, section 3.3.4)
-        struct MD : public RR
+        class MD : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -141,7 +141,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MF(rfc1035, section 3.3.5)
-        struct MF : public RR
+        class MF : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -155,7 +155,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CNAME(rfc1035, section 3.3.1)
-        struct CNAME : public RR
+        class CNAME : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -169,7 +169,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SOA(rfc1035, section 3.3.13)
-        struct SOA : public RR
+        class SOA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -189,7 +189,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MB(rfc1035, section 3.3.3)
-        struct MB : public RR
+        class MB : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -203,7 +203,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MG(rfc1035, section 3.3.6)
-        struct MG : public RR
+        class MG : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -217,7 +217,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MR(rfc1035, section 3.3.8)
-        struct MR : public RR
+        class MR : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -231,7 +231,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NULL(rfc1035, section 3.3.10, can store anything)
-        struct NUL : public Raw
+        class NUL : public Raw
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -245,7 +245,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // WKS(rfc1035, section 3.4.2)
-        struct WKS : public RR
+        class WKS : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -261,7 +261,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // PTR(rfc1035, section 3.3.12)
-        struct PTR : public RR
+        class PTR : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -275,7 +275,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // HINFO(rfc1035, section 3.3.2)
-        struct HINFO : public RR
+        class HINFO : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -290,7 +290,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MINFO(rfc1035, section 3.3.7)
-        struct MINFO : public RR
+        class MINFO : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -305,7 +305,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MX(rfc1035, section 3.3.9)
-        struct MX : public RR
+        class MX : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -320,7 +320,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TXT(rfc1035, section 3.3.14)
-        struct TXT : public RR
+        class TXT : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -334,7 +334,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RP(rfc1183, section 2.2)
-        struct RP : public RR
+        class RP : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -349,7 +349,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // AFSDB(rfc1183, section 1)
-        struct AFSDB : public RR
+        class AFSDB : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -364,7 +364,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // X25(rfc1183, section 3.1)
-        struct X25 : public RR
+        class X25 : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -378,7 +378,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // ISDN(rfc1183, section 3.2)
-        struct ISDN : public RR
+        class ISDN : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -393,7 +393,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RT(rfc1183, section 3.3)
-        struct RT : public RR
+        class RT : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -408,7 +408,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSAP(rfc1706, section 5)
-        struct NSAP : public RR
+        class NSAP : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -422,7 +422,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSAPPTR(rfc1348)
-        struct NSAPPTR : public RR
+        class NSAPPTR : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -436,7 +436,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SIG(rfc2535, section 4.1)
-        struct SIG : public RR
+        class SIG : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -458,7 +458,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // KEY(rfc2535, section 3.1)
-        struct KEY : public RR
+        class KEY : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -475,7 +475,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // PX(rfc2163, section 4)
-        struct PX : public RR
+        class PX : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -491,7 +491,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // GPOS(rfc1712, section 3)
-        struct GPOS : public RR
+        class GPOS : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -507,7 +507,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // AAAA(rfc3596, section 2.2)
-        struct AAAA : public RR
+        class AAAA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -521,7 +521,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // LOC(rfc1876, section 2)
-        struct LOC : public RR
+        class LOC : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -542,7 +542,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NXT(rfc2535, section 5.2)
-        struct NXT : public RR
+        class NXT : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -557,7 +557,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // EID(draft-lewis-dns-undocumented-types-01)
-        struct EID : public RR
+        class EID : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -571,7 +571,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NIMLOC(draft-lewis-dns-undocumented-types-01)
-        struct NIMLOC : public RR
+        class NIMLOC : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -585,7 +585,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SRV(rfc2782)
-        struct SRV : public RR
+        class SRV : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -602,7 +602,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // ATMA(ATM Name System Specification Version 1.0)
-        struct ATMA : public RR
+        class ATMA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -617,7 +617,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NAPTR(rfc3403, section 4.1)
-        struct NAPTR : public RR
+        class NAPTR : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -636,7 +636,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // KX(rfc2230, section 3.1)
-        struct KX : public RR
+        class KX : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -651,7 +651,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CERT(rfc4398, section 2)
-        struct CERT : public RR
+        class CERT : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -668,14 +668,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // A6(OBSOLETE - use AAAA)
-        struct A6 : public AAAA
+        class A6 : public AAAA
         {
         };
 
 
         // ---------------------------------------------------------------------
         // DNAME(rfc2672, section 3)
-        struct DNAME : public RR
+        class DNAME : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -689,7 +689,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SINK(draft-eastlake-kitchen-sink-02)
-        struct SINK : public RR
+        class SINK : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -705,14 +705,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPT(rfc6891, section 6.1.2)
-        struct OPT : public Raw
+        class OPT : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // DS(rfc4034, section 5.1)
-        struct DS : public RR
+        class DS : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -729,7 +729,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SSHFP(rfc4255, section 3.1)
-        struct SSHFP : public RR
+        class SSHFP : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -745,7 +745,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // IPSECKEY(rfc4025, section 2.1)
-        struct IPSECKEY : public RR
+        class IPSECKEY : public RR
         {
         public:
             enum class GatewayType {None, IPv4, IPv6, Domain};
@@ -766,7 +766,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RRSIG(rfc4034, section 3.1)
-        struct RRSIG : public RR
+        class RRSIG : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -788,7 +788,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSEC(rfc4034, section 4.1)
-        struct NSEC : public RR
+        class NSEC : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -803,7 +803,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DNSKEY(rfc4034, section 2.1)
-        struct DNSKEY : public RR
+        class DNSKEY : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -820,7 +820,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DHCID(rfc4701, section 3.1)
-        struct DHCID : public RR
+        class DHCID : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -834,7 +834,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSEC3(rfc5155, section 3.2)
-        struct NSEC3 : public RR
+        class NSEC3 : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -855,7 +855,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSEC3PARAM(rfc5155, section 4.2)
-        struct NSEC3PARAM : public RR
+        class NSEC3PARAM : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -873,7 +873,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TLSA(rfc6698, section 2.1)
-        struct TLSA : public RR
+        class TLSA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -890,7 +890,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SMIMEA(draft-ietf-dane-smime, section 2)
-        struct SMIMEA : public RR
+        class SMIMEA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -907,7 +907,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // HIP(rfc5205, section 5)
-        struct HIP : public RR
+        class HIP : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -926,7 +926,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NINFO(draft-lewis-dns-undocumented-types-01)
-        struct NINFO : public RR
+        class NINFO : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -940,7 +940,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RKEY(draft-lewis-dns-undocumented-types-01)
-        struct RKEY : public RR
+        class RKEY : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -957,7 +957,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TALINK(draft-lewis-dns-undocumented-types-01)
-        struct TALINK : public RR
+        class TALINK : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -972,7 +972,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CDS(rfc7344, section 3.1)
-        struct CDS : public RR
+        class CDS : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -989,7 +989,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CDNSKEY(rfc7344, section 3.2)
-        struct CDNSKEY : public RR
+        class CDNSKEY : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1006,7 +1006,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPENPGPKEY(draft-ietf-dane-openpgpkey, section 2.1)
-        struct OPENPGPKEY : public RR
+        class OPENPGPKEY : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1020,7 +1020,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CSYNC(rfc7477, section 2.1.1)
-        struct CSYNC : public RR
+        class CSYNC : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1036,7 +1036,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SPF(rfc4408, section 3)
-        struct SPF : public RR
+        class SPF : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1050,35 +1050,35 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // UINFO(IANA reserved, no RFC documented)
-        struct UINFO : public Raw
+        class UINFO : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // UID(IANA reserved, no RFC documented)
-        struct UID : public Raw
+        class UID : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // GID(IANA reserved, no RFC documented)
-        struct GID : public Raw
+        class GID : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // UNSPEC(IANA reserved, no RFC documented)
-        struct UNSPEC : public Raw
+        class UNSPEC : public Raw
         {
         };
 
 
         // ---------------------------------------------------------------------
         // NID(rfc6742, section 2.1.1)
-        struct NID : public RR
+        class NID : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1093,7 +1093,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // L32(rfc6742, section 2.2.1)
-        struct L32 : public RR
+        class L32 : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1108,7 +1108,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // L64(rfc6742, section 2.3.1)
-        struct L64 : public RR
+        class L64 : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1123,7 +1123,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // LP(rfc6742, section 2.4.1)
-        struct LP : public RR
+        class LP : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1138,7 +1138,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // EUI48(rfc7043, section 3.1)
-        struct EUI48 : public RR
+        class EUI48 : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1152,7 +1152,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // EUI64(rfc7043, section 4.1)
-        struct EUI64 : public RR
+        class EUI64 : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1166,7 +1166,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TKEY(rfc2930, section 2)
-        struct TKEY : public RR
+        class TKEY : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1188,7 +1188,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TSIG(rfc2845, section 2.3)
-        struct TSIG : public RR
+        class TSIG : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1210,7 +1210,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // URI(rfc7553, section 4.5)
-        struct URI : public RR
+        class URI : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1226,7 +1226,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CAA(rfc6844, section 5.1.1)
-        struct CAA : public RR
+        class CAA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1242,7 +1242,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TA(Deploying DNSSEC Without a Signed Root)
-        struct TA : public RR
+        class TA : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
@@ -1259,7 +1259,7 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DLV(rfc4431, section 2)
-        struct DLV : public RR
+        class DLV : public RR
         {
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
