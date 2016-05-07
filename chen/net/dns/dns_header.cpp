@@ -286,6 +286,40 @@ question::question(const std::string &qname,
 
 }
 
+question::question(const question &o)
+{
+    *this = o;
+}
+
+question& question::operator=(const question &o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_qname  = o._qname;
+    this->_qtype  = o._qtype;
+    this->_qclass = o._qclass;
+
+    return *this;
+}
+
+question::question(question &&o)
+{
+    *this = std::move(o);
+}
+
+question& question::operator=(question &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_qname  = std::move(o._qname);
+    this->_qtype  = o._qtype;
+    this->_qclass = o._qclass;
+
+    return *this;
+}
+
 // get filed value
 const std::string& question::qname() const
 {

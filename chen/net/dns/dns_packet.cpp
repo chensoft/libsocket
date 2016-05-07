@@ -62,6 +62,43 @@ void message::decode(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // request
+request::request()
+{
+}
+
+request::request(const request &o)
+{
+    *this = o;
+}
+
+request& request::operator=(const request &o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_question = o._question;
+    this->_addr     = o._addr;
+    this->_port     = o._port;
+
+    return *this;
+}
+
+request::request(request &&o)
+{
+    *this = std::move(o);
+}
+
+request& request::operator=(request &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_question = std::move(o._question);
+    this->_addr     = std::move(o._addr);
+    this->_port     = o._port;
+
+    return *this;
+}
 
 // question
 void request::setQuestion(const std::string &qname,
@@ -175,9 +212,10 @@ void request::decode(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // response
-response::response()
+response::response(bool authoritative)
 {
     this->_header.setQr(chen::dns::QR::Response);
+    this->_header.setAuthoritative(authoritative);
     this->_header.setRcode(chen::dns::RCODE::NoError);
 }
 

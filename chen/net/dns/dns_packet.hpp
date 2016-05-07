@@ -56,6 +56,15 @@ namespace chen
         class request : public message
         {
         public:
+            request();
+
+            request(const request &o);
+            request& operator=(const request &o);
+
+            request(request &&o);
+            request& operator=(request &&o);
+
+        public:
             /**
              * Set question
              */
@@ -120,7 +129,7 @@ namespace chen
             typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
 
         public:
-            response();
+            response(bool authoritative = false);
 
             response(const response &o);
             response& operator=(const response &o);
