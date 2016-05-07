@@ -232,19 +232,19 @@ void response::addQuestion(const chen::dns::question &value)
 
 void response::addAnswer(std::shared_ptr<chen::dns::RR> value)
 {
-    this->_answer.push_back(value);
+    this->_answer.push_back(std::move(value));
     this->_header.setAncount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
 void response::addAuthority(std::shared_ptr<chen::dns::RR> value)
 {
-    this->_authority.push_back(value);
+    this->_authority.push_back(std::move(value));
     this->_header.setNscount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
 void response::addAdditional(std::shared_ptr<chen::dns::RR> value)
 {
-    this->_additional.push_back(value);
+    this->_additional.push_back(std::move(value));
     this->_header.setArcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
