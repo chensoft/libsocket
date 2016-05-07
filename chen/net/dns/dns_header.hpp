@@ -123,6 +123,7 @@ namespace chen
              * Set field value
              */
             void setQname(const std::string &value);
+            void setQname(std::string &&value);
             void setQtype(chen::dns::RRType value);
             void setQclass(chen::dns::RRClass value);
 

@@ -342,6 +342,11 @@ void question::setQname(const std::string &value)
     this->_qname = value;
 }
 
+void question::setQname(std::string &&value)
+{
+    this->_qname = std::move(value);
+}
+
 void question::setQtype(chen::dns::RRType value)
 {
     this->_qtype = value;

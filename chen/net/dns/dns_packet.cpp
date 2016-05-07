@@ -64,6 +64,7 @@ void message::decode(std::vector<std::uint8_t>::const_iterator &cur,
 // request
 request::request()
 {
+
 }
 
 request::request(const request &o)
@@ -151,6 +152,11 @@ chen::dns::question& request::question()
 void request::setQuestion(const chen::dns::question &value)
 {
     this->_question = value;
+}
+
+void request::setQuestion(chen::dns::question &&value)
+{
+    this->_question = std::move(value);
 }
 
 // address
@@ -268,22 +274,46 @@ void response::addQuestion(const chen::dns::question &value)
     this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
-void response::addAnswer(std::shared_ptr<chen::dns::RR> value)
+void response::addAnswer(const std::shared_ptr<chen::dns::RR> &value)
+{
+    this->_answer.push_back(value);
+    this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
+}
+
+void response::addAuthority(const std::shared_ptr<chen::dns::RR> &value)
+{
+    this->_authority.push_back(value);
+    this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
+}
+
+void response::addAdditional(const std::shared_ptr<chen::dns::RR> &value)
+{
+    this->_additional.push_back(value);
+    this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
+}
+
+void response::addQuestion(chen::dns::question &&value)
+{
+    this->_question.push_back(std::move(value));
+    this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
+}
+
+void response::addAnswer(std::shared_ptr<chen::dns::RR> &&value)
 {
     this->_answer.push_back(std::move(value));
-    this->_header.setAncount(static_cast<std::uint16_t>(this->_question.size()));
+    this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
-void response::addAuthority(std::shared_ptr<chen::dns::RR> value)
+void response::addAuthority(std::shared_ptr<chen::dns::RR> &&value)
 {
     this->_authority.push_back(std::move(value));
-    this->_header.setNscount(static_cast<std::uint16_t>(this->_question.size()));
+    this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
-void response::addAdditional(std::shared_ptr<chen::dns::RR> value)
+void response::addAdditional(std::shared_ptr<chen::dns::RR> &&value)
 {
     this->_additional.push_back(std::move(value));
-    this->_header.setArcount(static_cast<std::uint16_t>(this->_question.size()));
+    this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
 // get
@@ -311,25 +341,49 @@ const response::rr_type& response::additional() const
 void response::setQuestion(const q_type &value)
 {
     this->_question = value;
-    this->_header.setQdcount(static_cast<std::uint16_t>(value.size()));
+    this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
 void response::setAnswer(const rr_type &value)
 {
     this->_answer = value;
-    this->_header.setAncount(static_cast<std::uint16_t>(value.size()));
+    this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
 void response::setAuthority(const rr_type &value)
 {
     this->_authority = value;
-    this->_header.setNscount(static_cast<std::uint16_t>(value.size()));
+    this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
 void response::setAdditional(const rr_type &value)
 {
     this->_additional = value;
-    this->_header.setArcount(static_cast<std::uint16_t>(value.size()));
+    this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
+}
+
+void response::setQuestion(q_type &&value)
+{
+    this->_question = std::move(value);
+    this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
+}
+
+void response::setAnswer(rr_type &&value)
+{
+    this->_answer = std::move(value);
+    this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
+}
+
+void response::setAuthority(rr_type &&value)
+{
+    this->_authority = std::move(value);
+    this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
+}
+
+void response::setAdditional(rr_type &&value)
+{
+    this->_additional = std::move(value);
+    this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
 // codec
