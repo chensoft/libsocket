@@ -110,7 +110,7 @@ chen::ini::value_type chen::ini::decode(InputIterator cur, InputIterator end)
                 auto section = chen::ini::decodeSection(cur, end);
 
                 if (value.find(section.first) == value.end())
-                    value.emplace(std::move(section));
+                    value.insert(std::move(section));
                 else
                     chen::ini::exception(cur, end);
             }
@@ -122,7 +122,7 @@ chen::ini::value_type chen::ini::decode(InputIterator cur, InputIterator end)
 
             default:
                 if (root)
-                    value.emplace("", chen::ini::decodeProperty(cur, end));
+                    value.emplace("", std::move(chen::ini::decodeProperty(cur, end)));
                 else
                     chen::ini::exception(cur, end);
                 break;
@@ -217,7 +217,7 @@ chen::ini::property_type chen::ini::decodeProperty(InputIterator &cur, InputIter
 
         // store
         if (property.find(key) == property.end())
-            property.emplace(key, val);
+            property.emplace(std::move(key), std::move(val));
         else
             throw error("ini: duplicate key found: " + key);
 
