@@ -89,19 +89,6 @@ namespace chen
 
         public:
             /**
-             * Get client address and port
-             */
-            std::string addr()   const;
-            std::uint16_t port() const;
-
-            /**
-             * Set client address and port
-             */
-            void setAddr(const std::string &value);
-            void setPort(std::uint16_t value);
-
-        public:
-            /**
              * Encode & Decode
              */
             virtual std::vector<std::uint8_t> encode() const override;
@@ -114,10 +101,6 @@ namespace chen
 
         protected:
             chen::dns::question _question;
-
-            // client information when receive request
-            std::string _addr;
-            std::uint16_t _port = 0;
         };
 
 

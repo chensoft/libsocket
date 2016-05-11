@@ -78,8 +78,6 @@ request& request::operator=(const request &o)
         return *this;
 
     this->_question = o._question;
-    this->_addr     = o._addr;
-    this->_port     = o._port;
 
     return *this;
 }
@@ -95,8 +93,6 @@ request& request::operator=(request &&o)
         return *this;
 
     this->_question = std::move(o._question);
-    this->_addr     = std::move(o._addr);
-    this->_port     = o._port;
 
     return *this;
 }
@@ -157,27 +153,6 @@ void request::setQuestion(const chen::dns::question &value)
 void request::setQuestion(chen::dns::question &&value)
 {
     this->_question = std::move(value);
-}
-
-// address
-std::string request::addr() const
-{
-    return this->_addr;
-}
-
-std::uint16_t request::port() const
-{
-    return this->_port;
-}
-
-void request::setAddr(const std::string &value)
-{
-    this->_addr = value;
-}
-
-void request::setPort(std::uint16_t value)
-{
-    this->_port = value;
 }
 
 // codec
