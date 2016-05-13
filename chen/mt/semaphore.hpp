@@ -14,11 +14,10 @@ namespace chen
     class semaphore final
     {
     public:
-        semaphore() = default;
-        ~semaphore() = default;
+        semaphore(std::size_t count = 0);
 
     public:
-        void wake();
+        void post();
         void wait();
 
     private:
@@ -26,7 +25,7 @@ namespace chen
         semaphore& operator=(const semaphore&) = delete;
 
     private:
-        int _count = 0;
+        std::size_t _count = 0;
         std::mutex _mutex;
         std::condition_variable _cond;
     };

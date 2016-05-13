@@ -10,7 +10,13 @@ using namespace chen;
 
 // ------------------------------------------------------------------
 // semaphore
-void semaphore::wake()
+semaphore::semaphore(std::size_t count)
+: _count(count)
+{
+
+}
+
+void semaphore::post()
 {
     std::unique_lock<std::mutex> lock(this->_mutex);
     ++this->_count;
@@ -21,8 +27,9 @@ void semaphore::wait()
 {
     std::unique_lock<std::mutex> lock(this->_mutex);
 
-    while (!this->_count)
-        this->_cond.wait(lock);
+    this->_cond.wait(lock, [&] {
+        return this->_count;
+    });
 
     --this->_count;
 }
