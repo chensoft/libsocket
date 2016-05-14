@@ -4,6 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifdef CHEN_OS_WIN32
+#ifdef CHEN_OS_WIN
     #pragma message ( "Detect Windows" )
-#endif  // CHEN_OS_WIN32
+#endif  // CHEN_OS_WIN
