@@ -20,6 +20,7 @@
 #include <chen/data/json.hpp>
 #include <chen/data/lang.hpp>
 
+#include <chen/mt/callable.hpp>
 #include <chen/mt/semaphore.hpp>
 #include <chen/mt/threadpool.hpp>
 

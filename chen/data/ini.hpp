@@ -60,35 +60,35 @@ namespace chen
         /**
          * Decode ini, throw exception if found error
          */
-        template <class InputIterator>
+        template <typename InputIterator>
         static chen::ini::value_type decode(InputIterator cur, InputIterator end);
 
     protected:
         /**
          * Throw syntax exception
          */
-        template <class InputIterator>
+        template <typename InputIterator>
         static void exception(InputIterator &cur, InputIterator &end);
 
         /**
          * Decode specific type
          */
-        template <class InputIterator>
+        template <typename InputIterator>
         static chen::ini::section_type decodeSection(InputIterator &cur, InputIterator &end);
 
-        template <class InputIterator>
+        template <typename InputIterator>
         static chen::ini::property_type decodeProperty(InputIterator &cur, InputIterator &end);
 
-        template <class InputIterator>
+        template <typename InputIterator>
         static std::string decodeString(InputIterator &cur, InputIterator &end);
 
-        template <class InputIterator>
+        template <typename InputIterator>
         static void decodeComment(InputIterator &cur, InputIterator &end);
     };
 }
 
 // decode
-template <class InputIterator>
+template <typename InputIterator>
 chen::ini::value_type chen::ini::decode(InputIterator cur, InputIterator end)
 {
     chen::ini::value_type value;
@@ -133,7 +133,7 @@ chen::ini::value_type chen::ini::decode(InputIterator cur, InputIterator end)
 }
 
 // exception
-template <class InputIterator>
+template <typename InputIterator>
 void chen::ini::exception(InputIterator &cur, InputIterator &end)
 {
     // todo report line and column
@@ -144,7 +144,7 @@ void chen::ini::exception(InputIterator &cur, InputIterator &end)
 }
 
 // decode
-template <class InputIterator>
+template <typename InputIterator>
 chen::ini::section_type chen::ini::decodeSection(InputIterator &cur, InputIterator &end)
 {
     chen::ini::section_type section;
@@ -176,7 +176,7 @@ chen::ini::section_type chen::ini::decodeSection(InputIterator &cur, InputIterat
     return section;
 }
 
-template <class InputIterator>
+template <typename InputIterator>
 chen::ini::property_type chen::ini::decodeProperty(InputIterator &cur, InputIterator &end)
 {
     chen::ini::property_type property;
@@ -229,7 +229,7 @@ chen::ini::property_type chen::ini::decodeProperty(InputIterator &cur, InputIter
     return property;
 }
 
-template <class InputIterator>
+template <typename InputIterator>
 std::string chen::ini::decodeString(InputIterator &cur, InputIterator &end)
 {
     std::string ret;
@@ -367,7 +367,7 @@ std::string chen::ini::decodeString(InputIterator &cur, InputIterator &end)
     return ret;
 }
 
-template <class InputIterator>
+template <typename InputIterator>
 void chen::ini::decodeComment(InputIterator &cur, InputIterator &end)
 {
     if (*cur != ';')

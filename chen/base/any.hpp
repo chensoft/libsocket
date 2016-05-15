@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <stdexcept>
 #include <utility>
+#include <memory>
 
 namespace chen
 {
@@ -16,6 +17,8 @@ namespace chen
     {
     public:
         any() = default;
+        ~any() = default;
+
         any(const any &o);
         any(any &&o);
 
@@ -36,8 +39,6 @@ namespace chen
         : _ptr(new data<typename std::decay<T>::type>(std::move(val)))
         {
         }
-
-        ~any();
 
     public:
         /**
@@ -81,7 +82,7 @@ namespace chen
         template <typename T>
         operator T() const
         {
-            auto d = dynamic_cast<data<T>*>(this->_ptr);
+            auto d = dynamic_cast<data<T>*>(this->_ptr.get());
 
             if (d)
                 return d->val;
@@ -172,6 +173,6 @@ namespace chen
         /**
          * Store object, real type is data
          */
-        base *_ptr = nullptr;
+        std::unique_ptr<base> _ptr;
     };
 }

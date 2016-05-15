@@ -20,21 +20,16 @@ any::any(any &&o)
     *this = std::move(o);
 }
 
-any::~any()
-{
-    this->clear();
-}
-
 // copy & move
 any& any::operator=(const any &o)
 {
     if (this->_ptr == o._ptr)
         return *this;
 
-    this->clear();
-
     if (o._ptr)
-        this->_ptr = o._ptr->clone();
+        this->_ptr.reset(o._ptr->clone());
+    else
+        this->clear();
 
     return *this;
 }
@@ -44,10 +39,7 @@ any& any::operator=(any &&o)
     if (this->_ptr == o._ptr)
         return *this;
 
-    this->clear();
-
-    this->_ptr = o._ptr;
-    o._ptr     = nullptr;
+    this->_ptr = std::move(o._ptr);
 
     return *this;
 }
@@ -61,6 +53,5 @@ bool any::empty() const
 // clear
 void any::clear()
 {
-    delete this->_ptr;
-    this->_ptr = nullptr;
+    this->_ptr.reset();
 }
