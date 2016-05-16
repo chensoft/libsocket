@@ -20,8 +20,8 @@ namespace chen
             /**
              * Receive Callback
              */
-            typedef std::function<void (std::vector<std::uint8_t> data,
-                                        std::string addr,
+            typedef std::function<void (std::vector<std::uint8_t> &&data,
+                                        std::string &&addr,
                                         std::uint16_t port)> callback_type;
 
         public:
@@ -50,8 +50,8 @@ namespace chen
             /**
              * Notify the observer
              */
-            virtual void notify(std::vector<std::uint8_t> data,
-                                std::string addr,
+            virtual void notify(std::vector<std::uint8_t> &&data,
+                                std::string &&addr,
                                 std::uint16_t port);
 
         public:

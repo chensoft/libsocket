@@ -56,7 +56,7 @@ namespace chen
             std::thread thread(std::bind(block));
 
             udp::server server;
-            server.attach([&server] (std::vector<std::uint8_t> data, std::string addr, std::uint16_t port) {
+            server.attach([&server] (std::vector<std::uint8_t> &&data, std::string &&addr, std::uint16_t port) {
                 server.send(data.data(), data.size(), addr, port);
                 server.stop();
             });

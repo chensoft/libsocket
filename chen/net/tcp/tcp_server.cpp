@@ -56,7 +56,7 @@ void server::detach()
     this->_callback = nullptr;
 }
 
-void server::notify(std::unique_ptr<chen::tcp::conn> conn)
+void server::notify(std::unique_ptr<chen::tcp::conn> &&conn)
 {
     if (this->_callback)
         this->_callback(std::move(conn));
