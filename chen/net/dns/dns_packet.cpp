@@ -62,40 +62,6 @@ void message::decode(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // request
-request::request()
-{
-
-}
-
-request::request(const request &o)
-{
-    *this = o;
-}
-
-request& request::operator=(const request &o)
-{
-    if (this == &o)
-        return *this;
-
-    this->_question = o._question;
-
-    return *this;
-}
-
-request::request(request &&o)
-{
-    *this = std::move(o);
-}
-
-request& request::operator=(request &&o)
-{
-    if (this == &o)
-        return *this;
-
-    this->_question = std::move(o._question);
-
-    return *this;
-}
 
 // question
 void request::setQuestion(const std::string &qname,
@@ -198,42 +164,6 @@ response::response(bool authoritative)
     this->_header.setQr(chen::dns::QR::Response);
     this->_header.setAuthoritative(authoritative);
     this->_header.setRcode(chen::dns::RCODE::NoError);
-}
-
-response::response(const response &o)
-{
-    *this = o;
-}
-
-response& response::operator=(const response &o)
-{
-    if (this == &o)
-        return *this;
-
-    this->_question   = o._question;
-    this->_answer     = o._answer;
-    this->_authority  = o._authority;
-    this->_additional = o._additional;
-
-    return *this;
-}
-
-response::response(response &&o)
-{
-    *this = std::move(o);
-}
-
-response& response::operator=(response &&o)
-{
-    if (this == &o)
-        return *this;
-
-    this->_question   = std::move(o._question);
-    this->_answer     = std::move(o._answer);
-    this->_authority  = std::move(o._authority);
-    this->_additional = std::move(o._additional);
-
-    return *this;
 }
 
 // add

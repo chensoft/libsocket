@@ -56,15 +56,6 @@ namespace chen
         class request : public message
         {
         public:
-            request();
-
-            request(const request &o);
-            request& operator=(const request &o);
-
-            request(request &&o);
-            request& operator=(request &&o);
-
-        public:
             /**
              * Set question
              */
@@ -114,12 +105,6 @@ namespace chen
 
         public:
             response(bool authoritative = false);
-
-            response(const response &o);
-            response& operator=(const response &o);
-
-            response(response &&o);
-            response& operator=(response &&o);
 
         public:
             /**

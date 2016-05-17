@@ -105,12 +105,6 @@ namespace chen
                      chen::dns::RRType qtype,
                      chen::dns::RRClass qclass = chen::dns::RRClass::IN);
 
-            question(const question &o);
-            question& operator=(const question &o);
-
-            question(question &&o);
-            question& operator=(question &&o);
-
         public:
             /**
              * Get field value
