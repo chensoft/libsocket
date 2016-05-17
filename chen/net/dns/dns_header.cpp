@@ -49,7 +49,7 @@ std::uint16_t header::arcount() const
 // set filed value
 void header::setId(std::uint16_t value)
 {
-    this->_id = value ? value : header::random();
+    this->_id = value;
 }
 
 void header::setFlag(std::uint16_t value)

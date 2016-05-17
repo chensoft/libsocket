@@ -62,7 +62,7 @@ namespace chen
             void setQuestion(const std::string &qname,
                              chen::dns::RRType qtype,
                              chen::dns::RRClass qclass = chen::dns::RRClass::IN,
-                             std::uint16_t id = 0,
+                             std::uint16_t id = header::random(),
                              bool recursionDesired = true);
 
         public:

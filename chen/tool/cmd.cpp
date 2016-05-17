@@ -33,7 +33,7 @@ void cmd::create(const std::string &action,
         act.name = action;
         act.desc = desc;
         act.bind = bind;
-        this->_cursor = &this->_define.emplace(action, act).first->second;
+        this->_cursor = &this->_define.emplace(action, std::move(act)).first->second;
     }
     else
     {

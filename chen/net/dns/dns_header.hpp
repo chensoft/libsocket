@@ -32,7 +32,7 @@ namespace chen
             /**
              * Set filed value
              */
-            void setId(std::uint16_t value = 0);  // use random id when value is zero
+            void setId(std::uint16_t value);
             void setFlag(std::uint16_t value);
             void setQdcount(std::uint16_t value);
             void setAncount(std::uint16_t value);
