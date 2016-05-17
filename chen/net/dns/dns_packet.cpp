@@ -99,7 +99,7 @@ void request::setQuestion(const std::string &qname,
     this->_question.setQclass(qclass);
 }
 
-// get
+// question
 const chen::dns::question& request::question() const
 {
     return this->_question;
@@ -110,7 +110,6 @@ chen::dns::question& request::question()
     return this->_question;
 }
 
-// set
 void request::setQuestion(const chen::dns::question &value)
 {
     this->_question = value;
@@ -119,6 +118,27 @@ void request::setQuestion(const chen::dns::question &value)
 void request::setQuestion(chen::dns::question &&value)
 {
     this->_question = std::move(value);
+}
+
+// client
+const std::string& request::addr() const
+{
+    return this->_addr;
+}
+
+std::uint16_t request::port() const
+{
+    return this->_port;
+}
+
+void request::setAddr(const std::string &addr)
+{
+    this->_addr = addr;
+}
+
+void request::setPort(std::uint16_t port)
+{
+    this->_port = port;
 }
 
 // codec

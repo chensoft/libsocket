@@ -67,16 +67,23 @@ namespace chen
 
         public:
             /**
-             * Get field value
+             * Question
              */
             const chen::dns::question& question() const;
             chen::dns::question& question();
 
-            /**
-             * Set field value
-             */
             void setQuestion(const chen::dns::question &value);
             void setQuestion(chen::dns::question &&value);
+
+        public:
+            /**
+             * Client
+             */
+            const std::string& addr() const;
+            std::uint16_t port() const;
+
+            void setAddr(const std::string &addr);
+            void setPort(std::uint16_t port);
 
         public:
             /**
@@ -91,6 +98,11 @@ namespace chen
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
         protected:
+            // client address info, empty if not set
+            std::string _addr;
+            std::uint16_t _port;
+
+            // client question
             chen::dns::question _question;
         };
 
