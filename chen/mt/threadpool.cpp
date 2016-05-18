@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "threadpool.hpp"
+#include <algorithm>
 
 using namespace chen;
 
