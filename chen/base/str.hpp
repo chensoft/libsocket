@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <ostream>
 #include <string>
 
 namespace chen
@@ -22,7 +23,23 @@ namespace chen
          * Print string to standard output
          * thread safe, guarantee the output order
          */
+        template <typename ...Args>
+        static void printf(const char *fmt, Args... args)
+        {
+            chen::str::print(chen::str::format(fmt, args...), false);
+        }
+
+        template <typename ...Args>
+        static void printf(std::ostream &out, const char *fmt, Args... args)
+        {
+            chen::str::print(out, chen::str::format(fmt, args...), false);
+        }
+
+        static void print(const char *text, bool end = true);
         static void print(const std::string &text, bool end = true);
+
+        static void print(std::ostream &out, const char *text, bool end = true);
+        static void print(std::ostream &out, const std::string &text, bool end = true);
 
         /**
          * Test if two strings are equal

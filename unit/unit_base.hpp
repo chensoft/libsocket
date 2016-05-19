@@ -27,8 +27,8 @@ namespace chen
         virtual void bench() = 0;
 
     public:
-        template <typename ... Args>
-        void assert(bool condition, const char *format, Args ... args)
+        template <typename ...Args>
+        void assert(bool condition, const char *format, Args... args)
         {
             if (!condition)
                 PILogF(format, args...);
