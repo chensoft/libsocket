@@ -9,12 +9,12 @@
  */
 #pragma once
 
+#include <chen/base/str.hpp>
 #include <functional>
 #include <iostream>
 #include <cstdlib>
 #include <memory>
 #include <mutex>
-#include <chen/base/str.hpp>
 
 // log
 namespace chen
@@ -121,7 +121,7 @@ namespace chen
          * Hook the output
          * user shall not call log's method again in callback, otherwise will deadlock
          */
-        virtual void hook(std::function<void (const std::string &text, chen::log::Level level)> callback);
+        virtual void hook(std::function<void (std::string &&text)> callback);
 
         /**
          * Redirect output to another stream
@@ -136,7 +136,7 @@ namespace chen
         /**
          * Final output
          */
-        virtual void output(const std::string &text, chen::log::Level level);
+        virtual void output(std::string &&text, chen::log::Level level);
 
     private:
         log(const log&) = delete;
@@ -146,7 +146,7 @@ namespace chen
         Level _level = Level::Trace;
         std::ostream *_stream = nullptr;  // weak
 
-        std::function<void (const std::string &text, chen::log::Level level)> _hook;
+        std::function<void (std::string &&text)> _hook;
         std::unique_ptr<std::ostream> _redirect;
 
     protected:

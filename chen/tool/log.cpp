@@ -21,7 +21,7 @@ chen::log& log::standard()
 }
 
 log::log()
-: _stream(&std::cout)
+: _stream(static_cast<std::ostream*>(&std::cout))
 {
 
 }
@@ -61,7 +61,7 @@ log::Level log::level() const
     return this->_level;
 }
 
-void log::hook(std::function<void (const std::string &text, chen::log::Level level)> callback)
+void log::hook(std::function<void (std::string &&text)> callback)
 {
     std::lock_guard<std::mutex> lock(log::_mutex);
     this->_hook = callback;
@@ -74,27 +74,31 @@ void log::redirect(std::unique_ptr<std::ostream> &&stream)
     this->_stream   = this->_redirect ? this->_redirect.get() : &std::cout;
 }
 
-void log::output(const std::string &text, chen::log::Level level)
+void log::output(std::string &&text, chen::log::Level level)
 {
+    static std::map<chen::log::Level, std::string> map = {
+            {Level::Trace, "T"},
+            {Level::Debug, "D"},
+            {Level::Info,  "I"},
+            {Level::Warn,  "W"},
+            {Level::Error, "E"},
+            {Level::Fatal, "F"},
+    };
+
+    std::string out(chen::date::stamp());
+
+    out += " ";
+    out += chen::date::time(":", true, true);
+    out += " UTC [";
+    out += map[level];
+    out += "] ";
+    out += text;
+    out += "\n";
+
     std::lock_guard<std::mutex> lock(log::_mutex);
 
     if (!this->_hook)
-    {
-        (*this->_stream) << chen::date::stamp() << " " << chen::date::time(":", true, true) << " UTC [";
-
-        static std::map<chen::log::Level, std::string> map = {
-                {Level::Trace, "T"},
-                {Level::Debug, "D"},
-                {Level::Info,  "I"},
-                {Level::Warn,  "W"},
-                {Level::Error, "E"},
-                {Level::Fatal, "F"},
-        };
-
-        (*this->_stream) << map[level] << "] " << text << std::endl;
-    }
+        (*this->_stream) << out;
     else
-    {
-        this->_hook(text, level);
-    }
+        this->_hook(std::move(out));
 }
