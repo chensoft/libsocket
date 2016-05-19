@@ -30,6 +30,11 @@ aux_source_directory(./chen/net/udp SRC_NET_UDP)
 aux_source_directory(./chen/net/dns SRC_NET_DNS)
 
 # platform codes
+if (APPLE)
+    # rarely used, especially you want to do some things on OS X only
+    add_definitions(-DCHEN_OS_APPLE)
+endif()
+
 if (UNIX)
     add_definitions(-DCHEN_OS_UNIX)
     aux_source_directory(./chen/plat/unix SRC_PLAT)
