@@ -12,43 +12,10 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // log
-std::mutex log::_mutex;
-
 chen::log& log::standard()
 {
     static log inst;
     return inst;
-}
-
-log::log()
-: _stream(static_cast<std::ostream*>(&std::cout))
-{
-
-}
-
-log::log(log &&o)
-{
-    *this = std::move(o);
-}
-
-log& log::operator=(log &&o)
-{
-    if (this == &o)
-        return *this;
-
-    std::lock_guard<std::mutex> lock(log::_mutex);
-
-    this->_level    = o._level;
-    this->_stream   = o._stream;
-    this->_hook     = o._hook;
-    this->_redirect = std::move(o._redirect);
-
-    o._level    = chen::log::Level::Trace;
-    o._stream   = nullptr;
-    o._hook     = nullptr;
-    o._redirect = nullptr;
-
-    return *this;
 }
 
 void log::limit(Level level)
@@ -63,15 +30,8 @@ log::Level log::level() const
 
 void log::hook(std::function<void (std::string &&text)> callback)
 {
-    std::lock_guard<std::mutex> lock(log::_mutex);
+    std::lock_guard<std::mutex> lock(this->_mutex);
     this->_hook = callback;
-}
-
-void log::redirect(std::unique_ptr<std::ostream> &&stream)
-{
-    std::lock_guard<std::mutex> lock(log::_mutex);
-    this->_redirect = std::move(stream);
-    this->_stream   = this->_redirect ? this->_redirect.get() : &std::cout;
 }
 
 void log::output(std::string &&text, chen::log::Level level)
@@ -95,10 +55,15 @@ void log::output(std::string &&text, chen::log::Level level)
     out += text;
     out += "\n";
 
-    std::lock_guard<std::mutex> lock(log::_mutex);
-
     if (!this->_hook)
-        (*this->_stream) << out;
+    {
+        str::print(out, false);
+    }
     else
-        this->_hook(std::move(out));
+    {
+        std::lock_guard<std::mutex> lock(this->_mutex);
+
+        if (this->_hook)  // double check
+            this->_hook(std::move(out));
+    }
 }

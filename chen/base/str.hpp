@@ -19,6 +19,12 @@ namespace chen
         static std::string format(const char *fmt, ...);
 
         /**
+         * Print string to standard output
+         * thread safe, guarantee the output order
+         */
+        static void print(const std::string &text, bool end = true);
+
+        /**
          * Test if two strings are equal
          */
         static bool equal(const char *str1, std::size_t size1,

@@ -11,9 +11,7 @@
 
 #include <chen/base/str.hpp>
 #include <functional>
-#include <iostream>
 #include <cstdlib>
-#include <memory>
 #include <mutex>
 
 // log
@@ -28,11 +26,8 @@ namespace chen
         enum class Level {Trace, Debug, Info, Warn, Error, Fatal};
 
     public:
-        log();
+        log() = default;
         virtual ~log() = default;
-
-        log(log &&o);
-        log& operator=(log &&o);
 
     public:
         /**
@@ -123,15 +118,6 @@ namespace chen
          */
         virtual void hook(std::function<void (std::string &&text)> callback);
 
-        /**
-         * Redirect output to another stream
-         * e.g: write standard log to a file
-         * >> std::unique_ptr<std::ofstream> p(new std::ofstream("yourpath.log"));
-         * >> chen::log::standard().redirect(std::move(p));
-         * then all the log will write into the file
-         */
-        virtual void redirect(std::unique_ptr<std::ostream> &&stream);
-
     protected:
         /**
          * Final output
@@ -144,13 +130,9 @@ namespace chen
 
     protected:
         Level _level = Level::Trace;
-        std::ostream *_stream = nullptr;  // weak
 
+        std::mutex _mutex;
         std::function<void (std::string &&text)> _hook;
-        std::unique_ptr<std::ostream> _redirect;
-
-    protected:
-        static std::mutex _mutex;  // ensure the output order
     };
 }
 

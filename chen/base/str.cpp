@@ -7,7 +7,10 @@
 #include "str.hpp"
 #include <functional>
 #include <algorithm>
+#include <iostream>
 #include <cstdarg>
+#include <memory>
+#include <mutex>
 
 using namespace chen;
 
@@ -32,6 +35,13 @@ std::string str::format(const char *fmt, ...)
     va_end(v2);
 
     return ret;
+}
+
+void str::print(const std::string &text, bool end)
+{
+    static std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
+    end ? std::cout << text << std::endl : std::cout << text;
 }
 
 bool str::equal(const char *str1, std::size_t size1,
