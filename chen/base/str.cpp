@@ -37,26 +37,16 @@ std::string str::format(const char *fmt, ...)
     return ret;
 }
 
-void str::print(const char *text, bool end)
+void str::print(const std::string &text, bool end)
 {
     str::print(std::cout, text, end);
 }
 
-void str::print(const std::string &text, bool end)
-{
-    str::print(std::cout, text.c_str(), end);
-}
-
-void str::print(std::ostream &out, const char *text, bool end)
+void str::print(std::ostream &out, const std::string &text, bool end)
 {
     static std::mutex mutex;
     std::lock_guard<std::mutex> lock(mutex);
     end ? out << text << std::endl : out << text;
-}
-
-void str::print(std::ostream &out, const std::string &text, bool end)
-{
-    str::print(out, text.c_str(), end);
 }
 
 bool str::equal(const char *str1, std::size_t size1,

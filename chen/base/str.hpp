@@ -35,10 +35,7 @@ namespace chen
             chen::str::print(out, chen::str::format(fmt, args...), false);
         }
 
-        static void print(const char *text, bool end = true);
         static void print(const std::string &text, bool end = true);
-
-        static void print(std::ostream &out, const char *text, bool end = true);
         static void print(std::ostream &out, const std::string &text, bool end = true);
 
         /**
