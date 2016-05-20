@@ -46,16 +46,6 @@ else()
     message(FATAL_ERROR "Unsupported system")
 endif()
 
-# unit test
-if (CHEN_ENABLE_UNIT)
-    message("-- Unit test enabled")
-
-    add_definitions(-DCHEN_ENABLE_UNIT)
-    aux_source_directory(./unit SRC_UNIT)
-else()
-    message("-- Unit test disabled")
-endif()
-
 # export
 set(CHEN_LIBRARIES chen CACHE INTERNAL "")
 set(CHEN_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
@@ -74,5 +64,4 @@ add_library(
         ${SRC_NET_UDP}
         ${SRC_NET_DNS}
         ${SRC_PLAT}
-        ${SRC_UNIT}
 )
