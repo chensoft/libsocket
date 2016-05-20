@@ -3,11 +3,12 @@
 # http://chensoft.com
 # Licensed under MIT license
 # Copyright 2016 Jian Chen
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 project(chen)
 
-# c++ flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# c++ version
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -31,7 +32,7 @@ aux_source_directory(./chen/net/dns SRC_NET_DNS)
 
 # platform codes
 if (APPLE)
-    # rarely used, especially you want to do some things on OS X only
+    # rarely used, if you want to do some things on OS X only
     add_definitions(-DCHEN_OS_APPLE)
 endif()
 
@@ -46,8 +47,10 @@ else()
 endif()
 
 # unit test
-if ((NOT CMAKE_BUILD_TYPE) OR  (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "") OR (CHEN_BUILD_UNIT STREQUAL "true"))
+if (CHEN_ENABLE_UNIT)
     message("-- Unit test enabled")
+
+    add_definitions(-DCHEN_ENABLE_UNIT)
     aux_source_directory(./unit SRC_UNIT)
 else()
     message("-- Unit test disabled")
