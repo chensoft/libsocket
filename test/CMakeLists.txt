@@ -4,7 +4,7 @@
 # Licensed under MIT license
 # Copyright 2016 Jian Chen
 cmake_minimum_required(VERSION 3.1)
-project(chen_unit)
+project(test_libchen)
 
 # c++ version
 set(CMAKE_CXX_STANDARD 11)
@@ -27,7 +27,7 @@ include_directories(googletest/googletest/include)
 aux_source_directory(./ SRC_ROOT)
 
 # generate app
-add_executable(chen_unit ${SRC_ROOT})
+add_executable(test_libchen ${SRC_ROOT})
 
 # link library
-target_link_libraries(chen_unit ${CHEN_LIBRARIES} gtest)
+target_link_libraries(test_libchen ${CHEN_LIBRARIES} gtest)
