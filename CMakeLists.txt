@@ -15,20 +15,19 @@ if (NOT APPLE)
 endif()
 
 # include path
-include_directories(./)
+include_directories(./include)
 
 # source codes
-aux_source_directory(./chen/base SRC_BASE)
-aux_source_directory(./chen/data SRC_DATA)
-aux_source_directory(./chen/mt   SRC_MT)
-aux_source_directory(./chen/sys  SRC_SYS)
-aux_source_directory(./chen/tool SRC_TOOL)
+aux_source_directory(./src/base SRC_BASE)
+aux_source_directory(./src/data SRC_DATA)
+aux_source_directory(./src/mt   SRC_MT)
+aux_source_directory(./src/sys  SRC_SYS)
+aux_source_directory(./src/tool SRC_TOOL)
 
-aux_source_directory(./chen/net/ip SRC_NET_IP)
-aux_source_directory(./chen/net/so SRC_NET_SO)
-aux_source_directory(./chen/net/tcp SRC_NET_TCP)
-aux_source_directory(./chen/net/udp SRC_NET_UDP)
-aux_source_directory(./chen/net/dns SRC_NET_DNS)
+aux_source_directory(./src/net/ip SRC_NET_IP)
+aux_source_directory(./src/net/tcp SRC_NET_TCP)
+aux_source_directory(./src/net/udp SRC_NET_UDP)
+aux_source_directory(./src/net/dns SRC_NET_DNS)
 
 # platform codes
 if (APPLE)
@@ -38,10 +37,10 @@ endif()
 
 if (UNIX)
     add_definitions(-DCHEN_OS_UNIX)
-    aux_source_directory(./chen/plat/unix SRC_PLAT)
+    aux_source_directory(./src/plat/unix SRC_PLAT)
 elseif(WIN32)
     add_definitions(-DCHEN_OS_WIN)
-    aux_source_directory(./chen/plat/win32 SRC_PLAT)
+    aux_source_directory(./src/plat/win32 SRC_PLAT)
 else()
     message(FATAL_ERROR "Unsupported system")
 endif()
@@ -59,7 +58,6 @@ add_library(
         ${SRC_SYS}
         ${SRC_TOOL}
         ${SRC_NET_IP}
-        ${SRC_NET_SO}
         ${SRC_NET_TCP}
         ${SRC_NET_UDP}
         ${SRC_NET_DNS}
