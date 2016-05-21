@@ -45,10 +45,6 @@ else()
     message(FATAL_ERROR "Unsupported system")
 endif()
 
-# export
-set(CHEN_LIBRARIES chen CACHE INTERNAL "")
-set(CHEN_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
-
 # generate lib
 add_library(
         chen

@@ -19,8 +19,7 @@ add_subdirectory(.. libchen)
 add_subdirectory(googletest/googletest)
 
 # include path
-include_directories(..)
-include_directories(${CHEN_INCLUDE_DIRS})
+include_directories(../include)
 include_directories(googletest/googletest/include)
 
 # source codes
@@ -30,4 +29,4 @@ aux_source_directory(./ SRC_ROOT)
 add_executable(test_libchen ${SRC_ROOT})
 
 # link library
-target_link_libraries(test_libchen ${CHEN_LIBRARIES} gtest)
+target_link_libraries(test_libchen chen gtest)
