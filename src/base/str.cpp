@@ -10,7 +10,6 @@
 #include <iostream>
 #include <cstdarg>
 #include <memory>
-#include <mutex>
 
 using namespace chen;
 
@@ -45,6 +44,11 @@ void str::print(const std::string &text, bool end)
 void str::print(std::ostream &out, const std::string &text, bool end)
 {
     static std::mutex mutex;
+    str::print(out, mutex, text, end);
+}
+
+void str::print(std::ostream &out, std::mutex &mutex, const std::string &text, bool end)
+{
     std::lock_guard<std::mutex> lock(mutex);
     end ? out << text << std::endl : out << text;
 }

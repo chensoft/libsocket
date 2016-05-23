@@ -8,6 +8,7 @@
 
 #include <ostream>
 #include <string>
+#include <mutex>
 
 namespace chen
 {
@@ -35,8 +36,15 @@ namespace chen
             chen::str::print(out, chen::str::format(fmt, args...), false);
         }
 
+        template <typename ...Args>
+        static void printf(std::ostream &out, std::mutex &mutex, const char *fmt, Args... args)
+        {
+            chen::str::print(out, mutex, chen::str::format(fmt, args...), false);
+        }
+
         static void print(const std::string &text, bool end = true);
         static void print(std::ostream &out, const std::string &text, bool end = true);
+        static void print(std::ostream &out, std::mutex &mutex, const std::string &text, bool end = true);
 
         /**
          * Test if two strings are equal
