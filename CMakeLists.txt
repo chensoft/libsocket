@@ -22,6 +22,7 @@ aux_source_directory(./src/base SRC_BASE)
 aux_source_directory(./src/data SRC_DATA)
 aux_source_directory(./src/mt   SRC_MT)
 aux_source_directory(./src/sys  SRC_SYS)
+aux_source_directory(./src/time SRC_TIME)
 aux_source_directory(./src/tool SRC_TOOL)
 
 aux_source_directory(./src/net/ip SRC_NET_IP)
@@ -52,6 +53,7 @@ add_library(
         ${SRC_DATA}
         ${SRC_MT}
         ${SRC_SYS}
+        ${SRC_TIME}
         ${SRC_TOOL}
         ${SRC_NET_IP}
         ${SRC_NET_TCP}
