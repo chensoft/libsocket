@@ -9,6 +9,7 @@
 #pragma once
 
 #include <chen/base/any.hpp>
+#include <chen/base/map.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <chen/base/utf8.hpp>

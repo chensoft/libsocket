@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/tool/cmd.hpp>
+#include <chen/base/map.hpp>
 #include <chen/sys/fs.hpp>
 #include <algorithm>
 #include <cstdlib>
@@ -559,10 +560,7 @@ void cmd::visit(const std::string &action,
 
     // sort the keys
     auto &act = find->second;
-    std::vector<std::string> keys;
-
-    for (auto it : act.options)
-        keys.push_back(it.first);
+    auto keys = chen::map::keys(act.options);
 
     if (compare)
         std::sort(keys.begin(), keys.end(), compare);
