@@ -15,6 +15,7 @@
 #include <chen/base/utf8.hpp>
 #include <chen/base/date.hpp>
 #include <chen/base/time.hpp>
+#include <chen/base/array.hpp>
 #include <chen/base/regex.hpp>
 
 #include <chen/data/ini.hpp>
