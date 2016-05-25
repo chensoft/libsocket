@@ -11,20 +11,20 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // regex
-bool regex::match(const std::string &pattern, const std::string &text)
+bool regex::match(const std::string &text, const std::string &pattern)
 {
     return std::regex_search(text, std::regex(pattern));
 }
 
-std::string regex::replace(const std::string &pattern,
-                           const std::string &replacement,
-                           const std::string &text)
+std::string regex::replace(const std::string &text,
+                           const std::string &pattern,
+                           const std::string &replacement)
 {
     return std::regex_replace(text, std::regex(pattern), replacement);
 }
 
-std::vector<std::string> regex::group(const std::string &pattern,
-                                      const std::string &text)
+std::vector<std::string> regex::group(const std::string &text,
+                                      const std::string &pattern)
 {
     std::vector<std::string> ret;
 

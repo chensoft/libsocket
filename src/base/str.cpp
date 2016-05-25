@@ -68,6 +68,132 @@ bool str::equal(const char *str1, std::size_t size1,
     return true;
 }
 
+// contain
+bool str::contain(const std::string &text, const std::string &search)
+{
+    return text.find(search) != std::string::npos;
+}
+
+// count
+std::size_t str::count(const std::string &text, const std::string &search)
+{
+    std::size_t c = 0;
+    std::size_t p = text.find(search);
+
+    while (p != std::string::npos)
+    {
+        ++c;
+        p = text.find(search, p);
+    }
+
+    return c;
+}
+
+// prefix & suffix
+bool str::hasPrefix(const std::string &text, const std::string &prefix)
+{
+    std::size_t size_t = text.size();
+    std::size_t size_p = prefix.size();
+
+    if (size_t < size_p)
+        return false;
+
+    for (std::size_t i = 0; i < size_p; ++i)
+    {
+        if (text[i] != prefix[i])
+            return false;
+    }
+
+    return true;
+}
+
+bool str::hasSuffix(const std::string &text, const std::string &suffix)
+{
+    std::size_t size_t = text.size();
+    std::size_t size_s = suffix.size();
+
+    if (size_t < size_s)
+        return false;
+
+    for (std::size_t i = 0; i < size_s; ++i)
+    {
+        if (text[size_t - size_s + i] != suffix[i])
+            return false;
+    }
+
+    return true;
+}
+
+// split
+std::vector<std::string> split(const std::string &text, const std::string &delimiter)
+{
+    std::vector<std::string> ret;
+
+    std::size_t i = 0;
+    std::size_t p = text.find(delimiter);
+
+    while (p != std::string::npos)
+    {
+        ret.push_back(text.substr(i, p - i));
+
+        i = ++p;
+        p = text.find(delimiter, p);
+
+        if (p == std::string::npos)
+        {
+            ret.push_back(text.substr(i));
+            break;
+        }
+    }
+
+    return ret;
+}
+
+// join
+std::string str::join(const std::vector<std::string> &text, const std::string &delimiter)
+{
+    if (text.empty())
+        return "";
+
+    std::string ret;
+    std::size_t len = text.size();
+
+    for (std::size_t i = 0; i < len - 1; ++i)
+    {
+        ret += text[i];
+        ret += delimiter;
+    }
+
+    if (len > 1)
+        ret += text[len - 1];
+
+    return ret;
+}
+
+// replace
+void str::replace(std::string &text,
+                  const std::string &search,
+                  const std::string &replacement,
+                  bool all)
+{
+    std::size_t p = 0;
+    std::size_t c_s = search.size();
+    std::size_t c_r = replacement.size();
+
+    while ((p = text.find(search, p)) != std::string::npos)
+    {
+        text.replace(p, c_s, replacement);
+        p += c_r;
+    }
+}
+
+void str::remove(std::string &text,
+                 const std::string &search,
+                 bool all)
+{
+    str::replace(text, search, "", all);
+}
+
 // trim
 void str::trim(std::string &text)
 {

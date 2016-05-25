@@ -7,6 +7,7 @@
 #pragma once
 
 #include <ostream>
+#include <vector>
 #include <string>
 #include <mutex>
 
@@ -51,6 +52,43 @@ namespace chen
          */
         static bool equal(const char *str1, std::size_t size1,
                           const char *str2, std::size_t size2);
+
+        /**
+         * Test if text contains a string
+         */
+        static bool contain(const std::string &text, const std::string &search);
+
+        /**
+         * Check the number of occurrences of search in the string
+         */
+        static std::size_t count(const std::string &text, const std::string &search);
+
+        /**
+         * Check prefix & suffix
+         */
+        static bool hasPrefix(const std::string &text, const std::string &prefix);
+        static bool hasSuffix(const std::string &text, const std::string &suffix);
+
+        /**
+         * Split a string to vector
+         */
+        static std::vector<std::string> split(const std::string &text, const std::string &delimiter);
+
+        /**
+         * Join a string vector to single string
+         */
+        static std::string join(const std::vector<std::string> &text, const std::string &delimiter);
+
+        /**
+         * Replace text
+         */
+        static void replace(std::string &text,
+                            const std::string &search,
+                            const std::string &replacement,
+                            bool all = true);
+        static void remove(std::string &text,
+                           const std::string &search,
+                           bool all = true);
 
         /**
          * Trim white spaces

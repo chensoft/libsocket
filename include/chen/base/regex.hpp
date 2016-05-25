@@ -17,18 +17,18 @@ namespace chen
         /**
          * Match
          */
-        static bool match(const std::string &pattern, const std::string &text);
+        static bool match(const std::string &text, const std::string &pattern);
 
         /**
          * Replace
          */
-        static std::string replace(const std::string &pattern,
-                                   const std::string &replacement,
-                                   const std::string &text);
+        static std::string replace(const std::string &text,
+                                   const std::string &pattern,
+                                   const std::string &replacement);
 
         /**
          * Group catch
          */
-        static std::vector<std::string> group(const std::string &pattern, const std::string &text);
+        static std::vector<std::string> group(const std::string &text, const std::string &pattern);
     };
 }
