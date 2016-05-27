@@ -15,12 +15,10 @@ TEST(BaseAnyTest, General)
     chen::any any;
 
     EXPECT_TRUE(any.empty());
-    EXPECT_FALSE(!any.empty());
 
     // non-empty
     any = 15;
 
-    EXPECT_TRUE(!any.empty());
     EXPECT_FALSE(any.empty());
 
     // integer

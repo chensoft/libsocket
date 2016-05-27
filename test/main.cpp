@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "base.any.hpp"
-#include "net.ip.hpp"
+#include "src/base/any.hpp"
+#include "src/net/ip.hpp"
 
 int main(int argc, char *argv[])
 {
