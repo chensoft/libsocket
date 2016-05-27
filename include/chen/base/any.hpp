@@ -54,24 +54,21 @@ namespace chen
         template <typename T>
         any& operator=(T &val)
         {
-            this->clear();
-            this->_ptr = new data<typename std::decay<T>::type>(val);
+            this->_ptr.reset(new data<typename std::decay<T>::type>(val));
             return *this;
         }
 
         template <typename T>
         any& operator=(const T &val)
         {
-            this->clear();
-            this->_ptr = new data<typename std::remove_cv<typename std::decay<const T>::type>::type>(val);
+            this->_ptr.reset(new data<typename std::remove_cv<typename std::decay<const T>::type>::type>(val));
             return *this;
         }
 
         template <typename T>
         any& operator=(T &&val)
         {
-            this->clear();
-            this->_ptr = new data<typename std::decay<T>::type>(std::move(val));
+            this->_ptr.reset(new data<typename std::decay<T>::type>(std::move(val)));
             return *this;
         }
 
@@ -137,11 +134,6 @@ namespace chen
             auto d = dynamic_cast<data<T>*>(this->_ptr);
             return d != nullptr;
         }
-
-        /**
-         * Clear data
-         */
-        void clear();
 
     private:
         struct base

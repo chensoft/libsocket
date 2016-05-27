@@ -29,7 +29,7 @@ any& any::operator=(const any &o)
     if (o._ptr)
         this->_ptr.reset(o._ptr->clone());
     else
-        this->clear();
+        this->_ptr.reset();
 
     return *this;
 }
@@ -48,10 +48,4 @@ any& any::operator=(any &&o)
 bool any::empty() const
 {
     return this->_ptr == nullptr;
-}
-
-// clear
-void any::clear()
-{
-    this->_ptr.reset();
 }

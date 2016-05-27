@@ -4,9 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/chen.hpp>
-#include <gtest/gtest.h>
-
+#include "base.any.hpp"
 #include "net.ip.hpp"
 
 int main(int argc, char *argv[])
