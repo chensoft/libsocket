@@ -7,6 +7,7 @@
 #include "src/base/any.hpp"
 #include "src/base/array.hpp"
 #include "src/base/map.hpp"
+#include "src/base/num.hpp"
 
 #include "src/net/ip.hpp"
 

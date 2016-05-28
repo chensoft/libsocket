@@ -6,8 +6,7 @@
  */
 #include <chen/net/dns/dns_header.hpp>
 #include <chen/net/dns/dns_codec.hpp>
-#include <random>
-#include <chrono>
+#include <chen/base/num.hpp>
 
 using namespace chen;
 using namespace chen::dns;
@@ -265,12 +264,7 @@ void header::decode(std::vector<std::uint8_t>::const_iterator &cur,
 // random
 std::uint16_t header::random()
 {
-    std::random_device device;
-    std::mt19937 engine(device());
-    std::uniform_int_distribution<std::uint16_t> uniform(1, static_cast<std::uint16_t>(0xFFFF));
-
-    auto high = std::chrono::high_resolution_clock::now().time_since_epoch().count();
-    return uniform(engine) ^ static_cast<uint16_t>(high);
+    return static_cast<std::uint16_t>(num::random(0, 0xFFFF));
 }
 
 
