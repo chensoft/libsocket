@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "src/base/any.hpp"
+#include "src/base/array.hpp"
 #include "src/net/ip.hpp"
 
 int main(int argc, char *argv[])
