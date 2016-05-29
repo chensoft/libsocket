@@ -1,5 +1,5 @@
 /**
- * libchen: The Foundation C++ Library
+ * libchen: A Micro C++ Foundation Framework
  * @version   0.1.0
  * @author    Jian Chen <admin@chensoft.com>
  * @link      http://chensoft.com
@@ -18,7 +18,6 @@
 
 #include <chen/data/ini.hpp>
 #include <chen/data/json.hpp>
-#include <chen/data/lang.hpp>
 
 #include <chen/mt/callable.hpp>
 #include <chen/mt/semaphore.hpp>

@@ -2,8 +2,6 @@
 
 -) json decode just store pointer, don't copy string if not needed
 
--) the capability of sending raw packet
-
--) add socket opt support, such as tcp reuse address
-
 -) add Windows support for fs
+
+-) i18n support
