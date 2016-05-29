@@ -22,8 +22,8 @@ namespace chen
         static std::string format(const char *fmt, ...);
 
         /**
-         * Print string to standard output
-         * thread safe, guarantee the output order
+         * Print string to standard output, the order is guaranteed
+         * @thread-safe
          */
         template <typename ...Args>
         static void printf(const char *fmt, Args... args)

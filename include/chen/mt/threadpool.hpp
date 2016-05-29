@@ -5,6 +5,7 @@
  * @since  2016.05.15
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
+ * @thread-safe
  */
 #pragma once
 
