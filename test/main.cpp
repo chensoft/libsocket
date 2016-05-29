@@ -9,8 +9,6 @@
 #include "src/base/map.hpp"
 #include "src/base/num.hpp"
 
-#include "src/net/ip.hpp"
-
 int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

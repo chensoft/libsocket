@@ -25,11 +25,6 @@ aux_source_directory(./src/sys  SRC_SYS)
 aux_source_directory(./src/time SRC_TIME)
 aux_source_directory(./src/tool SRC_TOOL)
 
-aux_source_directory(./src/net/ip SRC_NET_IP)
-aux_source_directory(./src/net/tcp SRC_NET_TCP)
-aux_source_directory(./src/net/udp SRC_NET_UDP)
-aux_source_directory(./src/net/dns SRC_NET_DNS)
-
 # platform codes
 if (APPLE)
     # rarely used, if you want to do some things on OS X only
@@ -55,9 +50,5 @@ add_library(
         ${SRC_SYS}
         ${SRC_TIME}
         ${SRC_TOOL}
-        ${SRC_NET_IP}
-        ${SRC_NET_TCP}
-        ${SRC_NET_UDP}
-        ${SRC_NET_DNS}
         ${SRC_PLAT}
 )

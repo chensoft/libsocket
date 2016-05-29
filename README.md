@@ -59,7 +59,7 @@ My personal development environment is:
 * json string and file parser
 * ini configuration parser
 * semaphore, threadpool support
-* filesystem handly methods
+* filesystem handy methods
 * thread-safe logging system
 * a modern command line parser
 
@@ -80,7 +80,7 @@ You can contact me by email: admin@chensoft.com.
 
 这个项目是我平时的一些代码积累，你也可以认为是在重复造轮子，这样说也没错。我认为造轮子能让我对某个功能有更深入的了解，而不仅仅是停留在会用的层面上，而且如果哪天我做的东西能被更多人使用，何乐而不为？
 
-项目里没有什么高深莫测的代码，一切以实用为主，我尽可能的保证代码的准确和高效，但没法保证一定会比别人写的更快更好。当然，做的更好是我永远追求的目标。
+这里也没有什么高深莫测的代码，一切以实用为主，我尽可能的保证代码的准确和高效，但没法保证一定会比别人写的更快更好。当然，做的更好是我永远追求的目标。
 
 关于库的稳定性，在库的小版本升级时，比如从1.0.0到1.1.0，大部分都会是内部实现的变动，API接口可能会有很少量的修改。但如果是大版本变更，比如从1.0.0到2.0.0，那很可能变动的东西会比较多。
 
