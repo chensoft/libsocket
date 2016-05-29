@@ -1,5 +1,7 @@
 # libchen
 
+[![Build Status](https://travis-ci.org/chensoft/libchen.svg?branch=master)](https://travis-ci.org/chensoft/libchen)
+
 libchen is a micro C++ foundation framework, it contains many useful and handy methods for creating complex software. It's open-source and released under the MIT License. If you have any questions or advices, feel free to contact me via [email](mailto:admin@chensoft.com).
 
 ## Quickstart
