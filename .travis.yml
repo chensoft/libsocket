@@ -8,11 +8,10 @@ compiler:
 script:
   - export CC=gcc-5
   - export CXX=g++-5
-  - cmake --version
-#  - mkdir build
-#  - cd build
-#  - cmake ..
-#  - make
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
 
 addons:
   apt:
