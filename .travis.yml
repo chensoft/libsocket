@@ -8,16 +8,18 @@ compiler:
 script:
   - export CC=gcc-5
   - export CXX=g++-5
-  - mkdir build
-  - cd build
-  - cmake ..
-  - make
+  - cmake --version
+#  - mkdir build
+#  - cd build
+#  - cmake ..
+#  - make
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - cmake
       - gcc-5
       - g++-5
 
