@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifdef CHEN_OS_UNIX
-
 #include <chen/sys/sys.hpp>
 #include <sys/stat.h>
 #include <execinfo.h>
@@ -68,5 +66,3 @@ std::vector<std::string> sys::stack()
 
     return ret;
 }
-
-#endif  // CHEN_OS_UNIX

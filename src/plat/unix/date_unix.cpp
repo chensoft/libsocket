@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifdef CHEN_OS_UNIX
-
 #include <chen/time/date.hpp>
 
 using namespace chen;
@@ -25,5 +23,3 @@ struct tm date::localtime(std::time_t time)
     ::localtime_r(&time, &now);
     return now;
 }
-
-#endif

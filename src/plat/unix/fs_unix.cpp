@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifdef CHEN_OS_UNIX
-
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
 #include <fstream>
@@ -296,5 +294,3 @@ void fs::visit(const std::string &directory,
 
     ::closedir(dir);
 }
-
-#endif
