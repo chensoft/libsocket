@@ -20,7 +20,7 @@ TEST(BaseArrayTest, General)
     // union
     std::vector<int> v1 = {1, 2, 3};
     std::vector<int> v2 = {3, 4, 5};
-    std::vector<int> v  = chen::array::toUnion(v1, v2);
+    std::vector<int> v  = chen::array::combine(v1, v2);
 
     EXPECT_EQ(std::vector<int>({1, 2, 3, 4, 5}), v);
 

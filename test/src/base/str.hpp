@@ -18,10 +18,10 @@ TEST(BaseStrTest, General)
 
     // check
     EXPECT_TRUE(chen::str::equal("chen", 4, "chen", 4));
-    EXPECT_TRUE(chen::str::hasPrefix("chensoft", "chen"));
-    EXPECT_FALSE(chen::str::hasPrefix("chensoft", "soft"));
-    EXPECT_TRUE(chen::str::hasSuffix("chensoft", "soft"));
-    EXPECT_FALSE(chen::str::hasSuffix("chensoft", "chen"));
+    EXPECT_TRUE(chen::str::prefix("chensoft", "chen"));
+    EXPECT_FALSE(chen::str::prefix("chensoft", "soft"));
+    EXPECT_TRUE(chen::str::suffix("chensoft", "soft"));
+    EXPECT_FALSE(chen::str::suffix("chensoft", "chen"));
     EXPECT_TRUE(chen::str::contain("libchen", "lib"));
 
     // count
@@ -35,26 +35,16 @@ TEST(BaseStrTest, General)
 
     // replace
     std::string replace("I'm a search string");
-
-    chen::str::replace(replace, "search", "replace");
-    EXPECT_EQ("I'm a replace string", replace);
-
-    chen::str::remove(replace, "replace");
-    EXPECT_EQ("I'm a  string", replace);
+    EXPECT_EQ("I'm a replace string", chen::str::replace(replace, "search", "replace"));
+    EXPECT_EQ("I'm a  string", chen::str::remove(replace, "replace"));
 
     // trim
     std::string trim("  so many spaces  ");
 
-    chen::str::ltrim(trim);
-    EXPECT_EQ("so many spaces  ", trim);
-
-    chen::str::rtrim(trim);
-    EXPECT_EQ("so many spaces", trim);
-
-    chen::str::trim(trim);
-    EXPECT_EQ("so many spaces", trim);
+    EXPECT_EQ("so many spaces  ", chen::str::ltrim(trim));
+    EXPECT_EQ("so many spaces", chen::str::rtrim(trim));
+    EXPECT_EQ("so many spaces", chen::str::trim(trim));
 
     trim = "  so many spaces  ";
-    chen::str::trim(trim);
-    EXPECT_EQ("so many spaces", trim);
+    EXPECT_EQ("so many spaces", chen::str::trim(trim));
 }

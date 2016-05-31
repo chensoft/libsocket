@@ -56,8 +56,8 @@ namespace chen
         /**
          * Check prefix & suffix
          */
-        static bool hasPrefix(const std::string &text, const std::string &prefix);
-        static bool hasSuffix(const std::string &text, const std::string &suffix);
+        static bool prefix(const std::string &text, const std::string &prefix);
+        static bool suffix(const std::string &text, const std::string &suffix);
 
         /**
          * Test if text contains a string
@@ -82,20 +82,20 @@ namespace chen
         /**
          * Replace text
          */
-        static void replace(std::string &text,
-                            const std::string &search,
-                            const std::string &replacement,
-                            bool all = true);
-        static void remove(std::string &text,
-                           const std::string &search,
-                           bool all = true);
+        static std::string& replace(std::string &text,
+                                    const std::string &search,
+                                    const std::string &replace,
+                                    bool all = true);
+        static std::string& remove(std::string &text,
+                                   const std::string &search,
+                                   bool all = true);
 
         /**
          * Trim white spaces
          */
-        static void trim(std::string &text);
-        static void ltrim(std::string &text);
-        static void rtrim(std::string &text);
+        static std::string& trim(std::string &text);
+        static std::string& ltrim(std::string &text);
+        static std::string& rtrim(std::string &text);
 
         /**
          * Levenshtein distance

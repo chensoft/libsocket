@@ -18,18 +18,19 @@ namespace chen
          * Make array be unique
          */
         template <typename V>
-        static void unique(std::vector<V> &v)
+        static std::vector<V>& unique(std::vector<V> &v)
         {
             std::sort(v.begin(), v.end());
             v.erase(std::unique(v.begin(), v.end()), v.end());
+            return v;
         }
 
         /**
-         * Combine the two arrays
+         * Union the two arrays
          * notice the two arrays will be sorted
          */
         template <typename V>
-        static std::vector<V> toUnion(std::vector<V> &v1, std::vector<V> &v2)
+        static std::vector<V> combine(std::vector<V> &v1, std::vector<V> &v2)
         {
             std::sort(v1.begin(), v1.end());
             std::sort(v2.begin(), v2.end());

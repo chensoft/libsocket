@@ -28,7 +28,7 @@ namespace chen
          */
         static std::string replace(const std::string &text,
                                    const std::string &pattern,
-                                   const std::string &replacement);
+                                   const std::string &replace);
 
         /**
          * Group catch

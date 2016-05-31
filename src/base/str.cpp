@@ -69,7 +69,7 @@ bool str::equal(const char *str1, std::size_t size1,
 }
 
 // prefix & suffix
-bool str::hasPrefix(const std::string &text, const std::string &prefix)
+bool str::prefix(const std::string &text, const std::string &prefix)
 {
     std::size_t size_t = text.size();
     std::size_t size_p = prefix.size();
@@ -86,7 +86,7 @@ bool str::hasPrefix(const std::string &text, const std::string &prefix)
     return true;
 }
 
-bool str::hasSuffix(const std::string &text, const std::string &suffix)
+bool str::suffix(const std::string &text, const std::string &suffix)
 {
     std::size_t size_t = text.size();
     std::size_t size_s = suffix.size();
@@ -173,44 +173,49 @@ std::string str::join(const std::vector<std::string> &text, const std::string &d
 }
 
 // replace
-void str::replace(std::string &text,
-                  const std::string &search,
-                  const std::string &replacement,
-                  bool all)
+std::string& str::replace(std::string &text,
+                          const std::string &search,
+                          const std::string &replace,
+                          bool all)
 {
     std::size_t p   = 0;
     std::size_t c_s = search.size();
-    std::size_t c_r = replacement.size();
+    std::size_t c_r = replace.size();
 
     while ((p = text.find(search, p)) != std::string::npos)
     {
-        text.replace(p, c_s, replacement);
+        text.replace(p, c_s, replace);
         p += c_r;
     }
+
+    return text;
 }
 
-void str::remove(std::string &text,
-                 const std::string &search,
-                 bool all)
+std::string& str::remove(std::string &text,
+                         const std::string &search,
+                         bool all)
 {
-    str::replace(text, search, "", all);
+    return str::replace(text, search, "", all);
 }
 
 // trim
-void str::trim(std::string &text)
+std::string& str::trim(std::string &text)
 {
     str::ltrim(text);
     str::rtrim(text);
+    return text;
 }
 
-void str::ltrim(std::string &text)
+std::string& str::ltrim(std::string &text)
 {
     text.erase(text.begin(), std::find_if(text.begin(), text.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+    return text;
 }
 
-void str::rtrim(std::string &text)
+std::string& str::rtrim(std::string &text)
 {
     text.erase(std::find_if(text.rbegin(), text.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), text.end());
+    return text;
 }
 
 // levenshtein

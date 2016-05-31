@@ -18,9 +18,9 @@ bool regex::match(const std::string &text, const std::string &pattern)
 
 std::string regex::replace(const std::string &text,
                            const std::string &pattern,
-                           const std::string &replacement)
+                           const std::string &replace)
 {
-    return std::regex_replace(text, std::regex(pattern), replacement);
+    return std::regex_replace(text, std::regex(pattern), replace);
 }
 
 std::vector<std::string> regex::group(const std::string &text,
