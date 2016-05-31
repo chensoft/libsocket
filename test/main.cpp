@@ -10,6 +10,7 @@
 #include "src/base/num.hpp"
 #include "src/base/regex.hpp"
 #include "src/base/str.hpp"
+#include "src/base/utf8.hpp"
 
 int main(int argc, char *argv[])
 {

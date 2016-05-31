@@ -11,6 +11,10 @@
 
 namespace chen
 {
+    /**
+     * @caution, regex is incomplete in some compilers, like gcc 4.8.x
+     * make sure your platform support it before use
+     */
     class regex
     {
     public:
