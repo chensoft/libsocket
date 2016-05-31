@@ -28,5 +28,10 @@ namespace chen
          * Check the BOM: 0xEF, 0xBB, 0xBF
          */
         static bool bom(const std::string &text);
+
+        /**
+         * Convert from utf-16 to utf-8
+         */
+        static std::string convert(std::uint32_t ch);
     };
 }

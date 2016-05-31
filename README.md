@@ -10,7 +10,7 @@ libchen is a micro C++ foundation framework, it contains many useful and handy m
 
 libchen is heavily depends on C++11, make sure your compiler have fully support for C++11, see the following `Requirements` part if you have any doubt.
 
-The easiest way to build libchen is using CMake 3.1+:
+The easiest way to build libchen is using CMake:
 
 ```
 git clone https://github.com/chensoft/libchen.git

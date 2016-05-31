@@ -24,12 +24,12 @@
 #include <string.h>
 #include <exception>
 #include <cstdlib>
-#include <codecvt>
 #include <locale>
 #include <string>
 #include <vector>
 #include <cmath>
 #include <map>
+#include <chen/base/utf8.hpp>
 #include <chen/base/str.hpp>
 
 namespace chen
@@ -711,10 +711,7 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end
                     // convert utf-16 to utf-8
                     try
                     {
-                        std::u16string source(1, static_cast<char16_t>(std::strtol(unicode, nullptr, 16)));
-                        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-
-                        out.append(convert.to_bytes(source));
+                        out.append(chen::utf8::convert(static_cast<std::uint32_t>(std::strtol(unicode, nullptr, 16))));
                     }
                     catch (...)
                     {
