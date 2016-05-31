@@ -22,12 +22,12 @@ std::string str::format(const char *fmt, ...)
     va_start(v1, fmt);
     va_copy(v2, v1);
 
-    auto len = std::vsnprintf(nullptr, 0, fmt, v1);
+    auto len = ::vsnprintf(nullptr, 0, fmt, v1);
     if (len <= 0)
         return "";
 
     std::string ret(static_cast<std::size_t>(len + 1), '\0');
-    std::vsnprintf(&ret[0], ret.size(), fmt, v2);
+    ::vsnprintf(&ret[0], ret.size(), fmt, v2);
     ret.erase(ret.begin() + len);  // remove the redundant '\0'
 
     va_end(v1);

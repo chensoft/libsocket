@@ -352,7 +352,7 @@ std::string cmd::strVal(const std::string &option) const
 std::int64_t cmd::int64Val(const std::string &option) const
 {
     auto opt = this->opt(option);
-    return opt.set ? std::atoll(opt.val.c_str()) : static_cast<std::int64_t>(opt.def);
+    return opt.set ? ::atoll(opt.val.c_str()) : static_cast<std::int64_t>(opt.def);
 }
 
 double cmd::doubleVal(const std::string &option) const
