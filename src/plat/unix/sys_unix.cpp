@@ -6,7 +6,6 @@
  */
 #include <chen/sys/sys.hpp>
 #include <sys/stat.h>
-#include <execinfo.h>
 #include <unistd.h>
 #include <cstdlib>
 
@@ -45,24 +44,4 @@ void sys::daemon()
     ::close(STDIN_FILENO);
     ::close(STDOUT_FILENO);
     ::close(STDERR_FILENO);
-}
-
-std::vector<std::string> sys::stack()
-{
-    void *buffer[1024];
-
-    auto size = ::backtrace(buffer, 1024);
-    auto list = ::backtrace_symbols(buffer, size);
-
-    if (!list)
-        return {};
-
-    std::vector<std::string> ret;
-
-    for (int i = 0; i < size; ++i)
-        ret.push_back(list[i]);
-
-    ::free(list);
-
-    return ret;
 }

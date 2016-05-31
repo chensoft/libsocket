@@ -24,11 +24,6 @@ namespace chen
         static void daemon();
 
         /**
-         * Get current thread's call stack
-         */
-        static std::vector<std::string> stack();
-
-        /**
          * UUID string
          */
         static std::string uuid();
