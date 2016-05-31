@@ -43,15 +43,21 @@ namespace chen
             chen::str::print(out, mutex, chen::str::format(fmt, args...), false);
         }
 
-        static void print(const std::string &text, bool end = true);
-        static void print(std::ostream &out, const std::string &text, bool end = true);
-        static void print(std::ostream &out, std::mutex &mutex, const std::string &text, bool end = true);
+        static void print(const std::string &text, bool br = true);
+        static void print(std::ostream &out, const std::string &text, bool br = true);
+        static void print(std::ostream &out, std::mutex &mutex, const std::string &text, bool br = true);
 
         /**
          * Test if two strings are equal
          */
         static bool equal(const char *str1, std::size_t size1,
                           const char *str2, std::size_t size2);
+
+        /**
+         * Check prefix & suffix
+         */
+        static bool hasPrefix(const std::string &text, const std::string &prefix);
+        static bool hasSuffix(const std::string &text, const std::string &suffix);
 
         /**
          * Test if text contains a string
@@ -62,12 +68,6 @@ namespace chen
          * Check the number of occurrences of search in the string
          */
         static std::size_t count(const std::string &text, const std::string &search);
-
-        /**
-         * Check prefix & suffix
-         */
-        static bool hasPrefix(const std::string &text, const std::string &prefix);
-        static bool hasSuffix(const std::string &text, const std::string &suffix);
 
         /**
          * Split a string to vector

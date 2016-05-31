@@ -27,7 +27,7 @@ std::string str::format(const char *fmt, ...)
         return "";
 
     std::string ret(static_cast<std::size_t>(len + 1), '\0');
-    ::vsnprintf(&ret[0], ret.size(), fmt, v2);
+    ::vsnprintf(&ret[0], static_cast<std::size_t>(len + 1), fmt, v2);
     ret.erase(ret.begin() + len);  // remove the redundant '\0'
 
     va_end(v1);
@@ -36,21 +36,21 @@ std::string str::format(const char *fmt, ...)
     return ret;
 }
 
-void str::print(const std::string &text, bool end)
+void str::print(const std::string &text, bool br)
 {
-    str::print(std::cout, text, end);
+    str::print(std::cout, text, br);
 }
 
-void str::print(std::ostream &out, const std::string &text, bool end)
+void str::print(std::ostream &out, const std::string &text, bool br)
 {
     static std::mutex mutex;
-    str::print(out, mutex, text, end);
+    str::print(out, mutex, text, br);
 }
 
-void str::print(std::ostream &out, std::mutex &mutex, const std::string &text, bool end)
+void str::print(std::ostream &out, std::mutex &mutex, const std::string &text, bool br)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    end ? out << text << std::endl : out << text;
+    br ? out << text << std::endl : out << text;
 }
 
 bool str::equal(const char *str1, std::size_t size1,
@@ -66,27 +66,6 @@ bool str::equal(const char *str1, std::size_t size1,
     }
 
     return true;
-}
-
-// contain
-bool str::contain(const std::string &text, const std::string &search)
-{
-    return text.find(search) != std::string::npos;
-}
-
-// count
-std::size_t str::count(const std::string &text, const std::string &search)
-{
-    std::size_t c = 0;
-    std::size_t p = text.find(search);
-
-    while (p != std::string::npos)
-    {
-        ++c;
-        p = text.find(search, p);
-    }
-
-    return c;
 }
 
 // prefix & suffix
@@ -124,19 +103,42 @@ bool str::hasSuffix(const std::string &text, const std::string &suffix)
     return true;
 }
 
+// contain
+bool str::contain(const std::string &text, const std::string &search)
+{
+    return text.find(search) != std::string::npos;
+}
+
+// count
+std::size_t str::count(const std::string &text, const std::string &search)
+{
+    std::size_t c = 0;
+    std::size_t p = text.find(search);
+    std::size_t l = search.size();
+
+    while (p != std::string::npos)
+    {
+        ++c;
+        p = text.find(search, p + l);
+    }
+
+    return c;
+}
+
 // split
-std::vector<std::string> split(const std::string &text, const std::string &delimiter)
+std::vector<std::string> str::split(const std::string &text, const std::string &delimiter)
 {
     std::vector<std::string> ret;
 
     std::size_t i = 0;
     std::size_t p = text.find(delimiter);
+    std::size_t l = delimiter.size();
 
     while (p != std::string::npos)
     {
         ret.push_back(text.substr(i, p - i));
 
-        i = ++p;
+        i = p = p + l;
         p = text.find(delimiter, p);
 
         if (p == std::string::npos)
@@ -176,7 +178,7 @@ void str::replace(std::string &text,
                   const std::string &replacement,
                   bool all)
 {
-    std::size_t p = 0;
+    std::size_t p   = 0;
     std::size_t c_s = search.size();
     std::size_t c_r = replacement.size();
 

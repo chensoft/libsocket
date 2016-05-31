@@ -8,6 +8,8 @@
 #include "src/base/array.hpp"
 #include "src/base/map.hpp"
 #include "src/base/num.hpp"
+#include "src/base/regex.hpp"
+#include "src/base/str.hpp"
 
 int main(int argc, char *argv[])
 {
