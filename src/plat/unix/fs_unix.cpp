@@ -7,6 +7,7 @@
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
 #include <fstream>
+#include <cstdlib>
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>

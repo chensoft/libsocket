@@ -7,7 +7,7 @@
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
 #include <fstream>
-#include <climits>
+#include <cstdlib>
 
 using namespace chen;
 
