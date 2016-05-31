@@ -20,6 +20,12 @@ TEST(BaseNumTest, General)
     EXPECT_EQ(static_cast<std::uint16_t>(4660), chen::num::swap(static_cast<std::uint16_t>(13330)));
     EXPECT_EQ(static_cast<std::uint32_t>(305419896), chen::num::swap(static_cast<std::uint32_t>(2018915346)));
 
+    // str
+    EXPECT_EQ("true", chen::num::str(true));
+    EXPECT_EQ("false", chen::num::str(false));
+    EXPECT_EQ("115", chen::num::str(115));
+    EXPECT_EQ("-115", chen::num::str(-115));
+
     // random
     for (int i = 0; i < 1000; ++i)
     {

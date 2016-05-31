@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/data/json.hpp>
+#include <chen/base/num.hpp>
 #include <fstream>
 
 using namespace chen;
@@ -521,7 +522,7 @@ std::string json::toString() const
         case Type::Number:
         {
             std::int64_t i = static_cast<std::int64_t>(this->_data.d);
-            return (this->_data.d - i == 0) ? std::to_string(i) : std::to_string(this->_data.d);
+            return (this->_data.d - i == 0) ? chen::num::str(i) : chen::num::str(this->_data.d);
         }
 
         case Type::String:
@@ -714,7 +715,7 @@ void json::encode(const chen::json::array &v, std::string &output, std::size_t s
 
 void json::encode(double v, std::string &output)
 {
-    output.append(std::to_string(v));
+    output.append(chen::num::str(v));
 }
 
 void json::encode(const std::string &v, std::string &output)

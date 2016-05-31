@@ -34,6 +34,23 @@ namespace chen
         static std::uint64_t swap(std::uint64_t value);
 
         /**
+         * To string(just for compatibility, some platforms don't support std::to_string yet)
+         */
+        static std::string str(bool value);
+
+        static std::string str(int value);
+        static std::string str(long value);
+        static std::string str(long long value);
+
+        static std::string str(unsigned int value);
+        static std::string str(unsigned long value);
+        static std::string str(unsigned long long value);
+
+        static std::string str(float value);
+        static std::string str(double value);
+        static std::string str(long double value);
+
+        /**
          * Get a random number between a range
          * [lower, upper) if number is double
          * [lower, upper] if number is int

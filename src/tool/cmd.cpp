@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/tool/cmd.hpp>
+#include <chen/base/num.hpp>
 #include <chen/base/map.hpp>
 #include <chen/sys/fs.hpp>
 #include <algorithm>
@@ -384,7 +385,7 @@ std::string cmd::usage() const
             max = std::max(max, action.name.size());
         });
 
-        std::string fmt("  %-" + std::to_string(max + 2) + "s%s");  // action + spacing
+        std::string fmt("  %-" + chen::num::str(max + 2) + "s%s");  // action + spacing
 
         this->visit([&ret, &fmt] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
             if (!action.name.empty())
@@ -412,7 +413,7 @@ std::string cmd::usage(const std::string &action) const
         full = std::max(full, option.name.size());
     });
 
-    std::string fmt("--%-" + std::to_string(full + 2) + "s%s");
+    std::string fmt("--%-" + chen::num::str(full + 2) + "s%s");
 
     this->visit(action, [&ret, &fmt] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
         // tiny name
