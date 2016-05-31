@@ -8,6 +8,7 @@
 #include <chen/base/str.hpp>
 #include <fstream>
 #include <cstdlib>
+#include <climits>
 
 using namespace chen;
 
