@@ -12,6 +12,9 @@
 #include "src/base/str.hpp"
 #include "src/base/utf8.hpp"
 
+#include "src/sys/fs.hpp"
+#include "src/sys/sys.hpp"
+
 int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
