@@ -25,18 +25,4 @@ TEST(BaseNumTest, General)
     EXPECT_EQ("false", chen::num::str(false));
     EXPECT_EQ("115", chen::num::str(115));
     EXPECT_EQ("-115", chen::num::str(-115));
-
-    // random
-    for (int i = 0; i < 1000; ++i)
-    {
-        auto real = chen::num::random();
-
-        EXPECT_GE(real, 0.0);
-        EXPECT_LT(real, 1.0);
-
-        auto num = chen::num::random(0, 9);
-
-        EXPECT_GE(num, 0);
-        EXPECT_LE(num, 9);
-    }
 }
