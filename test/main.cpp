@@ -15,6 +15,8 @@
 #include "src/sys/fs.hpp"
 #include "src/sys/sys.hpp"
 
+#include "src/tool/cmd.hpp"
+
 int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

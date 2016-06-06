@@ -200,8 +200,8 @@ void cmd::parse(int argc, const char *const argv[])
 
                 if (*param == '=')
                 {
-                    while (*param)
-                        val += *++param;
+                    while (*++param)
+                        val += *param;
                 }
                 else if (idx < argc)
                 {
@@ -225,8 +225,8 @@ void cmd::parse(int argc, const char *const argv[])
 
                 if (*param == '=')
                 {
-                    while (*param)
-                        val += *++param;
+                    while (*++param)
+                        val += *param;
                 }
                 else if (idx < argc)
                 {
