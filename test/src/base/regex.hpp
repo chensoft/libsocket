@@ -13,7 +13,7 @@ TEST(BaseRegexTest, General)
 {
     // regex support is incomplete in gcc 4.8.x, so I comment out these codes
 #if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ <= 4) && (__GNUC_MINOR__ <= 8)
-    #pragma message("regex support is incomplete below gcc 4.8, skip it")
+    #pragma message("regex support is incomplete below gcc 4.9, skip it")
 #else
     EXPECT_TRUE(chen::regex::match("12345", "^\\d+$"));
     EXPECT_EQ("chenjian", chen::regex::replace("chensoft.com", "soft\\.com", "jian"));
