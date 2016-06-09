@@ -8,6 +8,14 @@
  */
 #pragma once
 
+// version
+constexpr int CHEN_VERSION_MAJOR = 0;
+constexpr int CHEN_VERSION_MINOR = 1;
+constexpr int CHEN_VERSION_PATCH = 0;
+
+constexpr const char *CHEN_VERSION = "0.1.0";
+
+// include
 #include <chen/base/any.hpp>
 #include <chen/base/map.hpp>
 #include <chen/base/num.hpp>
