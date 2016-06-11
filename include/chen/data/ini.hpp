@@ -37,8 +37,8 @@ namespace chen
     {
     public:
         typedef std::unordered_map<std::string, std::string> property_type;
-        typedef std::pair<std::string, property_type> section_type;
         typedef std::unordered_map<std::string, property_type> value_type;
+        typedef std::pair<std::string, property_type> section_type;
 
         class error : public std::runtime_error
         {

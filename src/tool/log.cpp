@@ -53,11 +53,10 @@ void log::output(std::string &&text, chen::log::Level level)
     out += map[level];
     out += "] ";
     out += text;
-    out += "\n";
 
     if (!this->_hook)
     {
-        str::print(out, false);
+        str::print(out);
     }
     else
     {
@@ -66,6 +65,6 @@ void log::output(std::string &&text, chen::log::Level level)
         if (this->_hook)  // double check
             this->_hook(std::move(out));
         else
-            str::print(out, false);
+            str::print(out);
     }
 }

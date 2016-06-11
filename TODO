@@ -5,3 +5,5 @@
 -) add Windows support for fs
 
 -) i18n support
+
+-) log file rotate & re-design log interface
