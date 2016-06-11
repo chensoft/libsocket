@@ -40,7 +40,7 @@
  * >> {
  * >>     std::cout << cmd.usage(e) << std::endl;
  * >> }
- * >> catch (const chen::cmd::error &e)
+ * >> catch (const std::exception &e)
  * >> {
  * >>     std::cout << e.what() << std::endl;
  * >> }
@@ -118,11 +118,6 @@ namespace chen
         virtual std::string current() const;
 
         /**
-         * Whether the option is set
-         */
-        virtual bool set(const std::string &option) const;
-
-        /**
          * Get the value of the option which belongs to the current resolved action
          * support bool, int, int64, double, string
          * @param option the full name or tiny name of the option
@@ -133,6 +128,11 @@ namespace chen
 
         virtual std::int64_t int64Val(const std::string &option) const;
         virtual double doubleVal(const std::string &option) const;
+
+        /**
+         * Whether the option is set
+         */
+        virtual bool isSet(const std::string &option) const;
 
         /**
          * Get the objects, which is also the unresolved arguments

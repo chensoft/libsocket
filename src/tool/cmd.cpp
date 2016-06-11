@@ -317,13 +317,6 @@ std::string cmd::current() const
         throw chen::cmd::error_general("cmd: current action not found");
 }
 
-// set
-bool cmd::set(const std::string &option) const
-{
-    auto opt = this->opt(option);
-    return opt.set;
-}
-
 // option value
 bool cmd::boolVal(const std::string &option) const
 {
@@ -369,6 +362,13 @@ double cmd::doubleVal(const std::string &option) const
 {
     auto opt = this->opt(option);
     return opt.set ? std::atof(opt.val.c_str()) : static_cast<double>(opt.def);
+}
+
+// set
+bool cmd::isSet(const std::string &option) const
+{
+    auto opt = this->opt(option);
+    return opt.set;
 }
 
 // object value
