@@ -35,7 +35,9 @@ void cmd::create(const std::string &action,
         act.name = action;
         act.desc = desc;
         act.bind = bind;
+
         this->_cursor = &this->_define.emplace(action, std::move(act)).first->second;
+        this->_order.push_back(action);
     }
     else
     {
@@ -81,6 +83,7 @@ void cmd::define(const std::string &option,
     opt.def  = def;
 
     options[option] = opt;
+    this->_cursor->order.push_back(option);
 
     if (!tiny.empty())
         alias[tiny] = option;
@@ -471,7 +474,7 @@ std::string cmd::usage(const std::string &action, const std::string &option) con
                 std::size_t size = action.size();
                 std::size_t cost = std::numeric_limits<std::size_t>::max();
 
-                for (auto p : this->_define)
+                for (auto &p : this->_define)
                 {
                     if (p.first.empty())
                         continue;
@@ -498,7 +501,7 @@ std::string cmd::usage(const std::string &action, const std::string &option) con
                 }
 
                 // try suggest actions
-                for (auto p : this->_suggest)
+                for (auto &p : this->_suggest)
                 {
                     std::size_t temp = str::levenshtein(action.c_str(),
                                                         action.size(),
@@ -544,14 +547,9 @@ void cmd::visit(std::function<void (const chen::cmd::action &action, std::size_t
                 std::function<bool (const std::string &a, const std::string &b)> compare) const
 {
     // sort the keys
-    std::vector<std::string> keys;
-    for (auto it : this->_define)
-        keys.push_back(it.first);
-
+    std::vector<std::string> keys = this->_order;
     if (compare)
         std::sort(keys.begin(), keys.end(), compare);
-    else
-        std::sort(keys.begin(), keys.end());
 
     // visit actions
     for (std::size_t i = 0, len = keys.size(); i < len; ++i)
@@ -568,12 +566,10 @@ void cmd::visit(const std::string &action,
 
     // sort the keys
     auto &act = find->second;
-    auto keys = chen::map::keys(act.options);
+    auto keys = act.order;
 
     if (compare)
         std::sort(keys.begin(), keys.end(), compare);
-    else
-        std::sort(keys.begin(), keys.end());
 
     // visit options
     for (std::size_t i = 0, len = keys.size(); i < len; ++i)

@@ -49,12 +49,12 @@
 
 #include <chen/base/any.hpp>
 #include <chen/base/str.hpp>
+#include <unordered_map>
 #include <functional>
 #include <stdexcept>
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace chen
 {
@@ -158,8 +158,9 @@ namespace chen
             std::string desc;
             std::function<void (const chen::cmd &cmd)> bind;
 
-            std::map<std::string, chen::cmd::option> options;
-            std::map<std::string, std::string> alias;
+            std::vector<std::string> order;  // option insertion order
+            std::unordered_map<std::string, chen::cmd::option> options;
+            std::unordered_map<std::string, std::string> alias;
         };
 
         class error : public std::runtime_error
@@ -227,8 +228,10 @@ namespace chen
         std::vector<std::string> _objects;           // unresolved params
 
         chen::cmd::action *_cursor = nullptr;              // cursor action, weak ref
-        std::map<std::string, chen::cmd::action> _define;  // action defines
 
-        std::map<std::string, std::string> _suggest;  // intelligent suggestion
+        std::vector<std::string> _order;  // action insertion order
+        std::unordered_map<std::string, chen::cmd::action> _define;  // action defines
+
+        std::unordered_map<std::string, std::string> _suggest;  // intelligent suggestion
     };
 }

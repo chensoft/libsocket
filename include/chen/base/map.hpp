@@ -8,7 +8,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <map>
 
 namespace chen
 {
@@ -18,8 +17,8 @@ namespace chen
         /**
          * Test if the key is in a map
          */
-        template <typename K, typename V>
-        static bool exist(const std::map<K, V> &m, const K &k)
+        template <typename M>
+        static bool exist(const M &m, const typename M::key_type &k)
         {
             return m.find(k) != m.end();
         }
@@ -27,10 +26,10 @@ namespace chen
         /**
          * The keys of a map
          */
-        template <typename K, typename V>
-        static std::vector<K> keys(const std::map<K, V> &m)
+        template <typename M>
+        static std::vector<typename M::key_type> keys(const M &m)
         {
-            std::vector<K> ret;
+            std::vector<typename M::key_type> ret;
             for (auto &pair : m)
                 ret.push_back(pair.first);
             return ret;
@@ -39,10 +38,10 @@ namespace chen
         /**
          * The values of a map
          */
-        template <typename K, typename V>
-        static std::vector<V> values(const std::map<K, V> &m)
+        template <typename M>
+        static std::vector<typename M::mapped_type> values(const M &m)
         {
-            std::vector<V> ret;
+            std::vector<typename M::mapped_type> ret;
             for (auto &pair : m)
                 ret.push_back(pair.second);
             return ret;
@@ -52,10 +51,10 @@ namespace chen
          * Invert the map, user should make sure the values are unique
          * otherwise the same keys will be override
          */
-        template <typename K, typename V>
-        static std::map<V, K> flip(const std::map<K, V> &m)
+        template <typename M>
+        static M flip(const M &m)
         {
-            std::map<V, K> ret;
+            M ret;
             for (auto &pair : m)
                 ret[pair.second] = pair.first;
             return ret;
