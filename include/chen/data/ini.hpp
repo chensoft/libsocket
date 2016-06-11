@@ -23,11 +23,11 @@
 #pragma once
 
 #include <string.h>
+#include <unordered_map>
 #include <exception>
 #include <cstdlib>
 #include <locale>
 #include <string>
-#include <map>
 #include <chen/base/utf8.hpp>
 #include <chen/base/str.hpp>
 
@@ -36,9 +36,9 @@ namespace chen
     class ini
     {
     public:
-        typedef std::map<std::string, std::string> property_type;
+        typedef std::unordered_map<std::string, std::string> property_type;
         typedef std::pair<std::string, property_type> section_type;
-        typedef std::map<std::string, property_type> value_type;
+        typedef std::unordered_map<std::string, property_type> value_type;
 
         class error : public std::runtime_error
         {

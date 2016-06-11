@@ -22,13 +22,13 @@
 #pragma once
 
 #include <string.h>
+#include <unordered_map>
 #include <exception>
 #include <cstdlib>
 #include <locale>
 #include <string>
 #include <vector>
 #include <cmath>
-#include <map>
 #include <chen/base/utf8.hpp>
 #include <chen/base/str.hpp>
 
@@ -37,7 +37,7 @@ namespace chen
     class json
     {
     public:
-        typedef std::map<std::string, chen::json> object;
+        typedef std::unordered_map<std::string, chen::json> object;
         typedef std::vector<chen::json> array;
 
         enum class Type {None, Object, Array, Number, String, True, False, Null};
