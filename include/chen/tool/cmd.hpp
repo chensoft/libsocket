@@ -118,6 +118,11 @@ namespace chen
         virtual std::string current() const;
 
         /**
+         * Whether the option is set
+         */
+        virtual bool set(const std::string &option) const;
+
+        /**
          * Get the value of the option which belongs to the current resolved action
          * support bool, int, int64, double, string
          * @param option the full name or tiny name of the option

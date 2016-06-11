@@ -314,6 +314,13 @@ std::string cmd::current() const
         throw chen::cmd::error_general("cmd: current action not found");
 }
 
+// set
+bool cmd::set(const std::string &option) const
+{
+    auto opt = this->opt(option);
+    return opt.set;
+}
+
 // option value
 bool cmd::boolVal(const std::string &option) const
 {
