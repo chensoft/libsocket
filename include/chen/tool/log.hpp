@@ -35,7 +35,7 @@ namespace chen
         void trace(const char *format, Args... args)
         {
             if (this->_level <= Level::Trace)
-                this->record(chen::str::format(format, args...), Level::Trace);
+                this->output(chen::str::format(format, args...), Level::Trace);
         }
 
         /**
@@ -46,7 +46,7 @@ namespace chen
         void debug(const char *format, Args... args)
         {
             if (this->_level <= Level::Debug)
-                this->record(chen::str::format(format, args...), Level::Debug);
+                this->output(chen::str::format(format, args...), Level::Debug);
         }
 
         /**
@@ -57,7 +57,7 @@ namespace chen
         void info(const char *format, Args... args)
         {
             if (this->_level <= Level::Info)
-                this->record(chen::str::format(format, args...), Level::Info);
+                this->output(chen::str::format(format, args...), Level::Info);
         }
 
         /**
@@ -68,7 +68,7 @@ namespace chen
         void warn(const char *format, Args... args)
         {
             if (this->_level <= Level::Warn)
-                this->record(chen::str::format(format, args...), Level::Warn);
+                this->output(chen::str::format(format, args...), Level::Warn);
         }
 
         /**
@@ -79,7 +79,7 @@ namespace chen
         void error(const char *format, Args... args)
         {
             if (this->_level <= Level::Error)
-                this->record(chen::str::format(format, args...), Level::Error);
+                this->output(chen::str::format(format, args...), Level::Error);
         }
 
         /**
@@ -91,7 +91,7 @@ namespace chen
         {
             if (this->_level <= Level::Fatal)
             {
-                this->record(chen::str::format(format, args...), Level::Fatal);
+                this->output(chen::str::format(format, args...), Level::Fatal);
                 std::exit(EXIT_FAILURE);
             }
         }
@@ -121,14 +121,14 @@ namespace chen
 
     protected:
         /**
-         * Record output
+         * Format output
          */
-        virtual void record(std::string &&text, chen::log::Level level);
-
+        virtual std::string format(const std::string &text, chen::log::Level level);
+        
         /**
          * Final output
          */
-        virtual void output(std::string &&text);
+        virtual void output(const std::string &text, chen::log::Level level);
 
     private:
         log(const log&) = delete;

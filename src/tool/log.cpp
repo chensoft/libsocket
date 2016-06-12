@@ -49,30 +49,30 @@ void log::demote()
         log::_current = &log::_default;
 }
 
-void log::record(std::string &&text, chen::log::Level level)
+std::string log::format(const std::string &text, chen::log::Level level)
 {
     static std::map<chen::log::Level, std::string> map = {
-            {Level::Trace, "T"},
-            {Level::Debug, "D"},
-            {Level::Info,  "I"},
-            {Level::Warn,  "W"},
-            {Level::Error, "E"},
-            {Level::Fatal, "F"},
+        {Level::Trace, "T"},
+        {Level::Debug, "D"},
+        {Level::Info,  "I"},
+        {Level::Warn,  "W"},
+        {Level::Error, "E"},
+        {Level::Fatal, "F"},
     };
-
+    
     std::string out(chen::date::stamp());
-
+    
     out += " ";
     out += chen::date::time(":", true, true);
     out += " UTC [";
     out += map[level];
     out += "] ";
     out += text;
-
-    this->output(std::move(out));
+    
+    return out;
 }
 
-void log::output(std::string &&text)
+void log::output(const std::string &text, chen::log::Level level)
 {
-    chen::str::print(text);
+    chen::str::print(this->format(text, level));
 }
