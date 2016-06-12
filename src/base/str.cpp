@@ -8,34 +8,12 @@
 #include <functional>
 #include <algorithm>
 #include <iostream>
-#include <cstdarg>
 #include <memory>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // str
-std::string str::format(const char *fmt, ...)
-{
-    va_list v1, v2;
-
-    va_start(v1, fmt);
-    va_copy(v2, v1);
-
-    auto len = ::vsnprintf(nullptr, 0, fmt, v1);
-    if (len <= 0)
-        return "";
-
-    std::string ret(static_cast<std::size_t>(len + 1), '\0');
-    ::vsnprintf(&ret[0], static_cast<std::size_t>(len + 1), fmt, v2);
-    ret.erase(ret.begin() + len);  // remove the redundant '\0'
-
-    va_end(v1);
-    va_end(v2);
-
-    return ret;
-}
-
 void str::print(const std::string &text, bool br)
 {
     str::print(std::cout, text, br);

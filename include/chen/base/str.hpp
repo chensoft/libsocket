@@ -18,11 +18,33 @@ namespace chen
     public:
         /**
          * Format string using std::vsnprintf
+         * @thread-safe
          */
-        static std::string format(const char *fmt, ...);
+        static std::string format(const char *fmt)
+        {
+            // to improve performance, return fmt if no other params
+            return fmt;
+        }
+
+        template <typename ...Args>
+        static std::string format(const char *fmt, Args... args)
+        {
+            auto size = ::snprintf(nullptr, 0, fmt, args...);
+            if (size <= 0)
+                return "";
+
+            std::size_t len = static_cast<std::size_t>(size + 1);
+            std::string ret(len, '\0');
+
+            ::snprintf(&ret[0], len, fmt, args...);
+
+            ret.erase(ret.begin() + size);  // remove the redundant '\0'
+
+            return ret;
+        }
 
         /**
-         * Print string to standard output, the order is guaranteed
+         * Print string to standard output or custom stream, the output order is guaranteed
          * @thread-safe
          */
         template <typename ...Args>

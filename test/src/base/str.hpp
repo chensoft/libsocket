@@ -15,6 +15,7 @@ TEST(BaseStrTest, General)
     EXPECT_EQ("", chen::str::format(""));
     EXPECT_EQ("plain", chen::str::format("plain"));
     EXPECT_EQ("year 2016", chen::str::format("year %d", 2016));
+    EXPECT_EQ(8, chen::str::format("chen%s", "jian").size());
 
     // check
     EXPECT_TRUE(chen::str::equal("chen", 4, "chen", 4));
