@@ -64,7 +64,7 @@ My personal development environment is:
 * ini configuration parser
 * semaphore, threadpool support
 * filesystem handy methods
-* thread-safe logging system
+* simple logging system
 * a modern command line parser
 
 ## License

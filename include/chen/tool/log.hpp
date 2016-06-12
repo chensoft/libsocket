@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * Unified logging mechanism & unlimited output length
+ * Unified logging mechanism & Unlimited output length
  * Prefix "PI" stands for PinIdea, the company I work from 2011.11
  * @since  2015.07.21
  * @author Jian Chen <admin@chensoft.com>
@@ -10,24 +10,20 @@
 #pragma once
 
 #include <chen/base/str.hpp>
-#include <functional>
-#include <cstdlib>
-#include <mutex>
 
-// log
 namespace chen
 {
     class log
     {
     public:
-        static log& standard();
-
-    public:
         enum class Level {Trace, Debug, Info, Warn, Error, Fatal};
 
     public:
+        static log& current();
+
+    public:
         log() = default;
-        virtual ~log() = default;
+        virtual ~log();
 
     public:
         /**
@@ -38,7 +34,7 @@ namespace chen
         void trace(const char *format, Args... args)
         {
             if (this->_level <= Level::Trace)
-                this->output(chen::str::format(format, args...), Level::Trace);
+                this->record(chen::str::format(format, args...), Level::Trace);
         }
 
         /**
@@ -49,7 +45,7 @@ namespace chen
         void debug(const char *format, Args... args)
         {
             if (this->_level <= Level::Debug)
-                this->output(chen::str::format(format, args...), Level::Debug);
+                this->record(chen::str::format(format, args...), Level::Debug);
         }
 
         /**
@@ -60,7 +56,7 @@ namespace chen
         void info(const char *format, Args... args)
         {
             if (this->_level <= Level::Info)
-                this->output(chen::str::format(format, args...), Level::Info);
+                this->record(chen::str::format(format, args...), Level::Info);
         }
 
         /**
@@ -71,7 +67,7 @@ namespace chen
         void warn(const char *format, Args... args)
         {
             if (this->_level <= Level::Warn)
-                this->output(chen::str::format(format, args...), Level::Warn);
+                this->record(chen::str::format(format, args...), Level::Warn);
         }
 
         /**
@@ -82,7 +78,7 @@ namespace chen
         void error(const char *format, Args... args)
         {
             if (this->_level <= Level::Error)
-                this->output(chen::str::format(format, args...), Level::Error);
+                this->record(chen::str::format(format, args...), Level::Error);
         }
 
         /**
@@ -94,7 +90,7 @@ namespace chen
         {
             if (this->_level <= Level::Fatal)
             {
-                this->output(chen::str::format(format, args...), Level::Fatal);
+                this->record(chen::str::format(format, args...), Level::Fatal);
                 std::exit(EXIT_FAILURE);
             }
         }
@@ -104,25 +100,34 @@ namespace chen
          * Limit log level
          * log below this level will not be output
          */
-        virtual void limit(Level level);
+        virtual void limit(chen::log::Level level);
 
         /**
          * Get log level
          */
-        virtual Level level() const;
+        virtual chen::log::Level level() const;
 
     public:
         /**
-         * Hook the output
-         * user shall not call log's method again in callback, otherwise will deadlock
+         * Promote current logger to the default
          */
-        virtual void hook(std::function<void (std::string &&text)> callback);
+        virtual void promote();
+
+        /**
+         * Restore to standard logger
+         */
+        virtual void demote();
 
     protected:
         /**
+         * Record output
+         */
+        virtual void record(std::string &&text, chen::log::Level level);
+
+        /**
          * Final output
          */
-        virtual void output(std::string &&text, chen::log::Level level);
+        virtual void output(std::string &&text);
 
     private:
         log(const log&) = delete;
@@ -131,8 +136,8 @@ namespace chen
     protected:
         Level _level = Level::Trace;
 
-        std::mutex _mutex;
-        std::function<void (std::string &&text)> _hook;
+        static chen::log  _default;  // default standard logger
+        static chen::log *_current;  // weak ref, if destroyed then ref to standard logger
     };
 }
 
@@ -140,35 +145,35 @@ namespace chen
 template <typename ...Args>
 inline void PILogT(const char *format, Args... args)
 {
-    chen::log::standard().trace(format, args...);
+    chen::log::current().trace(format, args...);
 }
 
 template <typename ...Args>
 inline void PILogD(const char *format, Args... args)
 {
-    chen::log::standard().debug(format, args...);
+    chen::log::current().debug(format, args...);
 }
 
 template <typename ...Args>
 inline void PILogI(const char *format, Args... args)
 {
-    chen::log::standard().info(format, args...);
+    chen::log::current().info(format, args...);
 }
 
 template <typename ...Args>
 inline void PILogW(const char *format, Args... args)
 {
-    chen::log::standard().warn(format, args...);
+    chen::log::current().warn(format, args...);
 }
 
 template <typename ...Args>
 inline void PILogE(const char *format, Args... args)
 {
-    chen::log::standard().error(format, args...);
+    chen::log::current().error(format, args...);
 }
 
 template <typename ...Args>
 inline void PILogF(const char *format, Args... args)
 {
-    chen::log::standard().fatal(format, args...);
+    chen::log::current().fatal(format, args...);
 }

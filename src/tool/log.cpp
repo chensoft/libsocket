@@ -12,29 +12,44 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // log
-chen::log& log::standard()
+chen::log  log::_default;
+chen::log *log::_current = &log::_default;
+
+chen::log& log::current()
 {
-    static log inst;
-    return inst;
+    return *log::_current;
 }
 
-void log::limit(Level level)
+log::~log()
+{
+    if (this == &log::_default)
+        log::_current = nullptr;
+    else
+        this->demote();
+}
+
+void log::limit(chen::log::Level level)
 {
     this->_level = level;
 }
 
-log::Level log::level() const
+chen::log::Level log::level() const
 {
     return this->_level;
 }
 
-void log::hook(std::function<void (std::string &&text)> callback)
+void log::promote()
 {
-    std::lock_guard<std::mutex> lock(this->_mutex);
-    this->_hook = callback;
+    log::_current = this;
 }
 
-void log::output(std::string &&text, chen::log::Level level)
+void log::demote()
+{
+    if (this == log::_current)
+        log::_current = &log::_default;
+}
+
+void log::record(std::string &&text, chen::log::Level level)
 {
     static std::map<chen::log::Level, std::string> map = {
             {Level::Trace, "T"},
@@ -54,17 +69,10 @@ void log::output(std::string &&text, chen::log::Level level)
     out += "] ";
     out += text;
 
-    if (!this->_hook)
-    {
-        str::print(out);
-    }
-    else
-    {
-        std::lock_guard<std::mutex> lock(this->_mutex);
+    this->output(std::move(out));
+}
 
-        if (this->_hook)  // double check
-            this->_hook(std::move(out));
-        else
-            str::print(out);
-    }
+void log::output(std::string &&text)
+{
+    chen::str::print(text);
 }
