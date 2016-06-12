@@ -1,4 +1,4 @@
-# libchen: A Micro C++ Foundation Framework
+# libchen: A General Purpose C++ Toolkit
 # Jian Chen <admin@chensoft.com>
 # http://chensoft.com
 # Licensed under MIT license

@@ -1,5 +1,5 @@
 /**
- * libchen: A Micro C++ Foundation Framework
+ * libchen: A General Purpose C++ Toolkit
  * @version   0.1.0
  * @author    Jian Chen <admin@chensoft.com>
  * @link      http://chensoft.com

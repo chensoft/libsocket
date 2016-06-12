@@ -4,7 +4,7 @@
 [![release](http://github-release-version.herokuapp.com/github/chensoft/libchen/release.svg?style=flat)](https://github.com/chensoft/libchen/releases/latest)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 
-libchen is a micro C++ foundation framework, it contains many useful and handy methods for creating complex software. It's open-source and released under the MIT License. If you have any questions or advices, feel free to contact me via [email](mailto:admin@chensoft.com).
+libchen is a general purpose C++ toolkit, it contains many useful and handy methods for creating complex software. It's open-source and released under the MIT License. If you have any questions or advices, feel free to contact me via [email](mailto:admin@chensoft.com).
 
 ## Quickstart
 
