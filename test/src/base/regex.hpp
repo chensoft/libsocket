@@ -9,20 +9,39 @@
 #include <chen/chen.hpp>
 #include <gtest/gtest.h>
 
+// see googletest gtest.cc
+namespace testing
+{
+    namespace internal
+    {
+        enum GTestColor
+        {
+            COLOR_DEFAULT,
+            COLOR_RED,
+            COLOR_GREEN,
+            COLOR_YELLOW
+        };
+
+        void ColoredPrintf(GTestColor color, const char* fmt, ...);
+    }
+}
+
 TEST(BaseRegexTest, General)
 {
-    // regex support is incomplete in gcc 4.8.x, so I comment out these codes
-#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ <= 4) && (__GNUC_MINOR__ <= 8)
-    #pragma message("regex support is incomplete below gcc 4.9, skip it")
-#else
-    EXPECT_TRUE(chen::regex::match("12345", "^\\d+$"));
-    EXPECT_EQ("chenjian", chen::regex::replace("chensoft.com", "soft\\.com", "jian"));
+    try
+    {
+        EXPECT_TRUE(chen::regex::match("12345", "^\\d+$"));
+        EXPECT_EQ("chenjian", chen::regex::replace("chensoft.com", "soft\\.com", "jian"));
 
-    auto group = chen::regex::group("127.0.0.1", "(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
-    EXPECT_EQ(5, group.size());
-    EXPECT_EQ("127", group[1]);
-    EXPECT_EQ("0", group[2]);
-    EXPECT_EQ("0", group[3]);
-    EXPECT_EQ("1", group[4]);
-#endif
+        auto group = chen::regex::group("127.0.0.1", "(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)");
+        EXPECT_EQ(5, group.size());
+        EXPECT_EQ("127", group[1]);
+        EXPECT_EQ("0", group[2]);
+        EXPECT_EQ("0", group[3]);
+        EXPECT_EQ("1", group[4]);
+    }
+    catch (const std::exception &e)
+    {
+        ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: regex support is incomplete on your compiler\n\n");
+    }
 }
