@@ -20,14 +20,14 @@ Notice that C++11's regex is incomplete on g++ 4.8.x and clang++ 3.5, if you wan
 * base - basic part
 	* string format, print, check equal, prefix, suffix, join, replace, trim and more
 	* utf-8 string character count, substr, check bom and convert from unicode point
-	* float equality test, integer swap, number to string, random number
+	* float equality test, integer swap, number to string, random generator
 	* regex match, replace and group
 	* check map's key, get all keys, all values, flip map
 	* make vector unique, combine, intersect and more
-	* provide a warrper to hold any type
+	* provide a wrapper to hold any type
 * data - data parse
-	* ini file parser
 	* json file parser
+	* ini file parser
 * mt - multithreading
 	* semaphore support
 	* threadpool support, use std::future
@@ -52,7 +52,7 @@ Please note that the `src/plat` folder contains some platform dependent code, if
 
 ### Method 2 - Via Library
 
-If you want to compile to a library, the easiest way is using CMake:
+If you want to compile it to a library, the easiest way is using CMake:
 
 ```
 git clone https://github.com/chensoft/libchen.git

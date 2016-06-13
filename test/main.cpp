@@ -5,12 +5,12 @@
  * @link   http://chensoft.com
  */
 #include "src/base/any.hpp"
-#include "src/base/array.hpp"
 #include "src/base/map.hpp"
 #include "src/base/num.hpp"
 #include "src/base/regex.hpp"
 #include "src/base/str.hpp"
 #include "src/base/utf8.hpp"
+#include "src/base/vector.hpp"
 
 #include "src/sys/fs.hpp"
 #include "src/sys/sys.hpp"

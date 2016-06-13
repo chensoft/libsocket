@@ -11,11 +11,11 @@
 
 namespace chen
 {
-    class array
+    class vector
     {
     public:
         /**
-         * Make array be unique
+         * Make vector be unique
          */
         template <typename V>
         static std::vector<V>& unique(std::vector<V> &v)
@@ -26,8 +26,8 @@ namespace chen
         }
 
         /**
-         * Union the two arrays
-         * notice the two arrays will be sorted
+         * Union the two vectors
+         * notice the two vectors will be sorted
          */
         template <typename V>
         static std::vector<V> combine(std::vector<V> &v1, std::vector<V> &v2)
@@ -45,7 +45,7 @@ namespace chen
         }
 
         /**
-         * Get the intersection of two arrays
+         * Get the intersection of two vectors
          */
         template <typename V>
         static std::vector<V> intersect(std::vector<V> &v1, std::vector<V> &v2)
