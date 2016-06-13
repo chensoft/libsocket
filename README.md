@@ -8,8 +8,9 @@ libchen is a general purpose C++ toolkit, it contains many useful and handy meth
 
 ## Platforms
 
-* Linux (g++ 4.8.4+, clang++ 3.5+)
 * OS X (clang++ 3.5+)
+* Linux (g++ 4.8.4+, clang++ 3.5+)
+* Windows (vs 2015+)
 * Android (ndk r10+)
 * iOS (xcode 7+)
 
@@ -80,11 +81,6 @@ libchen is released under the MIT License. See the LICENSE file for more informa
 ## Contact
 
 You can contact me by email: admin@chensoft.com.
-
-## TODO
-
-* Add support for Windows
-* Write documentation
 
 —————————(○^～^○)我只是一条分割线(○^～^○)—————————
 
