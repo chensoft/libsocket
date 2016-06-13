@@ -13,7 +13,7 @@ libchen is a general purpose C++ toolkit, it contains many useful and handy meth
 * Android (ndk r10+)
 * iOS (xcode 7+)
 
-Notice that C++11's regex is incomplete on g++ 4.8.x and clang++ 3.5, if you want to use it, you shall upgrade your compiler to the latest version.
+Notice that C++11's regex is incomplete on g++ 4.8.x, if you want to use it, you shall upgrade your compiler to the latest version.
 
 ## Features
 
@@ -32,7 +32,7 @@ Notice that C++11's regex is incomplete on g++ 4.8.x and clang++ 3.5, if you wan
 	* semaphore support
 	* threadpool support, use std::future
 * sys - system operation
-	* file path check, create and visit folder, many useful filesystem methods
+	* dirname, basename, realpath, file exist and many filesystem related methods
 	* create daemon easily
 	* uuid generator
 * time - time and date
