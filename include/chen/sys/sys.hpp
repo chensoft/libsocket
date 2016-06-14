@@ -14,6 +14,12 @@ namespace chen
     {
     public:
         /**
+         * Errno to string
+         * @thread-safe
+         */
+        static std::string error();
+
+        /**
          * Make this app to a daemon
          * after this function return, parent process will exit
          * the current directory will change to '/' on Unix

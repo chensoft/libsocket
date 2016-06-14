@@ -6,6 +6,7 @@
  */
 #include <chen/data/json.hpp>
 #include <chen/base/num.hpp>
+#include <chen/sys/sys.hpp>
 #include <fstream>
 
 using namespace chen;
@@ -293,7 +294,7 @@ chen::json json::parse(const std::string &text, bool file)
         }
         catch (const std::ios_base::failure &e)
         {
-            throw error_general(str::format("json: decode %s: %s", text.c_str(), errno ? ::strerror(errno) : "unknown error"));
+            throw error_general(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }
     }
     else

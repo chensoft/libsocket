@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include <string.h>
 #include <unordered_map>
 #include <exception>
 #include <cstdlib>

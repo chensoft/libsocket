@@ -8,11 +8,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <cerrno>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // sys
+std::string sys::error()
+{
+    char buf[1024];
+    return errno && !::strerror_r(errno, buf, 1024) ? std::string(buf) : "No error";
+}
+
 void sys::daemon()
 {
     // Note:

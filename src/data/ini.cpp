@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/data/ini.hpp>
+#include <chen/sys/sys.hpp>
 #include <fstream>
 
 using namespace chen;
@@ -26,7 +27,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
         }
         catch (const std::ios_base::failure &e)
         {
-            throw error(str::format("ini: decode %s: %s", text.c_str(), errno ? ::strerror(errno) : "unknown error"));
+            throw error(str::format("ini: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }
     }
     else
