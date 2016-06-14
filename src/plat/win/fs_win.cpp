@@ -40,6 +40,11 @@ char fs::separator()
     return '\\';
 }
 
+std::string fs::realpath(const std::string &path)
+{
+    return "";
+}
+
 // exist
 bool fs::isExist(const std::string &path)
 {

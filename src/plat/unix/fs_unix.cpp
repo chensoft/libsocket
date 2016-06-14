@@ -8,6 +8,7 @@
 #include <chen/base/str.hpp>
 #include <fstream>
 #include <cstdlib>
+#include <climits>
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -72,6 +73,15 @@ std::vector<std::string> fs::drives()
 char fs::separator()
 {
     return '/';
+}
+
+std::string fs::realpath(const std::string &path)
+{
+    char buf[PATH_MAX] = {0};
+    ::realpath(path.c_str(), buf);
+
+    std::string ret(buf);
+    return fs::isExist(ret) ? ret : "";
 }
 
 // exist

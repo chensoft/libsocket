@@ -7,8 +7,6 @@
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
 #include <fstream>
-#include <cstdlib>
-#include <climits>
 #include <cctype>
 
 using namespace chen;
@@ -36,15 +34,6 @@ char fs::separator(const std::string &path)
         return '/';
 }
 
-std::string fs::realpath(const std::string &path)
-{
-    char buf[PATH_MAX] = {0};
-    ::realpath(path.c_str(), buf);
-
-    std::string ret(buf);
-    return fs::isExist(ret) ? ret : "";
-}
-
 std::string fs::absolute(const std::string &path)
 {
     if (fs::isRelative(path))
@@ -55,7 +44,6 @@ std::string fs::absolute(const std::string &path)
 
 std::string fs::normalize(const std::string &path)
 {
-    // todo network drive path?
     if (path.empty())
         return "";
 
