@@ -4,6 +4,10 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#ifdef _MSC_VER
+#pragma warning(disable:4819)
+#endif
+
 #include "src/base/any.hpp"
 #include "src/base/map.hpp"
 #include "src/base/num.hpp"
