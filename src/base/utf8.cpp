@@ -90,9 +90,9 @@ std::string utf8::substr(const std::string &text, std::size_t start, std::size_t
 bool utf8::bom(const std::string &text)
 {
     return (text.size() >= 3) &&
-            (static_cast<int>(text[0]) == 0xEF) &&
-            (static_cast<int>(text[1]) == 0xBB) &&
-            (static_cast<int>(text[2]) == 0xBF);
+           (text[0] == '\xEF') &&
+           (text[1] == '\xBB') &&
+           (text[2] == '\xBF');
 }
 
 std::string utf8::convert(std::uint32_t ch)
