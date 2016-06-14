@@ -17,7 +17,7 @@ namespace chen
     public:
         /**
          * Current system drive directory
-         * e.g: "C:\" on Windows, "/" on other os
+         * e.g: "C:\" on Windows in most case, "/" on other os
          */
         static std::string root();
 
@@ -162,6 +162,7 @@ namespace chen
 
         /**
          * Get file size
+         * todo maybe can't use off_t on Windows
          */
         static off_t filesize(const std::string &file);
 

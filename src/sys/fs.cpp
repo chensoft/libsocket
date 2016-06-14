@@ -33,6 +33,7 @@ std::string fs::absolute(const std::string &path)
 
 std::string fs::normalize(const std::string &path)
 {
+    // todo test if path has driver "C:\\"
     if (path.empty())
         return "";
 
@@ -81,7 +82,7 @@ std::string fs::normalize(const std::string &path)
     }
 
     // concat
-    std::string ret(abs ? "/" : "");
+    std::string ret(abs ? "/" : "");  // todo if on Windows?
 
     for (std::size_t i = 0, l = store.size(); i < l; ++i)
     {
@@ -133,12 +134,14 @@ std::string fs::dirname(const std::string &path)
         }
         else
         {
+            // todo on Windows
             auto first = path[0];
             return (first == sep) ? "/" : ".";  // using root directory or current directory
         }
     }
     else
     {
+        // todo on Windows
         return "/";  // all chars are '/'
     }
 }
@@ -284,9 +287,9 @@ std::vector<std::string> fs::collect(const std::string &directory, bool recursiv
 
 // count
 std::size_t fs::count(const std::string &directory,
-                        bool recursive,
-                        bool contain_file,
-                        bool contain_dir)
+                      bool recursive,
+                      bool contain_file,
+                      bool contain_dir)
 {
     if (!contain_file && !contain_dir)
         return 0;
