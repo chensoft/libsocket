@@ -419,18 +419,10 @@ chen::json::object json::toObject() const
 
     switch (this->_type)
     {
-        case Type::None:
-            return object;
-
         case Type::Object:
             return *this->_data.o;
 
-        case Type::Array:
-        case Type::Number:
-        case Type::String:
-        case Type::True:
-        case Type::False:
-        case Type::Null:
+        default:
             return object;
     }
 }
@@ -441,18 +433,10 @@ chen::json::array json::toArray() const
 
     switch (this->_type)
     {
-        case Type::None:
-        case Type::Object:
-            return array;
-
         case Type::Array:
             return *this->_data.a;
 
-        case Type::Number:
-        case Type::String:
-        case Type::True:
-        case Type::False:
-        case Type::Null:
+        default:
             return array;
     }
 }
@@ -461,11 +445,6 @@ double json::toNumber() const
 {
     switch (this->_type)
     {
-        case Type::None:
-        case Type::Object:
-        case Type::Array:
-            return 0.0;
-
         case Type::Number:
             return this->_data.d;
 
@@ -478,8 +457,7 @@ double json::toNumber() const
         case Type::True:
             return 1.0;
 
-        case Type::False:
-        case Type::Null:
+        default:
             return 0.0;
     }
 }
@@ -488,11 +466,6 @@ int json::toInteger() const
 {
     switch (this->_type)
     {
-        case Type::None:
-        case Type::Object:
-        case Type::Array:
-            return 0;
-
         case Type::Number:
             return static_cast<int>(this->_data.d);
 
@@ -505,8 +478,7 @@ int json::toInteger() const
         case Type::True:
             return 1;
 
-        case Type::False:
-        case Type::Null:
+        default:
             return 0;
     }
 }
@@ -515,11 +487,6 @@ std::string json::toString() const
 {
     switch (this->_type)
     {
-        case Type::None:
-        case Type::Object:
-        case Type::Array:
-            return "";
-
         case Type::Number:
         {
             std::int64_t i = static_cast<std::int64_t>(this->_data.d);
@@ -537,6 +504,9 @@ std::string json::toString() const
 
         case Type::Null:
             return "null";
+
+        default:
+            return "";
     }
 }
 
@@ -544,9 +514,6 @@ bool json::toBool() const
 {
     switch (this->_type)
     {
-        case Type::None:
-            return false;
-
         // treat object as true, like javascript
         case Type::Object:
         case Type::Array:
@@ -561,8 +528,7 @@ bool json::toBool() const
         case Type::True:
             return true;
 
-        case Type::False:
-        case Type::Null:
+        default:
             return false;
     }
 }
