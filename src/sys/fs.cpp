@@ -14,6 +14,27 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // path
+std::string fs::drive(const std::string &path)
+{
+    auto sep = fs::separator(path);
+
+    if (sep == '\\')
+        return path.substr(0, 3);
+    else if (!path.empty() && (path[0] == '/'))
+        return "/";
+    else
+        return "";
+}
+
+char fs::separator(const std::string &path)
+{
+    // '\' if path is Windows path, otherwise use '/'
+    if ((path.size() >= 3) && (path[2] == '\\') && (path[1] == ':') && std::isalpha(path[0]))
+        return '\\';
+    else
+        return '/';
+}
+
 std::string fs::realpath(const std::string &path)
 {
     char buf[PATH_MAX] = {0};
@@ -33,19 +54,19 @@ std::string fs::absolute(const std::string &path)
 
 std::string fs::normalize(const std::string &path)
 {
-    // todo test if path has driver "C:\\"
+    // todo network drive path?
     if (path.empty())
         return "";
 
-    auto sep = fs::separator();
-    auto abs = (path[0] == sep);
+    auto abs = fs::drive(path);
+    auto sep = fs::separator(path);
 
     std::size_t ptr = 0;  // current segment cursor
     std::size_t len = 0;  // current segment length
 
     std::vector<std::pair<std::size_t, std::size_t>> store;  // segments cache
 
-    for (std::size_t i = 0, l = path.size(); (i < l) || len; ++i)
+    for (std::size_t i = abs.size(), l = path.size(); (i < l) || len; ++i)
     {
         if ((i == l) || (path[i] == sep))
         {
@@ -82,7 +103,7 @@ std::string fs::normalize(const std::string &path)
     }
 
     // concat
-    std::string ret(abs ? "/" : "");  // todo if on Windows?
+    std::string ret(abs);
 
     for (std::size_t i = 0, l = store.size(); i < l; ++i)
     {
@@ -101,9 +122,11 @@ std::string fs::dirname(const std::string &path)
     if (path.empty())
         return "";
 
-    auto sep = fs::separator();
+    auto abs = fs::drive(path);
+    auto sep = fs::separator(path);
+
     auto beg = path.rbegin();
-    auto end = path.rend();
+    auto end = path.rend() - abs.size();
     auto idx = beg;
 
     auto flag = false;
@@ -130,27 +153,26 @@ std::string fs::dirname(const std::string &path)
     {
         if (idx != end)
         {
-            return path.substr(0, static_cast<std::size_t>(end - idx));
+            return path.substr(0, static_cast<std::size_t>(end - idx) + abs.size());
         }
         else
         {
-            // todo on Windows
-            auto first = path[0];
-            return (first == sep) ? "/" : ".";  // using root directory or current directory
+            return !abs.empty() ? abs : ".";  // using root directory or current directory
         }
     }
     else
     {
-        // todo on Windows
-        return "/";  // all chars are '/'
+        return abs;  // all chars are sep
     }
 }
 
 std::string fs::basename(const std::string &path)
 {
-    auto sep = fs::separator();
+    auto abs = fs::drive(path);
+    auto sep = fs::separator(path);
+
     auto beg = path.rbegin();
-    auto end = path.rend();
+    auto end = path.rend() - abs.size();
 
     auto flag_a = end;  // before
     auto flag_b = end;  // after
@@ -172,7 +194,7 @@ std::string fs::basename(const std::string &path)
     }
 
     if (flag_b != end)
-        return path.substr(static_cast<std::size_t>(end - flag_a), static_cast<std::size_t>(flag_a - flag_b));
+        return path.substr(static_cast<std::size_t>(end - flag_a) + abs.size(), static_cast<std::size_t>(flag_a - flag_b));
     else
         return "";
 }
@@ -182,7 +204,7 @@ std::string fs::extname(const std::string &path, std::size_t dots)
     if (!dots)
         return "";
 
-    auto sep = fs::separator();
+    auto sep = fs::separator(path);
     auto beg = path.rbegin();
     auto end = path.rend();
     auto idx = beg;
@@ -210,8 +232,7 @@ std::string fs::extname(const std::string &path, std::size_t dots)
 // exist
 bool fs::isAbsolute(const std::string &path)
 {
-    auto sep = fs::separator();
-    return !path.empty() && (path[0] == sep);
+    return (fs::separator(path) == '\\') || (!path.empty() && (path[0] == '/'));
 }
 
 bool fs::isRelative(const std::string &path)

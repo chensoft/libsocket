@@ -1,8 +1,13 @@
 /**
- * Created by Jian Chen
+ * Filesystem related methods
  * @since  2016.01.29
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
+ * -----------------------------------------------------------------------------
+ * some methods support both Unix & Windows paths
+ * e.g: you can use chen::fs::normalize to normalize a Windows path on Unix
+ * other methods have different behaviour on different os
+ * e.g: chen::fs::drives return "/" on Unix, return "C:\", "D:\" on Windows
  */
 #pragma once
 
@@ -37,16 +42,32 @@ namespace chen
         static std::string current();
 
         /**
+         * Get system drives
          * On Windows return "C:\", "D:\" and so on
          * On other os return "/"
          */
         static std::vector<std::string> drives();
 
         /**
+         * Get path's drive, empty if path is a relative path
+         * e.g: C:\Windows\System32 to "C:\"
+         * e.g: /usr/local to "/"
+         * e.g: file.txt to ""
+         * @caution support both Unix & Windows path
+         */
+        static std::string drive(const std::string &path);
+
+        /**
          * Separator on this platform
          * @result '/' on Unix or Linux, '\' on Windows
          */
         static char separator();
+
+        /**
+         * Separator based on path
+         * @result '\' if Windows, otherwise use '/'
+         */
+        static char separator(const std::string &path);
 
         /**
          * Expand all symbolic links and remove ".", ".." and redundant separators
@@ -64,35 +85,64 @@ namespace chen
         /**
          * Normalize path, remove ".", ".." and redundant separators
          * this function didn't check the existence of the path and didn't follow symbolic link
+         * Unix:
          * e.g: ./a to a, a/./b to a/b, a///b to a/b
          * e.g: a/.../b to a/.../b because the "..." is invalid path characters, it will be ignored
          * e.g: a/../../b to ../b because the path is relative and second ".." can't be removed
+         * e.g: /usr/local/etc/.. to /usr/local
+         * Windows:
+         * e.g: C:\a to C:\a, C:\.\a to C:\a
+         * e.g: C:\a\...\b to C:\a\...\b
+         * e.g: C:\a\..\..\b to C:\..\b
+         * e.g: C:\a\..\b to C:\b
+         * @caution support both Unix & Windows path
          */
         static std::string normalize(const std::string &path);
 
         /**
          * Directory name of the path, without the trailing slash
+         * Unix:
          * e.g: /home/staff/Downloads/file.txt, dirname is "/home/staff/Downloads"
          * e.g: /usr/., dirname is "/usr", because "." is represent current directory
          * e.g: /usr/, dirname is "/", not "/usr", because single "/" isn't a effective name
          * e.g: /usr///, dirname is "/", because the trailing slash will be ignored
          * e.g: /, dirname is "/", because it's already the root directory
          * e.g: file.txt, dirname is ".", because it's a relative path
+         * Windows:
+         * e.g: C:\Windows\System32, dirname is "C:\Windows"
+         * e.g: C:\Windows\System32\cmd.exe, dirname is "C:\Windows\System32"
+         * e.g: C:\\\, dirname is C:\
+         * e.g: C:\, dirname is C:\
+         * @caution support both Unix & Windows path
          */
         static std::string dirname(const std::string &path);
 
         /**
          * Base name of the path
+         * Unix:
          * e.g: /home/staff/Downloads/file.txt, basename is "file.txt"
+         * e.g: /home/, basename is "home"
+         * e.g: /, basename is ""
          * e.g: file.txt, basename is "file.txt"
+         * Windows:
+         * e.g: C:\Windows\System32\cmd.exe, basename is "cmd.exe"
+         * e.g: C:\, basename is ""
+         * @caution support both Unix & Windows path
          */
         static std::string basename(const std::string &path);
 
         /**
          * Extension name of the path
+         * Unix:
          * e.g: /home/staff/Downloads/file.txt, extname is ".txt"
+         * e.g: /home/, extname is ""
+         * e.g: /, extname is ""
+         * Windows:
+         * e.g: C:\Windows\System32\cmd.exe, basename is ".exe"
+         * e.g: C:\, basename is ""
          * @param path full path
          * @param dots max dots count of the extension
+         * @caution support both Unix & Windows path
          */
         static std::string extname(const std::string &path, std::size_t dots = 1);
 
@@ -120,11 +170,13 @@ namespace chen
 
         /**
          * Check if the path is an absolute path
+         * @caution support both Unix & Windows path
          */
         static bool isAbsolute(const std::string &path);
 
         /**
          * Check if the path is a relative path
+         * @caution support both Unix & Windows path
          */
         static bool isRelative(const std::string &path);
 
