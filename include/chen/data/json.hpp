@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <exception>
 #include <cstdlib>
+#include <cctype>
 #include <locale>
 #include <string>
 #include <vector>

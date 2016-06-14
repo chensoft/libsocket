@@ -7,6 +7,7 @@
 #include <chen/sys/sys.hpp>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
 #include <cstdlib>
 #include <cerrno>
 

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <climits>
+#include <cctype>
 
 using namespace chen;
 
