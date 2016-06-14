@@ -11,6 +11,11 @@
 
 TEST(BaseUtf8Test, General)
 {
+#ifdef _MSC_VER
+    #pragma warning(push)
+    #pragma warning(disable:4819)
+#endif
+
 	// if I use Chinese, visual studio 2015 will report error: C2001 newline in constant
 	// if I put a char in the end the error will disappear, so I add a dot to each text
     EXPECT_EQ(14, chen::utf8::count(u8"陈剑是libchen的作者."));
@@ -18,4 +23,8 @@ TEST(BaseUtf8Test, General)
     EXPECT_TRUE(chen::utf8::bom(u8"\xEF\xBB\xBF这个字符串有BOM"));
     EXPECT_FALSE(chen::utf8::bom(u8"这个字符串没有BOM"));
     EXPECT_EQ(u8"陈.", chen::utf8::convert(0x9648) + ".");
+
+#ifdef _MSC_VER
+    #pragma warning(pop)
+#endif
 }
