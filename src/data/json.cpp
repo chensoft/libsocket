@@ -292,7 +292,7 @@ chen::json json::parse(const std::string &text, bool file)
             std::istreambuf_iterator<char> cur(stream);
             return json::decode(cur, std::istreambuf_iterator<char>());
         }
-        catch (const std::ios_base::failure &e)
+        catch (const std::ios_base::failure&)
         {
             throw error_general(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }

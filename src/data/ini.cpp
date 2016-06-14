@@ -25,7 +25,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
             std::istreambuf_iterator<char> cur(stream);
             return chen::ini::decode(cur, std::istreambuf_iterator<char>());
         }
-        catch (const std::ios_base::failure &e)
+        catch (const std::ios_base::failure&)
         {
             throw error(str::format("ini: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }

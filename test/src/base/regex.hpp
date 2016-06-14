@@ -40,7 +40,7 @@ TEST(BaseRegexTest, General)
         EXPECT_EQ("0", group[3]);
         EXPECT_EQ("1", group[4]);
     }
-    catch (const std::exception &e)
+    catch (const std::exception&)
     {
         ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: regex support is incomplete on your compiler\n\n");
     }
