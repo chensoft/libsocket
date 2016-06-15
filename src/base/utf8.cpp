@@ -16,7 +16,7 @@ std::size_t utf8::count(const std::string &text)
     auto len = text.size();
 
     std::size_t num  = 0;
-    std::size_t pos  = 0;
+    std::size_t pos  = utf8::bom(text) ? 3 : 0;
     std::size_t step = 0;
 
     while (pos < len)
@@ -54,7 +54,7 @@ std::string utf8::substr(const std::string &text, std::size_t start, std::size_t
     std::string ret;
 
     std::size_t num  = 0;
-    std::size_t pos  = 0;
+    std::size_t pos  = utf8::bom(text) ? 3 : 0;
     std::size_t step = 0;
 
     while ((pos < len) && count)
