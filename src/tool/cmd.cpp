@@ -272,7 +272,7 @@ void cmd::parse(int argc, const char *const argv[])
                 if (!val.empty())
                     opt->val = val;
                 else
-                    opt->val = "true";  // treat null value option as boolean
+                    opt->val = "yes";  // treat null value option as boolean
             }
             else
             {
@@ -321,7 +321,7 @@ std::string cmd::current() const
 bool cmd::boolVal(const std::string &option) const
 {
     auto opt = this->opt(option);
-    return opt.set ? (opt.val == "true") : static_cast<bool>(opt.def);
+    return opt.set ? (opt.val == "yes") : static_cast<bool>(opt.def);
 }
 
 std::int32_t cmd::intVal(const std::string &option) const
