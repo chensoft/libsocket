@@ -9,7 +9,7 @@ project(test_libchen)
 # c++ version
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-if (UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 endif()
 
@@ -28,4 +28,4 @@ aux_source_directory(./ SRC_ROOT)
 add_executable(test_libchen ${SRC_ROOT})
 
 # link library
-target_link_libraries(test_libchen chen gtest)
+target_link_libraries(test_libchen libchen_static gtest)
