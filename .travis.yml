@@ -11,7 +11,7 @@ script:
   - cd build
   - cmake ..
   - make
-  - ./test_libchen
+  - ./test_libchen --data=../data
 
 notifications:
   email:
