@@ -28,4 +28,4 @@ build:
 
 test_script:
   - cmd: pwd
-  - cmd: %config%\test_libchen.exe
+  - cmd: %CONFIGURATION%\test_libchen.exe
