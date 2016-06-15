@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/sys/fs.hpp>
+#include <sys/stat.h>
 
 using namespace chen;
 
@@ -100,7 +101,8 @@ time_t fs::ctime(const std::string &path)
 // size
 off_t fs::filesize(const std::string &file)
 {
-    return 0;
+	struct stat st = { 0 };
+	return !::stat(file.c_str(), &st) ? st.st_size : 0;
 }
 
 // create
