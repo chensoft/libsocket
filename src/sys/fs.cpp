@@ -6,7 +6,6 @@
  */
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
-#include <fstream>
 #include <cctype>
 
 using namespace chen;
@@ -318,4 +317,67 @@ std::size_t fs::count(const std::string &directory,
     }, recursive);
 
     return num;
+}
+
+// read
+std::string fs::read(const std::string &file)
+{
+    return fs::read(file, 0, fs::filesize(file));
+}
+
+std::string fs::read(const std::string &file, std::streamoff start, std::streamoff length)
+{
+    if (length <= 0)
+        return "";
+
+    std::ifstream in(file, std::ios_base::binary);
+
+    if (start)
+        in.seekg(start);
+
+    if (in && !in.eof())
+    {
+        std::string ret(static_cast<std::size_t>(length), '\0');
+        in.read(&ret[0], length);
+        return ret;
+    }
+
+    return "";
+}
+
+std::vector<std::string> fs::read(const std::string &file, char delimiter)
+{
+    std::vector<std::string> ret;
+    std::ifstream in(file, std::ios_base::binary);
+    std::string line;
+
+    while (std::getline(in, line))
+        ret.emplace_back(std::move(line));
+
+    return ret;
+}
+
+// write
+bool fs::write(const std::string &file, const std::string &data, bool append)
+{
+    if (!fs::create(fs::dirname(file)))
+        return false;
+
+    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : 0));
+    if (out)
+        out.write(data.data(), data.size());
+
+    return out.good();
+}
+
+bool fs::write(const std::string &file, const void *data, std::streamsize size, bool append)
+{
+    if (!fs::create(fs::dirname(file)))
+        return false;
+
+    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : 0));
+    if (out)
+        out.write(static_cast<const char*>(data), size);
+
+    return out.good();
 }

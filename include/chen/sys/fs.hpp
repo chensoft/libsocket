@@ -12,6 +12,7 @@
 #pragma once
 
 #include <functional>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -278,5 +279,26 @@ namespace chen
                                  bool recursive = true,
                                  bool contain_file = true,
                                  bool contain_dir = true);
+
+        /**
+         * Read all file contents to a string
+         */
+        static std::string read(const std::string &file);
+
+        /**
+         * Read part of file's contents to a string
+         */
+        static std::string read(const std::string &file, std::streamoff start, std::streamoff length);
+
+        /**
+         * Read file line by line using delimiter
+         */
+        static std::vector<std::string> read(const std::string &file, char delimiter);
+
+        /**
+         * Write data to the file
+         */
+        static bool write(const std::string &file, const std::string &data, bool append = false);
+        static bool write(const std::string &file, const void *data, std::streamsize size, bool append = false);
     };
 }
