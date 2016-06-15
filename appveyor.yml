@@ -28,5 +28,4 @@ build:
 
 test_script:
   - cmd: pwd
-  - cmd: Debug\test_libchen.exe
-  - cmd: Release\test_libchen.exe
+  - cmd: %config%\test_libchen.exe
