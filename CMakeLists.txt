@@ -6,21 +6,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(libchen)
 
-# policy CMP0042
-if(APPLE)
-    SET(CMAKE_MACOSX_RPATH ON)
-endif()
+# environment
+include(CMakeEnv.cmake)
 
 # build type
 OPTION(LIBCHEN_BUILD_STATIC "Build libchen as a static library." ON)
 OPTION(LIBCHEN_BUILD_SHARED "Build libchen as a shared library." ON)
-
-# c++ version
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-if(UNIX AND NOT APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-endif()
 
 # include path
 include_directories(./include)

@@ -6,14 +6,12 @@
 cmake_minimum_required(VERSION 2.8)
 project(test_libchen)
 
-# c++ version
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-if(UNIX AND NOT APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-endif()
+# environment
+include(../CMakeEnv.cmake)
 
 # libraries
+OPTION(LIBCHEN_BUILD_SHARED OFF)
+
 add_subdirectory(.. libchen)
 add_subdirectory(googletest/googletest)
 
