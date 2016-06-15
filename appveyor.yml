@@ -17,13 +17,16 @@ clone_folder: c:\projects\libchen
 before_build:
   - pwd
   - cmake --version
+  - cd test
   - mkdir build
   - cd build
   - cmake ..
+  - ls
 
 build:
-  project: C:\projects\libchen\build\test_libchen.sln
+  project: C:\projects\libchen\test\build\test_libchen.sln
 
 test_script:
   - cmd: pwd
-  - cmd: ls
+  - cmd: Debug\test_libchen.exe
+  - cmd: Release\test_libchen.exe
