@@ -27,5 +27,5 @@ build:
   project: C:\projects\libchen\test\build\test_libchen.sln
 
 test_script:
-  - cmd: pwd
-  - cmd: %CONFIGURATION%\test_libchen.exe
+  - pwd
+  - %CONFIGURATION%\test_libchen.exe
