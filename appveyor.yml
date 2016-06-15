@@ -30,4 +30,4 @@ build:
 test_script:
   - pwd
   - echo %config%
-  - %config%\test_libchen.exe
+  - .\%config%\test_libchen.exe
