@@ -363,7 +363,7 @@ bool fs::write(const std::string &file, const std::string &data, bool append)
     if (!fs::create(fs::dirname(file)))
         return false;
 
-    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : 0));
+    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : static_cast<std::ios_base::openmode>(0)));
     if (out)
         out.write(data.data(), data.size());
 
@@ -375,7 +375,7 @@ bool fs::write(const std::string &file, const void *data, std::streamsize size, 
     if (!fs::create(fs::dirname(file)))
         return false;
 
-    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : 0));
+    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : static_cast<std::ios_base::openmode>(0)));
     if (out)
         out.write(static_cast<const char*>(data), size);
 
