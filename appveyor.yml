@@ -22,12 +22,12 @@ before_build:
   - mkdir build
   - cd build
   - cmake -G "Visual Studio 14 2015 Win64" ..
-  - ls
 
 build:
   project: C:\projects\libchen\test\build\test_libchen.sln
 
 test_script:
   - pwd
+  - ls
   - echo %config%
   - .\%config%\test_libchen.exe --data=..\data
