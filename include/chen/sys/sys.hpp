@@ -25,8 +25,11 @@ namespace chen
          * the current directory will change to '/' on Unix
          * standard file descriptors will be closed
          * @link http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
+         * @caution support Unix only
          */
+#ifndef _WIN32
         static void daemon();
+#endif
 
         /**
          * UUID string

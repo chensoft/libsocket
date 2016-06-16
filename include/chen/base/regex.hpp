@@ -1,8 +1,9 @@
 /**
  * Created by Jian Chen
- * @since  2016.04.29
- * @author Jian Chen <admin@chensoft.com>
- * @link   http://chensoft.com
+ * @since   2016.04.29
+ * @author  Jian Chen <admin@chensoft.com>
+ * @link    http://chensoft.com
+ * @caution regex is incomplete in some compilers, like gcc 4.8.x
  */
 #pragma once
 
@@ -11,10 +12,6 @@
 
 namespace chen
 {
-    /**
-     * @caution, regex is incomplete in some compilers, like gcc 4.8.x
-     * make sure your compiler has fully support for regex
-     */
     class regex
     {
     public:

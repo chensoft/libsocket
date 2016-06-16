@@ -15,8 +15,3 @@ std::string sys::error()
     char buf[1024] = {0};
     return errno && !::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "No error";
 }
-
-void sys::daemon()
-{
-    // todo not implement
-}
