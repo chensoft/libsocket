@@ -15,7 +15,7 @@ TEST(ToolCmdTest, General)
 
     // help
     cmd.create("help", "show help");
-
+ 
     // version
     cmd.create("version", "show app version");
 

@@ -17,8 +17,8 @@ using namespace chen;
 // sys
 std::string sys::error()
 {
-    char buf[1024];
-    return errno && !::strerror_r(errno, buf, 1024) ? std::string(buf) : "No error";
+    char buf[1024] = {0};
+    return errno && !::strerror_r(errno, buf, sizeof(buf)) ? std::string(buf) : "No error";
 }
 
 void sys::daemon()
