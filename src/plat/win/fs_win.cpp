@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <Windows.h>
 #include <Userenv.h>
+#include <io.h>
 
 #pragma comment(lib, "userenv.lib")
 
@@ -83,23 +84,37 @@ char fs::separator()
 
 std::string fs::realpath(const std::string &path)
 {
-    return "";
+    CHAR buf[MAX_PATH] = { 0 };
+    DWORD size = sizeof(buf);
+
+    if (::GetFullPathName(path.c_str(), size, buf, NULL))
+    {
+        std::string ret(buf);
+        return fs::isExist(ret) ? ret : "";
+    }
+    else
+    {
+        return "";
+    }
 }
 
 // exist
 bool fs::isExist(const std::string &path)
 {
-    return false;
+    DWORD attr = ::GetFileAttributes(path.c_str());
+    return attr != INVALID_FILE_ATTRIBUTES;
 }
 
 bool fs::isDir(const std::string &path, bool strict)
 {
-    return false;
+    DWORD attr = ::GetFileAttributes(path.c_str());
+    return (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 bool fs::isFile(const std::string &path, bool strict)
 {
-    return false;
+    DWORD attr = ::GetFileAttributes(path.c_str());
+    return (attr != INVALID_FILE_ATTRIBUTES) && !(attr & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 bool fs::isLink(const std::string &path)
@@ -109,33 +124,39 @@ bool fs::isLink(const std::string &path)
 
 bool fs::isReadable(const std::string &path)
 {
-    return false;
+    // see https://msdn.microsoft.com/en-us/library/1w06ktdy.aspx
+    // 0: Existence only, 2: Write-only, 4: Read-only, 6: Read and write
+    return !::_access(path.c_str(), 6) || !::_access(path.c_str(), 4);
 }
 
 bool fs::isWritable(const std::string &path)
 {
-    return false;
+    return !::_access(path.c_str(), 6) || !::_access(path.c_str(), 2);
 }
 
 bool fs::isExecutable(const std::string &path)
 {
-    return false;
+    DWORD type = 0;
+    return !!::GetBinaryType(path.c_str(), &type);
 }
 
 // time
 time_t fs::atime(const std::string &path)
 {
-    return 0;
+    struct stat st = { 0 };
+    return !::stat(path.c_str(), &st) ? st.st_atime : 0;
 }
 
 time_t fs::mtime(const std::string &path)
 {
-    return 0;
+    struct stat st = { 0 };
+    return !::stat(path.c_str(), &st) ? st.st_mtime : 0;
 }
 
 time_t fs::ctime(const std::string &path)
 {
-    return 0;
+    struct stat st = { 0 };
+    return !::stat(path.c_str(), &st) ? st.st_ctime : 0;
 }
 
 // size
