@@ -5,9 +5,11 @@
  * @link   http://chensoft.com
  */
 #include <chen/sys/fs.hpp>
+#include <sys/utime.h>
 #include <sys/stat.h>
 #include <Windows.h>
 #include <Userenv.h>
+#include <time.h>
 #include <io.h>
 
 #pragma comment(lib, "userenv.lib")
@@ -169,28 +171,127 @@ off_t fs::filesize(const std::string &file)
 // create
 bool fs::touch(const std::string &file, time_t mtime, time_t atime)
 {
-    return false;
+    // using current time if it's zero
+    if (!mtime)
+        mtime = ::time(nullptr);
+
+    // using mtime if it's zero
+    if (!atime)
+        atime = mtime;
+
+    // create directory
+    fs::create(fs::dirname(file));
+
+    // create file if not exist
+    FILE *fp = NULL;
+    ::fopen_s(&fp, file.c_str(), "ab+");
+
+    if (!fp)
+        return false;
+
+    ::fclose(fp);
+
+    // modify mtime and atime
+    struct stat st = { 0 };
+
+    if (!::stat(file.c_str(), &st))
+    {
+        struct _utimbuf time = { 0 };
+
+        time.modtime = mtime;
+        time.actime = atime;
+
+        return !::_utime(file.c_str(), &time);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
 {
-    return false;
+    // ignore mode
+    if (!fs::isDir(dir))
+    {
+        if (recursive)
+        {
+            auto success = true;
+            auto dirname = fs::dirname(dir);
+
+            if (!dirname.empty())
+                success = fs::create(dirname, mode, recursive) && success;
+
+            return (::CreateDirectory(dir.c_str(), NULL) == TRUE) && success;
+        }
+        else
+        {
+            return ::CreateDirectory(dir.c_str(), NULL) == TRUE;
+        }
+    }
+    else
+    {
+        return true;
+    }
 }
 
 bool fs::rename(const std::string &path_old, const std::string &path_new)
 {
-    return false;
+    // remove new path if it's already exist
+    if (!fs::remove(path_new))
+        fs::create(fs::dirname(path_new));  // create new directory
+
+    // rename old path to new path
+    return !::rename(path_old.c_str(), path_new.c_str());
 }
 
 bool fs::remove(const std::string &path)
 {
-    return false;
+    if (fs::isFile(path))
+    {
+        return ::DeleteFile(path.c_str()) == TRUE;
+    }
+    else
+    {
+        WIN32_FIND_DATA data;
+        HANDLE find = ::FindFirstFile((path + "\\*").c_str(), &data);
+
+        if (find == INVALID_HANDLE_VALUE)
+            return false;
+
+        auto ok = true;
+        auto sep = fs::separator();
+
+        // remove sub items
+        do
+        {
+            std::string name(data.cFileName);
+
+            if ((name == ".") || (name == ".."))
+                continue;
+
+            std::string full(*(path.end() - 1) == sep ? path + name : path + sep + name);
+
+            if (fs::isDir(full))
+                ok = fs::remove(full) && ok;
+            else
+                ok = (::DeleteFile(full.c_str()) == TRUE) && ok;
+        } while (::FindNextFile(find, &data));
+
+        ::FindClose(find);
+
+        // remove itself
+        if (ok)
+            ok = ::RemoveDirectory(path.c_str()) == TRUE;
+
+        return ok;
+    }
 }
 
 // change
 bool fs::change(const std::string &directory)
 {
-    return false;
+    return ::SetCurrentDirectory(directory.c_str()) == TRUE;
 }
 
 // visit
@@ -198,4 +299,29 @@ void fs::visit(const std::string &directory,
                std::function<bool (const std::string &path)> callback,
                bool recursive)
 {
+    WIN32_FIND_DATA data;
+    HANDLE find = ::FindFirstFile((directory + "\\*").c_str(), &data);
+
+    if (find == INVALID_HANDLE_VALUE)
+        return;
+
+    auto sep = fs::separator();
+
+    do
+    {
+        std::string name(data.cFileName);
+
+        if ((name == ".") || (name == ".."))
+            continue;
+
+        std::string full(*(directory.end() - 1) == sep ? directory + name : directory + sep + name);
+
+        if (!callback(full))
+            break;
+
+        if (recursive && fs::isDir(full))
+            fs::visit(full, callback, recursive);
+    } while (::FindNextFile(find, &data));
+
+    ::FindClose(find);
 }

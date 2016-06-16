@@ -167,6 +167,9 @@ bool fs::touch(const std::string &file, time_t mtime, time_t atime)
 
     // create file if not exist
     FILE *fp = ::fopen(file.c_str(), "ab+");
+    if (!fp)
+        return false;
+
     ::fclose(fp);
 
     // modify mtime and atime
