@@ -6,6 +6,10 @@
  */
 #include <chen/sys/fs.hpp>
 #include <sys/stat.h>
+#include <Windows.h>
+#include <Userenv.h>
+
+#pragma comment(lib, "userenv.lib")
 
 using namespace chen;
 
@@ -13,27 +17,63 @@ using namespace chen;
 // fs
 std::string fs::root()
 {
-    return "";
+	CHAR buf[MAX_PATH] = { 0 };
+
+	if (::GetSystemWindowsDirectory(buf, sizeof(buf)) >= 3)
+		return std::string(buf, 3);
+	else
+		return "";
 }
 
 std::string fs::home()
 {
-    return "";
+    CHAR buf[MAX_PATH] = { 0 };
+
+    HANDLE token = 0;
+    if (!::OpenProcessToken(::GetCurrentProcess(), TOKEN_QUERY, &token))
+        return "";
+
+    DWORD size = sizeof(buf);
+    BOOL    ok = ::GetUserProfileDirectory(token, buf, &size);
+
+    CloseHandle(token);
+
+    return ok ? buf : "";
 }
 
 std::string fs::temp()
 {
-    return "";
+    CHAR buf[MAX_PATH] = { 0 };
+
+    if (::GetTempPath(sizeof(buf), buf))
+        return buf;
+    else
+        return "";
 }
 
 std::string fs::current()
 {
-    return "";
+    CHAR buf[MAX_PATH] = { 0 };
+
+    if (::GetCurrentDirectory(sizeof(buf), buf))
+        return buf;
+    else
+        return "";
 }
 
 std::vector<std::string> fs::drives()
 {
-    return {};
+    std::vector<std::string> ret;
+
+    DWORD bits = ::GetLogicalDrives();
+
+    for (auto i = 0; i < 26; ++i)  // a to z
+    {
+        if (bits & (1 << i))
+            ret.push_back(std::string(1, ('A' + i)) + ":\\");
+    }
+
+    return ret;
 }
 
 char fs::separator()
