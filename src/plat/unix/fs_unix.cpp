@@ -125,32 +125,6 @@ bool fs::isExecutable(const std::string &path)
     return !::access(path.c_str(), X_OK);
 }
 
-// time
-time_t fs::atime(const std::string &path)
-{
-    struct stat st = {0};
-    return !::stat(path.c_str(), &st) ? st.st_atime : 0;
-}
-
-time_t fs::mtime(const std::string &path)
-{
-    struct stat st = {0};
-    return !::stat(path.c_str(), &st) ? st.st_mtime : 0;
-}
-
-time_t fs::ctime(const std::string &path)
-{
-    struct stat st = {0};
-    return !::stat(path.c_str(), &st) ? st.st_ctime : 0;
-}
-
-// size
-off_t fs::filesize(const std::string &file)
-{
-    struct stat st = {0};
-    return !::stat(file.c_str(), &st) ? st.st_size : 0;
-}
-
 // create
 bool fs::touch(const std::string &file, time_t mtime, time_t atime)
 {
@@ -216,16 +190,6 @@ bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
     {
         return true;
     }
-}
-
-bool fs::rename(const std::string &path_old, const std::string &path_new)
-{
-    // remove new path if it's already exist
-    if (!fs::remove(path_new))
-        fs::create(fs::dirname(path_new));  // create new directory
-
-    // rename old path to new path
-    return !::rename(path_old.c_str(), path_new.c_str());
 }
 
 bool fs::remove(const std::string &path)

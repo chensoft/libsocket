@@ -215,7 +215,6 @@ namespace chen
 
         /**
          * Get file size
-         * todo maybe can't use off_t on Windows
          */
         static off_t filesize(const std::string &file);
 
