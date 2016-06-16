@@ -1,9 +1,15 @@
-sudo: required
-dist: trusty
-
 language: cpp
+
+os:
+  - linux
+  - osx
+
 compiler:
   - gcc
+  - clang
+
+sudo: required
+dist: trusty
 
 script:
   - cd test
