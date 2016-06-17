@@ -87,7 +87,7 @@ namespace chen
         static bool contain(const std::string &text, const std::string &search);
 
         /**
-         * Check the number of occurrences of search in the string
+         * Check the number of occurrences in the string
          */
         static std::size_t count(const std::string &text, const std::string &search);
 

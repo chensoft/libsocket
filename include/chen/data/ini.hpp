@@ -110,7 +110,7 @@ chen::ini::value_type chen::ini::decode(InputIterator cur, InputIterator end)
                 auto section = chen::ini::decodeSection(cur, end);
 
                 if (value.find(section.first) == value.end())
-                    value.insert(std::move(section));
+                    value.emplace(std::move(section));
                 else
                     chen::ini::exception(cur, end);
             }
