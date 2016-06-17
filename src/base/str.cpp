@@ -115,14 +115,14 @@ std::vector<std::string> str::split(const std::string &text, const std::string &
 
     while (p != std::string::npos)
     {
-        ret.push_back(text.substr(i, p - i));
+        ret.emplace_back(text.substr(i, p - i));
 
         i = p = p + l;
         p = text.find(delimiter, p);
 
         if (p == std::string::npos)
         {
-            ret.push_back(text.substr(i));
+            ret.emplace_back(text.substr(i));
             break;
         }
     }

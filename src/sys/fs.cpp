@@ -67,11 +67,11 @@ std::string fs::normalize(const std::string &path)
                     if (!store.empty() && !str::equal(&path[store.back().first], store.back().second, "..", 2))
                         store.pop_back();
                     else
-                        store.push_back(std::make_pair(ptr, len));
+                        store.emplace_back(std::make_pair(ptr, len));
                 }
                 else if (!str::equal(&path[ptr], len, ".", 1))
                 {
-                    store.push_back(std::make_pair(ptr, len));
+                    store.emplace_back(std::make_pair(ptr, len));
                 }
 
                 ptr = len = 0;
@@ -325,7 +325,7 @@ std::vector<std::string> fs::collect(const std::string &directory, bool recursiv
     std::vector<std::string> store;
 
     fs::visit(directory, [&store] (const std::string &path) -> bool {
-        store.push_back(path);
+        store.emplace_back(path);
         return true;
     }, recursive);
 

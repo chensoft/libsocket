@@ -33,9 +33,7 @@ std::vector<std::string> regex::group(const std::string &text,
     if (std::regex_search(text, mt, std::regex(pattern)))
     {
         for (auto &str : mt)
-        {
-            ret.push_back(str.str());
-        }
+            ret.emplace_back(str.str());
     }
 
     return ret;

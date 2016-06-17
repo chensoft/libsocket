@@ -31,7 +31,7 @@ namespace chen
         {
             std::vector<typename M::key_type> ret;
             for (auto &pair : m)
-                ret.push_back(pair.first);
+                ret.emplace_back(pair.first);
             return ret;
         }
 
@@ -43,7 +43,7 @@ namespace chen
         {
             std::vector<typename M::mapped_type> ret;
             for (auto &pair : m)
-                ret.push_back(pair.second);
+                ret.emplace_back(pair.second);
             return ret;
         }
 

@@ -476,7 +476,7 @@ void chen::json::decode(chen::json::array &out, InputIterator &cur, InputIterato
         chen::json item;
         json::decode(item, cur, end);
 
-        out.push_back(std::move(item));
+        out.emplace_back(std::move(item));
 
         // find comma or ending
         json::filter(cur, end, true);

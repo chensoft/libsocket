@@ -39,7 +39,7 @@ Notice that C++11's regex is incomplete on g++ 4.8.x, if you want to use it, you
 	* uuid generator
 * time - time and date
 	* simple timing class
-	* thread-safe gmt & local time getter
+	* thread-safe gmt & local time
 * tool - misc tools
 	* simple logging system
 	* modern command line parser

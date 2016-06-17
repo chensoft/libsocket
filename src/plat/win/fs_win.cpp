@@ -73,7 +73,7 @@ std::vector<std::string> fs::drives()
     for (auto i = 0; i < 26; ++i)  // a to z
     {
         if (bits & (1 << i))
-            ret.push_back(std::string(1, ('A' + i)) + ":\\");
+            ret.emplace_back(std::string(1, ('A' + i)) + ":\\");
     }
 
     return ret;

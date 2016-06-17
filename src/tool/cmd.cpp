@@ -37,7 +37,7 @@ void cmd::create(const std::string &action,
         act.bind = bind;
 
         this->_cursor = &this->_define.emplace(action, std::move(act)).first->second;
-        this->_order.push_back(action);
+        this->_order.emplace_back(action);
     }
     else
     {
@@ -83,7 +83,7 @@ void cmd::define(const std::string &option,
     opt.def  = def;
 
     options[option] = opt;
-    this->_cursor->order.push_back(option);
+    this->_cursor->order.emplace_back(option);
 
     if (!tiny.empty())
         alias[tiny] = option;
@@ -286,7 +286,7 @@ void cmd::parse(int argc, const char *const argv[])
         else
         {
             // handle object
-            objects.push_back(param);
+            objects.emplace_back(param);
         }
     }
 
@@ -466,7 +466,7 @@ std::string cmd::usage(const std::string &action, const std::string &option) con
 
                 if (it != this->_suggest.end())
                 {
-                    hint.push_back(it->second);
+                    hint.emplace_back(it->second);
                     break;
                 }
 
@@ -491,11 +491,11 @@ std::string cmd::usage(const std::string &action, const std::string &option) con
                             cost = temp;
 
                             hint.clear();
-                            hint.push_back(p.first);
+                            hint.emplace_back(p.first);
                         }
                         else if (temp == cost)
                         {
-                            hint.push_back(p.first);
+                            hint.emplace_back(p.first);
                         }
                     }
                 }
@@ -515,11 +515,11 @@ std::string cmd::usage(const std::string &action, const std::string &option) con
                             cost = temp;
 
                             hint.clear();
-                            hint.push_back(p.second);
+                            hint.emplace_back(p.second);
                         }
                         else if (temp == cost)
                         {
-                            hint.push_back(p.second);
+                            hint.emplace_back(p.second);
                         }
                     }
                 }

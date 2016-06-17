@@ -22,7 +22,7 @@ threadpool::threadpool(std::size_t count)
         for (std::size_t i = 0; i < count; ++i)
         {
             std::thread thread(&threadpool::run, this);
-            this->_pool.push_back(std::move(thread));
+            this->_pool.emplace_back(std::move(thread));
         }
     }
     catch (...)
