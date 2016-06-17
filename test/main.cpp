@@ -14,6 +14,8 @@
 #include "src/base/utf8.hpp"
 #include "src/base/vector.hpp"
 
+#include "src/data/json.hpp"
+
 #include "src/sys/fs.hpp"
 #include "src/sys/sys.hpp"
 
@@ -21,6 +23,9 @@
 
 int main(int argc, char *argv[])
 {
+    chen::json j;
+    j.getArray().push_back(1);
+
     chen::cmd cmd;
     cmd.define("data", "d", "test data path", "");
     cmd.define("gtest_filter", "", "dummy", "");

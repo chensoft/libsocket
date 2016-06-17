@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- json: add methods to modify json's data.
+- json: add validate method to check if json string is valid.
+- json: construct default value according to the json type.
+
+### Fixed
+- json: fix didn't use rvalue in constructors.
 
 ## [0.1.0-rc] - 2016-06-16
 ### Added

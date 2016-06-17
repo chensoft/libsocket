@@ -19,6 +19,41 @@ json::json(std::nullptr_t)
 
 }
 
+json::json(chen::json::Type type)
+{
+    // handy method to create default json
+    switch (type)
+    {
+        case Type::Object:
+            *this = chen::json::object();
+            break;
+
+        case Type::Array:
+            *this = chen::json::array();
+            break;
+
+        case Type::Number:
+            *this = 0;
+            break;
+
+        case Type::String:
+            *this = "";
+            break;
+
+        case Type::True:
+            *this = true;
+            break;
+
+        case Type::False:
+            *this = false;
+            break;
+
+        default:
+            *this = nullptr;
+            break;
+    }
+}
+
 json::json(const json &o)
 {
     *this = o;
@@ -38,7 +73,7 @@ json::json(const chen::json::object &v)
 json::json(chen::json::object &&v)
 : _type(Type::Object)
 {
-    this->_data.o = new chen::json::object(v);
+    this->_data.o = new chen::json::object(std::move(v));
 }
 
 json::json(const chen::json::array &v)
@@ -50,7 +85,7 @@ json::json(const chen::json::array &v)
 json::json(chen::json::array &&v)
 : _type(Type::Array)
 {
-    this->_data.a = new chen::json::array(v);
+    this->_data.a = new chen::json::array(std::move(v));
 }
 
 json::json(double v)
@@ -74,7 +109,7 @@ json::json(const std::string &v)
 json::json(std::string &&v)
 : _type(Type::String)
 {
-    this->_data.s = new std::string(v);
+    this->_data.s = new std::string(std::move(v));
 }
 
 json::json(const char *v)
@@ -86,7 +121,6 @@ json::json(const char *v)
 json::json(bool v)
 : _type(v ? Type::True : Type::False)
 {
-    this->_data.b = v;
 }
 
 json::~json()
@@ -115,9 +149,6 @@ json& json::operator=(const json &o)
 
     switch (this->_type)
     {
-        case Type::None:
-            break;
-
         case Type::Object:
             this->_data.o = new chen::json::object(*o._data.o);
             break;
@@ -134,12 +165,7 @@ json& json::operator=(const json &o)
             this->_data.s = new std::string(*o._data.s);
             break;
 
-        case Type::True:
-        case Type::False:
-            this->_data.b = o._data.b;
-            break;
-
-        case Type::Null:
+        default:
             break;
     }
 
@@ -183,7 +209,7 @@ json& json::operator=(chen::json::object &&v)
     this->clear();
 
     this->_type   = Type::Object;
-    this->_data.o = new chen::json::object(v);
+    this->_data.o = new chen::json::object(std::move(v));
 
     return *this;
 }
@@ -209,7 +235,7 @@ json& json::operator=(chen::json::array &&v)
     this->clear();
 
     this->_type   = Type::Array;
-    this->_data.a = new chen::json::array(v);
+    this->_data.a = new chen::json::array(std::move(v));
 
     return *this;
 }
@@ -250,30 +276,21 @@ json& json::operator=(std::string &&v)
     this->clear();
 
     this->_type   = Type::String;
-    this->_data.s = new std::string(v);
+    this->_data.s = new std::string(std::move(v));
 
     return *this;
 }
 
 json& json::operator=(const char *v)
 {
-    if ((this->_type == Type::String) && (this->_data.s->c_str() == v))
-        return *this;
-
-    this->clear();
-
-    this->_type   = Type::String;
-    this->_data.s = new std::string(v);
-
-    return *this;
+    return operator=(std::string(v));
 }
 
 json& json::operator=(bool v)
 {
     this->clear();
 
-    this->_type   = v ? Type::True : Type::False;
-    this->_data.b = v;
+    this->_type = v ? Type::True : Type::False;
 
     return *this;
 }
@@ -290,7 +307,7 @@ chen::json json::parse(const std::string &text, bool file)
             stream.open(text.c_str(), std::ios_base::binary);
 
             std::istreambuf_iterator<char> cur(stream);
-            return json::decode(cur, std::istreambuf_iterator<char>());
+            return json::parse(cur, std::istreambuf_iterator<char>());
         }
         catch (const std::ios_base::failure&)
         {
@@ -299,7 +316,7 @@ chen::json json::parse(const std::string &text, bool file)
     }
     else
     {
-        return json::decode(text.begin(), text.end());
+        return json::parse(text.begin(), text.end());
     }
 }
 
@@ -406,10 +423,44 @@ const std::string& json::getString() const
 
 bool json::getBool() const
 {
-    if ((this->_type == Type::True) || (this->_type == Type::False))
-        return this->_data.b;
+    if (this->_type == Type::True)
+        return true;
+    else if (this->_type == Type::False)
+        return false;
     else
         throw error_general("json: type is not bool");
+}
+
+chen::json::object& json::getObject()
+{
+    if (this->_type == Type::Object)
+        return *this->_data.o;
+    else
+        throw error_general("json: type is not object");
+}
+
+chen::json::array& json::getArray()
+{
+    if (this->_type == Type::Array)
+        return *this->_data.a;
+    else
+        throw error_general("json: type is not array");
+}
+
+double& json::getNumber()
+{
+    if (this->_type == Type::Number)
+        return this->_data.d;
+    else
+        throw error_general("json: type is not number");
+}
+
+std::string& json::getString()
+{
+    if (this->_type == Type::String)
+        return *this->_data.s;
+    else
+        throw error_general("json: type is not string");
 }
 
 // convert value

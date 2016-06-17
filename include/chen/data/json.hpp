@@ -6,7 +6,7 @@
  * @link   http://www.json.org
  * -----------------------------------------------------------------------------
  * A JSON value can be an object, array, number, string, true, false, or null
- * we represent the number as double type, like the javascript
+ * We treat the number as double, like the javascript
  * -----------------------------------------------------------------------------
  * Usage:
  * >> // parse json string to object
@@ -48,7 +48,6 @@ namespace chen
             chen::json::array *a;
             double d;
             std::string *s;
-            bool b;
         };
 
         class error : public std::runtime_error
@@ -76,6 +75,7 @@ namespace chen
          */
         json() = default;
         json(std::nullptr_t);
+        json(chen::json::Type type);
 
         json(const json &o);
         json(json &&o);
@@ -129,10 +129,10 @@ namespace chen
                                      std::size_t space = 0);
 
         /**
-         * Decode the json text, throw exception if found error
+         * Parse json using input iterator
          */
         template <typename InputIterator>
-        static chen::json decode(InputIterator cur, InputIterator end);
+        static chen::json parse(InputIterator cur, InputIterator end);
 
     public:
         /**
@@ -144,12 +144,12 @@ namespace chen
          * Check the json type
          */
         virtual bool isObject() const;
-        virtual bool isArray() const;
+        virtual bool isArray()  const;
         virtual bool isNumber() const;
         virtual bool isString() const;
-        virtual bool isTrue() const;
-        virtual bool isFalse() const;
-        virtual bool isNull() const;
+        virtual bool isTrue()   const;
+        virtual bool isFalse()  const;
+        virtual bool isNull()   const;
 
         virtual bool isBool() const;
         virtual bool isNone() const;
@@ -164,6 +164,16 @@ namespace chen
         virtual int getInteger() const;  // maybe losing precision
         virtual const std::string& getString() const;
         virtual bool getBool() const;
+
+        /**
+         * Get value, user can modify its content
+         * @caution the integer method does not exist because we store number as double
+         * @caution the bool method does not exist because modify it will result in wrong type
+         */
+        virtual chen::json::object& getObject();
+        virtual chen::json::array& getArray();
+        virtual double& getNumber();
+        virtual std::string& getString();
 
         /**
          * Convert value to the desired type as possible
@@ -253,9 +263,9 @@ namespace chen
     };
 }
 
-// decode
+// parse
 template <typename InputIterator>
-chen::json chen::json::decode(InputIterator cur, InputIterator end)
+chen::json chen::json::parse(InputIterator cur, InputIterator end)
 {
     // trim left spaces
     json::filter(cur, end, true);

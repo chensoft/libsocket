@@ -3,6 +3,7 @@
  * @since  2016.05.14
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
+ * @caution internal use only
  */
 #pragma once
 
