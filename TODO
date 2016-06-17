@@ -2,8 +2,8 @@
 
 -) json decode just store pointer, don't copy string if not needed
 
--) add Windows support for fs
-
 -) i18n support
 
 -) write documentation
+
+-) add json validate method
