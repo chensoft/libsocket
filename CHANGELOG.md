@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [0.1.0-rc.1] - 2016-06-19
 ### Added
 - json: add methods to modify json's data.
 - json: add validate method to check if json string is valid.
