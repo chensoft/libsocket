@@ -327,6 +327,31 @@ std::string json::stringify(const chen::json &json, std::size_t space)
     return output;
 }
 
+// validate
+void json::validate(const std::string &text, bool file)
+{
+    if (file)
+    {
+        try
+        {
+            std::ifstream stream;
+            stream.exceptions(std::ios::badbit | std::ios::failbit);
+            stream.open(text.c_str(), std::ios_base::binary);
+
+            std::istreambuf_iterator<char> cur(stream);
+            json::validate(cur, std::istreambuf_iterator<char>());
+        }
+        catch (const std::ios_base::failure&)
+        {
+            throw error(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
+        }
+    }
+    else
+    {
+        json::validate(text.begin(), text.end());
+    }
+}
+
 // type
 chen::json::Type json::type() const
 {

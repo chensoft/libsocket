@@ -4,6 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  * @link   http://www.json.org
+ * @link   http://www.ietf.org/rfc/rfc4627.txt
  * -----------------------------------------------------------------------------
  * A JSON value can be an object, array, number, string, true, false, or null
  * We treat the number as double, like the javascript
@@ -110,16 +111,27 @@ namespace chen
 
     public:
         /**
-         * Json parse and stringify
+         * Json parse, accept text, file or even iterators
          */
         static chen::json parse(const std::string &text, bool file = false);
-        static std::string stringify(const chen::json &json, std::size_t space = 0);
 
-        /**
-         * Parse json using input iterator
-         */
         template <typename InputIterator>
         static chen::json parse(InputIterator cur, InputIterator end);
+
+        /**
+         * Json stringify
+         */
+        static std::string stringify(const chen::json &json, std::size_t space = 0);
+
+    public:
+        /**
+         * Validate the json, throw exception if has error
+         * according to the rfc4627, a json text must be a serialized object or array
+         */
+        static void validate(const std::string &text, bool file = false);
+
+        template <typename InputIterator>
+        static void validate(InputIterator cur, InputIterator end);
 
     public:
         /**
@@ -261,6 +273,23 @@ chen::json chen::json::parse(InputIterator cur, InputIterator end)
         json::exception(beg, cur, end);
 
     return item;
+}
+
+// validate
+template <typename InputIterator>
+void chen::json::validate(InputIterator cur, InputIterator end)
+{
+    const InputIterator beg = cur;
+
+    if (!json::advance(beg, cur, end, false))
+        return;
+
+    // a valid json must start by '{' or '['
+    if ((*cur != '{') && (*cur != '['))
+        json::exception(beg, cur, end);
+
+    // check syntax error
+    json::parse(beg, end);  // use beg, not cur, to report correct position
 }
 
 // exception
