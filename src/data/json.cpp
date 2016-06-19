@@ -12,12 +12,6 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // json
-json::json(std::nullptr_t)
-: _type(Type::Null)
-{
-
-}
-
 json::json(chen::json::Type type)
 {
     // handy method to create default json
@@ -120,6 +114,12 @@ json::json(const char *v)
 json::json(bool v)
 : _type(v ? Type::True : Type::False)
 {
+}
+
+json::json(std::nullptr_t)
+: _type(Type::Null)
+{
+
 }
 
 json::~json()

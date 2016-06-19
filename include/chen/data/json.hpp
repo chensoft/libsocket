@@ -63,7 +63,6 @@ namespace chen
          * Constructor
          */
         json() = default;
-        json(std::nullptr_t);
         json(chen::json::Type type);
 
         json(const json &o);
@@ -83,6 +82,8 @@ namespace chen
         json(const char *v);
 
         json(bool v);
+
+        json(std::nullptr_t);
 
         virtual ~json();
 
