@@ -23,16 +23,16 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
             stream.open(text.c_str(), std::ios_base::binary);
 
             std::istreambuf_iterator<char> cur(stream);
-            return chen::ini::parse(cur, std::istreambuf_iterator<char>());
+            return ini::parse(cur, std::istreambuf_iterator<char>());
         }
         catch (const std::ios_base::failure&)
         {
-            throw error(str::format("ini: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
+            throw ini::error(str::format("ini: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }
     }
     else
     {
-        return chen::ini::parse(text.begin(), text.end());
+        return ini::parse(text.begin(), text.end());
     }
 }
 

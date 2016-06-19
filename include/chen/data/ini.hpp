@@ -7,12 +7,12 @@
  * -----------------------------------------------------------------------------
  * Ini file consists of two parts: section and property
  * -) Case sensitive: e.g: key=val, Key=val are two different properties
- * -) Comments: support semicolons ';', comment can appear anywhere
- * -) Line break: using '\n' in file
  * -) Duplicate key: will trigger a error, don't allow this
- * -) Escape: '\\', '\0', '\a', '\b', '\t', '\r', '\n', '\;', '\#', '\=', '\:', '\x????', '\"'
  * -) Global key: allowed this, its section name will be empty
+ * -) Comments: support semicolons ';', comment can appear anywhere
  * -) Hierarchy: now allowed
+ * -) Line break: using '\n' in file
+ * -) Escape: '\\', '\0', '\a', '\b', '\t', '\r', '\n', '\;', '\#', '\=', '\:', '\x????', '\"'
  * -) Quoted values: allow double quotes, will remove it automatically
  * -) Whitespace: left and right whitespaces are removed automatically, add double quote if you want preserved
  * -----------------------------------------------------------------------------
@@ -129,12 +129,14 @@ void chen::ini::exception(const InputIterator &beg, InputIterator &cur, InputIte
 {
     if (cur == end)
     {
-        throw error("ini: unexpected end of input");
+        throw chen::ini::error("ini: unexpected end of input");
     }
     else
     {
         auto pos = chen::num::str(std::distance(beg, cur));
-        throw error(chen::str::format("ini: unexpected token '%c' at position %s", *cur, pos.c_str()));
+        auto tok = std::isprint(*cur) ? std::string(1, *cur) : chen::str::format("\\x%02x", static_cast<int>(*cur));
+
+        throw chen::ini::error(chen::str::format("ini: unexpected token '%s' at position %s", tok.c_str(), pos.c_str()));
     }
 }
 
@@ -181,7 +183,7 @@ void chen::ini::decode(chen::ini::value_type &out, const InputIterator &beg, Inp
                 if (out.find(s.first) == out.end())
                     out.emplace(std::move(s));
                 else
-                    chen::ini::exception(beg, cur, end);
+                    throw chen::ini::error(chen::str::format("ini: duplicate section '%s' found", s.first.c_str()));
             }
                 break;
 
@@ -255,6 +257,12 @@ void chen::ini::decode(chen::ini::property_type &out, const InputIterator &beg, 
         if (key.empty())
             chen::ini::exception(beg, cur, end);
 
+        if (out.find(key) != out.end())
+        {
+            auto pos = chen::num::str(std::distance(beg, cur) - key.size());
+            throw chen::ini::error(chen::str::format("ini: duplicate key '%s' found at position %s", key.c_str(), pos.c_str()));
+        }
+
         // equal
         if ((cur == end) || (*cur != '='))
             chen::ini::exception(beg, cur, end);
@@ -273,15 +281,7 @@ void chen::ini::decode(chen::ini::property_type &out, const InputIterator &beg, 
         }
 
         // store
-        if (out.find(key) == out.end())
-        {
-            out.emplace(std::move(key), std::move(val));
-        }
-        else
-        {
-            auto pos = chen::num::str(std::distance(beg, cur) - 4);
-            throw error(chen::str::format("ini: duplicate key %s found at position %s", key.c_str(), pos.c_str()));
-        }
+        out.emplace(std::move(key), std::move(val));
 
         // skip
         if ((cur != end) && (*cur == '\n'))
@@ -396,7 +396,7 @@ void chen::ini::decode(std::string &out, const InputIterator &beg, InputIterator
                 {
                     // e.g: \xD83D\xDE00, it's a emoji character
                     auto pos = chen::num::str(std::distance(beg, cur) - 4);
-                    throw error(chen::str::format("ini: invalid unicode char \\u%s at position %s", unicode, pos.c_str()));
+                    throw chen::ini::error(chen::str::format("ini: invalid unicode char '\\u%s' at position %s", unicode, pos.c_str()));
                 }
             }
                 break;

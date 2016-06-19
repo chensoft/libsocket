@@ -14,6 +14,7 @@
 #include "src/base/utf8.hpp"
 #include "src/base/vector.hpp"
 
+#include "src/data/ini.hpp"
 #include "src/data/json.hpp"
 
 #include "src/sys/fs.hpp"

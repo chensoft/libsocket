@@ -299,12 +299,14 @@ void chen::json::exception(const InputIterator &beg, InputIterator &cur, InputIt
 {
     if (cur == end)
     {
-        throw error("json: unexpected end of input");
+        throw chen::json::error("json: unexpected end of input");
     }
     else
     {
         auto pos = chen::num::str(std::distance(beg, cur));
-        throw error(chen::str::format("json: unexpected token '%c' at position %s", *cur, pos.c_str()));
+        auto tok = std::isprint(*cur) ? std::string(1, *cur) : chen::str::format("\\x%02x", static_cast<int>(*cur));
+
+        throw chen::json::error(chen::str::format("json: unexpected token '%s' at position %s", tok.c_str(), pos.c_str()));
     }
 }
 
@@ -584,12 +586,12 @@ void chen::json::decode(double &out, const InputIterator &beg, InputIterator &cu
     if (std::isinf(d))
     {
         auto pos = chen::num::str(std::distance(beg, cur) - str.size());
-        throw error(chen::str::format("json: number %s is overflow at position %s", str.c_str(), pos.c_str()));
+        throw chen::json::error(chen::str::format("json: number '%s' is overflow at position %s", str.c_str(), pos.c_str()));
     }
     else if (std::isnan(d))
     {
         auto pos = chen::num::str(std::distance(beg, cur) - str.size());
-        throw error(chen::str::format("json: number %s is invalid at position %s", str.c_str(), pos.c_str()));
+        throw chen::json::error(chen::str::format("json: number '%s' is invalid at position %s", str.c_str(), pos.c_str()));
     }
 
     out = d;
@@ -609,7 +611,7 @@ void chen::json::decode(std::string &out, const InputIterator &beg, InputIterato
         if ((ch >= 0) && (ch <= 31))  // see ASCII
         {
             auto pos = chen::num::str(std::distance(beg, cur));
-            throw error(chen::str::format("json: control character code '%d' is not escaped at position %s", static_cast<int>(ch), pos.c_str()));
+            throw chen::json::error(chen::str::format("json: control character code '%d' is not escaped at position %s", static_cast<int>(ch), pos.c_str()));
         }
 
         // unescape characters
@@ -676,7 +678,7 @@ void chen::json::decode(std::string &out, const InputIterator &beg, InputIterato
                     {
                         // e.g: \uD83D\uDE00, it's a emoji character
                         auto pos = chen::num::str(std::distance(beg, cur) - 4);
-                        throw error(chen::str::format("json: invalid unicode char \\u%s at position %s", unicode, pos.c_str()));
+                        throw chen::json::error(chen::str::format("json: invalid unicode char '\\u%s' at position %s", unicode, pos.c_str()));
                     }
                 }
                     break;
