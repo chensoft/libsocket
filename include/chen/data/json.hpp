@@ -56,19 +56,7 @@ namespace chen
         public:
             explicit error(const std::string &what) : std::runtime_error(what) {}
         };
-
-        class error_general : public chen::json::error
-        {
-        public:
-            explicit error_general(const std::string &what) : chen::json::error(what) {}
-        };
-
-        class error_syntax : public chen::json::error
-        {
-        public:
-            explicit error_syntax(const std::string &what) : chen::json::error(what) {}
-        };
-
+        
     public:
         /**
          * Constructor
@@ -281,12 +269,12 @@ void chen::json::exception(const InputIterator &beg, InputIterator &cur, InputIt
 {
     if (cur == end)
     {
-        throw error_syntax("json: unexpected end of input");
+        throw error("json: unexpected end of input");
     }
     else
     {
         auto pos = chen::num::str(std::distance(beg, cur));
-        throw error_syntax(str::format("json: unexpected token '%c' at position %s", *cur, pos.c_str()));
+        throw error(chen::str::format("json: unexpected token '%c' at position %s", *cur, pos.c_str()));
     }
 }
 
@@ -564,9 +552,15 @@ void chen::json::decode(double &out, const InputIterator &beg, InputIterator &cu
     double d = std::atof(str.c_str());
 
     if (std::isinf(d))
-        throw error_syntax("json: number is overflow: " + str);
+    {
+        auto pos = chen::num::str(std::distance(beg, cur) - str.size());
+        throw error(chen::str::format("json: number %s is overflow at position %s", str.c_str(), pos.c_str()));
+    }
     else if (std::isnan(d))
-        throw error_syntax("json: number is incorrect: " + str);
+    {
+        auto pos = chen::num::str(std::distance(beg, cur) - str.size());
+        throw error(chen::str::format("json: number %s is invalid at position %s", str.c_str(), pos.c_str()));
+    }
 
     out = d;
 }
@@ -583,7 +577,10 @@ void chen::json::decode(std::string &out, const InputIterator &beg, InputIterato
     {
         // control characters must use escape
         if ((ch >= 0) && (ch <= 31))  // see ASCII
-            throw error_syntax("json: control character is not escaped");
+        {
+            auto pos = chen::num::str(std::distance(beg, cur));
+            throw error(chen::str::format("json: control character code '%d' is not escaped at position %s", static_cast<int>(ch), pos.c_str()));
+        }
 
         // unescape characters
         if (ch == '\\')
@@ -648,7 +645,8 @@ void chen::json::decode(std::string &out, const InputIterator &beg, InputIterato
                     catch (...)
                     {
                         // e.g: \uD83D\uDE00, it's a emoji character
-                        throw error_syntax(str::format("json: invalid unicode char \\u%s", unicode));
+                        auto pos = chen::num::str(std::distance(beg, cur) - 4);
+                        throw error(chen::str::format("json: invalid unicode char \\u%s at position %s", unicode, pos.c_str()));
                     }
                 }
                     break;

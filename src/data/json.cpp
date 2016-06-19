@@ -310,7 +310,7 @@ chen::json json::parse(const std::string &text, bool file)
         }
         catch (const std::ios_base::failure&)
         {
-            throw error_general(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
+            throw error(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }
     }
     else
@@ -385,7 +385,7 @@ const chen::json::object& json::getObject() const
     if (this->_type == Type::Object)
         return *this->_data.o;
     else
-        throw error_general("json: type is not object");
+        throw error("json: type is not object");
 }
 
 const chen::json::array& json::getArray() const
@@ -393,7 +393,7 @@ const chen::json::array& json::getArray() const
     if (this->_type == Type::Array)
         return *this->_data.a;
     else
-        throw error_general("json: type is not array");
+        throw error("json: type is not array");
 }
 
 double json::getNumber() const
@@ -401,7 +401,7 @@ double json::getNumber() const
     if (this->_type == Type::Number)
         return this->_data.d;
     else
-        throw error_general("json: type is not number");
+        throw error("json: type is not number");
 }
 
 int json::getInteger() const
@@ -409,7 +409,7 @@ int json::getInteger() const
     if (this->_type == Type::Number)
         return static_cast<int>(this->_data.d);
     else
-        throw error_general("json: type is not number");
+        throw error("json: type is not number");
 }
 
 const std::string& json::getString() const
@@ -417,7 +417,7 @@ const std::string& json::getString() const
     if (this->_type == Type::String)
         return *this->_data.s;
     else
-        throw error_general("json: type is not string");
+        throw error("json: type is not string");
 }
 
 bool json::getBool() const
@@ -427,7 +427,7 @@ bool json::getBool() const
     else if (this->_type == Type::False)
         return false;
     else
-        throw error_general("json: type is not bool");
+        throw error("json: type is not bool");
 }
 
 chen::json::object& json::getObject()
@@ -435,7 +435,7 @@ chen::json::object& json::getObject()
     if (this->_type == Type::Object)
         return *this->_data.o;
     else
-        throw error_general("json: type is not object");
+        throw error("json: type is not object");
 }
 
 chen::json::array& json::getArray()
@@ -443,7 +443,7 @@ chen::json::array& json::getArray()
     if (this->_type == Type::Array)
         return *this->_data.a;
     else
-        throw error_general("json: type is not array");
+        throw error("json: type is not array");
 }
 
 double& json::getNumber()
@@ -451,7 +451,7 @@ double& json::getNumber()
     if (this->_type == Type::Number)
         return this->_data.d;
     else
-        throw error_general("json: type is not number");
+        throw error("json: type is not number");
 }
 
 std::string& json::getString()
@@ -459,7 +459,7 @@ std::string& json::getString()
     if (this->_type == Type::String)
         return *this->_data.s;
     else
-        throw error_general("json: type is not string");
+        throw error("json: type is not string");
 }
 
 // convert value
