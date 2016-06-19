@@ -31,6 +31,7 @@
 #include <cmath>
 #include <chen/base/utf8.hpp>
 #include <chen/base/str.hpp>
+#include <chen/base/num.hpp>
 
 namespace chen
 {
@@ -65,7 +66,6 @@ namespace chen
         class error_syntax : public chen::json::error
         {
         public:
-            // todo record line and column as chen::json data member
             explicit error_syntax(const std::string &what) : chen::json::error(what) {}
         };
 
@@ -125,8 +125,7 @@ namespace chen
          * Json parse and stringify
          */
         static chen::json parse(const std::string &text, bool file = false);
-        static std::string stringify(const chen::json &json,
-                                     std::size_t space = 0);
+        static std::string stringify(const chen::json &json, std::size_t space = 0);
 
         /**
          * Parse json using input iterator
@@ -195,62 +194,50 @@ namespace chen
          * Throw syntax exception
          */
         template <typename InputIterator>
-        static void exception(InputIterator &cur, InputIterator &end);
+        static void exception(const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         /**
-         * Filter the beginning white spaces
+         * Advance to the next non-whitespace character
          */
         template <typename InputIterator>
-        static void filter(InputIterator &cur, InputIterator &end, bool require);
-
-        /**
-         * Skip current character
-         */
-        template <typename InputIterator>
-        static char forward(InputIterator &cur, InputIterator &end);
-
-        /**
-         * Advance to the next character
-         */
-        template <typename InputIterator>
-        static char advance(InputIterator &cur, InputIterator &end, bool require);
+        static bool advance(const InputIterator &beg, InputIterator &cur, InputIterator &end, bool require = true);
 
         /**
          * Decode specific type
          */
         template <typename InputIterator>
-        static void decode(chen::json &out, InputIterator &cur, InputIterator &end);
+        static void decode(chen::json &out, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         template <typename InputIterator>
-        static void decode(chen::json::object &out, InputIterator &cur, InputIterator &end);
+        static void decode(chen::json::object &out, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         template <typename InputIterator>
-        static void decode(chen::json::array &out, InputIterator &cur, InputIterator &end);
+        static void decode(chen::json::array &out, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         template <typename InputIterator>
-        static void decode(double &out, InputIterator &cur, InputIterator &end);
+        static void decode(double &out, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         template <typename InputIterator>
-        static void decode(std::string &out, InputIterator &cur, InputIterator &end);
+        static void decode(std::string &out, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         template <typename InputIterator>
-        static void decode(bool v, InputIterator &cur, InputIterator &end);
+        static void decode(bool v, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         template <typename InputIterator>
-        static void decode(std::nullptr_t, InputIterator &cur, InputIterator &end);
+        static void decode(std::nullptr_t, const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         /**
          * Encode specific type
          */
-        static void encode(const chen::json &v, std::string &output, std::size_t space, std::size_t &indent);
+        static void encode(const chen::json &v, std::size_t space, std::string &output, std::size_t &indent);
 
         static void encode(const chen::json::object &v,
-                           std::string &output,
                            std::size_t space,
+                           std::string &output,
                            std::size_t &indent);
         static void encode(const chen::json::array &v,
-                           std::string &output,
                            std::size_t space,
+                           std::string &output,
                            std::size_t &indent);
         static void encode(double v, std::string &output);
         static void encode(const std::string &v, std::string &output);
@@ -267,88 +254,74 @@ namespace chen
 template <typename InputIterator>
 chen::json chen::json::parse(InputIterator cur, InputIterator end)
 {
+    chen::json item;
+
+    const InputIterator beg = cur;
+
     // trim left spaces
-    json::filter(cur, end, true);
+    if (!json::advance(beg, cur, end, false))
+        return item;
 
     // decode item
-    chen::json item;
-    json::decode(item, cur, end);
+    json::decode(item, beg, cur, end);
 
     // trim right spaces
-    json::filter(cur, end, false);
+    json::advance(beg, cur, end, false);
 
     // should reach end
     if (cur != end)
-        json::exception(cur, end);
+        json::exception(beg, cur, end);
 
     return item;
 }
 
 // exception
 template <typename InputIterator>
-void chen::json::exception(InputIterator &cur, InputIterator &end)
-{
-    if (cur == end)
-        throw error_syntax("json: unexpected end of input");
-    else
-        throw error_syntax(str::format("json: unexpected token '%c'", *cur));
-}
-
-// filter
-template <typename InputIterator>
-void chen::json::filter(InputIterator &cur, InputIterator &end, bool require)
-{
-    for (; (cur != end) && std::isspace(*cur); ++cur)
-        ;
-
-    if (require && (cur == end))
-        json::exception(cur, end);
-}
-
-// forward
-template <typename InputIterator>
-char chen::json::forward(InputIterator &cur, InputIterator &end)
-{
-    if (cur == end)
-        json::exception(cur, end);
-
-    ++cur;
-    return cur == end ? static_cast<char>(-1) : *cur;
-}
-
-// todo remove this
-// advance
-template <typename InputIterator>
-char chen::json::advance(InputIterator &cur, InputIterator &end, bool require)
+void chen::json::exception(const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
     if (cur == end)
     {
+        throw error_syntax("json: unexpected end of input");
+    }
+    else
+    {
+        auto pos = chen::num::str(std::distance(beg, cur));
+        throw error_syntax(str::format("json: unexpected token '%c' at position %s", *cur, pos.c_str()));
+    }
+}
+
+// advance
+template <typename InputIterator>
+bool chen::json::advance(const InputIterator &beg, InputIterator &cur, InputIterator &end, bool require)
+{
+    // skip whitespaces
+    while ((cur != end) && std::isspace(*cur))
+        ++cur;
+
+    // check if end
+    if (cur == end)
+    {
         if (require)
-            json::exception(cur, end);
+            json::exception(beg, cur, end);
         else
-            return static_cast<char>(-1);
+            return false;
     }
 
-    char ch = *cur;
-
-    if (require && (cur == end))
-        json::exception(cur, end);
-
-    return ch;
+    return true;
 }
 
 // decode type
 template <typename InputIterator>
-void chen::json::decode(chen::json &out, InputIterator &cur, InputIterator &end)
+void chen::json::decode(chen::json &out, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    auto ch = json::advance(cur, end, true);
+    json::advance(beg, cur, end);
 
-    switch (ch)
+    switch (*cur)
     {
         case '{':  // object
         {
             chen::json::object o;
-            json::decode(o, cur, end);
+            json::decode(o, beg, cur, end);
             out = std::move(o);
         }
             break;
@@ -356,7 +329,7 @@ void chen::json::decode(chen::json &out, InputIterator &cur, InputIterator &end)
         case '[':  // array
         {
             chen::json::array a;
-            json::decode(a, cur, end);
+            json::decode(a, beg, cur, end);
             out = std::move(a);
         }
             break;
@@ -364,271 +337,226 @@ void chen::json::decode(chen::json &out, InputIterator &cur, InputIterator &end)
         case '"':  // string
         {
             std::string s;
-            json::decode(s, cur, end);
+            json::decode(s, beg, cur, end);
             out = std::move(s);
         }
             break;
 
         case 't':  // true
-            json::decode(true, cur, end);
+            json::decode(true, beg, cur, end);
             out = true;
             break;
 
         case 'f':  // false
-            json::decode(false, cur, end);
+            json::decode(false, beg, cur, end);
             out = false;
             break;
 
         case 'n':  // null
-            json::decode(nullptr, cur, end);
+            json::decode(nullptr, beg, cur, end);
             out = nullptr;
             break;
 
         default:
-            if (std::isdigit(ch) || (ch == '-'))  // number
+            if (std::isdigit(*cur) || (*cur == '-'))  // number
             {
                 double d = 0;
-                json::decode(d, cur, end);
+                json::decode(d, beg, cur, end);
                 out = d;
             }
             else
             {
-                json::exception(cur, end);
+                json::exception(beg, cur, end);
             }
             break;
     }
 }
 
 template <typename InputIterator>
-void chen::json::decode(chen::json::object &out, InputIterator &cur, InputIterator &end)
+void chen::json::decode(chen::json::object &out, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    if (json::advance(cur, end, true) != '{')
-        json::exception(cur, end);
+    if ((cur == end) || (*cur != '{'))
+        json::exception(beg, cur, end);
 
-    json::forward(cur, end);
+    json::advance(beg, ++cur, end);
 
     while (cur != end)
     {
         // skip spaces
-        json::filter(cur, end, true);
+        json::advance(beg, cur, end);
 
-        auto ch = json::advance(cur, end, true);
-        if (ch == '}')
+        if (*cur == '}')
             break;
 
         // find key
-        if (ch != '"')
-            json::exception(cur, end);
+        if (*cur != '"')
+            json::exception(beg, cur, end);
 
         std::string key;
-        json::decode(key, cur, end);
+        json::decode(key, beg, cur, end);
 
         // find separator
-        json::filter(cur, end, true);
+        json::advance(beg, cur, end);
 
-        if (json::advance(cur, end, true) != ':')  // separator
-            json::exception(cur, end);
+        if (*cur != ':')  // separator
+            json::exception(beg, cur, end);
 
-        json::forward(cur, end);
-        json::filter(cur, end, true);
+        json::advance(beg, ++cur, end);
 
         // find value
         chen::json item;
-        json::decode(item, cur, end);
+        json::decode(item, beg, cur, end);
 
-        out[std::move(key)] = std::move(item);
+        out[std::move(key)] = std::move(item);  // override if key already exist
 
         // find comma or ending
-        json::filter(cur, end, true);
+        json::advance(beg, cur, end);
 
-        ch = json::advance(cur, end, true);
-
-        if (ch == ',')
+        if (*cur == ',')
         {
-            json::forward(cur, end);
-            json::filter(cur, end, true);
+            json::advance(beg, ++cur, end);
 
-            if (json::advance(cur, end, true) == '}')
-                json::exception(cur, end);
+            // don't allow json like {"k":1,}
+            if (*cur == '}')
+                json::exception(beg, cur, end);
         }
-        else if (ch == '}')
+        else if (*cur == '}')
         {
             break;
         }
         else
         {
-            json::exception(cur, end);
+            json::exception(beg, cur, end);
         }
     }
 
     if (cur == end)
-        json::exception(cur, end);
+        json::exception(beg, cur, end);
 
-    json::forward(cur, end);
+    ++cur;
 }
 
 template <typename InputIterator>
-void chen::json::decode(chen::json::array &out, InputIterator &cur, InputIterator &end)
+void chen::json::decode(chen::json::array &out, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    if (json::advance(cur, end, true) != '[')
-        json::exception(cur, end);
+    if ((cur == end) || (*cur != '['))
+        json::exception(beg, cur, end);
 
-    json::forward(cur, end);
+    json::advance(beg, ++cur, end);
 
     while (cur != end)
     {
-        json::filter(cur, end, true);
-
-        if (json::advance(cur, end, true) == ']')
+        if (*cur == ']')
             break;
 
         // find value
         chen::json item;
-        json::decode(item, cur, end);
+        json::decode(item, beg, cur, end);
 
         out.emplace_back(std::move(item));
 
         // find comma or ending
-        json::filter(cur, end, true);
+        json::advance(beg, cur, end);
 
-        auto ch = json::advance(cur, end, true);
-
-        if (ch == ',')
+        if (*cur == ',')
         {
-            json::forward(cur, end);
-            json::filter(cur, end, true);
+            json::advance(beg, ++cur, end);
 
-            if (json::advance(cur, end, true) == ']')
-                json::exception(cur, end);
+            // don't allow json like [1,]
+            if (*cur == ']')
+                json::exception(beg, cur, end);
         }
-        else if (ch == ']')
+        else if (*cur == ']')
         {
             break;
         }
         else
         {
-            json::exception(cur, end);
+            json::exception(beg, cur, end);
         }
     }
 
     if (cur == end)
-        json::exception(cur, end);
+        json::exception(beg, cur, end);
 
-    json::forward(cur, end);
+    ++cur;
 }
 
 template <typename InputIterator>
-void chen::json::decode(double &out, InputIterator &cur, InputIterator &end)
+void chen::json::decode(double &out, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    auto ch = json::advance(cur, end, true);
-    if ((ch != '-') && !std::isdigit(ch))
-        json::exception(cur, end);
+    if (cur == end)
+        json::exception(beg, cur, end);
 
-    std::string str(1, ch);
+    std::string str(1, *cur++);
 
-    json::forward(cur, end);
-
-    // must begin with '-' or '1' ~ '9'
+    // must begin with '-' or '1' ~ '9' or like '0.123456'
     if (str[0] == '-')
     {
-        ch = json::advance(cur, end, true);
-
-        if (ch == '0')
+        if ((cur == end) || !std::isdigit(*cur))
         {
-            str += ch;
-
-            json::forward(cur, end);
-
-            if (std::isdigit(json::advance(cur, end, false)))
-            {
-                // todo back to 0
-//                stream.unget();
-                json::exception(cur, end);
-            }
+            json::exception(beg, cur, end);
         }
-        else if (!std::isdigit(ch))
+        else if (*cur == '0')
         {
-            json::exception(cur, end);
+            str += *cur++;
+
+            if ((cur != end) && std::isdigit(*cur))
+                json::exception(beg, cur, end);
         }
     }
-    else if ((str[0] == '0') && std::isdigit(json::advance(cur, end, false)))
+    else if ((str[0] == '0') && std::isdigit(*cur))
     {
         // if the first char is '0', then the whole number must be 0
-        json::exception(cur, end);
+        json::exception(beg, cur, end);
     }
 
     // collect integer parts
-    while (std::isdigit(ch = json::advance(cur, end, false)))
-    {
-        str += ch;
-        json::forward(cur, end);
-    }
+    while ((cur != end) && std::isdigit(*cur))
+        str += *cur++;
 
     // collect decimal parts
-    if ((ch = json::advance(cur, end, false)) == '.')
+    if ((cur != end) && (*cur == '.'))
     {
-        str += ch;
-        json::forward(cur, end);
+        str += *cur++;
 
         // first
-        if (std::isdigit(ch = json::advance(cur, end, true)))
-        {
-            str += ch;
-            json::forward(cur, end);
-        }
+        if ((cur != end) && std::isdigit(*cur))
+            str += *cur++;
         else
-        {
-            json::exception(cur, end);
-        }
+            json::exception(beg, cur, end);
 
         // digits
-        while (std::isdigit(ch = json::advance(cur, end, false)))
-        {
-            str += ch;
-            json::forward(cur, end);
-        }
+        while ((cur != end) && std::isdigit(*cur))
+            str += *cur++;
     }
 
     // 'e' or 'E'
-    ch = json::advance(cur, end, false);
-
-    if ((ch == 'e') || (ch == 'E'))
+    if ((cur != end) && ((*cur == 'e') || (*cur == 'E')))
     {
-        str += ch;
-        json::forward(cur, end);
+        str += *cur++;
 
         // '+', '-' or digits
-        ch = json::advance(cur, end, true);
-
-        if ((ch == '+') || (ch == '-') || std::isdigit(ch))
+        if ((cur != end) && ((*cur == '+') || (*cur == '-') || std::isdigit(*cur)))
         {
-            str += ch;
-            json::forward(cur, end);
+            str += *cur++;
 
-            // first
-            if (!std::isdigit(ch))
+            // first is '+' or '-'
+            if (!std::isdigit(str.back()))
             {
-                if (std::isdigit(ch = json::advance(cur, end, true)))
-                {
-                    str += ch;
-                    json::forward(cur, end);
-                }
+                if ((cur != end) && std::isdigit(*cur))
+                    str += *cur++;
                 else
-                {
-                    json::exception(cur, end);
-                }
+                    json::exception(beg, cur, end);
             }
 
             // last
-            while (std::isdigit(ch = json::advance(cur, end, false)))
-            {
-                str += ch;
-                json::forward(cur, end);
-            }
+            while ((cur != end) && std::isdigit(*cur))
+                str += *cur++;
         }
         else
         {
-            json::exception(cur, end);
+            json::exception(beg, cur, end);
         }
     }
 
@@ -644,14 +572,12 @@ void chen::json::decode(double &out, InputIterator &cur, InputIterator &end)
 }
 
 template <typename InputIterator>
-void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end)
+void chen::json::decode(std::string &out, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    if (json::advance(cur, end, true) != '"')
-        json::exception(cur, end);
+    if ((cur == end) || (*cur != '"') || (++cur == end))
+        json::exception(beg, cur, end);
 
-    json::forward(cur, end);
-
-    auto ch = json::advance(cur, end, true);
+    char ch = *cur;
 
     while (ch != '"')
     {
@@ -662,9 +588,10 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end
         // unescape characters
         if (ch == '\\')
         {
-            json::forward(cur, end);
-
-            ch = json::advance(cur, end, true);
+            if (++cur == end)
+                json::exception(beg, cur, end);
+            else
+                ch = *cur;
 
             switch (ch)
             {
@@ -672,50 +599,45 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end
                 case '\\':
                 case '/':
                     out += ch;
-                    ch = json::forward(cur, end);
                     break;
 
                 case 'b':
                     out += '\b';
-                    ch = json::forward(cur, end);
                     break;
 
                 case 'f':
                     out += '\f';
-                    ch = json::forward(cur, end);
                     break;
 
                 case 'n':
                     out += '\n';
-                    ch = json::forward(cur, end);
                     break;
 
                 case 'r':
                     out += '\r';
-                    ch = json::forward(cur, end);
                     break;
 
                 case 't':
                     out += '\t';
-                    ch = json::forward(cur, end);
                     break;
 
                 case 'u':
                 {
-                    json::forward(cur, end);
-
                     // handle unicode character
-                    char unicode[5] = {0};
+                    char unicode[5];
+                    unicode[4] = '\0';
 
                     for (auto i = 0; i < 4; ++i)
                     {
-                        ch = json::advance(cur, end, true);
-                        json::forward(cur, end);
+                        if (++cur == end)
+                            json::exception(beg, cur, end);
+
+                        ch = *cur;
 
                         if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
                             unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
                         else
-                            json::exception(cur, end);
+                            json::exception(beg, cur, end);
                     }
 
                     // convert utf-16 to utf-8
@@ -732,48 +654,48 @@ void chen::json::decode(std::string &out, InputIterator &cur, InputIterator &end
                     break;
 
                 default:
-                    json::exception(cur, end);
+                    json::exception(beg, cur, end);
             }
         }
         else
         {
             out += ch;
-            json::forward(cur, end);
-            ch = json::advance(cur, end, true);
         }
+
+        if (++cur == end)
+            json::exception(beg, cur, end);
+        else
+            ch = *cur;
     }
 
-    json::advance(cur, end, true);
-    json::forward(cur, end);
+    ++cur;
 }
 
 template <typename InputIterator>
-void chen::json::decode(bool v, InputIterator &cur, InputIterator &end)
+void chen::json::decode(bool v, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    static const std::string t("true");
-    static const std::string f("false");
+    constexpr char t[] = "true";
+    constexpr char f[] = "false";
 
-    auto &s = v ? t : f;
+    const char *s = v ? t : f;
+    const auto  l = v ? sizeof(t) - 1 : sizeof(f) - 1;
 
-    for (std::size_t i = 0, l = s.size(); i < l; ++i)
+    for (std::size_t i = 0; i < l; ++i, ++cur)
     {
-        if (json::advance(cur, end, true) != s[i])
-            json::exception(cur, end);
-
-        json::forward(cur, end);
+        if ((cur == end) || (*cur != s[i]))
+            json::exception(beg, cur, end);
     }
 }
 
 template <typename InputIterator>
-void chen::json::decode(std::nullptr_t, InputIterator &cur, InputIterator &end)
+void chen::json::decode(std::nullptr_t, const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
-    static const std::string n("null");
+    constexpr char n[] = "null";
+    constexpr auto len = sizeof(n) - 1;
 
-    for (std::size_t i = 0, l = n.size(); i < l; ++i)
+    for (std::size_t i = 0; i < len; ++i, ++cur)
     {
-        if (json::advance(cur, end, true) != n[i])
-            json::exception(cur, end);
-
-        json::forward(cur, end);
+        if ((cur == end) || (*cur != n[i]))
+            json::exception(beg, cur, end);
     }
 }

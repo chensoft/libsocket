@@ -1,9 +1,7 @@
 -) add demo folder to add some example usage in it
 
--) json decode just store pointer, don't copy string if not needed
+-) write documentation
 
 -) i18n support
-
--) write documentation
 
 -) add json validate method

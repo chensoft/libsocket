@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <chen/data/json.hpp>
-#include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
 #include <fstream>
 
@@ -303,7 +302,7 @@ chen::json json::parse(const std::string &text, bool file)
         try
         {
             std::ifstream stream;
-            stream.exceptions(std::ios::failbit | std::ios::badbit);
+            stream.exceptions(std::ios::badbit | std::ios::failbit);
             stream.open(text.c_str(), std::ios_base::binary);
 
             std::istreambuf_iterator<char> cur(stream);
@@ -324,7 +323,7 @@ std::string json::stringify(const chen::json &json, std::size_t space)
 {
     std::string output;
     std::size_t indent = 0;
-    json::encode(json, output, space, indent);
+    json::encode(json, space, output, indent);
     return output;
 }
 
@@ -466,29 +465,25 @@ std::string& json::getString()
 // convert value
 chen::json::object json::toObject() const
 {
-    static chen::json::object object;
-
     switch (this->_type)
     {
         case Type::Object:
             return *this->_data.o;
 
         default:
-            return object;
+            return chen::json::object();
     }
 }
 
 chen::json::array json::toArray() const
 {
-    static chen::json::array array;
-
     switch (this->_type)
     {
         case Type::Array:
             return *this->_data.a;
 
         default:
-            return array;
+            return chen::json::array();
     }
 }
 
@@ -539,10 +534,7 @@ std::string json::toString() const
     switch (this->_type)
     {
         case Type::Number:
-        {
-            std::int64_t i = static_cast<std::int64_t>(this->_data.d);
-            return (this->_data.d - i == 0) ? chen::num::str(i) : chen::num::str(this->_data.d);
-        }
+            return chen::num::str(this->_data.d);
 
         case Type::String:
             return *this->_data.s;
@@ -571,7 +563,7 @@ bool json::toBool() const
             return true;
 
         case Type::Number:
-            return this->_data.d != 0.0;
+            return !chen::num::equal(this->_data.d, 0.0);
 
         case Type::String:
             return !this->_data.s->empty();
@@ -589,9 +581,6 @@ void json::clear()
 {
     switch (this->_type)
     {
-        case Type::None:
-            return;
-
         case Type::Object:
             delete this->_data.o;
             break;
@@ -600,16 +589,11 @@ void json::clear()
             delete this->_data.a;
             break;
 
-        case Type::Number:
-            break;
-
         case Type::String:
             delete this->_data.s;
             break;
 
-        case Type::True:
-        case Type::False:
-        case Type::Null:
+        default:
             break;
     }
 
@@ -618,7 +602,7 @@ void json::clear()
 }
 
 // encode type
-void json::encode(const chen::json &v, std::string &output, std::size_t space, std::size_t &indent)
+void json::encode(const chen::json &v, std::size_t space, std::string &output, std::size_t &indent)
 {
     switch (v.type())
     {
@@ -626,10 +610,10 @@ void json::encode(const chen::json &v, std::string &output, std::size_t space, s
             break;
 
         case Type::Object:
-            return json::encode(v.getObject(), output, space, indent);
+            return json::encode(v.getObject(), space, output, indent);
 
         case Type::Array:
-            return json::encode(v.getArray(), output, space, indent);
+            return json::encode(v.getArray(), space, output, indent);
 
         case Type::Number:
             return json::encode(v.getNumber(), output);
@@ -646,7 +630,7 @@ void json::encode(const chen::json &v, std::string &output, std::size_t space, s
     }
 }
 
-void json::encode(const chen::json::object &v, std::string &output, std::size_t space, std::size_t &indent)
+void json::encode(const chen::json::object &v, std::size_t space, std::string &output, std::size_t &indent)
 {
     output += '{';
 
@@ -682,7 +666,7 @@ void json::encode(const chen::json::object &v, std::string &output, std::size_t 
         if (space)
             output += ' ';
 
-        json::encode(val, output, space, indent);
+        json::encode(val, space, output, indent);
     }
 
     if (space && !v.empty())
@@ -695,7 +679,7 @@ void json::encode(const chen::json::object &v, std::string &output, std::size_t 
     output += '}';
 }
 
-void json::encode(const chen::json::array &v, std::string &output, std::size_t space, std::size_t &indent)
+void json::encode(const chen::json::array &v, std::size_t space, std::string &output, std::size_t &indent)
 {
     output += '[';
 
@@ -718,7 +702,7 @@ void json::encode(const chen::json::array &v, std::string &output, std::size_t s
         if (indent)
             output.append(indent, ' ');
 
-        json::encode(v[i], output, space, indent);
+        json::encode(v[i], space, output, indent);
     }
 
     if (space && !v.empty())
@@ -743,7 +727,7 @@ void json::encode(const std::string &v, std::string &output)
     // see http://www.json.org
     output += '"';
 
-    for (auto ch : v)
+    for (auto &ch : v)
     {
         switch (ch)
         {

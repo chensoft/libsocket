@@ -17,26 +17,6 @@ namespace chen
         callable() {};
         ~callable() = default;
 
-        callable(callable &o)
-        {
-            *this = o;
-        }
-
-        callable(const callable &o)
-        {
-            *this = o;
-        }
-
-        callable& operator=(const callable &o)
-        {
-            if (this == &o)
-                return *this;
-
-            this->_ptr.reset(o._ptr->clone());
-
-            return *this;
-        }
-
         callable(callable &&o) : _ptr(std::move(o._ptr)) {}
 
         callable& operator=(callable &&o)
@@ -55,7 +35,8 @@ namespace chen
     public:
         void operator()()
         {
-            this->_ptr->call();
+            if (this->_ptr)
+                this->_ptr->call();
         }
 
     private:
@@ -84,6 +65,10 @@ namespace chen
 
             F f;
         };
+
+    private:
+        callable(const callable &o) = delete;
+        callable& operator=(const callable &o) = delete;
 
     private:
         std::unique_ptr<base> _ptr;
