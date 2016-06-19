@@ -19,11 +19,11 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
         try
         {
             std::ifstream stream;
-            stream.exceptions(std::ios::failbit | std::ios::badbit);
+            stream.exceptions(std::ios::badbit | std::ios::failbit);
             stream.open(text.c_str(), std::ios_base::binary);
 
             std::istreambuf_iterator<char> cur(stream);
-            return chen::ini::decode(cur, std::istreambuf_iterator<char>());
+            return chen::ini::parse(cur, std::istreambuf_iterator<char>());
         }
         catch (const std::ios_base::failure&)
         {
@@ -32,7 +32,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
     }
     else
     {
-        return chen::ini::decode(text.begin(), text.end());
+        return chen::ini::parse(text.begin(), text.end());
     }
 }
 

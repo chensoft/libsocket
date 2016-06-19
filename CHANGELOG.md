@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- ini: report error position if found syntax error.
 
 ## [0.1.0-rc.1] - 2016-06-19
 ### Added
