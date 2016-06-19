@@ -5,8 +5,8 @@
  * @link   http://chensoft.com
  */
 #include <chen/base/num.hpp>
+#include <chen/base/str.hpp>
 #include <algorithm>
-#include <sstream>
 #include <random>
 
 using namespace chen;
@@ -127,26 +127,17 @@ std::string num::str(unsigned long long value)
 
 std::string num::str(float value)
 {
-    std::ostringstream ss;
-    ss.precision(10);
-    ss << value;
-    return ss.str();
+    return chen::str::format("%f", value);
 }
 
 std::string num::str(double value)
 {
-    std::ostringstream ss;
-    ss.precision(std::numeric_limits<double>::digits10);
-    ss << value;
-    return ss.str();
+    return chen::str::format("%f", value);
 }
 
 std::string num::str(long double value)
 {
-    std::ostringstream ss;
-    ss.precision(std::numeric_limits<long double>::digits10);
-    ss << value;
-    return ss.str();
+    return chen::str::format("%Lf", value);
 }
 
 // random
