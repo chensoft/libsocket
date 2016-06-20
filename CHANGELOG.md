@@ -2,8 +2,14 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [1.0.0] - 2016-06-20
 ### Added
 - ini: report error position if found syntax error.
+- data: add unit test for json and ini parser.
+
+### Changed
+- num: improve double to string performance.
 
 ## [0.1.0-rc.1] - 2016-06-19
 ### Added
