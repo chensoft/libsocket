@@ -64,7 +64,7 @@ void server::detach()
     this->_callback = nullptr;
 }
 
-void server::notify(std::vector<std::uint8_t> &&data, std::string &&addr, std::uint16_t port)
+void server::notify(std::vector<std::uint8_t> data, std::string addr, std::uint16_t port)
 {
     if (this->_callback)
         this->_callback(std::move(data), std::move(addr), port);
