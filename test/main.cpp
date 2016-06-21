@@ -17,6 +17,8 @@
 #include "src/data/ini.hpp"
 #include "src/data/json.hpp"
 
+#include "src/mt/threadpool.hpp"
+
 #include "src/sys/fs.hpp"
 #include "src/sys/sys.hpp"
 

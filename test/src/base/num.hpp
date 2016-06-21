@@ -25,4 +25,16 @@ TEST(BaseNumTest, General)
     EXPECT_EQ("false", chen::num::str(false));
     EXPECT_EQ("115", chen::num::str(115));
     EXPECT_EQ("-115", chen::num::str(-115));
+
+    // prime
+    EXPECT_FALSE(chen::num::prime(0));
+    EXPECT_FALSE(chen::num::prime(1));
+    EXPECT_TRUE(chen::num::prime(2));
+    EXPECT_TRUE(chen::num::prime(3));
+    EXPECT_FALSE(chen::num::prime(4));
+    EXPECT_TRUE(chen::num::prime(5));
+    EXPECT_FALSE(chen::num::prime(6));
+    EXPECT_TRUE(chen::num::prime(7));
+    EXPECT_FALSE(chen::num::prime(8));
+    EXPECT_FALSE(chen::num::prime(9));
 }

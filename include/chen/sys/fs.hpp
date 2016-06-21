@@ -201,17 +201,17 @@ namespace chen
          * Get file or directory's access time
          * @result the unix timestamp
          */
-        static time_t atime(const std::string &path);
+        static std::time_t atime(const std::string &path);
 
         /**
          * Get file or directory's modification time
          */
-        static time_t mtime(const std::string &path);
+        static std::time_t mtime(const std::string &path);
 
         /**
          * Get file or directory's create time
          */
-        static time_t ctime(const std::string &path);
+        static std::time_t ctime(const std::string &path);
 
         /**
          * Get file size
@@ -225,7 +225,7 @@ namespace chen
          * @param mtime modification time, if zero then use current time
          * @param atime access time, if zero then use mtime
          */
-        static bool touch(const std::string &file, time_t mtime = 0, time_t atime = 0);
+        static bool touch(const std::string &file, std::time_t mtime = 0, std::time_t atime = 0);
 
         /**
          * Create a directory

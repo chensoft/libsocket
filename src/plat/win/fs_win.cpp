@@ -143,7 +143,7 @@ bool fs::isExecutable(const std::string &path)
 }
 
 // create
-bool fs::touch(const std::string &file, time_t mtime, time_t atime)
+bool fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
 {
     // using current time if it's zero
     if (!mtime)

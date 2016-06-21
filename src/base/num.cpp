@@ -158,3 +158,26 @@ int num::random(int lower, int upper)
     std::uniform_int_distribution<int> uniform(lower, upper);
     return uniform(engine);
 }
+
+// prime
+bool num::prime(std::uint64_t value)
+{
+    if (value <= 1)  // exclude 0 and 1
+        return false;
+
+    std::uint64_t i = 2;
+    std::uint64_t c = 0;
+
+    while (i <= value / 2)
+    {
+        if (value % i == 0)
+        {
+            ++c;
+            break;
+        }
+
+        ++i;
+    }
+
+    return !c;
+}
