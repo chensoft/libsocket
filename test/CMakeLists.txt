@@ -13,11 +13,11 @@ include(../CMakeEnv.cmake)
 OPTION(LIBCHEN_BUILD_SHARED OFF)
 
 add_subdirectory(.. libchen)
-add_subdirectory(googletest/googletest)
+add_subdirectory(lib/googletest/googletest)
 
 # include path
 include_directories(../include)
-include_directories(googletest/googletest/include)
+include_directories(lib/googletest/googletest/include)
 
 # source codes
 file(GLOB INC_ROOT *.hpp)
