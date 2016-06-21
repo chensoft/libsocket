@@ -43,20 +43,13 @@ namespace chen
         struct base
         {
             virtual ~base() = default;
-            virtual base* clone() const = 0;
             virtual void call() = 0;
         };
 
         template <typename F>
         struct data : base
         {
-            data(const F &o) : f(o) {}
             data(F &&o) : f(std::move(o)) {}
-
-            virtual base* clone() const override
-            {
-                return new data<F>(f);
-            }
 
             virtual void call() override
             {

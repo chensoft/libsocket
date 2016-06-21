@@ -14,12 +14,12 @@ OPTION(LIBCHEN_BUILD_SHARED OFF)
 OPTION(LIBSOCKET_BUILD_SHARED OFF)
 
 add_subdirectory(.. libsocket)
-add_subdirectory(../lib/libchen/test/googletest/googletest googletest)
+add_subdirectory(../lib/libchen/test/lib/googletest/googletest googletest)
 
 # include path
 include_directories(../include)
 include_directories(../lib/libchen/include)
-include_directories(../lib/libchen/test/googletest/googletest/include)
+include_directories(../lib/libchen/test/lib/googletest/googletest/include)
 
 # source codes
 file(GLOB INC_ROOT *.hpp)

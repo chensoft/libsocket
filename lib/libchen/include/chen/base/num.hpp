@@ -57,5 +57,10 @@ namespace chen
          */
         static double random(double lower = 0, double upper = 1);
         static int random(int lower, int upper);
+
+        /**
+         * check whether an integer is a prime number
+         */
+        static bool prime(std::uint64_t value);
     };
 }

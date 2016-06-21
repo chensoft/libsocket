@@ -1,6 +1,6 @@
 /**
  * libchen: A General Purpose C++ Toolkit
- * @version   1.0.0
+ * @version   1.0.1
  * @author    Jian Chen <admin@chensoft.com>
  * @link      http://chensoft.com
  * @license   Licensed under MIT license
@@ -11,9 +11,9 @@
 // version
 constexpr int CHEN_VERSION_MAJOR = 1;
 constexpr int CHEN_VERSION_MINOR = 0;
-constexpr int CHEN_VERSION_PATCH = 0;
+constexpr int CHEN_VERSION_PATCH = 1;
 
-constexpr const char *CHEN_VERSION = "1.0.0";
+constexpr const char *CHEN_VERSION = "1.0.1";
 
 // include
 #include <chen/base/any.hpp>

@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file(see http://k
 
 ## [Unreleased]
 
+## [1.0.1] - 2016-06-21
+### Added
+- test: add threadpool unit test.
+- num: check whether an integer is a prime number.
+
+### Changed
+- test: put googletest into lib folder.
+
+### Fixed
+- mt: remove clone method for callable, it will cause compilation fails.
+
 ## [1.0.0] - 2016-06-20
 ### Added
 - ini: report error position if found syntax error.

@@ -60,9 +60,7 @@ std::string fs::temp()
 std::string fs::current()
 {
     char cwd[PATH_MAX] = {0};
-    ::getcwd(cwd, PATH_MAX);
-
-    return std::string(cwd);
+    return std::string(::getcwd(cwd, PATH_MAX));
 }
 
 std::vector<std::string> fs::drives()
@@ -78,9 +76,7 @@ char fs::separator()
 std::string fs::realpath(const std::string &path)
 {
     char buf[PATH_MAX] = {0};
-    ::realpath(path.c_str(), buf);
-
-    std::string ret(buf);
+    std::string ret(::realpath(path.c_str(), buf));
     return fs::isExist(ret) ? ret : "";
 }
 
@@ -126,7 +122,7 @@ bool fs::isExecutable(const std::string &path)
 }
 
 // create
-bool fs::touch(const std::string &file, time_t mtime, time_t atime)
+bool fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
 {
     // using current time if it's zero
     if (!mtime)
