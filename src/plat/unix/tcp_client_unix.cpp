@@ -7,6 +7,7 @@
 #include "so_socket_unix.hpp"
 #include <socket/tcp/tcp_client.hpp>
 #include <socket/so/so_error.hpp>
+#include <chen/chen.hpp>
 #include <sys/socket.h>
 #include <sys/poll.h>
 #include <sys/time.h>
@@ -42,7 +43,7 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     if (errno != EINPROGRESS)
     {
         ::fcntl(this->_impl->_socket, F_SETFL, flag);
-        throw error_connect(std::string("tcp: ") + std::strerror(errno));
+        throw error_connect("tcp: " + chen::sys::error());
     }
 
     struct pollfd poll;
@@ -66,7 +67,7 @@ bool client::connect(const std::string &addr, std::uint16_t port, float timeout)
     }
     else
     {
-        throw error_connect(std::string("tcp: ") + std::strerror(errno));
+        throw error_connect("tcp: " + chen::sys::error());
     }
 
     this->_recent_addr = addr;

@@ -6,11 +6,11 @@
  */
 #include "so_socket_unix.hpp"
 #include <socket/so/so_error.hpp>
+#include <chen/chen.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
-#include <cerrno>
 
 using namespace chen;
 using namespace chen::so;
@@ -158,7 +158,7 @@ void socket::build()
     auto sock = ::socket(this->_impl->_domain, this->_impl->_type, this->_impl->_protocol);
 
     if (sock == -1)
-        throw error_build(std::string("so: ") + std::strerror(errno));
+        throw error_build("so: " + chen::sys::error());
     else
         this->_impl->_socket = sock;
 }

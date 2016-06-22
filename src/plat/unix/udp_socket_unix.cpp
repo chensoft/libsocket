@@ -7,6 +7,7 @@
 #include "so_socket_unix.hpp"
 #include <socket/udp/udp_socket.hpp>
 #include <socket/so/so_error.hpp>
+#include <chen/chen.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -40,7 +41,7 @@ void chen::udp::socket::send(const void *data, std::size_t size, const std::stri
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) == -1)
-        throw so::error_send(std::string("udp: ") + std::strerror(errno));
+        throw so::error_send("udp: " + chen::sys::error());
 
     struct sockaddr_in in;
 
@@ -54,7 +55,7 @@ void chen::udp::socket::send(const void *data, std::size_t size, const std::stri
 
     // timeout is also an error when send, because the data sent failure
     if (ret == -1)
-        throw so::error_send(std::string("udp: ") + std::strerror(errno));
+        throw so::error_send("udp: " + chen::sys::error());
     else if (ret != size)
         throw so::error_send("udp: send packet length error");
 }
@@ -69,7 +70,7 @@ std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &a
     tv.tv_usec = static_cast<int>((timeout - tv.tv_sec) * 1000000);
 
     if (::setsockopt(this->_impl->_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) == -1)
-        throw so::error_recv(std::string("udp: ") + std::strerror(errno));
+        throw so::error_recv("udp: " + chen::sys::error());
 
     struct sockaddr_in in;
     socklen_t len = sizeof(in);
@@ -89,7 +90,7 @@ std::size_t chen::udp::socket::recv(void *data, std::size_t size, std::string &a
         }
         else
         {
-            throw so::error_recv(std::string("udp: ") + std::strerror(errno));
+            throw so::error_recv("udp: " + chen::sys::error());
         }
     }
     else
