@@ -94,6 +94,9 @@ namespace chen
 
             using message::decode;
 
+            virtual void decode(const std::vector<std::uint8_t> &data,
+                                const std::string &addr,
+                                std::uint16_t port);
             virtual void decode(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 

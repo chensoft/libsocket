@@ -169,6 +169,15 @@ void request::encode(std::vector<std::uint8_t> &out) const
     }
 }
 
+void request::decode(const std::vector<std::uint8_t> &data,
+                     const std::string &addr,
+                     std::uint16_t port)
+{
+    message::decode(data);
+    this->setAddr(addr);
+    this->setPort(port);
+}
+
 void request::decode(std::vector<std::uint8_t>::const_iterator &cur,
                      std::vector<std::uint8_t>::const_iterator &end)
 {
