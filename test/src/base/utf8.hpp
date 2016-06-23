@@ -13,10 +13,7 @@
 TEST(BaseUtf8Test, General)
 {
     if (conf::data.empty())
-    {
-        ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip utf8 test\n\n");
-        return;
-    }
+        return ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip utf8 test\n\n");
 
     auto bom   = chen::fs::read(conf::data + "/utf8/bom.txt");
     auto code  = chen::fs::read(conf::data + "/utf8/code.txt");

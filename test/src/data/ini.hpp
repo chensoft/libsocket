@@ -12,10 +12,7 @@
 TEST(DataIniTest, General)
 {
     if (conf::data.empty())
-    {
-        ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip ini test\n\n");
-        return;
-    }
+        return ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip ini test\n\n");
 
     // fail
     for (int i = 1; i <= 5; ++i)
@@ -24,7 +21,7 @@ TEST(DataIniTest, General)
     }
 
     // pass
-    for (int j = 1; j <= 3; ++j)
+    for (int j = 1; j <= 4; ++j)
     {
         EXPECT_NO_FATAL_FAILURE(chen::ini::parse(chen::fs::read(conf::data + chen::str::format("/ini/pass%d.ini", j))));
     }

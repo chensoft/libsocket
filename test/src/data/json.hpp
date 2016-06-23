@@ -24,10 +24,7 @@ TEST(DataJsonTest, Type)
 TEST(DataJsonTest, Validate)
 {
     if (conf::data.empty())
-    {
-        ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip json test\n\n");
-        return;
-    }
+        return ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip json test\n\n");
 
     // fail
     for (int i = 1; i <= 33; ++i)

@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file(see http://k
 ### Added
 - str: lowercase, uppercase, capitalize a string.
 
+### Fixed
+- ini: fix parse error if comment between two properties.
+
 ## [1.0.1] - 2016-06-21
 ### Added
 - test: add threadpool unit test.
