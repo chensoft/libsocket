@@ -86,7 +86,7 @@ namespace chen
         constexpr std::uint16_t FLAG_POS_RCODE  = 0;
 
         constexpr std::uint16_t FLAG_MASK_QR     = 1 << FLAG_POS_QR;
-        constexpr std::uint16_t FLAG_MASK_OPCODE = 1 << FLAG_POS_OPCODE;
+        constexpr std::uint16_t FLAG_MASK_OPCODE = 0b1111 << FLAG_POS_OPCODE;  // 4 bits
         constexpr std::uint16_t FLAG_MASK_AA     = 1 << FLAG_POS_AA;
         constexpr std::uint16_t FLAG_MASK_TC     = 1 << FLAG_POS_TC;
         constexpr std::uint16_t FLAG_MASK_RD     = 1 << FLAG_POS_RD;
@@ -94,7 +94,7 @@ namespace chen
         constexpr std::uint16_t FLAG_MASK_Z      = 1 << FLAG_POS_Z;
         constexpr std::uint16_t FLAG_MASK_AD     = 1 << FLAG_POS_AD;
         constexpr std::uint16_t FLAG_MASK_CD     = 1 << FLAG_POS_CD;
-        constexpr std::uint16_t FLAG_MASK_RCODE  = 1 << FLAG_POS_RCODE;
+        constexpr std::uint16_t FLAG_MASK_RCODE  = 0b1111 << FLAG_POS_RCODE;  // 4 bits
 
 
         // ---------------------------------------------------------------------
