@@ -255,7 +255,17 @@ void chen::ini::decode(chen::ini::property_type &out, const InputIterator &beg, 
         str::trim(key);
 
         if (key.empty())
-            chen::ini::exception(beg, cur, end);
+        {
+            if ((cur != end) && (*cur == ';'))
+            {
+                chen::ini::comment(beg, cur, end);
+                continue;
+            }
+            else
+            {
+                chen::ini::exception(beg, cur, end);
+            }
+        }
 
         if (out.find(key) != out.end())
         {
