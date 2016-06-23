@@ -120,6 +120,13 @@ namespace chen
         static std::string& rtrim(std::string &text);
 
         /**
+         * Transform string
+         */
+        static std::string& lowercase(std::string &text);
+        static std::string& uppercase(std::string &text);
+        static std::string& capitalize(std::string &text);
+
+        /**
          * Levenshtein distance
          * @link https://en.wikipedia.org/wiki/Levenshtein_distance
          */

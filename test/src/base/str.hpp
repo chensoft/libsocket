@@ -48,4 +48,10 @@ TEST(BaseStrTest, General)
 
     trim = "  so many spaces  ";
     EXPECT_EQ("so many spaces", chen::str::trim(trim));
+
+    // transform
+    std::string transform("abCDe");
+    EXPECT_EQ("AbCDe", chen::str::capitalize(transform));
+    EXPECT_EQ("abcde", chen::str::lowercase(transform));
+    EXPECT_EQ("ABCDE", chen::str::uppercase(transform));
 }
