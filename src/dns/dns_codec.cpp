@@ -22,9 +22,12 @@ bool codec::isFqdn(const std::string &name)
     return name.empty() ? false : name.back() == '.';
 }
 
-std::string codec::fqdn(const std::string &name)
+std::string& codec::fqdn(std::string &name)
 {
-    return codec::isFqdn(name) ? name : name + ".";
+    if (codec::isFqdn(name))
+        name += '.';
+
+    return name;
 }
 
 
