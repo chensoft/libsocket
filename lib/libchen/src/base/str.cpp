@@ -197,6 +197,28 @@ std::string& str::rtrim(std::string &text)
     return text;
 }
 
+// transform
+std::string& str::lowercase(std::string &text)
+{
+    std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+    return text;
+}
+
+std::string& str::uppercase(std::string &text)
+{
+    std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+    return text;
+}
+
+std::string& str::capitalize(std::string &text)
+{
+    if (text.empty())
+        return text;
+
+    text[0] = static_cast<char>(std::toupper(text[0]));
+    return text;
+}
+
 // levenshtein
 std::size_t str::levenshtein(const char *s, std::size_t len_s, const char *t, std::size_t len_t)
 {

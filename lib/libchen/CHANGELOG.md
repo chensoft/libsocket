@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- str: lowercase, uppercase, capitalize a string.
 
 ## [1.0.1] - 2016-06-21
 ### Added
