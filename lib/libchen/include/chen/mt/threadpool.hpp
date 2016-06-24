@@ -41,7 +41,7 @@ namespace chen
             std::future<result_type> future(task.get_future());
 
             std::unique_lock<std::mutex> lock(this->_mutex);
-            this->_queue.push(std::move(task));
+            this->_queue.emplace(std::move(task));
             lock.unlock();
 
             this->_semaphore.post();

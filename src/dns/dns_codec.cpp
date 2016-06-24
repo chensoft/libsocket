@@ -57,25 +57,25 @@ void encoder::pack(std::int64_t val, std::vector<std::uint8_t> &out)
 
 void encoder::pack(std::uint8_t val, std::vector<std::uint8_t> &out)
 {
-    out.push_back(val);
+    out.emplace_back(val);
 }
 
 void encoder::pack(std::uint16_t val, std::vector<std::uint8_t> &out)
 {
     for (int i = 8; i >= 0; i -= 8)
-        out.push_back(static_cast<std::uint8_t>(val >> i & 0xFF));
+        out.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
 void encoder::pack(std::uint32_t val, std::vector<std::uint8_t> &out)
 {
     for (int i = 24; i >= 0; i -= 8)
-        out.push_back(static_cast<std::uint8_t>(val >> i & 0xFF));
+        out.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
 void encoder::pack(std::uint64_t val, std::vector<std::uint8_t> &out)
 {
     for (int i = 56; i >= 0; i -= 8)
-        out.push_back(static_cast<std::uint8_t>(val >> i & 0xFF));
+        out.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
 void encoder::pack(chen::dns::RRType val, std::vector<std::uint8_t> &out)
@@ -113,7 +113,7 @@ void encoder::pack(const std::string &val, bool domain, std::vector<std::uint8_t
 
         try
         {
-            out.push_back(0);  // size for next label
+            out.emplace_back(0);  // size for next label
 
             for (std::size_t i = 0, len = val.size(); i < len; ++i)
             {
@@ -122,7 +122,7 @@ void encoder::pack(const std::string &val, bool domain, std::vector<std::uint8_t
                 if (c == '.')
                 {
                     out[out.size() - length - 1] = static_cast<std::uint8_t>(length);
-                    out.push_back(0);  // size for next label
+                    out.emplace_back(0);  // size for next label
 
                     length = 0;
                 }
@@ -133,7 +133,7 @@ void encoder::pack(const std::string &val, bool domain, std::vector<std::uint8_t
                     if (length > SIZE_LIMIT_LABEL)
                         throw error_size(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-                    out.push_back(static_cast<std::uint8_t>(c));
+                    out.emplace_back(static_cast<std::uint8_t>(c));
                 }
             }
         }
@@ -151,7 +151,7 @@ void encoder::pack(const std::string &val, bool domain, std::vector<std::uint8_t
         if (val.size() > SIZE_LIMIT_STRING)
             throw error_size(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
-        out.push_back(static_cast<std::uint8_t>(val.size()));
+        out.emplace_back(static_cast<std::uint8_t>(val.size()));
         out.insert(out.end(), val.begin(), val.end());
     }
 }
@@ -305,5 +305,5 @@ void decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need, const_ite
         throw error_size(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
     while (need--)
-        val.push_back(*cur++);
+        val.emplace_back(*cur++);
 }

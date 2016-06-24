@@ -204,49 +204,49 @@ void response::addQuestion(const chen::dns::request &value)
 
 void response::addQuestion(const chen::dns::question &value)
 {
-    this->_question.push_back(value);
+    this->_question.emplace_back(value);
     this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
 void response::addAnswer(const std::shared_ptr<chen::dns::RR> &value)
 {
-    this->_answer.push_back(value);
+    this->_answer.emplace_back(value);
     this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
 void response::addAuthority(const std::shared_ptr<chen::dns::RR> &value)
 {
-    this->_authority.push_back(value);
+    this->_authority.emplace_back(value);
     this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
 void response::addAdditional(const std::shared_ptr<chen::dns::RR> &value)
 {
-    this->_additional.push_back(value);
+    this->_additional.emplace_back(value);
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
 void response::addQuestion(chen::dns::question &&value)
 {
-    this->_question.push_back(std::move(value));
+    this->_question.emplace_back(std::move(value));
     this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
 void response::addAnswer(std::shared_ptr<chen::dns::RR> &&value)
 {
-    this->_answer.push_back(std::move(value));
+    this->_answer.emplace_back(std::move(value));
     this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
 void response::addAuthority(std::shared_ptr<chen::dns::RR> &&value)
 {
-    this->_authority.push_back(std::move(value));
+    this->_authority.emplace_back(std::move(value));
     this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
 void response::addAdditional(std::shared_ptr<chen::dns::RR> &&value)
 {
-    this->_additional.push_back(std::move(value));
+    this->_additional.emplace_back(std::move(value));
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
@@ -375,7 +375,7 @@ void response::decode(std::vector<std::uint8_t>::const_iterator &cur,
         chen::dns::question q;
         q.decode(cur, end);
 
-        this->_question.push_back(q);
+        this->_question.emplace_back(q);
     }
 
     // answer
@@ -383,7 +383,7 @@ void response::decode(std::vector<std::uint8_t>::const_iterator &cur,
 
     for (std::uint16_t i = 0, len = this->_header.ancount(); i < len; ++i)
     {
-        this->_answer.push_back(chen::dns::RR::decode(cur, end));
+        this->_answer.emplace_back(chen::dns::RR::decode(cur, end));
     }
 
     // authority
@@ -391,7 +391,7 @@ void response::decode(std::vector<std::uint8_t>::const_iterator &cur,
 
     for (std::uint16_t i = 0, len = this->_header.nscount(); i < len; ++i)
     {
-        this->_authority.push_back(chen::dns::RR::decode(cur, end));
+        this->_authority.emplace_back(chen::dns::RR::decode(cur, end));
     }
 
     // additional
@@ -399,6 +399,6 @@ void response::decode(std::vector<std::uint8_t>::const_iterator &cur,
 
     for (std::uint16_t i = 0, len = this->_header.arcount(); i < len; ++i)
     {
-        this->_additional.push_back(chen::dns::RR::decode(cur, end));
+        this->_additional.emplace_back(chen::dns::RR::decode(cur, end));
     }
 }
