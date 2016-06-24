@@ -87,7 +87,13 @@ json::json(double v)
     this->_data.d = v;
 }
 
-json::json(int v)
+json::json(std::int32_t v)
+: _type(Type::Number)
+{
+    this->_data.d = v;
+}
+
+json::json(std::uint32_t v)
 : _type(Type::Number)
 {
     this->_data.d = v;
@@ -249,7 +255,12 @@ json& json::operator=(double v)
     return *this;
 }
 
-json& json::operator=(int v)
+json& json::operator=(int32_t v)
+{
+    return *this = static_cast<double>(v);
+}
+
+json& json::operator=(std::uint32_t v)
 {
     return *this = static_cast<double>(v);
 }
@@ -429,10 +440,18 @@ double json::getNumber() const
         throw json::error("json: type is not number");
 }
 
-int json::getInteger() const
+std::int32_t json::getInteger() const
 {
     if (this->_type == Type::Number)
-        return static_cast<int>(this->_data.d);
+        return static_cast<std::int32_t>(this->_data.d);
+    else
+        throw json::error("json: type is not number");
+}
+
+std::uint32_t json::getUnsigned() const
+{
+    if (this->_type == Type::Number)
+        return static_cast<std::uint32_t>(this->_data.d);
     else
         throw json::error("json: type is not number");
 }
@@ -564,17 +583,38 @@ double json::toNumber() const
     }
 }
 
-int json::toInteger() const
+std::int32_t json::toInteger() const
 {
     switch (this->_type)
     {
         case Type::Number:
-            return static_cast<int>(this->_data.d);
+            return static_cast<std::int32_t>(this->_data.d);
 
         case Type::String:
         {
             std::string &d = *this->_data.s;
             return std::atoi(d.c_str());
+        }
+
+        case Type::True:
+            return 1;
+
+        default:
+            return 0;
+    }
+}
+
+std::uint32_t json::toUnsigned() const
+{
+    switch (this->_type)
+    {
+        case Type::Number:
+            return static_cast<std::uint32_t>(this->_data.d);
+
+        case Type::String:
+        {
+            std::string &d = *this->_data.s;
+            return static_cast<std::uint32_t>(std::stoul(d));
         }
 
         case Type::True:

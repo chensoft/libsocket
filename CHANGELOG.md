@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Added
 - str: lowercase, uppercase, capitalize a string.
+- json: allow unsigned integer conversion.
 - json: allow implicit conversion from json to variable.
 - map: find value in map, a default value can be provided.
 
