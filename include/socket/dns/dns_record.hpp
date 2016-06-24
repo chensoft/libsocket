@@ -14,7 +14,6 @@
 
 namespace chen
 {
-    // todo should many int fields be unsigned?
     namespace dns
     {
         // ---------------------------------------------------------------------
@@ -63,7 +62,7 @@ namespace chen
             std::string name;
             chen::dns::RRType rrtype   = chen::dns::RRType::None;
             chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
-            std::int32_t ttl = 0;
+            std::int32_t ttl = 0;  // rfc1035 says it's a 32 bit signed integer
 
         protected:
             // internal use only, will be set when call unpack method
