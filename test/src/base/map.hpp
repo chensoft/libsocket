@@ -17,6 +17,10 @@ TEST(BaseMapTest, General)
     EXPECT_TRUE(chen::map::exist(map, 3));
     EXPECT_FALSE(chen::map::exist(map, 8));
 
+    // find
+    EXPECT_EQ(8, chen::map::find(map, 3));
+    EXPECT_EQ(15, chen::map::find(map, 10, 15));
+
     // keys
     auto keys = chen::map::keys(map);
     std::sort(keys.begin(), keys.end());

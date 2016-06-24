@@ -166,6 +166,19 @@ namespace chen
         virtual bool getBool() const;
 
         /**
+         * Get value via operators
+         * e.g:
+         * >> chen::json json(115);
+         * >> int val = json;
+         */
+        operator chen::json::object() const;
+        operator chen::json::array() const;
+        operator double() const;
+        operator int() const;
+        operator std::string() const;
+        operator bool() const;
+
+        /**
          * Get value, user can modify its content
          * @caution the integer method does not exist because we store number as double
          * @caution the bool method does not exist because modify it will result in wrong type

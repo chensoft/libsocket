@@ -455,6 +455,37 @@ bool json::getBool() const
         throw json::error("json: type is not bool");
 }
 
+// operator
+json::operator chen::json::object() const
+{
+    return this->getObject();
+}
+
+json::operator chen::json::array() const
+{
+    return this->getArray();
+}
+
+json::operator double() const
+{
+    return this->getNumber();
+}
+
+json::operator int() const
+{
+    return this->getInteger();
+}
+
+json::operator std::string() const
+{
+    return this->getString();
+}
+
+json::operator bool() const
+{
+    return this->getBool();
+}
+
 chen::json::object& json::getObject()
 {
     if (this->_type == Type::Object)
