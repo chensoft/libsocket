@@ -490,9 +490,14 @@ json::operator double() const
     return this->getNumber();
 }
 
-json::operator int() const
+json::operator std::int32_t() const
 {
     return this->getInteger();
+}
+
+json::operator std::uint32_t() const
+{
+    return this->getUnsigned();
 }
 
 json::operator std::string() const
