@@ -24,6 +24,23 @@ namespace chen
         }
 
         /**
+         * Find value in map
+         */
+        template <typename M>
+        static typename M::mapped_type find(const M &m, const typename M::key_type &k)
+        {
+            auto it = m.find(k);
+            return it != m.end() ? it->second : typename M::mapped_type();
+        }
+
+        template <typename M, typename R>
+        static R find(const M &m, const typename M::key_type &k, R def)
+        {
+            auto it = m.find(k);
+            return it != m.end() ? static_cast<R>(it->second) : def;
+        }
+
+        /**
          * The keys of a map
          */
         template <typename M>
