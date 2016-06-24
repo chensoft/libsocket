@@ -22,6 +22,7 @@ namespace chen
         class RR
         {
         public:
+            RR(chen::dns::RRType type);
             virtual ~RR() = 0;
 
         public:
@@ -78,6 +79,10 @@ namespace chen
         class Raw : public RR
         {
         public:
+            Raw();
+            Raw(chen::dns::RRType type);
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -102,6 +107,9 @@ namespace chen
         class A : public RR
         {
         public:
+            A();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -115,6 +123,9 @@ namespace chen
         // NS(rfc1035, section 3.3.11)
         class NS : public RR
         {
+        public:
+            NS();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -130,6 +141,9 @@ namespace chen
         class MD : public RR
         {
         public:
+            MD();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -143,6 +157,9 @@ namespace chen
         // MF(rfc1035, section 3.3.5)
         class MF : public RR
         {
+        public:
+            MF();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -158,6 +175,9 @@ namespace chen
         class CNAME : public RR
         {
         public:
+            CNAME();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -171,6 +191,9 @@ namespace chen
         // SOA(rfc1035, section 3.3.13)
         class SOA : public RR
         {
+        public:
+            SOA();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -192,6 +215,9 @@ namespace chen
         class MB : public RR
         {
         public:
+            MB();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -205,6 +231,9 @@ namespace chen
         // MG(rfc1035, section 3.3.6)
         class MG : public RR
         {
+        public:
+            MG();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -220,6 +249,9 @@ namespace chen
         class MR : public RR
         {
         public:
+            MR();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -234,6 +266,9 @@ namespace chen
         class NUL : public Raw
         {
         public:
+            NUL();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -247,6 +282,9 @@ namespace chen
         // WKS(rfc1035, section 3.4.2)
         class WKS : public RR
         {
+        public:
+            WKS();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -264,6 +302,9 @@ namespace chen
         class PTR : public RR
         {
         public:
+            PTR();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -277,6 +318,9 @@ namespace chen
         // HINFO(rfc1035, section 3.3.2)
         class HINFO : public RR
         {
+        public:
+            HINFO();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -293,6 +337,9 @@ namespace chen
         class MINFO : public RR
         {
         public:
+            MINFO();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -307,6 +354,9 @@ namespace chen
         // MX(rfc1035, section 3.3.9)
         class MX : public RR
         {
+        public:
+            MX();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -323,6 +373,9 @@ namespace chen
         class TXT : public RR
         {
         public:
+            TXT();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -336,6 +389,9 @@ namespace chen
         // RP(rfc1183, section 2.2)
         class RP : public RR
         {
+        public:
+            RP();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -352,6 +408,9 @@ namespace chen
         class AFSDB : public RR
         {
         public:
+            AFSDB();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -367,6 +426,9 @@ namespace chen
         class X25 : public RR
         {
         public:
+            X25();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -380,6 +442,9 @@ namespace chen
         // ISDN(rfc1183, section 3.2)
         class ISDN : public RR
         {
+        public:
+            ISDN();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -396,6 +461,9 @@ namespace chen
         class RT : public RR
         {
         public:
+            RT();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -411,6 +479,9 @@ namespace chen
         class NSAP : public RR
         {
         public:
+            NSAP();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -425,6 +496,9 @@ namespace chen
         class NSAPPTR : public RR
         {
         public:
+            NSAPPTR();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -438,6 +512,9 @@ namespace chen
         // SIG(rfc2535, section 4.1)
         class SIG : public RR
         {
+        public:
+            SIG();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -461,6 +538,9 @@ namespace chen
         class KEY : public RR
         {
         public:
+            KEY();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -478,6 +558,9 @@ namespace chen
         class PX : public RR
         {
         public:
+            PX();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -493,6 +576,9 @@ namespace chen
         // GPOS(rfc1712, section 3)
         class GPOS : public RR
         {
+        public:
+            GPOS();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -510,6 +596,9 @@ namespace chen
         class AAAA : public RR
         {
         public:
+            AAAA();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -523,6 +612,9 @@ namespace chen
         // LOC(rfc1876, section 2)
         class LOC : public RR
         {
+        public:
+            LOC();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -545,6 +637,9 @@ namespace chen
         class NXT : public RR
         {
         public:
+            NXT();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -560,6 +655,9 @@ namespace chen
         class EID : public RR
         {
         public:
+            EID();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -574,6 +672,9 @@ namespace chen
         class NIMLOC : public RR
         {
         public:
+            NIMLOC();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -587,6 +688,9 @@ namespace chen
         // SRV(rfc2782)
         class SRV : public RR
         {
+        public:
+            SRV();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -605,6 +709,9 @@ namespace chen
         class ATMA : public RR
         {
         public:
+            ATMA();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -619,6 +726,9 @@ namespace chen
         // NAPTR(rfc3403, section 4.1)
         class NAPTR : public RR
         {
+        public:
+            NAPTR();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -639,6 +749,9 @@ namespace chen
         class KX : public RR
         {
         public:
+            KX();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -653,6 +766,9 @@ namespace chen
         // CERT(rfc4398, section 2)
         class CERT : public RR
         {
+        public:
+            CERT();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -678,6 +794,9 @@ namespace chen
         class DNAME : public RR
         {
         public:
+            DNAME();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -691,6 +810,9 @@ namespace chen
         // SINK(draft-eastlake-kitchen-sink-02)
         class SINK : public RR
         {
+        public:
+            SINK();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -707,6 +829,8 @@ namespace chen
         // OPT(rfc6891, section 6.1.2)
         class OPT : public Raw
         {
+        public:
+            OPT();
         };
 
 
@@ -714,6 +838,9 @@ namespace chen
         // DS(rfc4034, section 5.1)
         class DS : public RR
         {
+        public:
+            DS();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -731,6 +858,9 @@ namespace chen
         // SSHFP(rfc4255, section 3.1)
         class SSHFP : public RR
         {
+        public:
+            SSHFP();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -751,6 +881,9 @@ namespace chen
             enum class GatewayType {None, IPv4, IPv6, Domain};
 
         public:
+            IPSECKEY();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -768,6 +901,9 @@ namespace chen
         // RRSIG(rfc4034, section 3.1)
         class RRSIG : public RR
         {
+        public:
+            RRSIG();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -791,6 +927,9 @@ namespace chen
         class NSEC : public RR
         {
         public:
+            NSEC();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -805,6 +944,9 @@ namespace chen
         // DNSKEY(rfc4034, section 2.1)
         class DNSKEY : public RR
         {
+        public:
+            DNSKEY();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -823,6 +965,9 @@ namespace chen
         class DHCID : public RR
         {
         public:
+            DHCID();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -836,6 +981,9 @@ namespace chen
         // NSEC3(rfc5155, section 3.2)
         class NSEC3 : public RR
         {
+        public:
+            NSEC3();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -858,6 +1006,9 @@ namespace chen
         class NSEC3PARAM : public RR
         {
         public:
+            NSEC3PARAM();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -876,6 +1027,9 @@ namespace chen
         class TLSA : public RR
         {
         public:
+            TLSA();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -893,6 +1047,9 @@ namespace chen
         class SMIMEA : public RR
         {
         public:
+            SMIMEA();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -909,6 +1066,9 @@ namespace chen
         // HIP(rfc5205, section 5)
         class HIP : public RR
         {
+        public:
+            HIP();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -929,6 +1089,9 @@ namespace chen
         class NINFO : public RR
         {
         public:
+            NINFO();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -942,6 +1105,9 @@ namespace chen
         // RKEY(draft-lewis-dns-undocumented-types-01)
         class RKEY : public RR
         {
+        public:
+            RKEY();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -960,6 +1126,9 @@ namespace chen
         class TALINK : public RR
         {
         public:
+            TALINK();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -974,6 +1143,9 @@ namespace chen
         // CDS(rfc7344, section 3.1)
         class CDS : public RR
         {
+        public:
+            CDS();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -992,6 +1164,9 @@ namespace chen
         class CDNSKEY : public RR
         {
         public:
+            CDNSKEY();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1009,6 +1184,9 @@ namespace chen
         class OPENPGPKEY : public RR
         {
         public:
+            OPENPGPKEY();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1022,6 +1200,9 @@ namespace chen
         // CSYNC(rfc7477, section 2.1.1)
         class CSYNC : public RR
         {
+        public:
+            CSYNC();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -1039,6 +1220,9 @@ namespace chen
         class SPF : public RR
         {
         public:
+            SPF();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1052,6 +1236,8 @@ namespace chen
         // UINFO(IANA reserved, no RFC documented)
         class UINFO : public Raw
         {
+        public:
+            UINFO();
         };
 
 
@@ -1059,6 +1245,8 @@ namespace chen
         // UID(IANA reserved, no RFC documented)
         class UID : public Raw
         {
+        public:
+            UID();
         };
 
 
@@ -1066,6 +1254,8 @@ namespace chen
         // GID(IANA reserved, no RFC documented)
         class GID : public Raw
         {
+        public:
+            GID();
         };
 
 
@@ -1073,6 +1263,8 @@ namespace chen
         // UNSPEC(IANA reserved, no RFC documented)
         class UNSPEC : public Raw
         {
+        public:
+            UNSPEC();
         };
 
 
@@ -1080,6 +1272,9 @@ namespace chen
         // NID(rfc6742, section 2.1.1)
         class NID : public RR
         {
+        public:
+            NID();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -1096,6 +1291,9 @@ namespace chen
         class L32 : public RR
         {
         public:
+            L32();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1110,6 +1308,9 @@ namespace chen
         // L64(rfc6742, section 2.3.1)
         class L64 : public RR
         {
+        public:
+            L64();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -1126,6 +1327,9 @@ namespace chen
         class LP : public RR
         {
         public:
+            LP();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1141,6 +1345,9 @@ namespace chen
         class EUI48 : public RR
         {
         public:
+            EUI48();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1155,6 +1362,9 @@ namespace chen
         class EUI64 : public RR
         {
         public:
+            EUI64();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1168,6 +1378,9 @@ namespace chen
         // TKEY(rfc2930, section 2)
         class TKEY : public RR
         {
+        public:
+            TKEY();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -1191,6 +1404,9 @@ namespace chen
         class TSIG : public RR
         {
         public:
+            TSIG();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1213,6 +1429,9 @@ namespace chen
         class URI : public RR
         {
         public:
+            URI();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1228,6 +1447,9 @@ namespace chen
         // CAA(rfc6844, section 5.1.1)
         class CAA : public RR
         {
+        public:
+            CAA();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
@@ -1245,6 +1467,9 @@ namespace chen
         class TA : public RR
         {
         public:
+            TA();
+
+        public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1261,6 +1486,9 @@ namespace chen
         // DLV(rfc4431, section 2)
         class DLV : public RR
         {
+        public:
+            DLV();
+
         public:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,

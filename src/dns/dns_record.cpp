@@ -16,9 +16,12 @@ using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // RR
+RR::RR(chen::dns::RRType type) : rrtype(type)
+{
+}
+
 RR::~RR()
 {
-
 }
 
 // encode & decode
@@ -120,7 +123,15 @@ std::size_t RR::remain(std::vector<std::uint8_t>::const_iterator &beg,
 
 
 // -----------------------------------------------------------------------------
-// RAW
+// Raw
+Raw::Raw() : Raw(chen::dns::RRType::None)
+{
+}
+
+Raw::Raw(chen::dns::RRType type) : RR(type)
+{
+}
+
 void Raw::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -156,6 +167,10 @@ void Raw::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // A
+A::A() : RR(chen::dns::RRType::A)
+{
+}
+
 void A::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -191,6 +206,10 @@ void A::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NS
+NS::NS() : RR(chen::dns::RRType::NS)
+{
+}
+
 void NS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -226,6 +245,10 @@ void NS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MD
+MD::MD() : RR(chen::dns::RRType::MD)
+{
+}
+
 void MD::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -261,6 +284,10 @@ void MD::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MF
+MF::MF() : RR(chen::dns::RRType::MF)
+{
+}
+
 void MF::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -296,6 +323,10 @@ void MF::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // CNAME
+CNAME::CNAME() : RR(chen::dns::RRType::CNAME)
+{
+}
+
 void CNAME::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -331,6 +362,10 @@ void CNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SOA
+SOA::SOA() : RR(chen::dns::RRType::SOA)
+{
+}
+
 void SOA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -378,6 +413,10 @@ void SOA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MB
+MB::MB() : RR(chen::dns::RRType::MB)
+{
+}
+
 void MB::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -413,6 +452,10 @@ void MB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MG
+MG::MG() : RR(chen::dns::RRType::MG)
+{
+}
+
 void MG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -448,6 +491,10 @@ void MG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MR
+MR::MR() : RR(chen::dns::RRType::MR)
+{
+}
+
 void MR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -483,6 +530,10 @@ void MR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NUL
+NUL::NUL() : Raw(chen::dns::RRType::NUL)
+{
+}
+
 void NUL::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -518,6 +569,10 @@ void NUL::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // WKS
+WKS::WKS() : RR(chen::dns::RRType::WKS)
+{
+}
+
 void WKS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -562,6 +617,10 @@ void WKS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // PTR
+PTR::PTR() : RR(chen::dns::RRType::PTR)
+{
+}
+
 void PTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -597,6 +656,10 @@ void PTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // HINFO
+HINFO::HINFO() : RR(chen::dns::RRType::HINFO)
+{
+}
+
 void HINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -634,6 +697,10 @@ void HINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MINFO
+MINFO::MINFO() : RR(chen::dns::RRType::MINFO)
+{
+}
+
 void MINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -671,6 +738,10 @@ void MINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // MX
+MX::MX() : RR(chen::dns::RRType::MX)
+{
+}
+
 void MX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -708,6 +779,10 @@ void MX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // TXT
+TXT::TXT() : RR(chen::dns::RRType::TXT)
+{
+}
+
 void TXT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -743,6 +818,10 @@ void TXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // RP
+RP::RP() : RR(chen::dns::RRType::RP)
+{
+}
+
 void RP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -780,6 +859,10 @@ void RP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // AFSDB
+AFSDB::AFSDB() : RR(chen::dns::RRType::AFSDB)
+{
+}
+
 void AFSDB::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -817,6 +900,10 @@ void AFSDB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // X25
+X25::X25() : RR(chen::dns::RRType::X25)
+{
+}
+
 void X25::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -852,6 +939,10 @@ void X25::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // ISDN
+ISDN::ISDN() : RR(chen::dns::RRType::ISDN)
+{
+}
+
 void ISDN::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -889,6 +980,10 @@ void ISDN::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // RT
+RT::RT() : RR(chen::dns::RRType::RT)
+{
+}
+
 void RT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -926,6 +1021,10 @@ void RT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NSAP
+NSAP::NSAP() : RR(chen::dns::RRType::NSAP)
+{
+}
+
 void NSAP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -961,6 +1060,10 @@ void NSAP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NSAPPTR
+NSAPPTR::NSAPPTR() : RR(chen::dns::RRType::NSAPPTR)
+{
+}
+
 void NSAPPTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -996,6 +1099,10 @@ void NSAPPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SIG
+SIG::SIG() : RR(chen::dns::RRType::SIG)
+{
+}
+
 void SIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1046,6 +1153,10 @@ void SIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // KEY
+KEY::KEY() : RR(chen::dns::RRType::KEY)
+{
+}
+
 void KEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1087,6 +1198,10 @@ void KEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // PX
+PX::PX() : RR(chen::dns::RRType::PX)
+{
+}
+
 void PX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1126,6 +1241,10 @@ void PX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // GPOS
+GPOS::GPOS() : RR(chen::dns::RRType::GPOS)
+{
+}
+
 void GPOS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1165,6 +1284,10 @@ void GPOS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // AAAA
+AAAA::AAAA() : RR(chen::dns::RRType::AAAA)
+{
+}
+
 void AAAA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1200,6 +1323,10 @@ void AAAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // LOC
+LOC::LOC() : RR(chen::dns::RRType::LOC)
+{
+}
+
 void LOC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1247,6 +1374,10 @@ void LOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NXT
+NXT::NXT() : RR(chen::dns::RRType::NXT)
+{
+}
+
 void NXT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1288,6 +1419,10 @@ void NXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // EID
+EID::EID() : RR(chen::dns::RRType::EID)
+{
+}
+
 void EID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1323,6 +1458,10 @@ void EID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NIMLOC
+NIMLOC::NIMLOC() : RR(chen::dns::RRType::NIMLOC)
+{
+}
+
 void NIMLOC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1358,6 +1497,10 @@ void NIMLOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SRV
+SRV::SRV() : RR(chen::dns::RRType::SRV)
+{
+}
+
 void SRV::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1399,6 +1542,10 @@ void SRV::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // ATMA
+ATMA::ATMA() : RR(chen::dns::RRType::ATMA)
+{
+}
+
 void ATMA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1436,6 +1583,10 @@ void ATMA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NAPTR
+NAPTR::NAPTR() : RR(chen::dns::RRType::NAPTR)
+{
+}
+
 void NAPTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1481,6 +1632,10 @@ void NAPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // KX
+KX::KX() : RR(chen::dns::RRType::KX)
+{
+}
+
 void KX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1518,6 +1673,10 @@ void KX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // CERT
+CERT::CERT() : RR(chen::dns::RRType::CERT)
+{
+}
+
 void CERT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1559,6 +1718,10 @@ void CERT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // DNAME
+DNAME::DNAME() : RR(chen::dns::RRType::DNAME)
+{
+}
+
 void DNAME::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1594,6 +1757,10 @@ void DNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SINK
+SINK::SINK() : RR(chen::dns::RRType::SINK)
+{
+}
+
 void SINK::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1636,7 +1803,18 @@ void SINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 
 // -----------------------------------------------------------------------------
+// OPT
+OPT::OPT() : Raw(chen::dns::RRType::OPT)
+{
+}
+
+
+// -----------------------------------------------------------------------------
 // DS
+DS::DS() : RR(chen::dns::RRType::DS)
+{
+}
+
 void DS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1678,6 +1856,10 @@ void DS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SSHFP
+SSHFP::SSHFP() : RR(chen::dns::RRType::SSHFP)
+{
+}
+
 void SSHFP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1717,6 +1899,10 @@ void SSHFP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // IPSECKEY
+IPSECKEY::IPSECKEY() : RR(chen::dns::RRType::IPSECKEY)
+{
+}
+
 void IPSECKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1808,6 +1994,10 @@ void IPSECKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // RRSIG
+RRSIG::RRSIG() : RR(chen::dns::RRType::RRSIG)
+{
+}
+
 void RRSIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1859,6 +2049,10 @@ void RRSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NSEC
+NSEC::NSEC() : RR(chen::dns::RRType::NSEC)
+{
+}
+
 void NSEC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1900,6 +2094,10 @@ void NSEC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // DNSKEY
+DNSKEY::DNSKEY() : RR(chen::dns::RRType::DNSKEY)
+{
+}
+
 void DNSKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1941,6 +2139,10 @@ void DNSKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // DHCID
+DHCID::DHCID() : RR(chen::dns::RRType::DHCID)
+{
+}
+
 void DHCID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1976,6 +2178,10 @@ void DHCID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NSEC3
+NSEC3::NSEC3() : RR(chen::dns::RRType::NSEC3)
+{
+}
+
 void NSEC3::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2029,6 +2235,10 @@ void NSEC3::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NSEC3PARAM
+NSEC3PARAM::NSEC3PARAM() : RR(chen::dns::RRType::NSEC3PARAM)
+{
+}
+
 void NSEC3PARAM::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2072,6 +2282,10 @@ void NSEC3PARAM::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // TLSA
+TLSA::TLSA() : RR(chen::dns::RRType::TLSA)
+{
+}
+
 void TLSA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2113,6 +2327,10 @@ void TLSA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SMIMEA
+SMIMEA::SMIMEA() : RR(chen::dns::RRType::SMIMEA)
+{
+}
+
 void SMIMEA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2154,6 +2372,10 @@ void SMIMEA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // HIP
+HIP::HIP() : RR(chen::dns::RRType::HIP)
+{
+}
+
 void HIP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2199,6 +2421,10 @@ void HIP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // NINFO
+NINFO::NINFO() : RR(chen::dns::RRType::NINFO)
+{
+}
+
 void NINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2234,6 +2460,10 @@ void NINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // RKEY
+RKEY::RKEY() : RR(chen::dns::RRType::RKEY)
+{
+}
+
 void RKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2275,6 +2505,10 @@ void RKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // TALINK
+TALINK::TALINK() : RR(chen::dns::RRType::TALINK)
+{
+}
+
 void TALINK::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2312,6 +2546,10 @@ void TALINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // CDS
+CDS::CDS() : RR(chen::dns::RRType::CDS)
+{
+}
+
 void CDS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2353,6 +2591,10 @@ void CDS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // CDNSKEY
+CDNSKEY::CDNSKEY() : RR(chen::dns::RRType::CDNSKEY)
+{
+}
+
 void CDNSKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2394,6 +2636,10 @@ void CDNSKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // OPENPGPKEY
+OPENPGPKEY::OPENPGPKEY() : RR(chen::dns::RRType::OPENPGPKEY)
+{
+}
+
 void OPENPGPKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2429,6 +2675,10 @@ void OPENPGPKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // CSYNC
+CSYNC::CSYNC() : RR(chen::dns::RRType::CSYNC)
+{
+}
+
 void CSYNC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2472,6 +2722,10 @@ void CSYNC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // SPF
+SPF::SPF() : RR(chen::dns::RRType::SPF)
+{
+}
+
 void SPF::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2506,7 +2760,39 @@ void SPF::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 
 // -----------------------------------------------------------------------------
+// UINFO
+UINFO::UINFO() : Raw(chen::dns::RRType::UINFO)
+{
+}
+
+
+// -----------------------------------------------------------------------------
+// UID
+UID::UID() : Raw(chen::dns::RRType::UID)
+{
+}
+
+
+// -----------------------------------------------------------------------------
+// GID
+GID::GID() : Raw(chen::dns::RRType::GID)
+{
+}
+
+
+// -----------------------------------------------------------------------------
+// UINFO
+UNSPEC::UNSPEC() : Raw(chen::dns::RRType::UNSPEC)
+{
+}
+
+
+// -----------------------------------------------------------------------------
 // NID
+NID::NID() : RR(chen::dns::RRType::NID)
+{
+}
+
 void NID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2544,6 +2830,10 @@ void NID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // L32
+L32::L32() : RR(chen::dns::RRType::L32)
+{
+}
+
 void L32::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2581,6 +2871,10 @@ void L32::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // L64
+L64::L64() : RR(chen::dns::RRType::L64)
+{
+}
+
 void L64::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2618,6 +2912,10 @@ void L64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // LP
+LP::LP() : RR(chen::dns::RRType::LP)
+{
+}
+
 void LP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2655,6 +2953,10 @@ void LP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // EUI48
+EUI48::EUI48() : RR(chen::dns::RRType::EUI48)
+{
+}
+
 void EUI48::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2690,6 +2992,10 @@ void EUI48::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // EUI64
+EUI64::EUI64() : RR(chen::dns::RRType::EUI64)
+{
+}
+
 void EUI64::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2725,6 +3031,10 @@ void EUI64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // TKEY
+TKEY::TKEY() : RR(chen::dns::RRType::TKEY)
+{
+}
+
 void TKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2776,6 +3086,10 @@ void TKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // TSIG
+TSIG::TSIG() : RR(chen::dns::RRType::TSIG)
+{
+}
+
 void TSIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2827,6 +3141,10 @@ void TSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // URI
+URI::URI() : RR(chen::dns::RRType::URI)
+{
+}
+
 void URI::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2866,6 +3184,10 @@ void URI::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // CAA
+CAA::CAA() : RR(chen::dns::RRType::CAA)
+{
+}
+
 void CAA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2905,6 +3227,10 @@ void CAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // TA
+TA::TA() : RR(chen::dns::RRType::TA)
+{
+}
+
 void TA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2946,6 +3272,10 @@ void TA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // DLV
+DLV::DLV() : RR(chen::dns::RRType::DLV)
+{
+}
+
 void DLV::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
