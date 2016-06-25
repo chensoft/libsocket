@@ -15,6 +15,7 @@ namespace chen
     {
         class RR;
 
+        // todo put some convert methods back to dns_record
         class table
         {
         public:

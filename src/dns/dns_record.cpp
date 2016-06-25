@@ -132,6 +132,11 @@ Raw::Raw(chen::dns::RRType type) : RR(type)
 {
 }
 
+std::shared_ptr<chen::dns::RR> Raw::clone() const
+{
+    return std::make_shared<Raw>(*this);
+}
+
 void Raw::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -166,9 +171,22 @@ void Raw::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 
 // -----------------------------------------------------------------------------
+// Unknown
+std::shared_ptr<chen::dns::RR> Unknown::clone() const
+{
+    return std::make_shared<Unknown>(*this);
+}
+
+
+// -----------------------------------------------------------------------------
 // A
 A::A() : RR(chen::dns::RRType::A)
 {
+}
+
+std::shared_ptr<chen::dns::RR> A::clone() const
+{
+    return std::make_shared<A>(*this);
 }
 
 void A::pack(std::vector<std::uint8_t> &out) const
@@ -210,6 +228,11 @@ NS::NS() : RR(chen::dns::RRType::NS)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NS::clone() const
+{
+    return std::make_shared<NS>(*this);
+}
+
 void NS::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -247,6 +270,11 @@ void NS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // MD
 MD::MD() : RR(chen::dns::RRType::MD)
 {
+}
+
+std::shared_ptr<chen::dns::RR> MD::clone() const
+{
+    return std::make_shared<MD>(*this);
 }
 
 void MD::pack(std::vector<std::uint8_t> &out) const
@@ -288,6 +316,11 @@ MF::MF() : RR(chen::dns::RRType::MF)
 {
 }
 
+std::shared_ptr<chen::dns::RR> MF::clone() const
+{
+    return std::make_shared<MF>(*this);
+}
+
 void MF::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -327,6 +360,11 @@ CNAME::CNAME() : RR(chen::dns::RRType::CNAME)
 {
 }
 
+std::shared_ptr<chen::dns::RR> CNAME::clone() const
+{
+    return std::make_shared<CNAME>(*this);
+}
+
 void CNAME::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -364,6 +402,11 @@ void CNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // SOA
 SOA::SOA() : RR(chen::dns::RRType::SOA)
 {
+}
+
+std::shared_ptr<chen::dns::RR> SOA::clone() const
+{
+    return std::make_shared<SOA>(*this);
 }
 
 void SOA::pack(std::vector<std::uint8_t> &out) const
@@ -417,6 +460,11 @@ MB::MB() : RR(chen::dns::RRType::MB)
 {
 }
 
+std::shared_ptr<chen::dns::RR> MB::clone() const
+{
+    return std::make_shared<MB>(*this);
+}
+
 void MB::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -454,6 +502,11 @@ void MB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // MG
 MG::MG() : RR(chen::dns::RRType::MG)
 {
+}
+
+std::shared_ptr<chen::dns::RR> MG::clone() const
+{
+    return std::make_shared<MG>(*this);
 }
 
 void MG::pack(std::vector<std::uint8_t> &out) const
@@ -495,6 +548,11 @@ MR::MR() : RR(chen::dns::RRType::MR)
 {
 }
 
+std::shared_ptr<chen::dns::RR> MR::clone() const
+{
+    return std::make_shared<MR>(*this);
+}
+
 void MR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -534,6 +592,11 @@ NUL::NUL() : Raw(chen::dns::RRType::NUL)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NUL::clone() const
+{
+    return std::make_shared<NUL>(*this);
+}
+
 void NUL::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -571,6 +634,11 @@ void NUL::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // WKS
 WKS::WKS() : RR(chen::dns::RRType::WKS)
 {
+}
+
+std::shared_ptr<chen::dns::RR> WKS::clone() const
+{
+    return std::make_shared<WKS>(*this);
 }
 
 void WKS::pack(std::vector<std::uint8_t> &out) const
@@ -621,6 +689,11 @@ PTR::PTR() : RR(chen::dns::RRType::PTR)
 {
 }
 
+std::shared_ptr<chen::dns::RR> PTR::clone() const
+{
+    return std::make_shared<PTR>(*this);
+}
+
 void PTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -658,6 +731,11 @@ void PTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // HINFO
 HINFO::HINFO() : RR(chen::dns::RRType::HINFO)
 {
+}
+
+std::shared_ptr<chen::dns::RR> HINFO::clone() const
+{
+    return std::make_shared<HINFO>(*this);
 }
 
 void HINFO::pack(std::vector<std::uint8_t> &out) const
@@ -701,6 +779,11 @@ MINFO::MINFO() : RR(chen::dns::RRType::MINFO)
 {
 }
 
+std::shared_ptr<chen::dns::RR> MINFO::clone() const
+{
+    return std::make_shared<MINFO>(*this);
+}
+
 void MINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -740,6 +823,11 @@ void MINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // MX
 MX::MX() : RR(chen::dns::RRType::MX)
 {
+}
+
+std::shared_ptr<chen::dns::RR> MX::clone() const
+{
+    return std::make_shared<MX>(*this);
 }
 
 void MX::pack(std::vector<std::uint8_t> &out) const
@@ -783,6 +871,11 @@ TXT::TXT() : RR(chen::dns::RRType::TXT)
 {
 }
 
+std::shared_ptr<chen::dns::RR> TXT::clone() const
+{
+    return std::make_shared<TXT>(*this);
+}
+
 void TXT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -820,6 +913,11 @@ void TXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // RP
 RP::RP() : RR(chen::dns::RRType::RP)
 {
+}
+
+std::shared_ptr<chen::dns::RR> RP::clone() const
+{
+    return std::make_shared<RP>(*this);
 }
 
 void RP::pack(std::vector<std::uint8_t> &out) const
@@ -863,6 +961,11 @@ AFSDB::AFSDB() : RR(chen::dns::RRType::AFSDB)
 {
 }
 
+std::shared_ptr<chen::dns::RR> AFSDB::clone() const
+{
+    return std::make_shared<AFSDB>(*this);
+}
+
 void AFSDB::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -904,6 +1007,11 @@ X25::X25() : RR(chen::dns::RRType::X25)
 {
 }
 
+std::shared_ptr<chen::dns::RR> X25::clone() const
+{
+    return std::make_shared<X25>(*this);
+}
+
 void X25::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -941,6 +1049,11 @@ void X25::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // ISDN
 ISDN::ISDN() : RR(chen::dns::RRType::ISDN)
 {
+}
+
+std::shared_ptr<chen::dns::RR> ISDN::clone() const
+{
+    return std::make_shared<ISDN>(*this);
 }
 
 void ISDN::pack(std::vector<std::uint8_t> &out) const
@@ -984,6 +1097,11 @@ RT::RT() : RR(chen::dns::RRType::RT)
 {
 }
 
+std::shared_ptr<chen::dns::RR> RT::clone() const
+{
+    return std::make_shared<RT>(*this);
+}
+
 void RT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1025,6 +1143,11 @@ NSAP::NSAP() : RR(chen::dns::RRType::NSAP)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NSAP::clone() const
+{
+    return std::make_shared<NSAP>(*this);
+}
+
 void NSAP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1064,6 +1187,11 @@ NSAPPTR::NSAPPTR() : RR(chen::dns::RRType::NSAPPTR)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NSAPPTR::clone() const
+{
+    return std::make_shared<NSAPPTR>(*this);
+}
+
 void NSAPPTR::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1101,6 +1229,11 @@ void NSAPPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // SIG
 SIG::SIG() : RR(chen::dns::RRType::SIG)
 {
+}
+
+std::shared_ptr<chen::dns::RR> SIG::clone() const
+{
+    return std::make_shared<SIG>(*this);
 }
 
 void SIG::pack(std::vector<std::uint8_t> &out) const
@@ -1157,6 +1290,11 @@ KEY::KEY() : RR(chen::dns::RRType::KEY)
 {
 }
 
+std::shared_ptr<chen::dns::RR> KEY::clone() const
+{
+    return std::make_shared<KEY>(*this);
+}
+
 void KEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1202,6 +1340,11 @@ PX::PX() : RR(chen::dns::RRType::PX)
 {
 }
 
+std::shared_ptr<chen::dns::RR> PX::clone() const
+{
+    return std::make_shared<PX>(*this);
+}
+
 void PX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1243,6 +1386,11 @@ void PX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // GPOS
 GPOS::GPOS() : RR(chen::dns::RRType::GPOS)
 {
+}
+
+std::shared_ptr<chen::dns::RR> GPOS::clone() const
+{
+    return std::make_shared<GPOS>(*this);
 }
 
 void GPOS::pack(std::vector<std::uint8_t> &out) const
@@ -1288,6 +1436,11 @@ AAAA::AAAA() : RR(chen::dns::RRType::AAAA)
 {
 }
 
+std::shared_ptr<chen::dns::RR> AAAA::clone() const
+{
+    return std::make_shared<AAAA>(*this);
+}
+
 void AAAA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1325,6 +1478,11 @@ void AAAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // LOC
 LOC::LOC() : RR(chen::dns::RRType::LOC)
 {
+}
+
+std::shared_ptr<chen::dns::RR> LOC::clone() const
+{
+    return std::make_shared<LOC>(*this);
 }
 
 void LOC::pack(std::vector<std::uint8_t> &out) const
@@ -1378,6 +1536,11 @@ NXT::NXT() : RR(chen::dns::RRType::NXT)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NXT::clone() const
+{
+    return std::make_shared<NXT>(*this);
+}
+
 void NXT::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1423,6 +1586,11 @@ EID::EID() : RR(chen::dns::RRType::EID)
 {
 }
 
+std::shared_ptr<chen::dns::RR> EID::clone() const
+{
+    return std::make_shared<EID>(*this);
+}
+
 void EID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1462,6 +1630,11 @@ NIMLOC::NIMLOC() : RR(chen::dns::RRType::NIMLOC)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NIMLOC::clone() const
+{
+    return std::make_shared<NIMLOC>(*this);
+}
+
 void NIMLOC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1499,6 +1672,11 @@ void NIMLOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // SRV
 SRV::SRV() : RR(chen::dns::RRType::SRV)
 {
+}
+
+std::shared_ptr<chen::dns::RR> SRV::clone() const
+{
+    return std::make_shared<SRV>(*this);
 }
 
 void SRV::pack(std::vector<std::uint8_t> &out) const
@@ -1546,6 +1724,11 @@ ATMA::ATMA() : RR(chen::dns::RRType::ATMA)
 {
 }
 
+std::shared_ptr<chen::dns::RR> ATMA::clone() const
+{
+    return std::make_shared<ATMA>(*this);
+}
+
 void ATMA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1585,6 +1768,11 @@ void ATMA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // NAPTR
 NAPTR::NAPTR() : RR(chen::dns::RRType::NAPTR)
 {
+}
+
+std::shared_ptr<chen::dns::RR> NAPTR::clone() const
+{
+    return std::make_shared<NAPTR>(*this);
 }
 
 void NAPTR::pack(std::vector<std::uint8_t> &out) const
@@ -1636,6 +1824,11 @@ KX::KX() : RR(chen::dns::RRType::KX)
 {
 }
 
+std::shared_ptr<chen::dns::RR> KX::clone() const
+{
+    return std::make_shared<KX>(*this);
+}
+
 void KX::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1675,6 +1868,11 @@ void KX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // CERT
 CERT::CERT() : RR(chen::dns::RRType::CERT)
 {
+}
+
+std::shared_ptr<chen::dns::RR> CERT::clone() const
+{
+    return std::make_shared<CERT>(*this);
 }
 
 void CERT::pack(std::vector<std::uint8_t> &out) const
@@ -1717,9 +1915,22 @@ void CERT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 
 // -----------------------------------------------------------------------------
+// A6
+std::shared_ptr<chen::dns::RR> A6::clone() const
+{
+    return std::make_shared<A6>(*this);
+}
+
+
+// -----------------------------------------------------------------------------
 // DNAME
 DNAME::DNAME() : RR(chen::dns::RRType::DNAME)
 {
+}
+
+std::shared_ptr<chen::dns::RR> DNAME::clone() const
+{
+    return std::make_shared<DNAME>(*this);
 }
 
 void DNAME::pack(std::vector<std::uint8_t> &out) const
@@ -1759,6 +1970,11 @@ void DNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // SINK
 SINK::SINK() : RR(chen::dns::RRType::SINK)
 {
+}
+
+std::shared_ptr<chen::dns::RR> SINK::clone() const
+{
+    return std::make_shared<SINK>(*this);
 }
 
 void SINK::pack(std::vector<std::uint8_t> &out) const
@@ -1808,11 +2024,21 @@ OPT::OPT() : Raw(chen::dns::RRType::OPT)
 {
 }
 
+std::shared_ptr<chen::dns::RR> OPT::clone() const
+{
+    return std::make_shared<OPT>(*this);
+}
+
 
 // -----------------------------------------------------------------------------
 // DS
 DS::DS() : RR(chen::dns::RRType::DS)
 {
+}
+
+std::shared_ptr<chen::dns::RR> DS::clone() const
+{
+    return std::make_shared<DS>(*this);
 }
 
 void DS::pack(std::vector<std::uint8_t> &out) const
@@ -1860,6 +2086,11 @@ SSHFP::SSHFP() : RR(chen::dns::RRType::SSHFP)
 {
 }
 
+std::shared_ptr<chen::dns::RR> SSHFP::clone() const
+{
+    return std::make_shared<SSHFP>(*this);
+}
+
 void SSHFP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -1901,6 +2132,11 @@ void SSHFP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // IPSECKEY
 IPSECKEY::IPSECKEY() : RR(chen::dns::RRType::IPSECKEY)
 {
+}
+
+std::shared_ptr<chen::dns::RR> IPSECKEY::clone() const
+{
+    return std::make_shared<IPSECKEY>(*this);
 }
 
 void IPSECKEY::pack(std::vector<std::uint8_t> &out) const
@@ -1998,6 +2234,11 @@ RRSIG::RRSIG() : RR(chen::dns::RRType::RRSIG)
 {
 }
 
+std::shared_ptr<chen::dns::RR> RRSIG::clone() const
+{
+    return std::make_shared<RRSIG>(*this);
+}
+
 void RRSIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2053,6 +2294,11 @@ NSEC::NSEC() : RR(chen::dns::RRType::NSEC)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NSEC::clone() const
+{
+    return std::make_shared<NSEC>(*this);
+}
+
 void NSEC::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2096,6 +2342,11 @@ void NSEC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // DNSKEY
 DNSKEY::DNSKEY() : RR(chen::dns::RRType::DNSKEY)
 {
+}
+
+std::shared_ptr<chen::dns::RR> DNSKEY::clone() const
+{
+    return std::make_shared<DNSKEY>(*this);
 }
 
 void DNSKEY::pack(std::vector<std::uint8_t> &out) const
@@ -2143,6 +2394,11 @@ DHCID::DHCID() : RR(chen::dns::RRType::DHCID)
 {
 }
 
+std::shared_ptr<chen::dns::RR> DHCID::clone() const
+{
+    return std::make_shared<DHCID>(*this);
+}
+
 void DHCID::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2180,6 +2436,11 @@ void DHCID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // NSEC3
 NSEC3::NSEC3() : RR(chen::dns::RRType::NSEC3)
 {
+}
+
+std::shared_ptr<chen::dns::RR> NSEC3::clone() const
+{
+    return std::make_shared<NSEC3>(*this);
 }
 
 void NSEC3::pack(std::vector<std::uint8_t> &out) const
@@ -2239,6 +2500,11 @@ NSEC3PARAM::NSEC3PARAM() : RR(chen::dns::RRType::NSEC3PARAM)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NSEC3PARAM::clone() const
+{
+    return std::make_shared<NSEC3PARAM>(*this);
+}
+
 void NSEC3PARAM::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2286,6 +2552,11 @@ TLSA::TLSA() : RR(chen::dns::RRType::TLSA)
 {
 }
 
+std::shared_ptr<chen::dns::RR> TLSA::clone() const
+{
+    return std::make_shared<TLSA>(*this);
+}
+
 void TLSA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2331,6 +2602,11 @@ SMIMEA::SMIMEA() : RR(chen::dns::RRType::SMIMEA)
 {
 }
 
+std::shared_ptr<chen::dns::RR> SMIMEA::clone() const
+{
+    return std::make_shared<SMIMEA>(*this);
+}
+
 void SMIMEA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2374,6 +2650,11 @@ void SMIMEA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // HIP
 HIP::HIP() : RR(chen::dns::RRType::HIP)
 {
+}
+
+std::shared_ptr<chen::dns::RR> HIP::clone() const
+{
+    return std::make_shared<HIP>(*this);
 }
 
 void HIP::pack(std::vector<std::uint8_t> &out) const
@@ -2425,6 +2706,11 @@ NINFO::NINFO() : RR(chen::dns::RRType::NINFO)
 {
 }
 
+std::shared_ptr<chen::dns::RR> NINFO::clone() const
+{
+    return std::make_shared<NINFO>(*this);
+}
+
 void NINFO::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2462,6 +2748,11 @@ void NINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // RKEY
 RKEY::RKEY() : RR(chen::dns::RRType::RKEY)
 {
+}
+
+std::shared_ptr<chen::dns::RR> RKEY::clone() const
+{
+    return std::make_shared<RKEY>(*this);
 }
 
 void RKEY::pack(std::vector<std::uint8_t> &out) const
@@ -2509,6 +2800,11 @@ TALINK::TALINK() : RR(chen::dns::RRType::TALINK)
 {
 }
 
+std::shared_ptr<chen::dns::RR> TALINK::clone() const
+{
+    return std::make_shared<TALINK>(*this);
+}
+
 void TALINK::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2548,6 +2844,11 @@ void TALINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // CDS
 CDS::CDS() : RR(chen::dns::RRType::CDS)
 {
+}
+
+std::shared_ptr<chen::dns::RR> CDS::clone() const
+{
+    return std::make_shared<CDS>(*this);
 }
 
 void CDS::pack(std::vector<std::uint8_t> &out) const
@@ -2595,6 +2896,11 @@ CDNSKEY::CDNSKEY() : RR(chen::dns::RRType::CDNSKEY)
 {
 }
 
+std::shared_ptr<chen::dns::RR> CDNSKEY::clone() const
+{
+    return std::make_shared<CDNSKEY>(*this);
+}
+
 void CDNSKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2640,6 +2946,11 @@ OPENPGPKEY::OPENPGPKEY() : RR(chen::dns::RRType::OPENPGPKEY)
 {
 }
 
+std::shared_ptr<chen::dns::RR> OPENPGPKEY::clone() const
+{
+    return std::make_shared<OPENPGPKEY>(*this);
+}
+
 void OPENPGPKEY::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2677,6 +2988,11 @@ void OPENPGPKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // CSYNC
 CSYNC::CSYNC() : RR(chen::dns::RRType::CSYNC)
 {
+}
+
+std::shared_ptr<chen::dns::RR> CSYNC::clone() const
+{
+    return std::make_shared<CSYNC>(*this);
 }
 
 void CSYNC::pack(std::vector<std::uint8_t> &out) const
@@ -2726,6 +3042,11 @@ SPF::SPF() : RR(chen::dns::RRType::SPF)
 {
 }
 
+std::shared_ptr<chen::dns::RR> SPF::clone() const
+{
+    return std::make_shared<SPF>(*this);
+}
+
 void SPF::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2765,11 +3086,21 @@ UINFO::UINFO() : Raw(chen::dns::RRType::UINFO)
 {
 }
 
+std::shared_ptr<chen::dns::RR> UINFO::clone() const
+{
+    return std::make_shared<UINFO>(*this);
+}
+
 
 // -----------------------------------------------------------------------------
 // UID
 UID::UID() : Raw(chen::dns::RRType::UID)
 {
+}
+
+std::shared_ptr<chen::dns::RR> UID::clone() const
+{
+    return std::make_shared<UID>(*this);
 }
 
 
@@ -2779,11 +3110,21 @@ GID::GID() : Raw(chen::dns::RRType::GID)
 {
 }
 
+std::shared_ptr<chen::dns::RR> GID::clone() const
+{
+    return std::make_shared<GID>(*this);
+}
+
 
 // -----------------------------------------------------------------------------
-// UINFO
+// UNSPEC
 UNSPEC::UNSPEC() : Raw(chen::dns::RRType::UNSPEC)
 {
+}
+
+std::shared_ptr<chen::dns::RR> UNSPEC::clone() const
+{
+    return std::make_shared<UNSPEC>(*this);
 }
 
 
@@ -2791,6 +3132,11 @@ UNSPEC::UNSPEC() : Raw(chen::dns::RRType::UNSPEC)
 // NID
 NID::NID() : RR(chen::dns::RRType::NID)
 {
+}
+
+std::shared_ptr<chen::dns::RR> NID::clone() const
+{
+    return std::make_shared<NID>(*this);
 }
 
 void NID::pack(std::vector<std::uint8_t> &out) const
@@ -2834,6 +3180,11 @@ L32::L32() : RR(chen::dns::RRType::L32)
 {
 }
 
+std::shared_ptr<chen::dns::RR> L32::clone() const
+{
+    return std::make_shared<L32>(*this);
+}
+
 void L32::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2873,6 +3224,11 @@ void L32::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // L64
 L64::L64() : RR(chen::dns::RRType::L64)
 {
+}
+
+std::shared_ptr<chen::dns::RR> L64::clone() const
+{
+    return std::make_shared<L64>(*this);
 }
 
 void L64::pack(std::vector<std::uint8_t> &out) const
@@ -2916,6 +3272,11 @@ LP::LP() : RR(chen::dns::RRType::LP)
 {
 }
 
+std::shared_ptr<chen::dns::RR> LP::clone() const
+{
+    return std::make_shared<LP>(*this);
+}
+
 void LP::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2957,6 +3318,11 @@ EUI48::EUI48() : RR(chen::dns::RRType::EUI48)
 {
 }
 
+std::shared_ptr<chen::dns::RR> EUI48::clone() const
+{
+    return std::make_shared<EUI48>(*this);
+}
+
 void EUI48::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -2996,6 +3362,11 @@ EUI64::EUI64() : RR(chen::dns::RRType::EUI64)
 {
 }
 
+std::shared_ptr<chen::dns::RR> EUI64::clone() const
+{
+    return std::make_shared<EUI64>(*this);
+}
+
 void EUI64::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -3033,6 +3404,11 @@ void EUI64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // TKEY
 TKEY::TKEY() : RR(chen::dns::RRType::TKEY)
 {
+}
+
+std::shared_ptr<chen::dns::RR> TKEY::clone() const
+{
+    return std::make_shared<TKEY>(*this);
 }
 
 void TKEY::pack(std::vector<std::uint8_t> &out) const
@@ -3090,6 +3466,11 @@ TSIG::TSIG() : RR(chen::dns::RRType::TSIG)
 {
 }
 
+std::shared_ptr<chen::dns::RR> TSIG::clone() const
+{
+    return std::make_shared<TSIG>(*this);
+}
+
 void TSIG::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -3145,6 +3526,11 @@ URI::URI() : RR(chen::dns::RRType::URI)
 {
 }
 
+std::shared_ptr<chen::dns::RR> URI::clone() const
+{
+    return std::make_shared<URI>(*this);
+}
+
 void URI::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -3186,6 +3572,11 @@ void URI::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // CAA
 CAA::CAA() : RR(chen::dns::RRType::CAA)
 {
+}
+
+std::shared_ptr<chen::dns::RR> CAA::clone() const
+{
+    return std::make_shared<CAA>(*this);
 }
 
 void CAA::pack(std::vector<std::uint8_t> &out) const
@@ -3231,6 +3622,11 @@ TA::TA() : RR(chen::dns::RRType::TA)
 {
 }
 
+std::shared_ptr<chen::dns::RR> TA::clone() const
+{
+    return std::make_shared<TA>(*this);
+}
+
 void TA::pack(std::vector<std::uint8_t> &out) const
 {
     auto size = out.size();
@@ -3274,6 +3670,11 @@ void TA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 // DLV
 DLV::DLV() : RR(chen::dns::RRType::DLV)
 {
+}
+
+std::shared_ptr<chen::dns::RR> DLV::clone() const
+{
+    return std::make_shared<DLV>(*this);
 }
 
 void DLV::pack(std::vector<std::uint8_t> &out) const

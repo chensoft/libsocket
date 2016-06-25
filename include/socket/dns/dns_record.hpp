@@ -1,5 +1,7 @@
 /**
  * Created by Jian Chen
+ * I'm very careful to ensure that records's fields are accurate
+ * The fields are signed or unsigned is according to its related rfc
  * @since  2015.11.27
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
@@ -37,6 +39,12 @@ namespace chen
             static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
             static std::shared_ptr<chen::dns::RR> decode(std::vector<std::uint8_t>::const_iterator &cur,
                                                          std::vector<std::uint8_t>::const_iterator &end);
+
+        public:
+            /**
+             * Clone current record
+             */
+            virtual std::shared_ptr<chen::dns::RR> clone() const = 0;
 
         protected:
             /**
@@ -82,6 +90,9 @@ namespace chen
             Raw(chen::dns::RRType type);
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -95,6 +106,8 @@ namespace chen
         // Unknown(unknown record)
         class Unknown : public Raw
         {
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -109,6 +122,9 @@ namespace chen
             A();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -126,6 +142,9 @@ namespace chen
             NS();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -143,6 +162,9 @@ namespace chen
             MD();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -160,6 +182,9 @@ namespace chen
             MF();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -177,6 +202,9 @@ namespace chen
             CNAME();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -194,6 +222,9 @@ namespace chen
             SOA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -217,6 +248,9 @@ namespace chen
             MB();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -234,6 +268,9 @@ namespace chen
             MG();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -251,6 +288,9 @@ namespace chen
             MR();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -268,6 +308,9 @@ namespace chen
             NUL();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -285,6 +328,9 @@ namespace chen
             WKS();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -304,6 +350,9 @@ namespace chen
             PTR();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -321,6 +370,9 @@ namespace chen
             HINFO();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -339,6 +391,9 @@ namespace chen
             MINFO();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -357,6 +412,9 @@ namespace chen
             MX();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -375,6 +433,9 @@ namespace chen
             TXT();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -392,6 +453,9 @@ namespace chen
             RP();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -410,6 +474,9 @@ namespace chen
             AFSDB();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -428,6 +495,9 @@ namespace chen
             X25();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -445,6 +515,9 @@ namespace chen
             ISDN();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -463,6 +536,9 @@ namespace chen
             RT();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -481,6 +557,9 @@ namespace chen
             NSAP();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -498,6 +577,9 @@ namespace chen
             NSAPPTR();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -515,6 +597,9 @@ namespace chen
             SIG();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -540,6 +625,9 @@ namespace chen
             KEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -560,6 +648,9 @@ namespace chen
             PX();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -579,6 +670,9 @@ namespace chen
             GPOS();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -598,6 +692,9 @@ namespace chen
             AAAA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -615,6 +712,9 @@ namespace chen
             LOC();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -639,6 +739,9 @@ namespace chen
             NXT();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -657,6 +760,9 @@ namespace chen
             EID();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -674,6 +780,9 @@ namespace chen
             NIMLOC();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -691,6 +800,9 @@ namespace chen
             SRV();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -711,6 +823,9 @@ namespace chen
             ATMA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -729,6 +844,9 @@ namespace chen
             NAPTR();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -751,6 +869,9 @@ namespace chen
             KX();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -769,6 +890,9 @@ namespace chen
             CERT();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -785,6 +909,8 @@ namespace chen
         // A6(OBSOLETE - use AAAA)
         class A6 : public AAAA
         {
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -796,6 +922,9 @@ namespace chen
             DNAME();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -813,6 +942,9 @@ namespace chen
             SINK();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -830,6 +962,9 @@ namespace chen
         {
         public:
             OPT();
+
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -841,6 +976,9 @@ namespace chen
             DS();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -861,6 +999,9 @@ namespace chen
             SSHFP();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -883,6 +1024,9 @@ namespace chen
             IPSECKEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -904,6 +1048,9 @@ namespace chen
             RRSIG();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -929,6 +1076,9 @@ namespace chen
             NSEC();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -947,6 +1097,9 @@ namespace chen
             DNSKEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -967,6 +1120,9 @@ namespace chen
             DHCID();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -984,6 +1140,9 @@ namespace chen
             NSEC3();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1008,6 +1167,9 @@ namespace chen
             NSEC3PARAM();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1029,6 +1191,9 @@ namespace chen
             TLSA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1049,6 +1214,9 @@ namespace chen
             SMIMEA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1069,6 +1237,9 @@ namespace chen
             HIP();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1091,6 +1262,9 @@ namespace chen
             NINFO();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1108,6 +1282,9 @@ namespace chen
             RKEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1128,6 +1305,9 @@ namespace chen
             TALINK();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1146,6 +1326,9 @@ namespace chen
             CDS();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1166,6 +1349,9 @@ namespace chen
             CDNSKEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1186,6 +1372,9 @@ namespace chen
             OPENPGPKEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1203,6 +1392,9 @@ namespace chen
             CSYNC();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1222,6 +1414,9 @@ namespace chen
             SPF();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1237,6 +1432,9 @@ namespace chen
         {
         public:
             UINFO();
+
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -1246,6 +1444,9 @@ namespace chen
         {
         public:
             UID();
+
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -1255,6 +1456,9 @@ namespace chen
         {
         public:
             GID();
+
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -1264,6 +1468,9 @@ namespace chen
         {
         public:
             UNSPEC();
+
+        public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
 
@@ -1275,6 +1482,9 @@ namespace chen
             NID();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1293,6 +1503,9 @@ namespace chen
             L32();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1311,6 +1524,9 @@ namespace chen
             L64();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1329,6 +1545,9 @@ namespace chen
             LP();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1347,6 +1566,9 @@ namespace chen
             EUI48();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1364,6 +1586,9 @@ namespace chen
             EUI64();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1381,6 +1606,9 @@ namespace chen
             TKEY();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1406,6 +1634,9 @@ namespace chen
             TSIG();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1431,6 +1662,9 @@ namespace chen
             URI();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1450,6 +1684,9 @@ namespace chen
             CAA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1469,6 +1706,9 @@ namespace chen
             TA();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
@@ -1489,6 +1729,9 @@ namespace chen
             DLV();
 
         public:
+            virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
