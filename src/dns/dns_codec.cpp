@@ -24,7 +24,7 @@ bool codec::isFqdn(const std::string &name)
 
 std::string codec::fqdn(const std::string &name)
 {
-    return codec::isFqdn(name) ? name + '.' : name;
+    return !codec::isFqdn(name) ? name + '.' : name;
 }
 
 

@@ -191,6 +191,7 @@ void request::decode(std::vector<std::uint8_t>::const_iterator &cur,
 response::response(bool authoritative)
 {
     this->_header.setQr(chen::dns::QR::Response);
+    this->_header.setOpcode(chen::dns::OPCODE::Query);
     this->_header.setAuthoritative(authoritative);
     this->_header.setRcode(chen::dns::RCODE::NoError);
 }
@@ -199,6 +200,7 @@ response::response(bool authoritative)
 void response::addQuestion(const chen::dns::request &value)
 {
     this->_header.setId(value.header().id());
+    this->_header.setRecursionDesired(value.header().recursionDesired());
     this->addQuestion(value.question());
 }
 
