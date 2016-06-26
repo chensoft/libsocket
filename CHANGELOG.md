@@ -7,9 +7,12 @@ All notable changes to this project will be documented in this file(see http://k
 - json: allow unsigned integer conversion.
 - json: allow implicit conversion from json to variable.
 - map: find value in map, a default value can be provided.
+- regex: add methods support pass std::regex object.
+- regex: add expand method that can use submatch to expand a string.
 
 ### Fixed
 - ini: fix parse error if comment between two properties.
+- str: fix replace string didn't consider the all param.
 
 ## [1.0.1] - 2016-06-21
 ### Added
