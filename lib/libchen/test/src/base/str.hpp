@@ -39,6 +39,12 @@ TEST(BaseStrTest, General)
     EXPECT_EQ("I'm a replace string", chen::str::replace(replace, "search", "replace"));
     EXPECT_EQ("I'm a  string", chen::str::remove(replace, "replace"));
 
+    replace = "I'm a search string, and another search string";
+    EXPECT_EQ("I'm a replace string, and another search string", chen::str::replace(replace, "search", "replace", false));
+
+    replace = "I'm a search string, and another search string";
+    EXPECT_EQ("I'm a replace string, and another replace string", chen::str::replace(replace, "search", "replace"));
+
     // trim
     std::string trim("  so many spaces  ");
 

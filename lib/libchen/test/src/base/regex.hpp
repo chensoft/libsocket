@@ -20,6 +20,8 @@ TEST(BaseRegexTest, General)
         pattern = R"(soft\.com)";
         EXPECT_EQ("chenjian", chen::regex::replace("chensoft.com", pattern, "jian"));
 
+        EXPECT_EQ("0.0.0.127", chen::regex::expand("abc.127", "(?:^|\\D\\.)(\\d+)$", "0.0.0.$1"));
+
         auto group = chen::regex::group("127.0.0.1", R"((\d+)\.(\d+)\.(\d+)\.(\d+))");
         EXPECT_EQ(5, group.size());
         EXPECT_EQ("127", group[1]);

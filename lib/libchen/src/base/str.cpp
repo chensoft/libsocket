@@ -165,6 +165,9 @@ std::string& str::replace(std::string &text,
     {
         text.replace(p, c_s, replace);
         p += c_r;
+
+        if (!all)
+            break;
     }
 
     return text;
