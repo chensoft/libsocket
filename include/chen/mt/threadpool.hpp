@@ -49,6 +49,11 @@ namespace chen
             return future;
         }
 
+        /**
+         * Threads count
+         */
+        std::size_t count() const;
+
     private:
         /**
          * Working thread
