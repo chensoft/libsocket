@@ -15,7 +15,7 @@ namespace chen
     class semaphore final
     {
     public:
-        semaphore(std::size_t count = 0);
+        explicit semaphore(std::size_t count = 0);
 
     public:
         void post();

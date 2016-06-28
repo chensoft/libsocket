@@ -61,7 +61,7 @@ namespace chen
     class cmd
     {
     public:
-        cmd(const std::string &app = "");
+        explicit cmd(const std::string &app = "");
         virtual ~cmd() = default;
 
     public:
