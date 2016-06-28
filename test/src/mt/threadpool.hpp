@@ -34,7 +34,7 @@ TEST(MtThreadpoolTest, Multiple)
     auto count = pool.count();
     auto part  = 20000 / count;
 
-    for (int i = 0; i < count; ++i)
+    for (std::size_t i = 0; i < count; ++i)
     {
         task.push_back(pool.post(std::bind(check, 1 + part * i, part * (i + 1))));
     }
