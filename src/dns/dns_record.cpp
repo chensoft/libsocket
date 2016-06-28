@@ -8,6 +8,7 @@
 #include <socket/dns/dns_error.hpp>
 #include <socket/dns/dns_codec.hpp>
 #include <socket/dns/dns_table.hpp>
+#include <socket/ip/ip_addr.hpp>
 #include <chen/base/num.hpp>
 #include <limits>
 
@@ -88,7 +89,7 @@ std::string RR::str(const std::string &sep) const
     ret += this->name + sep;
     ret += chen::num::str(this->ttl) + sep;
     ret += chen::dns::table::classToText(this->rrclass) + sep;
-    ret += chen::dns::table::typeToText(this->rrtype) + sep;
+    ret += chen::dns::table::typeToText(this->rrtype);
 
     return ret;
 }
@@ -134,6 +135,29 @@ std::size_t RR::remain(std::vector<std::uint8_t>::const_iterator &beg,
     return static_cast<std::size_t>(this->rdlength - used);
 }
 
+std::string RR::escape(const std::string &text) const
+{
+    std::string ret("\"");
+
+    // escape all non-printable characters
+    for (auto ch : text)
+    {
+        if (std::isprint(ch))
+            ret += ch;
+        else
+            ret += chen::str::format("\\%03u", static_cast<unsigned char>(ch));
+    }
+
+    ret += '"';
+
+    return ret;
+}
+
+std::string RR::escape(std::size_t bits) const
+{
+    return "<<" + chen::num::str(bits) + "bits>>";
+}
+
 
 // -----------------------------------------------------------------------------
 // Raw
@@ -148,6 +172,7 @@ Raw::Raw(chen::dns::RRType type) : RR(type)
 std::string Raw::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->escape(this->rdata.size());
     return ret;
 }
 
@@ -191,12 +216,6 @@ void Raw::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // Unknown
-std::string Unknown::str(const std::string &sep) const
-{
-    auto ret = Raw::str(sep);
-    return ret;
-}
-
 std::shared_ptr<chen::dns::RR> Unknown::clone() const
 {
     return std::make_shared<Unknown>(*this);
@@ -212,6 +231,7 @@ A::A() : RR(chen::dns::RRType::A)
 std::string A::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + chen::ip::address::toString(this->address);
     return ret;
 }
 
@@ -262,6 +282,7 @@ NS::NS() : RR(chen::dns::RRType::NS)
 std::string NS::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->nsdname;
     return ret;
 }
 
@@ -312,6 +333,7 @@ MD::MD() : RR(chen::dns::RRType::MD)
 std::string MD::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->madname;
     return ret;
 }
 
@@ -362,6 +384,7 @@ MF::MF() : RR(chen::dns::RRType::MF)
 std::string MF::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += this->madname;
     return ret;
 }
 
@@ -412,6 +435,7 @@ CNAME::CNAME() : RR(chen::dns::RRType::CNAME)
 std::string CNAME::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->cname;
     return ret;
 }
 
@@ -462,6 +486,15 @@ SOA::SOA() : RR(chen::dns::RRType::SOA)
 std::string SOA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + this->mname;
+    ret += " " + this->rname;  // use a space to seprate different fields
+    ret += " " + chen::num::str(this->serial);
+    ret += " " + chen::num::str(this->refresh);
+    ret += " " + chen::num::str(this->retry);
+    ret += " " + chen::num::str(this->expire);
+    ret += " " + chen::num::str(this->minimum);
+
     return ret;
 }
 
@@ -524,6 +557,7 @@ MB::MB() : RR(chen::dns::RRType::MB)
 std::string MB::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->madname;
     return ret;
 }
 
@@ -574,6 +608,7 @@ MG::MG() : RR(chen::dns::RRType::MG)
 std::string MG::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->mgmname;
     return ret;
 }
 
@@ -624,6 +659,7 @@ MR::MR() : RR(chen::dns::RRType::MR)
 std::string MR::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->newname;
     return ret;
 }
 
@@ -674,6 +710,7 @@ NUL::NUL() : Raw(chen::dns::RRType::NUL)
 std::string NUL::str(const std::string &sep) const
 {
     auto ret = Raw::str(sep);
+    ret += sep + this->escape(this->anything.size());
     return ret;
 }
 
@@ -724,6 +761,11 @@ WKS::WKS() : RR(chen::dns::RRType::WKS)
 std::string WKS::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->address);
+    ret += " " + chen::num::str(this->protocol);
+    ret += " " + this->escape(this->bitmap.size());
+
     return ret;
 }
 
@@ -783,6 +825,7 @@ PTR::PTR() : RR(chen::dns::RRType::PTR)
 std::string PTR::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->ptrdname;
     return ret;
 }
 
@@ -833,6 +876,8 @@ HINFO::HINFO() : RR(chen::dns::RRType::HINFO)
 std::string HINFO::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->cpu;
+    ret += " " + this->os;
     return ret;
 }
 
@@ -885,6 +930,8 @@ MINFO::MINFO() : RR(chen::dns::RRType::MINFO)
 std::string MINFO::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->rmailbx;
+    ret += " " + this->emailbx;
     return ret;
 }
 
@@ -937,6 +984,8 @@ MX::MX() : RR(chen::dns::RRType::MX)
 std::string MX::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + this->exchange;
     return ret;
 }
 
@@ -989,6 +1038,7 @@ TXT::TXT() : RR(chen::dns::RRType::TXT)
 std::string TXT::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->escape(this->txt_data);
     return ret;
 }
 
@@ -1039,6 +1089,8 @@ RP::RP() : RR(chen::dns::RRType::RP)
 std::string RP::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->mbox_dname;
+    ret += " " + this->txt_dname;
     return ret;
 }
 
@@ -1091,6 +1143,8 @@ AFSDB::AFSDB() : RR(chen::dns::RRType::AFSDB)
 std::string AFSDB::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + chen::num::str(this->subtype);
+    ret += " " + this->hostname;
     return ret;
 }
 
@@ -1143,6 +1197,7 @@ X25::X25() : RR(chen::dns::RRType::X25)
 std::string X25::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->psdn_address;
     return ret;
 }
 
@@ -1193,6 +1248,8 @@ ISDN::ISDN() : RR(chen::dns::RRType::ISDN)
 std::string ISDN::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->isdn_address;
+    ret += " " + this->sa;
     return ret;
 }
 
@@ -1245,6 +1302,8 @@ RT::RT() : RR(chen::dns::RRType::RT)
 std::string RT::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + this->intermediate_host;
     return ret;
 }
 
@@ -1297,6 +1356,7 @@ NSAP::NSAP() : RR(chen::dns::RRType::NSAP)
 std::string NSAP::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->nsap;
     return ret;
 }
 
@@ -1347,6 +1407,7 @@ NSAPPTR::NSAPPTR() : RR(chen::dns::RRType::NSAPPTR)
 std::string NSAPPTR::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->owner;
     return ret;
 }
 
@@ -1397,6 +1458,17 @@ SIG::SIG() : RR(chen::dns::RRType::SIG)
 std::string SIG::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->type_covered);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->labels);
+    ret += " " + chen::num::str(this->original);
+    ret += " " + chen::num::str(this->expiration);
+    ret += " " + chen::num::str(this->inception);
+    ret += " " + chen::num::str(this->key_tag);
+    ret += " " + this->signer;
+    ret += " " + this->signature;
+
     return ret;
 }
 
@@ -1462,6 +1534,12 @@ KEY::KEY() : RR(chen::dns::RRType::KEY)
 std::string KEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->flags);
+    ret += " " + chen::num::str(this->protocol);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + this->publickey;
+
     return ret;
 }
 
@@ -1518,6 +1596,11 @@ PX::PX() : RR(chen::dns::RRType::PX)
 std::string PX::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + this->map822;
+    ret += " " + this->mapx400;
+
     return ret;
 }
 
@@ -1572,6 +1655,11 @@ GPOS::GPOS() : RR(chen::dns::RRType::GPOS)
 std::string GPOS::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + this->longitude;
+    ret += " " + this->latitude;
+    ret += " " + this->altitude;
+
     return ret;
 }
 
@@ -1625,6 +1713,7 @@ AAAA::AAAA() : RR(chen::dns::RRType::AAAA)
 
 std::string AAAA::str(const std::string &sep) const
 {
+    // todo
     auto ret = RR::str(sep);
     return ret;
 }
@@ -1676,6 +1765,15 @@ LOC::LOC() : RR(chen::dns::RRType::LOC)
 std::string LOC::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->version);
+    ret += " " + chen::num::str(this->size);
+    ret += " " + chen::num::str(this->horiz_pre);
+    ret += " " + chen::num::str(this->vert_pre);
+    ret += " " + chen::num::str(this->longitude);
+    ret += " " + chen::num::str(this->latitude);
+    ret += " " + chen::num::str(this->altitude);
+
     return ret;
 }
 
@@ -1738,6 +1836,8 @@ NXT::NXT() : RR(chen::dns::RRType::NXT)
 std::string NXT::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->next_domain;
+    ret += " " + this->escape(this->type_bitmap.size());
     return ret;
 }
 
@@ -1794,6 +1894,7 @@ EID::EID() : RR(chen::dns::RRType::EID)
 std::string EID::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->endpoint;
     return ret;
 }
 
@@ -1844,6 +1945,7 @@ NIMLOC::NIMLOC() : RR(chen::dns::RRType::NIMLOC)
 std::string NIMLOC::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->locator;
     return ret;
 }
 
@@ -1894,6 +1996,12 @@ SRV::SRV() : RR(chen::dns::RRType::SRV)
 std::string SRV::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->priority);
+    ret += " " + chen::num::str(this->weight);
+    ret += " " + chen::num::str(this->port);
+    ret += " " + this->target;
+
     return ret;
 }
 
@@ -1950,6 +2058,10 @@ ATMA::ATMA() : RR(chen::dns::RRType::ATMA)
 std::string ATMA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->format);
+    ret += " " + this->address;
+
     return ret;
 }
 
@@ -2002,6 +2114,14 @@ NAPTR::NAPTR() : RR(chen::dns::RRType::NAPTR)
 std::string NAPTR::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->order);
+    ret += " " + chen::num::str(this->preference);
+    ret += " " + this->flags;
+    ret += " " + this->services;
+    ret += " " + this->regexp;
+    ret += " " + this->replacement;
+
     return ret;
 }
 
@@ -2062,6 +2182,10 @@ KX::KX() : RR(chen::dns::RRType::KX)
 std::string KX::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + this->exchanger;
+
     return ret;
 }
 
@@ -2114,6 +2238,12 @@ CERT::CERT() : RR(chen::dns::RRType::CERT)
 std::string CERT::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->type);
+    ret += " " + chen::num::str(this->key_tag);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + this->certificate;
+
     return ret;
 }
 
@@ -2163,12 +2293,6 @@ void CERT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
 
 // -----------------------------------------------------------------------------
 // A6
-std::string A6::str(const std::string &sep) const
-{
-    auto ret = AAAA::str(sep);
-    return ret;
-}
-
 std::shared_ptr<chen::dns::RR> A6::clone() const
 {
     return std::make_shared<A6>(*this);
@@ -2184,6 +2308,7 @@ DNAME::DNAME() : RR(chen::dns::RRType::DNAME)
 std::string DNAME::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->target;
     return ret;
 }
 
@@ -2234,6 +2359,11 @@ SINK::SINK() : RR(chen::dns::RRType::SINK)
 std::string SINK::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->coding);
+    ret += " " + chen::num::str(this->subcoding);
+    ret += " " + this->escape(this->sdata.size());
+
     return ret;
 }
 
@@ -2289,12 +2419,6 @@ OPT::OPT() : Raw(chen::dns::RRType::OPT)
 {
 }
 
-std::string OPT::str(const std::string &sep) const
-{
-    auto ret = Raw::str(sep);
-    return ret;
-}
-
 std::shared_ptr<chen::dns::RR> OPT::clone() const
 {
     return std::make_shared<OPT>(*this);
@@ -2310,6 +2434,12 @@ DS::DS() : RR(chen::dns::RRType::DS)
 std::string DS::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->key_tag);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->digest_type);
+    ret += " " + this->digest;
+
     return ret;
 }
 
@@ -2366,6 +2496,11 @@ SSHFP::SSHFP() : RR(chen::dns::RRType::SSHFP)
 std::string SSHFP::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->fptype);
+    ret += " " + this->fingerprint;
+
     return ret;
 }
 
@@ -2420,6 +2555,13 @@ IPSECKEY::IPSECKEY() : RR(chen::dns::RRType::IPSECKEY)
 std::string IPSECKEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->precedence);
+    ret += " " + chen::num::str(this->gateway_type);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + this->escape(this->gateway.size());
+    ret += " " + this->publickey;
+
     return ret;
 }
 
@@ -2526,6 +2668,17 @@ RRSIG::RRSIG() : RR(chen::dns::RRType::RRSIG)
 std::string RRSIG::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->type_covered);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->labels);
+    ret += " " + chen::num::str(this->original);
+    ret += " " + chen::num::str(this->expiration);
+    ret += " " + chen::num::str(this->inception);
+    ret += " " + chen::num::str(this->key_tag);
+    ret += " " + this->signer;
+    ret += " " + this->signature;
+
     return ret;
 }
 
@@ -2592,6 +2745,8 @@ NSEC::NSEC() : RR(chen::dns::RRType::NSEC)
 std::string NSEC::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->next_domain;
+    ret += " " + this->escape(this->type_bitmap.size());
     return ret;
 }
 
@@ -2648,6 +2803,12 @@ DNSKEY::DNSKEY() : RR(chen::dns::RRType::DNSKEY)
 std::string DNSKEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->flags);
+    ret += " " + chen::num::str(this->protocol);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + this->publickey;
+
     return ret;
 }
 
@@ -2704,6 +2865,7 @@ DHCID::DHCID() : RR(chen::dns::RRType::DHCID)
 std::string DHCID::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->digest;
     return ret;
 }
 
@@ -2754,6 +2916,16 @@ NSEC3::NSEC3() : RR(chen::dns::RRType::NSEC3)
 std::string NSEC3::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->hash);
+    ret += " " + chen::num::str(this->flags);
+    ret += " " + chen::num::str(this->iterations);
+    ret += " " + chen::num::str(this->salt_length);
+    ret += " " + this->escape(this->salt.size());
+    ret += " " + chen::num::str(this->hash_length);
+    ret += " " + this->next_owner;
+    ret += " " + this->escape(this->type_bitmap.size());
+
     return ret;
 }
 
@@ -2822,6 +2994,13 @@ NSEC3PARAM::NSEC3PARAM() : RR(chen::dns::RRType::NSEC3PARAM)
 std::string NSEC3PARAM::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->hash);
+    ret += " " + chen::num::str(this->flags);
+    ret += " " + chen::num::str(this->iterations);
+    ret += " " + chen::num::str(this->salt_length);
+    ret += " " + this->escape(this->salt.size());
+
     return ret;
 }
 
@@ -2880,6 +3059,12 @@ TLSA::TLSA() : RR(chen::dns::RRType::TLSA)
 std::string TLSA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->usage);
+    ret += " " + chen::num::str(this->selector);
+    ret += " " + chen::num::str(this->matching_type);
+    ret += " " + this->certificate;
+
     return ret;
 }
 
@@ -2936,6 +3121,12 @@ SMIMEA::SMIMEA() : RR(chen::dns::RRType::SMIMEA)
 std::string SMIMEA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->usage);
+    ret += " " + chen::num::str(this->selector);
+    ret += " " + chen::num::str(this->matching_type);
+    ret += " " + this->certificate;
+
     return ret;
 }
 
@@ -2992,6 +3183,14 @@ HIP::HIP() : RR(chen::dns::RRType::HIP)
 std::string HIP::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->hit_length);
+    ret += " " + chen::num::str(this->pk_algorithm);
+    ret += " " + chen::num::str(this->pk_length);
+    ret += " " + this->hit;
+    ret += " " + this->publickey;
+    ret += " " + this->rendezvous_servers;
+
     return ret;
 }
 
@@ -3052,6 +3251,7 @@ NINFO::NINFO() : RR(chen::dns::RRType::NINFO)
 std::string NINFO::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->zs_data;
     return ret;
 }
 
@@ -3102,6 +3302,12 @@ RKEY::RKEY() : RR(chen::dns::RRType::RKEY)
 std::string RKEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->flags);
+    ret += " " + chen::num::str(this->protocol);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + this->publickey;
+
     return ret;
 }
 
@@ -3158,6 +3364,10 @@ TALINK::TALINK() : RR(chen::dns::RRType::TALINK)
 std::string TALINK::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + this->previous_name;
+    ret += " " + this->next_name;
+
     return ret;
 }
 
@@ -3210,6 +3420,12 @@ CDS::CDS() : RR(chen::dns::RRType::CDS)
 std::string CDS::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->key_tag);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->digest_type);
+    ret += " " + this->digest;
+
     return ret;
 }
 
@@ -3266,6 +3482,12 @@ CDNSKEY::CDNSKEY() : RR(chen::dns::RRType::CDNSKEY)
 std::string CDNSKEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->flags);
+    ret += " " + chen::num::str(this->protocol);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + this->publickey;
+
     return ret;
 }
 
@@ -3322,6 +3544,7 @@ OPENPGPKEY::OPENPGPKEY() : RR(chen::dns::RRType::OPENPGPKEY)
 std::string OPENPGPKEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->publickey;
     return ret;
 }
 
@@ -3372,6 +3595,11 @@ CSYNC::CSYNC() : RR(chen::dns::RRType::CSYNC)
 std::string CSYNC::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->serial);
+    ret += " " + chen::num::str(this->flags);
+    ret += " " + this->escape(this->type_bitmap.size());
+
     return ret;
 }
 
@@ -3430,6 +3658,7 @@ SPF::SPF() : RR(chen::dns::RRType::SPF)
 std::string SPF::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->escape(this->txt);
     return ret;
 }
 
@@ -3477,12 +3706,6 @@ UINFO::UINFO() : Raw(chen::dns::RRType::UINFO)
 {
 }
 
-std::string UINFO::str(const std::string &sep) const
-{
-    auto ret = Raw::str(sep);
-    return ret;
-}
-
 std::shared_ptr<chen::dns::RR> UINFO::clone() const
 {
     return std::make_shared<UINFO>(*this);
@@ -3493,12 +3716,6 @@ std::shared_ptr<chen::dns::RR> UINFO::clone() const
 // UID
 UID::UID() : Raw(chen::dns::RRType::UID)
 {
-}
-
-std::string UID::str(const std::string &sep) const
-{
-    auto ret = Raw::str(sep);
-    return ret;
 }
 
 std::shared_ptr<chen::dns::RR> UID::clone() const
@@ -3513,12 +3730,6 @@ GID::GID() : Raw(chen::dns::RRType::GID)
 {
 }
 
-std::string GID::str(const std::string &sep) const
-{
-    auto ret = Raw::str(sep);
-    return ret;
-}
-
 std::shared_ptr<chen::dns::RR> GID::clone() const
 {
     return std::make_shared<GID>(*this);
@@ -3529,12 +3740,6 @@ std::shared_ptr<chen::dns::RR> GID::clone() const
 // UNSPEC
 UNSPEC::UNSPEC() : Raw(chen::dns::RRType::UNSPEC)
 {
-}
-
-std::string UNSPEC::str(const std::string &sep) const
-{
-    auto ret = Raw::str(sep);
-    return ret;
 }
 
 std::shared_ptr<chen::dns::RR> UNSPEC::clone() const
@@ -3552,6 +3757,10 @@ NID::NID() : RR(chen::dns::RRType::NID)
 std::string NID::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + chen::num::str(this->node_id);
+
     return ret;
 }
 
@@ -3604,6 +3813,10 @@ L32::L32() : RR(chen::dns::RRType::L32)
 std::string L32::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + chen::num::str(this->locator32);
+
     return ret;
 }
 
@@ -3656,6 +3869,10 @@ L64::L64() : RR(chen::dns::RRType::L64)
 std::string L64::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + chen::num::str(this->locator64);
+
     return ret;
 }
 
@@ -3708,6 +3925,10 @@ LP::LP() : RR(chen::dns::RRType::LP)
 std::string LP::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->preference);
+    ret += " " + this->fqdn;
+
     return ret;
 }
 
@@ -3760,6 +3981,7 @@ EUI48::EUI48() : RR(chen::dns::RRType::EUI48)
 std::string EUI48::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + this->escape(this->address.size());
     return ret;
 }
 
@@ -3810,6 +4032,7 @@ EUI64::EUI64() : RR(chen::dns::RRType::EUI64)
 std::string EUI64::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+    ret += sep + chen::num::str(this->address);
     return ret;
 }
 
@@ -3860,6 +4083,17 @@ TKEY::TKEY() : RR(chen::dns::RRType::TKEY)
 std::string TKEY::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + this->algorithm;
+    ret += " " + chen::num::str(this->inception);
+    ret += " " + chen::num::str(this->expiration);
+    ret += " " + chen::num::str(this->mode);
+    ret += " " + chen::num::str(this->error);
+    ret += " " + chen::num::str(this->key_size);
+    ret += " " + this->escape(this->key.size());
+    ret += " " + chen::num::str(this->other_len);
+    ret += " " + this->escape(this->other_data.size());
+
     return ret;
 }
 
@@ -3926,6 +4160,17 @@ TSIG::TSIG() : RR(chen::dns::RRType::TSIG)
 std::string TSIG::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + this->algorithm;
+    ret += " " + this->escape(this->time_signed.size());
+    ret += " " + chen::num::str(this->fudge);
+    ret += " " + chen::num::str(this->mac_size);
+    ret += " " + this->escape(this->mac.size());
+    ret += " " + chen::num::str(this->original_id);
+    ret += " " + chen::num::str(this->error);
+    ret += " " + chen::num::str(this->other_len);
+    ret += " " + this->escape(this->other_data.size());
+
     return ret;
 }
 
@@ -3992,6 +4237,11 @@ URI::URI() : RR(chen::dns::RRType::URI)
 std::string URI::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->priority);
+    ret += " " + chen::num::str(this->weight);
+    ret += " " + this->target;
+
     return ret;
 }
 
@@ -4046,6 +4296,11 @@ CAA::CAA() : RR(chen::dns::RRType::CAA)
 std::string CAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->flags);
+    ret += " " + this->tag;
+    ret += " " + this->value;
+
     return ret;
 }
 
@@ -4100,6 +4355,12 @@ TA::TA() : RR(chen::dns::RRType::TA)
 std::string TA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->key_tag);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->digest_type);
+    ret += " " + this->digest;
+
     return ret;
 }
 
@@ -4156,6 +4417,12 @@ DLV::DLV() : RR(chen::dns::RRType::DLV)
 std::string DLV::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->key_tag);
+    ret += " " + chen::num::str(this->algorithm);
+    ret += " " + chen::num::str(this->digest_type);
+    ret += " " + this->digest;
+
     return ret;
 }
 

@@ -71,6 +71,12 @@ namespace chen
             virtual std::size_t remain(std::vector<std::uint8_t>::const_iterator &beg,
                                        std::vector<std::uint8_t>::const_iterator &cur) const;
 
+            /**
+             * Escape string, used in description
+             */
+            virtual std::string escape(const std::string &text) const;
+            virtual std::string escape(std::size_t bits) const;
+
         public:
             std::string name;
             chen::dns::RRType rrtype   = chen::dns::RRType::None;
@@ -113,7 +119,6 @@ namespace chen
         class Unknown : public Raw
         {
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -954,7 +959,6 @@ namespace chen
         class A6 : public AAAA
         {
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1011,7 +1015,6 @@ namespace chen
             OPT();
 
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1502,7 +1505,6 @@ namespace chen
             UINFO();
 
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1515,7 +1517,6 @@ namespace chen
             UID();
 
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1528,7 +1529,6 @@ namespace chen
             GID();
 
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1541,7 +1541,6 @@ namespace chen
             UNSPEC();
 
         public:
-            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
