@@ -14,7 +14,7 @@ TEST(MtThreadpoolTest, Single)
     // check prime number, it's time consuming
     // when build in release mode, it takes about 100ms on my Macbook
     // my cpu is 2.6 GHz Intel Core i5
-    for (unsigned i = 1; i <= 20000; ++i)
+    for (std::size_t i = 1; i <= 20000; ++i)
         chen::num::prime(i);
 }
 
@@ -22,8 +22,8 @@ TEST(MtThreadpoolTest, Multiple)
 {
     // make sure your cpu is multi-core, otherwise the elapsed time is close to the above test
     // it takes about 50ms on my Macbook because my cpu is dual-core
-    auto check = [] (unsigned min, unsigned max) {
-        for (unsigned i = min; i <= max; ++i)
+    auto check = [] (std::size_t min, std::size_t max) {
+        for (std::size_t i = min; i <= max; ++i)
             chen::num::prime(i);
     };
 
