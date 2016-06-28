@@ -130,52 +130,53 @@ chen::dns::RCODE header::rcode() const
 // set flag value
 void header::setQr(chen::dns::QR value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_QR) & FLAG_MASK_QR;
+    this->_flag = (this->_flag & ~FLAG_MASK_QR) | ((static_cast<std::uint16_t>(value) << FLAG_POS_QR) & FLAG_MASK_QR);
 }
 
 void header::setOpcode(chen::dns::OPCODE value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_OPCODE) & FLAG_MASK_OPCODE;
+    this->_flag = (this->_flag & ~FLAG_MASK_OPCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_OPCODE) & FLAG_MASK_OPCODE);
 }
 
 void header::setAuthoritative(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_AA) & FLAG_MASK_AA;
+    this->_flag = (this->_flag & ~FLAG_MASK_AA) | ((static_cast<std::uint16_t>(value) << FLAG_POS_AA) & FLAG_MASK_AA);
 }
 
 void header::setTruncated(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_TC) & FLAG_MASK_TC;
+    this->_flag = (this->_flag & ~FLAG_MASK_TC) | ((static_cast<std::uint16_t>(value) << FLAG_POS_TC) & FLAG_MASK_TC);
 }
 
 void header::setRecursionDesired(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_RD) & FLAG_MASK_RD;
+    this->_flag = (this->_flag & ~FLAG_MASK_RD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RD) & FLAG_MASK_RD);
 }
 
 void header::setRecursionAvailable(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_RA) & FLAG_MASK_RA;
+    this->_flag = (this->_flag & ~FLAG_MASK_RA) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RA) & FLAG_MASK_RA);
 }
 
 void header::setZero(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_Z) & FLAG_MASK_Z;
+    this->_flag = (this->_flag & ~FLAG_MASK_Z) | ((static_cast<std::uint16_t>(value) << FLAG_POS_Z) & FLAG_MASK_Z);
 }
 
 void header::setAuthenticData(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_AD) & FLAG_MASK_AD;
+    this->_flag = (this->_flag & ~FLAG_MASK_AD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_AD) & FLAG_MASK_AD);
 }
 
 void header::setCheckingDisabled(bool value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_CD) & FLAG_MASK_CD;
+    this->_flag = (this->_flag & ~FLAG_MASK_CD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_CD) & FLAG_MASK_CD);
 }
+
 
 void header::setRcode(chen::dns::RCODE value)
 {
-    this->_flag |= (static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE;
+    this->_flag = (this->_flag & ~FLAG_MASK_RCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE);
 }
 
 // codec
