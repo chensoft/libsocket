@@ -197,13 +197,6 @@ response::response(bool authoritative)
 }
 
 // add
-void response::addQuestion(const chen::dns::request &value)
-{
-    this->_header.setId(value.header().id());
-    this->_header.setRecursionDesired(value.header().recursionDesired());
-    this->addQuestion(value.question());
-}
-
 void response::addQuestion(const chen::dns::question &value)
 {
     this->_question.emplace_back(value);
@@ -274,6 +267,15 @@ const response::rr_type& response::additional() const
 }
 
 // set
+void response::setQuestion(const chen::dns::request &value)
+{
+    this->_header.setId(value.header().id());
+    this->_header.setRecursionDesired(value.header().recursionDesired());
+
+    this->_question.clear();
+    this->addQuestion(value.question());
+}
+
 void response::setQuestion(const q_type &value)
 {
     this->_question = value;

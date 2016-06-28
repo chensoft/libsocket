@@ -125,7 +125,6 @@ namespace chen
             /**
              * Add field value
              */
-            void addQuestion(const chen::dns::request &value);
             void addQuestion(const chen::dns::question &value);
             void addAnswer(const std::shared_ptr<chen::dns::RR> &value);
             void addAuthority(const std::shared_ptr<chen::dns::RR> &value);
@@ -149,6 +148,8 @@ namespace chen
             /**
              * Set field value
              */
+            void setQuestion(const chen::dns::request &value);
+
             void setQuestion(const q_type &value);
             void setAnswer(const rr_type &value);
             void setAuthority(const rr_type &value);
