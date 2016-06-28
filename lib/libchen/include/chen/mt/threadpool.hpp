@@ -25,7 +25,7 @@ namespace chen
         /**
          * Construct with thread count
          */
-        threadpool(std::size_t count = 0);
+        explicit threadpool(std::size_t count = 0);
         ~threadpool();
 
     public:
@@ -48,6 +48,11 @@ namespace chen
 
             return future;
         }
+
+        /**
+         * Threads count
+         */
+        std::size_t count() const;
 
     private:
         /**

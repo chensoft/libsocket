@@ -30,10 +30,11 @@ TEST(MtThreadpoolTest, Multiple)
     chen::threadpool pool;
     std::vector<std::future<void>> task;
 
-    // we split task into 4 parts
-    auto part = 20000 / 4;
+    // we split task into several parts
+    auto count = pool.count();
+    auto part  = 20000 / count;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < count; ++i)
     {
         task.push_back(pool.post(std::bind(check, 1 + part * i, part * (i + 1))));
     }

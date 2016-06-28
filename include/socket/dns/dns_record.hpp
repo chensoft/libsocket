@@ -23,7 +23,7 @@ namespace chen
         class RR
         {
         public:
-            RR(chen::dns::RRType type);
+            explicit RR(chen::dns::RRType type);
             virtual ~RR() = 0;
 
         public:
@@ -87,7 +87,7 @@ namespace chen
         {
         public:
             Raw();
-            Raw(chen::dns::RRType type);
+            explicit Raw(chen::dns::RRType type);
 
         public:
             virtual std::shared_ptr<chen::dns::RR> clone() const override;

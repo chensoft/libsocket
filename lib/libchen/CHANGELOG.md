@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file(see http://k
 - map: find value in map, a default value can be provided.
 - regex: add methods support pass std::regex object.
 - regex: add expand method that can use submatch to expand a string.
+- threadpool: user can retrieve the threads count.
 
 ### Fixed
 - ini: fix parse error if comment between two properties.

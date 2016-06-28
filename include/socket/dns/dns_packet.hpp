@@ -119,7 +119,7 @@ namespace chen
             typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
 
         public:
-            response(bool authoritative = false);
+            explicit response(bool authoritative = false);
 
         public:
             /**

@@ -37,6 +37,11 @@ threadpool::~threadpool()
     this->clean();
 }
 
+std::size_t threadpool::count() const
+{
+    return this->_pool.size();
+}
+
 void threadpool::run()
 {
     while (true)
