@@ -6,6 +6,7 @@
  */
 #include <socket/dns/dns_header.hpp>
 #include <socket/dns/dns_codec.hpp>
+#include <socket/dns/dns_table.hpp>
 #include <chen/base/num.hpp>
 
 using namespace chen;
@@ -375,4 +376,16 @@ void question::decode(std::vector<std::uint8_t>::const_iterator &cur,
     this->_qname  = std::move(qname);
     this->_qtype  = qtype;
     this->_qclass = qclass;
+}
+
+// desc
+std::string question::str(const std::string &sep) const
+{
+    std::string ret;
+
+    ret += this->_qname + sep;
+    ret += chen::dns::table::classToText(this->_qclass) + sep;
+    ret += chen::dns::table::typeToText(this->_qtype);
+
+    return ret;
 }

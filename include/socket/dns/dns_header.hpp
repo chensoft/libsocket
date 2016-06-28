@@ -132,6 +132,12 @@ namespace chen
             void decode(std::vector<std::uint8_t>::const_iterator &cur,
                         std::vector<std::uint8_t>::const_iterator &end);
 
+        public:
+            /**
+             * Text description
+             */
+            virtual std::string str(const std::string &sep = " ") const;
+
         private:
             std::string _qname;
             chen::dns::RRType  _qtype  = chen::dns::RRType::None;

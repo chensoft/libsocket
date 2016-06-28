@@ -42,6 +42,11 @@ namespace chen
 
         public:
             /**
+             * Text description
+             */
+            virtual std::string str(const std::string &sep = " ") const = 0;
+
+            /**
              * Clone current record
              */
             virtual std::shared_ptr<chen::dns::RR> clone() const = 0;
@@ -90,6 +95,7 @@ namespace chen
             explicit Raw(chen::dns::RRType type);
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -107,6 +113,7 @@ namespace chen
         class Unknown : public Raw
         {
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -122,6 +129,7 @@ namespace chen
             A();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -142,6 +150,7 @@ namespace chen
             NS();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -162,6 +171,7 @@ namespace chen
             MD();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -182,6 +192,7 @@ namespace chen
             MF();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -202,6 +213,7 @@ namespace chen
             CNAME();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -222,6 +234,7 @@ namespace chen
             SOA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -248,6 +261,7 @@ namespace chen
             MB();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -268,6 +282,7 @@ namespace chen
             MG();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -288,6 +303,7 @@ namespace chen
             MR();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -308,6 +324,7 @@ namespace chen
             NUL();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -328,6 +345,7 @@ namespace chen
             WKS();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -350,6 +368,7 @@ namespace chen
             PTR();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -370,6 +389,7 @@ namespace chen
             HINFO();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -391,6 +411,7 @@ namespace chen
             MINFO();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -412,6 +433,7 @@ namespace chen
             MX();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -433,6 +455,7 @@ namespace chen
             TXT();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -453,6 +476,7 @@ namespace chen
             RP();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -474,6 +498,7 @@ namespace chen
             AFSDB();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -495,6 +520,7 @@ namespace chen
             X25();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -515,6 +541,7 @@ namespace chen
             ISDN();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -536,6 +563,7 @@ namespace chen
             RT();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -557,6 +585,7 @@ namespace chen
             NSAP();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -577,6 +606,7 @@ namespace chen
             NSAPPTR();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -597,6 +627,7 @@ namespace chen
             SIG();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -625,6 +656,7 @@ namespace chen
             KEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -648,6 +680,7 @@ namespace chen
             PX();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -670,6 +703,7 @@ namespace chen
             GPOS();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -692,6 +726,7 @@ namespace chen
             AAAA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -712,6 +747,7 @@ namespace chen
             LOC();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -739,6 +775,7 @@ namespace chen
             NXT();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -760,6 +797,7 @@ namespace chen
             EID();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -780,6 +818,7 @@ namespace chen
             NIMLOC();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -800,6 +839,7 @@ namespace chen
             SRV();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -823,6 +863,7 @@ namespace chen
             ATMA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -844,6 +885,7 @@ namespace chen
             NAPTR();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -869,6 +911,7 @@ namespace chen
             KX();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -890,6 +933,7 @@ namespace chen
             CERT();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -910,6 +954,7 @@ namespace chen
         class A6 : public AAAA
         {
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -922,6 +967,7 @@ namespace chen
             DNAME();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -942,6 +988,7 @@ namespace chen
             SINK();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -964,6 +1011,7 @@ namespace chen
             OPT();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -976,6 +1024,7 @@ namespace chen
             DS();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -999,6 +1048,7 @@ namespace chen
             SSHFP();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1024,6 +1074,7 @@ namespace chen
             IPSECKEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1048,6 +1099,7 @@ namespace chen
             RRSIG();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1076,6 +1128,7 @@ namespace chen
             NSEC();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1097,6 +1150,7 @@ namespace chen
             DNSKEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1120,6 +1174,7 @@ namespace chen
             DHCID();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1140,6 +1195,7 @@ namespace chen
             NSEC3();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1167,6 +1223,7 @@ namespace chen
             NSEC3PARAM();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1191,6 +1248,7 @@ namespace chen
             TLSA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1214,6 +1272,7 @@ namespace chen
             SMIMEA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1237,6 +1296,7 @@ namespace chen
             HIP();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1262,6 +1322,7 @@ namespace chen
             NINFO();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1282,6 +1343,7 @@ namespace chen
             RKEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1305,6 +1367,7 @@ namespace chen
             TALINK();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1326,6 +1389,7 @@ namespace chen
             CDS();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1349,6 +1413,7 @@ namespace chen
             CDNSKEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1372,6 +1437,7 @@ namespace chen
             OPENPGPKEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1392,6 +1458,7 @@ namespace chen
             CSYNC();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1414,6 +1481,7 @@ namespace chen
             SPF();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1434,6 +1502,7 @@ namespace chen
             UINFO();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1446,6 +1515,7 @@ namespace chen
             UID();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1458,6 +1528,7 @@ namespace chen
             GID();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1470,6 +1541,7 @@ namespace chen
             UNSPEC();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
@@ -1482,6 +1554,7 @@ namespace chen
             NID();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1503,6 +1576,7 @@ namespace chen
             L32();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1524,6 +1598,7 @@ namespace chen
             L64();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1545,6 +1620,7 @@ namespace chen
             LP();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1566,6 +1642,7 @@ namespace chen
             EUI48();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1586,6 +1663,7 @@ namespace chen
             EUI64();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1606,6 +1684,7 @@ namespace chen
             TKEY();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1634,6 +1713,7 @@ namespace chen
             TSIG();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1662,6 +1742,7 @@ namespace chen
             URI();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1684,6 +1765,7 @@ namespace chen
             CAA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1706,6 +1788,7 @@ namespace chen
             TA();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
@@ -1729,6 +1812,7 @@ namespace chen
             DLV();
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
         protected:
