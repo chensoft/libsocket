@@ -490,6 +490,26 @@ json::operator double() const
     return this->getNumber();
 }
 
+json::operator std::int8_t() const
+{
+    return static_cast<std::int8_t>(this->getInteger());
+}
+
+json::operator std::uint8_t() const
+{
+    return static_cast<std::uint8_t>(this->getUnsigned());
+}
+
+json::operator std::int16_t() const
+{
+    return static_cast<std::int16_t>(this->getInteger());
+}
+
+json::operator std::uint16_t() const
+{
+    return static_cast<std::uint16_t>(this->getUnsigned());
+}
+
 json::operator std::int32_t() const
 {
     return this->getInteger();
@@ -498,6 +518,16 @@ json::operator std::int32_t() const
 json::operator std::uint32_t() const
 {
     return this->getUnsigned();
+}
+
+json::operator std::int64_t() const
+{
+    return static_cast<std::int64_t>(this->getNumber());
+}
+
+json::operator std::uint64_t() const
+{
+    return static_cast<std::uint64_t>(this->getNumber());
 }
 
 json::operator std::string() const
