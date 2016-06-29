@@ -649,7 +649,7 @@ std::uint32_t json::toUnsigned() const
         case Type::String:
         {
             std::string &d = *this->_data.s;
-            return static_cast<std::uint32_t>(std::stoul(d));
+            return static_cast<std::uint32_t>(std::strtoul(d.c_str(), nullptr, 10));
         }
 
         case Type::True:
