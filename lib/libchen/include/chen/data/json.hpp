@@ -163,7 +163,7 @@ namespace chen
         virtual const chen::json::object& getObject() const;
         virtual const chen::json::array& getArray() const;
         virtual double getNumber() const;
-        virtual std::int32_t getInteger() const;  // maybe losing precision
+        virtual std::int32_t getInteger() const;
         virtual std::uint32_t getUnsigned() const;
         virtual const std::string& getString() const;
         virtual bool getBool() const;
@@ -177,8 +177,14 @@ namespace chen
         operator chen::json::object() const;
         operator chen::json::array() const;
         operator double() const;
+        operator std::int8_t() const;  // maybe losing precision
+        operator std::uint8_t() const;
+        operator std::int16_t() const;
+        operator std::uint16_t() const;
         operator std::int32_t() const;
         operator std::uint32_t() const;
+        operator std::int64_t() const;  // json can't represent native 64bits integer
+        operator std::uint64_t() const;
         operator std::string() const;
         operator bool() const;
 
@@ -198,7 +204,7 @@ namespace chen
         virtual chen::json::object toObject() const;
         virtual chen::json::array toArray() const;
         virtual double toNumber() const;
-        virtual std::int32_t toInteger() const;  // maybe losing precision
+        virtual std::int32_t toInteger() const;
         virtual std::uint32_t toUnsigned() const;
         virtual std::string toString() const;
         virtual bool toBool() const;

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "dns_define.hpp"
+#include <chen/data/json.hpp>
 #include <string>
 #include <vector>
 #include <memory>
@@ -34,6 +35,12 @@ namespace chen
             virtual void encode(std::vector<std::uint8_t> &out) const;
 
             /**
+             * Decode, using json object
+             * @caution rdlength is not set if you use this method
+             */
+            virtual void decode(const chen::json::object &object);
+
+            /**
              * Decode, detect rr's type automatically
              */
             static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
@@ -56,6 +63,7 @@ namespace chen
              * Helper for encode & decode
              */
             virtual void pack(std::vector<std::uint8_t> &out) const = 0;
+            virtual void unpack(const chen::json::object &object) = 0;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) = 0;
 
@@ -106,6 +114,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -139,6 +148,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -160,6 +170,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -181,6 +192,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -202,6 +214,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -223,6 +236,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -244,6 +258,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -271,6 +286,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -292,6 +308,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -313,6 +330,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -334,6 +352,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -355,6 +374,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -378,6 +398,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -399,6 +420,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -421,6 +443,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -443,6 +466,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -465,6 +489,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -486,6 +511,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -508,6 +534,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -530,6 +557,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -551,6 +579,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -573,6 +602,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -595,6 +625,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -616,6 +647,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -637,6 +669,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -666,6 +699,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -690,6 +724,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -713,6 +748,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -736,6 +772,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -757,6 +794,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -785,6 +823,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -807,6 +846,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -828,6 +868,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -849,6 +890,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -873,6 +915,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -895,6 +938,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -921,6 +965,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -943,6 +988,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -976,6 +1022,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -997,6 +1044,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1032,6 +1080,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1056,6 +1105,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1082,6 +1132,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1107,6 +1158,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1136,6 +1188,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1158,6 +1211,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1182,6 +1236,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1203,6 +1258,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1231,6 +1287,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1256,6 +1313,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1280,6 +1338,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1304,6 +1363,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1330,6 +1390,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1351,6 +1412,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1375,6 +1437,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1397,6 +1460,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1421,6 +1485,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1445,6 +1510,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1466,6 +1532,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1489,6 +1556,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1558,6 +1626,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1580,6 +1649,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1602,6 +1672,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1624,6 +1695,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1646,6 +1718,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1667,6 +1740,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1688,6 +1762,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1717,6 +1792,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1746,6 +1822,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1769,6 +1846,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1792,6 +1870,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
@@ -1816,6 +1895,7 @@ namespace chen
 
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
+            virtual void unpack(const chen::json::object &object) override;
             virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
