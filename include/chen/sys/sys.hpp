@@ -40,5 +40,10 @@ namespace chen
          * Current executable path
          */
         static std::string proc(int argc, const char *const argv[]);
+
+        /**
+         * Current process id
+         */
+        static int pid();
     };
 }

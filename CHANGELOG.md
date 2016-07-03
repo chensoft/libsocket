@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file(see http://k
 - json: allow implicit conversion from json to variable.
 - map: find value in map, a default value can be provided.
 - sys: retrieve current executable path.
+- sys: retrieve current process id.
 - regex: add methods support pass std::regex object.
 - regex: add expand method that can use submatch to expand a string.
 - threadpool: user can retrieve the threads count.

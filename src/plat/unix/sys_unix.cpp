@@ -84,3 +84,8 @@ std::string sys::proc(int argc, const char *const argv[])
 
     return "";
 }
+
+int sys::pid()
+{
+    return ::getpid();
+}
