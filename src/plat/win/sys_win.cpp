@@ -29,6 +29,5 @@ std::string sys::proc(int argc, const char *const argv[])
 
 int sys::pid()
 {
-    // todo
-    return 0;
+    return ::GetCurrentProcessId();
 }
