@@ -31,3 +31,11 @@ int sys::pid()
 {
     return ::GetCurrentProcessId();
 }
+
+bool sys::kill(int pid)
+{
+    HANDLE handle = ::OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+    BOOL ret = ::TerminateProcess(handle, 0);
+    ::CloseHandle(handle);
+    return ret == TRUE;
+}

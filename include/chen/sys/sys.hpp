@@ -45,5 +45,10 @@ namespace chen
          * Current process id
          */
         static int pid();
+
+        /**
+         * Kill process
+         */
+        static bool kill(int pid);
     };
 }
