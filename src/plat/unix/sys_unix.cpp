@@ -56,7 +56,7 @@ void sys::daemon()
     ::close(STDERR_FILENO);
 }
 
-std::string sys::exe(int argc, const char *const argv[])
+std::string sys::proc(int argc, const char *const argv[])
 {
     if (!argc)
         return "";

@@ -37,8 +37,8 @@ namespace chen
         static std::string uuid();
 
         /**
-         * Executable path
+         * Current executable path
          */
-        static std::string exe(int argc, const char *const argv[]);
+        static std::string proc(int argc, const char *const argv[]);
     };
 }

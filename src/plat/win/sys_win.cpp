@@ -17,7 +17,7 @@ std::string sys::error()
     return errno && !::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "No error";
 }
 
-std::string sys::exe(int argc, const char *const argv[])
+std::string sys::proc(int argc, const char *const argv[])
 {
 	CHAR buf[MAX_PATH] = { 0 };
 
