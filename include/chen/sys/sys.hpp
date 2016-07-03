@@ -43,6 +43,8 @@ namespace chen
 
         /**
          * Current process id
+         * @caution blksize_t, pid_t, and ssize_t shall be signed integer types
+         * @link http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_types.h.html
          */
         static int pid();
 
