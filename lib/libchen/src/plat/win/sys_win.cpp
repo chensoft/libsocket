@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/sys/sys.hpp>
+#include <Windows.h>
 
 using namespace chen;
 
@@ -14,4 +15,14 @@ std::string sys::error()
 {
     char buf[1024] = {0};
     return errno && !::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "No error";
+}
+
+std::string sys::exe(int argc, const char *const argv[])
+{
+	CHAR buf[MAX_PATH] = { 0 };
+
+	if (::GetModuleFileName(NULL, buf, sizeof(buf)))
+		return std::string(buf);
+	else
+		return "";
 }

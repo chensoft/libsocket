@@ -5,6 +5,8 @@
  * @link   http://chensoft.com
  */
 #include <chen/sys/sys.hpp>
+#include <chen/sys/fs.hpp>
+#include <chen/base/str.hpp>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
@@ -52,4 +54,33 @@ void sys::daemon()
     ::close(STDIN_FILENO);
     ::close(STDOUT_FILENO);
     ::close(STDERR_FILENO);
+}
+
+std::string sys::exe(int argc, const char *const argv[])
+{
+    if (!argc)
+        return "";
+
+    std::string name(argv[0]);
+
+    // if argv[0] is absolute
+    if (fs::isAbsolute(name))
+        return name;
+
+    // if argv[0] is an relative
+    if (str::contain(name, "/"))
+        return fs::current() + "/" + fs::normalize(name);
+
+    // search $PATH for argv[0]
+    std::string path(::getenv("PATH"));
+    auto split = str::split(path, ":");
+
+    for (auto &folder : split)
+    {
+        std::string full = folder + "/" + name;
+        if (fs::isExecutable(full))
+            return full;
+    }
+
+    return "";
 }
