@@ -35,5 +35,10 @@ namespace chen
          * UUID string
          */
         static std::string uuid();
+
+        /**
+         * Executable path
+         */
+        static std::string exe(int argc, const char *const argv[]);
     };
 }
