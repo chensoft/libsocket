@@ -40,5 +40,17 @@ namespace chen
          * Current executable path
          */
         static std::string proc(int argc, const char *const argv[]);
+
+        /**
+         * Current process id
+         * @caution blksize_t, pid_t, and ssize_t shall be signed integer types
+         * @link http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_types.h.html
+         */
+        static int pid();
+
+        /**
+         * Kill process
+         */
+        static bool kill(int pid);
     };
 }

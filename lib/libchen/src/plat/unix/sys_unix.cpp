@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 #include <cstdlib>
 #include <cerrno>
 
@@ -83,4 +84,14 @@ std::string sys::proc(int argc, const char *const argv[])
     }
 
     return "";
+}
+
+int sys::pid()
+{
+    return ::getpid();
+}
+
+bool sys::kill(int pid)
+{
+    return !::kill(pid, SIGKILL);
 }
