@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file(see http://k
 - regex: add expand method that can use submatch to expand a string.
 - threadpool: user can retrieve the threads count.
 
+### Changed
+- sys: move process related methods to proc class.
+
 ### Fixed
 - ini: fix parse error if comment between two properties.
 - str: fix replace string didn't consider the all param.
