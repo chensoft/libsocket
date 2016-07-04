@@ -33,6 +33,7 @@ constexpr const char *CHEN_VERSION = "1.0.1";
 
 #include <chen/sys/fs.hpp>
 #include <chen/sys/sys.hpp>
+#include <chen/sys/proc.hpp>
 
 #include <chen/time/date.hpp>
 #include <chen/time/time.hpp>
