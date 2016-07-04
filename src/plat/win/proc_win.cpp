@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/sys/sys.hpp>
+#include <chen/sys/proc.hpp>
 #include <Windows.h>
 
 using namespace chen;
@@ -29,7 +29,24 @@ int proc::pid()
 bool proc::kill(int pid)
 {
     HANDLE handle = ::OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+    if (handle == INVALID_HANDLE_VALUE)
+        return false;
+
     BOOL ret = ::TerminateProcess(handle, 0);
+
     ::CloseHandle(handle);
     return ret == TRUE;
+}
+
+bool proc::exist(int pid)
+{
+    HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
+    if (handle == INVALID_HANDLE_VALUE)
+        return false;
+
+    DWORD status = 0;
+    ::GetExitCodeProcess(handle, &status);
+
+    ::CloseHandle(handle);
+    return status == STILL_ACTIVE;
 }
