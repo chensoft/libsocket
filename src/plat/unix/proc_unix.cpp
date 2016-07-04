@@ -88,3 +88,8 @@ bool proc::kill(int pid)
 {
     return !::kill(pid, SIGKILL);
 }
+
+bool proc::exist(int pid)
+{
+    return ::getpgid(pid) >= 0;
+}

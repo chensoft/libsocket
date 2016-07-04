@@ -41,5 +41,10 @@ namespace chen
          * Kill process
          */
         static bool kill(int pid);
+
+        /**
+         * Check if a process exist
+         */
+        static bool exist(int pid);
     };
 }
