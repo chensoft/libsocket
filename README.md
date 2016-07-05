@@ -1,11 +1,11 @@
 # libchen
 
-[![Build Status](https://travis-ci.org/chensoft/libchen.svg?branch=master)](https://travis-ci.org/chensoft/libchen)
-[![Build status](https://ci.appveyor.com/api/projects/status/v7jtgjh4hso5qim8?svg=true)](https://ci.appveyor.com/project/chensoft/libchen)
-[![release](http://github-release-version.herokuapp.com/github/chensoft/libchen/release.svg?style=flat&refresh=4)](https://github.com/chensoft/libchen/releases/latest)
+[![Build Status](https://img.shields.io/travis/chensoft/libchen.svg?label=Linux%20Mac)](https://travis-ci.org/chensoft/libchen)
+[![Build status](https://img.shields.io/appveyor/ci/chensoft/libchen.svg?label=Windows)](https://ci.appveyor.com/project/chensoft/libchen)
+[![release](http://github-release-version.herokuapp.com/github/chensoft/libchen/release.svg?style=flat&refresh=0)](https://github.com/chensoft/libchen/releases/latest)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 
-libchen is a general purpose C++ toolkit, it contains many useful and handy methods for creating complex software. It's open-source and released under the MIT License.
+libchen is a general purpose C++ toolkit, it contains many useful and handy methods for creating complex software. It's cross-platform and released under the MIT License.
 
 ## Platforms
 
@@ -20,29 +20,29 @@ Notice that C++11's regex is incomplete on g++ 4.8.x, if you want to use it, you
 ## Features
 
 * base - basic part
-	* string format, print, check equal, prefix, suffix, join, replace, trim and more
-	* utf-8 string character count, substr, check bom and convert from unicode point
-	* float equality test, integer swap, number to string, random generator
-	* regex match, replace and group
-	* check map's key, get all keys, all values, flip map
-	* make vector unique, combine, intersect and more
-	* provide a wrapper to hold any type
+    * str: string format, print, equality test, prefix & suffix, join, replace, trim and more
+    * utf8: check utf-8 string character count, retrieve sub string, check bom
+    * any: provide a wrapper to hold any type
+    * num: float equality test, integer swap, number to string, random number generator
+    * map: check key existence, retrieve all keys, all values, flip map's key and value
+    * vector: make unique, combine, intersect and difference
+    * regex: simple wrapper for regex match, replace and group
 * data - data parse
-	* json file parser
-	* ini file parser
+	* json: json file & string parser
+	* ini: ini file & string parser
 * mt - multithreading
-	* semaphore support
-	* threadpool support, use std::future
+	* semaphore: C++11 semaphore support
+	* threadpool: threadpool support, use std::future
 * sys - system operation
-	* dirname, basename, realpath, file exist and many filesystem related methods
-	* create daemon easily
-	* uuid generator
+	* fs: dirname, basename, realpath, file exist and many filesystem related methods
+	* sys: uuid generator
+	* proc: create daemon easily, get process pid and kill process
 * time - time and date
-	* simple timing class
-	* thread-safe gmt & local time
+	* time: simple timing class
+	* date: thread-safe gmt & local time
 * tool - misc tools
-	* simple logging system
-	* modern command line parser
+	* log: simple logging system
+	* cmd: modern command line parser
 
 ## Compile
 
