@@ -63,7 +63,7 @@ std::string proc::path(int argc, const char *const argv[])
 
     // if argv[0] is an relative
     if (str::contain(name, "/"))
-        return fs::current() + "/" + fs::normalize(name);
+        return fs::normalize(fs::current() + "/" + name);
 
     // search $PATH for argv[0]
     std::string path(::getenv("PATH"));
