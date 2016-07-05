@@ -42,6 +42,14 @@ std::string fs::absolute(const std::string &path)
         return fs::normalize(path);
 }
 
+std::string fs::absolute(const std::string &path, const std::string &cwd)
+{
+    if (fs::isRelative(path))
+        return cwd + fs::separator() + fs::normalize(path);
+    else
+        return fs::normalize(path);
+}
+
 std::string fs::normalize(const std::string &path)
 {
     if (path.empty())

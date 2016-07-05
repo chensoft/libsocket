@@ -83,6 +83,7 @@ namespace chen
          * e.g: if cwd is /home/staff/Downloads, then path "file.txt" will be appended to cwd
          */
         static std::string absolute(const std::string &path);
+        static std::string absolute(const std::string &path, const std::string &cwd);
 
         /**
          * Normalize path, remove ".", ".." and redundant separators

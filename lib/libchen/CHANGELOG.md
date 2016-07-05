@@ -8,13 +8,14 @@ All notable changes to this project will be documented in this file(see http://k
 - json: allow more integer type conversion.
 - json: allow implicit conversion from json to variable.
 - map: find value in map, a default value can be provided.
+- regex: add methods support pass std::regex object.
+- regex: add expand method that can use submatch to expand a string.
+- threadpool: user can retrieve the threads count.
+- fs: user can provide cwd in absolute method.
 - sys: retrieve current executable path.
 - sys: retrieve current process id.
 - sys: kill a specific process.
 - proc: check existence of process.
-- regex: add methods support pass std::regex object.
-- regex: add expand method that can use submatch to expand a string.
-- threadpool: user can retrieve the threads count.
 
 ### Changed
 - sys: move process related methods to proc class.
