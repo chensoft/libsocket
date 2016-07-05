@@ -17,9 +17,6 @@ TEST(SysFsTest, General)
     EXPECT_EQ("", chen::fs::drive("file.txt"));
     EXPECT_EQ("", chen::fs::drive(""));
 
-    // absolute
-    EXPECT_EQ(chen::fs::normalize(chen::fs::current() + "/../a/b"), chen::fs::absolute("../a/b"));
-
     // normalize
     EXPECT_EQ("a", chen::fs::normalize("./a"));
     EXPECT_EQ("a/b", chen::fs::normalize("a/./b"));
@@ -76,5 +73,8 @@ TEST(SysFsTest, General)
     EXPECT_EQ("/", chen::fs::root());
     EXPECT_EQ(std::vector<std::string>({"/"}), chen::fs::drives());
     EXPECT_EQ('/', chen::fs::separator());
+
+    // absolute
+    EXPECT_EQ(chen::fs::normalize(chen::fs::current() + "/../a/b"), chen::fs::absolute("../a/b"));
 #endif
 }
