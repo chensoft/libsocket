@@ -26,6 +26,12 @@ TEST(ToolCmdTest, General)
     cmd.define("addr", "a", "server address (default: 0.0.0.0)", "0.0.0.0");
     cmd.define("daemon", "d", "run as a daemon (default: no)", false);
 
+    EXPECT_THROW(cmd.define("", "", "", ""), chen::cmd::error_general);
+    EXPECT_THROW(cmd.define("s", "", "", ""), chen::cmd::error_general);
+    EXPECT_THROW(cmd.define("listen", "tiny", "", ""), chen::cmd::error_general);
+    EXPECT_THROW(cmd.define("port", "", "", ""), chen::cmd::error_general);
+    EXPECT_THROW(cmd.define("listen", "p", "", ""), chen::cmd::error_general);
+
     cmd.change("start");  // just test
 
     EXPECT_FALSE(cmd.exist("noaction"));
@@ -74,9 +80,25 @@ TEST(ToolCmdTest, General)
     EXPECT_TRUE(cmd.isSet("port"));
     EXPECT_TRUE(cmd.objects().empty());
 
+    // simulate -> exception
+    argv = {
+            "app",
+            "ver"
+    };
+
+    try
+    {
+        cmd.parse(static_cast<int>(argv.size()), &argv[0]);
+    }
+    catch (const chen::cmd::error_parse &error)
+    {
+        cmd.usage(error);
+    }
+
     // just call
     cmd.usage();
     cmd.usage("start");
+    cmd.usage("start", "");
     cmd.usage("start", "port");
 
     cmd.visit([] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
