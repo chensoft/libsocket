@@ -306,6 +306,17 @@ void response::setAdditional(rr_type &&value)
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
+// rotate
+void response::rotate()
+{
+    if (this->_answer.size() <= 1)
+        return;
+
+    auto rr = this->_answer.front();
+    this->_answer.erase(this->_answer.begin());
+    this->_answer.emplace_back(rr);
+}
+
 // codec
 std::vector<std::uint8_t> response::encode() const
 {

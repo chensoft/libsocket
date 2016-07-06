@@ -159,6 +159,12 @@ namespace chen
 
         public:
             /**
+             * Rotate answers
+             */
+            void rotate();
+
+        public:
+            /**
              * Encode & Decode
              */
             virtual std::vector<std::uint8_t> encode() const override;
