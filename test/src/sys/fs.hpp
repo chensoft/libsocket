@@ -26,6 +26,7 @@ TEST(SysFsTest, General)
     EXPECT_EQ(chen::fs::current(), chen::fs::absolute(".", chen::fs::current()));
 
     // normalize
+    EXPECT_EQ("", chen::fs::normalize(""));
     EXPECT_EQ("a", chen::fs::normalize("./a"));
     EXPECT_EQ("a/b", chen::fs::normalize("a/./b"));
     EXPECT_EQ("a/b", chen::fs::normalize("a///b"));
@@ -40,6 +41,7 @@ TEST(SysFsTest, General)
     EXPECT_EQ("C:\\b", chen::fs::normalize("C:\\a\\..\\b"));
 
     // dirname
+    EXPECT_EQ("", chen::fs::dirname(""));
     EXPECT_EQ("/home/staff/Downloads", chen::fs::dirname("/home/staff/Downloads/file.txt"));
     EXPECT_EQ("/usr", chen::fs::dirname("/usr/."));
     EXPECT_EQ("/", chen::fs::dirname("/usr/"));
@@ -62,6 +64,7 @@ TEST(SysFsTest, General)
     EXPECT_EQ("", chen::fs::basename("C:\\"));
 
     // extname
+    EXPECT_EQ("", chen::fs::extname("file.txt", 0));
     EXPECT_EQ(".txt", chen::fs::extname("/home/staff/Downloads/file.txt"));
     EXPECT_EQ("", chen::fs::extname("/home/"));
     EXPECT_EQ("", chen::fs::extname("/"));
@@ -89,6 +92,8 @@ TEST(SysFsTest, General)
 
     // absolute
     EXPECT_EQ(chen::fs::normalize(chen::fs::current() + "/../a/b"), chen::fs::absolute("../a/b"));
+    EXPECT_EQ("/a/b", chen::fs::absolute("/a/b"));
+    EXPECT_EQ("/a/b", chen::fs::absolute("/a/b", chen::fs::current()));
 
     // check
     EXPECT_TRUE(chen::fs::isExist("/"));
@@ -100,5 +105,24 @@ TEST(SysFsTest, General)
     chen::fs::isReadable("/");
     chen::fs::isWritable("/");
     chen::fs::isExecutable("/");
+
+    chen::fs::atime("/");
+    chen::fs::mtime("/");
+    chen::fs::ctime("/");
+
+    // touch
+    chen::fs::touch("/tmp/test_libchen.tmp", std::time(nullptr), std::time(nullptr));
+    chen::fs::copy("/tmp/test_libchen.tmp", "/tmp/test_libchen1.tmp");
+    chen::fs::rename("/tmp/test_libchen.tmp", "/tmp/test_libchen2.tmp");
+    chen::fs::remove("/tmp/test_libchen.tmp");
+    chen::fs::remove("/tmp/test_libchen1.tmp");
+    chen::fs::remove("/tmp/test_libchen2.tmp");
+
+    // visit
+    chen::fs::collect("/", false);
+    chen::fs::count("/", false);
+    chen::fs::visit("/", [] (const std::string &path) -> bool {
+        return true;
+    }, false);
 #endif
 }

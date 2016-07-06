@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file(see http://k
 - proc: check existence of process.
 
 ### Changed
+- num: using %g format float numbers.
 - sys: move process related methods to proc class.
 - cmd: don't set option value to "yes" if no value provided.
 

@@ -23,6 +23,13 @@ TEST(DataIniTest, General)
     // pass
     for (int j = 1; j <= 4; ++j)
     {
-        EXPECT_NO_FATAL_FAILURE(chen::ini::parse(chen::fs::read(conf::data + chen::str::format("/ini/pass%d.ini", j))));
+        EXPECT_NO_THROW(chen::ini::parse(conf::data + chen::str::format("/ini/pass%d.ini", j), true));
     }
+
+    // equal(usage of block text in C++11)
+    auto text  = R"([section]
+key="simple value")";
+
+    auto parse = chen::ini::parse(text);
+    EXPECT_EQ(text, chen::ini::stringify(parse));
 }

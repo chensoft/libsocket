@@ -11,13 +11,63 @@
 
 TEST(DataJsonTest, Type)
 {
+    chen::json json_object(chen::json::Type::Object);
+    chen::json json_array(chen::json::Type::Array);
+    chen::json json_number(chen::json::Type::Number);
+    chen::json json_string(chen::json::Type::String);
+    chen::json json_true(chen::json::Type::True);
+    chen::json json_false(chen::json::Type::False);
+
+    chen::json::object unused_o = json_object;
+    chen::json::array unused_a  = json_array;
+
+    double unused_d = json_number;
+    std::int8_t   unused_i8  = json_number;
+    std::uint8_t  unused_u8  = json_number;
+    std::int16_t  unused_i16 = json_number;
+    std::uint16_t unused_u16 = json_number;
+    std::int32_t  unused_i32 = json_number;
+    std::uint32_t unused_u32 = json_number;
+    std::int64_t  unused_i64 = json_number;
+    std::uint64_t unused_u64 = json_number;
+
+    std::string unused_s = json_string;
+    bool unused_b = json_true;
+
+    json_object.getObject().clear();
+    json_array.getArray().clear();
+    json_number.getNumber() = 115;
+    json_string.getString() = "123";
+
+    json_object.toObject();
+    json_array.toArray();
+
+    EXPECT_EQ(123, json_string.toNumber());
+    EXPECT_EQ(123, json_string.toInteger());
+    EXPECT_EQ(123, json_string.toUnsigned());
+    EXPECT_EQ("115", json_number.toString());
+    EXPECT_TRUE(json_object.toBool());
+
+    EXPECT_TRUE(chen::json(chen::json::Type::None).isNone());
+    EXPECT_TRUE(json_object.isObject());
+    EXPECT_TRUE(json_array.isArray());
+    EXPECT_TRUE(json_number.isNumber());
+    EXPECT_TRUE(json_string.isString());
+    EXPECT_TRUE(json_true.isTrue());
+    EXPECT_TRUE(json_false.isFalse());
+    EXPECT_TRUE(chen::json(chen::json::Type::Null).isNull());
+
     EXPECT_TRUE(chen::json().isNone());
     EXPECT_TRUE(chen::json(chen::json::object()).isObject());
     EXPECT_TRUE(chen::json(chen::json::array()).isArray());
+    EXPECT_TRUE(chen::json(115).isNumber());
+    EXPECT_TRUE(chen::json(115u).isNumber());
     EXPECT_TRUE(chen::json(0.715002586).isNumber());
     EXPECT_TRUE(chen::json("Jian Chen").isString());
+    EXPECT_TRUE(chen::json(std::string("Jian Chen")).isString());
     EXPECT_TRUE(chen::json(true).isTrue());
     EXPECT_TRUE(chen::json(false).isFalse());
+    EXPECT_TRUE(chen::json(true).isBool());
     EXPECT_TRUE(chen::json(nullptr).isNull());
 }
 
@@ -38,6 +88,16 @@ TEST(DataJsonTest, Validate)
     // pass
     for (int j = 1; j <= 3; ++j)
     {
-        EXPECT_NO_FATAL_FAILURE(chen::json::validate(chen::fs::read(conf::data + chen::str::format("/json/pass%d.json", j))));
+        EXPECT_NO_THROW(chen::json::validate(conf::data + chen::str::format("/json/pass%d.json", j), true));
     }
+
+    // equal
+    auto text  = R"([
+    1,
+    2,
+    3
+])";
+
+    auto parse = chen::json::parse(text);
+    EXPECT_EQ(text, chen::json::stringify(parse, 4));
 }
