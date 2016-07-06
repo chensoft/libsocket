@@ -6,6 +6,13 @@ matrix:
       dist: trusty
       sudo: required
       compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-4.9
+      env: COMPILER=g++-4.9
       install:
         # for code coverage
         - cd ${TRAVIS_BUILD_DIR}
@@ -22,7 +29,7 @@ matrix:
         # for code coverage
         - cd ${TRAVIS_BUILD_DIR}
         - lcov --directory . --capture --output-file coverage.info
-        - lcov --remove coverage.info 'tests/*' '/usr/*' 'googletest/*' --output-file coverage.info
+        - lcov --remove coverage.info '/usr/*' 'googletest/*' --output-file coverage.info
         - lcov --list coverage.info
         - coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
 
