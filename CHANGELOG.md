@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file(see http://k
 
 ### Changed
 - sys: move process related methods to proc class.
+- cmd: don't set option value to "yes" if no value provided.
 
 ### Fixed
 - ini: fix parse error if comment between two properties.
