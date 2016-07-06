@@ -127,17 +127,17 @@ std::string num::str(unsigned long long value)
 
 std::string num::str(float value)
 {
-    return chen::str::format("%f", value);
+    return chen::str::format("%g", value);
 }
 
 std::string num::str(double value)
 {
-    return chen::str::format("%f", value);
+    return chen::str::format("%g", value);
 }
 
 std::string num::str(long double value)
 {
-    return chen::str::format("%Lf", value);
+    return chen::str::format("%Lg", value);
 }
 
 // random

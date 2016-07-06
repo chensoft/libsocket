@@ -21,8 +21,10 @@ TEST(BaseStrTest, General)
     EXPECT_TRUE(chen::str::equal("chen", 4, "chen", 4));
     EXPECT_TRUE(chen::str::prefix("chensoft", "chen"));
     EXPECT_FALSE(chen::str::prefix("chensoft", "soft"));
+    EXPECT_FALSE(chen::str::prefix("chen", "chensoft"));
     EXPECT_TRUE(chen::str::suffix("chensoft", "soft"));
     EXPECT_FALSE(chen::str::suffix("chensoft", "chen"));
+    EXPECT_FALSE(chen::str::suffix("chen", "chensoft"));
     EXPECT_TRUE(chen::str::contain("libchen", "lib"));
 
     // count
@@ -33,6 +35,7 @@ TEST(BaseStrTest, General)
     EXPECT_EQ(split, chen::str::split("10.0.0.1", "."));
     EXPECT_EQ(split, chen::str::split("10->0->0->1", "->"));
     EXPECT_EQ("10.0.0.1", chen::str::join(split, "."));
+    EXPECT_EQ("", chen::str::join(std::vector<std::string>(), "."));
 
     // replace
     std::string replace("I'm a search string");
@@ -56,8 +59,13 @@ TEST(BaseStrTest, General)
     EXPECT_EQ("so many spaces", chen::str::trim(trim));
 
     // transform
+    std::string empty;
     std::string transform("abCDe");
+    EXPECT_EQ("", chen::str::capitalize(empty));
     EXPECT_EQ("AbCDe", chen::str::capitalize(transform));
     EXPECT_EQ("abcde", chen::str::lowercase(transform));
     EXPECT_EQ("ABCDE", chen::str::uppercase(transform));
+
+    // levenshtein
+    EXPECT_EQ(2, chen::str::levenshtein("pull", 4, "push", 4));
 }

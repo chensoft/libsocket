@@ -17,6 +17,9 @@ json::json(chen::json::Type type)
     // handy method to create default json
     switch (type)
     {
+        case Type::None:
+            break;
+
         case Type::Object:
             *this = chen::json::object();
             break;

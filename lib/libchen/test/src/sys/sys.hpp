@@ -11,5 +11,6 @@
 
 TEST(SysSysTest, General)
 {
+    chen::sys::error();
     EXPECT_NE(chen::sys::uuid(), chen::sys::uuid());
 }

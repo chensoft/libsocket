@@ -9,6 +9,12 @@ project(test_libchen)
 # environment
 include(../CMakeEnv.cmake)
 
+if(CMAKE_COMPILER_IS_GNUCXX AND ((NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE EQUAL "DEBUG")))
+    message("-- Enable code coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")      # debug, no optimisation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")  # enabling coverage
+endif()
+
 # libraries
 OPTION(LIBCHEN_BUILD_SHARED OFF)
 

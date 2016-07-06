@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file(see http://k
 - proc: check existence of process.
 
 ### Changed
+- num: using %g format float numbers.
 - sys: move process related methods to proc class.
 - cmd: don't set option value to "yes" if no value provided.
 
@@ -25,6 +26,9 @@ All notable changes to this project will be documented in this file(see http://k
 - ini: fix parse error if comment between two properties.
 - str: fix replace string didn't consider the all param.
 - fs: fix method absolute didn't remove ".." if path is "../a/b".
+
+### Removed
+- cmd: remove int64 and double conversion at this moment.
 
 ## [1.0.1] - 2016-06-21
 ### Added

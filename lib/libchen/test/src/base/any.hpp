@@ -35,4 +35,9 @@ TEST(BaseAnyTest, General)
 
     EXPECT_NE(std::string("chensoft"), s);
     EXPECT_EQ(std::string("chensoft.com"), s);
+
+    // assign
+    chen::any o1(std::move(any));
+    chen::any o2;
+    o2 = std::move(any);
 }
