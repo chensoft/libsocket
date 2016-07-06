@@ -5,3 +5,5 @@
 -) i18n support
 
 -) MAC address, IP address added to sys
+
+-) cmd support int64 and double, don't use chen::any

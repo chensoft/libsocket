@@ -23,7 +23,7 @@ TEST(BaseNumTest, General)
     EXPECT_EQ(601138196360724480, chen::num::swap(static_cast<std::int64_t>(201891534600)));
     EXPECT_EQ(static_cast<std::uint16_t>(4660), chen::num::swap(static_cast<std::uint16_t>(13330)));
     EXPECT_EQ(static_cast<std::uint32_t>(305419896), chen::num::swap(static_cast<std::uint32_t>(2018915346)));
-    EXPECT_EQ(static_cast<std::uint64_t>(139963393), chen::num::swap(static_cast<std::uint32_t>(201891534600)));
+    EXPECT_EQ(static_cast<std::uint64_t>(601138196360724480), chen::num::swap(static_cast<std::uint64_t>(201891534600)));
 
     // str
     EXPECT_EQ("true", chen::num::str(true));

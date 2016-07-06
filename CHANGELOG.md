@@ -27,6 +27,9 @@ All notable changes to this project will be documented in this file(see http://k
 - str: fix replace string didn't consider the all param.
 - fs: fix method absolute didn't remove ".." if path is "../a/b".
 
+### Removed
+- cmd: remove int64 and double conversion at this moment.
+
 ## [1.0.1] - 2016-06-21
 ### Added
 - test: add threadpool unit test.

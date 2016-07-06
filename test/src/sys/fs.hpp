@@ -111,6 +111,11 @@ TEST(SysFsTest, General)
     chen::fs::ctime("/");
 
     // touch
+    chen::fs::write("/tmp/test_libchen.tmp", "content", false);
+    chen::fs::write("/tmp/test_libchen.tmp", "content", 7, true);
+    chen::fs::read("/tmp/test_libchen.tmp", '\n');
+
+    chen::fs::touch("/tmp/test_libchen.tmp");
     chen::fs::touch("/tmp/test_libchen.tmp", std::time(nullptr), std::time(nullptr));
     chen::fs::copy("/tmp/test_libchen.tmp", "/tmp/test_libchen1.tmp");
     chen::fs::rename("/tmp/test_libchen.tmp", "/tmp/test_libchen2.tmp");
@@ -118,9 +123,15 @@ TEST(SysFsTest, General)
     chen::fs::remove("/tmp/test_libchen1.tmp");
     chen::fs::remove("/tmp/test_libchen2.tmp");
 
+    chen::fs::create("/tmp/folder_libchen/nest", 0, true);
+    chen::fs::copy("/tmp/folder_libchen", "/tmp/folder_libchen_copy");
+    chen::fs::remove("/tmp/folder_libchen");
+    chen::fs::remove("/tmp/folder_libchen_copy");
+
     // visit
     chen::fs::collect("/", false);
     chen::fs::count("/", false);
+    chen::fs::count("/", false, false, false);
     chen::fs::visit("/", [] (const std::string &path) -> bool {
         return true;
     }, false);

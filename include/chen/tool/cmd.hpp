@@ -119,15 +119,12 @@ namespace chen
 
         /**
          * Get the value of the option which belongs to the current resolved action
-         * support bool, int, int64, double, string
+         * support bool, int, string
          * @param option the full name or tiny name of the option
          */
         virtual bool boolVal(const std::string &option) const;
         virtual std::int32_t intVal(const std::string &option) const;
         virtual std::string strVal(const std::string &option) const;
-
-        virtual std::int64_t int64Val(const std::string &option) const;
-        virtual double doubleVal(const std::string &option) const;
 
         /**
          * Whether the option is set

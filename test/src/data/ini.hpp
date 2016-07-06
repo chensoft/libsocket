@@ -28,7 +28,7 @@ TEST(DataIniTest, General)
 
     // equal(usage of block text in C++11)
     auto text  = R"([section]
-key="simple value")";
+key="simple \\\0\a\b\t\r\n\:\"\;\#value")";
 
     auto parse = chen::ini::parse(text);
     EXPECT_EQ(text, chen::ini::stringify(parse));

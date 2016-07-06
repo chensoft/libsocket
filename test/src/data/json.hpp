@@ -91,11 +91,18 @@ TEST(DataJsonTest, Validate)
         EXPECT_NO_THROW(chen::json::validate(conf::data + chen::str::format("/json/pass%d.json", j), true));
     }
 
+    EXPECT_NO_THROW(chen::json::parse(conf::data + chen::str::format("/json/pass1.json"), true));
+
     // equal
     auto text  = R"([
     1,
     2,
-    3
+    3,
+    false,
+    null,
+    {
+        "key": "val-\"\\\/\b\f\n\r\tchars"
+    }
 ])";
 
     auto parse = chen::json::parse(text);

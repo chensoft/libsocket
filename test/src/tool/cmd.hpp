@@ -15,6 +15,7 @@ TEST(ToolCmdTest, General)
 
     // help
     cmd.create("help", "show help");
+    cmd.create("help", "show app help");  // test overwrite
  
     // version
     cmd.create("version", "show app version");
@@ -23,6 +24,12 @@ TEST(ToolCmdTest, General)
     cmd.create("start", "start server");
     cmd.define("port", "p", "server port (default: 80)", 80);
     cmd.define("addr", "a", "server address (default: 0.0.0.0)", "0.0.0.0");
+    cmd.define("daemon", "d", "run as a daemon (default: no)", false);
+
+    cmd.change("start");  // just test
+
+    EXPECT_FALSE(cmd.exist("noaction"));
+    EXPECT_FALSE(cmd.exist("start", "nooption"));
 
     // simulate -> version
     std::vector<const char*> argv = {
@@ -32,6 +39,7 @@ TEST(ToolCmdTest, General)
 
     cmd.parse(static_cast<int>(argv.size()), &argv[0]);
 
+    EXPECT_EQ("app", cmd.app());
     EXPECT_EQ("version", cmd.current());
 
     // simulate -> start
@@ -46,12 +54,15 @@ TEST(ToolCmdTest, General)
     EXPECT_EQ(80, cmd.intVal("port"));
     EXPECT_EQ("0.0.0.0", cmd.strVal("addr"));
 
+    EXPECT_FALSE(cmd.isSet("daemon"));
+    EXPECT_FALSE(cmd.boolVal("daemon"));
+
     // simulate -> start
     argv = {
             "app",
             "start",
             "--port=8888",
-            "--addr=127.0.0.1"
+            "-a=127.0.0.1"
     };
 
     cmd.parse(static_cast<int>(argv.size()), &argv[0]);
@@ -59,4 +70,18 @@ TEST(ToolCmdTest, General)
     EXPECT_EQ("start", cmd.current());
     EXPECT_EQ(8888, cmd.intVal("port"));
     EXPECT_EQ("127.0.0.1", cmd.strVal("addr"));
+
+    EXPECT_TRUE(cmd.isSet("port"));
+    EXPECT_TRUE(cmd.objects().empty());
+
+    // just call
+    cmd.usage();
+    cmd.usage("start");
+    cmd.usage("start", "port");
+
+    cmd.visit([] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
+    });
+
+    cmd.visit("start", [] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
+    });
 }
