@@ -126,15 +126,12 @@ namespace chen
              * Add field value
              */
             void addQuestion(const chen::dns::question &value);
-            void addAnswer(const std::shared_ptr<chen::dns::RR> &value);
-            void addAuthority(const std::shared_ptr<chen::dns::RR> &value);
-            void addAdditional(const std::shared_ptr<chen::dns::RR> &value);
-
             void addQuestion(chen::dns::question &&value);
-            void addAnswer(std::shared_ptr<chen::dns::RR> &&value);
-            void addAuthority(std::shared_ptr<chen::dns::RR> &&value);
-            void addAdditional(std::shared_ptr<chen::dns::RR> &&value);
 
+            void addAnswer(std::shared_ptr<chen::dns::RR> value);
+            void addAuthority(std::shared_ptr<chen::dns::RR> value);
+            void addAdditional(std::shared_ptr<chen::dns::RR> value);
+            
         public:
             /**
              * Get field value
