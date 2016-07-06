@@ -1,15 +1,13 @@
 language: cpp
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
-
-sudo: required
-dist: trusty
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: gcc
+    - os: osx
+      compiler: clang
 
 script:
   - cd test
@@ -18,8 +16,3 @@ script:
   - cmake ..
   - make
   - ./test_libchen --data=../data
-
-notifications:
-  email:
-    on_success: never
-    on_failure: always
