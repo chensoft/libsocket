@@ -17,7 +17,6 @@ matrix:
         # gcc 4.9
         - export CC=gcc-4.9
         - export CXX=g++-4.9
-        - gcc --version
         # for code coverage
         - cd ${TRAVIS_BUILD_DIR}
         - wget http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.11.orig.tar.gz

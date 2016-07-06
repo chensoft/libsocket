@@ -11,11 +11,19 @@
 
 TEST(SysFsTest, General)
 {
+    // path
+    chen::fs::home();
+    chen::fs::temp();
+
     // drive
     EXPECT_EQ("C:\\", chen::fs::drive("C:\\Windows\\System32"));
     EXPECT_EQ("/", chen::fs::drive("/usr/local"));
     EXPECT_EQ("", chen::fs::drive("file.txt"));
     EXPECT_EQ("", chen::fs::drive(""));
+
+    // path
+    EXPECT_EQ(chen::fs::current(), chen::fs::realpath(chen::fs::current()));
+    EXPECT_EQ(chen::fs::current(), chen::fs::absolute(".", chen::fs::current()));
 
     // normalize
     EXPECT_EQ("a", chen::fs::normalize("./a"));
@@ -68,6 +76,11 @@ TEST(SysFsTest, General)
 
     EXPECT_TRUE(chen::fs::isAbsolute("C:\\Windows\\System32"));
 
+    // change
+    auto cwd = chen::fs::current();
+    chen::fs::change(cwd);
+    EXPECT_EQ(cwd, chen::fs::current());
+
     // platform dependent
 #ifndef _WIN32
     EXPECT_EQ("/", chen::fs::root());
@@ -76,5 +89,16 @@ TEST(SysFsTest, General)
 
     // absolute
     EXPECT_EQ(chen::fs::normalize(chen::fs::current() + "/../a/b"), chen::fs::absolute("../a/b"));
+
+    // check
+    EXPECT_TRUE(chen::fs::isExist("/"));
+    EXPECT_TRUE(chen::fs::isDir("/"));
+    EXPECT_FALSE(chen::fs::isFile("/"));
+    EXPECT_FALSE(chen::fs::isLink("/"));
+
+    // just call
+    chen::fs::isReadable("/");
+    chen::fs::isWritable("/");
+    chen::fs::isExecutable("/");
 #endif
 }
