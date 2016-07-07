@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file(see http://k
 - regex: add expand method that can use submatch to expand a string.
 - threadpool: user can retrieve the threads count.
 - fs: user can provide cwd in absolute method.
+- fs: add append method to append data to file.
 - sys: retrieve current executable path.
 - sys: retrieve current process id.
 - sys: kill a specific process.

@@ -38,6 +38,13 @@ TEST(BaseAnyTest, General)
 
     // assign
     chen::any o1(std::move(any));
+
+    EXPECT_TRUE(any.empty());
+    EXPECT_FALSE(o1.empty());
+
     chen::any o2;
-    o2 = std::move(any);
+    o2 = std::move(o1);
+
+    EXPECT_TRUE(o1.empty());
+    EXPECT_FALSE(o2.empty());
 }

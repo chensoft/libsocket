@@ -111,8 +111,10 @@ TEST(SysFsTest, General)
     chen::fs::ctime("/");
 
     // touch
-    chen::fs::write("/tmp/test_libchen.tmp", "content", false);
-    chen::fs::write("/tmp/test_libchen.tmp", "content", 7, true);
+    chen::fs::write("/tmp/test_libchen.tmp", "content");
+    chen::fs::write("/tmp/test_libchen.tmp", "content", 7);
+    chen::fs::append("/tmp/test_libchen.tmp", "content");
+    chen::fs::append("/tmp/test_libchen.tmp", "content", 7);
     chen::fs::read("/tmp/test_libchen.tmp", '\n');
 
     chen::fs::touch("/tmp/test_libchen.tmp");

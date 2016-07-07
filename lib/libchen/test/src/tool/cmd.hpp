@@ -32,7 +32,8 @@ TEST(ToolCmdTest, General)
     EXPECT_THROW(cmd.define("port", "", "", ""), chen::cmd::error_general);
     EXPECT_THROW(cmd.define("listen", "p", "", ""), chen::cmd::error_general);
 
-    cmd.change("start");  // just test
+    EXPECT_NO_THROW(cmd.change("start"));
+    EXPECT_THROW(cmd.change("noaction"), chen::cmd::error_general);
 
     EXPECT_FALSE(cmd.exist("noaction"));
     EXPECT_FALSE(cmd.exist("start", "nooption"));

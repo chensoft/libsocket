@@ -299,7 +299,10 @@ namespace chen
         /**
          * Write data to the file
          */
-        static bool write(const std::string &file, const std::string &data, bool append = false);
-        static bool write(const std::string &file, const void *data, std::streamsize size, bool append = false);
+        static bool write(const std::string &file, const std::string &data);
+        static bool write(const std::string &file, const void *data, std::streamsize size);
+
+        static bool append(const std::string &file, const std::string &data);
+        static bool append(const std::string &file, const void *data, std::streamsize size);
     };
 }

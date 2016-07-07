@@ -39,8 +39,8 @@ TEST(DataJsonTest, Type)
     json_number.getNumber() = 115;
     json_string.getString() = "123";
 
-    json_object.toObject();
-    json_array.toArray();
+    EXPECT_TRUE(json_object.toObject().empty());
+    EXPECT_TRUE(json_array.toArray().empty());
 
     EXPECT_EQ(123, json_string.toNumber());
     EXPECT_EQ(123, json_string.toInteger());
@@ -91,7 +91,10 @@ TEST(DataJsonTest, Validate)
         EXPECT_NO_THROW(chen::json::validate(conf::data + chen::str::format("/json/pass%d.json", j), true));
     }
 
-    EXPECT_NO_THROW(chen::json::parse(conf::data + chen::str::format("/json/pass1.json"), true));
+    EXPECT_NO_THROW(chen::json::parse(conf::data + "/json/pass1.json", true));
+
+    // exist
+    EXPECT_THROW(chen::json::parse(conf::data + "/json/not_exist.json", true), chen::json::error);
 
     // equal
     auto text  = R"([

@@ -404,24 +404,48 @@ std::vector<std::string> fs::read(const std::string &file, char delimiter)
 }
 
 // write
-bool fs::write(const std::string &file, const std::string &data, bool append)
+bool fs::write(const std::string &file, const std::string &data)
 {
     if (!fs::create(fs::dirname(file)))
         return false;
 
-    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : static_cast<std::ios_base::openmode>(0)));
+    std::ofstream out(file, std::ios_base::binary);
     if (out)
         out.write(data.data(), data.size());
 
     return out.good();
 }
 
-bool fs::write(const std::string &file, const void *data, std::streamsize size, bool append)
+bool fs::write(const std::string &file, const void *data, std::streamsize size)
 {
     if (!fs::create(fs::dirname(file)))
         return false;
 
-    std::ofstream out(file, std::ios_base::binary | (append ? std::ios_base::app : static_cast<std::ios_base::openmode>(0)));
+    std::ofstream out(file, std::ios_base::binary);
+    if (out)
+        out.write(static_cast<const char*>(data), size);
+
+    return out.good();
+}
+
+bool fs::append(const std::string &file, const std::string &data)
+{
+    if (!fs::create(fs::dirname(file)))
+        return false;
+
+    std::ofstream out(file, std::ios_base::binary | std::ios_base::app);
+    if (out)
+        out.write(data.data(), data.size());
+
+    return out.good();
+}
+
+bool fs::append(const std::string &file, const void *data, std::streamsize size)
+{
+    if (!fs::create(fs::dirname(file)))
+        return false;
+
+    std::ofstream out(file, std::ios_base::binary | std::ios_base::app);
     if (out)
         out.write(static_cast<const char*>(data), size);
 
