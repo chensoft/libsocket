@@ -32,13 +32,18 @@ TEST(BaseNumTest, General)
     EXPECT_EQ("115", chen::num::str(115u));
     EXPECT_EQ("-115", chen::num::str(-115));
 
-    // just call
-    chen::num::str(0.1f);
-    chen::num::str(0.1);
-    chen::num::str(0.1L);
+    EXPECT_EQ("115", chen::num::str(115.0f));  // because I use %g format
+    EXPECT_EQ("115", chen::num::str(115.0));
+    EXPECT_EQ("115", chen::num::str(115.0L));
 
-    chen::num::random(0.0, 2.0);
-    chen::num::random(1, 9999);
+    auto rand_real = chen::num::random(0.0, 2.0);
+    auto rand_int  = chen::num::random(1, 9999);
+
+    EXPECT_GE(rand_real, 0);
+    EXPECT_LT(rand_real, 2);
+
+    EXPECT_GE(rand_int, 1);
+    EXPECT_LE(rand_int, 9999);
 
     // prime
     EXPECT_FALSE(chen::num::prime(0));
