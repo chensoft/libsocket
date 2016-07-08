@@ -316,7 +316,8 @@ std::string cmd::current() const
 // option value
 bool cmd::boolVal(const std::string &option) const
 {
-    return this->opt(option).set;
+    auto opt = this->opt(option);
+    return opt.set ? true : static_cast<bool>(opt.def);
 }
 
 std::int32_t cmd::intVal(const std::string &option) const
