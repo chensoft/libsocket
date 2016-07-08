@@ -20,7 +20,7 @@ namespace chen
             /**
              * Receive Callback
              */
-            typedef std::function<void (std::unique_ptr<chen::tcp::conn> conn)> callback_type;
+            typedef std::function<void (std::shared_ptr<chen::tcp::conn> conn)> callback_type;
 
         public:
             /**
@@ -48,7 +48,7 @@ namespace chen
             /**
              * Notify the observer
              */
-            virtual void notify(std::unique_ptr<chen::tcp::conn> conn);
+            virtual void notify(std::shared_ptr<chen::tcp::conn> conn);
 
         public:
             /**
@@ -67,7 +67,7 @@ namespace chen
              * Accept new connection
              * use `start` method is more convenient
              */
-            virtual std::unique_ptr<chen::tcp::conn> accept(float timeout = 0);
+            virtual std::shared_ptr<chen::tcp::conn> accept(float timeout = 0);
 
         protected:
             callback_type _callback;

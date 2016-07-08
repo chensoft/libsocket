@@ -27,7 +27,7 @@ void server::start()
         auto conn = this->accept();
 
         if (conn)
-            this->notify(std::move(conn));
+            this->notify(conn);
         else
             break;
     }
@@ -56,8 +56,8 @@ void server::detach()
     this->_callback = nullptr;
 }
 
-void server::notify(std::unique_ptr<chen::tcp::conn> conn)
+void server::notify(std::shared_ptr<chen::tcp::conn> conn)
 {
     if (this->_callback)
-        this->_callback(std::move(conn));
+        this->_callback(conn);
 }

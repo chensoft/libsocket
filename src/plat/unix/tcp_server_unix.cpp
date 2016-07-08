@@ -44,7 +44,7 @@ void server::listen()
         throw error_listen("tcp: " + chen::sys::error());
 }
 
-std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
+std::shared_ptr<chen::tcp::conn> server::accept(float timeout)
 {
     struct pollfd poll;
 
@@ -61,7 +61,7 @@ std::unique_ptr<chen::tcp::conn> server::accept(float timeout)
         auto so = ::accept(this->_impl->_socket, (struct sockaddr*)&in, &len);
 
         if (so != -1)
-            return std::unique_ptr<chen::tcp::conn>(new chen::tcp::conn(&so));
+            return std::make_shared<chen::tcp::conn>(&so);
         else
             throw error_accept("tcp: " + chen::sys::error());
     }
