@@ -43,6 +43,6 @@ script:
   - cd test
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DLIBCHEN_TEST_CODE_COVERAGE=ON ..
   - make
   - ./test_libchen --data=../data
