@@ -5,7 +5,6 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
-      compiler: gcc
       addons:
         apt:
           sources:
@@ -35,14 +34,20 @@ matrix:
         - lcov --remove coverage.info '/usr/*' 'googletest/*' --output-file coverage.info
         - lcov --list coverage.info
         - coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
+      script:
+        - cd test
+        - mkdir build
+        - cd build
+        - cmake -DLIBCHEN_TEST_CODE_COVERAGE=ON ..
+        - make
+        - ./test_libchen --data=../data
 
     - os: osx
-      compiler: clang
-
-script:
-  - cd test
-  - mkdir build
-  - cd build
-  - cmake -DLIBCHEN_TEST_CODE_COVERAGE=ON ..
-  - make
-  - ./test_libchen --data=../data
+      osx_image: xcode7
+      script:
+        - cd test
+        - mkdir build
+        - cd build
+        - cmake -G Xcode ..
+        - xcodebuild -target test_libchen -project test_libchen.xcodeproj -configuration Release
+        - Release/test_libchen --data=../data
