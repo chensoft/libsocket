@@ -4,7 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "so_socket_unix.hpp"
+#ifndef _WIN32
+
+#include "so_socket.unix.hpp"
 #include <socket/udp/udp_server.hpp>
 #include <socket/so/so_error.hpp>
 #include <chen/chen.hpp>
@@ -35,3 +37,5 @@ void server::bind(const std::string &addr, std::uint16_t port)
     if (::bind(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
         throw error_bind("udp: " + chen::sys::error());
 }
+
+#endif

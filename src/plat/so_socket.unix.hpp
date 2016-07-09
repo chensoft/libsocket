@@ -6,6 +6,8 @@
  */
 #pragma once
 
+#ifndef _WIN32
+
 #include <socket/so/so_socket.hpp>
 
 namespace chen
@@ -21,3 +23,5 @@ namespace chen
         };
     }
 }
+
+#endif

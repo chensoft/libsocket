@@ -4,7 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "so_socket_unix.hpp"
+#ifndef _WIN32
+
+#include "so_socket.unix.hpp"
 #include <socket/tcp/tcp_client.hpp>
 #include <socket/so/so_error.hpp>
 #include <chen/chen.hpp>
@@ -87,3 +89,5 @@ bool client::isNonBlocking() const
     auto flag = ::fcntl(this->_impl->_socket, F_GETFL);
     return (flag == -1) ? false : ((flag & O_NONBLOCK) != 0);
 }
+
+#endif

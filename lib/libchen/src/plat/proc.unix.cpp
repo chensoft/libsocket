@@ -4,6 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#ifndef _WIN32
+
 #include <chen/sys/proc.hpp>
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
@@ -93,3 +95,5 @@ bool proc::exist(int pid)
 {
     return ::getpgid(pid) >= 0;
 }
+
+#endif

@@ -4,7 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "so_socket_unix.hpp"
+#ifndef _WIN32
+
+#include "so_socket.unix.hpp"
 #include <socket/tcp/tcp_socket.hpp>
 #include <socket/so/so_error.hpp>
 #include <chen/chen.hpp>
@@ -86,3 +88,5 @@ std::size_t chen::tcp::socket::recv(void *data, std::size_t size, float timeout)
         return static_cast<std::size_t>(ret);
     }
 }
+
+#endif

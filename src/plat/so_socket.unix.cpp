@@ -4,7 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "so_socket_unix.hpp"
+#ifndef _WIN32
+
+#include "so_socket.unix.hpp"
 #include <socket/so/so_error.hpp>
 #include <chen/chen.hpp>
 #include <sys/socket.h>
@@ -162,3 +164,5 @@ void socket::build()
     else
         this->_impl->_socket = sock;
 }
+
+#endif

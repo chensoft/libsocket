@@ -4,7 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "so_socket_unix.hpp"
+#ifndef _WIN32
+
+#include "so_socket.unix.hpp"
 #include <socket/tcp/tcp_server.hpp>
 #include <socket/so/so_error.hpp>
 #include <chen/chen.hpp>
@@ -75,3 +77,5 @@ std::shared_ptr<chen::tcp::conn> server::accept(float timeout)
         throw error_accept("tcp: " + chen::sys::error());
     }
 }
+
+#endif

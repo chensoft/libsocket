@@ -4,6 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#ifndef _WIN32
+
 #include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
 #include <fstream>
@@ -268,3 +270,5 @@ void fs::visit(const std::string &directory,
 
     ::closedir(dir);
 }
+
+#endif

@@ -28,19 +28,11 @@ file(GLOB INC_TCP  include/socket/tcp/*.hpp)
 file(GLOB INC_UDP  include/socket/udp/*.hpp)
 file(GLOB INC_DNS  include/socket/dns/*.hpp)
 
-aux_source_directory(src/ip  SRC_IP)
-aux_source_directory(src/tcp SRC_TCP)
-aux_source_directory(src/udp SRC_UDP)
-aux_source_directory(src/dns SRC_DNS)
-
-# platform codes
-if(UNIX)
-    aux_source_directory(src/plat/unix SRC_PLAT)
-elseif(WIN32)
-    aux_source_directory(src/plat/win SRC_PLAT)
-else()
-    message(FATAL_ERROR "Unsupported system")
-endif()
+aux_source_directory(src/ip   SRC_IP)
+aux_source_directory(src/tcp  SRC_TCP)
+aux_source_directory(src/udp  SRC_UDP)
+aux_source_directory(src/dns  SRC_DNS)
+aux_source_directory(src/plat SRC_PLAT)
 
 # generate lib(both static and shared)
 # rename library to libsocket.a & libsocket.so or libsocket.dylib
