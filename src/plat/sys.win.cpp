@@ -4,9 +4,10 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#ifdef _WIN32
+
 #include <chen/sys/sys.hpp>
-#include <string.h>
-#include <cerrno>
+#include <Windows.h>
 
 using namespace chen;
 
@@ -15,5 +16,7 @@ using namespace chen;
 std::string sys::error()
 {
     char buf[1024] = {0};
-    return errno && !::strerror_r(errno, buf, sizeof(buf)) ? std::string(buf) : "No error";
+    return errno && !::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "No error";
 }
+
+#endif

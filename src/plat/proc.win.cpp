@@ -4,6 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#ifdef _WIN32
+
 #include <chen/sys/proc.hpp>
 #include <Windows.h>
 
@@ -50,3 +52,5 @@ bool proc::exist(int pid)
     ::CloseHandle(handle);
     return status == STILL_ACTIVE;
 }
+
+#endif

@@ -4,6 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#ifdef _WIN32
+
 #include <chen/sys/fs.hpp>
 #include <sys/utime.h>
 #include <sys/stat.h>
@@ -289,3 +291,5 @@ void fs::visit(const std::string &directory,
 
     ::FindClose(find);
 }
+
+#endif

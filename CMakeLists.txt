@@ -13,6 +13,14 @@ include(CMakeEnv.cmake)
 OPTION(LIBCHEN_BUILD_STATIC "Build libchen as a static library." ON)
 OPTION(LIBCHEN_BUILD_SHARED "Build libchen as a shared library." ON)
 
+# prevent ranlib warnings
+if(APPLE)
+    SET(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    SET(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    SET(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+    SET(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+endif()
+
 # include path
 include_directories(include)
 
@@ -28,18 +36,10 @@ file(GLOB INC_TOOL include/chen/tool/*.hpp)
 aux_source_directory(src/base SRC_BASE)
 aux_source_directory(src/data SRC_DATA)
 aux_source_directory(src/mt   SRC_MT)
+aux_source_directory(src/plat SRC_PLAT)
 aux_source_directory(src/sys  SRC_SYS)
 aux_source_directory(src/time SRC_TIME)
 aux_source_directory(src/tool SRC_TOOL)
-
-# platform codes
-if(UNIX)
-    aux_source_directory(src/plat/unix SRC_PLAT)
-elseif(WIN32)
-    aux_source_directory(src/plat/win SRC_PLAT)
-else()
-    message(FATAL_ERROR "Unsupported system")
-endif()
 
 # generate lib(both static and shared)
 # rename library to libchen.a & libchen.so or libchen.dylib
@@ -69,7 +69,7 @@ source_group("include\\chen\\tool" FILES ${INC_TOOL})
 source_group("src\\base" FILES ${SRC_BASE})
 source_group("src\\data" FILES ${SRC_DATA})
 source_group("src\\mt"   FILES ${SRC_MT})
+source_group("src\\plat" FILES ${SRC_PLAT})
 source_group("src\\sys"  FILES ${SRC_SYS})
 source_group("src\\time" FILES ${SRC_TIME})
 source_group("src\\tool" FILES ${SRC_TOOL})
-source_group("src\\plat" FILES ${SRC_PLAT})

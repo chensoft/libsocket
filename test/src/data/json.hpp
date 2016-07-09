@@ -33,6 +33,17 @@ TEST(DataJsonTest, Type)
 
     std::string unused_s = json_string;
     bool unused_b = json_true;
+    
+    EXPECT_EQ(0.0, unused_d);
+    EXPECT_EQ(0, unused_i8);
+    EXPECT_EQ(0, unused_u8);
+    EXPECT_EQ(0, unused_i16);
+    EXPECT_EQ(0, unused_u16);
+    EXPECT_EQ(0, unused_i32);
+    EXPECT_EQ(0, unused_u32);
+    EXPECT_EQ(0, unused_i64);
+    EXPECT_EQ(0, unused_u64);
+    EXPECT_EQ(true, unused_b);
 
     json_object.getObject().clear();
     json_array.getArray().clear();
