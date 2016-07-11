@@ -11,6 +11,15 @@
 
 TEST(IPAddrTODO, TODO)
 {
+    chen::ip::address_v4 v4("127.0.0.1/8");
+    PILogE("netmask: %s", chen::ip::address_v4::toString(v4.netmask()).c_str());
+    PILogE("wildcard: %s", chen::ip::address_v4::toString(v4.wildcard()).c_str());
+
+    PILogE("Network: %s", v4.network().full().c_str());
+    PILogE("HostMin: %s", v4.minhost().full().c_str());
+    PILogE("HostMax: %s", v4.maxhost().full().c_str());
+    PILogE("Broadcast: %s", v4.broadcast().full().c_str());
+    PILogE("Hosts: %u", v4.hosts());
 }
 
 //TEST(IPAddrTest, Assign)

@@ -8,6 +8,7 @@
 #include <socket/ip/ip_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
+#include <bitset>
 
 using namespace chen;
 using namespace chen::ip;
@@ -20,23 +21,32 @@ using namespace chen::ip;
 // address_v4
 address_v4::address_v4(const std::string &addr)
 {
-    // todo
+    this->_addr = address_v4::toInteger(addr, this->_cidr);
 }
 
 address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
+: _addr(address_v4::toInteger(addr))
+, _cidr(cidr)
 {
-    // todo
 }
 
 address_v4::address_v4(const std::string &addr, const std::string &mask)
+: _addr(address_v4::toInteger(addr))
+, _cidr(static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count()))
 {
-    // todo
 }
 
 address_v4::address_v4(std::uint32_t addr)
 : _addr(addr)
 {
-    // todo
+    if (this->isClassA())
+        this->_cidr = 8;
+    else if (this->isClassB())
+        this->_cidr = 16;
+    else if (this->isClassC())
+        this->_cidr = 24;
+    else
+        this->_cidr = 32;
 }
 
 address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
@@ -47,15 +57,14 @@ address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
 
 address_v4::address_v4(std::uint32_t addr, const std::string &mask)
 : _addr(addr)
+, _cidr(static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count()))
 {
-    // todo
 }
 
 // representation
 std::string address_v4::str() const
 {
-    // todo
-    return "";
+    return address_v4::toString(this->_addr);
 }
 
 std::string address_v4::full() const
@@ -88,13 +97,40 @@ std::uint8_t address_v4::cidr() const
 std::uint32_t address_v4::netmask() const
 {
     // @see rfc1878
-    return 0xFFFFFFFFu << this->_cidr;
+    return 0xFFFFFFFFu << (32 - this->_cidr);
 }
 
 std::uint32_t address_v4::wildcard() const
 {
     // @link https://en.wikipedia.org/wiki/Wildcard_mask
     return ~this->netmask();
+}
+
+// network
+address_v4 address_v4::network() const
+{
+    return address_v4(this->_addr & this->netmask(), this->_cidr);
+}
+
+address_v4 address_v4::minhost() const
+{
+    return address_v4((this->_addr & this->netmask()) | 0x00000001, this->_cidr);
+}
+
+address_v4 address_v4::maxhost() const
+{
+    return address_v4((this->_addr | this->wildcard()) & 0xFFFFFFFE, this->_cidr);
+}
+
+address_v4 address_v4::broadcast() const
+{
+    return address_v4(this->_addr | this->wildcard(), this->_cidr);
+}
+
+// hosts
+std::size_t address_v4::hosts() const
+{
+    return this->maxhost().addr() - this->minhost().addr() + 1;
 }
 
 // special
@@ -199,25 +235,6 @@ bool address_v4::isBroadcast() const
     // host bits are 1
     std::uint32_t broadcast = (this->_addr | this->wildcard());
     return broadcast == this->_addr;
-}
-
-// multicast
-bool address_v4::isWellKnownMulticast() const
-{
-    // todo
-    return false;
-}
-
-bool address_v4::isGloballyScopedMulticast() const
-{
-    // todo
-    return false;
-}
-
-bool address_v4::isLocallyScopedMulticast() const
-{
-    // todo
-    return false;
 }
 
 // classful
@@ -389,46 +406,3 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 
 // -----------------------------------------------------------------------------
 // address_v6
-
-//std::uint32_t address::mask() const
-//{
-//    // if mask is valid then return mask
-//    // if mask is empty then calculate it
-//    if (this->_mask)
-//        return this->_mask;
-//    else if (this->isClassA())
-//        return 0xFF000000;
-//    else if (this->isClassB())
-//        return 0xFFFF0000;
-//    else if (this->isClassC())
-//        return 0xFFFFFF00;
-//    else
-//        return 0xFFFFFFFF;
-//}
-//
-//// network
-//address address::network() const
-//{
-//    return address(this->_addr & this->mask(), this->subnet());
-//}
-//
-//address address::hostMin() const
-//{
-//    return address((this->_addr & this->mask()) | 0x00000001, this->subnet());
-//}
-//
-//address address::hostMax() const
-//{
-//    return address((this->_addr | ~this->mask()) & 0xFFFFFFFE, this->subnet());
-//}
-//
-//address address::broadcast() const
-//{
-//    return address(this->_addr | this->wildcard(), this->subnet());
-//}
-//
-//address address::loopback()
-//{
-//    // 127.0.0.1
-//    return address(0x7F000001, 8);
-//}

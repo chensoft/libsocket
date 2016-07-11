@@ -96,6 +96,19 @@ namespace chen
             std::uint32_t netmask() const;
             std::uint32_t wildcard() const;
 
+            /**
+             * Network address based on current ip
+             */
+            address_v4 network() const;
+            address_v4 minhost() const;
+            address_v4 maxhost() const;
+            address_v4 broadcast() const;
+
+            /**
+             * Calculate hosts count based on this network
+             */
+            std::size_t hosts() const;
+
         public:
             /**
              * Special addressing type
@@ -106,13 +119,6 @@ namespace chen
             bool isLinkLocal() const;
             bool isMulticast() const;
             bool isBroadcast() const;
-
-            /**
-             * Multicast addressing type
-             */
-            bool isWellKnownMulticast() const;
-            bool isGloballyScopedMulticast() const;
-            bool isLocallyScopedMulticast() const;
 
         public:
             /**
@@ -158,44 +164,5 @@ namespace chen
         {
 
         };
-
-//        public:
-//        public:
-//            /**
-//             * Network address
-//             */
-//            virtual address network() const;
-//
-//            /**
-//             * Min host address under this network
-//             */
-//            virtual address hostMin() const;
-//
-//            /**
-//             * Max host address under this network
-//             */
-//            virtual address hostMax() const;
-//
-//            /**
-//             * Broadcast address based on this ip
-//             */
-//            virtual address broadcast() const;
-//
-//        public:
-//            /**
-//             * Convert int ip to string
-//             */
-//            static std::string toString(std::uint32_t addr);
-//
-//            /**
-//             * Convert string ip to int
-//             */
-//            static std::uint32_t toInteger(const std::string &addr);
-//
-//            /**
-//             * A loopback address
-//             */
-//            static address loopback();
-//        };
     }
 }
