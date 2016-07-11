@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Added
 - str: lowercase, uppercase, capitalize a string.
+- str: case transform, trim methods accept const string.
 - json: allow unsigned integer conversion.
 - json: allow more integer type conversion.
 - json: allow implicit conversion from json to variable.

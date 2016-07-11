@@ -38,33 +38,22 @@ TEST(BaseStrTest, General)
     EXPECT_EQ("", chen::str::join(std::vector<std::string>(), "."));
 
     // replace
-    std::string replace("I'm a search string");
-    EXPECT_EQ("I'm a replace string", chen::str::replace(replace, "search", "replace"));
-    EXPECT_EQ("I'm a  string", chen::str::remove(replace, "replace"));
+    EXPECT_EQ("I'm a replace string", chen::str::replace("I'm a search string", "search", "replace"));
+    EXPECT_EQ("I'm a  string", chen::str::remove("I'm a replace string", "replace"));
 
-    replace = "I'm a search string, and another search string";
-    EXPECT_EQ("I'm a replace string, and another search string", chen::str::replace(replace, "search", "replace", false));
-
-    replace = "I'm a search string, and another search string";
-    EXPECT_EQ("I'm a replace string, and another replace string", chen::str::replace(replace, "search", "replace"));
+    EXPECT_EQ("I'm a replace string, and another search string", chen::str::replace("I'm a search string, and another search string", "search", "replace", false));
+    EXPECT_EQ("I'm a replace string, and another replace string", chen::str::replace("I'm a search string, and another search string", "search", "replace"));
 
     // trim
-    std::string trim("  so many spaces  ");
-
-    EXPECT_EQ("so many spaces  ", chen::str::ltrim(trim));
-    EXPECT_EQ("so many spaces", chen::str::rtrim(trim));
-    EXPECT_EQ("so many spaces", chen::str::trim(trim));
-
-    trim = "  so many spaces  ";
-    EXPECT_EQ("so many spaces", chen::str::trim(trim));
+    EXPECT_EQ("so many spaces  ", chen::str::ltrim("  so many spaces  "));
+    EXPECT_EQ("  so many spaces", chen::str::rtrim("  so many spaces  "));
+    EXPECT_EQ("so many spaces", chen::str::trim("  so many spaces  "));
 
     // transform
-    std::string empty;
-    std::string transform("abCDe");
-    EXPECT_EQ("", chen::str::capitalize(empty));
-    EXPECT_EQ("AbCDe", chen::str::capitalize(transform));
-    EXPECT_EQ("abcde", chen::str::lowercase(transform));
-    EXPECT_EQ("ABCDE", chen::str::uppercase(transform));
+    EXPECT_EQ("", chen::str::capitalize(""));
+    EXPECT_EQ("AbCDe", chen::str::capitalize("abCDe"));
+    EXPECT_EQ("abcde", chen::str::lowercase("abCDe"));
+    EXPECT_EQ("ABCDE", chen::str::uppercase("abCDe"));
 
     // levenshtein
     EXPECT_EQ(2, chen::str::levenshtein("pull", 4, "push", 4));
