@@ -1,19 +1,20 @@
 /**
  * Created by Jian Chen
- * @since  2015.08.23
+ * @since  2016.07.11
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
 #pragma once
 
 #include <stdexcept>
+#include <string>
 
 namespace chen
 {
     namespace ip
     {
         /**
-         * Base class for udp related error
+         * IP general error
          */
         class error : public std::runtime_error
         {
@@ -29,16 +30,6 @@ namespace chen
         {
         public:
             explicit error_convert(const std::string &what) : error(what) {}
-        };
-
-
-        /**
-         * Invalid error
-         */
-        class error_invalid : public error
-        {
-        public:
-            explicit error_invalid(const std::string &what) : error(what) {}
         };
     }
 }

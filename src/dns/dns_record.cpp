@@ -8,7 +8,7 @@
 #include <socket/dns/dns_error.hpp>
 #include <socket/dns/dns_codec.hpp>
 #include <socket/dns/dns_table.hpp>
-#include <socket/ip/ip_addr.hpp>
+#include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/map.hpp>
 #include <limits>
@@ -253,7 +253,8 @@ A::A() : RR(chen::dns::RRType::A)
 std::string A::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + chen::ip::address::toString(this->address);
+    // todo
+//    ret += sep + chen::ip::address::toString(this->address);
     return ret;
 }
 
@@ -294,10 +295,11 @@ void A::unpack(const chen::json::object &object)
     // if address is string then use address::toInteger
     auto address = chen::map::find(object, "address");
 
-    if (address.isString())
-        this->address = chen::ip::address::toInteger(address);
-    else
-        this->address = address.toUnsigned();
+    // todo
+//    if (address.isString())
+//        this->address = chen::ip::address::toInteger(address);
+//    else
+//        this->address = address.toUnsigned();
 }
 
 void A::unpack(std::vector<std::uint8_t>::const_iterator &cur,
