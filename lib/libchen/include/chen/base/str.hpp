@@ -104,13 +104,11 @@ namespace chen
         /**
          * Replace text
          */
-        static std::string& replace(std::string &text,
-                                    const std::string &search,
-                                    const std::string &replace,
-                                    bool all = true);
-        static std::string& remove(std::string &text,
-                                   const std::string &search,
-                                   bool all = true);
+        static std::string& replace(std::string &text, const std::string &search, const std::string &replace, bool all = true);
+        static std::string& remove(std::string &text, const std::string &search, bool all = true);
+
+        static std::string replace(const std::string &text, const std::string &search, const std::string &replace, bool all = true);
+        static std::string remove(const std::string &text, const std::string &search, bool all = true);
 
         /**
          * Trim white spaces
@@ -119,12 +117,20 @@ namespace chen
         static std::string& ltrim(std::string &text);
         static std::string& rtrim(std::string &text);
 
+        static std::string trim(const std::string &text);
+        static std::string ltrim(const std::string &text);
+        static std::string rtrim(const std::string &text);
+
         /**
          * Transform string
          */
         static std::string& lowercase(std::string &text);
         static std::string& uppercase(std::string &text);
         static std::string& capitalize(std::string &text);
+
+        static std::string lowercase(const std::string &text);
+        static std::string uppercase(const std::string &text);
+        static std::string capitalize(const std::string &text);
 
         /**
          * Levenshtein distance

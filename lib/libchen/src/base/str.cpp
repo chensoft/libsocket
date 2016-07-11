@@ -152,10 +152,7 @@ std::string str::join(const std::vector<std::string> &text, const std::string &d
 }
 
 // replace
-std::string& str::replace(std::string &text,
-                          const std::string &search,
-                          const std::string &replace,
-                          bool all)
+std::string& str::replace(std::string &text, const std::string &search, const std::string &replace, bool all)
 {
     std::size_t p   = 0;
     std::size_t c_s = search.size();
@@ -173,11 +170,23 @@ std::string& str::replace(std::string &text,
     return text;
 }
 
-std::string& str::remove(std::string &text,
-                         const std::string &search,
-                         bool all)
+std::string& str::remove(std::string &text, const std::string &search, bool all)
 {
     return str::replace(text, search, "", all);
+}
+
+std::string str::replace(const std::string &text, const std::string &search, const std::string &replace, bool all)
+{
+    std::string temp(text);
+    str::replace(temp, search, replace, all);
+    return temp;
+}
+
+std::string str::remove(const std::string &text, const std::string &search, bool all)
+{
+    std::string temp(text);
+    str::remove(temp, search, all);
+    return temp;
 }
 
 // trim
@@ -198,6 +207,27 @@ std::string& str::rtrim(std::string &text)
 {
     text.erase(std::find_if(text.rbegin(), text.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), text.end());
     return text;
+}
+
+std::string str::trim(const std::string &text)
+{
+    std::string temp(text);
+    str::trim(temp);
+    return temp;
+}
+
+std::string str::ltrim(const std::string &text)
+{
+    std::string temp(text);
+    str::ltrim(temp);
+    return temp;
+}
+
+std::string str::rtrim(const std::string &text)
+{
+    std::string temp(text);
+    str::rtrim(temp);
+    return temp;
 }
 
 // transform
@@ -222,26 +252,47 @@ std::string& str::capitalize(std::string &text)
     return text;
 }
 
+std::string str::lowercase(const std::string &text)
+{
+    std::string temp(text);
+    str::lowercase(temp);
+    return temp;
+}
+
+std::string str::uppercase(const std::string &text)
+{
+    std::string temp(text);
+    str::uppercase(temp);
+    return temp;
+}
+
+std::string str::capitalize(const std::string &text)
+{
+    std::string temp(text);
+    str::capitalize(temp);
+    return temp;
+}
+
 // levenshtein
 std::size_t str::levenshtein(const char *s, std::size_t len_s, const char *t, std::size_t len_t)
 {
     // copy from https://en.wikipedia.org/wiki/Levenshtein_distance
     std::size_t cost = 0;
 
-    /* base case: empty strings */
+    // base case: empty strings
     if (len_s == 0)
         return len_t;
 
     if (len_t == 0)
         return len_s;
 
-    /* test if last characters of the strings match */
-    if (s[len_s-1] == t[len_t-1])
+    // test if last characters of the strings match
+    if (s[len_s - 1] == t[len_t - 1])
         cost = 0;
     else
         cost = 1;
 
-    /* return minimum of delete char from s, delete char from t, and delete char from both */
+    // return minimum of delete char from s, delete char from t, and delete char from both
     return std::min({str::levenshtein(s, len_s - 1, t, len_t    ) + 1,
                      str::levenshtein(s, len_s    , t, len_t - 1) + 1,
                      str::levenshtein(s, len_s - 1, t, len_t - 1) + cost});

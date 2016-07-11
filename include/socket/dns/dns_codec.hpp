@@ -28,6 +28,7 @@ namespace chen
              * Fully qualified domain name detection
              */
             static bool isFqdn(const std::string &name);
+            static std::string& fqdn(std::string &name);
             static std::string fqdn(const std::string &name);
         };
 
