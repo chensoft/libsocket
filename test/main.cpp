@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "src/ip/ip_addr.hpp"
+#include "src/ip/ip_address.hpp"
 
 int main(int argc, char *argv[])
 {

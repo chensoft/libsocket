@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <iostream>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -164,5 +165,13 @@ namespace chen
         {
 
         };
+
+        // helper
+        template <class _CharT, class _Traits>
+        std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& os, const address& addr)
+        {
+            // simple string representation
+            return os << addr.str();
+        }
     }
 }
