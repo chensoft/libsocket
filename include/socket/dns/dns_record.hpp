@@ -96,12 +96,6 @@ namespace chen
             std::uint16_t rdlength = 0;
         };
 
-        template <class _CharT, class _Traits>
-        std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& os, const RR& rr)
-        {
-            return os << rr.str();
-        }
-
 
         // ---------------------------------------------------------------------
         // Custom RR

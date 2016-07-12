@@ -51,6 +51,7 @@ namespace chen
              * @e.g: "127" -> "127.0.0.0"
              * @e.g: "127.1" -> "127.0.0.1"
              * @e.g: "192.168.1" -> "192.168.0.1"
+             * @caution default cidr will be 32 if you don't provide
              */
             address_v4(const std::string &addr);
             address_v4(const std::string &addr, std::uint8_t cidr);
@@ -62,6 +63,7 @@ namespace chen
              * @e.g: address_v4(2130706433)
              * @e.g: address_v4(2130706433, 8)
              * @e.g: address_v4(2130706433, "255.0.0.0")
+             * @caution default cidr will be 32 if you don't provide
              */
             address_v4(std::uint32_t addr);
             address_v4(std::uint32_t addr, std::uint8_t cidr);
@@ -135,7 +137,7 @@ namespace chen
         public:
             /**
              * Operator, compare based on ipv4 address
-             * @caution compare will ignore CIDR prefix
+             * @caution CIDR prefix length is ignored when compare address
              */
             bool operator==(const address_v4 &o) const;
             bool operator!=(const address_v4 &o) const;
@@ -149,6 +151,7 @@ namespace chen
         public:
             /**
              * Convert between integer and string
+             * @caution default cidr will be 32 if you don't provide
              */
             static std::string toString(std::uint32_t addr);
             static std::string toString(std::uint32_t addr, std::uint8_t cidr);
@@ -165,13 +168,5 @@ namespace chen
         {
 
         };
-
-        // helper
-        template <class _CharT, class _Traits>
-        std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& os, const address& addr)
-        {
-            // simple string representation
-            return os << addr.str();
-        }
     }
 }

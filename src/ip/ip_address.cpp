@@ -22,18 +22,6 @@ using namespace chen::ip;
 address_v4::address_v4(const std::string &addr)
 {
     this->_addr = address_v4::toInteger(addr, this->_cidr);
-
-    if (!this->_cidr)
-    {
-        if (this->isClassA())
-            this->_cidr = 8;
-        else if (this->isClassB())
-            this->_cidr = 16;
-        else if (this->isClassC())
-            this->_cidr = 24;
-        else
-            this->_cidr = 32;
-    }
 }
 
 address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
@@ -50,15 +38,8 @@ address_v4::address_v4(const std::string &addr, const std::string &mask)
 
 address_v4::address_v4(std::uint32_t addr)
 : _addr(addr)
+, _cidr(32)
 {
-    if (this->isClassA())
-        this->_cidr = 8;
-    else if (this->isClassB())
-        this->_cidr = 16;
-    else if (this->isClassC())
-        this->_cidr = 24;
-    else
-        this->_cidr = 32;
 }
 
 address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
@@ -397,7 +378,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
     }
 
     // CIDR notation
-    cidr = 0;
+    cidr = 32;
 
     if (*cur == '/')
     {
