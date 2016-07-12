@@ -22,18 +22,18 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ(chen::ip::address_v4("127.1"), chen::ip::address_v4("127.0.0.1"));
     EXPECT_EQ(chen::ip::address_v4("192.168.1"), chen::ip::address_v4("192.168.0.1"));
 
-    EXPECT_EQ(chen::ip::address_v4(2130706433), chen::ip::address_v4("127.0.0.1"));
-    EXPECT_EQ(chen::ip::address_v4(2130706433, 8), chen::ip::address_v4("127.0.0.1/8"));
-    EXPECT_EQ(chen::ip::address_v4(2130706433, "255.0.0.0"), chen::ip::address_v4("127.0.0.1/8"));
+    EXPECT_EQ(chen::ip::address_v4(0x7F000001), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_EQ(chen::ip::address_v4(0x7F000001, 8), chen::ip::address_v4("127.0.0.1/8"));
+    EXPECT_EQ(chen::ip::address_v4(0x7F000001, "255.0.0.0"), chen::ip::address_v4("127.0.0.1/8"));
 
     // representation
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4("127.0.1").str());
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4("127.1").str());
-    EXPECT_EQ("127.0.0.1", chen::ip::address_v4(2130706433).str());
+    EXPECT_EQ("127.0.0.1", chen::ip::address_v4(0x7F000001).str());
     EXPECT_EQ("127.0.0.1/32", chen::ip::address_v4("127.0.0.1").full());
     EXPECT_EQ("127.0.0.1/8", chen::ip::address_v4("127.0.0.1/8").full());
-    EXPECT_EQ("127.0.0.1/8", chen::ip::address_v4(2130706433, 8).full());
+    EXPECT_EQ("127.0.0.1/8", chen::ip::address_v4(0x7F000001, 8).full());
     EXPECT_EQ("192.168.1.1/30", chen::ip::address_v4("192.168.1.1", 30).full());
 
     EXPECT_EQ(std::vector<std::uint8_t>({0x7F, 0x00, 0x00, 0x01}), chen::ip::address_v4("127.0.0.1").bytes());

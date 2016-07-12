@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include <iostream>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -51,7 +50,7 @@ namespace chen
              * @e.g: "127" -> "127.0.0.0"
              * @e.g: "127.1" -> "127.0.0.1"
              * @e.g: "192.168.1" -> "192.168.0.1"
-             * @caution default cidr will be 32 if you don't provide
+             * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(const std::string &addr);
             address_v4(const std::string &addr, std::uint8_t cidr);
@@ -59,11 +58,11 @@ namespace chen
 
             /**
              * Construct by ipv4 integer and CIDR prefix
-             * @e.g: "127.0.0.0" is 0x7F000000, also is 2130706433
-             * @e.g: address_v4(2130706433)
-             * @e.g: address_v4(2130706433, 8)
-             * @e.g: address_v4(2130706433, "255.0.0.0")
-             * @caution default cidr will be 32 if you don't provide
+             * @e.g: "127.0.0.1" is 0x7F000001, also is 2130706433
+             * @e.g: address_v4(0x7F000001)
+             * @e.g: address_v4(0x7F000001, 8)
+             * @e.g: address_v4(0x7F000001, "255.0.0.0")
+             * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(std::uint32_t addr);
             address_v4(std::uint32_t addr, std::uint8_t cidr);
@@ -151,7 +150,7 @@ namespace chen
         public:
             /**
              * Convert between integer and string
-             * @caution default cidr will be 32 if you don't provide
+             * @caution default CIDR prefix will be 32 if you don't provide
              */
             static std::string toString(std::uint32_t addr);
             static std::string toString(std::uint32_t addr, std::uint8_t cidr);
