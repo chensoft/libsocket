@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/ip/ip_address.hpp>
-#include <socket/ip/ip_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <bitset>
@@ -42,6 +41,8 @@ address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
 : _addr(address_v4::toInteger(addr))
 , _cidr(cidr)
 {
+    if (this->_cidr > 32)
+        throw address::error("ip: CIDR prefix must less than 32");
 }
 
 address_v4::address_v4(const std::string &addr, const std::string &mask)
@@ -60,6 +61,8 @@ address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
 : _addr(addr)
 , _cidr(cidr)
 {
+    if (this->_cidr > 32)
+        throw address::error("ip: CIDR prefix must less than 32");
 }
 
 address_v4::address_v4(std::uint32_t addr, const std::string &mask)
@@ -334,7 +337,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
     {
         // check character
         if (!std::isdigit(*cur))
-            throw error_convert("ip: addr format is wrong");
+            throw address::error("ip: addr format is wrong");
 
         // collect digits
         do
@@ -347,7 +350,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 
         // check if valid
         if (num[i] > 0xFF)
-            throw error_convert("ip: addr number must between 0 and 255");
+            throw address::error("ip: addr number must between 0 and 255");
     }
 
     // analyse the digits
@@ -387,7 +390,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
             tmp = tmp * 10 + (*cur - '0');
 
         if (tmp > 32)
-            throw error_convert("ip: CIDR prefix must less than 32");
+            throw address::error("ip: CIDR prefix must less than 32");
 
         cidr = static_cast<uint8_t>(tmp);
     }

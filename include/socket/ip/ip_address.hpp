@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <stdexcept>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -16,6 +17,13 @@ namespace chen
     {
         class address
         {
+        public:
+            class error : public std::runtime_error
+            {
+            public:
+                explicit error(const std::string &what) : std::runtime_error(what) {}
+            };
+
         public:
             virtual ~address() = default;
 

@@ -26,6 +26,9 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ(chen::ip::address_v4(0x7F000001, 8), chen::ip::address_v4("127.0.0.1/8"));
     EXPECT_EQ(chen::ip::address_v4(0x7F000001, "255.0.0.0"), chen::ip::address_v4("127.0.0.1/8"));
 
+    EXPECT_THROW(chen::ip::address_v4("127.0.0.1", 33), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v4(0x7F000001, 33), chen::ip::address::error);
+
     // representation
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4("127.0.1").str());
@@ -142,7 +145,7 @@ TEST(IPAddressTest, IPv4)
     EXPECT_GE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.0"));
 
     // invalid test
-    EXPECT_THROW(chen::ip::address_v4::toInteger("127..1"), chen::ip::error_convert);
-    EXPECT_THROW(chen::ip::address_v4::toInteger("999.0.0.0"), chen::ip::error_convert);
-    EXPECT_THROW(chen::ip::address_v4::toInteger("127.0.0.1/99"), chen::ip::error_convert);
+    EXPECT_THROW(chen::ip::address_v4::toInteger("127..1"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v4::toInteger("999.0.0.0"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v4::toInteger("127.0.0.1/99"), chen::ip::address::error);
 }
