@@ -157,7 +157,7 @@ namespace chen
         public:
             /**
              * Operator, compare based on ipv4 address
-             * @caution CIDR prefix length is ignored when compare address
+             * @caution consider CIDR prefix when address is equal
              */
             virtual bool operator==(const address &o) const override;
             virtual bool operator<(const address &o) const override;

@@ -138,11 +138,24 @@ TEST(IPAddressTest, IPv4)
 
     // operator
     EXPECT_EQ(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_EQ(chen::ip::address_v4("127.0.0.1/8"), chen::ip::address_v4("127.0.0.1/8"));
+
     EXPECT_NE(chen::ip::address_v4("127.0.0.0"), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_NE(chen::ip::address_v4("127.0.0.1/8"), chen::ip::address_v4("127.0.0.1"));
+
     EXPECT_LT(chen::ip::address_v4("127.0.0.0"), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_LT(chen::ip::address_v4("127.0.0.1/8"), chen::ip::address_v4("127.0.0.1"));
+
     EXPECT_GT(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.0"));
+    EXPECT_GT(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1/8"));
+
     EXPECT_LE(chen::ip::address_v4("127.0.0.0"), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_LE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_LE(chen::ip::address_v4("127.0.0.1/8"), chen::ip::address_v4("127.0.0.1"));
+
     EXPECT_GE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.0"));
+    EXPECT_GE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1"));
+    EXPECT_GE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1/8"));
 
     // invalid test
     EXPECT_THROW(chen::ip::address_v4::toInteger("127..1"), chen::ip::address::error);

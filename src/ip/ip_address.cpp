@@ -286,17 +286,32 @@ bool address_v4::isClassE() const
 // operator
 bool address_v4::operator==(const address &o) const
 {
-    return this->_addr == dynamic_cast<const address_v4&>(o)._addr;
+    const address_v4 &a = dynamic_cast<const address_v4&>(o);
+    return (this->_addr == a._addr) && (this->_cidr == a._cidr);
 }
 
 bool address_v4::operator<(const address &o) const
 {
-    return this->_addr < dynamic_cast<const address_v4&>(o)._addr;
+    const address_v4 &a = dynamic_cast<const address_v4&>(o);
+
+    if (this->_addr < a._addr)
+        return true;
+    else if (this->_addr > a._addr)
+        return false;
+    else
+        return this->_cidr < a._cidr;
 }
 
 bool address_v4::operator<=(const address &o) const
 {
-    return this->_addr <= dynamic_cast<const address_v4&>(o)._addr;
+    const address_v4 &a = dynamic_cast<const address_v4&>(o);
+
+    if (this->_addr < a._addr)
+        return true;
+    else if (this->_addr > a._addr)
+        return false;
+    else
+        return this->_cidr <= a._cidr;
 }
 
 // convert
