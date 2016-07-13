@@ -59,6 +59,8 @@ TEST(SysFsTest, General)
     EXPECT_EQ("home", chen::fs::basename("/home/"));
     EXPECT_EQ("", chen::fs::basename("/"));
     EXPECT_EQ("file.txt", chen::fs::basename("file.txt"));
+    EXPECT_EQ("file.txt", chen::fs::basename("file.txt", "none"));
+    EXPECT_EQ("file", chen::fs::basename("file.txt", ".txt"));
 
     EXPECT_EQ("cmd.exe", chen::fs::basename("C:\\Windows\\System32\\cmd.exe"));
     EXPECT_EQ("", chen::fs::basename("C:\\"));

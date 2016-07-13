@@ -121,7 +121,7 @@ namespace chen
         static std::string dirname(const std::string &path);
 
         /**
-         * Base name of the path
+         * Base name of the path, if you provide suffix, it will be removed from final name
          * Unix:
          * e.g: /home/staff/Downloads/file.txt, basename is "file.txt"
          * e.g: /home/, basename is "home"
@@ -132,7 +132,7 @@ namespace chen
          * e.g: C:\, basename is ""
          * @caution support both Unix & Windows path
          */
-        static std::string basename(const std::string &path);
+        static std::string basename(const std::string &path, const std::string &suffix = "");
 
         /**
          * Extension name of the path
