@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "src/ip/ip_address.hpp"
+#include "src/so/so_endpoint.hpp"
 
 int main(int argc, char *argv[])
 {

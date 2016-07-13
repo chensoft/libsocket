@@ -39,8 +39,6 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ("127.0.0.1/8", chen::ip::address_v4(0x7F000001, 8).full());
     EXPECT_EQ("192.168.1.1/30", chen::ip::address_v4("192.168.1.1", 30).full());
 
-    EXPECT_EQ(std::vector<std::uint8_t>({0x7F, 0x00, 0x00, 0x01}), chen::ip::address_v4("127.0.0.1").bytes());
-
     // network
     EXPECT_EQ(8, chen::ip::address_v4("127.0.0.1/8").cidr());
     EXPECT_EQ(16, chen::ip::address_v4("180.166.92.36/16").cidr());

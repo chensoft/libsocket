@@ -29,6 +29,7 @@ file(GLOB INC_UDP  include/socket/udp/*.hpp)
 file(GLOB INC_DNS  include/socket/dns/*.hpp)
 
 aux_source_directory(src/ip   SRC_IP)
+aux_source_directory(src/so   SRC_SO)
 aux_source_directory(src/tcp  SRC_TCP)
 aux_source_directory(src/udp  SRC_UDP)
 aux_source_directory(src/dns  SRC_DNS)
@@ -38,7 +39,7 @@ aux_source_directory(src/plat SRC_PLAT)
 # rename library to libsocket.a & libsocket.so or libsocket.dylib
 set(ALL_FILES
         ${INC_IP} ${INC_SO} ${INC_TCP} ${INC_UDP} ${INC_DNS} ${INC_ROOT}
-        ${SRC_IP} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS} ${SRC_PLAT})
+        ${SRC_IP} ${SRC_SO} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS} ${SRC_PLAT})
 
 if(LIBSOCKET_BUILD_STATIC)
     add_library(libsocket_static STATIC ${ALL_FILES})
@@ -61,6 +62,7 @@ source_group("include\\socket\\udp" FILES ${INC_UDP})
 source_group("include\\socket\\dns" FILES ${INC_DNS})
 
 source_group("src\\ip"   FILES ${SRC_IP})
+source_group("src\\so"   FILES ${SRC_SO})
 source_group("src\\tcp"  FILES ${SRC_TCP})
 source_group("src\\udp"  FILES ${SRC_UDP})
 source_group("src\\dns"  FILES ${SRC_DNS})

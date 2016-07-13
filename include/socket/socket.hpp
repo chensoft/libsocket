@@ -21,6 +21,7 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/ip/ip_address.hpp>
 
+#include <socket/so/so_endpoint.hpp>
 #include <socket/so/so_socket.hpp>
 #include <socket/so/so_error.hpp>
 

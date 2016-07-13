@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include <string>
-#include <vector>
+#include <memory>
 
 namespace chen
 {
@@ -39,9 +39,9 @@ namespace chen
             virtual std::string full() const = 0;
 
             /**
-             * Get encoded bytes
+             * Clone current object
              */
-            virtual std::vector<std::uint8_t> bytes() const = 0;
+            virtual std::shared_ptr<chen::ip::address> clone() const = 0;
 
         public:
             /**
@@ -103,9 +103,9 @@ namespace chen
             virtual std::string full() const override;
 
             /**
-             * Get encoded bytes by network order, length is 4 bytes
+             * Clone current object
              */
-            virtual std::vector<std::uint8_t> bytes() const override;
+            virtual std::shared_ptr<chen::ip::address> clone() const override;
 
             /**
              * Get raw value
@@ -181,7 +181,29 @@ namespace chen
 
         class address_v6 : public address
         {
+        public:
+            /**
+             * Simple string representation
+             */
+            virtual std::string str() const override;
 
+            /**
+             * Full string representation
+             */
+            virtual std::string full() const override;
+
+            /**
+             * Clone current object
+             */
+            virtual std::shared_ptr<chen::ip::address> clone() const override;
+
+        public:
+            /**
+             * Operator
+             */
+            virtual bool operator==(const address &o) const override;
+            virtual bool operator<(const address &o) const override;
+            virtual bool operator<=(const address &o) const override;
         };
     }
 }

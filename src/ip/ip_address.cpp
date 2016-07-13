@@ -82,14 +82,9 @@ std::string address_v4::full() const
     return address_v4::toString(this->_addr, this->_cidr);
 }
 
-std::vector<std::uint8_t> address_v4::bytes() const
+std::shared_ptr<chen::ip::address> address_v4::clone() const
 {
-    const std::uint8_t *ptr = reinterpret_cast<const std::uint8_t*>(&this->_addr);
-
-    std::vector<std::uint8_t> ret(4);
-    std::copy(ptr, ptr + 4, ret.rbegin());
-
-    return ret;
+    return std::make_shared<chen::ip::address_v4>(*this);
 }
 
 std::uint32_t address_v4::addr() const
@@ -416,3 +411,35 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 
 // -----------------------------------------------------------------------------
 // address_v6
+
+// representation
+std::string address_v6::str() const
+{
+    return "";
+}
+
+std::string address_v6::full() const
+{
+    return "";
+}
+
+std::shared_ptr<chen::ip::address> address_v6::clone() const
+{
+    return std::make_shared<chen::ip::address_v6>(*this);
+}
+
+// operator
+bool address_v6::operator==(const address &o) const
+{
+    return false;
+}
+
+bool address_v6::operator<(const address &o) const
+{
+    return false;
+}
+
+bool address_v6::operator<=(const address &o) const
+{
+    return false;
+}
