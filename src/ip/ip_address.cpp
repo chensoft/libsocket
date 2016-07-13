@@ -15,6 +15,20 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
+bool address::operator!=(const address &o) const
+{
+    return !(*this == o);
+}
+
+bool address::operator>(const address &o) const
+{
+    return o < *this;
+}
+
+bool address::operator>=(const address &o) const
+{
+    return o <= *this;
+}
 
 
 // -----------------------------------------------------------------------------
@@ -267,34 +281,19 @@ bool address_v4::isClassE() const
 }
 
 // operator
-bool address_v4::operator==(const address_v4 &o) const
+bool address_v4::operator==(const address &o) const
 {
-    return this->_addr == o._addr;
+    return this->_addr == dynamic_cast<const address_v4&>(o)._addr;
 }
 
-bool address_v4::operator!=(const address_v4 &o) const
+bool address_v4::operator<(const address &o) const
 {
-    return !(*this == o);
+    return this->_addr < dynamic_cast<const address_v4&>(o)._addr;
 }
 
-bool address_v4::operator<(const address_v4 &o) const
+bool address_v4::operator<=(const address &o) const
 {
-    return this->_addr < o._addr;
-}
-
-bool address_v4::operator>(const address_v4 &o) const
-{
-    return o < *this;
-}
-
-bool address_v4::operator<=(const address_v4 &o) const
-{
-    return this->_addr <= o._addr;
-}
-
-bool address_v4::operator>=(const address_v4 &o) const
-{
-    return o <= *this;
+    return this->_addr <= dynamic_cast<const address_v4&>(o)._addr;
 }
 
 // convert

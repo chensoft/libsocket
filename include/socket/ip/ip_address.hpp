@@ -34,6 +34,19 @@ namespace chen
              * Get encoded bytes
              */
             virtual std::vector<std::uint8_t> bytes() const = 0;
+
+        public:
+            /**
+             * Operator
+             */
+            virtual bool operator==(const address &o) const = 0;
+            virtual bool operator!=(const address &o) const;
+
+            virtual bool operator<(const address &o) const = 0;
+            virtual bool operator>(const address &o) const;
+
+            virtual bool operator<=(const address &o) const = 0;
+            virtual bool operator>=(const address &o) const;
         };
 
         class address_v4 : public address
@@ -138,14 +151,9 @@ namespace chen
              * Operator, compare based on ipv4 address
              * @caution CIDR prefix length is ignored when compare address
              */
-            bool operator==(const address_v4 &o) const;
-            bool operator!=(const address_v4 &o) const;
-
-            bool operator<(const address_v4 &o) const;
-            bool operator>(const address_v4 &o) const;
-
-            bool operator<=(const address_v4 &o) const;
-            bool operator>=(const address_v4 &o) const;
+            virtual bool operator==(const address &o) const override;
+            virtual bool operator<(const address &o) const override;
+            virtual bool operator<=(const address &o) const override;
 
         public:
             /**
