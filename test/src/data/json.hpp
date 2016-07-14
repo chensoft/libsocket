@@ -70,7 +70,7 @@ TEST(DataJsonTest, Type)
     EXPECT_TRUE(assign_o.getObject().empty());
     EXPECT_TRUE(assign_a.getArray().empty());
     EXPECT_TRUE(assign_s.getString().empty());
-    EXPECT_EQ(0, assign_d.getUnsigned());
+    EXPECT_EQ(115u, assign_d.getUnsigned());
 
     EXPECT_EQ(123, json_string.toNumber());
     EXPECT_EQ(123, json_string.toInteger());
