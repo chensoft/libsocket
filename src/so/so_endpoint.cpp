@@ -11,16 +11,10 @@ using namespace chen::so;
 
 // -----------------------------------------------------------------------------
 // endpoint
-endpoint::endpoint()
-: endpoint("", 0)
-{
-}
-
 endpoint::endpoint(const std::string &addr, std::uint16_t port)
 : _addr(new chen::ip::address_v4(addr))
 , _port(port)
 {
-
 }
 
 endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port)
@@ -53,12 +47,7 @@ bool endpoint::operator!=(const endpoint &o) const
 
 bool endpoint::operator<(const endpoint &o) const
 {
-    if (*this->_addr < *o._addr)
-        return true;
-    else if (*this->_addr > *o._addr)
-        return false;
-    else
-        return this->_port < o._port;
+    return (*this->_addr == *o._addr) ? this->_port < o._port : *this->_addr < *o._addr;
 }
 
 bool endpoint::operator>(const endpoint &o) const
@@ -68,12 +57,7 @@ bool endpoint::operator>(const endpoint &o) const
 
 bool endpoint::operator<=(const endpoint &o) const
 {
-    if (*this->_addr < *o._addr)
-        return true;
-    else if (*this->_addr > *o._addr)
-        return false;
-    else
-        return this->_port <= o._port;
+    return (*this->_addr == *o._addr) ? this->_port <= o._port : *this->_addr < *o._addr;
 }
 
 bool endpoint::operator>=(const endpoint &o) const

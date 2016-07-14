@@ -288,25 +288,13 @@ bool address_v4::operator==(const address &o) const
 bool address_v4::operator<(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-
-    if (this->_addr < a._addr)
-        return true;
-    else if (this->_addr > a._addr)
-        return false;
-    else
-        return this->_cidr < a._cidr;
+    return (this->_addr == a._addr) ? this->_cidr < a._cidr : this->_addr < a._addr;
 }
 
 bool address_v4::operator<=(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-
-    if (this->_addr < a._addr)
-        return true;
-    else if (this->_addr > a._addr)
-        return false;
-    else
-        return this->_cidr <= a._cidr;
+    return (this->_addr == a._addr) ? this->_cidr <= a._cidr : this->_addr < a._addr;
 }
 
 // convert

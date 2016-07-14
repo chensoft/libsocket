@@ -11,7 +11,6 @@
 
 TEST(SOEndpointTest, General)
 {
-    EXPECT_EQ("0.0.0.0", chen::so::endpoint().addr().str());
     EXPECT_EQ(80, chen::so::endpoint("127.0.0.1", 80).port());
 
     EXPECT_EQ(chen::ip::address_v4("127.0.0.1"), chen::so::endpoint("127.0.0.1", 80).addr());

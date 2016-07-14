@@ -163,7 +163,7 @@ std::string fs::dirname(const std::string &path)
     }
 }
 
-std::string fs::basename(const std::string &path)
+std::string fs::basename(const std::string &path, const std::string &suffix)
 {
     auto abs = fs::drive(path);
     auto sep = fs::separator(path);
@@ -191,9 +191,14 @@ std::string fs::basename(const std::string &path)
     }
 
     if (flag_b != end)
-        return path.substr(static_cast<std::size_t>(end - flag_a) + abs.size(), static_cast<std::size_t>(flag_a - flag_b));
+    {
+        auto ret = path.substr(static_cast<std::size_t>(end - flag_a) + abs.size(), static_cast<std::size_t>(flag_a - flag_b));
+        return suffix.empty() || !chen::str::suffix(ret, suffix) ? ret : ret.substr(0, ret.size() - suffix.size());
+    }
     else
+    {
         return "";
+    }
 }
 
 std::string fs::extname(const std::string &path, std::size_t dots)
