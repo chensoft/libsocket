@@ -20,10 +20,16 @@ TEST(ToolCmdTest, General)
     // version
     cmd.create("version", "show app version");
 
+    // sub-action
+    cmd.create("module", "operate module");
+    cmd.create("module.update", "update module info");
+
     // start
     cmd.create("start", "start server");
     cmd.define("port", "p", "server port (default: 80)", 80);
     cmd.define("addr", "a", "server address (default: 0.0.0.0)", "0.0.0.0");
+    cmd.define("speed", "s", "speed limit", 1);
+    cmd.define("thread", "t", "thread count (default: 1)", 1);
     cmd.define("daemon", "d", "run as a daemon (default: no)", false);
 
     EXPECT_THROW(cmd.define("", "", "", ""), chen::cmd::error_general);
@@ -37,6 +43,9 @@ TEST(ToolCmdTest, General)
 
     EXPECT_FALSE(cmd.exist("noaction"));
     EXPECT_FALSE(cmd.exist("start", "nooption"));
+
+    // suggest
+    cmd.suggest("edition", "version");
 
     // simulate -> version
     std::vector<const char*> argv = {
@@ -69,7 +78,12 @@ TEST(ToolCmdTest, General)
             "app",
             "start",
             "--port=8888",
-            "-a=127.0.0.1"
+            "-a=127.0.0.1",
+            "--thread",
+            "4",
+            "-s",
+            "100",
+            "127.0.0.1"
     };
 
     cmd.parse(static_cast<int>(argv.size()), &argv[0]);
@@ -78,13 +92,51 @@ TEST(ToolCmdTest, General)
     EXPECT_EQ(8888, cmd.intVal("port"));
     EXPECT_EQ("127.0.0.1", cmd.strVal("addr"));
 
+    EXPECT_THROW(cmd.strVal("x"), chen::cmd::error);
+    EXPECT_THROW(cmd.strVal("color"), chen::cmd::error);
+
     EXPECT_TRUE(cmd.isSet("port"));
-    EXPECT_TRUE(cmd.objects().empty());
+    EXPECT_FALSE(cmd.objects().empty());
+
+    // simulate -> sub-action
+    argv = {
+            "app",
+            "module",
+            "update",
+    };
+
+    cmd.parse(static_cast<int>(argv.size()), &argv[0]);
+
+    EXPECT_EQ("module.update", cmd.current());
 
     // simulate -> exception
     argv = {
             "app",
-            "ver"
+            "start",
+            "--a"  // it's not a long option name
+    };
+
+    EXPECT_THROW(cmd.parse(static_cast<int>(argv.size()), &argv[0]), chen::cmd::error);
+
+    argv = {
+            "app",
+            "start",
+            "--speedx"  // long option not exist
+    };
+
+    EXPECT_THROW(cmd.parse(static_cast<int>(argv.size()), &argv[0]), chen::cmd::error);
+
+    argv = {
+            "app",
+            "start",
+            "-x"  // short option not exist
+    };
+
+    EXPECT_THROW(cmd.parse(static_cast<int>(argv.size()), &argv[0]), chen::cmd::error);
+
+    argv = {
+            "app",
+            "editi"
     };
 
     try

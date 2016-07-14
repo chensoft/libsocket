@@ -116,7 +116,7 @@ std::string utf8::convert(std::uint32_t ch)
     else if (ch - 0xd800u < 0x800)
     {
         // error
-        return "";
+        throw std::runtime_error("utf8: invalid unicode char");
     }
     else if (ch < 0x10000)
     {
@@ -134,7 +134,7 @@ std::string utf8::convert(std::uint32_t ch)
     else
     {
         // error
-        return "";
+        throw std::runtime_error("utf8: invalid unicode char");
     }
 
     return ret;

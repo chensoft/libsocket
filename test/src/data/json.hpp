@@ -53,6 +53,25 @@ TEST(DataJsonTest, Type)
     EXPECT_TRUE(json_object.toObject().empty());
     EXPECT_TRUE(json_array.toArray().empty());
 
+    EXPECT_TRUE(chen::json(unused_o).getObject().empty());
+    EXPECT_TRUE(chen::json(unused_a).getArray().empty());
+    EXPECT_TRUE(chen::json(unused_s).getString().empty());
+
+    chen::json assign_o;
+    chen::json assign_a;
+    chen::json assign_s;
+    chen::json assign_d;
+
+    assign_o = unused_o;
+    assign_a = unused_a;
+    assign_s = unused_s;
+    assign_d = 115u;
+
+    EXPECT_TRUE(assign_o.getObject().empty());
+    EXPECT_TRUE(assign_a.getArray().empty());
+    EXPECT_TRUE(assign_s.getString().empty());
+    EXPECT_EQ(0, assign_d.getUnsigned());
+
     EXPECT_EQ(123, json_string.toNumber());
     EXPECT_EQ(123, json_string.toInteger());
     EXPECT_EQ(123, json_string.toUnsigned());
@@ -80,6 +99,18 @@ TEST(DataJsonTest, Type)
     EXPECT_TRUE(chen::json(false).isFalse());
     EXPECT_TRUE(chen::json(true).isBool());
     EXPECT_TRUE(chen::json(nullptr).isNull());
+
+    // parse special string
+    EXPECT_TRUE(chen::json::parse("   ").isNone());
+    EXPECT_THROW(chen::json::parse("-"), chen::json::error);
+    EXPECT_THROW(chen::json::parse("-03"), chen::json::error);
+    EXPECT_THROW(chen::json::parse("-0."), chen::json::error);
+    EXPECT_THROW(chen::json::parse("1e123456789"), chen::json::error);
+    EXPECT_THROW(chen::json::parse("\"ab\\"), chen::json::error);
+    EXPECT_THROW(chen::json::parse("\"ab\\u9A"), chen::json::error);
+    EXPECT_THROW(chen::json::parse("\"ab\\u9A@@"), chen::json::error);
+    EXPECT_THROW(chen::json::parse("\"\\uD83D\\uDE00\""), chen::json::error);
+    EXPECT_THROW(chen::json::parse("nul"), chen::json::error);
 }
 
 TEST(DataJsonTest, Validate)
