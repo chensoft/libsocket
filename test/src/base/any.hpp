@@ -57,6 +57,6 @@ TEST(BaseAnyTest, General)
     o3 = static_cast<const chen::any&>(o1);  // test assign empty object
     EXPECT_TRUE(o3.empty());
 
-    o3 = std::move(o3);  // self rvalue assign
+    o3 = std::move(o1);  // self rvalue assign
     EXPECT_TRUE(o3.empty());
 }
