@@ -32,4 +32,10 @@ key="simple \\\0\a\b\t\r\n\:\"\;\#value")";
 
     auto parse = chen::ini::parse(text);
     EXPECT_EQ(text, chen::ini::stringify(parse));
+
+    // parse special string
+    EXPECT_TRUE(chen::ini::parse("   ").empty());
+    EXPECT_THROW(chen::ini::parse("ab=\\x9A"), chen::ini::error);
+    EXPECT_THROW(chen::ini::parse("ab=\\x9A@@"), chen::ini::error);
+    EXPECT_THROW(chen::ini::parse("emoji=\\xD83D\\xDE00"), chen::ini::error);
 }

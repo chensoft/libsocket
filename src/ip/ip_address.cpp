@@ -14,6 +14,19 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
+std::shared_ptr<chen::ip::address> create(const std::string &addr)
+{
+    // todo
+    return nullptr;
+}
+
+std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr)
+{
+    // todo
+    return nullptr;
+}
+
+// operator
 bool address::operator!=(const address &o) const
 {
     return !(*this == o);
@@ -71,20 +84,20 @@ address_v4::address_v4(std::uint32_t addr, const std::string &mask)
 {
 }
 
+std::shared_ptr<chen::ip::address> address_v4::clone() const
+{
+    return std::make_shared<chen::ip::address_v4>(*this);
+}
+
 // representation
 std::string address_v4::str() const
 {
     return address_v4::toString(this->_addr);
 }
 
-std::string address_v4::full() const
+std::string address_v4::compact() const
 {
     return address_v4::toString(this->_addr, this->_cidr);
-}
-
-std::shared_ptr<chen::ip::address> address_v4::clone() const
-{
-    return std::make_shared<chen::ip::address_v4>(*this);
 }
 
 std::uint32_t address_v4::addr() const
@@ -399,16 +412,14 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 
 // -----------------------------------------------------------------------------
 // address_v6
-
-// representation
-std::string address_v6::str() const
+address_v6::address_v6(const std::string &addr)
 {
-    return "";
+
 }
 
-std::string address_v6::full() const
+address_v6::address_v6(const std::string &addr, std::uint8_t cidr)
 {
-    return "";
+
 }
 
 std::shared_ptr<chen::ip::address> address_v6::clone() const
@@ -416,18 +427,151 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
     return std::make_shared<chen::ip::address_v6>(*this);
 }
 
+// representation
+std::string address_v6::str() const
+{
+    return this->compressed();
+}
+
+std::string address_v6::compact() const
+{
+    // todo
+    return "";
+}
+
+std::string address_v6::expanded() const
+{
+    // todo
+    return "";
+}
+
+std::string address_v6::suppressed() const
+{
+    // todo
+    return "";
+}
+
+std::string address_v6::compressed() const
+{
+    // todo
+    return "";
+}
+
+std::string address_v6::mixed() const
+{
+    // todo
+    return "";
+}
+
+address_v4 address_v6::v4() const
+{
+    // todo
+    return address_v4();
+}
+
+const std::bitset<128>& address_v6::addr() const
+{
+    return this->_addr;
+}
+
+std::uint8_t address_v6::cidr() const
+{
+    return this->_cidr;
+}
+
+// special
+bool address_v6::isUnspecified() const
+{
+    // todo
+    return false;
+}
+
+bool address_v6::isLoopback() const
+{
+    // todo
+    return false;
+}
+
+bool address_v6::isGlobalUnicast() const
+{
+    // todo
+    return false;
+}
+
+bool address_v6::isLinkLocalUnicast() const
+{
+    // todo
+    return false;
+}
+
+bool address_v6::isSiteLocalUnicast() const
+{
+    // todo
+    return false;
+}
+
+
+bool address_v6::isIPv4Mapped() const
+{
+    // todo
+    return false;
+}
+
+bool address_v6::isIPv4Compatible() const
+{
+    // todo
+    return false;
+}
+
+bool address_v6::isMulticast() const
+{
+    // todo
+    return false;
+}
+
 // operator
 bool address_v6::operator==(const address &o) const
 {
-    return false;
+    const address_v6 &a = dynamic_cast<const address_v6&>(o);
+    return (this->_addr == a._addr) && (this->_cidr == a._cidr);
 }
 
 bool address_v6::operator<(const address &o) const
 {
-    return false;
+    const address_v6 &a = dynamic_cast<const address_v6&>(o);
+
+    if (this->_addr == a._addr)
+    {
+        return this->_cidr < a._cidr;
+    }
+    else
+    {
+        for (int i = static_cast<int>(this->_addr.size() - 1); i >= 0; i--)
+        {
+            if (this->_addr[i] ^ a._addr[i])
+                return a._addr[i];
+        }
+
+        return false;
+    }
 }
 
 bool address_v6::operator<=(const address &o) const
 {
-    return false;
+    const address_v6 &a = dynamic_cast<const address_v6&>(o);
+
+    if (this->_addr == a._addr)
+    {
+        return this->_cidr <= a._cidr;
+    }
+    else
+    {
+        for (int i = static_cast<int>(this->_addr.size() - 1); i >= 0; i--)
+        {
+            if (this->_addr[i] ^ a._addr[i])
+                return a._addr[i];
+        }
+
+        return true;
+    }
 }

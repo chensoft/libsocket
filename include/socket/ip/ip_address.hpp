@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <string>
 #include <memory>
+#include <bitset>
 
 namespace chen
 {
@@ -29,19 +30,21 @@ namespace chen
 
         public:
             /**
-             * Simple string representation
+             * Standard canonical representation
              */
             virtual std::string str() const = 0;
-
-            /**
-             * Full string representation
-             */
-            virtual std::string full() const = 0;
 
             /**
              * Clone current object
              */
             virtual std::shared_ptr<chen::ip::address> clone() const = 0;
+
+        public:
+            /**
+             * Generate ipv4 or ipv6 address automatically
+             */
+            static std::shared_ptr<chen::ip::address> create(const std::string &addr);
+            static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
 
         public:
             /**
@@ -63,7 +66,7 @@ namespace chen
             address_v4() = default;
 
             /**
-             * Construct by ipv4 address and CIDR prefix
+             * Construct by ipv4 dotted decimal string and CIDR prefix
              * @e.g: address_v4("127.0.0.1") or address_v4("127.0.0.1/8")
              * @e.g: address_v4("127.0.0.1", 8)
              * @e.g: address_v4("127.0.0.1", "255.0.0.0")
@@ -89,23 +92,23 @@ namespace chen
             address_v4(std::uint32_t addr, std::uint8_t cidr);
             address_v4(std::uint32_t addr, const std::string &mask);
 
-        public:
-            /**
-             * Simple string representation
-             * @e.g: "127.0.0.1"
-             */
-            virtual std::string str() const override;
-
-            /**
-             * Full string representation with CIDR prefix
-             * @e.g: "127.0.0.1/8"
-             */
-            virtual std::string full() const override;
-
             /**
              * Clone current object
              */
             virtual std::shared_ptr<chen::ip::address> clone() const override;
+
+        public:
+            /**
+             * Standard canonical representation
+             * @e.g: 127.0.0.1
+             */
+            virtual std::string str() const override;
+
+            /**
+             * Compact representation with CIDR prefix
+             * @e.g: 127.0.0.1/8
+             */
+            std::string compact() const;
 
             /**
              * Get raw value
@@ -119,6 +122,7 @@ namespace chen
             std::uint32_t netmask() const;
             std::uint32_t wildcard() const;
 
+        public:
             /**
              * Network address based on current ip
              */
@@ -182,15 +186,22 @@ namespace chen
         class address_v6 : public address
         {
         public:
-            /**
-             * Simple string representation
-             */
-            virtual std::string str() const override;
+            address_v6() = default;
 
             /**
-             * Full string representation
+             * Construct by ipv6 address, accept the following format:
+             * :-) ::
+             * :-) ::1
+             * :-) 0:0:0:0:0:0:0:1
+             * :-) fe80::4001:aff:fe80:2
+             * :-) fe80:0:0:0:4001:aff:fe80:2
+             * :-) fe80:0000:0000:0000:4001:0aff:fe80:0002
+             * :-) ::192.168.0.1
+             * Also accept CIDR prefix like:
+             * :-) fe80::4001:aff:fe80:2/64
              */
-            virtual std::string full() const override;
+            address_v6(const std::string &addr);
+            address_v6(const std::string &addr, std::uint8_t cidr);
 
             /**
              * Clone current object
@@ -199,11 +210,83 @@ namespace chen
 
         public:
             /**
+             * Standard canonical representation, same to method compressed()
+             */
+            virtual std::string str() const override;
+
+            /**
+             * Compact representation with CIDR prefix
+             * @e.g: fe80::4001:aff:fe80:2/64
+             */
+            std::string compact() const;
+
+            /**
+             * Expanded representation, no compressed
+             * @e.g: fe80:0000:0000:0000:4001:0aff:fe80:0002
+             */
+            std::string expanded() const;
+
+            /**
+             * Leading zero suppressed representation
+             * @e.g: fe80:0:0:0:4001:aff:fe80:2
+             */
+            std::string suppressed() const;
+
+            /**
+             * Zero compressed representation
+             * @e.g: fe80::4001:aff:fe80:2
+             * @e.g: ::
+             */
+            std::string compressed() const;
+
+            /**
+             * Mixed representation, used for IPv4-mapped address
+             * @e.g: ::ffff:192.0.2.128
+             */
+            std::string mixed() const;
+
+            /**
+             * Retrieve IPv4-mapped or IPv4-compatible address
+             */
+            address_v4 v4() const;
+
+            /**
+             * Get raw value
+             */
+            const std::bitset<128>& addr() const;
+            std::uint8_t cidr() const;
+
+        public:
+            /**
+             * Special addressing type
+             * @link https://tools.ietf.org/html/rfc4291
+             * @link https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+             * @link https://technet.microsoft.com/en-us/library/cc757359(v=ws.10).aspx
+             * @link http://www.tcpipguide.com/free/t_IPv6SpecialAddressesReservedPrivateLinkLocalSiteLo.htm
+             */
+            bool isUnspecified() const;
+            bool isLoopback() const;
+
+            bool isGlobalUnicast() const;
+            bool isLinkLocalUnicast() const;
+            bool isSiteLocalUnicast() const;
+
+            bool isIPv4Mapped() const;
+            bool isIPv4Compatible() const;
+
+            bool isMulticast() const;
+
+        public:
+            /**
              * Operator
              */
             virtual bool operator==(const address &o) const override;
             virtual bool operator<(const address &o) const override;
             virtual bool operator<=(const address &o) const override;
+
+        protected:
+            std::bitset<128> _addr;
+            std::uint8_t _cidr = 0;
         };
     }
 }

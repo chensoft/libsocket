@@ -47,4 +47,16 @@ TEST(BaseAnyTest, General)
 
     EXPECT_TRUE(o1.empty());
     EXPECT_FALSE(o2.empty());
+
+    chen::any o3;
+
+    o3 = static_cast<const chen::any&>(o3);  // self assign
+    EXPECT_TRUE(o3.empty());
+
+    o3 = 15;
+    o3 = static_cast<const chen::any&>(o1);  // test assign empty object
+    EXPECT_TRUE(o3.empty());
+
+    o3 = std::move(o3);  // self rvalue assign
+    EXPECT_TRUE(o3.empty());
 }

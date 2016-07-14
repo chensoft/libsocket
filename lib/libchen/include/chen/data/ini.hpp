@@ -76,7 +76,7 @@ namespace chen
          * Advance to the next non-whitespace character
          */
         template <typename InputIterator>
-        static bool advance(const InputIterator &beg, InputIterator &cur, InputIterator &end, bool require = true);
+        static bool advance(const InputIterator &beg, InputIterator &cur, InputIterator &end);
 
         /**
          * Decode specific type
@@ -107,14 +107,14 @@ chen::ini::value_type chen::ini::parse(InputIterator cur, InputIterator end)
     const InputIterator beg = cur;
 
     // trim left spaces
-    if (!chen::ini::advance(beg, cur, end, false))
+    if (!chen::ini::advance(beg, cur, end))
         return item;
 
     // decode item
     chen::ini::decode(item, beg, cur, end);
 
     // trim right spaces
-    chen::ini::advance(beg, cur, end, false);
+    chen::ini::advance(beg, cur, end);
 
     // should reach end
     if (cur != end)
@@ -142,7 +142,7 @@ void chen::ini::exception(const InputIterator &beg, InputIterator &cur, InputIte
 
 // advance
 template <typename InputIterator>
-bool chen::ini::advance(const InputIterator &beg, InputIterator &cur, InputIterator &end, bool require)
+bool chen::ini::advance(const InputIterator &beg, InputIterator &cur, InputIterator &end)
 {
     // skip whitespaces
     while ((cur != end) && std::isspace(*cur))
@@ -150,12 +150,7 @@ bool chen::ini::advance(const InputIterator &beg, InputIterator &cur, InputItera
 
     // check if end
     if (cur == end)
-    {
-        if (require)
-            chen::ini::exception(beg, cur, end);
-        else
-            return false;
-    }
+        return false;
 
     return true;
 }
@@ -168,7 +163,7 @@ void chen::ini::decode(chen::ini::value_type &out, const InputIterator &beg, Inp
 
     while (cur != end)
     {
-        if (!chen::ini::advance(beg, cur, end, false))
+        if (!chen::ini::advance(beg, cur, end))
             break;
 
         switch (*cur)
@@ -229,7 +224,7 @@ void chen::ini::decode(chen::ini::section_type &out, const InputIterator &beg, I
     out.first = std::move(name);
 
     // properties
-    chen::ini::advance(beg, cur, end, false);
+    chen::ini::advance(beg, cur, end);
 
     chen::ini::property_type p;
     chen::ini::decode(p, beg, cur, end);
@@ -242,7 +237,7 @@ void chen::ini::decode(chen::ini::property_type &out, const InputIterator &beg, 
     while (cur != end)
     {
         // skip
-        if (!chen::ini::advance(beg, cur, end, false) || (*cur == '['))
+        if (!chen::ini::advance(beg, cur, end) || (*cur == '['))
             break;
 
         std::string key;
