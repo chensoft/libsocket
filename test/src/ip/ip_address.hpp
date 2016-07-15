@@ -160,3 +160,14 @@ TEST(IPAddressTest, IPv4)
     EXPECT_THROW(chen::ip::address_v4::toInteger("999.0.0.0"), chen::ip::address::error);
     EXPECT_THROW(chen::ip::address_v4::toInteger("127.0.0.1/99"), chen::ip::address::error);
 }
+
+TEST(IPAddressTest, IPv6)
+{
+    std::array<std::uint8_t, 16> xxx = {};
+
+    std::for_each(xxx.begin(), xxx.end(), [] (std::uint8_t ch) {
+        printf("%02x.", ch);
+    });
+
+    std::cout << std::endl;
+}

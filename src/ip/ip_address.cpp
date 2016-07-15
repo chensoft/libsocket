@@ -666,11 +666,91 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr)
 
 std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t &cidr)
 {
+    std::array<std::uint8_t, 16> ret = {};
 
+    auto ptr = ret.begin();  // current insert position
+    auto idx = ret.end();    // compressed position
 
+    auto cur = addr.begin();
+    auto end = addr.end();
 
-    // todo
-    return std::array<std::uint8_t, 16>();
+    for (; (cur != end) && (*cur != '/'); ++cur)
+    {
+        // collect digits, up to 4
+        char num[5] = {};  // set all chars to zero in C++11
+        bool hex = true;
+
+        for (int i = 0; (i < 4) && (cur != end); ++i, ++cur)
+        {
+            char ch = static_cast<char>(std::tolower(*cur));
+
+            if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')))
+            {
+                num[i] = ch;
+            }
+            else if (ch == '.')
+            {
+                hex = false;  // decimal integer
+                break;
+            }
+            else if (ch == ':')
+            {
+                break;
+            }
+            else if (ch != '/')
+            {
+                throw address::error("ipv6: addr format is wrong");
+            }
+        }
+
+        // check if invalid
+        if ((cur != end) && ((*cur != ':') || (*cur != '.') || (*cur != '/')))
+            throw address::error("ipv6: addr format is wrong");
+
+        // parse the number
+        if (num[0] != '\0')
+        {
+            std::uint16_t val = static_cast<std::uint16_t>(::strtol(num, nullptr, hex ? 16 : 10));
+            std::uint8_t *tmp = reinterpret_cast<std::uint8_t*>(&val);
+
+            *ptr++ = *tmp;
+            *ptr++ = *(tmp + 1);
+        }
+        else if (idx != ret.end())  // found two "::"
+        {
+            throw address::error("ipv6: addr format is wrong");
+        }
+        else
+        {
+            idx = ptr;
+        }
+    }
+
+    // expand zeros
+    if (idx != ret.end())
+    {
+        auto copy = ret.rbegin();
+        for (auto it = ptr - 1; it >= idx; --it)
+            *copy = *it;
+    }
+
+    // CIDR notation
+    cidr = 128;
+
+    if (*cur == '/')
+    {
+        std::uint32_t tmp = 0;
+
+        while (std::isdigit(*++cur))
+            tmp = tmp * 10 + (*cur - '0');
+
+        if (tmp > 128)
+            throw address::error("ipv6: CIDR prefix must less than 128");
+
+        cidr = static_cast<uint8_t>(tmp);
+    }
+
+    return ret;
 };
 
 // compress

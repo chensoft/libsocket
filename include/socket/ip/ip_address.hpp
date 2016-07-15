@@ -319,7 +319,7 @@ namespace chen
                                         std::array<std::uint8_t, 16>::const_iterator end);
 
         protected:
-            std::array<std::uint8_t, 16> _addr;
+            std::array<std::uint8_t, 16> _addr = {};
             std::uint8_t _cidr = 0;
         };
     }

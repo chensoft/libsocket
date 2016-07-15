@@ -777,7 +777,7 @@ namespace chen
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
-            std::array<std::uint8_t, 16> address;
+            std::array<std::uint8_t, 16> address = {};
         };
 
 
