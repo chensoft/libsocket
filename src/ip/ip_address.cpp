@@ -7,23 +7,26 @@
 #include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
-#include <bitset>
 
 using namespace chen;
 using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
-std::shared_ptr<chen::ip::address> create(const std::string &addr)
+std::shared_ptr<chen::ip::address> address::create(const std::string &addr)
 {
-    // todo
-    return nullptr;
+    if (chen::str::contain(addr, ":"))
+        return std::make_shared<chen::ip::address_v6>(addr);
+    else
+        return std::make_shared<chen::ip::address_v4>(addr);
 }
 
-std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr)
+std::shared_ptr<chen::ip::address> address::create(const std::string &addr, std::uint8_t cidr)
 {
-    // todo
-    return nullptr;
+    if (chen::str::contain(addr, ":"))
+        return std::make_shared<chen::ip::address_v6>(addr, cidr);
+    else
+        return std::make_shared<chen::ip::address_v4>(addr, cidr);
 }
 
 // operator
@@ -55,7 +58,7 @@ address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
 , _cidr(cidr)
 {
     if (this->_cidr > 32)
-        throw address::error("ip: CIDR prefix must less than 32");
+        throw address::error("ipv4: CIDR prefix must less than 32");
 }
 
 address_v4::address_v4(const std::string &addr, const std::string &mask)
@@ -65,8 +68,7 @@ address_v4::address_v4(const std::string &addr, const std::string &mask)
 }
 
 address_v4::address_v4(std::uint32_t addr)
-: _addr(addr)
-, _cidr(32)
+: address_v4(addr, 32)
 {
 }
 
@@ -75,7 +77,7 @@ address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
 , _cidr(cidr)
 {
     if (this->_cidr > 32)
-        throw address::error("ip: CIDR prefix must less than 32");
+        throw address::error("ipv4: CIDR prefix must less than 32");
 }
 
 address_v4::address_v4(std::uint32_t addr, const std::string &mask)
@@ -322,12 +324,7 @@ std::string address_v4::toString(std::uint32_t addr)
 
 std::string address_v4::toString(std::uint32_t addr, std::uint8_t cidr)
 {
-    return str::format("%u.%u.%u.%u/%u",
-                       (addr >> 24) & 0xFF,
-                       (addr >> 16) & 0xFF,
-                       (addr >> 8) & 0xFF,
-                       addr & 0xFF,
-                       cidr);
+    return address_v4::toString(addr) + "/" + chen::num::str(cidr);
 }
 
 std::uint32_t address_v4::toInteger(const std::string &addr)
@@ -348,7 +345,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
     {
         // check character
         if (!std::isdigit(*cur))
-            throw address::error("ip: addr format is wrong");
+            throw address::error("ipv4: addr format is wrong");
 
         // collect digits
         do
@@ -361,7 +358,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 
         // check if valid
         if (num[i] > 0xFF)
-            throw address::error("ip: addr number must between 0 and 255");
+            throw address::error("ipv4: addr number must between 0 and 255");
     }
 
     // analyse the digits
@@ -401,7 +398,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
             tmp = tmp * 10 + (*cur - '0');
 
         if (tmp > 32)
-            throw address::error("ip: CIDR prefix must less than 32");
+            throw address::error("ipv4: CIDR prefix must less than 32");
 
         cidr = static_cast<uint8_t>(tmp);
     }
@@ -414,12 +411,41 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 // address_v6
 address_v6::address_v6(const std::string &addr)
 {
-
+    this->_addr = std::move(address_v6::toBytes(addr, this->_cidr));
 }
 
 address_v6::address_v6(const std::string &addr, std::uint8_t cidr)
+: _addr(address_v6::toBytes(addr))
+, _cidr(cidr)
 {
+    if (this->_cidr > 128)
+        throw address::error("ipv6: CIDR prefix must less than 128");
+}
 
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr)
+: address_v6(addr, 128)
+{
+}
+
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+: _addr(addr)
+, _cidr(cidr)
+{
+    if (this->_cidr > 128)
+        throw address::error("ipv6: CIDR prefix must less than 128");
+}
+
+address_v6::address_v6(std::array<std::uint8_t, 16> &&addr)
+: address_v6(std::move(addr), 128)
+{
+}
+
+address_v6::address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
+: _addr(std::move(addr))
+, _cidr(cidr)
+{
+    if (this->_cidr > 128)
+        throw address::error("ipv6: CIDR prefix must less than 128");
 }
 
 std::shared_ptr<chen::ip::address> address_v6::clone() const
@@ -430,46 +456,44 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
 // representation
 std::string address_v6::str() const
 {
-    return this->compressed();
+    return address_v6::toString(this->_addr);
 }
 
 std::string address_v6::compact() const
 {
-    // todo
-    return "";
+    return address_v6::toString(this->_addr, this->_cidr);
 }
 
 std::string address_v6::expanded() const
 {
-    // todo
-    return "";
+    return address_v6::toExpanded(this->_addr);
 }
 
 std::string address_v6::suppressed() const
 {
-    // todo
-    return "";
+    return address_v6::toSuppressed(this->_addr);
 }
 
 std::string address_v6::compressed() const
 {
-    // todo
-    return "";
+    return address_v6::toString(this->_addr);
 }
 
 std::string address_v6::mixed() const
 {
-    // todo
-    return "";
+    return address_v6::toMixed(this->_addr);
 }
 
 address_v4 address_v6::v4() const
 {
-    // todo
-    return address_v4();
+    // for IPv4-compatible & IPv4-mapped address
+    return address_v4(this->_addr[12] * 256u * 256u * 256u
+                      + this->_addr[13] * 256u * 256u
+                      + this->_addr[14] * 256u
+                      + this->_addr[15]);
 }
 
-const std::bitset<128>& address_v6::addr() const
+const std::array<std::uint8_t, 16>& address_v6::addr() const
 {
     return this->_addr;
 }
@@ -482,51 +506,76 @@ std::uint8_t address_v6::cidr() const
 // special
 bool address_v6::isUnspecified() const
 {
-    // todo
-    return false;
+    // all bits are zero
+    // @see rfc4291, section 2.5.2
+    return std::all_of(this->_addr.begin(), this->_addr.end(), [] (const std::uint8_t &ch) -> bool {
+        return ch == 0;
+    });
 }
 
 bool address_v6::isLoopback() const
 {
-    // todo
-    return false;
+    // 0:0:0:0:0:0:0:1
+    // @see rfc4291, section 2.5.3
+    auto ret = std::all_of(this->_addr.begin(), this->_addr.begin() + 15, [] (const std::uint8_t &ch) -> bool {
+        return ch == 0;
+    });
+
+    if (!ret)
+        return false;
+
+    return this->_addr[15] == 1;
 }
 
 bool address_v6::isGlobalUnicast() const
 {
-    // todo
-    return false;
+    // first 3 bits are 001
+    // @see rfc3587, section 3
+    return this->_addr[0] == 0x20;
 }
 
 bool address_v6::isLinkLocalUnicast() const
 {
-    // todo
-    return false;
+    // first 10 bits are 1111111010
+    // @see rfc4291, section 2.5.6
+    return ((this->_addr[0] == 0xFE) && ((this->_addr[1] & 0xC0) == 0x80));
 }
 
 bool address_v6::isSiteLocalUnicast() const
 {
-    // todo
-    return false;
-}
-
-
-bool address_v6::isIPv4Mapped() const
-{
-    // todo
-    return false;
+    // first 10 bits are 1111111011
+    // @see rfc4291, section 2.5.7
+    return ((this->_addr[0] == 0xFE) && ((this->_addr[1] & 0xC0) == 0xC0));
 }
 
 bool address_v6::isIPv4Compatible() const
 {
-    // todo
-    return false;
+    // first 96 bits are zero
+    // @see rfc4291, section 2.5.5.1
+    return std::all_of(this->_addr.begin(), this->_addr.begin() + 12, [] (const std::uint8_t &ch) -> bool {
+        return ch == 0;
+    });
+}
+
+bool address_v6::isIPv4Mapped() const
+{
+    // first 80 bits are zero, next 16 bits are one
+    // @see rfc4291, section 2.5.5.2
+    auto ret = std::all_of(this->_addr.begin(), this->_addr.begin() + 10, [] (const std::uint8_t &ch) -> bool {
+        return ch == 0;
+    });
+
+    if (!ret)
+        return false;
+
+    return (this->_addr[10] == 0xFF) && (this->_addr[11] == 0xFF);
 }
 
 bool address_v6::isMulticast() const
 {
-    // todo
-    return false;
+    // first 8 bits is 0xFF
+    // @see rfc4291, section 2.7
+    return this->_addr[0] == 0xFF;
 }
 
 // operator
@@ -539,39 +588,132 @@ bool address_v6::operator==(const address &o) const
 bool address_v6::operator<(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-
-    if (this->_addr == a._addr)
-    {
-        return this->_cidr < a._cidr;
-    }
-    else
-    {
-        for (int i = static_cast<int>(this->_addr.size() - 1); i >= 0; i--)
-        {
-            if (this->_addr[i] ^ a._addr[i])
-                return a._addr[i];
-        }
-
-        return false;
-    }
+    return (this->_addr == a._addr) ? this->_cidr < a._cidr : this->_addr < a._addr;
 }
 
 bool address_v6::operator<=(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
+    return (this->_addr == a._addr) ? this->_cidr <= a._cidr : this->_addr < a._addr;
+}
 
-    if (this->_addr == a._addr)
+// convert
+std::string address_v6::toString(const std::array<std::uint8_t, 16> &addr)
+{
+    return address_v6::toCompressed(addr);
+}
+
+std::string address_v6::toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+{
+    return address_v6::toCompressed(addr) + "/" + chen::num::str(cidr);
+}
+
+std::string address_v6::toExpanded(const std::array<std::uint8_t, 16> &addr)
+{
+    return chen::str::format("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+                             static_cast<unsigned>(addr[0]) + addr[1],
+                             static_cast<unsigned>(addr[2]) + addr[3],
+                             static_cast<unsigned>(addr[4]) + addr[5],
+                             static_cast<unsigned>(addr[6]) + addr[7],
+                             static_cast<unsigned>(addr[8]) + addr[9],
+                             static_cast<unsigned>(addr[10]) + addr[11],
+                             static_cast<unsigned>(addr[12]) + addr[13],
+                             static_cast<unsigned>(addr[14]) + addr[15]);
+}
+
+std::string address_v6::toSuppressed(const std::array<std::uint8_t, 16> &addr)
+{
+    return chen::str::format("%x:%x:%x:%x:%x:%x:%x:%x",
+                             static_cast<unsigned>(addr[0]) + addr[1],
+                             static_cast<unsigned>(addr[2]) + addr[3],
+                             static_cast<unsigned>(addr[4]) + addr[5],
+                             static_cast<unsigned>(addr[6]) + addr[7],
+                             static_cast<unsigned>(addr[8]) + addr[9],
+                             static_cast<unsigned>(addr[10]) + addr[11],
+                             static_cast<unsigned>(addr[12]) + addr[13],
+                             static_cast<unsigned>(addr[14]) + addr[15]);
+}
+
+std::string address_v6::toCompressed(const std::array<std::uint8_t, 16> &addr)
+{
+    return address_v6::compress(addr.begin(), addr.end());
+}
+
+std::string address_v6::toMixed(const std::array<std::uint8_t, 16> &addr)
+{
+    // first 12 bytes
+    auto ret = address_v6::compress(addr.begin(), addr.begin() + 12);
+
+    // dotted decimal IPv4 address
+    auto beg = addr.begin() + 12;
+
+    for (auto it = beg; it != addr.end(); ++it)
     {
-        return this->_cidr <= a._cidr;
+        if (it != beg)
+            ret += '.';
+
+        ret.append(chen::num::str(*it));
     }
-    else
+
+    return ret;
+}
+
+std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr)
+{
+    std::uint8_t cidr = 0;
+    return address_v6::toBytes(addr, cidr);
+};
+
+std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t &cidr)
+{
+
+
+
+    // todo
+    return std::array<std::uint8_t, 16>();
+};
+
+// compress
+std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator beg,
+                                 std::array<std::uint8_t, 16>::const_iterator end)
+{
+    std::string ret;
+    int zero = 0;
+
+    for (auto cur = beg; cur != end; cur += 2)
     {
-        for (int i = static_cast<int>(this->_addr.size() - 1); i >= 0; i--)
+        const std::uint8_t &a = *cur;
+        const std::uint8_t &b = *(cur + 1);
+
+        if (a || b || (zero < 0))
         {
-            if (this->_addr[i] ^ a._addr[i])
-                return a._addr[i];
-        }
+            // last zero count
+            if (zero == 1)
+            {
+                // append "0:" to string
+                ret.append("0:");
+                zero = 0;
+            }
+            else if (zero > 1)
+            {
+                // append ":" to string only once
+                ret.append(":");
+                zero = -1;  // set to -1, don't allow two or more "::"
+            }
 
-        return true;
+            // append colon
+            if (cur != beg)
+                ret += ':';
+
+            // append hexadecimal
+            ret.append(chen::str::format("%x", (static_cast<unsigned>(b) << 8) + a));
+        }
+        else
+        {
+            // two bytes are zero
+            ++zero;
+        }
     }
+
+    return ret;
 }

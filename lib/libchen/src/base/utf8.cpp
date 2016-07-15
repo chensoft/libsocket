@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <chen/base/utf8.hpp>
+#include <stdexcept>
 
 using namespace chen;
 

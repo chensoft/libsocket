@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <string>
 #include <memory>
-#include <bitset>
+#include <array>
 
 namespace chen
 {
@@ -193,15 +193,26 @@ namespace chen
              * :-) ::
              * :-) ::1
              * :-) 0:0:0:0:0:0:0:1
-             * :-) fe80::4001:aff:fe80:2
-             * :-) fe80:0:0:0:4001:aff:fe80:2
-             * :-) fe80:0000:0000:0000:4001:0aff:fe80:0002
+             * :-) 2404:6800:4004:817::200e
+             * :-) 2404:6800:4004:817:0:0:0:200e
+             * :-) 2404:6800:4004:817:0000:0000:0000:200e
              * :-) ::192.168.0.1
              * Also accept CIDR prefix like:
-             * :-) fe80::4001:aff:fe80:2/64
+             * :-) 2404:6800:4004:817::200e/64
+             * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::string &addr);
             address_v6(const std::string &addr, std::uint8_t cidr);
+
+            /**
+             * Construct by bytes array
+             * @caution default CIDR prefix will be 128 if you don't provide
+             */
+            address_v6(const std::array<std::uint8_t, 16> &addr);
+            address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+
+            address_v6(std::array<std::uint8_t, 16> &&addr);
+            address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
 
             /**
              * Clone current object
@@ -216,25 +227,25 @@ namespace chen
 
             /**
              * Compact representation with CIDR prefix
-             * @e.g: fe80::4001:aff:fe80:2/64
+             * @e.g: 2404:6800:4004:817::200e/64
              */
             std::string compact() const;
 
             /**
              * Expanded representation, no compressed
-             * @e.g: fe80:0000:0000:0000:4001:0aff:fe80:0002
+             * @e.g: 2404:6800:4004:817:0000:0000:0000:200e
              */
             std::string expanded() const;
 
             /**
              * Leading zero suppressed representation
-             * @e.g: fe80:0:0:0:4001:aff:fe80:2
+             * @e.g: 2404:6800:4004:817:0:0:0:200e
              */
             std::string suppressed() const;
 
             /**
              * Zero compressed representation
-             * @e.g: fe80::4001:aff:fe80:2
+             * @e.g: 2404:6800:4004:817::200e
              * @e.g: ::
              */
             std::string compressed() const;
@@ -253,7 +264,7 @@ namespace chen
             /**
              * Get raw value
              */
-            const std::bitset<128>& addr() const;
+            const std::array<std::uint8_t, 16>& addr() const;
             std::uint8_t cidr() const;
 
         public:
@@ -267,12 +278,12 @@ namespace chen
             bool isUnspecified() const;
             bool isLoopback() const;
 
-            bool isGlobalUnicast() const;
+            bool isGlobalUnicast() const;  // currently only 2000::/3 is being delegated by the IANA
             bool isLinkLocalUnicast() const;
             bool isSiteLocalUnicast() const;
 
-            bool isIPv4Mapped() const;
             bool isIPv4Compatible() const;
+            bool isIPv4Mapped() const;
 
             bool isMulticast() const;
 
@@ -284,8 +295,31 @@ namespace chen
             virtual bool operator<(const address &o) const override;
             virtual bool operator<=(const address &o) const override;
 
+        public:
+            /**
+             * Convert between integer and string
+             * @caution default CIDR prefix will be 32 if you don't provide
+             */
+            static std::string toString(const std::array<std::uint8_t, 16> &addr);
+            static std::string toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+
+            static std::string toExpanded(const std::array<std::uint8_t, 16> &addr);
+            static std::string toSuppressed(const std::array<std::uint8_t, 16> &addr);
+            static std::string toCompressed(const std::array<std::uint8_t, 16> &addr);
+            static std::string toMixed(const std::array<std::uint8_t, 16> &addr);
+
+            static std::array<std::uint8_t, 16> toBytes(const std::string &addr);
+            static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t &cidr);
+
         protected:
-            std::bitset<128> _addr;
+            /**
+             * Compress data
+             */
+            static std::string compress(std::array<std::uint8_t, 16>::const_iterator beg,
+                                        std::array<std::uint8_t, 16>::const_iterator end);
+
+        protected:
+            std::array<std::uint8_t, 16> _addr;
             std::uint8_t _cidr = 0;
         };
     }
