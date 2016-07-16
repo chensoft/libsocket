@@ -12,13 +12,18 @@ using namespace chen::so;
 // -----------------------------------------------------------------------------
 // endpoint
 endpoint::endpoint(const std::string &addr, std::uint16_t port)
-: _addr(new chen::ip::address_v4(addr))
+: _addr(chen::ip::address::create(addr))
 , _port(port)
 {
 }
 
 endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port)
-: _addr(addr.clone())
+: endpoint(addr.clone(), port)
+{
+}
+
+endpoint::endpoint(std::shared_ptr<chen::ip::address> addr, std::uint16_t port)
+: _addr(addr)
 , _port(port)
 {
 }

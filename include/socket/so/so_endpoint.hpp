@@ -19,8 +19,9 @@ namespace chen
             /**
              * Construct by ip address and port number
              */
-            endpoint(const std::string &addr, std::uint16_t port);  // todo parse both ipv4 and ipv6 address
+            endpoint(const std::string &addr, std::uint16_t port);
             endpoint(const chen::ip::address &addr, std::uint16_t port);
+            endpoint(std::shared_ptr<chen::ip::address> addr, std::uint16_t port);
 
         public:
             /**
