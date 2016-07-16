@@ -102,7 +102,7 @@ std::string address_v4::str() const
     return address_v4::toString(this->_addr);
 }
 
-std::string address_v4::compact() const
+std::string address_v4::notation() const
 {
     return address_v4::toString(this->_addr, this->_cidr);
 }
@@ -458,7 +458,7 @@ std::string address_v6::str() const
     return address_v6::toString(this->_addr);
 }
 
-std::string address_v6::compact() const
+std::string address_v6::notation() const
 {
     return address_v6::toString(this->_addr, this->_cidr);
 }
@@ -500,6 +500,75 @@ const std::array<std::uint8_t, 16>& address_v6::addr() const
 std::uint8_t address_v6::cidr() const
 {
     return this->_cidr;
+}
+
+std::array<std::uint8_t, 16> address_v6::netmask() const
+{
+    std::array<std::uint8_t, 16> ret{};
+
+    std::uint8_t len = static_cast<std::uint8_t>(this->_cidr / 8);
+    std::uint8_t mod = static_cast<std::uint8_t>(this->_cidr % 8);
+
+    std::uint8_t i = 0;
+
+    for (; i < len; ++i)
+        ret[i] = 0xFF;
+
+    if (mod)
+        ret[i] = static_cast<std::uint8_t>(0xFF << (8 - mod));
+
+    return ret;
+};
+
+std::array<std::uint8_t, 16> address_v6::wildcard() const
+{
+    std::array<std::uint8_t, 16> ret{};
+
+    std::uint8_t len = static_cast<std::uint8_t>(this->_cidr / 8);
+    std::uint8_t mod = static_cast<std::uint8_t>(this->_cidr % 8);
+
+    auto it = ret.begin() + len;
+
+    if (mod)
+    {
+        ++it;
+        ret[len] = static_cast<std::uint8_t>(~(0xFF << (8 - mod)));
+    }
+
+    for (; it != ret.end(); ++it)
+        *it = 0xFF;
+
+    return ret;
+};
+
+// network
+address_v6 address_v6::network() const
+{
+    std::array<std::uint8_t, 16> ret{};
+    std::array<std::uint8_t, 16> mask = this->netmask();
+
+    for (std::size_t i = 0, len = ret.size(); i < len; ++i)
+        ret[i] = this->_addr[i] & mask[i];
+
+    return address_v6(ret, this->_cidr);
+}
+
+address_v6 address_v6::minhost() const
+{
+    // IPv6 host begins with 0
+    return this->network();
+}
+
+address_v6 address_v6::maxhost() const
+{
+    // IPv6 host ends with 1
+    std::array<std::uint8_t, 16> ret{};
+    std::array<std::uint8_t, 16> mask = this->wildcard();
+
+    for (std::size_t i = 0, len = ret.size(); i < len; ++i)
+        ret[i] = this->_addr[i] | mask[i];
+
+    return address_v6(ret, this->_cidr);
 }
 
 // special
@@ -663,7 +732,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr)
 
 std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t &cidr)
 {
-    std::array<std::uint8_t, 16> ret = {};
+    std::array<std::uint8_t, 16> ret{};
 
     auto ptr = ret.begin();  // current insert position
     auto idx = ret.end();    // compressed position
@@ -692,7 +761,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
         }
 
         // collect digits, up to 4
-        char num[5] = {};  // set all chars to zero in C++11
+        char num[5]{};  // set all chars to zero in C++11
 
         for (int j = 0; (j < 5) && (cur != end); ++j)
         {
@@ -791,8 +860,8 @@ std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator be
             }
             else if (zero > 1)
             {
-                // append ":" to string only once
-                ret.append(":");
+                // append ':' to string only once
+                ret += ':';
                 zero = -1;  // set to -1, don't allow two or more "::"
             }
 
@@ -810,5 +879,9 @@ std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator be
         }
     }
 
-    return !ret.empty() ? ret : "::";
+    // append trailing "::"
+    if (zero > 0)
+        ret.append("::");
+
+    return ret;
 }

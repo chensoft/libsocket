@@ -105,10 +105,10 @@ namespace chen
             virtual std::string str() const override;
 
             /**
-             * Compact representation with CIDR prefix
+             * CIDR prefix notation representation
              * @e.g: 127.0.0.1/8
              */
-            std::string compact() const;
+            std::string notation() const;
 
             /**
              * Get raw value
@@ -223,10 +223,10 @@ namespace chen
             virtual std::string str() const override;
 
             /**
-             * Compact representation with CIDR prefix
+             * CIDR prefix notation representation
              * @e.g: 2404:6800:4004:817::200e/64
              */
-            std::string compact() const;
+            std::string notation() const;
 
             /**
              * Expanded representation, no compressed
@@ -263,6 +263,21 @@ namespace chen
              */
             const std::array<std::uint8_t, 16>& addr() const;
             std::uint8_t cidr() const;
+
+            /**
+             * Netmask & Wildcard mask
+             * @caution use uint128 if supported in the future
+             */
+            std::array<std::uint8_t, 16> netmask() const;
+            std::array<std::uint8_t, 16> wildcard() const;
+
+        public:
+            /**
+             * Network address based on current ip
+             */
+            address_v6 network() const;
+            address_v6 minhost() const;
+            address_v6 maxhost() const;
 
         public:
             /**
