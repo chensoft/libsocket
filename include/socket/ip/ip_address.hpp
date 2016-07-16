@@ -28,16 +28,16 @@ namespace chen
         public:
             virtual ~address() = default;
 
+            /**
+             * Clone current object
+             */
+            virtual std::shared_ptr<chen::ip::address> clone() const = 0;
+
         public:
             /**
              * Standard canonical representation
              */
             virtual std::string str() const = 0;
-
-            /**
-             * Clone current object
-             */
-            virtual std::shared_ptr<chen::ip::address> clone() const = 0;
 
         public:
             /**
@@ -295,7 +295,7 @@ namespace chen
         public:
             /**
              * Convert between integer and string
-             * @caution default CIDR prefix will be 32 if you don't provide
+             * @caution default CIDR prefix will be 128 if you don't provide
              */
             static std::string toString(const std::array<std::uint8_t, 16> &addr);
             static std::string toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);

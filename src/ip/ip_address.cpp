@@ -258,8 +258,7 @@ bool address_v4::isMulticast() const
 bool address_v4::isBroadcast() const
 {
     // host bits are 1
-    std::uint32_t broadcast = (this->_addr | this->wildcard());
-    return broadcast == this->_addr;
+    return (this->_addr | this->wildcard()) == this->_addr;
 }
 
 // classful
@@ -390,6 +389,9 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
             // 8.8.8.8 -> 8.8.8.8
             val = (num[0] << 24) | (num[1] << 16) | (num[2] << 8) | num[3];
             break;
+
+        default:
+            break;
     }
 
     // CIDR notation
@@ -473,7 +475,7 @@ std::string address_v6::suppressed() const
 
 std::string address_v6::compressed() const
 {
-    return address_v6::toString(this->_addr);
+    return address_v6::toCompressed(this->_addr);
 }
 
 std::string address_v6::mixed() const
