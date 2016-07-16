@@ -63,7 +63,7 @@ namespace chen
         class address_v4 : public address
         {
         public:
-            address_v4() = default;
+            address_v4();
 
             /**
              * Construct by ipv4 dotted decimal string and CIDR prefix
@@ -186,7 +186,7 @@ namespace chen
         class address_v6 : public address
         {
         public:
-            address_v6() = default;
+            address_v6();
 
             /**
              * Construct by ipv6 address, accept the following format:
@@ -210,9 +210,6 @@ namespace chen
              */
             address_v6(const std::array<std::uint8_t, 16> &addr);
             address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
-
-            address_v6(std::array<std::uint8_t, 16> &&addr);
-            address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
 
             /**
              * Clone current object

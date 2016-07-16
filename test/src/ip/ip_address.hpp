@@ -12,7 +12,7 @@
 TEST(IPAddressTest, IPv4)
 {
     // assign
-    EXPECT_EQ(chen::ip::address_v4(""), chen::ip::address_v4("0.0.0.0"));
+    EXPECT_EQ(chen::ip::address_v4(), chen::ip::address_v4("0.0.0.0"));
 
     EXPECT_EQ(chen::ip::address_v4("127.0.0.1/8"), chen::ip::address_v4("127.0.0.1/8"));
     EXPECT_EQ(chen::ip::address_v4("127.0.0.1/8"), chen::ip::address_v4("127.0.0.1", 8));
@@ -163,11 +163,93 @@ TEST(IPAddressTest, IPv4)
 
 TEST(IPAddressTest, IPv6)
 {
-    std::array<std::uint8_t, 16> xxx = {};
+    // assign
+    EXPECT_EQ(chen::ip::address_v6(), chen::ip::address_v6("::"));
+    EXPECT_EQ(chen::ip::address_v6("::1/64"), chen::ip::address_v6("::1/64"));
+    EXPECT_EQ(chen::ip::address_v6("::1/64"), chen::ip::address_v6("::1", 64));
 
-    std::for_each(xxx.begin(), xxx.end(), [] (std::uint8_t ch) {
-        printf("%02x.", ch);
-    });
+    EXPECT_EQ(chen::ip::address_v6("::"), chen::ip::address_v6("0000:0000:0000:0000:0000:0000:0000:0000"));
+    EXPECT_EQ(chen::ip::address_v6("::"), chen::ip::address_v6("0:0:0:0:0:0:0:0"));
 
-    std::cout << std::endl;
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817:0:0:0:200e"));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e"));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e/128"));
+
+    EXPECT_EQ(chen::ip::address_v6("::c0a8:1"), chen::ip::address_v6("::192.168.0.1"));
+
+    std::array<std::uint8_t, 16> bytes = {0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e};
+
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(bytes));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(bytes, 64));
+
+    EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e/129"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6(bytes, 129), chen::ip::address::error);
+
+    // representation
+    EXPECT_EQ("2404:6800:4004:817::200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").str());
+    EXPECT_EQ("2404:6800:4004:817::200e/128", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").compact());
+    EXPECT_EQ("2404:6800:4004:0817:0000:0000:0000:200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").expanded());
+    EXPECT_EQ("2404:6800:4004:817:0:0:0:200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").suppressed());
+    EXPECT_EQ("2404:6800:4004:817::200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").compressed());
+    EXPECT_EQ("::ffff:192.0.2.128", chen::ip::address_v6("::ffff:c000:280").mixed());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.128"), chen::ip::address_v6("::ffff:c000:280").v4());
+
+    EXPECT_EQ(bytes, chen::ip::address_v6("2404:6800:4004:817::200e").addr());
+    EXPECT_EQ(128, chen::ip::address_v6("2404:6800:4004:817::200e").cidr());
+    EXPECT_EQ(128, chen::ip::address_v6("2404:6800:4004:817::200e/128").cidr());
+    EXPECT_EQ(64, chen::ip::address_v6("2404:6800:4004:817::200e/64").cidr());
+
+    // special
+    EXPECT_TRUE(chen::ip::address_v6("::").isUnspecified());
+    EXPECT_FALSE(chen::ip::address_v6("::1").isUnspecified());
+
+    EXPECT_TRUE(chen::ip::address_v6("::1").isLoopback());
+    EXPECT_FALSE(chen::ip::address_v6("::").isLoopback());
+
+    EXPECT_TRUE(chen::ip::address_v6("2404:6800:4004:817::200e").isGlobalUnicast());
+    EXPECT_FALSE(chen::ip::address_v6("fe80::7a31:c1ff:fec2:b5aa").isGlobalUnicast());
+
+    EXPECT_TRUE(chen::ip::address_v6("fe80::7a31:c1ff:fec2:b5aa").isLinkLocalUnicast());
+    EXPECT_FALSE(chen::ip::address_v6("2404:6800:4004:817::200e").isLinkLocalUnicast());
+
+    EXPECT_TRUE(chen::ip::address_v6("FEC0::1234:5678:9ABC").isSiteLocalUnicast());
+    EXPECT_FALSE(chen::ip::address_v6("2404:6800:4004:817::200e").isSiteLocalUnicast());
+
+    EXPECT_TRUE(chen::ip::address_v6("::192.168.1.1").isIPv4Compatible());
+    EXPECT_FALSE(chen::ip::address_v6("2404::192.168.1.1").isIPv4Compatible());
+
+    EXPECT_TRUE(chen::ip::address_v6("::ffff:192.168.1.1").isIPv4Mapped());
+    EXPECT_FALSE(chen::ip::address_v6("::192.168.1.1").isIPv4Mapped());
+
+    EXPECT_TRUE(chen::ip::address_v6("FF01:0:0:0:0:0:0:1").isMulticast());
+    EXPECT_FALSE(chen::ip::address_v6("fe80::7a31:c1ff:fec2:b5aa").isMulticast());
+
+    // operator
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6("2404:6800:4004:817::200e/64"));
+
+    EXPECT_NE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::"));
+    EXPECT_NE(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+
+    EXPECT_LT(chen::ip::address_v6("2404:6800:4004:817::"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+    EXPECT_LT(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+
+    EXPECT_GT(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::"));
+    EXPECT_GT(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e/64"));
+
+    EXPECT_LE(chen::ip::address_v6("2404:6800:4004:817::"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+    EXPECT_LE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+    EXPECT_LE(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+
+    EXPECT_GE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::"));
+    EXPECT_GE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e"));
+    EXPECT_GE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e/64"));
+
+    // invalid test
+    EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e", 200), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6(bytes, 200), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::1::1"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::192.fe:1:1"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::1^$"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::1/200"), chen::ip::address::error);
 }
