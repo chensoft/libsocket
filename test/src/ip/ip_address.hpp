@@ -213,6 +213,8 @@ TEST(IPAddressTest, IPv6)
     EXPECT_THROW(chen::ip::address_v6(bytes, 129), chen::ip::address::error);
 
     // representation
+    EXPECT_EQ("::", chen::ip::address_v6().str());
+    EXPECT_EQ("2404::817:0:0:0:200e", chen::ip::address_v6("2404:0000:0000:817:0000:0000:0000:200e").str());
     EXPECT_EQ("2404:6800:4004:817::200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").str());
     EXPECT_EQ("2404:6800:4004:817::200e/128", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").compact());
     EXPECT_EQ("2404:6800:4004:0817:0000:0000:0000:200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").expanded());

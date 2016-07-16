@@ -810,5 +810,5 @@ std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator be
         }
     }
 
-    return ret;
+    return !ret.empty() ? ret : "::";
 }

@@ -1,7 +1,7 @@
 /**
  * Created by Jian Chen
- * I'm very careful to ensure that records's fields are accurate
- * The fields are signed or unsigned is according to its related rfc
+ * I'm very carefully to ensure that these rr's fields are accurate
+ * It's whether signed or unsigned is according to its related rfc
  * @since  2015.11.27
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
@@ -1723,7 +1723,7 @@ namespace chen
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
         public:
-            std::array<std::uint8_t, 6> address;
+            std::array<std::uint8_t, 6> address = {};
         };
 
 
@@ -1798,7 +1798,7 @@ namespace chen
 
         public:
             std::string algorithm;
-            std::array<std::uint8_t, 6> time_signed;
+            std::array<std::uint8_t, 6> time_signed = {};
             std::uint16_t fudge    = 0;
             std::uint16_t mac_size = 0;
             std::vector<std::uint8_t> mac;
