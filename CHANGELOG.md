@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file(see http://k
 ### Fixed
 - ini: fix parse error if comment between two properties.
 - str: fix replace string didn't consider the all param.
+- str: fix split algorithm didn't consider no delimiter in string.
 - fs: fix method absolute didn't remove ".." if path is "../a/b".
 
 ### Removed

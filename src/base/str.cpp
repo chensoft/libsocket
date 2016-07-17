@@ -127,6 +127,9 @@ std::vector<std::string> str::split(const std::string &text, const std::string &
         }
     }
 
+    if (ret.empty() && !text.empty())
+        ret.emplace_back(text);
+
     return ret;
 }
 
