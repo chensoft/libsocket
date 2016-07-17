@@ -36,7 +36,7 @@ TEST(MtThreadpoolTest, Multiple)
 
     for (std::size_t i = 0; i < count; ++i)
     {
-        task.push_back(pool.post(std::bind(check, 1 + part * i, part * (i + 1))));
+        task.emplace_back(pool.post(std::bind(check, 1 + part * i, part * (i + 1))));
     }
 
     // wait all tasks to be done

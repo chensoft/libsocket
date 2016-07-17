@@ -34,6 +34,8 @@ TEST(BaseStrTest, General)
     std::vector<std::string> split({"10", "0", "0", "1"});
     EXPECT_EQ(split, chen::str::split("10.0.0.1", "."));
     EXPECT_EQ(split, chen::str::split("10->0->0->1", "->"));
+    EXPECT_EQ(std::vector<std::string>{"10"}, chen::str::split("10", "."));
+    EXPECT_EQ(std::vector<std::string>{}, chen::str::split("", "."));
     EXPECT_EQ("10.0.0.1", chen::str::join(split, "."));
     EXPECT_EQ("", chen::str::join(std::vector<std::string>(), "."));
 
