@@ -43,7 +43,9 @@ namespace chen
             virtual void encode(std::vector<std::uint8_t> &out) const;
 
             virtual void decode(const std::vector<std::uint8_t> &data);
-            virtual void decode(std::vector<std::uint8_t>::const_iterator &cur,
+            virtual void decode(chen::dns::codec::cache_type &cache,
+                                std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end);
 
         protected:
@@ -97,7 +99,9 @@ namespace chen
             virtual void decode(const std::vector<std::uint8_t> &data,
                                 const std::string &addr,
                                 std::uint16_t port);
-            virtual void decode(std::vector<std::uint8_t>::const_iterator &cur,
+            virtual void decode(chen::dns::codec::cache_type &cache,
+                                std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
         protected:
@@ -172,7 +176,9 @@ namespace chen
 
             using message::decode;
 
-            virtual void decode(std::vector<std::uint8_t>::const_iterator &cur,
+            virtual void decode(chen::dns::codec::cache_type &cache,
+                                std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
                                 std::vector<std::uint8_t>::const_iterator &end) override;
 
         protected:

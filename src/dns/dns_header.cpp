@@ -354,15 +354,20 @@ void question::decode(const std::vector<std::uint8_t> &data)
 {
     auto cur = data.begin();
     auto end = data.end();
-    this->decode(cur, end);
+
+    chen::dns::codec::cache_type cache;
+
+    this->decode(cache, cur, cur, end);
 }
 
-void question::decode(std::vector<std::uint8_t>::const_iterator &cur,
+void question::decode(chen::dns::codec::cache_type &cache,
+                      std::vector<std::uint8_t>::const_iterator beg,
+                      std::vector<std::uint8_t>::const_iterator &cur,
                       std::vector<std::uint8_t>::const_iterator &end)
 {
     // qname
     std::string qname;
-    decoder::unpack(qname, true, cur, end);
+    decoder::unpack(qname, true, cache, beg, cur, end);
 
     // qtype
     chen::dns::RRType qtype = chen::dns::RRType::None;

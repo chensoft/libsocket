@@ -6,7 +6,6 @@
  */
 #include <socket/dns/dns_record.hpp>
 #include <socket/dns/dns_error.hpp>
-#include <socket/dns/dns_codec.hpp>
 #include <socket/dns/dns_table.hpp>
 #include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
@@ -48,15 +47,20 @@ std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
 {
     auto cur = data.begin();
     auto end = data.end();
-    return RR::decode(cur, end);
+
+    chen::dns::codec::cache_type cache;
+
+    return RR::decode(cache, cur, cur, end);
 }
 
-std::shared_ptr<chen::dns::RR> RR::decode(std::vector<std::uint8_t>::const_iterator &cur,
+std::shared_ptr<chen::dns::RR> RR::decode(chen::dns::codec::cache_type &cache,
+                                          std::vector<std::uint8_t>::const_iterator beg,
+                                          std::vector<std::uint8_t>::const_iterator &cur,
                                           std::vector<std::uint8_t>::const_iterator &end)
 {
     // name
     std::string name;
-    decoder::unpack(name, true, cur, end);
+    decoder::unpack(name, true, cache, beg, cur, end);
 
     // rrtype
     chen::dns::RRType rrtype = chen::dns::RRType::None;
@@ -76,7 +80,7 @@ std::shared_ptr<chen::dns::RR> RR::decode(std::vector<std::uint8_t>::const_itera
         record.reset(new chen::dns::Unknown);
 
     // rdlength && rdata
-    record->unpack(cur, end);
+    record->unpack(beg, cur, end, cache);
 
     // set
     record->name    = std::move(name);
@@ -119,8 +123,10 @@ void RR::unpack(const chen::json::object &object)
     this->ttl = chen::map::find(object, "ttl", this->ttl);
 }
 
-void RR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void RR::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
     decoder::unpack(this->rdlength, cur, end);
 }
@@ -137,7 +143,7 @@ void RR::adjust(std::vector<std::uint8_t> &out, std::size_t val) const
     out[out.size() - rdlength - 1] = static_cast<std::uint8_t>(rdlength & 0xFF);
 }
 
-std::size_t RR::remain(std::vector<std::uint8_t>::const_iterator &beg,
+std::size_t RR::remain(std::vector<std::uint8_t>::const_iterator beg,
                        std::vector<std::uint8_t>::const_iterator &cur) const
 {
     auto used = cur - beg;
@@ -228,10 +234,12 @@ void Raw::unpack(const chen::json::object &object)
     std::copy(rdata.begin(), rdata.end(), this->rdata.begin());
 }
 
-void Raw::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void Raw::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->rdata, this->rdlength, cur, end);
 }
 
@@ -300,10 +308,12 @@ void A::unpack(const chen::json::object &object)
         this->address = address.toUnsigned();
 }
 
-void A::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-               std::vector<std::uint8_t>::const_iterator &end)
+void A::unpack(std::vector<std::uint8_t>::const_iterator beg,
+               std::vector<std::uint8_t>::const_iterator &cur,
+               std::vector<std::uint8_t>::const_iterator &end,
+               chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->address, cur, end);
 }
 
@@ -357,11 +367,13 @@ void NS::unpack(const chen::json::object &object)
     this->nsdname = chen::map::find(object, "nsdname", this->nsdname);
 }
 
-void NS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void NS::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->nsdname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->nsdname, true, cache, beg, cur, end);
 }
 
 
@@ -414,11 +426,13 @@ void MD::unpack(const chen::json::object &object)
     this->madname = chen::map::find(object, "madname", this->madname);
 }
 
-void MD::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void MD::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->madname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->madname, true, cache, beg, cur, end);
 }
 
 
@@ -471,11 +485,13 @@ void MF::unpack(const chen::json::object &object)
     this->madname = chen::map::find(object, "madname", this->madname);
 }
 
-void MF::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void MF::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->madname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->madname, true, cache, beg, cur, end);
 }
 
 
@@ -528,11 +544,13 @@ void CNAME::unpack(const chen::json::object &object)
     this->cname = chen::map::find(object, "cname", this->cname);
 }
 
-void CNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void CNAME::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->cname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->cname, true, cache, beg, cur, end);
 }
 
 
@@ -605,12 +623,14 @@ void SOA::unpack(const chen::json::object &object)
     this->minimum = chen::map::find(object, "minimum", this->minimum);
 }
 
-void SOA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void SOA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->mname, true, cur, end);
-    decoder::unpack(this->rname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->mname, true, cache, beg, cur, end);
+    decoder::unpack(this->rname, true, cache, beg, cur, end);
     decoder::unpack(this->serial, cur, end);
     decoder::unpack(this->refresh, cur, end);
     decoder::unpack(this->retry, cur, end);
@@ -668,11 +688,13 @@ void MB::unpack(const chen::json::object &object)
     this->madname = chen::map::find(object, "madname", this->madname);
 }
 
-void MB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void MB::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->madname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->madname, true, cache, beg, cur, end);
 }
 
 
@@ -725,11 +747,13 @@ void MG::unpack(const chen::json::object &object)
     this->mgmname = chen::map::find(object, "mgmname", this->mgmname);
 }
 
-void MG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void MG::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->mgmname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->mgmname, true, cache, beg, cur, end);
 }
 
 
@@ -782,11 +806,13 @@ void MR::unpack(const chen::json::object &object)
     this->newname = chen::map::find(object, "newname", this->newname);
 }
 
-void MR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void MR::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->newname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->newname, true, cache, beg, cur, end);
 }
 
 
@@ -843,10 +869,12 @@ void NUL::unpack(const chen::json::object &object)
     std::copy(anything.begin(), anything.end(), this->anything.begin());
 }
 
-void NUL::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void NUL::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->anything, this->rdlength, cur, end);
 }
 
@@ -913,18 +941,20 @@ void WKS::unpack(const chen::json::object &object)
     std::copy(bitmap.begin(), bitmap.end(), this->bitmap.begin());
 }
 
-void WKS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void WKS::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    auto beg = cur;
+    auto tmp = cur;
 
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
 
     decoder::unpack(this->address, cur, end);
     decoder::unpack(this->protocol, cur, end);
 
     this->bitmap.clear();
-    decoder::unpack(this->bitmap, this->remain(beg, cur), cur, end);
+    decoder::unpack(this->bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -977,11 +1007,13 @@ void PTR::unpack(const chen::json::object &object)
     this->ptrdname = chen::map::find(object, "ptrdname", this->ptrdname);
 }
 
-void PTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void PTR::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->ptrdname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->ptrdname, true, cache, beg, cur, end);
 }
 
 
@@ -1037,12 +1069,14 @@ void HINFO::unpack(const chen::json::object &object)
     this->os  = chen::map::find(object, "os", this->os);
 }
 
-void HINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void HINFO::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->cpu, false, cur, end);
-    decoder::unpack(this->os, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->cpu, false, cache, beg, cur, end);
+    decoder::unpack(this->os, false, cache, beg, cur, end);
 }
 
 
@@ -1098,12 +1132,14 @@ void MINFO::unpack(const chen::json::object &object)
     this->emailbx = chen::map::find(object, "emailbx", this->emailbx);
 }
 
-void MINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void MINFO::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->rmailbx, true, cur, end);
-    decoder::unpack(this->emailbx, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->rmailbx, true, cache, beg, cur, end);
+    decoder::unpack(this->emailbx, true, cache, beg, cur, end);
 }
 
 
@@ -1159,12 +1195,14 @@ void MX::unpack(const chen::json::object &object)
     this->exchange   = chen::map::find(object, "exchange", this->exchange);
 }
 
-void MX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void MX::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->exchange, true, cur, end);
+    decoder::unpack(this->exchange, true, cache, beg, cur, end);
 }
 
 
@@ -1217,11 +1255,13 @@ void TXT::unpack(const chen::json::object &object)
     this->txt_data = chen::map::find(object, "txt_data", this->txt_data);
 }
 
-void TXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void TXT::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->txt_data, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->txt_data, false, cache, beg, cur, end);
 }
 
 
@@ -1277,12 +1317,14 @@ void RP::unpack(const chen::json::object &object)
     this->txt_dname  = chen::map::find(object, "txt_dname", this->txt_dname);
 }
 
-void RP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void RP::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->mbox_dname, true, cur, end);
-    decoder::unpack(this->txt_dname, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->mbox_dname, true, cache, beg, cur, end);
+    decoder::unpack(this->txt_dname, true, cache, beg, cur, end);
 }
 
 
@@ -1338,12 +1380,14 @@ void AFSDB::unpack(const chen::json::object &object)
     this->hostname = chen::map::find(object, "hostname", this->hostname);
 }
 
-void AFSDB::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void AFSDB::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->subtype, cur, end);
-    decoder::unpack(this->hostname, true, cur, end);
+    decoder::unpack(this->hostname, true, cache, beg, cur, end);
 }
 
 
@@ -1396,11 +1440,13 @@ void X25::unpack(const chen::json::object &object)
     this->psdn_address = chen::map::find(object, "psdn_address", this->psdn_address);
 }
 
-void X25::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void X25::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->psdn_address, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->psdn_address, false, cache, beg, cur, end);
 }
 
 
@@ -1456,12 +1502,14 @@ void ISDN::unpack(const chen::json::object &object)
     this->sa           = chen::map::find(object, "sa", this->sa);
 }
 
-void ISDN::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void ISDN::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->isdn_address, false, cur, end);
-    decoder::unpack(this->sa, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->isdn_address, false, cache, beg, cur, end);
+    decoder::unpack(this->sa, false, cache, beg, cur, end);
 }
 
 
@@ -1517,12 +1565,14 @@ void RT::unpack(const chen::json::object &object)
     this->intermediate_host = chen::map::find(object, "intermediate_host", this->intermediate_host);
 }
 
-void RT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void RT::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->intermediate_host, true, cur, end);
+    decoder::unpack(this->intermediate_host, true, cache, beg, cur, end);
 }
 
 
@@ -1575,11 +1625,13 @@ void NSAP::unpack(const chen::json::object &object)
     this->nsap = chen::map::find(object, "nsap", this->nsap);
 }
 
-void NSAP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void NSAP::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->nsap, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->nsap, false, cache, beg, cur, end);
 }
 
 
@@ -1632,11 +1684,13 @@ void NSAPPTR::unpack(const chen::json::object &object)
     this->owner = chen::map::find(object, "owner", this->owner);
 }
 
-void NSAPPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                     std::vector<std::uint8_t>::const_iterator &end)
+void NSAPPTR::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                     std::vector<std::uint8_t>::const_iterator &cur,
+                     std::vector<std::uint8_t>::const_iterator &end,
+                     chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->owner, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->owner, true, cache, beg, cur, end);
 }
 
 
@@ -1715,8 +1769,10 @@ void SIG::unpack(const chen::json::object &object)
     this->signature    = chen::map::find(object, "signature", this->signature);
 }
 
-void SIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void SIG::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
     decoder::unpack(this->type_covered, cur, end);
     decoder::unpack(this->algorithm, cur, end);
@@ -1725,8 +1781,8 @@ void SIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
     decoder::unpack(this->expiration, cur, end);
     decoder::unpack(this->inception, cur, end);
     decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->signer, true, cur, end);
-    decoder::unpack(this->signature, false, cur, end);
+    decoder::unpack(this->signer, true, cache, beg, cur, end);
+    decoder::unpack(this->signature, false, cache, beg, cur, end);
 }
 
 
@@ -1790,14 +1846,16 @@ void KEY::unpack(const chen::json::object &object)
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
-void KEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void KEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->flags, cur, end);
     decoder::unpack(this->protocol, cur, end);
     decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cur, end);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -1858,13 +1916,15 @@ void PX::unpack(const chen::json::object &object)
     this->mapx400    = chen::map::find(object, "mapx400", this->mapx400);
 }
 
-void PX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void PX::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->map822, true, cur, end);
-    decoder::unpack(this->mapx400, true, cur, end);
+    decoder::unpack(this->map822, true, cache, beg, cur, end);
+    decoder::unpack(this->mapx400, true, cache, beg, cur, end);
 }
 
 
@@ -1925,13 +1985,15 @@ void GPOS::unpack(const chen::json::object &object)
     this->altitude  = chen::map::find(object, "altitude", this->altitude);
 }
 
-void GPOS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void GPOS::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->longitude, false, cur, end);
-    decoder::unpack(this->latitude, false, cur, end);
-    decoder::unpack(this->altitude, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->longitude, false, cache, beg, cur, end);
+    decoder::unpack(this->latitude, false, cache, beg, cur, end);
+    decoder::unpack(this->altitude, false, cache, beg, cur, end);
 }
 
 
@@ -1986,10 +2048,12 @@ void AAAA::unpack(const chen::json::object &object)
     this->address = chen::ip::address_v6::toBytes(address);
 }
 
-void AAAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void AAAA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->address, cur, end);
 }
 
@@ -2063,10 +2127,12 @@ void LOC::unpack(const chen::json::object &object)
     this->altitude  = chen::map::find(object, "altitude", this->altitude);
 }
 
-void LOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void LOC::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->version, cur, end);
     decoder::unpack(this->size, cur, end);
     decoder::unpack(this->horiz_pre, cur, end);
@@ -2133,16 +2199,18 @@ void NXT::unpack(const chen::json::object &object)
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
 }
 
-void NXT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void NXT::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    auto beg = cur;
+    auto tmp = cur;
 
-    RR::unpack(cur, end);
-    decoder::unpack(this->next_domain, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->next_domain, true, cache, beg, cur, end);
 
     this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
+    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -2195,11 +2263,13 @@ void EID::unpack(const chen::json::object &object)
     this->endpoint = chen::map::find(object, "endpoint", this->endpoint);
 }
 
-void EID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void EID::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->endpoint, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->endpoint, false, cache, beg, cur, end);
 }
 
 
@@ -2252,11 +2322,13 @@ void NIMLOC::unpack(const chen::json::object &object)
     this->locator = chen::map::find(object, "locator", this->locator);
 }
 
-void NIMLOC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end)
+void NIMLOC::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                    std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end,
+                    chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->locator, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->locator, false, cache, beg, cur, end);
 }
 
 
@@ -2320,14 +2392,16 @@ void SRV::unpack(const chen::json::object &object)
     this->target   = chen::map::find(object, "target", this->target);
 }
 
-void SRV::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void SRV::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->priority, cur, end);
     decoder::unpack(this->weight, cur, end);
     decoder::unpack(this->port, cur, end);
-    decoder::unpack(this->target, true, cur, end);
+    decoder::unpack(this->target, true, cache, beg, cur, end);
 }
 
 
@@ -2385,12 +2459,14 @@ void ATMA::unpack(const chen::json::object &object)
     this->address = chen::map::find(object, "address", this->address);
 }
 
-void ATMA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void ATMA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->format, cur, end);
-    decoder::unpack(this->address, false, cur, end);
+    decoder::unpack(this->address, false, cache, beg, cur, end);
 }
 
 
@@ -2460,16 +2536,18 @@ void NAPTR::unpack(const chen::json::object &object)
     this->replacement = chen::map::find(object, "replacement", this->replacement);
 }
 
-void NAPTR::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void NAPTR::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->order, cur, end);
     decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->flags, false, cur, end);
-    decoder::unpack(this->services, false, cur, end);
-    decoder::unpack(this->regexp, false, cur, end);
-    decoder::unpack(this->replacement, true, cur, end);
+    decoder::unpack(this->flags, false, cache, beg, cur, end);
+    decoder::unpack(this->services, false, cache, beg, cur, end);
+    decoder::unpack(this->regexp, false, cache, beg, cur, end);
+    decoder::unpack(this->replacement, true, cache, beg, cur, end);
 }
 
 
@@ -2527,12 +2605,14 @@ void KX::unpack(const chen::json::object &object)
     this->exchanger  = chen::map::find(object, "exchanger", this->exchanger);
 }
 
-void KX::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void KX::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->exchanger, true, cur, end);
+    decoder::unpack(this->exchanger, true, cache, beg, cur, end);
 }
 
 
@@ -2596,14 +2676,16 @@ void CERT::unpack(const chen::json::object &object)
     this->certificate = chen::map::find(object, "certificate", this->certificate);
 }
 
-void CERT::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void CERT::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->type, cur, end);
     decoder::unpack(this->key_tag, cur, end);
     decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->certificate, false, cur, end);
+    decoder::unpack(this->certificate, false, cache, beg, cur, end);
 }
 
 
@@ -2664,11 +2746,13 @@ void DNAME::unpack(const chen::json::object &object)
     this->target = chen::map::find(object, "target", this->target);
 }
 
-void DNAME::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void DNAME::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->target, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->target, true, cache, beg, cur, end);
 }
 
 
@@ -2733,17 +2817,19 @@ void SINK::unpack(const chen::json::object &object)
     std::copy(sdata.begin(), sdata.end(), this->sdata.begin());
 }
 
-void SINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void SINK::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    auto beg = cur;
+    auto tmp = cur;
 
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->coding, cur, end);
     decoder::unpack(this->subcoding, cur, end);
 
     this->sdata.clear();
-    decoder::unpack(this->sdata, this->remain(beg, cur), cur, end);
+    decoder::unpack(this->sdata, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -2819,14 +2905,16 @@ void DS::unpack(const chen::json::object &object)
     this->digest      = chen::map::find(object, "digest", this->digest);
 }
 
-void DS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void DS::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->key_tag, cur, end);
     decoder::unpack(this->algorithm, cur, end);
     decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cur, end);
+    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -2887,13 +2975,15 @@ void SSHFP::unpack(const chen::json::object &object)
     this->fingerprint = chen::map::find(object, "fingerprint", this->fingerprint);
 }
 
-void SSHFP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void SSHFP::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->algorithm, cur, end);
     decoder::unpack(this->fptype, cur, end);
-    decoder::unpack(this->fingerprint, false, cur, end);
+    decoder::unpack(this->fingerprint, false, cache, beg, cur, end);
 }
 
 
@@ -2987,10 +3077,12 @@ void IPSECKEY::unpack(const chen::json::object &object)
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
-void IPSECKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                      std::vector<std::uint8_t>::const_iterator &end)
+void IPSECKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                      std::vector<std::uint8_t>::const_iterator &cur,
+                      std::vector<std::uint8_t>::const_iterator &end,
+                      chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->precedence, cur, end);
     decoder::unpack(this->gateway_type, cur, end);
     decoder::unpack(this->algorithm, cur, end);
@@ -3014,14 +3106,14 @@ void IPSECKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
         case GatewayType::Domain:
         {
             std::string domain;
-            decoder::unpack(domain, true, cur, end);
+            decoder::unpack(domain, true, cache, beg, cur, end);
 
             this->gateway.insert(this->gateway.begin(), domain.begin(), domain.end());
         }
             break;
     }
 
-    decoder::unpack(this->publickey, false, cur, end);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -3100,10 +3192,12 @@ void RRSIG::unpack(const chen::json::object &object)
     this->signature    = chen::map::find(object, "signature", this->signature);
 }
 
-void RRSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void RRSIG::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->type_covered, cur, end);
     decoder::unpack(this->algorithm, cur, end);
     decoder::unpack(this->labels, cur, end);
@@ -3111,8 +3205,8 @@ void RRSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
     decoder::unpack(this->expiration, cur, end);
     decoder::unpack(this->inception, cur, end);
     decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->signer, true, cur, end);
-    decoder::unpack(this->signature, false, cur, end);
+    decoder::unpack(this->signer, true, cache, beg, cur, end);
+    decoder::unpack(this->signature, false, cache, beg, cur, end);
 }
 
 
@@ -3172,16 +3266,18 @@ void NSEC::unpack(const chen::json::object &object)
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
 }
 
-void NSEC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void NSEC::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    auto beg = cur;
+    auto tmp = cur;
 
-    RR::unpack(cur, end);
-    decoder::unpack(this->next_domain, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->next_domain, true, cache, beg, cur, end);
 
     this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
+    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -3245,14 +3341,16 @@ void DNSKEY::unpack(const chen::json::object &object)
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
-void DNSKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end)
+void DNSKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                    std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end,
+                    chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->flags, cur, end);
     decoder::unpack(this->protocol, cur, end);
     decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cur, end);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -3305,11 +3403,13 @@ void DHCID::unpack(const chen::json::object &object)
     this->digest = chen::map::find(object, "digest", this->digest);
 }
 
-void DHCID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void DHCID::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->digest, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -3394,22 +3494,24 @@ void NSEC3::unpack(const chen::json::object &object)
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
 }
 
-void NSEC3::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void NSEC3::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    auto beg = cur;
+    auto tmp = cur;
 
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->hash, cur, end);
     decoder::unpack(this->flags, cur, end);
     decoder::unpack(this->iterations, cur, end);
     decoder::unpack(this->salt_length, cur, end);
     decoder::unpack(this->salt, this->salt_length, cur, end);
     decoder::unpack(this->hash_length, cur, end);
-    decoder::unpack(this->next_owner, false, cur, end);
+    decoder::unpack(this->next_owner, false, cache, beg, cur, end);
 
     this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
+    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -3480,10 +3582,12 @@ void NSEC3PARAM::unpack(const chen::json::object &object)
     std::copy(salt.begin(), salt.end(), this->salt.begin());
 }
 
-void NSEC3PARAM::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                        std::vector<std::uint8_t>::const_iterator &end)
+void NSEC3PARAM::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                        std::vector<std::uint8_t>::const_iterator &cur,
+                        std::vector<std::uint8_t>::const_iterator &end,
+                        chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->hash, cur, end);
     decoder::unpack(this->flags, cur, end);
     decoder::unpack(this->iterations, cur, end);
@@ -3552,14 +3656,16 @@ void TLSA::unpack(const chen::json::object &object)
     this->certificate   = chen::map::find(object, "certificate", this->certificate);
 }
 
-void TLSA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void TLSA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->usage, cur, end);
     decoder::unpack(this->selector, cur, end);
     decoder::unpack(this->matching_type, cur, end);
-    decoder::unpack(this->certificate, false, cur, end);
+    decoder::unpack(this->certificate, false, cache, beg, cur, end);
 }
 
 
@@ -3623,14 +3729,16 @@ void SMIMEA::unpack(const chen::json::object &object)
     this->certificate   = chen::map::find(object, "certificate", this->certificate);
 }
 
-void SMIMEA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end)
+void SMIMEA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                    std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end,
+                    chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->usage, cur, end);
     decoder::unpack(this->selector, cur, end);
     decoder::unpack(this->matching_type, cur, end);
-    decoder::unpack(this->certificate, false, cur, end);
+    decoder::unpack(this->certificate, false, cache, beg, cur, end);
 }
 
 
@@ -3700,16 +3808,18 @@ void HIP::unpack(const chen::json::object &object)
     this->rendezvous_servers = chen::map::find(object, "rendezvous_servers", this->rendezvous_servers);
 }
 
-void HIP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void HIP::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->hit_length, cur, end);
     decoder::unpack(this->pk_algorithm, cur, end);
     decoder::unpack(this->pk_length, cur, end);
-    decoder::unpack(this->hit, false, cur, end);
-    decoder::unpack(this->publickey, false, cur, end);
-    decoder::unpack(this->rendezvous_servers, false, cur, end);
+    decoder::unpack(this->hit, false, cache, beg, cur, end);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
+    decoder::unpack(this->rendezvous_servers, false, cache, beg, cur, end);
 }
 
 
@@ -3762,11 +3872,13 @@ void NINFO::unpack(const chen::json::object &object)
     this->zs_data = chen::map::find(object, "zs_data", this->zs_data);
 }
 
-void NINFO::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void NINFO::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->zs_data, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->zs_data, false, cache, beg, cur, end);
 }
 
 
@@ -3830,14 +3942,16 @@ void RKEY::unpack(const chen::json::object &object)
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
-void RKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void RKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->flags, cur, end);
     decoder::unpack(this->protocol, cur, end);
     decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cur, end);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -3895,12 +4009,14 @@ void TALINK::unpack(const chen::json::object &object)
     this->next_name     = chen::map::find(object, "next_name", this->next_name);
 }
 
-void TALINK::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end)
+void TALINK::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                    std::vector<std::uint8_t>::const_iterator &cur,
+                    std::vector<std::uint8_t>::const_iterator &end,
+                    chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->previous_name, true, cur, end);
-    decoder::unpack(this->next_name, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->previous_name, true, cache, beg, cur, end);
+    decoder::unpack(this->next_name, true, cache, beg, cur, end);
 }
 
 
@@ -3964,14 +4080,16 @@ void CDS::unpack(const chen::json::object &object)
     this->digest      = chen::map::find(object, "digest", this->digest);
 }
 
-void CDS::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void CDS::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->key_tag, cur, end);
     decoder::unpack(this->algorithm, cur, end);
     decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cur, end);
+    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -4035,14 +4153,16 @@ void CDNSKEY::unpack(const chen::json::object &object)
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
-void CDNSKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                     std::vector<std::uint8_t>::const_iterator &end)
+void CDNSKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                     std::vector<std::uint8_t>::const_iterator &cur,
+                     std::vector<std::uint8_t>::const_iterator &end,
+                     chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->flags, cur, end);
     decoder::unpack(this->protocol, cur, end);
     decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cur, end);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -4095,11 +4215,13 @@ void OPENPGPKEY::unpack(const chen::json::object &object)
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
-void OPENPGPKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                        std::vector<std::uint8_t>::const_iterator &end)
+void OPENPGPKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                        std::vector<std::uint8_t>::const_iterator &cur,
+                        std::vector<std::uint8_t>::const_iterator &end,
+                        chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->publickey, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -4164,17 +4286,19 @@ void CSYNC::unpack(const chen::json::object &object)
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
 }
 
-void CSYNC::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void CSYNC::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    auto beg = cur;
+    auto tmp = cur;
 
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->serial, cur, end);
     decoder::unpack(this->flags, cur, end);
 
     this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(beg, cur), cur, end);
+    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -4227,11 +4351,13 @@ void SPF::unpack(const chen::json::object &object)
     this->txt = chen::map::find(object, "txt", this->txt);
 }
 
-void SPF::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void SPF::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->txt, false, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->txt, false, cache, beg, cur, end);
 }
 
 
@@ -4337,10 +4463,12 @@ void NID::unpack(const chen::json::object &object)
     this->node_id    = chen::map::find(object, "node_id", this->node_id);
 }
 
-void NID::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void NID::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
     decoder::unpack(this->node_id, cur, end);
 }
@@ -4400,10 +4528,12 @@ void L32::unpack(const chen::json::object &object)
     this->locator32  = chen::map::find(object, "locator32", this->locator32);
 }
 
-void L32::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void L32::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
     decoder::unpack(this->locator32, cur, end);
 }
@@ -4463,10 +4593,12 @@ void L64::unpack(const chen::json::object &object)
     this->locator64  = chen::map::find(object, "locator64", this->locator64);
 }
 
-void L64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void L64::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
     decoder::unpack(this->locator64, cur, end);
 }
@@ -4526,12 +4658,14 @@ void LP::unpack(const chen::json::object &object)
     this->fqdn       = chen::map::find(object, "fqdn", this->fqdn);
 }
 
-void LP::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void LP::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->fqdn, true, cur, end);
+    decoder::unpack(this->fqdn, true, cache, beg, cur, end);
 }
 
 
@@ -4586,10 +4720,12 @@ void EUI48::unpack(const chen::json::object &object)
     std::copy(address.begin(), address.end(), this->address.begin());
 }
 
-void EUI48::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void EUI48::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->address, cur, end);
 }
 
@@ -4643,10 +4779,12 @@ void EUI64::unpack(const chen::json::object &object)
     this->address = chen::map::find(object, "address", this->address);
 }
 
-void EUI64::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end)
+void EUI64::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                   std::vector<std::uint8_t>::const_iterator &cur,
+                   std::vector<std::uint8_t>::const_iterator &end,
+                   chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->address, cur, end);
 }
 
@@ -4735,11 +4873,13 @@ void TKEY::unpack(const chen::json::object &object)
     std::copy(other_data.begin(), other_data.end(), this->other_data.begin());
 }
 
-void TKEY::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void TKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->algorithm, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->algorithm, true, cache, beg, cur, end);
     decoder::unpack(this->inception, cur, end);
     decoder::unpack(this->expiration, cur, end);
     decoder::unpack(this->mode, cur, end);
@@ -4839,11 +4979,13 @@ void TSIG::unpack(const chen::json::object &object)
     std::copy(other_data.begin(), other_data.end(), this->other_data.begin());
 }
 
-void TSIG::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end)
+void TSIG::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                  std::vector<std::uint8_t>::const_iterator &cur,
+                  std::vector<std::uint8_t>::const_iterator &end,
+                  chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
-    decoder::unpack(this->algorithm, true, cur, end);
+    RR::unpack(beg, cur, end, cache);
+    decoder::unpack(this->algorithm, true, cache, beg, cur, end);
     decoder::unpack(this->time_signed, cur, end);
     decoder::unpack(this->fudge, cur, end);
     decoder::unpack(this->mac_size, cur, end);
@@ -4912,13 +5054,15 @@ void URI::unpack(const chen::json::object &object)
     this->target   = chen::map::find(object, "target", this->target);
 }
 
-void URI::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void URI::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->priority, cur, end);
     decoder::unpack(this->weight, cur, end);
-    decoder::unpack(this->target, false, cur, end);
+    decoder::unpack(this->target, false, cache, beg, cur, end);
 }
 
 
@@ -4979,13 +5123,15 @@ void CAA::unpack(const chen::json::object &object)
     this->value = chen::map::find(object, "value", this->value);
 }
 
-void CAA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void CAA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->tag, false, cur, end);
-    decoder::unpack(this->value, false, cur, end);
+    decoder::unpack(this->tag, false, cache, beg, cur, end);
+    decoder::unpack(this->value, false, cache, beg, cur, end);
 }
 
 
@@ -5049,14 +5195,16 @@ void TA::unpack(const chen::json::object &object)
     this->digest      = chen::map::find(object, "digest", this->digest);
 }
 
-void TA::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end)
+void TA::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                std::vector<std::uint8_t>::const_iterator &cur,
+                std::vector<std::uint8_t>::const_iterator &end,
+                chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->key_tag, cur, end);
     decoder::unpack(this->algorithm, cur, end);
     decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cur, end);
+    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -5120,12 +5268,14 @@ void DLV::unpack(const chen::json::object &object)
     this->digest      = chen::map::find(object, "digest", this->digest);
 }
 
-void DLV::unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end)
+void DLV::unpack(std::vector<std::uint8_t>::const_iterator beg,
+                 std::vector<std::uint8_t>::const_iterator &cur,
+                 std::vector<std::uint8_t>::const_iterator &end,
+                 chen::dns::codec::cache_type &cache)
 {
-    RR::unpack(cur, end);
+    RR::unpack(beg, cur, end, cache);
     decoder::unpack(this->key_tag, cur, end);
     decoder::unpack(this->algorithm, cur, end);
     decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cur, end);
+    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }

@@ -246,11 +246,33 @@ void decoder::unpack(chen::dns::RRClass &val, const_iterator &cur, const_iterato
     decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::RRClass>::type&>(val), cur, end);
 }
 
-void decoder::unpack(std::string &val, bool domain, const_iterator &cur, const_iterator &end)
+void decoder::unpack(std::string &val, bool domain, cache_type &cache, const_iterator &beg, const_iterator &cur, const_iterator &end)
 {
     if (end - cur < 1)
-        throw error_size("dns: codec unpack size is zero");
+        throw error_size("dns: codec unpack string size is zero");
 
+    // check compression
+    // if first two bits are 11, then the following 14 bits are string's location
+    if ((*cur & 0xFF) == 0xC0)
+    {
+        auto byte = *cur++ & 0x3F;
+        if (!*cur)
+            throw error_size("dns: codec unpack string size is not enough, require 1 bytes");
+
+        auto pos = static_cast<std::size_t>((byte << 8) | *cur++);
+        auto it  = cache.find(pos);
+
+        if (it == cache.end())
+            throw error_size("dns: codec unpack string compressed data not found in cache");
+
+        val = it->second;
+        return;
+    }
+
+
+    std::size_t pos = static_cast<std::size_t>(std::distance(beg, cur));
+
+    // no compression
     if (domain)
     {
         // Note:
@@ -303,6 +325,9 @@ void decoder::unpack(std::string &val, bool domain, const_iterator &cur, const_i
         for (std::size_t i = 1; i < length; ++i)
             val += *cur++;
     }
+
+    // cache it
+    cache[pos] = val;
 }
 
 void decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need, const_iterator &cur, const_iterator &end)

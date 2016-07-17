@@ -11,6 +11,7 @@
 #include <chen/base/str.hpp>
 #include <vector>
 #include <array>
+#include <map>
 
 namespace chen
 {
@@ -20,6 +21,9 @@ namespace chen
         // codec
         class codec
         {
+        public:
+            typedef std::map<std::size_t, std::string> cache_type;  // compression cache type
+
         public:
             virtual ~codec() = 0;
 
@@ -83,7 +87,7 @@ namespace chen
             static void unpack(std::uint64_t &val, const_iterator &cur, const_iterator &end);
             static void unpack(chen::dns::RRType &val, const_iterator &cur, const_iterator &end);
             static void unpack(chen::dns::RRClass &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::string &val, bool domain, const_iterator &cur, const_iterator &end);
+            static void unpack(std::string &val, bool domain, cache_type &cache, const_iterator &beg, const_iterator &cur, const_iterator &end);
             static void unpack(std::vector<std::uint8_t> &val, std::size_t need, const_iterator &cur, const_iterator &end);
 
             template <std::size_t Size>

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "dns_define.hpp"
+#include "dns_codec.hpp"
 #include <chen/data/json.hpp>
 #include <string>
 #include <vector>
@@ -44,7 +45,9 @@ namespace chen
              * Decode, detect rr's type automatically
              */
             static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
-            static std::shared_ptr<chen::dns::RR> decode(std::vector<std::uint8_t>::const_iterator &cur,
+            static std::shared_ptr<chen::dns::RR> decode(chen::dns::codec::cache_type &cache,
+                                                         std::vector<std::uint8_t>::const_iterator beg,
+                                                         std::vector<std::uint8_t>::const_iterator &cur,
                                                          std::vector<std::uint8_t>::const_iterator &end);
 
         public:
@@ -64,8 +67,10 @@ namespace chen
              */
             virtual void pack(std::vector<std::uint8_t> &out) const = 0;
             virtual void unpack(const chen::json::object &object) = 0;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) = 0;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) = 0;
 
         protected:
             /**
@@ -76,7 +81,7 @@ namespace chen
             /**
              * Check remain data when decode
              */
-            virtual std::size_t remain(std::vector<std::uint8_t>::const_iterator &beg,
+            virtual std::size_t remain(std::vector<std::uint8_t>::const_iterator beg,
                                        std::vector<std::uint8_t>::const_iterator &cur) const;
 
             /**
@@ -115,8 +120,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::vector<std::uint8_t> rdata;
@@ -149,8 +156,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint32_t address = 0;
@@ -171,8 +180,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string nsdname;
@@ -193,8 +204,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string madname;
@@ -215,8 +228,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string madname;
@@ -237,8 +252,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string cname;
@@ -259,8 +276,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string mname;  // primary nameserver
@@ -287,8 +306,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string madname;
@@ -309,8 +330,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string mgmname;
@@ -331,8 +354,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string newname;
@@ -353,8 +378,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::vector<std::uint8_t> anything;
@@ -375,8 +402,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint32_t address = 0;
@@ -399,8 +428,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string ptrdname;
@@ -421,8 +452,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string cpu;
@@ -444,8 +477,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string rmailbx;
@@ -467,8 +502,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::int16_t preference = 0;
@@ -490,8 +527,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string txt_data;
@@ -512,8 +551,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string mbox_dname;
@@ -535,8 +576,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::int16_t subtype = 0;
@@ -558,8 +601,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string psdn_address;
@@ -580,8 +625,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string isdn_address;
@@ -603,8 +650,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::int16_t preference = 0;
@@ -626,8 +675,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string nsap;
@@ -648,8 +699,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string owner;
@@ -670,8 +723,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -700,8 +755,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -725,8 +782,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::int16_t preference = 0;
@@ -749,8 +808,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string longitude;
@@ -773,8 +834,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::array<std::uint8_t, 16> address = {};
@@ -795,8 +858,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t version   = 0;
@@ -824,8 +889,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string next_domain;
@@ -847,8 +914,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string endpoint;
@@ -869,8 +938,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string locator;
@@ -891,8 +962,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t priority = 0;
@@ -916,8 +989,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t format = 0;
@@ -939,8 +1014,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t order = 0;
@@ -966,8 +1043,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t preference = 0;
@@ -989,8 +1068,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t type     = 0;
@@ -1023,8 +1104,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string target;
@@ -1045,8 +1128,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t coding    = 0;
@@ -1081,8 +1166,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1106,8 +1193,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t algorithm = 0;
@@ -1133,8 +1222,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t precedence   = 0;
@@ -1159,8 +1250,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -1189,8 +1282,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string next_domain;
@@ -1212,8 +1307,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1237,8 +1334,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string digest;
@@ -1259,8 +1358,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -1288,8 +1389,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -1314,8 +1417,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -1339,8 +1444,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -1364,8 +1471,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t hit_length   = 0;
@@ -1391,8 +1500,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string zs_data;
@@ -1413,8 +1524,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1438,8 +1551,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string previous_name;
@@ -1461,8 +1576,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1486,8 +1603,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1511,8 +1630,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string publickey;
@@ -1533,8 +1654,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint32_t serial = 0;
@@ -1557,8 +1680,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string txt;
@@ -1627,8 +1752,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1650,8 +1777,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1673,8 +1802,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1696,8 +1827,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1719,8 +1852,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::array<std::uint8_t, 6> address = {};
@@ -1741,8 +1876,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint64_t address = 0;
@@ -1763,8 +1900,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string algorithm;
@@ -1793,8 +1932,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::string algorithm;
@@ -1823,8 +1964,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t priority = 0;
@@ -1847,8 +1990,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint8_t flags = 0;
@@ -1871,8 +2016,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1896,8 +2043,10 @@ namespace chen
         protected:
             virtual void pack(std::vector<std::uint8_t> &out) const override;
             virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
+                                std::vector<std::uint8_t>::const_iterator &cur,
+                                std::vector<std::uint8_t>::const_iterator &end,
+                                chen::dns::codec::cache_type &cache) override;
 
         public:
             std::uint16_t key_tag    = 0;

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "dns_define.hpp"
+#include "dns_codec.hpp"
 #include <string>
 #include <vector>
 
@@ -129,7 +130,9 @@ namespace chen
             void encode(std::vector<std::uint8_t> &out) const;
 
             void decode(const std::vector<std::uint8_t> &data);
-            void decode(std::vector<std::uint8_t>::const_iterator &cur,
+            void decode(chen::dns::codec::cache_type &cache,
+                        std::vector<std::uint8_t>::const_iterator beg,
+                        std::vector<std::uint8_t>::const_iterator &cur,
                         std::vector<std::uint8_t>::const_iterator &end);
 
         public:
