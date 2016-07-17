@@ -13,6 +13,27 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
+const address_v4* address::v4() const
+{
+    return dynamic_cast<const address_v4*>(this);
+}
+
+const address_v6* address::v6() const
+{
+    return dynamic_cast<const address_v6*>(this);
+}
+
+address_v4* address::v4()
+{
+    return dynamic_cast<address_v4*>(this);
+}
+
+address_v6* address::v6()
+{
+    return dynamic_cast<address_v6*>(this);
+}
+
+// create
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr)
 {
     if (chen::str::contain(addr, ":"))

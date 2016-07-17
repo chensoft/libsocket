@@ -16,6 +16,9 @@ namespace chen
 {
     namespace ip
     {
+        class address_v4;
+        class address_v6;
+
         class address
         {
         public:
@@ -32,6 +35,16 @@ namespace chen
              * Clone current object
              */
             virtual std::shared_ptr<chen::ip::address> clone() const = 0;
+
+            /**
+             * Convert base address to its real type
+             * @result nullptr if type is mismatch
+             */
+            const address_v4* v4() const;
+            const address_v6* v6() const;
+
+            address_v4* v4();
+            address_v6* v6();
 
         public:
             /**

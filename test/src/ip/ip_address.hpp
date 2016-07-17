@@ -9,31 +9,44 @@
 #include <socket/socket.hpp>
 #include <gtest/gtest.h>
 
-TEST(IPAddressTest, General)
+TEST(IPAddressTest, Base)
 {
     auto ptr = chen::ip::address::create("127.0.0.1");
 
     EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
     EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
     EXPECT_EQ("127.0.0.1", ptr->str());
+    EXPECT_EQ(ptr.get(), ptr->v4());
+    EXPECT_EQ(nullptr, ptr->v6());
 
     ptr = chen::ip::address::create("127.0.0.1", 8);
 
     EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
     EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
     EXPECT_EQ("127.0.0.1", ptr->str());
+    EXPECT_EQ(ptr.get(), ptr->v4());
+    EXPECT_EQ(nullptr, ptr->v6());
 
     ptr = chen::ip::address::create("2404:6800:4004:817::200e");
 
     EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
     EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
     EXPECT_EQ("2404:6800:4004:817::200e", ptr->str());
+    EXPECT_EQ(nullptr, ptr->v4());
+    EXPECT_EQ(ptr.get(), ptr->v6());
 
     ptr = chen::ip::address::create("2404:6800:4004:817::200e", 64);
 
     EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
     EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
     EXPECT_EQ("2404:6800:4004:817::200e", ptr->str());
+    EXPECT_EQ(nullptr, ptr->v4());
+    EXPECT_EQ(ptr.get(), ptr->v6());
+
+    std::shared_ptr<const chen::ip::address> p = chen::ip::address::create("2404:6800:4004:817::200e", 64);
+
+    EXPECT_EQ(nullptr, p->v4());
+    EXPECT_EQ(p.get(), p->v6());
 }
 
 TEST(IPAddressTest, IPv4)
