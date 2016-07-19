@@ -22,15 +22,14 @@
  */
 #pragma once
 
+#include <chen/base/utf8.hpp>
+#include <chen/base/str.hpp>
+#include <chen/base/num.hpp>
 #include <unordered_map>
 #include <exception>
 #include <cstdlib>
 #include <cctype>
 #include <locale>
-#include <string>
-#include <chen/base/utf8.hpp>
-#include <chen/base/str.hpp>
-#include <chen/base/num.hpp>
 
 namespace chen
 {
