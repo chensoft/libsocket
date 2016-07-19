@@ -25,38 +25,6 @@ namespace chen
         // ---------------------------------------------------------------------
         // Miscellaneous
         /**
-         * Member access traits
-         * return nullptr if t is an raw pointer
-         * call operator->() if t is an iterator
-         */
-        template <typename Pointer, bool is_pointer>
-        class access
-        {
-        };
-
-        template <typename Pointer>
-        class access<Pointer, true>
-        {
-        public:
-            template <typename T>
-            Pointer operator()(T)
-            {
-                return nullptr;
-            }
-        };
-
-        template <typename Pointer>
-        class access<Pointer, false>
-        {
-        public:
-            template <typename T>
-            Pointer operator()(T t)
-            {
-                return t.operator->();
-            }
-        };
-
-        /**
          * Proxy when use operator++(int) and operator--(int)
          * when working with iterators like istreambuf_iterator, we can't simply copy it and return
          * we must save the current value and return a proxy to the caller
@@ -104,7 +72,6 @@ namespace chen
 
         public:
             virtual Reference operator*() const = 0;
-            virtual Pointer operator->() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
         };
@@ -121,7 +88,6 @@ namespace chen
 
         public:
             virtual Reference operator*() const = 0;
-            virtual Pointer operator->() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
 
@@ -141,7 +107,6 @@ namespace chen
 
         public:
             virtual Reference operator*() const = 0;
-            virtual Pointer operator->() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
 
@@ -189,11 +154,6 @@ namespace chen
                 return *this->_it;
             }
 
-            virtual Pointer operator->() const override
-            {
-                return iterator_helper::access<Pointer, std::is_pointer<decltype(this->_it)>::value>()(this->_it);
-            }
-
             virtual void operator++() override
             {
                 ++this->_it;
@@ -232,11 +192,6 @@ namespace chen
             virtual Reference operator*() const override
             {
                 return *this->_it;
-            }
-
-            virtual Pointer operator->() const override
-            {
-                return iterator_helper::access<Pointer, std::is_pointer<decltype(this->_it)>::value>()(this->_it);
             }
 
             virtual void operator++() override
@@ -283,11 +238,6 @@ namespace chen
             virtual Reference operator*() const override
             {
                 return *this->_it;
-            }
-
-            virtual Pointer operator->() const override
-            {
-                return iterator_helper::access<Pointer, std::is_pointer<decltype(this->_it)>::value>()(this->_it);
             }
 
             virtual void operator++() override
@@ -396,11 +346,6 @@ namespace chen
         reference operator*() const
         {
             return this->_ptr->operator*();
-        }
-
-        pointer operator->() const
-        {
-            return this->_ptr->operator->();
         }
 
         iterator& operator++()
