@@ -28,13 +28,13 @@ namespace chen
         /**
          * Adaptor class
          */
-        template <typename Value, typename Category>
+        template <typename Value, typename Reference, typename Category>
         class adaptor : public basic
         {
         public:
             typedef Value          value_type;
             typedef std::ptrdiff_t difference_type;
-            typedef Value&         reference;
+            typedef Reference      reference;
             typedef Value*         pointer;
             typedef Category       iterator_category;
 
@@ -55,10 +55,11 @@ namespace chen
                     throw std::runtime_error("iter: override me in input iterator");
                 }
 
-                virtual pointer operator->() const
-                {
-                    throw std::runtime_error("iter: override me in input iterator");
-                }
+                // todo use template not virtual
+//                virtual pointer operator->() const
+//                {
+//                    throw std::runtime_error("iter: override me in input iterator");
+//                }
 
                 virtual void operator++()
                 {
@@ -107,6 +108,31 @@ namespace chen
                 }
             };
 
+            /**
+             * Proxy when use operator++(int), operator--(int)
+             */
+            class proxy
+            {
+            public:
+                proxy(Value keep, const std::unique_ptr<base> &data) : _keep(keep), _data(data->clone())
+                {
+                }
+
+                Value operator*() const
+                {
+                    return this->_keep;
+                }
+
+                base* clone() const
+                {
+                    return this->_data->clone();
+                }
+
+            private:
+                Value _keep;
+                std::unique_ptr<base> _data;
+            };
+
         protected:
             adaptor() = default;
 
@@ -143,20 +169,29 @@ namespace chen
         /**
          * Input iterator
          */
-        template <typename Value, typename Category = std::input_iterator_tag>
-        class input : public adaptor<Value, Category>
+        template <typename Value, typename Reference = Value&, typename Category = std::input_iterator_tag>
+        class input : public adaptor<Value, Reference, Category>
         {
         public:
-            typedef adaptor<Value, Category> super_class;
+            typedef adaptor<Value, Reference, Category> super_class;
 
             typedef typename super_class::value_type        value_type;
             typedef typename super_class::difference_type   difference_type;
             typedef typename super_class::reference         reference;
             typedef typename super_class::pointer           pointer;
             typedef typename super_class::iterator_category iterator_category;
+            typedef typename super_class::proxy             proxy;
             typedef typename super_class::base              base;
 
+        protected:
+            input() = default;
+
         public:
+            input(const proxy &p)
+            {
+                this->assign(p.clone());
+            }
+
             /**
              * Wrap another iterator
              */
@@ -164,11 +199,9 @@ namespace chen
             input(Iterator it)
             {
                 static_assert(!std::is_base_of<basic, Iterator>::value, "iter: don't use chen::iter::basic derived class as iterator");
+                static_assert(!std::is_same<proxy, Iterator>::value, "iter: don't use proxy as iterator");
                 this->assign(new data_input<Iterator>(it));
             }
-
-        protected:
-            input() = default;
 
         public:
             /**
@@ -179,10 +212,11 @@ namespace chen
                 return this->_ptr->operator*();
             }
 
-            pointer operator->() const
-            {
-                return this->_ptr->operator->();
-            }
+            // todo use template not virtual
+//            pointer operator->() const
+//            {
+//                return this->_ptr->operator->();
+//            }
 
             input& operator++()
             {
@@ -190,11 +224,11 @@ namespace chen
                 return *this;
             }
 
-            input operator++(int)
+            proxy operator++(int)
             {
-                input tmp = *this;
+                proxy ret(this->operator*(), this->_ptr);
                 ++(*this->_ptr);
-                return tmp;
+                return ret;
             }
 
             bool operator==(const input &o) const
@@ -228,10 +262,11 @@ namespace chen
                     return *this->val;
                 }
 
-                virtual pointer operator->() const override
-                {
-                    return std::addressof(operator*());
-                }
+                // todo use template not virtual
+//                virtual pointer operator->() const override
+//                {
+//                    return std::addressof(*this->val);
+//                }
 
                 virtual void operator++() override
                 {
@@ -251,20 +286,25 @@ namespace chen
         /**
          * Forward iterator
          */
-        template <typename Value, typename Category = std::forward_iterator_tag>
-        class forward : public input<Value, Category>
+        template <typename Value, typename Reference = Value&, typename Category = std::forward_iterator_tag>
+        class forward : public input<Value, Reference, Category>
         {
         public:
-            typedef input<Value, Category> super_class;
+            typedef input<Value, Reference, Category> super_class;
 
             typedef typename super_class::value_type        value_type;
             typedef typename super_class::difference_type   difference_type;
             typedef typename super_class::reference         reference;
             typedef typename super_class::pointer           pointer;
             typedef typename super_class::iterator_category iterator_category;
+            typedef typename super_class::proxy             proxy;
             typedef typename super_class::base              base;
 
         public:
+            forward(const proxy &p) : super_class(p)
+            {
+            }
+
             /**
              * Wrap another iterator
              */
@@ -280,20 +320,25 @@ namespace chen
         /**
          * Bidirectional iterator
          */
-        template <typename Value, typename Category = std::bidirectional_iterator_tag>
-        class bidirectional : public forward<Value, Category>
+        template <typename Value, typename Reference = Value&, typename Category = std::bidirectional_iterator_tag>
+        class bidirectional : public forward<Value, Reference, Category>
         {
         public:
-            typedef forward<Value, Category> super_class;
+            typedef forward<Value, Reference, Category> super_class;
 
             typedef typename super_class::value_type        value_type;
             typedef typename super_class::difference_type   difference_type;
             typedef typename super_class::reference         reference;
             typedef typename super_class::pointer           pointer;
             typedef typename super_class::iterator_category iterator_category;
+            typedef typename super_class::proxy             proxy;
             typedef typename super_class::base              base;
 
         public:
+            bidirectional(const proxy &p) : super_class(p)
+            {
+            }
+
             /**
              * Wrap another iterator
              */
@@ -301,6 +346,7 @@ namespace chen
             bidirectional(Iterator it)
             {
                 static_assert(!std::is_base_of<basic, Iterator>::value, "iter: don't use chen::iter::basic derived class as iterator");
+                static_assert(!std::is_same<proxy, Iterator>::value, "iter: don't use proxy as iterator");
                 this->assign(new data_bidirectional<Iterator>(it));
             }
 
@@ -350,20 +396,25 @@ namespace chen
         /**
          * Random access iterator
          */
-        template <typename Value, typename Category = std::random_access_iterator_tag>
-        class random : public bidirectional<Value, Category>
+        template <typename Value, typename Reference = Value&, typename Category = std::random_access_iterator_tag>
+        class random : public bidirectional<Value, Reference, Category>
         {
         public:
-            typedef bidirectional<Value, Category> super_class;
+            typedef bidirectional<Value, Reference, Category> super_class;
 
             typedef typename super_class::value_type        value_type;
             typedef typename super_class::difference_type   difference_type;
             typedef typename super_class::reference         reference;
             typedef typename super_class::pointer           pointer;
             typedef typename super_class::iterator_category iterator_category;
+            typedef typename super_class::proxy             proxy;
             typedef typename super_class::base              base;
 
         public:
+            random(const proxy &p) : super_class(p)
+            {
+            }
+
             /**
              * Wrap another iterator
              */
@@ -371,6 +422,7 @@ namespace chen
             random(Iterator it)
             {
                 static_assert(!std::is_base_of<basic, Iterator>::value, "iter: don't use chen::iter::basic derived class as iterator");
+                static_assert(!std::is_same<proxy, Iterator>::value, "iter: don't use proxy as iterator");
                 this->assign(new data_random<Iterator>(it));
             }
 

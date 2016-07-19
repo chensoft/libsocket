@@ -39,6 +39,9 @@ TEST(BaseIterTest, General)
     iter -= 3;
     EXPECT_EQ('c', *iter);
 
+    chen::iter::random<char> proxy(iter++);
+    EXPECT_EQ('c', *proxy);
+
     chen::iter::random<char> other(iter);
 
     EXPECT_TRUE(iter == other);
