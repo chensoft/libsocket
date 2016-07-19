@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/base/vector.hpp>
 #include <gtest/gtest.h>
 
 TEST(BaseVectorTest, General)

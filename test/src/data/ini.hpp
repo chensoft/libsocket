@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/data/ini.hpp>
 #include <gtest/gtest.h>
 
 TEST(DataIniTest, General)

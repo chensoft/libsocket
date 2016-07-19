@@ -5,8 +5,15 @@
  * @link   http://chensoft.com
  */
 #include <chen/data/json.hpp>
+#include <chen/base/utf8.hpp>
+#include <chen/base/str.hpp>
+#include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
 #include <fstream>
+#include <cstdlib>
+#include <cctype>
+#include <locale>
+#include <cmath>
 
 using namespace chen;
 
@@ -333,6 +340,29 @@ chen::json json::parse(const std::string &text, bool file)
     }
 }
 
+chen::json chen::json::parse(iterator cur, iterator end)
+{
+    chen::json item;
+
+    const iterator beg = cur;
+
+    // trim left spaces
+    if (!chen::json::advance(beg, cur, end, false))
+        return item;
+
+    // decode item
+    chen::json::decode(item, beg, cur, end);
+
+    // trim right spaces
+    chen::json::advance(beg, cur, end, false);
+
+    // should reach end
+    if (cur != end)
+        chen::json::exception(beg, cur, end);
+
+    return item;
+}
+
 std::string json::stringify(const chen::json &json, std::size_t space)
 {
     std::string output;
@@ -364,6 +394,21 @@ void json::validate(const std::string &text, bool file)
     {
         json::validate(text.begin(), text.end());
     }
+}
+
+void chen::json::validate(iterator cur, iterator end)
+{
+    const iterator beg = cur;
+
+    if (!chen::json::advance(beg, cur, end, false))
+        return;
+
+    // a valid json must start by '{' or '['
+    if ((*cur != '{') && (*cur != '['))
+        chen::json::exception(beg, cur, end);
+
+    // check syntax error
+    chen::json::parse(beg, end);  // use beg, not cur, to report correct position
 }
 
 // type
@@ -733,6 +778,434 @@ void json::clear()
 
     this->_type = Type::None;
     this->_data = {nullptr};
+}
+
+// exception
+void chen::json::exception(const iterator &beg, iterator &cur, iterator &end)
+{
+    if (cur == end)
+    {
+        throw chen::json::error("json: unexpected end of input");
+    }
+    else
+    {
+        auto pos = chen::num::str(std::distance(beg, cur));
+        auto tok = std::isprint(*cur) ? std::string(1, *cur) : chen::str::format("\\x%02x", static_cast<int>(*cur));
+
+        throw chen::json::error(chen::str::format("json: unexpected token '%s' at position %s", tok.c_str(), pos.c_str()));
+    }
+}
+
+// advance
+bool chen::json::advance(const iterator &beg, iterator &cur, iterator &end, bool require)
+{
+    // skip whitespaces
+    while ((cur != end) && std::isspace(*cur))
+        ++cur;
+
+    // check if end
+    if (cur == end)
+    {
+        if (require)
+            chen::json::exception(beg, cur, end);
+        else
+            return false;
+    }
+
+    return true;
+}
+
+// decode type
+void chen::json::decode(chen::json &out, const iterator &beg, iterator &cur, iterator &end)
+{
+    chen::json::advance(beg, cur, end);
+
+    switch (*cur)
+    {
+        case '{':  // object
+        {
+            chen::json::object o;
+            chen::json::decode(o, beg, cur, end);
+            out = std::move(o);
+        }
+            break;
+
+        case '[':  // array
+        {
+            chen::json::array a;
+            chen::json::decode(a, beg, cur, end);
+            out = std::move(a);
+        }
+            break;
+
+        case '"':  // string
+        {
+            std::string s;
+            chen::json::decode(s, beg, cur, end);
+            out = std::move(s);
+        }
+            break;
+
+        case 't':  // true
+            chen::json::decode(true, beg, cur, end);
+            out = true;
+            break;
+
+        case 'f':  // false
+            chen::json::decode(false, beg, cur, end);
+            out = false;
+            break;
+
+        case 'n':  // null
+            chen::json::decode(nullptr, beg, cur, end);
+            out = nullptr;
+            break;
+
+        default:
+            if (std::isdigit(*cur) || (*cur == '-'))  // number
+            {
+                double d = 0;
+                chen::json::decode(d, beg, cur, end);
+                out = d;
+            }
+            else
+            {
+                chen::json::exception(beg, cur, end);
+            }
+            break;
+    }
+}
+
+void chen::json::decode(chen::json::object &out, const iterator &beg, iterator &cur, iterator &end)
+{
+    if ((cur == end) || (*cur != '{'))
+        chen::json::exception(beg, cur, end);
+
+    chen::json::advance(beg, ++cur, end);
+
+    while (cur != end)
+    {
+        // skip spaces
+        chen::json::advance(beg, cur, end);
+
+        if (*cur == '}')
+            break;
+
+        // find key
+        if (*cur != '"')
+            chen::json::exception(beg, cur, end);
+
+        std::string key;
+        chen::json::decode(key, beg, cur, end);
+
+        // find separator
+        chen::json::advance(beg, cur, end);
+
+        if (*cur != ':')  // separator
+            chen::json::exception(beg, cur, end);
+
+        chen::json::advance(beg, ++cur, end);
+
+        // find value
+        chen::json item;
+        chen::json::decode(item, beg, cur, end);
+
+        out[std::move(key)] = std::move(item);  // override if key already exist
+
+        // find comma or ending
+        chen::json::advance(beg, cur, end);
+
+        if (*cur == ',')
+        {
+            chen::json::advance(beg, ++cur, end);
+
+            // don't allow json like {"k":1,}
+            if (*cur == '}')
+                chen::json::exception(beg, cur, end);
+        }
+        else if (*cur == '}')
+        {
+            break;
+        }
+        else
+        {
+            chen::json::exception(beg, cur, end);
+        }
+    }
+
+    if (cur == end)
+        chen::json::exception(beg, cur, end);
+
+    ++cur;
+}
+
+void chen::json::decode(chen::json::array &out, const iterator &beg, iterator &cur, iterator &end)
+{
+    if ((cur == end) || (*cur != '['))
+        chen::json::exception(beg, cur, end);
+
+    chen::json::advance(beg, ++cur, end);
+
+    while (cur != end)
+    {
+        if (*cur == ']')
+            break;
+
+        // find value
+        chen::json item;
+        chen::json::decode(item, beg, cur, end);
+
+        out.emplace_back(std::move(item));
+
+        // find comma or ending
+        chen::json::advance(beg, cur, end);
+
+        if (*cur == ',')
+        {
+            chen::json::advance(beg, ++cur, end);
+
+            // don't allow json like [1,]
+            if (*cur == ']')
+                chen::json::exception(beg, cur, end);
+        }
+        else if (*cur == ']')
+        {
+            break;
+        }
+        else
+        {
+            chen::json::exception(beg, cur, end);
+        }
+    }
+
+    if (cur == end)
+        chen::json::exception(beg, cur, end);
+
+    ++cur;
+}
+
+void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterator &end)
+{
+    if (cur == end)
+        chen::json::exception(beg, cur, end);
+
+    std::string str(1, *cur++);
+
+    // must begin with '-' or '1' ~ '9' or like '0.123456'
+    if (str[0] == '-')
+    {
+        if ((cur == end) || !std::isdigit(*cur))
+        {
+            chen::json::exception(beg, cur, end);
+        }
+        else if (*cur == '0')
+        {
+            str += *cur++;
+
+            if ((cur != end) && std::isdigit(*cur))
+                chen::json::exception(beg, cur, end);
+        }
+    }
+    else if ((str[0] == '0') && std::isdigit(*cur))
+    {
+        // if the first char is '0', then the whole number must be 0
+        chen::json::exception(beg, cur, end);
+    }
+
+    // collect integer parts
+    while ((cur != end) && std::isdigit(*cur))
+        str += *cur++;
+
+    // collect decimal parts
+    if ((cur != end) && (*cur == '.'))
+    {
+        str += *cur++;
+
+        // first
+        if ((cur != end) && std::isdigit(*cur))
+            str += *cur++;
+        else
+            chen::json::exception(beg, cur, end);
+
+        // digits
+        while ((cur != end) && std::isdigit(*cur))
+            str += *cur++;
+    }
+
+    // 'e' or 'E'
+    if ((cur != end) && ((*cur == 'e') || (*cur == 'E')))
+    {
+        str += *cur++;
+
+        // '+', '-' or digits
+        if ((cur != end) && ((*cur == '+') || (*cur == '-') || std::isdigit(*cur)))
+        {
+            str += *cur++;
+
+            // first is '+' or '-'
+            if (!std::isdigit(str.back()))
+            {
+                if ((cur != end) && std::isdigit(*cur))
+                    str += *cur++;
+                else
+                    chen::json::exception(beg, cur, end);
+            }
+
+            // last
+            while ((cur != end) && std::isdigit(*cur))
+                str += *cur++;
+        }
+        else
+        {
+            chen::json::exception(beg, cur, end);
+        }
+    }
+
+    // check if number is overflow
+    double d = std::atof(str.c_str());
+
+    if (std::isinf(d))
+    {
+        auto pos = chen::num::str(std::distance(beg, cur) - str.size());
+        throw chen::json::error(chen::str::format("json: number '%s' is overflow at position %s", str.c_str(), pos.c_str()));
+    }
+    else if (std::isnan(d))
+    {
+        auto pos = chen::num::str(std::distance(beg, cur) - str.size());
+        throw chen::json::error(chen::str::format("json: number '%s' is invalid at position %s", str.c_str(), pos.c_str()));
+    }
+
+    out = d;
+}
+
+void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
+{
+    if ((cur == end) || (*cur != '"') || (++cur == end))
+        chen::json::exception(beg, cur, end);
+
+    char ch = *cur;
+
+    while (ch != '"')
+    {
+        // control characters must use escape
+        if ((ch >= 0) && (ch <= 31))  // see ASCII
+        {
+            auto pos = chen::num::str(std::distance(beg, cur));
+            throw chen::json::error(chen::str::format("json: control character code '%d' is not escaped at position %s", static_cast<int>(ch), pos.c_str()));
+        }
+
+        // unescape characters
+        if (ch == '\\')
+        {
+            if (++cur == end)
+                chen::json::exception(beg, cur, end);
+            else
+                ch = *cur;
+
+            switch (ch)
+            {
+                case '"':
+                case '\\':
+                case '/':
+                    out += ch;
+                    break;
+
+                case 'b':
+                    out += '\b';
+                    break;
+
+                case 'f':
+                    out += '\f';
+                    break;
+
+                case 'n':
+                    out += '\n';
+                    break;
+
+                case 'r':
+                    out += '\r';
+                    break;
+
+                case 't':
+                    out += '\t';
+                    break;
+
+                case 'u':
+                {
+                    // handle unicode character
+                    char unicode[5];
+                    unicode[4] = '\0';
+
+                    for (auto i = 0; i < 4; ++i)
+                    {
+                        if (++cur == end)
+                            chen::json::exception(beg, cur, end);
+
+                        ch = *cur;
+
+                        if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
+                            unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
+                        else
+                            chen::json::exception(beg, cur, end);
+                    }
+
+                    // convert utf-16 to utf-8
+                    try
+                    {
+                        out.append(chen::utf8::convert(static_cast<std::uint32_t>(std::strtol(unicode, nullptr, 16))));
+                    }
+                    catch (...)
+                    {
+                        // e.g: \uD83D\uDE00, it's a emoji character
+                        auto pos = chen::num::str(std::distance(beg, cur) - 4);
+                        throw chen::json::error(chen::str::format("json: invalid unicode char '\\u%s' at position %s", unicode, pos.c_str()));
+                    }
+                }
+                    break;
+
+                default:
+                    chen::json::exception(beg, cur, end);
+            }
+        }
+        else
+        {
+            out += ch;
+        }
+
+        if (++cur == end)
+            chen::json::exception(beg, cur, end);
+        else
+            ch = *cur;
+    }
+
+    ++cur;
+}
+
+void chen::json::decode(bool v, const iterator &beg, iterator &cur, iterator &end)
+{
+    constexpr char t[] = "true";
+    constexpr char f[] = "false";
+
+    const char *s = v ? t : f;
+    const auto  l = v ? sizeof(t) - 1 : sizeof(f) - 1;
+
+    for (std::size_t i = 0; i < l; ++i, ++cur)
+    {
+        if ((cur == end) || (*cur != s[i]))
+            chen::json::exception(beg, cur, end);
+    }
+}
+
+void chen::json::decode(std::nullptr_t, const iterator &beg, iterator &cur, iterator &end)
+{
+    constexpr char n[] = "null";
+    constexpr auto len = sizeof(n) - 1;
+
+    for (std::size_t i = 0; i < len; ++i, ++cur)
+    {
+        if ((cur == end) || (*cur != n[i]))
+            chen::json::exception(beg, cur, end);
+    }
 }
 
 // encode type

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/tool/cmd.hpp>
 #include <gtest/gtest.h>
 
 TEST(ToolCmdTest, General)
