@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file(see http://k
 - map: find value in map, a default value can be provided.
 - regex: add methods support pass std::regex object.
 - regex: add expand method that can use submatch to expand a string.
-- iter: wrappers to hold any iterator.
+- iterator: a type erasure to hold any iterator.
 - threadpool: user can retrieve the threads count.
 - fs: user can provide cwd in absolute method.
 - fs: add append method to append data to file.

@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include <chen/base/iter.hpp>
+#include <chen/base/iterator.hpp>
 #include <unordered_map>
 #include <exception>
 #include <string>
@@ -33,7 +33,7 @@ namespace chen
     class json
     {
     public:
-        typedef chen::iter::input<const char, const char> iterator;
+        typedef chen::input_iterator<const char, const char> iterator;
 
         typedef std::unordered_map<std::string, chen::json> object;
         typedef std::vector<chen::json> array;

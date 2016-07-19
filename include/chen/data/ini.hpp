@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include <chen/base/iter.hpp>
+#include <chen/base/iterator.hpp>
 #include <unordered_map>
 #include <exception>
 
@@ -31,7 +31,7 @@ namespace chen
     class ini
     {
     public:
-        typedef chen::iter::input<const char, const char> iterator;
+        typedef chen::input_iterator<const char, const char> iterator;
 
         typedef std::unordered_map<std::string, std::string> property_type;  // k/v pair
         typedef std::pair<std::string, property_type> section_type;          // each section

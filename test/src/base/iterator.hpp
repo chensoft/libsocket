@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/base/iter.hpp>
+#include <chen/base/iterator.hpp>
 #include <gtest/gtest.h>
 #include <array>
 #include <list>
@@ -15,7 +15,7 @@ TEST(BaseIterTest, General)
 {
     // plain text
     char buf[] = "chen";
-    chen::iter::random<char> iter(buf);
+    chen::random_iterator<char> iter(buf);
 
     EXPECT_EQ('c', *iter);
     EXPECT_EQ('c', *iter++);
@@ -39,10 +39,10 @@ TEST(BaseIterTest, General)
     iter -= 3;
     EXPECT_EQ('c', *iter);
 
-    chen::iter::random<char> proxy(iter++);
+    chen::random_iterator<char> proxy(iter++);
     EXPECT_EQ('c', *proxy);
 
-    chen::iter::random<char> other(iter);
+    chen::random_iterator<char> other(iter);
 
     EXPECT_TRUE(iter == other);
     EXPECT_TRUE(iter <= other);
@@ -58,8 +58,8 @@ TEST(BaseIterTest, General)
     std::vector<char> vector(buf, buf + ::strlen(buf));
     std::array<char, 4> array{};
 
-    chen::iter::input<char> cur(vector.begin());
-    chen::iter::input<char> end(vector.end());
+    chen::input_iterator<char> cur(vector.begin());
+    chen::input_iterator<char> end(vector.end());
 
     std::copy(cur, end, array.begin());
     EXPECT_TRUE(std::equal(vector.begin(), vector.end(), array.begin()));
@@ -67,10 +67,10 @@ TEST(BaseIterTest, General)
     // list, its iterator is a bidirectional iterator
     std::list<char> list{'c', 'h', 'e', 'n'};
 
-    chen::iter::bidirectional<char> a(list.begin());
-    chen::iter::bidirectional<char> b(list.end());
+    chen::bidirectional_iterator<char> a(list.begin());
+    chen::bidirectional_iterator<char> b(list.end());
 
-    chen::iter::forward<char> f(buf);
+    chen::forward_iterator<char> f(buf);
 
     EXPECT_TRUE(std::equal(a, b, f));
 }
