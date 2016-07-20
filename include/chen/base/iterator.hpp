@@ -74,6 +74,7 @@ namespace chen
             virtual Reference operator*() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
+            virtual Distance distance() const = 0;
         };
 
         /**
@@ -90,6 +91,12 @@ namespace chen
             virtual Reference operator*() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
+            virtual Distance distance() const
+            {
+                // only valid in input iterator
+                // use std::distance in other iterators
+                return 0;
+            }
 
         public:
             virtual void operator--() = 0;
@@ -109,6 +116,12 @@ namespace chen
             virtual Reference operator*() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
+            virtual Distance distance() const
+            {
+                // only valid in input iterator
+                // use std::distance in other iterators
+                return 0;
+            }
 
         public:
             virtual void operator--() = 0;
@@ -157,6 +170,7 @@ namespace chen
             virtual void operator++() override
             {
                 ++this->_it;
+                ++this->_distance;
             }
 
             virtual bool operator==(const super_class &o) const override
@@ -165,8 +179,14 @@ namespace chen
                 return this->_it == tmp._it;
             }
 
+            virtual Distance distance() const override
+            {
+                return this->_distance;
+            }
+
         protected:
             Iterator _it;
+            Distance _distance = 0;
         };
 
         /**
@@ -371,6 +391,14 @@ namespace chen
             return !(*this == o);
         }
 
+        Distance distance() const
+        {
+            // since input iterator is single-pass, we can't use std::distance on it
+            // however, in some cases we want to know input iterator's position, so I add this method
+            // @caution don't use this method if your category is not input iterator
+            return this->_ptr->distance();
+        }
+
         /**
          * Bidirectional iterator
          */
@@ -459,67 +487,4 @@ namespace chen
 
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
     using random_iterator = iterator<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>;
-
-    /**
-     * Position iterator
-     * since input iterator is single-pass, we can't use std::distance on it
-     * however, in some cases we want to know input iterator's position, so I add this iterator
-     */
-    template <typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
-    class position_iterator : public input_iterator<Value, Reference, Pointer, Distance>
-    {
-    public:
-        typedef input_iterator<Value, Reference, Pointer, Distance> super_class;
-
-        using typename super_class::value_type;
-        using typename super_class::difference_type;
-        using typename super_class::pointer;
-        using typename super_class::reference;
-        using typename super_class::iterator_category;
-        using typename super_class::data_type;
-
-    public:
-        /**
-         * Construct by proxy
-         */
-        position_iterator(const iterator_helper::proxy<Value, data_type> &p) : super_class(p)
-        {
-        }
-
-        /**
-         * Wrap another iterator
-         */
-        template <typename Iterator>
-        position_iterator(Iterator it) : super_class(it)
-        {
-        }
-
-    public:
-        /**
-         * Current position after increment
-         */
-        Distance distance() const
-        {
-            return this->_distance;
-        }
-
-    public:
-        /**
-         * Input & Forward iterator
-         */
-        super_class& operator++()
-        {
-            ++this->_distance;
-            return super_class::operator++();
-        }
-
-        iterator_helper::proxy<Value, data_type> operator++(int)
-        {
-            ++this->_distance;  // don't effect on proxy
-            return super_class::operator++(0);
-        }
-
-    private:
-        Distance _distance = 0;
-    };
 }
