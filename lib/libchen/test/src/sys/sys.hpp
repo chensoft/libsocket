@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/sys/sys.hpp>
 #include <gtest/gtest.h>
 
 TEST(SysSysTest, General)

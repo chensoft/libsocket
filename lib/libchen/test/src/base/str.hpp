@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/base/str.hpp>
 #include <gtest/gtest.h>
 
 TEST(BaseStrTest, General)

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/data/json.hpp>
 #include <gtest/gtest.h>
 
 TEST(DataJsonTest, Type)

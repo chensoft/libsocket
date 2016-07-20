@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/base/num.hpp>
 #include <gtest/gtest.h>
 
 TEST(BaseNumTest, General)

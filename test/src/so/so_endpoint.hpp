@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/socket.hpp>
+#include <socket/so/so_endpoint.hpp>
 #include <gtest/gtest.h>
 
 TEST(SOEndpointTest, General)

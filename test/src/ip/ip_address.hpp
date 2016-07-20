@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/socket.hpp>
+#include <socket/ip/ip_address.hpp>
 #include <gtest/gtest.h>
 
 TEST(IPAddressTest, Base)

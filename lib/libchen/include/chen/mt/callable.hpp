@@ -14,10 +14,9 @@ namespace chen
     class callable final
     {
     public:
-        callable() {};
-        ~callable() = default;
-
-        callable(callable &&o) : _ptr(std::move(o._ptr)) {}
+        callable(callable &&o) : _ptr(std::move(o._ptr))
+        {
+        }
 
         callable& operator=(callable &&o)
         {
@@ -30,7 +29,9 @@ namespace chen
         }
 
         template <typename F>
-        callable(F &&f) : _ptr(new data<F>(std::move(f))) {}
+        callable(F &&f) : _ptr(new data<F>(std::move(f)))
+        {
+        }
 
     public:
         void operator()()
@@ -53,7 +54,7 @@ namespace chen
 
             virtual void call() override
             {
-                f();
+                this->f();
             }
 
             F f;

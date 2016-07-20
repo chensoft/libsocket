@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/mt/threadpool.hpp>
 #include <gtest/gtest.h>
 
 TEST(MtThreadpoolTest, Single)

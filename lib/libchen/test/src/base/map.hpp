@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/base/map.hpp>
 #include <gtest/gtest.h>
 
 TEST(BaseMapTest, General)

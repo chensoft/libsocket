@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <chen/chen.hpp>
+#include <chen/base/regex.hpp>
 #include <gtest/gtest.h>
 #include "../../conf.hpp"
 

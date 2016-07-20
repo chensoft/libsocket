@@ -19,8 +19,15 @@ namespace chen
         any() = default;
         ~any() = default;
 
-        any(const any &o);
-        any(any &&o);
+        any(const any &o)
+        {
+            *this = o;
+        }
+
+        any(any &&o)
+        {
+            *this = std::move(o);
+        }
 
         template <typename T>
         any(T &val)
@@ -44,8 +51,28 @@ namespace chen
         /**
          * Copy & Move
          */
-        any& operator=(const any &o);
-        any& operator=(any &&o);
+        any& operator=(const any &o)
+        {
+            if (this->_ptr == o._ptr)
+                return *this;
+
+            if (o._ptr)
+                this->_ptr.reset(o._ptr->clone());
+            else
+                this->_ptr.reset();
+
+            return *this;
+        }
+
+        any& operator=(any &&o)
+        {
+            if (this->_ptr == o._ptr)
+                return *this;
+
+            this->_ptr = std::move(o._ptr);
+
+            return *this;
+        }
 
         /**
          * Assignment
@@ -123,7 +150,10 @@ namespace chen
         /**
          * Test empty
          */
-        bool empty() const;
+        bool empty() const
+        {
+            return this->_ptr == nullptr;
+        }
 
         /**
          * Check type
@@ -155,7 +185,7 @@ namespace chen
 
             virtual base* clone() const override
             {
-                return new data<T>(val);
+                return new data<T>(this->val);
             }
 
             T val;
