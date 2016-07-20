@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/base/regex.hpp>
 #include <gtest/gtest.h>
 #include "../../conf.hpp"

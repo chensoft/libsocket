@@ -4,10 +4,11 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/data/json.hpp>
+#include <chen/base/str.hpp>
+#include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
+#include "../../conf.hpp"
 
 TEST(DataJsonTest, Type)
 {

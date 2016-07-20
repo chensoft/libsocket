@@ -4,26 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#include <chen/chen.hpp>
+#include <gtest/gtest.h>
 #include "conf.hpp"
-
-#include "src/base/any.hpp"
-#include "src/base/map.hpp"
-#include "src/base/num.hpp"
-#include "src/base/str.hpp"
-#include "src/base/utf8.hpp"
-#include "src/base/regex.hpp"
-#include "src/base/vector.hpp"
-#include "src/base/iterator.hpp"
-
-#include "src/data/ini.hpp"
-#include "src/data/json.hpp"
-
-#include "src/mt/threadpool.hpp"
-
-#include "src/sys/fs.hpp"
-#include "src/sys/sys.hpp"
-
-#include "src/tool/cmd.hpp"
 
 int main(int argc, char *argv[])
 {

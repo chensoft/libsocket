@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
 

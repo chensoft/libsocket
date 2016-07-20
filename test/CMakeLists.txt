@@ -29,16 +29,16 @@ include_directories(lib/googletest/googletest/include)
 
 # source codes
 file(GLOB INC_ROOT *.hpp)
-file(GLOB INC_BASE src/base/*.hpp)
-file(GLOB INC_DATA src/data/*.hpp)
-file(GLOB INC_MT   src/mt/*.hpp)
-file(GLOB INC_SYS  src/sys/*.hpp)
-file(GLOB INC_TOOL src/tool/*.hpp)
 
-aux_source_directory(./ SRC_ROOT)
+aux_source_directory(.        SRC_ROOT)
+aux_source_directory(src/base SRC_BASE)
+aux_source_directory(src/data SRC_DATA)
+aux_source_directory(src/mt   SRC_MT)
+aux_source_directory(src/sys  SRC_SYS)
+aux_source_directory(src/tool SRC_TOOL)
 
 # generate app
-add_executable(test_libchen ${INC_ROOT} ${INC_BASE} ${INC_DATA} ${INC_MT} ${INC_SYS} ${INC_TOOL} ${SRC_ROOT})
+add_executable(test_libchen ${INC_ROOT} ${SRC_ROOT} ${SRC_BASE} ${SRC_DATA} ${SRC_MT} ${SRC_SYS} ${SRC_TOOL})
 
 # link library
 target_link_libraries(test_libchen libchen_static gtest)
@@ -47,8 +47,8 @@ target_link_libraries(test_libchen libchen_static gtest)
 source_group("" FILES ${INC_ROOT})
 source_group("" FILES ${SRC_ROOT})
 
-source_group("src\\base" FILES ${INC_BASE})
-source_group("src\\data" FILES ${INC_DATA})
-source_group("src\\mt"   FILES ${INC_MT})
-source_group("src\\sys"  FILES ${INC_SYS})
-source_group("src\\tool" FILES ${INC_TOOL})
+source_group("src\\base" FILES ${SRC_BASE})
+source_group("src\\data" FILES ${SRC_DATA})
+source_group("src\\mt"   FILES ${SRC_MT})
+source_group("src\\sys"  FILES ${SRC_SYS})
+source_group("src\\tool" FILES ${SRC_TOOL})
