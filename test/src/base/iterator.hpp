@@ -72,5 +72,6 @@ TEST(BaseIterTest, General)
 
     chen::forward_iterator<char> f(buf);
 
-    EXPECT_TRUE(std::equal(a, b, f));
+    while (a != b)
+        EXPECT_TRUE(*a++ == *f++);
 }
