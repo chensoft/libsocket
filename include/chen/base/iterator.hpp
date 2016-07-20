@@ -446,7 +446,7 @@ namespace chen
     };
 
     /**
-     * Handy type alias(C++11)
+     * Type alias(C++11)
      */
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
     using input_iterator = iterator<std::input_iterator_tag, Value, Reference, Pointer, Distance>;
@@ -459,4 +459,67 @@ namespace chen
 
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
     using random_iterator = iterator<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>;
+
+    /**
+     * Position iterator
+     * since input iterator is single-pass, we can't use std::distance on it
+     * however, in some cases we want to know input iterator's position, so I add this iterator
+     */
+    template <typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
+    class position_iterator : public input_iterator<Value, Reference, Pointer, Distance>
+    {
+    public:
+        typedef input_iterator<Value, Reference, Pointer, Distance> super_class;
+
+        using typename super_class::value_type;
+        using typename super_class::difference_type;
+        using typename super_class::pointer;
+        using typename super_class::reference;
+        using typename super_class::iterator_category;
+        using typename super_class::data_type;
+
+    public:
+        /**
+         * Construct by proxy
+         */
+        position_iterator(const iterator_helper::proxy<Value, data_type> &p) : super_class(p)
+        {
+        }
+
+        /**
+         * Wrap another iterator
+         */
+        template <typename Iterator>
+        position_iterator(Iterator it) : super_class(it)
+        {
+        }
+
+    public:
+        /**
+         * Current position after increment
+         */
+        Distance distance() const
+        {
+            return this->_distance;
+        }
+
+    public:
+        /**
+         * Input & Forward iterator
+         */
+        super_class& operator++()
+        {
+            ++this->_distance;
+            return super_class::operator++();
+        }
+
+        iterator_helper::proxy<Value, data_type> operator++(int)
+        {
+            ++this->_distance;  // don't effect on proxy
+            return super_class::operator++(0);
+        }
+
+    private:
+        Distance _distance = 0;
+    };
 }
