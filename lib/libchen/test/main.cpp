@@ -13,6 +13,7 @@
 #include "src/base/utf8.hpp"
 #include "src/base/regex.hpp"
 #include "src/base/vector.hpp"
+#include "src/base/iterator.hpp"
 
 #include "src/data/ini.hpp"
 #include "src/data/json.hpp"
