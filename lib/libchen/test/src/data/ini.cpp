@@ -4,10 +4,11 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/data/ini.hpp>
+#include <chen/base/str.hpp>
+#include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
+#include "../../conf.hpp"
 
 TEST(DataIniTest, General)
 {
@@ -17,7 +18,7 @@ TEST(DataIniTest, General)
     // fail
     for (int i = 1; i <= 5; ++i)
     {
-        EXPECT_THROW(chen::ini::parse(chen::fs::read(conf::data + chen::str::format("/ini/fail%d.ini", i))), chen::ini::error);
+        EXPECT_THROW(chen::ini::parse(conf::data + chen::str::format("/ini/fail%d.ini", i), true), chen::ini::error);
     }
 
     // pass

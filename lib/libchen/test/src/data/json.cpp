@@ -4,10 +4,11 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/data/json.hpp>
+#include <chen/base/str.hpp>
+#include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
+#include "../../conf.hpp"
 
 TEST(DataJsonTest, Type)
 {
@@ -124,7 +125,7 @@ TEST(DataJsonTest, Validate)
         if (i == 18)  // I don't think too deep is an error
             continue;
 
-        EXPECT_THROW(chen::json::validate(chen::fs::read(conf::data + chen::str::format("/json/fail%d.json", i))), chen::json::error);
+        EXPECT_THROW(chen::json::validate(conf::data + chen::str::format("/json/fail%d.json", i), true), chen::json::error);
     }
 
     // pass

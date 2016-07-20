@@ -187,7 +187,7 @@ void chen::ini::exception(const iterator &beg, iterator &cur, iterator &end)
     }
     else
     {
-        auto pos = chen::num::str(std::distance(beg, cur));
+        auto pos = chen::num::str(cur.distance());
         auto tok = std::isprint(*cur) ? std::string(1, *cur) : chen::str::format("\\x%02x", static_cast<int>(*cur));
 
         throw chen::ini::error(chen::str::format("ini: unexpected token '%s' at position %s", tok.c_str(), pos.c_str()));
@@ -202,10 +202,7 @@ bool chen::ini::advance(const iterator &beg, iterator &cur, iterator &end)
         ++cur;
 
     // check if end
-    if (cur == end)
-        return false;
-
-    return true;
+    return cur != end;
 }
 
 // decode
@@ -314,7 +311,7 @@ void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, itera
 
         if (out.find(key) != out.end())
         {
-            auto pos = chen::num::str(std::distance(beg, cur) - key.size());
+            auto pos = chen::num::str(cur.distance() - key.size());
             throw chen::ini::error(chen::str::format("ini: duplicate key '%s' found at position %s", key.c_str(), pos.c_str()));
         }
 
@@ -449,7 +446,7 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
                 catch (...)
                 {
                     // e.g: \xD83D\xDE00, it's a emoji character
-                    auto pos = chen::num::str(std::distance(beg, cur) - 4);
+                    auto pos = chen::num::str(cur.distance() - 4);
                     throw chen::ini::error(chen::str::format("ini: invalid unicode char '\\u%s' at position %s", unicode, pos.c_str()));
                 }
             }

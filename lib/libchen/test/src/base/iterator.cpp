@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/base/iterator.hpp>
 #include <gtest/gtest.h>
 #include <array>

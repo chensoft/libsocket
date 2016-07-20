@@ -74,6 +74,7 @@ namespace chen
             virtual Reference operator*() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
+            virtual Distance distance() const = 0;
         };
 
         /**
@@ -90,6 +91,12 @@ namespace chen
             virtual Reference operator*() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
+            virtual Distance distance() const
+            {
+                // only valid in input iterator
+                // use std::distance in other iterators
+                return 0;
+            }
 
         public:
             virtual void operator--() = 0;
@@ -109,6 +116,12 @@ namespace chen
             virtual Reference operator*() const = 0;
             virtual void operator++() = 0;
             virtual bool operator==(const base &o) const = 0;
+            virtual Distance distance() const
+            {
+                // only valid in input iterator
+                // use std::distance in other iterators
+                return 0;
+            }
 
         public:
             virtual void operator--() = 0;
@@ -157,6 +170,7 @@ namespace chen
             virtual void operator++() override
             {
                 ++this->_it;
+                ++this->_distance;
             }
 
             virtual bool operator==(const super_class &o) const override
@@ -165,8 +179,14 @@ namespace chen
                 return this->_it == tmp._it;
             }
 
+            virtual Distance distance() const override
+            {
+                return this->_distance;
+            }
+
         protected:
             Iterator _it;
+            Distance _distance = 0;
         };
 
         /**
@@ -371,6 +391,14 @@ namespace chen
             return !(*this == o);
         }
 
+        Distance distance() const
+        {
+            // since input iterator is single-pass, we can't use std::distance on it
+            // however, in some cases we want to know input iterator's position, so I add this method
+            // @caution don't use this method if your category is not input iterator
+            return this->_ptr->distance();
+        }
+
         /**
          * Bidirectional iterator
          */
@@ -446,7 +474,7 @@ namespace chen
     };
 
     /**
-     * Handy type alias(C++11)
+     * Type alias(C++11)
      */
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
     using input_iterator = iterator<std::input_iterator_tag, Value, Reference, Pointer, Distance>;

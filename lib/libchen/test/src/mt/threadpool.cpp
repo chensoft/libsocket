@@ -4,9 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <chen/mt/threadpool.hpp>
+#include <chen/base/num.hpp>
 #include <gtest/gtest.h>
 
 TEST(MtThreadpoolTest, Single)

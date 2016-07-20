@@ -33,7 +33,7 @@ namespace chen
     class json
     {
     public:
-        typedef chen::input_iterator<const char, const char> iterator;
+        typedef chen::input_iterator<const char, const char> iterator;  // it's an input iterator
 
         typedef std::unordered_map<std::string, chen::json> object;
         typedef std::vector<chen::json> array;
