@@ -329,8 +329,14 @@ chen::json json::parse(const std::string &text, bool file)
             std::istreambuf_iterator<char> cur(stream);
             return json::parse(cur, std::istreambuf_iterator<char>());
         }
-        catch (const std::ios_base::failure&)
+        catch (const json::error&)
         {
+            throw;
+        }
+        catch (const std::exception&)
+        {
+            // can't catch std::ios_base::failure in here
+            // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145
             throw json::error(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }
     }
@@ -385,7 +391,11 @@ void json::validate(const std::string &text, bool file)
             std::istreambuf_iterator<char> cur(stream);
             json::validate(cur, std::istreambuf_iterator<char>());
         }
-        catch (const std::ios_base::failure&)
+        catch (const json::error&)
+        {
+            throw;
+        }
+        catch (const std::exception&)
         {
             throw json::error(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
         }
