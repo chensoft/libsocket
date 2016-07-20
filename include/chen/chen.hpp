@@ -23,7 +23,6 @@ constexpr const char *CHEN_VERSION = "1.0.1";
 #include <chen/base/utf8.hpp>
 #include <chen/base/regex.hpp>
 #include <chen/base/vector.hpp>
-#include <chen/base/iterator.hpp>
 
 #include <chen/data/ini.hpp>
 #include <chen/data/json.hpp>
