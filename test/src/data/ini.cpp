@@ -18,7 +18,7 @@ TEST(DataIniTest, General)
     // fail
     for (int i = 1; i <= 5; ++i)
     {
-        EXPECT_THROW(chen::ini::parse(chen::fs::read(conf::data + chen::str::format("/ini/fail%d.ini", i))), chen::ini::error);
+        EXPECT_THROW(chen::ini::parse(conf::data + chen::str::format("/ini/fail%d.ini", i), true), chen::ini::error);
     }
 
     // pass
