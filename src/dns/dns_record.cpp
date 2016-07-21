@@ -35,6 +35,10 @@ void RR::encode(chen::dns::encoder &encoder) const
 
 void RR::decode(chen::dns::decoder &decoder)
 {
+    decoder.unpack(this->name, true);
+    decoder.unpack(this->rrtype);
+    decoder.unpack(this->rrclass);
+    decoder.unpack(this->ttl);
     decoder.unpack(this->rdlength);
 }
 
@@ -46,35 +50,20 @@ void RR::decode(const chen::json::object &object)
 
 std::shared_ptr<chen::dns::RR> RR::create(chen::dns::decoder &decoder)
 {
-    // name
-    std::string name;
-    decoder.unpack(name, true);
+    // detect type
+    std::string unused;
+    decoder.unpack(unused, true);
 
-    // rrtype
     chen::dns::RRType rrtype = chen::dns::RRType::None;
     decoder.unpack(rrtype);
 
-    // rrclass
-    chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
-    decoder.unpack(rrclass);
-
-    // ttl
-    std::int32_t ttl = 0;
-    decoder.unpack(ttl);
-
-    // build
+    // build record
     std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
     if (!record)
         record.reset(new chen::dns::Unknown);
 
-    // rdlength && rdata
+    // decode it
     record->decode(decoder);
-
-    // set
-    record->name    = std::move(name);
-    record->rrtype  = rrtype;
-    record->rrclass = rrclass;
-    record->ttl     = ttl;
 
     return record;
 }
