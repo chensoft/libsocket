@@ -50,12 +50,14 @@ void RR::decode(const chen::json::object &object)
 
 std::shared_ptr<chen::dns::RR> RR::create(chen::dns::decoder &decoder)
 {
+    chen::dns::decoder detect(decoder);
+
     // detect type
     std::string unused;
-    decoder.unpack(unused, true);
+    detect.unpack(unused, true);
 
     chen::dns::RRType rrtype = chen::dns::RRType::None;
-    decoder.unpack(rrtype);
+    detect.unpack(rrtype);
 
     // build record
     std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
