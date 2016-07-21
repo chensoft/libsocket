@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#pragma once
-
 #include <socket/ip/ip_address.hpp>
 #include <gtest/gtest.h>
 
@@ -217,7 +215,7 @@ TEST(IPAddressTest, IPv6)
 
     EXPECT_EQ(chen::ip::address_v6("::c0a8:1"), chen::ip::address_v6("::192.168.0.1"));
 
-    std::array<std::uint8_t, 16> bytes = {0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e};
+    std::array<std::uint8_t, 16> bytes = {{0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e}};
 
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(bytes));
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(bytes, 64));
@@ -243,14 +241,14 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ(64, chen::ip::address_v6("2404:6800:4004:817::200e/64").cidr());
 
     // network
-    std::array<std::uint8_t, 16> netmask = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::array<std::uint8_t, 16> wildcard = {0, 0, 0, 0, 0, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    std::array<std::uint8_t, 16> netmask = {{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    std::array<std::uint8_t, 16> wildcard = {{0, 0, 0, 0, 0, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 
     EXPECT_EQ(netmask, chen::ip::address_v6("2404:6800:4004:817::200e/48").netmask());
     EXPECT_EQ(wildcard, chen::ip::address_v6("2404:6800:4004:817::200e/48").wildcard());
 
-    netmask = {0xff, 0xff, 0xff, 0xff, 0xff, 0xfc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    wildcard = {0, 0, 0, 0, 0, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    netmask  = {{0xff, 0xff, 0xff, 0xff, 0xff, 0xfc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    wildcard = {{0, 0, 0, 0, 0, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}};
 
     EXPECT_EQ(netmask, chen::ip::address_v6("2404:6800:4004:817::200e/46").netmask());
     EXPECT_EQ(wildcard, chen::ip::address_v6("2404:6800:4004:817::200e/46").wildcard());

@@ -22,19 +22,18 @@ include_directories(../lib/libchen/include)
 include_directories(../lib/libchen/test/lib/googletest/googletest/include)
 
 # source codes
-file(GLOB INC_ROOT *.hpp)
-file(GLOB INC_IP   src/ip/*.hpp)
-
-aux_source_directory(./ SRC_ROOT)
+aux_source_directory(.      SRC_ROOT)
+aux_source_directory(src/ip SRC_IP)
+aux_source_directory(src/so SRC_SO)
 
 # generate app
-add_executable(test_libsocket ${SRC_ROOT} ${INC_ROOT} ${INC_IP})
+add_executable(test_libsocket ${SRC_ROOT} ${SRC_IP} ${SRC_SO})
 
 # link library
 target_link_libraries(test_libsocket libsocket_static gtest)
 
 # group files in IDEs like Xcode and Visual Studio
-source_group("" FILES ${INC_ROOT})
 source_group("" FILES ${SRC_ROOT})
 
-source_group("src\\ip" FILES ${INC_IP})
+source_group("src\\ip" FILES ${SRC_IP})
+source_group("src\\so" FILES ${SRC_SO})

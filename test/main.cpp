@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include "src/ip/ip_address.hpp"
-#include "src/so/so_endpoint.hpp"
+#include <socket/socket.hpp>
+#include <gtest/gtest.h>
 
 int main(int argc, char *argv[])
 {

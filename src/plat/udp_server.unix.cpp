@@ -30,8 +30,6 @@ void server::bind(const std::string &addr, std::uint16_t port)
     struct sockaddr_in in;
     ::memset(&in, 0, sizeof(in));
 
-    struct sockaddr_in6 dest_sin6;
-
     in.sin_family      = AF_INET;
     in.sin_addr.s_addr = ::inet_addr(addr.c_str());
     in.sin_port        = htons(port);

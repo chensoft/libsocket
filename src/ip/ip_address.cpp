@@ -444,7 +444,7 @@ address_v6::address_v6()
 
 address_v6::address_v6(const std::string &addr)
 {
-    this->_addr = std::move(address_v6::toBytes(addr, this->_cidr));
+    this->_addr = address_v6::toBytes(addr, this->_cidr);
 }
 
 address_v6::address_v6(const std::string &addr, std::uint8_t cidr)
