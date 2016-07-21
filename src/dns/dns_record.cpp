@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/dns/dns_record.hpp>
-#include <socket/dns/dns_error.hpp>
 #include <socket/dns/dns_table.hpp>
 #include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
@@ -21,58 +20,47 @@ RR::RR(chen::dns::RRType type) : rrtype(type)
 {
 }
 
-RR::~RR()
-{
-}
-
 // encode & decode
-std::vector<std::uint8_t> RR::encode() const
+void RR::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> out;
-    this->pack(out);
-    return out;
+    // common
+    encoder.pack(this->name, true);
+    encoder.pack(this->rrtype);
+    encoder.pack(this->rrclass);
+    encoder.pack(this->ttl);
+
+    // rdlength, placeholder here
+    encoder.pack(static_cast<std::uint16_t>(0));
 }
 
-void RR::encode(std::vector<std::uint8_t> &out) const
+void RR::decode(chen::dns::decoder &decoder)
 {
-    this->pack(out);
+    decoder.unpack(this->rdlength);
 }
 
 void RR::decode(const chen::json::object &object)
 {
-    this->unpack(object);
+    // unpack ttl only
+    this->ttl = chen::map::find(object, "ttl", this->ttl);
 }
 
-std::shared_ptr<chen::dns::RR> RR::decode(const std::vector<std::uint8_t> &data)
-{
-    auto cur = data.begin();
-    auto end = data.end();
-
-    chen::dns::codec::cache_type cache;
-
-    return RR::decode(cache, cur, cur, end);
-}
-
-std::shared_ptr<chen::dns::RR> RR::decode(chen::dns::codec::cache_type &cache,
-                                          std::vector<std::uint8_t>::const_iterator beg,
-                                          std::vector<std::uint8_t>::const_iterator &cur,
-                                          std::vector<std::uint8_t>::const_iterator &end)
+std::shared_ptr<chen::dns::RR> RR::create(chen::dns::decoder &decoder)
 {
     // name
     std::string name;
-    decoder::unpack(name, true, cache, beg, cur, end);
+    decoder.unpack(name, true);
 
     // rrtype
     chen::dns::RRType rrtype = chen::dns::RRType::None;
-    decoder::unpack(rrtype, cur, end);
+    decoder.unpack(rrtype);
 
     // rrclass
     chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
-    decoder::unpack(rrclass, cur, end);
+    decoder.unpack(rrclass);
 
     // ttl
     std::int32_t ttl = 0;
-    decoder::unpack(ttl, cur, end);
+    decoder.unpack(ttl);
 
     // build
     std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
@@ -80,7 +68,7 @@ std::shared_ptr<chen::dns::RR> RR::decode(chen::dns::codec::cache_type &cache,
         record.reset(new chen::dns::Unknown);
 
     // rdlength && rdata
-    record->unpack(beg, cur, end, cache);
+    record->decode(decoder);
 
     // set
     record->name    = std::move(name);
@@ -104,49 +92,22 @@ std::string RR::str(const std::string &sep) const
     return ret;
 }
 
-// pack & unpack
-void RR::pack(std::vector<std::uint8_t> &out) const
-{
-    // common
-    encoder::pack(this->name, true, out);
-    encoder::pack(this->rrtype, out);
-    encoder::pack(this->rrclass, out);
-    encoder::pack(this->ttl, out);
-
-    // rdlength, placeholder here
-    encoder::pack(static_cast<std::uint16_t>(0), out);
-}
-
-void RR::unpack(const chen::json::object &object)
-{
-    // unpack ttl only
-    this->ttl = chen::map::find(object, "ttl", this->ttl);
-}
-
-void RR::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    decoder::unpack(this->rdlength, cur, end);
-}
-
 // helper
-void RR::adjust(std::vector<std::uint8_t> &out, std::size_t val) const
+void RR::adjust(chen::dns::encoder &encoder, std::size_t val) const
 {
     if (val > std::numeric_limits<std::uint16_t>::max())
         throw error_size("dns: codec pack rdata size is overflow");
 
     auto rdlength = static_cast<std::uint16_t>(val);
 
-    out[out.size() - rdlength - 2] = static_cast<std::uint8_t>(rdlength >> 8 & 0xFF);
-    out[out.size() - rdlength - 1] = static_cast<std::uint8_t>(rdlength & 0xFF);
+    encoder.change(encoder.size() - rdlength - 2, static_cast<std::uint8_t>(rdlength >> 8 & 0xFF));
+    encoder.change(encoder.size() - rdlength - 1, static_cast<std::uint8_t>(rdlength & 0xFF));
 }
 
-std::size_t RR::remain(std::vector<std::uint8_t>::const_iterator beg,
-                       std::vector<std::uint8_t>::const_iterator &cur) const
+std::size_t RR::remain(const chen::dns::codec::iterator &beg,
+                       const chen::dns::codec::iterator &cur) const
 {
-    auto used = cur - beg;
+    auto used = std::distance(beg, cur);
     if (this->rdlength < used)
         throw error_size("dns: codec rdata is overflow");
 
@@ -199,48 +160,34 @@ std::shared_ptr<chen::dns::RR> Raw::clone() const
     return std::make_shared<Raw>(*this);
 }
 
-void Raw::pack(std::vector<std::uint8_t> &out) const
+void Raw::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->rdata, this->rdata.size());
 
-        encoder::pack(this->rdata, this->rdata.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void Raw::unpack(const chen::json::object &object)
+void Raw::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->rdata, this->rdlength);
+}
+
+void Raw::decode(const chen::json::object &object)
+{
+    RR::decode(object);
 
     this->rdata.clear();
 
     std::string rdata = chen::map::find(object, "rdata");
     std::copy(rdata.begin(), rdata.end(), this->rdata.begin());
-}
-
-void Raw::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->rdata, this->rdlength, cur, end);
 }
 
 
@@ -270,34 +217,29 @@ std::shared_ptr<chen::dns::RR> A::clone() const
     return std::make_shared<A>(*this);
 }
 
-void A::pack(std::vector<std::uint8_t> &out) const
+void A::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->address);
 
-        encoder::pack(this->address, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void A::unpack(const chen::json::object &object)
+void A::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->address);
+}
+
+void A::decode(const chen::json::object &object)
+{
+    RR::decode(object);
 
     // if address is string then use address_v4::toInteger
     auto address = chen::map::find(object, "address");
@@ -306,15 +248,6 @@ void A::unpack(const chen::json::object &object)
         this->address = chen::ip::address_v4::toInteger(address);
     else
         this->address = address.toUnsigned();
-}
-
-void A::unpack(std::vector<std::uint8_t>::const_iterator beg,
-               std::vector<std::uint8_t>::const_iterator &cur,
-               std::vector<std::uint8_t>::const_iterator &end,
-               chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->address, cur, end);
 }
 
 
@@ -336,44 +269,30 @@ std::shared_ptr<chen::dns::RR> NS::clone() const
     return std::make_shared<NS>(*this);
 }
 
-void NS::pack(std::vector<std::uint8_t> &out) const
+void NS::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->nsdname, true);
 
-        encoder::pack(this->nsdname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NS::unpack(const chen::json::object &object)
+void NS::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->nsdname, true);
+}
+
+void NS::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->nsdname = chen::map::find(object, "nsdname", this->nsdname);
-}
-
-void NS::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->nsdname, true, cache, beg, cur, end);
 }
 
 
@@ -395,44 +314,30 @@ std::shared_ptr<chen::dns::RR> MD::clone() const
     return std::make_shared<MD>(*this);
 }
 
-void MD::pack(std::vector<std::uint8_t> &out) const
+void MD::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->madname, true);
 
-        encoder::pack(this->madname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MD::unpack(const chen::json::object &object)
+void MD::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->madname, true);
+}
+
+void MD::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->madname = chen::map::find(object, "madname", this->madname);
-}
-
-void MD::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->madname, true, cache, beg, cur, end);
 }
 
 
@@ -454,44 +359,30 @@ std::shared_ptr<chen::dns::RR> MF::clone() const
     return std::make_shared<MF>(*this);
 }
 
-void MF::pack(std::vector<std::uint8_t> &out) const
+void MF::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->madname, true);
 
-        encoder::pack(this->madname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MF::unpack(const chen::json::object &object)
+void MF::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->madname, true);
+}
+
+void MF::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->madname = chen::map::find(object, "madname", this->madname);
-}
-
-void MF::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->madname, true, cache, beg, cur, end);
 }
 
 
@@ -513,44 +404,30 @@ std::shared_ptr<chen::dns::RR> CNAME::clone() const
     return std::make_shared<CNAME>(*this);
 }
 
-void CNAME::pack(std::vector<std::uint8_t> &out) const
+void CNAME::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->cname, true);
 
-        encoder::pack(this->cname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void CNAME::unpack(const chen::json::object &object)
+void CNAME::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->cname, true);
+}
+
+void CNAME::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->cname = chen::map::find(object, "cname", this->cname);
-}
-
-void CNAME::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->cname, true, cache, beg, cur, end);
 }
 
 
@@ -580,40 +457,41 @@ std::shared_ptr<chen::dns::RR> SOA::clone() const
     return std::make_shared<SOA>(*this);
 }
 
-void SOA::pack(std::vector<std::uint8_t> &out) const
+void SOA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->mname, true);
+    encoder.pack(this->rname, true);
+    encoder.pack(this->serial);
+    encoder.pack(this->refresh);
+    encoder.pack(this->retry);
+    encoder.pack(this->expire);
+    encoder.pack(this->minimum);
 
-        encoder::pack(this->mname, true, out);
-        encoder::pack(this->rname, true, out);
-        encoder::pack(this->serial, out);
-        encoder::pack(this->refresh, out);
-        encoder::pack(this->retry, out);
-        encoder::pack(this->expire, out);
-        encoder::pack(this->minimum, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SOA::unpack(const chen::json::object &object)
+void SOA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->mname, true);
+    decoder.unpack(this->rname, true);
+    decoder.unpack(this->serial);
+    decoder.unpack(this->refresh);
+    decoder.unpack(this->retry);
+    decoder.unpack(this->expire);
+    decoder.unpack(this->minimum);
+}
+
+void SOA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->mname   = chen::map::find(object, "mname", this->mname);
     this->rname   = chen::map::find(object, "rname", this->rname);
     this->serial  = chen::map::find(object, "serial", this->serial);
@@ -621,21 +499,6 @@ void SOA::unpack(const chen::json::object &object)
     this->retry   = chen::map::find(object, "retry", this->retry);
     this->expire  = chen::map::find(object, "expire", this->expire);
     this->minimum = chen::map::find(object, "minimum", this->minimum);
-}
-
-void SOA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->mname, true, cache, beg, cur, end);
-    decoder::unpack(this->rname, true, cache, beg, cur, end);
-    decoder::unpack(this->serial, cur, end);
-    decoder::unpack(this->refresh, cur, end);
-    decoder::unpack(this->retry, cur, end);
-    decoder::unpack(this->expire, cur, end);
-    decoder::unpack(this->minimum, cur, end);
 }
 
 
@@ -657,44 +520,30 @@ std::shared_ptr<chen::dns::RR> MB::clone() const
     return std::make_shared<MB>(*this);
 }
 
-void MB::pack(std::vector<std::uint8_t> &out) const
+void MB::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->madname, true);
 
-        encoder::pack(this->madname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MB::unpack(const chen::json::object &object)
+void MB::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->madname, true);
+}
+
+void MB::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->madname = chen::map::find(object, "madname", this->madname);
-}
-
-void MB::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->madname, true, cache, beg, cur, end);
 }
 
 
@@ -716,44 +565,30 @@ std::shared_ptr<chen::dns::RR> MG::clone() const
     return std::make_shared<MG>(*this);
 }
 
-void MG::pack(std::vector<std::uint8_t> &out) const
+void MG::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->mgmname, true);
 
-        encoder::pack(this->mgmname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MG::unpack(const chen::json::object &object)
+void MG::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->mgmname, true);
+}
+
+void MG::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->mgmname = chen::map::find(object, "mgmname", this->mgmname);
-}
-
-void MG::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->mgmname, true, cache, beg, cur, end);
 }
 
 
@@ -775,44 +610,30 @@ std::shared_ptr<chen::dns::RR> MR::clone() const
     return std::make_shared<MR>(*this);
 }
 
-void MR::pack(std::vector<std::uint8_t> &out) const
+void MR::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->newname, true);
 
-        encoder::pack(this->newname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MR::unpack(const chen::json::object &object)
+void MR::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->newname, true);
+}
+
+void MR::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->newname = chen::map::find(object, "newname", this->newname);
-}
-
-void MR::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->newname, true, cache, beg, cur, end);
 }
 
 
@@ -834,48 +655,34 @@ std::shared_ptr<chen::dns::RR> NUL::clone() const
     return std::make_shared<NUL>(*this);
 }
 
-void NUL::pack(std::vector<std::uint8_t> &out) const
+void NUL::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    Raw::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->anything, this->anything.size());
 
-        encoder::pack(this->anything, this->anything.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NUL::unpack(const chen::json::object &object)
+void NUL::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    Raw::decode(decoder);
+    decoder.unpack(this->anything, this->rdlength);
+}
+
+void NUL::decode(const chen::json::object &object)
+{
+    Raw::decode(object);
 
     this->anything.clear();
 
     std::string anything = chen::map::find(object, "anything", std::string());
     std::copy(anything.begin(), anything.end(), this->anything.begin());
-}
-
-void NUL::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->anything, this->rdlength, cur, end);
 }
 
 
@@ -901,36 +708,38 @@ std::shared_ptr<chen::dns::RR> WKS::clone() const
     return std::make_shared<WKS>(*this);
 }
 
-void WKS::pack(std::vector<std::uint8_t> &out) const
+void WKS::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->address);
+    encoder.pack(this->protocol);
+    encoder.pack(this->bitmap, this->bitmap.size());
 
-        encoder::pack(this->address, out);
-        encoder::pack(this->protocol, out);
-        encoder::pack(this->bitmap, this->bitmap.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void WKS::unpack(const chen::json::object &object)
+void WKS::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    auto tmp = decoder.cur();
+
+    RR::decode(decoder);
+
+    decoder.unpack(this->address);
+    decoder.unpack(this->protocol);
+
+    this->bitmap.clear();
+    decoder.unpack(this->bitmap, this->remain(tmp, decoder.cur()));
+}
+
+void WKS::decode(const chen::json::object &object)
+{
+    RR::decode(object);
 
     this->address  = chen::map::find(object, "address", this->address);
     this->protocol = chen::map::find(object, "protocol", this->protocol);
@@ -939,22 +748,6 @@ void WKS::unpack(const chen::json::object &object)
 
     std::string bitmap = chen::map::find(object, "bitmap", std::string());
     std::copy(bitmap.begin(), bitmap.end(), this->bitmap.begin());
-}
-
-void WKS::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    auto tmp = cur;
-
-    RR::unpack(beg, cur, end, cache);
-
-    decoder::unpack(this->address, cur, end);
-    decoder::unpack(this->protocol, cur, end);
-
-    this->bitmap.clear();
-    decoder::unpack(this->bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -976,44 +769,30 @@ std::shared_ptr<chen::dns::RR> PTR::clone() const
     return std::make_shared<PTR>(*this);
 }
 
-void PTR::pack(std::vector<std::uint8_t> &out) const
+void PTR::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->ptrdname, true);
 
-        encoder::pack(this->ptrdname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void PTR::unpack(const chen::json::object &object)
+void PTR::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->ptrdname, true);
+}
+
+void PTR::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->ptrdname = chen::map::find(object, "ptrdname", this->ptrdname);
-}
-
-void PTR::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->ptrdname, true, cache, beg, cur, end);
 }
 
 
@@ -1036,47 +815,33 @@ std::shared_ptr<chen::dns::RR> HINFO::clone() const
     return std::make_shared<HINFO>(*this);
 }
 
-void HINFO::pack(std::vector<std::uint8_t> &out) const
+void HINFO::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->cpu, false);
+    encoder.pack(this->os, false);
 
-        encoder::pack(this->cpu, false, out);
-        encoder::pack(this->os, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void HINFO::unpack(const chen::json::object &object)
+void HINFO::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->cpu, false);
+    decoder.unpack(this->os, false);
+}
+
+void HINFO::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->cpu = chen::map::find(object, "cpu", this->cpu);
     this->os  = chen::map::find(object, "os", this->os);
-}
-
-void HINFO::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->cpu, false, cache, beg, cur, end);
-    decoder::unpack(this->os, false, cache, beg, cur, end);
 }
 
 
@@ -1099,47 +864,33 @@ std::shared_ptr<chen::dns::RR> MINFO::clone() const
     return std::make_shared<MINFO>(*this);
 }
 
-void MINFO::pack(std::vector<std::uint8_t> &out) const
+void MINFO::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->rmailbx, true);
+    encoder.pack(this->emailbx, true);
 
-        encoder::pack(this->rmailbx, true, out);
-        encoder::pack(this->emailbx, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MINFO::unpack(const chen::json::object &object)
+void MINFO::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->rmailbx, true);
+    decoder.unpack(this->emailbx, true);
+}
+
+void MINFO::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->rmailbx = chen::map::find(object, "rmailbx", this->rmailbx);
     this->emailbx = chen::map::find(object, "emailbx", this->emailbx);
-}
-
-void MINFO::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->rmailbx, true, cache, beg, cur, end);
-    decoder::unpack(this->emailbx, true, cache, beg, cur, end);
 }
 
 
@@ -1162,47 +913,33 @@ std::shared_ptr<chen::dns::RR> MX::clone() const
     return std::make_shared<MX>(*this);
 }
 
-void MX::pack(std::vector<std::uint8_t> &out) const
+void MX::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->exchange, true);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->exchange, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void MX::unpack(const chen::json::object &object)
+void MX::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->exchange, true);
+}
+
+void MX::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->exchange   = chen::map::find(object, "exchange", this->exchange);
-}
-
-void MX::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->exchange, true, cache, beg, cur, end);
 }
 
 
@@ -1224,44 +961,30 @@ std::shared_ptr<chen::dns::RR> TXT::clone() const
     return std::make_shared<TXT>(*this);
 }
 
-void TXT::pack(std::vector<std::uint8_t> &out) const
+void TXT::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->txt_data, false);
 
-        encoder::pack(this->txt_data, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void TXT::unpack(const chen::json::object &object)
+void TXT::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->txt_data, false);
+}
+
+void TXT::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->txt_data = chen::map::find(object, "txt_data", this->txt_data);
-}
-
-void TXT::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->txt_data, false, cache, beg, cur, end);
 }
 
 
@@ -1284,47 +1007,33 @@ std::shared_ptr<chen::dns::RR> RP::clone() const
     return std::make_shared<RP>(*this);
 }
 
-void RP::pack(std::vector<std::uint8_t> &out) const
+void RP::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->mbox_dname, true);
+    encoder.pack(this->txt_dname, true);
 
-        encoder::pack(this->mbox_dname, true, out);
-        encoder::pack(this->txt_dname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void RP::unpack(const chen::json::object &object)
+void RP::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->mbox_dname, true);
+    decoder.unpack(this->txt_dname, true);
+}
+
+void RP::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->mbox_dname = chen::map::find(object, "mbox_dname", this->mbox_dname);
     this->txt_dname  = chen::map::find(object, "txt_dname", this->txt_dname);
-}
-
-void RP::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->mbox_dname, true, cache, beg, cur, end);
-    decoder::unpack(this->txt_dname, true, cache, beg, cur, end);
 }
 
 
@@ -1347,47 +1056,33 @@ std::shared_ptr<chen::dns::RR> AFSDB::clone() const
     return std::make_shared<AFSDB>(*this);
 }
 
-void AFSDB::pack(std::vector<std::uint8_t> &out) const
+void AFSDB::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->subtype);
+    encoder.pack(this->hostname, true);
 
-        encoder::pack(this->subtype, out);
-        encoder::pack(this->hostname, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void AFSDB::unpack(const chen::json::object &object)
+void AFSDB::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->subtype);
+    decoder.unpack(this->hostname, true);
+}
+
+void AFSDB::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->subtype  = chen::map::find(object, "subtype", this->subtype);
     this->hostname = chen::map::find(object, "hostname", this->hostname);
-}
-
-void AFSDB::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->subtype, cur, end);
-    decoder::unpack(this->hostname, true, cache, beg, cur, end);
 }
 
 
@@ -1409,44 +1104,30 @@ std::shared_ptr<chen::dns::RR> X25::clone() const
     return std::make_shared<X25>(*this);
 }
 
-void X25::pack(std::vector<std::uint8_t> &out) const
+void X25::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->psdn_address, false);
 
-        encoder::pack(this->psdn_address, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void X25::unpack(const chen::json::object &object)
+void X25::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->psdn_address, false);
+}
+
+void X25::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->psdn_address = chen::map::find(object, "psdn_address", this->psdn_address);
-}
-
-void X25::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->psdn_address, false, cache, beg, cur, end);
 }
 
 
@@ -1469,47 +1150,33 @@ std::shared_ptr<chen::dns::RR> ISDN::clone() const
     return std::make_shared<ISDN>(*this);
 }
 
-void ISDN::pack(std::vector<std::uint8_t> &out) const
+void ISDN::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->isdn_address, false);
+    encoder.pack(this->sa, false);
 
-        encoder::pack(this->isdn_address, false, out);
-        encoder::pack(this->sa, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void ISDN::unpack(const chen::json::object &object)
+void ISDN::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->isdn_address, false);
+    decoder.unpack(this->sa, false);
+}
+
+void ISDN::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->isdn_address = chen::map::find(object, "isdn_address", this->isdn_address);
     this->sa           = chen::map::find(object, "sa", this->sa);
-}
-
-void ISDN::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->isdn_address, false, cache, beg, cur, end);
-    decoder::unpack(this->sa, false, cache, beg, cur, end);
 }
 
 
@@ -1532,47 +1199,33 @@ std::shared_ptr<chen::dns::RR> RT::clone() const
     return std::make_shared<RT>(*this);
 }
 
-void RT::pack(std::vector<std::uint8_t> &out) const
+void RT::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->intermediate_host, true);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->intermediate_host, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void RT::unpack(const chen::json::object &object)
+void RT::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->intermediate_host, true);
+}
+
+void RT::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference        = chen::map::find(object, "preference", this->preference);
     this->intermediate_host = chen::map::find(object, "intermediate_host", this->intermediate_host);
-}
-
-void RT::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->intermediate_host, true, cache, beg, cur, end);
 }
 
 
@@ -1594,44 +1247,30 @@ std::shared_ptr<chen::dns::RR> NSAP::clone() const
     return std::make_shared<NSAP>(*this);
 }
 
-void NSAP::pack(std::vector<std::uint8_t> &out) const
+void NSAP::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->nsap, false);
 
-        encoder::pack(this->nsap, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NSAP::unpack(const chen::json::object &object)
+void NSAP::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->nsap, false);
+}
+
+void NSAP::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->nsap = chen::map::find(object, "nsap", this->nsap);
-}
-
-void NSAP::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->nsap, false, cache, beg, cur, end);
 }
 
 
@@ -1653,44 +1292,30 @@ std::shared_ptr<chen::dns::RR> NSAPPTR::clone() const
     return std::make_shared<NSAPPTR>(*this);
 }
 
-void NSAPPTR::pack(std::vector<std::uint8_t> &out) const
+void NSAPPTR::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->owner, true);
 
-        encoder::pack(this->owner, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NSAPPTR::unpack(const chen::json::object &object)
+void NSAPPTR::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->owner, true);
+}
+
+void NSAPPTR::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->owner = chen::map::find(object, "owner", this->owner);
-}
-
-void NSAPPTR::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                     std::vector<std::uint8_t>::const_iterator &cur,
-                     std::vector<std::uint8_t>::const_iterator &end,
-                     chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->owner, true, cache, beg, cur, end);
 }
 
 
@@ -1722,42 +1347,45 @@ std::shared_ptr<chen::dns::RR> SIG::clone() const
     return std::make_shared<SIG>(*this);
 }
 
-void SIG::pack(std::vector<std::uint8_t> &out) const
+void SIG::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->type_covered);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->labels);
+    encoder.pack(this->original);
+    encoder.pack(this->expiration);
+    encoder.pack(this->inception);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->signer, true);
+    encoder.pack(this->signature, false);
 
-        encoder::pack(this->type_covered, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->labels, out);
-        encoder::pack(this->original, out);
-        encoder::pack(this->expiration, out);
-        encoder::pack(this->inception, out);
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->signer, true, out);
-        encoder::pack(this->signature, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SIG::unpack(const chen::json::object &object)
+void SIG::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->type_covered);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->labels);
+    decoder.unpack(this->original);
+    decoder.unpack(this->expiration);
+    decoder.unpack(this->inception);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->signer, true);
+    decoder.unpack(this->signature, false);
+}
+
+void SIG::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->type_covered = chen::map::find(object, "type_covered", this->type_covered);
     this->algorithm    = chen::map::find(object, "algorithm", this->algorithm);
     this->labels       = chen::map::find(object, "labels", this->labels);
@@ -1767,22 +1395,6 @@ void SIG::unpack(const chen::json::object &object)
     this->key_tag      = chen::map::find(object, "key_tag", this->key_tag);
     this->signer       = chen::map::find(object, "signer", this->signer);
     this->signature    = chen::map::find(object, "signature", this->signature);
-}
-
-void SIG::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    decoder::unpack(this->type_covered, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->labels, cur, end);
-    decoder::unpack(this->original, cur, end);
-    decoder::unpack(this->expiration, cur, end);
-    decoder::unpack(this->inception, cur, end);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->signer, true, cache, beg, cur, end);
-    decoder::unpack(this->signature, false, cache, beg, cur, end);
 }
 
 
@@ -1809,53 +1421,39 @@ std::shared_ptr<chen::dns::RR> KEY::clone() const
     return std::make_shared<KEY>(*this);
 }
 
-void KEY::pack(std::vector<std::uint8_t> &out) const
+void KEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 
-        encoder::pack(this->flags, out);
-        encoder::pack(this->protocol, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->publickey, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void KEY::unpack(const chen::json::object &object)
+void KEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
+}
+
+void KEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
     this->publickey = chen::map::find(object, "publickey", this->publickey);
-}
-
-void KEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->protocol, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -1881,50 +1479,36 @@ std::shared_ptr<chen::dns::RR> PX::clone() const
     return std::make_shared<PX>(*this);
 }
 
-void PX::pack(std::vector<std::uint8_t> &out) const
+void PX::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->map822, true);
+    encoder.pack(this->mapx400, true);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->map822, true, out);
-        encoder::pack(this->mapx400, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void PX::unpack(const chen::json::object &object)
+void PX::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->map822, true);
+    decoder.unpack(this->mapx400, true);
+}
+
+void PX::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->map822     = chen::map::find(object, "map822", this->map822);
     this->mapx400    = chen::map::find(object, "mapx400", this->mapx400);
-}
-
-void PX::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->map822, true, cache, beg, cur, end);
-    decoder::unpack(this->mapx400, true, cache, beg, cur, end);
 }
 
 
@@ -1950,50 +1534,36 @@ std::shared_ptr<chen::dns::RR> GPOS::clone() const
     return std::make_shared<GPOS>(*this);
 }
 
-void GPOS::pack(std::vector<std::uint8_t> &out) const
+void GPOS::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->longitude, false);
+    encoder.pack(this->latitude, false);
+    encoder.pack(this->altitude, false);
 
-        encoder::pack(this->longitude, false, out);
-        encoder::pack(this->latitude, false, out);
-        encoder::pack(this->altitude, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void GPOS::unpack(const chen::json::object &object)
+void GPOS::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->longitude, false);
+    decoder.unpack(this->latitude, false);
+    decoder.unpack(this->altitude, false);
+}
+
+void GPOS::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->longitude = chen::map::find(object, "longitude", this->longitude);
     this->latitude  = chen::map::find(object, "latitude", this->latitude);
     this->altitude  = chen::map::find(object, "altitude", this->altitude);
-}
-
-void GPOS::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->longitude, false, cache, beg, cur, end);
-    decoder::unpack(this->latitude, false, cache, beg, cur, end);
-    decoder::unpack(this->altitude, false, cache, beg, cur, end);
 }
 
 
@@ -2015,46 +1585,31 @@ std::shared_ptr<chen::dns::RR> AAAA::clone() const
     return std::make_shared<AAAA>(*this);
 }
 
-void AAAA::pack(std::vector<std::uint8_t> &out) const
+void AAAA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->address);
 
-        encoder::pack(this->address, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void AAAA::unpack(const chen::json::object &object)
+void AAAA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->address);
+}
 
+void AAAA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     auto address = chen::map::find(object, "address");
     this->address = chen::ip::address_v6::toBytes(address);
-}
-
-void AAAA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->address, cur, end);
 }
 
 
@@ -2084,40 +1639,41 @@ std::shared_ptr<chen::dns::RR> LOC::clone() const
     return std::make_shared<LOC>(*this);
 }
 
-void LOC::pack(std::vector<std::uint8_t> &out) const
+void LOC::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->version);
+    encoder.pack(this->size);
+    encoder.pack(this->horiz_pre);
+    encoder.pack(this->vert_pre);
+    encoder.pack(this->longitude);
+    encoder.pack(this->latitude);
+    encoder.pack(this->altitude);
 
-        encoder::pack(this->version, out);
-        encoder::pack(this->size, out);
-        encoder::pack(this->horiz_pre, out);
-        encoder::pack(this->vert_pre, out);
-        encoder::pack(this->longitude, out);
-        encoder::pack(this->latitude, out);
-        encoder::pack(this->altitude, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void LOC::unpack(const chen::json::object &object)
+void LOC::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->version);
+    decoder.unpack(this->size);
+    decoder.unpack(this->horiz_pre);
+    decoder.unpack(this->vert_pre);
+    decoder.unpack(this->longitude);
+    decoder.unpack(this->latitude);
+    decoder.unpack(this->altitude);
+}
+
+void LOC::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->version   = chen::map::find(object, "version", this->version);
     this->size      = chen::map::find(object, "size", this->size);
     this->horiz_pre = chen::map::find(object, "horiz_pre", this->horiz_pre);
@@ -2125,21 +1681,6 @@ void LOC::unpack(const chen::json::object &object)
     this->longitude = chen::map::find(object, "longitude", this->longitude);
     this->latitude  = chen::map::find(object, "latitude", this->latitude);
     this->altitude  = chen::map::find(object, "altitude", this->altitude);
-}
-
-void LOC::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->version, cur, end);
-    decoder::unpack(this->size, cur, end);
-    decoder::unpack(this->horiz_pre, cur, end);
-    decoder::unpack(this->vert_pre, cur, end);
-    decoder::unpack(this->longitude, cur, end);
-    decoder::unpack(this->latitude, cur, end);
-    decoder::unpack(this->altitude, cur, end);
 }
 
 
@@ -2162,55 +1703,41 @@ std::shared_ptr<chen::dns::RR> NXT::clone() const
     return std::make_shared<NXT>(*this);
 }
 
-void NXT::pack(std::vector<std::uint8_t> &out) const
+void NXT::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->next_domain, true);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 
-        encoder::pack(this->next_domain, true, out);
-        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NXT::unpack(const chen::json::object &object)
+void NXT::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    auto tmp = decoder.cur();
+
+    RR::decode(decoder);
+    decoder.unpack(this->next_domain, true);
+
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+}
+
+void NXT::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->next_domain = chen::map::find(object, "next_domain", this->next_domain);
 
     this->type_bitmap.clear();
 
     std::string type_bitmap = chen::map::find(object, "type_bitmap", std::string());
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
-}
-
-void NXT::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    auto tmp = cur;
-
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->next_domain, true, cache, beg, cur, end);
-
-    this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -2232,44 +1759,30 @@ std::shared_ptr<chen::dns::RR> EID::clone() const
     return std::make_shared<EID>(*this);
 }
 
-void EID::pack(std::vector<std::uint8_t> &out) const
+void EID::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->endpoint, false);
 
-        encoder::pack(this->endpoint, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void EID::unpack(const chen::json::object &object)
+void EID::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->endpoint, false);
+}
+
+void EID::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->endpoint = chen::map::find(object, "endpoint", this->endpoint);
-}
-
-void EID::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->endpoint, false, cache, beg, cur, end);
 }
 
 
@@ -2291,44 +1804,30 @@ std::shared_ptr<chen::dns::RR> NIMLOC::clone() const
     return std::make_shared<NIMLOC>(*this);
 }
 
-void NIMLOC::pack(std::vector<std::uint8_t> &out) const
+void NIMLOC::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->locator, false);
 
-        encoder::pack(this->locator, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NIMLOC::unpack(const chen::json::object &object)
+void NIMLOC::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->locator, false);
+}
+
+void NIMLOC::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->locator = chen::map::find(object, "locator", this->locator);
-}
-
-void NIMLOC::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                    std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end,
-                    chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->locator, false, cache, beg, cur, end);
 }
 
 
@@ -2355,53 +1854,39 @@ std::shared_ptr<chen::dns::RR> SRV::clone() const
     return std::make_shared<SRV>(*this);
 }
 
-void SRV::pack(std::vector<std::uint8_t> &out) const
+void SRV::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->priority);
+    encoder.pack(this->weight);
+    encoder.pack(this->port);
+    encoder.pack(this->target, true);
 
-        encoder::pack(this->priority, out);
-        encoder::pack(this->weight, out);
-        encoder::pack(this->port, out);
-        encoder::pack(this->target, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SRV::unpack(const chen::json::object &object)
+void SRV::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->priority);
+    decoder.unpack(this->weight);
+    decoder.unpack(this->port);
+    decoder.unpack(this->target, true);
+}
+
+void SRV::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->priority = chen::map::find(object, "priority", this->priority);
     this->weight   = chen::map::find(object, "weight", this->weight);
     this->port     = chen::map::find(object, "port", this->port);
     this->target   = chen::map::find(object, "target", this->target);
-}
-
-void SRV::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->priority, cur, end);
-    decoder::unpack(this->weight, cur, end);
-    decoder::unpack(this->port, cur, end);
-    decoder::unpack(this->target, true, cache, beg, cur, end);
 }
 
 
@@ -2426,47 +1911,33 @@ std::shared_ptr<chen::dns::RR> ATMA::clone() const
     return std::make_shared<ATMA>(*this);
 }
 
-void ATMA::pack(std::vector<std::uint8_t> &out) const
+void ATMA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->format);
+    encoder.pack(this->address, false);
 
-        encoder::pack(this->format, out);
-        encoder::pack(this->address, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void ATMA::unpack(const chen::json::object &object)
+void ATMA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->format);
+    decoder.unpack(this->address, false);
+}
+
+void ATMA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->format  = chen::map::find(object, "format", this->format);
     this->address = chen::map::find(object, "address", this->address);
-}
-
-void ATMA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->format, cur, end);
-    decoder::unpack(this->address, false, cache, beg, cur, end);
 }
 
 
@@ -2495,59 +1966,45 @@ std::shared_ptr<chen::dns::RR> NAPTR::clone() const
     return std::make_shared<NAPTR>(*this);
 }
 
-void NAPTR::pack(std::vector<std::uint8_t> &out) const
+void NAPTR::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->order);
+    encoder.pack(this->preference);
+    encoder.pack(this->flags, false);
+    encoder.pack(this->services, false);
+    encoder.pack(this->regexp, false);
+    encoder.pack(this->replacement, true);
 
-        encoder::pack(this->order, out);
-        encoder::pack(this->preference, out);
-        encoder::pack(this->flags, false, out);
-        encoder::pack(this->services, false, out);
-        encoder::pack(this->regexp, false, out);
-        encoder::pack(this->replacement, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NAPTR::unpack(const chen::json::object &object)
+void NAPTR::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->order);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->flags, false);
+    decoder.unpack(this->services, false);
+    decoder.unpack(this->regexp, false);
+    decoder.unpack(this->replacement, true);
+}
+
+void NAPTR::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->order       = chen::map::find(object, "order", this->order);
     this->preference  = chen::map::find(object, "preference", this->preference);
     this->flags       = chen::map::find(object, "flags", this->flags);
     this->services    = chen::map::find(object, "services", this->services);
     this->regexp      = chen::map::find(object, "regexp", this->regexp);
     this->replacement = chen::map::find(object, "replacement", this->replacement);
-}
-
-void NAPTR::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->order, cur, end);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->flags, false, cache, beg, cur, end);
-    decoder::unpack(this->services, false, cache, beg, cur, end);
-    decoder::unpack(this->regexp, false, cache, beg, cur, end);
-    decoder::unpack(this->replacement, true, cache, beg, cur, end);
 }
 
 
@@ -2572,47 +2029,33 @@ std::shared_ptr<chen::dns::RR> KX::clone() const
     return std::make_shared<KX>(*this);
 }
 
-void KX::pack(std::vector<std::uint8_t> &out) const
+void KX::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->exchanger, true);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->exchanger, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void KX::unpack(const chen::json::object &object)
+void KX::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->exchanger, true);
+}
+
+void KX::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->exchanger  = chen::map::find(object, "exchanger", this->exchanger);
-}
-
-void KX::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->exchanger, true, cache, beg, cur, end);
 }
 
 
@@ -2639,53 +2082,39 @@ std::shared_ptr<chen::dns::RR> CERT::clone() const
     return std::make_shared<CERT>(*this);
 }
 
-void CERT::pack(std::vector<std::uint8_t> &out) const
+void CERT::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->type);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->certificate, false);
 
-        encoder::pack(this->type, out);
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->certificate, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void CERT::unpack(const chen::json::object &object)
+void CERT::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->type);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->certificate, false);
+}
+
+void CERT::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->type        = chen::map::find(object, "type", this->type);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->certificate = chen::map::find(object, "certificate", this->certificate);
-}
-
-void CERT::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->type, cur, end);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->certificate, false, cache, beg, cur, end);
 }
 
 
@@ -2715,44 +2144,30 @@ std::shared_ptr<chen::dns::RR> DNAME::clone() const
     return std::make_shared<DNAME>(*this);
 }
 
-void DNAME::pack(std::vector<std::uint8_t> &out) const
+void DNAME::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->target, true);
 
-        encoder::pack(this->target, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void DNAME::unpack(const chen::json::object &object)
+void DNAME::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->target, true);
+}
+
+void DNAME::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->target = chen::map::find(object, "target", this->target);
-}
-
-void DNAME::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->target, true, cache, beg, cur, end);
 }
 
 
@@ -2778,36 +2193,37 @@ std::shared_ptr<chen::dns::RR> SINK::clone() const
     return std::make_shared<SINK>(*this);
 }
 
-void SINK::pack(std::vector<std::uint8_t> &out) const
+void SINK::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->coding);
+    encoder.pack(this->subcoding);
+    encoder.pack(this->sdata, this->sdata.size());
 
-        encoder::pack(this->coding, out);
-        encoder::pack(this->subcoding, out);
-        encoder::pack(this->sdata, this->sdata.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SINK::unpack(const chen::json::object &object)
+void SINK::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    auto tmp = decoder.cur();
+
+    RR::decode(decoder);
+    decoder.unpack(this->coding);
+    decoder.unpack(this->subcoding);
+
+    this->sdata.clear();
+    decoder.unpack(this->sdata, this->remain(tmp, decoder.cur()));
+}
+
+void SINK::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->coding    = chen::map::find(object, "coding", this->coding);
     this->subcoding = chen::map::find(object, "subcoding", this->subcoding);
 
@@ -2815,21 +2231,6 @@ void SINK::unpack(const chen::json::object &object)
 
     std::string sdata = chen::map::find(object, "sdata", std::string());
     std::copy(sdata.begin(), sdata.end(), this->sdata.begin());
-}
-
-void SINK::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    auto tmp = cur;
-
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->coding, cur, end);
-    decoder::unpack(this->subcoding, cur, end);
-
-    this->sdata.clear();
-    decoder::unpack(this->sdata, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -2868,53 +2269,39 @@ std::shared_ptr<chen::dns::RR> DS::clone() const
     return std::make_shared<DS>(*this);
 }
 
-void DS::pack(std::vector<std::uint8_t> &out) const
+void DS::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->digest_type, out);
-        encoder::pack(this->digest, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void DS::unpack(const chen::json::object &object)
+void DS::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
+}
+
+void DS::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
     this->digest      = chen::map::find(object, "digest", this->digest);
-}
-
-void DS::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -2940,50 +2327,36 @@ std::shared_ptr<chen::dns::RR> SSHFP::clone() const
     return std::make_shared<SSHFP>(*this);
 }
 
-void SSHFP::pack(std::vector<std::uint8_t> &out) const
+void SSHFP::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->algorithm);
+    encoder.pack(this->fptype);
+    encoder.pack(this->fingerprint, false);
 
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->fptype, out);
-        encoder::pack(this->fingerprint, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SSHFP::unpack(const chen::json::object &object)
+void SSHFP::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->fptype);
+    decoder.unpack(this->fingerprint, false);
+}
+
+void SSHFP::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->fptype      = chen::map::find(object, "fptype", this->fptype);
     this->fingerprint = chen::map::find(object, "fingerprint", this->fingerprint);
-}
-
-void SSHFP::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->fptype, cur, end);
-    decoder::unpack(this->fingerprint, false, cache, beg, cur, end);
 }
 
 
@@ -3011,60 +2384,85 @@ std::shared_ptr<chen::dns::RR> IPSECKEY::clone() const
     return std::make_shared<IPSECKEY>(*this);
 }
 
-void IPSECKEY::pack(std::vector<std::uint8_t> &out) const
+void IPSECKEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
+    // self
+    auto val = encoder.size();
+
+    encoder.pack(this->precedence);
+    encoder.pack(this->gateway_type);
+    encoder.pack(this->algorithm);
+
+    switch (static_cast<GatewayType>(this->gateway_type))
     {
-        // base
-        RR::pack(out);
+        case GatewayType::None:
+            encoder.pack(this->gateway, 1);
+            break;
 
-        // self
-        auto val = out.size();
+        case GatewayType::IPv4:
+            encoder.pack(this->gateway, 4);
+            break;
 
-        encoder::pack(this->precedence, out);
-        encoder::pack(this->gateway_type, out);
-        encoder::pack(this->algorithm, out);
+        case GatewayType::IPv6:
+            encoder.pack(this->gateway, 16);
+            break;
 
-        switch (static_cast<GatewayType>(this->gateway_type))
+        case GatewayType::Domain:
         {
-            case GatewayType::None:
-                encoder::pack(this->gateway, 1, out);
-                break;
-
-            case GatewayType::IPv4:
-                encoder::pack(this->gateway, 4, out);
-                break;
-
-            case GatewayType::IPv6:
-                encoder::pack(this->gateway, 16, out);
-                break;
-
-            case GatewayType::Domain:
-            {
-                std::string domain(this->gateway.begin(), this->gateway.end());
-                encoder::pack(domain, true, out);
-            }
-                break;
+            std::string domain(this->gateway.begin(), this->gateway.end());
+            encoder.pack(domain, true);
         }
-
-        encoder::pack(this->publickey, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
+            break;
     }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+
+    encoder.pack(this->publickey, false);
+
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void IPSECKEY::unpack(const chen::json::object &object)
+void IPSECKEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->precedence);
+    decoder.unpack(this->gateway_type);
+    decoder.unpack(this->algorithm);
+
+    this->gateway.clear();
+
+    switch (static_cast<GatewayType>(this->gateway_type))
+    {
+        case GatewayType::None:
+            decoder.unpack(this->gateway, 1);
+            break;
+
+        case GatewayType::IPv4:
+            decoder.unpack(this->gateway, 4);
+            break;
+
+        case GatewayType::IPv6:
+            decoder.unpack(this->gateway, 16);
+            break;
+
+        case GatewayType::Domain:
+        {
+            std::string domain;
+            decoder.unpack(domain, true);
+
+            this->gateway.insert(this->gateway.begin(), domain.begin(), domain.end());
+        }
+            break;
+    }
+
+    decoder.unpack(this->publickey, false);
+}
+
+void IPSECKEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->precedence   = chen::map::find(object, "precedence", this->precedence);
     this->gateway_type = chen::map::find(object, "gateway_type", this->gateway_type);
     this->algorithm    = chen::map::find(object, "algorithm", this->algorithm);
@@ -3075,45 +2473,6 @@ void IPSECKEY::unpack(const chen::json::object &object)
     std::copy(gateway.begin(), gateway.end(), this->gateway.begin());
 
     this->publickey = chen::map::find(object, "publickey", this->publickey);
-}
-
-void IPSECKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                      std::vector<std::uint8_t>::const_iterator &cur,
-                      std::vector<std::uint8_t>::const_iterator &end,
-                      chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->precedence, cur, end);
-    decoder::unpack(this->gateway_type, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-
-    this->gateway.clear();
-
-    switch (static_cast<GatewayType>(this->gateway_type))
-    {
-        case GatewayType::None:
-            decoder::unpack(this->gateway, 1, cur, end);
-            break;
-
-        case GatewayType::IPv4:
-            decoder::unpack(this->gateway, 4, cur, end);
-            break;
-
-        case GatewayType::IPv6:
-            decoder::unpack(this->gateway, 16, cur, end);
-            break;
-
-        case GatewayType::Domain:
-        {
-            std::string domain;
-            decoder::unpack(domain, true, cache, beg, cur, end);
-
-            this->gateway.insert(this->gateway.begin(), domain.begin(), domain.end());
-        }
-            break;
-    }
-
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -3145,42 +2504,45 @@ std::shared_ptr<chen::dns::RR> RRSIG::clone() const
     return std::make_shared<RRSIG>(*this);
 }
 
-void RRSIG::pack(std::vector<std::uint8_t> &out) const
+void RRSIG::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->type_covered);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->labels);
+    encoder.pack(this->original);
+    encoder.pack(this->expiration);
+    encoder.pack(this->inception);
+    encoder.pack(this->key_tag);
+    encoder.pack(this->signer, true);
+    encoder.pack(this->signature, false);
 
-        encoder::pack(this->type_covered, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->labels, out);
-        encoder::pack(this->original, out);
-        encoder::pack(this->expiration, out);
-        encoder::pack(this->inception, out);
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->signer, true, out);
-        encoder::pack(this->signature, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void RRSIG::unpack(const chen::json::object &object)
+void RRSIG::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->type_covered);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->labels);
+    decoder.unpack(this->original);
+    decoder.unpack(this->expiration);
+    decoder.unpack(this->inception);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->signer, true);
+    decoder.unpack(this->signature, false);
+}
+
+void RRSIG::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->type_covered = chen::map::find(object, "type_covered", this->type_covered);
     this->algorithm    = chen::map::find(object, "algorithm", this->algorithm);
     this->labels       = chen::map::find(object, "labels", this->labels);
@@ -3190,23 +2552,6 @@ void RRSIG::unpack(const chen::json::object &object)
     this->key_tag      = chen::map::find(object, "key_tag", this->key_tag);
     this->signer       = chen::map::find(object, "signer", this->signer);
     this->signature    = chen::map::find(object, "signature", this->signature);
-}
-
-void RRSIG::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->type_covered, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->labels, cur, end);
-    decoder::unpack(this->original, cur, end);
-    decoder::unpack(this->expiration, cur, end);
-    decoder::unpack(this->inception, cur, end);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->signer, true, cache, beg, cur, end);
-    decoder::unpack(this->signature, false, cache, beg, cur, end);
 }
 
 
@@ -3229,55 +2574,41 @@ std::shared_ptr<chen::dns::RR> NSEC::clone() const
     return std::make_shared<NSEC>(*this);
 }
 
-void NSEC::pack(std::vector<std::uint8_t> &out) const
+void NSEC::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->next_domain, true);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 
-        encoder::pack(this->next_domain, true, out);
-        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NSEC::unpack(const chen::json::object &object)
+void NSEC::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    auto tmp = decoder.cur();
+
+    RR::decode(decoder);
+    decoder.unpack(this->next_domain, true);
+
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+}
+
+void NSEC::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->next_domain = chen::map::find(object, "next_domain", this->next_domain);
 
     this->type_bitmap.clear();
 
     std::string type_bitmap = chen::map::find(object, "type_bitmap", std::string());
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
-}
-
-void NSEC::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    auto tmp = cur;
-
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->next_domain, true, cache, beg, cur, end);
-
-    this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -3304,53 +2635,39 @@ std::shared_ptr<chen::dns::RR> DNSKEY::clone() const
     return std::make_shared<DNSKEY>(*this);
 }
 
-void DNSKEY::pack(std::vector<std::uint8_t> &out) const
+void DNSKEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 
-        encoder::pack(this->flags, out);
-        encoder::pack(this->protocol, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->publickey, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void DNSKEY::unpack(const chen::json::object &object)
+void DNSKEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
+}
+
+void DNSKEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
     this->publickey = chen::map::find(object, "publickey", this->publickey);
-}
-
-void DNSKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                    std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end,
-                    chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->protocol, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -3372,44 +2689,30 @@ std::shared_ptr<chen::dns::RR> DHCID::clone() const
     return std::make_shared<DHCID>(*this);
 }
 
-void DHCID::pack(std::vector<std::uint8_t> &out) const
+void DHCID::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->digest, false);
 
-        encoder::pack(this->digest, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void DHCID::unpack(const chen::json::object &object)
+void DHCID::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->digest, false);
+}
+
+void DHCID::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->digest = chen::map::find(object, "digest", this->digest);
-}
-
-void DHCID::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -3440,41 +2743,47 @@ std::shared_ptr<chen::dns::RR> NSEC3::clone() const
     return std::make_shared<NSEC3>(*this);
 }
 
-void NSEC3::pack(std::vector<std::uint8_t> &out) const
+void NSEC3::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->hash);
+    encoder.pack(this->flags);
+    encoder.pack(this->iterations);
+    encoder.pack(this->salt_length);
+    encoder.pack(this->salt, this->salt_length);
+    encoder.pack(this->hash_length);
+    encoder.pack(this->next_owner, false);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 
-        encoder::pack(this->hash, out);
-        encoder::pack(this->flags, out);
-        encoder::pack(this->iterations, out);
-        encoder::pack(this->salt_length, out);
-        encoder::pack(this->salt, this->salt_length, out);
-        encoder::pack(this->hash_length, out);
-        encoder::pack(this->next_owner, false, out);
-        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NSEC3::unpack(const chen::json::object &object)
+void NSEC3::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    auto tmp = decoder.cur();
+
+    RR::decode(decoder);
+    decoder.unpack(this->hash);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->iterations);
+    decoder.unpack(this->salt_length);
+    decoder.unpack(this->salt, this->salt_length);
+    decoder.unpack(this->hash_length);
+    decoder.unpack(this->next_owner, false);
+
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+}
+
+void NSEC3::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->hash = chen::map::find(object, "hash", this->hash);
     this->flags = chen::map::find(object, "flags", this->flags);
     this->iterations = chen::map::find(object, "iterations", this->iterations);
@@ -3492,26 +2801,6 @@ void NSEC3::unpack(const chen::json::object &object)
 
     std::string type_bitmap = chen::map::find(object, "type_bitmap", std::string());
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
-}
-
-void NSEC3::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    auto tmp = cur;
-
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->hash, cur, end);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->iterations, cur, end);
-    decoder::unpack(this->salt_length, cur, end);
-    decoder::unpack(this->salt, this->salt_length, cur, end);
-    decoder::unpack(this->hash_length, cur, end);
-    decoder::unpack(this->next_owner, false, cache, beg, cur, end);
-
-    this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -3539,38 +2828,37 @@ std::shared_ptr<chen::dns::RR> NSEC3PARAM::clone() const
     return std::make_shared<NSEC3PARAM>(*this);
 }
 
-void NSEC3PARAM::pack(std::vector<std::uint8_t> &out) const
+void NSEC3PARAM::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->hash);
+    encoder.pack(this->flags);
+    encoder.pack(this->iterations);
+    encoder.pack(this->salt_length);
+    encoder.pack(this->salt, this->salt_length);
 
-        encoder::pack(this->hash, out);
-        encoder::pack(this->flags, out);
-        encoder::pack(this->iterations, out);
-        encoder::pack(this->salt_length, out);
-        encoder::pack(this->salt, this->salt_length, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NSEC3PARAM::unpack(const chen::json::object &object)
+void NSEC3PARAM::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->hash);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->iterations);
+    decoder.unpack(this->salt_length);
+    decoder.unpack(this->salt, this->salt_length);
+}
+
+void NSEC3PARAM::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->hash        = chen::map::find(object, "hash", this->hash);
     this->flags       = chen::map::find(object, "flags", this->flags);
     this->iterations  = chen::map::find(object, "iterations", this->iterations);
@@ -3580,19 +2868,6 @@ void NSEC3PARAM::unpack(const chen::json::object &object)
 
     std::string salt = chen::map::find(object, "salt", std::string());
     std::copy(salt.begin(), salt.end(), this->salt.begin());
-}
-
-void NSEC3PARAM::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                        std::vector<std::uint8_t>::const_iterator &cur,
-                        std::vector<std::uint8_t>::const_iterator &end,
-                        chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->hash, cur, end);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->iterations, cur, end);
-    decoder::unpack(this->salt_length, cur, end);
-    decoder::unpack(this->salt, this->salt_length, cur, end);
 }
 
 
@@ -3619,53 +2894,39 @@ std::shared_ptr<chen::dns::RR> TLSA::clone() const
     return std::make_shared<TLSA>(*this);
 }
 
-void TLSA::pack(std::vector<std::uint8_t> &out) const
+void TLSA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->usage);
+    encoder.pack(this->selector);
+    encoder.pack(this->matching_type);
+    encoder.pack(this->certificate, false);
 
-        encoder::pack(this->usage, out);
-        encoder::pack(this->selector, out);
-        encoder::pack(this->matching_type, out);
-        encoder::pack(this->certificate, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void TLSA::unpack(const chen::json::object &object)
+void TLSA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->usage);
+    decoder.unpack(this->selector);
+    decoder.unpack(this->matching_type);
+    decoder.unpack(this->certificate, false);
+}
+
+void TLSA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->usage         = chen::map::find(object, "usage", this->usage);
     this->selector      = chen::map::find(object, "selector", this->selector);
     this->matching_type = chen::map::find(object, "matching_type", this->matching_type);
     this->certificate   = chen::map::find(object, "certificate", this->certificate);
-}
-
-void TLSA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->usage, cur, end);
-    decoder::unpack(this->selector, cur, end);
-    decoder::unpack(this->matching_type, cur, end);
-    decoder::unpack(this->certificate, false, cache, beg, cur, end);
 }
 
 
@@ -3692,53 +2953,39 @@ std::shared_ptr<chen::dns::RR> SMIMEA::clone() const
     return std::make_shared<SMIMEA>(*this);
 }
 
-void SMIMEA::pack(std::vector<std::uint8_t> &out) const
+void SMIMEA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->usage);
+    encoder.pack(this->selector);
+    encoder.pack(this->matching_type);
+    encoder.pack(this->certificate, false);
 
-        encoder::pack(this->usage, out);
-        encoder::pack(this->selector, out);
-        encoder::pack(this->matching_type, out);
-        encoder::pack(this->certificate, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SMIMEA::unpack(const chen::json::object &object)
+void SMIMEA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->usage);
+    decoder.unpack(this->selector);
+    decoder.unpack(this->matching_type);
+    decoder.unpack(this->certificate, false);
+}
+
+void SMIMEA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->usage         = chen::map::find(object, "usage", this->usage);
     this->selector      = chen::map::find(object, "selector", this->selector);
     this->matching_type = chen::map::find(object, "matching_type", this->matching_type);
     this->certificate   = chen::map::find(object, "certificate", this->certificate);
-}
-
-void SMIMEA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                    std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end,
-                    chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->usage, cur, end);
-    decoder::unpack(this->selector, cur, end);
-    decoder::unpack(this->matching_type, cur, end);
-    decoder::unpack(this->certificate, false, cache, beg, cur, end);
 }
 
 
@@ -3767,59 +3014,45 @@ std::shared_ptr<chen::dns::RR> HIP::clone() const
     return std::make_shared<HIP>(*this);
 }
 
-void HIP::pack(std::vector<std::uint8_t> &out) const
+void HIP::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->hit_length);
+    encoder.pack(this->pk_algorithm);
+    encoder.pack(this->pk_length);
+    encoder.pack(this->hit, false);
+    encoder.pack(this->publickey, false);
+    encoder.pack(this->rendezvous_servers, false);
 
-        encoder::pack(this->hit_length, out);
-        encoder::pack(this->pk_algorithm, out);
-        encoder::pack(this->pk_length, out);
-        encoder::pack(this->hit, false, out);
-        encoder::pack(this->publickey, false, out);
-        encoder::pack(this->rendezvous_servers, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void HIP::unpack(const chen::json::object &object)
+void HIP::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->hit_length);
+    decoder.unpack(this->pk_algorithm);
+    decoder.unpack(this->pk_length);
+    decoder.unpack(this->hit, false);
+    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->rendezvous_servers, false);
+}
+
+void HIP::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->hit_length         = chen::map::find(object, "hit_length", this->hit_length);
     this->pk_algorithm       = chen::map::find(object, "pk_algorithm", this->pk_algorithm);
     this->pk_length          = chen::map::find(object, "pk_length", this->pk_length);
     this->hit                = chen::map::find(object, "hit", this->hit);
     this->publickey          = chen::map::find(object, "publickey", this->publickey);
     this->rendezvous_servers = chen::map::find(object, "rendezvous_servers", this->rendezvous_servers);
-}
-
-void HIP::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->hit_length, cur, end);
-    decoder::unpack(this->pk_algorithm, cur, end);
-    decoder::unpack(this->pk_length, cur, end);
-    decoder::unpack(this->hit, false, cache, beg, cur, end);
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
-    decoder::unpack(this->rendezvous_servers, false, cache, beg, cur, end);
 }
 
 
@@ -3841,44 +3074,30 @@ std::shared_ptr<chen::dns::RR> NINFO::clone() const
     return std::make_shared<NINFO>(*this);
 }
 
-void NINFO::pack(std::vector<std::uint8_t> &out) const
+void NINFO::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->zs_data, false);
 
-        encoder::pack(this->zs_data, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NINFO::unpack(const chen::json::object &object)
+void NINFO::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->zs_data, false);
+}
+
+void NINFO::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->zs_data = chen::map::find(object, "zs_data", this->zs_data);
-}
-
-void NINFO::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->zs_data, false, cache, beg, cur, end);
 }
 
 
@@ -3905,53 +3124,39 @@ std::shared_ptr<chen::dns::RR> RKEY::clone() const
     return std::make_shared<RKEY>(*this);
 }
 
-void RKEY::pack(std::vector<std::uint8_t> &out) const
+void RKEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 
-        encoder::pack(this->flags, out);
-        encoder::pack(this->protocol, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->publickey, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void RKEY::unpack(const chen::json::object &object)
+void RKEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
+}
+
+void RKEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
     this->publickey = chen::map::find(object, "publickey", this->publickey);
-}
-
-void RKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->protocol, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -3976,47 +3181,33 @@ std::shared_ptr<chen::dns::RR> TALINK::clone() const
     return std::make_shared<TALINK>(*this);
 }
 
-void TALINK::pack(std::vector<std::uint8_t> &out) const
+void TALINK::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->previous_name, true);
+    encoder.pack(this->next_name, true);
 
-        encoder::pack(this->previous_name, true, out);
-        encoder::pack(this->next_name, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void TALINK::unpack(const chen::json::object &object)
+void TALINK::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->previous_name, true);
+    decoder.unpack(this->next_name, true);
+}
+
+void TALINK::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->previous_name = chen::map::find(object, "previous_name", this->previous_name);
     this->next_name     = chen::map::find(object, "next_name", this->next_name);
-}
-
-void TALINK::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                    std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end,
-                    chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->previous_name, true, cache, beg, cur, end);
-    decoder::unpack(this->next_name, true, cache, beg, cur, end);
 }
 
 
@@ -4043,53 +3234,39 @@ std::shared_ptr<chen::dns::RR> CDS::clone() const
     return std::make_shared<CDS>(*this);
 }
 
-void CDS::pack(std::vector<std::uint8_t> &out) const
+void CDS::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->digest_type, out);
-        encoder::pack(this->digest, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void CDS::unpack(const chen::json::object &object)
+void CDS::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
+}
+
+void CDS::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
     this->digest      = chen::map::find(object, "digest", this->digest);
-}
-
-void CDS::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -4116,53 +3293,39 @@ std::shared_ptr<chen::dns::RR> CDNSKEY::clone() const
     return std::make_shared<CDNSKEY>(*this);
 }
 
-void CDNSKEY::pack(std::vector<std::uint8_t> &out) const
+void CDNSKEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->flags);
+    encoder.pack(this->protocol);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->publickey, false);
 
-        encoder::pack(this->flags, out);
-        encoder::pack(this->protocol, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->publickey, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void CDNSKEY::unpack(const chen::json::object &object)
+void CDNSKEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->protocol);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->publickey, false);
+}
+
+void CDNSKEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
     this->publickey = chen::map::find(object, "publickey", this->publickey);
-}
-
-void CDNSKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                     std::vector<std::uint8_t>::const_iterator &cur,
-                     std::vector<std::uint8_t>::const_iterator &end,
-                     chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->protocol, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -4184,44 +3347,30 @@ std::shared_ptr<chen::dns::RR> OPENPGPKEY::clone() const
     return std::make_shared<OPENPGPKEY>(*this);
 }
 
-void OPENPGPKEY::pack(std::vector<std::uint8_t> &out) const
+void OPENPGPKEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->publickey, false);
 
-        encoder::pack(this->publickey, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void OPENPGPKEY::unpack(const chen::json::object &object)
+void OPENPGPKEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->publickey, false);
+}
+
+void OPENPGPKEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->publickey = chen::map::find(object, "publickey", this->publickey);
-}
-
-void OPENPGPKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                        std::vector<std::uint8_t>::const_iterator &cur,
-                        std::vector<std::uint8_t>::const_iterator &end,
-                        chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->publickey, false, cache, beg, cur, end);
 }
 
 
@@ -4247,36 +3396,37 @@ std::shared_ptr<chen::dns::RR> CSYNC::clone() const
     return std::make_shared<CSYNC>(*this);
 }
 
-void CSYNC::pack(std::vector<std::uint8_t> &out) const
+void CSYNC::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->serial);
+    encoder.pack(this->flags);
+    encoder.pack(this->type_bitmap, this->type_bitmap.size());
 
-        encoder::pack(this->serial, out);
-        encoder::pack(this->flags, out);
-        encoder::pack(this->type_bitmap, this->type_bitmap.size(), out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void CSYNC::unpack(const chen::json::object &object)
+void CSYNC::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    auto tmp = decoder.cur();
+
+    RR::decode(decoder);
+    decoder.unpack(this->serial);
+    decoder.unpack(this->flags);
+
+    this->type_bitmap.clear();
+    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+}
+
+void CSYNC::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->serial = chen::map::find(object, "serial", this->serial);
     this->flags  = chen::map::find(object, "flags", this->flags);
 
@@ -4284,21 +3434,6 @@ void CSYNC::unpack(const chen::json::object &object)
 
     std::string type_bitmap = chen::map::find(object, "type_bitmap", std::string());
     std::copy(type_bitmap.begin(), type_bitmap.end(), this->type_bitmap.begin());
-}
-
-void CSYNC::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    auto tmp = cur;
-
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->serial, cur, end);
-    decoder::unpack(this->flags, cur, end);
-
-    this->type_bitmap.clear();
-    decoder::unpack(this->type_bitmap, this->remain(tmp, cur), cur, end);
 }
 
 
@@ -4320,44 +3455,30 @@ std::shared_ptr<chen::dns::RR> SPF::clone() const
     return std::make_shared<SPF>(*this);
 }
 
-void SPF::pack(std::vector<std::uint8_t> &out) const
+void SPF::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->txt, false);
 
-        encoder::pack(this->txt, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void SPF::unpack(const chen::json::object &object)
+void SPF::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->txt, false);
+}
+
+void SPF::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->txt = chen::map::find(object, "txt", this->txt);
-}
-
-void SPF::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->txt, false, cache, beg, cur, end);
 }
 
 
@@ -4430,47 +3551,33 @@ std::shared_ptr<chen::dns::RR> NID::clone() const
     return std::make_shared<NID>(*this);
 }
 
-void NID::pack(std::vector<std::uint8_t> &out) const
+void NID::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->node_id);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->node_id, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void NID::unpack(const chen::json::object &object)
+void NID::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->node_id);
+}
+
+void NID::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->node_id    = chen::map::find(object, "node_id", this->node_id);
-}
-
-void NID::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->node_id, cur, end);
 }
 
 
@@ -4495,47 +3602,33 @@ std::shared_ptr<chen::dns::RR> L32::clone() const
     return std::make_shared<L32>(*this);
 }
 
-void L32::pack(std::vector<std::uint8_t> &out) const
+void L32::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->locator32);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->locator32, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void L32::unpack(const chen::json::object &object)
+void L32::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->locator32);
+}
+
+void L32::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->locator32  = chen::map::find(object, "locator32", this->locator32);
-}
-
-void L32::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->locator32, cur, end);
 }
 
 
@@ -4560,47 +3653,33 @@ std::shared_ptr<chen::dns::RR> L64::clone() const
     return std::make_shared<L64>(*this);
 }
 
-void L64::pack(std::vector<std::uint8_t> &out) const
+void L64::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->locator64);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->locator64, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void L64::unpack(const chen::json::object &object)
+void L64::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->locator64);
+}
+
+void L64::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->locator64  = chen::map::find(object, "locator64", this->locator64);
-}
-
-void L64::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->locator64, cur, end);
 }
 
 
@@ -4625,47 +3704,33 @@ std::shared_ptr<chen::dns::RR> LP::clone() const
     return std::make_shared<LP>(*this);
 }
 
-void LP::pack(std::vector<std::uint8_t> &out) const
+void LP::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->preference);
+    encoder.pack(this->fqdn, true);
 
-        encoder::pack(this->preference, out);
-        encoder::pack(this->fqdn, true, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void LP::unpack(const chen::json::object &object)
+void LP::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->preference);
+    decoder.unpack(this->fqdn, true);
+}
+
+void LP::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->fqdn       = chen::map::find(object, "fqdn", this->fqdn);
-}
-
-void LP::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->preference, cur, end);
-    decoder::unpack(this->fqdn, true, cache, beg, cur, end);
 }
 
 
@@ -4687,46 +3752,31 @@ std::shared_ptr<chen::dns::RR> EUI48::clone() const
     return std::make_shared<EUI48>(*this);
 }
 
-void EUI48::pack(std::vector<std::uint8_t> &out) const
+void EUI48::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->address);
 
-        encoder::pack(this->address, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void EUI48::unpack(const chen::json::object &object)
+void EUI48::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->address);
+}
 
+void EUI48::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     std::string address = chen::map::find(object, "address", std::string());
     std::copy(address.begin(), address.end(), this->address.begin());
-}
-
-void EUI48::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->address, cur, end);
 }
 
 
@@ -4748,44 +3798,30 @@ std::shared_ptr<chen::dns::RR> EUI64::clone() const
     return std::make_shared<EUI64>(*this);
 }
 
-void EUI64::pack(std::vector<std::uint8_t> &out) const
+void EUI64::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->address);
 
-        encoder::pack(this->address, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void EUI64::unpack(const chen::json::object &object)
+void EUI64::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->address);
+}
+
+void EUI64::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->address = chen::map::find(object, "address", this->address);
-}
-
-void EUI64::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                   std::vector<std::uint8_t>::const_iterator &cur,
-                   std::vector<std::uint8_t>::const_iterator &end,
-                   chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->address, cur, end);
 }
 
 
@@ -4817,42 +3853,45 @@ std::shared_ptr<chen::dns::RR> TKEY::clone() const
     return std::make_shared<TKEY>(*this);
 }
 
-void TKEY::pack(std::vector<std::uint8_t> &out) const
+void TKEY::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->algorithm, true);
+    encoder.pack(this->inception);
+    encoder.pack(this->expiration);
+    encoder.pack(this->mode);
+    encoder.pack(this->error);
+    encoder.pack(this->key_size);
+    encoder.pack(this->key, this->key_size);
+    encoder.pack(this->other_len);
+    encoder.pack(this->other_data, this->other_len);
 
-        encoder::pack(this->algorithm, true, out);
-        encoder::pack(this->inception, out);
-        encoder::pack(this->expiration, out);
-        encoder::pack(this->mode, out);
-        encoder::pack(this->error, out);
-        encoder::pack(this->key_size, out);
-        encoder::pack(this->key, this->key_size, out);
-        encoder::pack(this->other_len, out);
-        encoder::pack(this->other_data, this->other_len, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void TKEY::unpack(const chen::json::object &object)
+void TKEY::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->algorithm, true);
+    decoder.unpack(this->inception);
+    decoder.unpack(this->expiration);
+    decoder.unpack(this->mode);
+    decoder.unpack(this->error);
+    decoder.unpack(this->key_size);
+    decoder.unpack(this->key, this->key_size);
+    decoder.unpack(this->other_len);
+    decoder.unpack(this->other_data, this->other_len);
+}
+
+void TKEY::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->algorithm  = chen::map::find(object, "algorithm", this->algorithm);
     this->inception  = chen::map::find(object, "inception", this->inception);
     this->expiration = chen::map::find(object, "expiration", this->expiration);
@@ -4871,23 +3910,6 @@ void TKEY::unpack(const chen::json::object &object)
 
     std::string other_data = chen::map::find(object, "other_data", std::string());
     std::copy(other_data.begin(), other_data.end(), this->other_data.begin());
-}
-
-void TKEY::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->algorithm, true, cache, beg, cur, end);
-    decoder::unpack(this->inception, cur, end);
-    decoder::unpack(this->expiration, cur, end);
-    decoder::unpack(this->mode, cur, end);
-    decoder::unpack(this->error, cur, end);
-    decoder::unpack(this->key_size, cur, end);
-    decoder::unpack(this->key, this->key_size, cur, end);
-    decoder::unpack(this->other_len, cur, end);
-    decoder::unpack(this->other_data, this->other_len, cur, end);
 }
 
 
@@ -4919,42 +3941,45 @@ std::shared_ptr<chen::dns::RR> TSIG::clone() const
     return std::make_shared<TSIG>(*this);
 }
 
-void TSIG::pack(std::vector<std::uint8_t> &out) const
+void TSIG::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->algorithm, true);
+    encoder.pack(this->time_signed);
+    encoder.pack(this->fudge);
+    encoder.pack(this->mac_size);
+    encoder.pack(this->mac, this->mac_size);
+    encoder.pack(this->original_id);
+    encoder.pack(this->error);
+    encoder.pack(this->other_len);
+    encoder.pack(this->other_data, this->other_len);
 
-        encoder::pack(this->algorithm, true, out);
-        encoder::pack(this->time_signed, out);
-        encoder::pack(this->fudge, out);
-        encoder::pack(this->mac_size, out);
-        encoder::pack(this->mac, this->mac_size, out);
-        encoder::pack(this->original_id, out);
-        encoder::pack(this->error, out);
-        encoder::pack(this->other_len, out);
-        encoder::pack(this->other_data, this->other_len, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void TSIG::unpack(const chen::json::object &object)
+void TSIG::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->algorithm, true);
+    decoder.unpack(this->time_signed);
+    decoder.unpack(this->fudge);
+    decoder.unpack(this->mac_size);
+    decoder.unpack(this->mac, this->mac_size);
+    decoder.unpack(this->original_id);
+    decoder.unpack(this->error);
+    decoder.unpack(this->other_len);
+    decoder.unpack(this->other_data, this->other_len);
+}
+
+void TSIG::decode(const chen::json::object &object)
+{
+    RR::decode(object);
 
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
 
@@ -4977,23 +4002,6 @@ void TSIG::unpack(const chen::json::object &object)
 
     std::string other_data = chen::map::find(object, "other_data", std::string());
     std::copy(other_data.begin(), other_data.end(), this->other_data.begin());
-}
-
-void TSIG::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                  std::vector<std::uint8_t>::const_iterator &cur,
-                  std::vector<std::uint8_t>::const_iterator &end,
-                  chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->algorithm, true, cache, beg, cur, end);
-    decoder::unpack(this->time_signed, cur, end);
-    decoder::unpack(this->fudge, cur, end);
-    decoder::unpack(this->mac_size, cur, end);
-    decoder::unpack(this->mac, this->mac_size, cur, end);
-    decoder::unpack(this->original_id, cur, end);
-    decoder::unpack(this->error, cur, end);
-    decoder::unpack(this->other_len, cur, end);
-    decoder::unpack(this->other_data, this->other_len, cur, end);
 }
 
 
@@ -5019,50 +4027,36 @@ std::shared_ptr<chen::dns::RR> URI::clone() const
     return std::make_shared<URI>(*this);
 }
 
-void URI::pack(std::vector<std::uint8_t> &out) const
+void URI::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->priority);
+    encoder.pack(this->weight);
+    encoder.pack(this->target, false);
 
-        encoder::pack(this->priority, out);
-        encoder::pack(this->weight, out);
-        encoder::pack(this->target, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void URI::unpack(const chen::json::object &object)
+void URI::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->priority);
+    decoder.unpack(this->weight);
+    decoder.unpack(this->target, false);
+}
+
+void URI::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->priority = chen::map::find(object, "priority", this->priority);
     this->weight   = chen::map::find(object, "weight", this->weight);
     this->target   = chen::map::find(object, "target", this->target);
-}
-
-void URI::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->priority, cur, end);
-    decoder::unpack(this->weight, cur, end);
-    decoder::unpack(this->target, false, cache, beg, cur, end);
 }
 
 
@@ -5088,50 +4082,36 @@ std::shared_ptr<chen::dns::RR> CAA::clone() const
     return std::make_shared<CAA>(*this);
 }
 
-void CAA::pack(std::vector<std::uint8_t> &out) const
+void CAA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->flags);
+    encoder.pack(this->tag, false);
+    encoder.pack(this->value, false);
 
-        encoder::pack(this->flags, out);
-        encoder::pack(this->tag, false, out);
-        encoder::pack(this->value, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void CAA::unpack(const chen::json::object &object)
+void CAA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->flags);
+    decoder.unpack(this->tag, false);
+    decoder.unpack(this->value, false);
+}
+
+void CAA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->flags = chen::map::find(object, "flags", this->flags);
     this->tag   = chen::map::find(object, "tag", this->tag);
     this->value = chen::map::find(object, "value", this->value);
-}
-
-void CAA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->flags, cur, end);
-    decoder::unpack(this->tag, false, cache, beg, cur, end);
-    decoder::unpack(this->value, false, cache, beg, cur, end);
 }
 
 
@@ -5158,53 +4138,39 @@ std::shared_ptr<chen::dns::RR> TA::clone() const
     return std::make_shared<TA>(*this);
 }
 
-void TA::pack(std::vector<std::uint8_t> &out) const
+void TA::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->digest_type, out);
-        encoder::pack(this->digest, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void TA::unpack(const chen::json::object &object)
+void TA::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
+}
+
+void TA::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
     this->digest      = chen::map::find(object, "digest", this->digest);
-}
-
-void TA::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                std::vector<std::uint8_t>::const_iterator &cur,
-                std::vector<std::uint8_t>::const_iterator &end,
-                chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }
 
 
@@ -5231,51 +4197,37 @@ std::shared_ptr<chen::dns::RR> DLV::clone() const
     return std::make_shared<DLV>(*this);
 }
 
-void DLV::pack(std::vector<std::uint8_t> &out) const
+void DLV::encode(chen::dns::encoder &encoder) const
 {
-    auto size = out.size();
+    // base
+    RR::encode(encoder);
 
-    try
-    {
-        // base
-        RR::pack(out);
+    // self
+    auto val = encoder.size();
 
-        // self
-        auto val = out.size();
+    encoder.pack(this->key_tag);
+    encoder.pack(this->algorithm);
+    encoder.pack(this->digest_type);
+    encoder.pack(this->digest, false);
 
-        encoder::pack(this->key_tag, out);
-        encoder::pack(this->algorithm, out);
-        encoder::pack(this->digest_type, out);
-        encoder::pack(this->digest, false, out);
-
-        // rdlength
-        this->adjust(out, out.size() - val);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
 }
 
-void DLV::unpack(const chen::json::object &object)
+void DLV::decode(chen::dns::decoder &decoder)
 {
-    RR::unpack(object);
+    RR::decode(decoder);
+    decoder.unpack(this->key_tag);
+    decoder.unpack(this->algorithm);
+    decoder.unpack(this->digest_type);
+    decoder.unpack(this->digest, false);
+}
+
+void DLV::decode(const chen::json::object &object)
+{
+    RR::decode(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
     this->digest      = chen::map::find(object, "digest", this->digest);
-}
-
-void DLV::unpack(std::vector<std::uint8_t>::const_iterator beg,
-                 std::vector<std::uint8_t>::const_iterator &cur,
-                 std::vector<std::uint8_t>::const_iterator &end,
-                 chen::dns::codec::cache_type &cache)
-{
-    RR::unpack(beg, cur, end, cache);
-    decoder::unpack(this->key_tag, cur, end);
-    decoder::unpack(this->algorithm, cur, end);
-    decoder::unpack(this->digest_type, cur, end);
-    decoder::unpack(this->digest, false, cache, beg, cur, end);
 }

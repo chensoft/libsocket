@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/dns/dns_header.hpp>
-#include <socket/dns/dns_codec.hpp>
 #include <socket/dns/dns_table.hpp>
 #include <chen/base/num.hpp>
 
@@ -181,78 +180,52 @@ void header::setRcode(chen::dns::RCODE value)
 }
 
 // codec
-std::vector<std::uint8_t> header::encode() const
+void header::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> out;
-    this->encode(out);
-    return out;
+    // id
+    encoder.pack(this->_id);
+
+    // flag
+    encoder.pack(this->_flag);
+
+    // question
+    encoder.pack(this->_qdcount);
+
+    // answer
+    encoder.pack(this->_ancount);
+
+    // authority
+    encoder.pack(this->_nscount);
+
+    // additional
+    encoder.pack(this->_arcount);
 }
 
-void header::encode(std::vector<std::uint8_t> &out) const
-{
-    auto size = out.size();
-
-    try
-    {
-        // id
-        encoder::pack(this->_id, out);
-
-        // flag
-        encoder::pack(this->_flag, out);
-
-        // question
-        encoder::pack(this->_qdcount, out);
-
-        // answer
-        encoder::pack(this->_ancount, out);
-
-        // authority
-        encoder::pack(this->_nscount, out);
-
-        // additional
-        encoder::pack(this->_arcount, out);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
-}
-
-void header::decode(const std::vector<std::uint8_t> &data)
-{
-    auto cur = data.begin();
-    auto end = data.end();
-    this->decode(cur, end);
-}
-
-void header::decode(std::vector<std::uint8_t>::const_iterator &cur,
-                    std::vector<std::uint8_t>::const_iterator &end)
+void header::decode(chen::dns::decoder &decoder)
 {
     // id
     std::uint16_t id = 0;
-    decoder::unpack(id, cur, end);
+    decoder.unpack(id);
 
     // flag
     std::uint16_t flag = 0;
-    decoder::unpack(flag, cur, end);
+    decoder.unpack(flag);
 
     // question
     std::uint16_t qdcount = 0;
-    decoder::unpack(qdcount, cur, end);
+    decoder.unpack(qdcount);
 
     // answer
     std::uint16_t ancount = 0;
-    decoder::unpack(ancount, cur, end);
+    decoder.unpack(ancount);
 
     // authority
     std::uint16_t nscount = 0;
-    decoder::unpack(nscount, cur, end);
+    decoder.unpack(nscount);
 
     // additional
     std::uint16_t arcount = 0;
-    decoder::unpack(arcount, cur, end);
+    decoder.unpack(arcount);
 
     // set
     this->_id      = id;
@@ -274,12 +247,8 @@ std::uint16_t header::random()
 // question
 question::question(const std::string &qname,
                    chen::dns::RRType qtype,
-                   chen::dns::RRClass qclass)
-: _qname(qname)
-, _qtype(qtype)
-, _qclass(qclass)
+                   chen::dns::RRClass qclass) : _qname(qname), _qtype(qtype), _qclass(qclass)
 {
-
 }
 
 // get filed value
@@ -320,62 +289,31 @@ void question::setQclass(chen::dns::RRClass value)
 }
 
 // codec
-std::vector<std::uint8_t> question::encode() const
+void question::encode(chen::dns::encoder &encoder) const
 {
-    std::vector<std::uint8_t> out;
-    this->encode(out);
-    return out;
+    // qname
+    encoder.pack(this->_qname, true);
+
+    // qtype
+    encoder.pack(this->_qtype);
+
+    // qclass
+    encoder.pack(this->_qclass);
 }
 
-void question::encode(std::vector<std::uint8_t> &out) const
-{
-    auto size = out.size();
-
-    try
-    {
-        // qname
-        encoder::pack(this->_qname, true, out);
-
-        // qtype
-        encoder::pack(this->_qtype, out);
-
-        // qclass
-        encoder::pack(this->_qclass, out);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
-}
-
-void question::decode(const std::vector<std::uint8_t> &data)
-{
-    auto cur = data.begin();
-    auto end = data.end();
-
-    chen::dns::codec::cache_type cache;
-
-    this->decode(cache, cur, cur, end);
-}
-
-void question::decode(chen::dns::codec::cache_type &cache,
-                      std::vector<std::uint8_t>::const_iterator beg,
-                      std::vector<std::uint8_t>::const_iterator &cur,
-                      std::vector<std::uint8_t>::const_iterator &end)
+void question::decode(chen::dns::decoder &decoder)
 {
     // qname
     std::string qname;
-    decoder::unpack(qname, true, cache, beg, cur, end);
+    decoder.unpack(qname, true);
 
     // qtype
     chen::dns::RRType qtype = chen::dns::RRType::None;
-    decoder::unpack(qtype, cur, end);
+    decoder.unpack(qtype);
 
     // qclass
     chen::dns::RRClass qclass = chen::dns::RRClass::IN;
-    decoder::unpack(qclass, cur, end);
+    decoder.unpack(qclass);
 
     // set
     this->_qname  = std::move(qname);

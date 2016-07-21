@@ -1,7 +1,7 @@
 /**
  * Created by Jian Chen
  * I'm very carefully to ensure that these rr's fields are accurate
- * It's whether signed or unsigned is according to its related rfc
+ * Field is whether signed or unsigned is according to its related rfc
  * @since  2015.11.27
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
@@ -11,10 +11,7 @@
 #include "dns_define.hpp"
 #include "dns_codec.hpp"
 #include <chen/data/json.hpp>
-#include <string>
-#include <vector>
 #include <memory>
-#include <array>
 
 namespace chen
 {
@@ -26,29 +23,20 @@ namespace chen
         {
         public:
             explicit RR(chen::dns::RRType type);
-            virtual ~RR() = 0;
+            virtual ~RR() = default;
 
         public:
             /**
-             * Encode
+             * Encode & Decode
              */
-            virtual std::vector<std::uint8_t> encode() const;
-            virtual void encode(std::vector<std::uint8_t> &out) const;
+            virtual void encode(chen::dns::encoder &encoder) const = 0;
+            virtual void decode(chen::dns::decoder &decoder) = 0;
+            virtual void decode(const chen::json::object &object) = 0;
 
             /**
-             * Decode, using json object
-             * @caution rdlength is not set if you use this method
+             * Create RR and detect its type automatically
              */
-            virtual void decode(const chen::json::object &object);
-
-            /**
-             * Decode, detect rr's type automatically
-             */
-            static std::shared_ptr<chen::dns::RR> decode(const std::vector<std::uint8_t> &data);
-            static std::shared_ptr<chen::dns::RR> decode(chen::dns::codec::cache_type &cache,
-                                                         std::vector<std::uint8_t>::const_iterator beg,
-                                                         std::vector<std::uint8_t>::const_iterator &cur,
-                                                         std::vector<std::uint8_t>::const_iterator &end);
+            static std::shared_ptr<chen::dns::RR> create(chen::dns::decoder &decoder);
 
         public:
             /**
@@ -63,38 +51,27 @@ namespace chen
 
         protected:
             /**
-             * Helper for encode & decode
-             */
-            virtual void pack(std::vector<std::uint8_t> &out) const = 0;
-            virtual void unpack(const chen::json::object &object) = 0;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) = 0;
-
-        protected:
-            /**
              * Set rdlength when finish encode
              */
-            virtual void adjust(std::vector<std::uint8_t> &out, std::size_t val) const;
+            void adjust(chen::dns::encoder &encoder, std::size_t val) const;
 
             /**
              * Check remain data when decode
              */
-            virtual std::size_t remain(std::vector<std::uint8_t>::const_iterator beg,
-                                       std::vector<std::uint8_t>::const_iterator &cur) const;
+            std::size_t remain(const chen::dns::codec::iterator &beg,
+                               const chen::dns::codec::iterator &cur) const;
 
             /**
              * Escape string, used in description
              */
-            virtual std::string escape(const std::string &text) const;
-            virtual std::string escape(std::size_t bits) const;
+            std::string escape(const std::string &text) const;
+            std::string escape(std::size_t bits) const;
 
         public:
             std::string name;
             chen::dns::RRType rrtype   = chen::dns::RRType::None;
             chen::dns::RRClass rrclass = chen::dns::RRClass::IN;
-            std::int32_t ttl = 0;  // rfc1035 says it's a 32 bit signed integer
+            std::int32_t ttl           = 0;  // rfc1035 says it's a 32 bit signed integer
 
         protected:
             // internal use only, will be set when call unpack method
@@ -104,7 +81,6 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // Custom RR
-        // ---------------------------------------------------------------------
         // ---------------------------------------------------------------------
         // Raw(raw resource record, with rdata)
         class Raw : public RR
@@ -117,13 +93,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::vector<std::uint8_t> rdata;
@@ -142,7 +115,6 @@ namespace chen
         // ---------------------------------------------------------------------
         // Standard RR
         // ---------------------------------------------------------------------
-        // ---------------------------------------------------------------------
         // A(rfc1035, section 3.4.1)
         class A : public RR
         {
@@ -153,13 +125,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint32_t address = 0;
@@ -177,13 +146,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string nsdname;
@@ -201,13 +167,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string madname;
@@ -225,13 +188,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string madname;
@@ -249,13 +209,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string cname;
@@ -273,13 +230,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string mname;  // primary nameserver
@@ -303,13 +257,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string madname;
@@ -327,13 +278,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string mgmname;
@@ -351,13 +299,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string newname;
@@ -375,13 +320,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::vector<std::uint8_t> anything;
@@ -399,13 +341,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint32_t address = 0;
@@ -425,13 +364,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string ptrdname;
@@ -449,13 +385,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string cpu;
@@ -474,13 +407,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string rmailbx;
@@ -499,13 +429,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::int16_t preference = 0;
@@ -524,13 +451,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string txt_data;
@@ -548,13 +472,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string mbox_dname;
@@ -573,13 +494,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::int16_t subtype = 0;
@@ -598,13 +516,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string psdn_address;
@@ -622,13 +537,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string isdn_address;
@@ -647,13 +559,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::int16_t preference = 0;
@@ -672,13 +581,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string nsap;
@@ -696,13 +602,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string owner;
@@ -720,13 +623,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -752,13 +652,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -779,13 +676,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::int16_t preference = 0;
@@ -805,13 +699,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string longitude;
@@ -831,13 +722,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::array<std::uint8_t, 16> address = {};
@@ -855,13 +743,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t version   = 0;
@@ -886,13 +771,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string next_domain;
@@ -911,13 +793,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string endpoint;
@@ -935,13 +814,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string locator;
@@ -959,13 +835,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t priority = 0;
@@ -986,13 +859,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t format = 0;
@@ -1011,13 +881,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t order = 0;
@@ -1040,13 +907,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1065,13 +929,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t type     = 0;
@@ -1101,13 +962,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string target;
@@ -1125,13 +983,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t coding    = 0;
@@ -1163,13 +1018,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1190,13 +1042,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t algorithm = 0;
@@ -1219,13 +1068,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t precedence   = 0;
@@ -1247,13 +1093,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t type_covered = 0;
@@ -1279,13 +1122,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string next_domain;
@@ -1304,13 +1144,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1331,13 +1168,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string digest;
@@ -1355,13 +1189,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -1386,13 +1217,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t hash        = 0;
@@ -1414,13 +1242,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -1441,13 +1266,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t usage         = 0;
@@ -1468,13 +1290,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t hit_length   = 0;
@@ -1497,13 +1316,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string zs_data;
@@ -1521,13 +1337,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1548,13 +1361,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string previous_name;
@@ -1573,13 +1383,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -1600,13 +1407,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t flags    = 0;
@@ -1627,13 +1431,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string publickey;
@@ -1651,13 +1452,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint32_t serial = 0;
@@ -1677,13 +1475,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string txt;
@@ -1749,13 +1544,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1774,13 +1566,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1799,13 +1588,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1824,13 +1610,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t preference = 0;
@@ -1849,13 +1632,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::array<std::uint8_t, 6> address = {};
@@ -1873,13 +1653,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint64_t address = 0;
@@ -1897,13 +1674,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string algorithm;
@@ -1929,13 +1703,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::string algorithm;
@@ -1961,13 +1732,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t priority = 0;
@@ -1987,13 +1755,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint8_t flags = 0;
@@ -2013,13 +1778,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t key_tag    = 0;
@@ -2040,13 +1802,10 @@ namespace chen
             virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
 
-        protected:
-            virtual void pack(std::vector<std::uint8_t> &out) const override;
-            virtual void unpack(const chen::json::object &object) override;
-            virtual void unpack(std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end,
-                                chen::dns::codec::cache_type &cache) override;
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
 
         public:
             std::uint16_t key_tag    = 0;

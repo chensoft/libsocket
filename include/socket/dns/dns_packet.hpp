@@ -7,7 +7,6 @@
 #pragma once
 
 #include "dns_header.hpp"
-#include <vector>
 #include <memory>
 
 namespace chen
@@ -39,14 +38,8 @@ namespace chen
             /**
              * Encode & Decode
              */
-            virtual std::vector<std::uint8_t> encode() const;
-            virtual void encode(std::vector<std::uint8_t> &out) const;
-
-            virtual void decode(const std::vector<std::uint8_t> &data);
-            virtual void decode(chen::dns::codec::cache_type &cache,
-                                std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end);
+            virtual void encode(chen::dns::encoder &encoder) const;
+            virtual void decode(chen::dns::decoder &decoder);
 
         protected:
             chen::dns::header _header;
@@ -91,18 +84,12 @@ namespace chen
             /**
              * Encode & Decode
              */
-            virtual std::vector<std::uint8_t> encode() const override;
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
+            virtual std::vector<std::uint8_t> encode() const;
+            virtual void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end,
+                                const std::string &addr = "", std::uint16_t port = 0);
 
-            using message::decode;
-
-            virtual void decode(const std::vector<std::uint8_t> &data,
-                                const std::string &addr,
-                                std::uint16_t port);
-            virtual void decode(chen::dns::codec::cache_type &cache,
-                                std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         protected:
             // client address info, empty if not set
@@ -135,7 +122,7 @@ namespace chen
             void addAnswer(std::shared_ptr<chen::dns::RR> value);
             void addAuthority(std::shared_ptr<chen::dns::RR> value);
             void addAdditional(std::shared_ptr<chen::dns::RR> value);
-            
+
         public:
             /**
              * Get field value
@@ -171,15 +158,11 @@ namespace chen
             /**
              * Encode & Decode
              */
-            virtual std::vector<std::uint8_t> encode() const override;
-            virtual void encode(std::vector<std::uint8_t> &out) const override;
+            virtual std::vector<std::uint8_t> encode() const;
+            virtual void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end);
 
-            using message::decode;
-
-            virtual void decode(chen::dns::codec::cache_type &cache,
-                                std::vector<std::uint8_t>::const_iterator beg,
-                                std::vector<std::uint8_t>::const_iterator &cur,
-                                std::vector<std::uint8_t>::const_iterator &end) override;
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
 
         protected:
             q_type  _question;

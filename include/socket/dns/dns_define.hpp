@@ -18,7 +18,8 @@ namespace chen
     {
         // ---------------------------------------------------------------------
         // QR Code, 1 bit(Query or Response)
-        enum class QR : std::uint8_t {
+        enum class QR : std::uint8_t
+        {
             Query    = 0,  // query message
             Response = 1   // response message
         };
@@ -26,7 +27,8 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPCODE, 4 bit, kind of query in the message(Operation Code)
-        enum class OPCODE : std::uint8_t {
+        enum class OPCODE : std::uint8_t
+        {
             Query  = 0,  // rfc1035, a standard query
             IQuery = 1,  // rfc3425, an inverse query(OBSOLETE)
             Status = 2,  // rfc1035, a server status request
@@ -48,7 +50,8 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RCODE, 4 bit(Response Code)
-        enum class RCODE : std::uint8_t {
+        enum class RCODE : std::uint8_t
+        {
             NoError   = 0,   // rfc1035, no error
             FormErr   = 1,   // rfc1035, unable to interpret the query
             ServFail  = 2,   // rfc1035, unable to process this query due to a problem with the name server
@@ -99,7 +102,8 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RRType(common rr types and question types)
-        enum class RRType : std::uint16_t {
+        enum class RRType : std::uint16_t
+        {
             None       = 0,    // none
             A          = 1,    // rfc1035, section 3.4.1, a host address
             NS         = 2,    // rfc1035, section 3.3.11, an authoritative name server
@@ -191,7 +195,8 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RRClass(common rr class and question class)
-        enum class RRClass : std::uint16_t {
+        enum class RRClass : std::uint16_t
+        {
             IN = 1,  // rfc1035, the Internet
             CS = 2,  // rfc1035, the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
             CH = 3,  // rfc1035, the CHAOS class

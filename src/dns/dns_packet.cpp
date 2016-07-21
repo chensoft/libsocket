@@ -36,32 +36,14 @@ void message::setHeader(const chen::dns::header &value)
 }
 
 // codec
-std::vector<std::uint8_t> message::encode() const
+void message::encode(chen::dns::encoder &encoder) const
 {
-    return this->_header.encode();
+    this->_header.encode(encoder);
 }
 
-void message::encode(std::vector<std::uint8_t> &out) const
+void message::decode(chen::dns::decoder &decoder)
 {
-    this->_header.encode(out);
-}
-
-void message::decode(const std::vector<std::uint8_t> &data)
-{
-    auto cur = data.begin();
-    auto end = data.end();
-
-    chen::dns::codec::cache_type cache;
-
-    this->decode(cache, cur, cur, end);
-}
-
-void message::decode(chen::dns::codec::cache_type &cache,
-                     std::vector<std::uint8_t>::const_iterator beg,
-                     std::vector<std::uint8_t>::const_iterator &cur,
-                     std::vector<std::uint8_t>::const_iterator &end)
-{
-    this->_header.decode(cur, end);
+    this->_header.decode(decoder);
 }
 
 
@@ -149,47 +131,34 @@ void request::setPort(std::uint16_t port)
 // codec
 std::vector<std::uint8_t> request::encode() const
 {
-    std::vector<std::uint8_t> out;
-    this->encode(out);
-    return out;
+    chen::dns::encoder encoder;
+    this->encode(encoder);
+    return encoder.data();
 }
 
-void request::encode(std::vector<std::uint8_t> &out) const
+void request::decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end,
+                     const std::string &addr, std::uint16_t port)
 {
-    auto size = out.size();
+    chen::dns::decoder decoder(beg, end);
+    this->decode(decoder);
 
-    try
-    {
-        // header
-        message::encode(out);
-
-        // question
-        this->_question.encode(out);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
-}
-
-void request::decode(const std::vector<std::uint8_t> &data,
-                     const std::string &addr,
-                     std::uint16_t port)
-{
-    message::decode(data);
     this->setAddr(addr);
     this->setPort(port);
 }
 
-void request::decode(chen::dns::codec::cache_type &cache,
-                     std::vector<std::uint8_t>::const_iterator beg,
-                     std::vector<std::uint8_t>::const_iterator &cur,
-                     std::vector<std::uint8_t>::const_iterator &end)
+void request::encode(chen::dns::encoder &encoder) const
 {
-    message::decode(cache, beg, cur, end);
-    this->_question.decode(cache, beg, cur, end);
+    // header
+    message::encode(encoder);
+
+    // question
+    this->_question.encode(encoder);
+}
+
+void request::decode(chen::dns::decoder &decoder)
+{
+    message::decode(decoder);
+    this->_question.decode(decoder);
 }
 
 
@@ -327,51 +296,43 @@ void response::rotate()
 // codec
 std::vector<std::uint8_t> response::encode() const
 {
-    std::vector<std::uint8_t> out;
-    this->encode(out);
-    return out;
+    chen::dns::encoder encoder;
+    this->encode(encoder);
+    return encoder.data();
 }
 
-void response::encode(std::vector<std::uint8_t> &out) const
+void response::decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end)
 {
-    auto size = out.size();
-
-    try
-    {
-        // header
-        message::encode(out);
-
-        // question
-        for (auto &val : this->_question)
-            val.encode(out);
-
-        // answer
-        for (auto &val : this->_answer)
-            val->encode(out);
-
-        // authority
-        for (auto &val : this->_authority)
-            val->encode(out);
-
-        // additional
-        for (auto &val : this->_additional)
-            val->encode(out);
-    }
-    catch (...)
-    {
-        // restore
-        out.erase(out.begin() + size, out.end());
-        throw;
-    }
+    chen::dns::decoder decoder(beg, end);
+    this->decode(decoder);
 }
 
-void response::decode(chen::dns::codec::cache_type &cache,
-                      std::vector<std::uint8_t>::const_iterator beg,
-                      std::vector<std::uint8_t>::const_iterator &cur,
-                      std::vector<std::uint8_t>::const_iterator &end)
+void response::encode(chen::dns::encoder &encoder) const
 {
     // header
-    message::decode(cache, beg, cur, end);
+    message::encode(encoder);
+
+    // question
+    for (auto &val : this->_question)
+        val.encode(encoder);
+
+    // answer
+    for (auto &val : this->_answer)
+        val->encode(encoder);
+
+    // authority
+    for (auto &val : this->_authority)
+        val->encode(encoder);
+
+    // additional
+    for (auto &val : this->_additional)
+        val->encode(encoder);
+}
+
+void response::decode(chen::dns::decoder &decoder)
+{
+    // header
+    message::decode(decoder);
 
     // question
     this->_question.clear();
@@ -379,7 +340,7 @@ void response::decode(chen::dns::codec::cache_type &cache,
     for (std::uint16_t i = 0, len = this->_header.qdcount(); i < len; ++i)
     {
         chen::dns::question q;
-        q.decode(cache, beg, cur, end);
+        q.decode(decoder);
 
         this->_question.emplace_back(q);
     }
@@ -389,7 +350,7 @@ void response::decode(chen::dns::codec::cache_type &cache,
 
     for (std::uint16_t i = 0, len = this->_header.ancount(); i < len; ++i)
     {
-        this->_answer.emplace_back(chen::dns::RR::decode(cache, beg, cur, end));
+        this->_answer.emplace_back(chen::dns::RR::create(decoder));
     }
 
     // authority
@@ -397,7 +358,7 @@ void response::decode(chen::dns::codec::cache_type &cache,
 
     for (std::uint16_t i = 0, len = this->_header.nscount(); i < len; ++i)
     {
-        this->_authority.emplace_back(chen::dns::RR::decode(cache, beg, cur, end));
+        this->_authority.emplace_back(chen::dns::RR::create(decoder));
     }
 
     // additional
@@ -405,6 +366,6 @@ void response::decode(chen::dns::codec::cache_type &cache,
 
     for (std::uint16_t i = 0, len = this->_header.arcount(); i < len; ++i)
     {
-        this->_additional.emplace_back(chen::dns::RR::decode(cache, beg, cur, end));
+        this->_additional.emplace_back(chen::dns::RR::create(decoder));
     }
 }

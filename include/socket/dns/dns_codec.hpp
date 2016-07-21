@@ -8,6 +8,7 @@
 
 #include "dns_define.hpp"
 #include "dns_error.hpp"
+#include <chen/base/iterator.hpp>
 #include <chen/base/str.hpp>
 #include <vector>
 #include <array>
@@ -22,7 +23,7 @@ namespace chen
         class codec
         {
         public:
-            typedef std::map<std::size_t, std::string> cache_type;  // compression cache type
+            typedef chen::forward_iterator<const std::uint8_t, const std::uint8_t> iterator;
 
         public:
             virtual ~codec() = 0;
@@ -43,26 +44,47 @@ namespace chen
         {
         public:
             /**
+             * Property
+             */
+            const std::vector<std::uint8_t>& data() const;
+            std::size_t size() const;
+
+            /**
+             * Reset state
+             */
+            void reset();
+
+        public:
+            /**
+             * Change specific byte
+             */
+            void change(std::size_t pos, std::uint8_t byte);
+
+        public:
+            /**
              * Pack data
              */
-            static void pack(std::int8_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::int16_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::int32_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::int64_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::uint8_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::uint16_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::uint32_t val, std::vector<std::uint8_t> &out);
-            static void pack(std::uint64_t val, std::vector<std::uint8_t> &out);
-            static void pack(chen::dns::RRType val, std::vector<std::uint8_t> &out);
-            static void pack(chen::dns::RRClass val, std::vector<std::uint8_t> &out);
-            static void pack(const std::string &val, bool domain, std::vector<std::uint8_t> &out);
-            static void pack(const std::vector<std::uint8_t> &val, std::size_t need, std::vector<std::uint8_t> &out);
+            void pack(std::int8_t val);
+            void pack(std::int16_t val);
+            void pack(std::int32_t val);
+            void pack(std::int64_t val);
+            void pack(std::uint8_t val);
+            void pack(std::uint16_t val);
+            void pack(std::uint32_t val);
+            void pack(std::uint64_t val);
+            void pack(chen::dns::RRType val);
+            void pack(chen::dns::RRClass val);
+            void pack(const std::string &val, bool domain);
+            void pack(const std::vector<std::uint8_t> &val, std::size_t need);
 
             template <std::size_t Size>
-            static void pack(const std::array<std::uint8_t, Size> &val, std::vector<std::uint8_t> &out)
+            void pack(const std::array<std::uint8_t, Size> &val)
             {
-                out.insert(out.end(), val.begin(), val.end());
+                this->_data.insert(this->_data.end(), val.begin(), val.end());
             }
+
+        protected:
+            std::vector<std::uint8_t> _data;
         };
 
 
@@ -71,35 +93,62 @@ namespace chen
         class decoder : public codec
         {
         public:
-            typedef std::vector<std::uint8_t>::const_iterator const_iterator;
+            /**
+             * Ensure the iterator is valid during decoding
+             */
+            decoder(iterator beg, iterator end);
+
+        public:
+            /**
+             * Property
+             */
+            const decoder::iterator& beg() const;
+            const decoder::iterator& cur() const;
+            const decoder::iterator& end() const;
+
+            const std::map<std::size_t, std::string>& cache() const;
+
+            /**
+             * Reset state
+             */
+            void reset();
 
         public:
             /**
              * Unpack data
              */
-            static void unpack(std::int8_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::int16_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::int32_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::int64_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::uint8_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::uint16_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::uint32_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::uint64_t &val, const_iterator &cur, const_iterator &end);
-            static void unpack(chen::dns::RRType &val, const_iterator &cur, const_iterator &end);
-            static void unpack(chen::dns::RRClass &val, const_iterator &cur, const_iterator &end);
-            static void unpack(std::string &val, bool domain, cache_type &cache, const_iterator &beg, const_iterator &cur, const_iterator &end);
-            static void unpack(std::vector<std::uint8_t> &val, std::size_t need, const_iterator &cur, const_iterator &end);
+            void unpack(std::int8_t &val);
+            void unpack(std::int16_t &val);
+            void unpack(std::int32_t &val);
+            void unpack(std::int64_t &val);
+            void unpack(std::uint8_t &val);
+            void unpack(std::uint16_t &val);
+            void unpack(std::uint32_t &val);
+            void unpack(std::uint64_t &val);
+            void unpack(chen::dns::RRType &val);
+            void unpack(chen::dns::RRClass &val);
+            void unpack(std::string &val, bool domain);
+            void unpack(std::vector<std::uint8_t> &val, std::size_t need);
 
             template <std::size_t Size>
-            static void unpack(std::array<std::uint8_t, Size> &val, const_iterator &cur, const_iterator &end)
+            void unpack(std::array<std::uint8_t, Size> &val)
             {
                 auto need = val.size();
-                if (end - cur < need)
+                if (std::distance(this->_cur, this->_end) < need)
                     throw error_size(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
 
-                std::copy(cur, cur + need, val.begin());
-                cur += need;
+                auto from = this->_cur;
+
+                std::advance(this->_cur, need);
+                std::copy(from, this->_cur, val.begin());
             }
+
+        protected:
+            iterator _beg;
+            iterator _cur;
+            iterator _end;
+
+            std::map<std::size_t, std::string> _cache;  // compression cache
         };
     }
 }
