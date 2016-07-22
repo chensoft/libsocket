@@ -173,7 +173,6 @@ void header::setCheckingDisabled(bool value)
     this->_flag = (this->_flag & ~FLAG_MASK_CD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_CD) & FLAG_MASK_CD);
 }
 
-
 void header::setRcode(chen::dns::RCODE value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_RCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE);
