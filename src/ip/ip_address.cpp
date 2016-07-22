@@ -7,6 +7,8 @@
 #include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
+#include <algorithm>
+#include <bitset>
 
 using namespace chen;
 using namespace chen::ip;
