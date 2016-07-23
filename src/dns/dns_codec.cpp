@@ -34,6 +34,12 @@ std::string codec::fqdn(const std::string &name)
     return codec::fqdn(temp);
 }
 
+// pqdn
+bool codec::isPqdn(const std::string &name, const std::string &fqdn)
+{
+    return !codec::isFqdn(name) && codec::isFqdn(fqdn) && str::prefix(fqdn, name);
+}
+
 
 // -----------------------------------------------------------------------------
 // encoder

@@ -35,6 +35,11 @@ namespace chen
             static bool isFqdn(const std::string &name);
             static std::string& fqdn(std::string &name);
             static std::string fqdn(const std::string &name);
+
+            /**
+             * Partially qualified domain name detection
+             */
+            static bool isPqdn(const std::string &name, const std::string &fqdn);
         };
 
 
