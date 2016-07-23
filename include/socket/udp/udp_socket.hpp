@@ -28,9 +28,9 @@ namespace chen
             /**
              * Send packet to remote
              */
-            virtual void send(const void *data, std::size_t size,
-                              const std::string &addr, std::uint16_t port,
-                              float timeout = 0);
+            void send(const void *data, std::size_t size,
+                      const std::string &addr, std::uint16_t port,
+                      float timeout = 0);
 
             /**
              * Recv packet from remote
@@ -39,9 +39,9 @@ namespace chen
              * @param port remote port
              * @result received length
              */
-            virtual std::size_t recv(void *data, std::size_t size,
-                                     std::string &addr, std::uint16_t &port,
-                                     float timeout = 0);
+            std::size_t recv(void *data, std::size_t size,
+                             std::string &addr, std::uint16_t &port,
+                             float timeout = 0);
         };
     }
 }

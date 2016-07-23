@@ -26,48 +26,48 @@ namespace chen
             /**
              * Start the server
              */
-            virtual void start();
-            virtual void start(const std::string &addr, std::uint16_t port);
+            void start();
+            void start(const std::string &addr, std::uint16_t port);
 
             /**
              * Stop the server
              */
-            virtual void stop();
+            void stop();
 
         public:
             /**
              * Set observer for server
              */
-            virtual void attach(callback_type callback);
+            void attach(callback_type callback);
 
             /**
              * Set observer to empty
              */
-            virtual void detach();
+            void detach();
 
             /**
              * Notify the observer
              */
-            virtual void notify(std::shared_ptr<chen::tcp::conn> conn);
+            void notify(std::shared_ptr<chen::tcp::conn> conn);
 
         public:
             /**
              * Bind socket to specific port
              * use `start` method is more convenient
              */
-            virtual void bind(const std::string &addr, std::uint16_t port);
+            void bind(const std::string &addr, std::uint16_t port);
 
             /**
              * Listen on the socket
              * use `start` method is more convenient
              */
-            virtual void listen();
+            void listen();
 
             /**
              * Accept new connection
              * use `start` method is more convenient
              */
-            virtual std::shared_ptr<chen::tcp::conn> accept(float timeout = 0);
+            std::shared_ptr<chen::tcp::conn> accept(float timeout = 0);
 
         protected:
             callback_type _callback;

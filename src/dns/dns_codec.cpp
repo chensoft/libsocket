@@ -11,9 +11,6 @@ using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // codec
-codec::~codec()
-{
-}
 
 // fqdn
 bool codec::isFqdn(const std::string &name)

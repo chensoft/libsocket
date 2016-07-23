@@ -391,7 +391,7 @@ namespace chen
             return !(*this == o);
         }
 
-        Distance distance() const
+        difference_type distance() const
         {
             // since input iterator is single-pass, we can't use std::distance on it
             // however, in some cases we want to know input iterator's position, so I add this method

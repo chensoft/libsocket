@@ -127,7 +127,7 @@ namespace chen
             /**
              * Text description
              */
-            virtual std::string str(const std::string &sep = " ") const;
+            std::string str(const std::string &sep = " ") const;
 
         private:
             std::string _qname;

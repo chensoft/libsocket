@@ -16,7 +16,6 @@ namespace chen
         {
         public:
             explicit conn(void *so);
-            virtual ~conn();
         };
     }
 }

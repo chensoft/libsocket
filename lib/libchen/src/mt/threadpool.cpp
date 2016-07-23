@@ -11,8 +11,7 @@ using namespace chen;
 
 // ------------------------------------------------------------------
 // threadpool
-threadpool::threadpool(std::size_t count)
-: _exit(false)
+threadpool::threadpool(std::size_t count) : _exit(false)
 {
     if (!count)
         count = std::max(1u, std::thread::hardware_concurrency());

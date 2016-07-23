@@ -43,25 +43,25 @@ namespace chen
             /**
              * Close socket
              */
-            virtual void close();
+            void close();
 
             /**
              * Shutdown socket
              */
-            virtual void shutdown(Shutdown flag = Shutdown::Both);
+            void shutdown(Shutdown flag = Shutdown::Both);
 
         public:
             /**
              * Remote server info
              */
-            virtual std::string   remoteAddr() const;
-            virtual std::uint16_t remotePort() const;
+            std::string   remoteAddr() const;
+            std::uint16_t remotePort() const;
 
             /**
              * Local client info
              */
-            virtual std::string   localAddr() const;
-            virtual std::uint16_t localPort() const;
+            std::string   localAddr() const;
+            std::uint16_t localPort() const;
 
         protected:
             /**

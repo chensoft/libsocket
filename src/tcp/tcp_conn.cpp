@@ -11,13 +11,6 @@ using namespace chen::tcp;
 
 // -----------------------------------------------------------------------------
 // conn
-conn::conn(void *so)
-: socket(so)
+conn::conn(void *so) : socket(so)
 {
-
-}
-
-conn::~conn()
-{
-
 }

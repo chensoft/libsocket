@@ -28,38 +28,38 @@ namespace chen
             /**
              * Start the server
              */
-            virtual void start();
-            virtual void start(const std::string &addr, std::uint16_t port);
+            void start();
+            void start(const std::string &addr, std::uint16_t port);
 
             /**
              * Stop the server
              */
-            virtual void stop();
+            void stop();
 
         public:
             /**
              * Set observer for server
              */
-            virtual void attach(callback_type callback);
+            void attach(callback_type callback);
 
             /**
              * Set observer to empty
              */
-            virtual void detach();
+            void detach();
 
             /**
              * Notify the observer
              */
-            virtual void notify(std::vector<std::uint8_t> data,
-                                std::string addr,
-                                std::uint16_t port);
+            void notify(std::vector<std::uint8_t> data,
+                        std::string addr,
+                        std::uint16_t port);
 
         public:
             /**
              * Bind socket to specific port
              * use `start` method is more convenient
              */
-            virtual void bind(const std::string &addr, std::uint16_t port);
+            void bind(const std::string &addr, std::uint16_t port);
 
         protected:
             callback_type _callback;

@@ -101,30 +101,30 @@ namespace chen
          * Limit log level
          * log below this level will not be output
          */
-        virtual void limit(chen::log::Level level);
+        void limit(chen::log::Level level);
 
         /**
          * Get log level
          */
-        virtual chen::log::Level level() const;
+        chen::log::Level level() const;
 
     public:
         /**
          * Promote current logger to the default
          */
-        virtual void promote();
+        void promote();
 
         /**
          * Restore to standard logger
          */
-        virtual void demote();
+        void demote();
 
     protected:
         /**
          * Format output
          */
         virtual std::string format(const std::string &text, chen::log::Level level);
-        
+
         /**
          * Final output
          */

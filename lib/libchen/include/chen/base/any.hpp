@@ -30,20 +30,17 @@ namespace chen
         }
 
         template <typename T>
-        any(T &val)
-        : _ptr(new data<typename std::decay<T>::type>(val))
+        any(T &val) : _ptr(new data<typename std::decay<T>::type>(val))
         {
         }
 
         template <typename T>
-        any(const T &val)
-        : _ptr(new data<typename std::remove_cv<typename std::decay<const T>::type>::type>(val))
+        any(const T &val) : _ptr(new data<typename std::remove_cv<typename std::decay<const T>::type>::type>(val))
         {
         }
 
         template <typename T>
-        any(T &&val)
-        : _ptr(new data<typename std::decay<T>::type>(std::move(val)))
+        any(T &&val) : _ptr(new data<typename std::decay<T>::type>(std::move(val)))
         {
         }
 

@@ -67,73 +67,61 @@ json::json(json &&o)
     *this = std::move(o);
 }
 
-json::json(const chen::json::object &v)
-: _type(Type::Object)
+json::json(const chen::json::object &v) : _type(Type::Object)
 {
     this->_data.o = new chen::json::object(v);
 }
 
-json::json(chen::json::object &&v)
-: _type(Type::Object)
+json::json(chen::json::object &&v) : _type(Type::Object)
 {
     this->_data.o = new chen::json::object(std::move(v));
 }
 
-json::json(const chen::json::array &v)
-: _type(Type::Array)
+json::json(const chen::json::array &v) : _type(Type::Array)
 {
     this->_data.a = new chen::json::array(v);
 }
 
-json::json(chen::json::array &&v)
-: _type(Type::Array)
+json::json(chen::json::array &&v) : _type(Type::Array)
 {
     this->_data.a = new chen::json::array(std::move(v));
 }
 
-json::json(double v)
-: _type(Type::Number)
+json::json(double v) : _type(Type::Number)
 {
     this->_data.d = v;
 }
 
-json::json(std::int32_t v)
-: _type(Type::Number)
+json::json(std::int32_t v) : _type(Type::Number)
 {
     this->_data.d = v;
 }
 
-json::json(std::uint32_t v)
-: _type(Type::Number)
+json::json(std::uint32_t v) : _type(Type::Number)
 {
     this->_data.d = v;
 }
 
-json::json(const std::string &v)
-: _type(Type::String)
+json::json(const std::string &v) : _type(Type::String)
 {
     this->_data.s = new std::string(v);
 }
 
-json::json(std::string &&v)
-: _type(Type::String)
+json::json(std::string &&v) : _type(Type::String)
 {
     this->_data.s = new std::string(std::move(v));
 }
 
-json::json(const char *v)
-: _type(Type::String)
+json::json(const char *v) : _type(Type::String)
 {
     this->_data.s = new std::string(v);
 }
 
-json::json(bool v)
-: _type(v ? Type::True : Type::False)
+json::json(bool v) : _type(v ? Type::True : Type::False)
 {
 }
 
-json::json(std::nullptr_t)
-: _type(Type::Null)
+json::json(std::nullptr_t) : _type(Type::Null)
 {
 
 }

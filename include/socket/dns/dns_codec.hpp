@@ -26,9 +26,6 @@ namespace chen
             typedef chen::forward_iterator<const std::uint8_t, const std::uint8_t> iterator;
 
         public:
-            virtual ~codec() = 0;
-
-        public:
             /**
              * Fully qualified domain name detection
              */

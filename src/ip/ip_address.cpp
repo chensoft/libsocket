@@ -81,8 +81,7 @@ bool address::operator>=(const address &o) const
 
 // -----------------------------------------------------------------------------
 // address_v4
-address_v4::address_v4()
-: _cidr(32)
+address_v4::address_v4() : _cidr(32)
 {
 }
 
@@ -91,36 +90,27 @@ address_v4::address_v4(const std::string &addr)
     this->_addr = address_v4::toInteger(addr, this->_cidr);
 }
 
-address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
-: _addr(address_v4::toInteger(addr))
-, _cidr(cidr)
+address_v4::address_v4(const std::string &addr, std::uint8_t cidr) : _addr(address_v4::toInteger(addr)), _cidr(cidr)
 {
     if (this->_cidr > 32)
         throw address::error("ipv4: CIDR prefix must less than 32");
 }
 
-address_v4::address_v4(const std::string &addr, const std::string &mask)
-: _addr(address_v4::toInteger(addr))
-, _cidr(static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count()))
+address_v4::address_v4(const std::string &addr, const std::string &mask) : _addr(address_v4::toInteger(addr)), _cidr(static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count()))
 {
 }
 
-address_v4::address_v4(std::uint32_t addr)
-: address_v4(addr, 32)
+address_v4::address_v4(std::uint32_t addr) : address_v4(addr, 32)
 {
 }
 
-address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
-: _addr(addr)
-, _cidr(cidr)
+address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr) : _addr(addr), _cidr(cidr)
 {
     if (this->_cidr > 32)
         throw address::error("ipv4: CIDR prefix must less than 32");
 }
 
-address_v4::address_v4(std::uint32_t addr, const std::string &mask)
-: _addr(addr)
-, _cidr(static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count()))
+address_v4::address_v4(std::uint32_t addr, const std::string &mask) : _addr(addr), _cidr(static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count()))
 {
 }
 
@@ -449,8 +439,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
 
 // -----------------------------------------------------------------------------
 // address_v6
-address_v6::address_v6()
-: _cidr(128)
+address_v6::address_v6() : _cidr(128)
 {
 }
 
@@ -459,22 +448,17 @@ address_v6::address_v6(const std::string &addr)
     this->_addr = address_v6::toBytes(addr, this->_cidr);
 }
 
-address_v6::address_v6(const std::string &addr, std::uint8_t cidr)
-: _addr(address_v6::toBytes(addr))
-, _cidr(cidr)
+address_v6::address_v6(const std::string &addr, std::uint8_t cidr) : _addr(address_v6::toBytes(addr)), _cidr(cidr)
 {
     if (this->_cidr > 128)
         throw address::error("ipv6: CIDR prefix must less than 128");
 }
 
-address_v6::address_v6(const std::array<std::uint8_t, 16> &addr)
-: address_v6(addr, 128)
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr) : address_v6(addr, 128)
 {
 }
 
-address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
-: _addr(addr)
-, _cidr(cidr)
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr) : _addr(addr), _cidr(cidr)
 {
     if (this->_cidr > 128)
         throw address::error("ipv6: CIDR prefix must less than 128");

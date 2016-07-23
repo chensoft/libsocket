@@ -15,8 +15,7 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // cmd
-cmd::cmd(const std::string &app)
-: _app(app)
+cmd::cmd(const std::string &app) : _app(app)
 {
     // create root action
     this->create("", "");

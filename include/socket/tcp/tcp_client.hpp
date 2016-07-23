@@ -22,41 +22,41 @@ namespace chen
              * Connect to remote server
              * @result true if connected, false if timeout, exception if occur error
              */
-            virtual bool connect(const std::string &addr, std::uint16_t port, float timeout = 0);
+            bool connect(const std::string &addr, std::uint16_t port, float timeout = 0);
 
             /**
              * Reconnect use last remote info
              */
-            virtual bool reconnect(float timeout = 0);
+            bool reconnect(float timeout = 0);
 
             /**
              * Shutdown and close
              */
-            virtual void disconnect();
+            void disconnect();
 
         public:
             /**
              * Recent connected remote address and port
              */
-            virtual std::string   recentAddr() const;
-            virtual std::uint16_t recentPort() const;
+            std::string   recentAddr() const;
+            std::uint16_t recentPort() const;
 
             /**
              * Is connected
              */
-            virtual bool isConnected() const;
+            bool isConnected() const;
 
             /**
              * Is blocking or non-blocking
              */
-            virtual bool isBlocking() const;
-            virtual bool isNonBlocking() const;
+            bool isBlocking() const;
+            bool isNonBlocking() const;
 
         public:
             /**
              * Close socket
              */
-            virtual void close() override;
+            void close();
 
         protected:
             std::string   _recent_addr;

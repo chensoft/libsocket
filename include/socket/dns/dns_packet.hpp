@@ -84,9 +84,9 @@ namespace chen
             /**
              * Encode & Decode
              */
-            virtual std::vector<std::uint8_t> encode() const;
-            virtual void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end,
-                                const std::string &addr = "", std::uint16_t port = 0);
+            std::vector<std::uint8_t> encode() const;
+            void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end,
+                        const std::string &addr = "", std::uint16_t port = 0);
 
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
@@ -158,8 +158,8 @@ namespace chen
             /**
              * Encode & Decode
              */
-            virtual std::vector<std::uint8_t> encode() const;
-            virtual void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end);
+            std::vector<std::uint8_t> encode() const;
+            void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end);
 
             virtual void encode(chen::dns::encoder &encoder) const override;
             virtual void decode(chen::dns::decoder &decoder) override;
