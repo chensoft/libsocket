@@ -11,6 +11,9 @@ TEST(IPAddressTest, Base)
 {
     auto ptr = chen::ip::address::create("127.0.0.1");
 
+    EXPECT_TRUE(chen::ip::address::isIPv4("127.0.0.1"));
+    EXPECT_FALSE(chen::ip::address::isIPv6("127.0.0.1"));
+
     EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
     EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
     EXPECT_EQ("127.0.0.1", ptr->str());
@@ -26,6 +29,9 @@ TEST(IPAddressTest, Base)
     EXPECT_EQ(nullptr, ptr->v6());
 
     ptr = chen::ip::address::create("2404:6800:4004:817::200e");
+
+    EXPECT_TRUE(chen::ip::address::isIPv6("2404:6800:4004:817::200e"));
+    EXPECT_FALSE(chen::ip::address::isIPv4("2404:6800:4004:817::200e"));
 
     EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
     EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));

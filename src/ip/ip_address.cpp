@@ -38,18 +38,28 @@ address_v6* address::v6()
 // create
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr)
 {
-    if (chen::str::contain(addr, ":"))
-        return std::make_shared<chen::ip::address_v6>(addr);
-    else
+    if (address::isIPv4(addr))
         return std::make_shared<chen::ip::address_v4>(addr);
+    else
+        return std::make_shared<chen::ip::address_v6>(addr);
 }
 
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr, std::uint8_t cidr)
 {
-    if (chen::str::contain(addr, ":"))
-        return std::make_shared<chen::ip::address_v6>(addr, cidr);
-    else
+    if (address::isIPv4(addr))
         return std::make_shared<chen::ip::address_v4>(addr, cidr);
+    else
+        return std::make_shared<chen::ip::address_v6>(addr, cidr);
+}
+
+bool address::isIPv4(const std::string &addr)
+{
+    return !chen::str::contain(addr, ":");
+}
+
+bool address::isIPv6(const std::string &addr)
+{
+    return chen::str::contain(addr, ":");
 }
 
 // operator

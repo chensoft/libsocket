@@ -59,6 +59,12 @@ namespace chen
             static std::shared_ptr<chen::ip::address> create(const std::string &addr);
             static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
 
+            /**
+             * Detect ipv4 or ipv6 according to string
+             */
+            static bool isIPv4(const std::string &addr);
+            static bool isIPv6(const std::string &addr);
+
         public:
             /**
              * Operator
