@@ -36,18 +36,22 @@ char fs::separator(const std::string &path)
 
 std::string fs::absolute(const std::string &path)
 {
-    if (fs::isRelative(path))
-        return fs::normalize(fs::current() + fs::separator() + path);
-    else
-        return fs::normalize(path);
+    return fs::absolute(path, fs::current());
 }
 
 std::string fs::absolute(const std::string &path, const std::string &cwd)
 {
-    if (fs::isRelative(path))
-        return fs::normalize(cwd + fs::separator() + path);
+    std::string expand;
+
+    if (!path.empty() && (path[0] == '~'))
+        expand = path.size() > 1 ? fs::home() + path.substr(1) : fs::home();
+
+    const std::string &temp = !expand.empty() ? expand : path;
+
+    if (fs::isRelative(temp))
+        return fs::normalize(cwd + fs::separator() + temp);
     else
-        return fs::normalize(path);
+        return fs::normalize(temp);
 }
 
 std::string fs::normalize(const std::string &path)

@@ -23,6 +23,10 @@ TEST(SysFsTest, General)
     EXPECT_EQ(chen::fs::current(), chen::fs::realpath(chen::fs::current()));
     EXPECT_EQ(chen::fs::current(), chen::fs::absolute(".", chen::fs::current()));
 
+    EXPECT_EQ(chen::fs::home(), chen::fs::realpath("~"));
+    EXPECT_EQ(chen::fs::home(), chen::fs::absolute("~"));
+    EXPECT_EQ(chen::fs::home() + "/Downloads", chen::fs::absolute("~/Downloads"));
+
     // normalize
     EXPECT_EQ("", chen::fs::normalize(""));
     EXPECT_EQ("a", chen::fs::normalize("./a"));
