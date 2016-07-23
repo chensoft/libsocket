@@ -10,8 +10,7 @@ using namespace chen;
 
 // ------------------------------------------------------------------
 // semaphore
-semaphore::semaphore(std::size_t count)
-: _count(count)
+semaphore::semaphore(std::size_t count) : _count(count)
 {
 
 }

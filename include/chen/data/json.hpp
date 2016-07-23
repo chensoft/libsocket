@@ -82,7 +82,7 @@ namespace chen
 
         json(std::nullptr_t);
 
-        virtual ~json();
+        ~json();
 
         /**
          * Assignment
@@ -133,33 +133,33 @@ namespace chen
         /**
          * Get the json type
          */
-        virtual chen::json::Type type() const;
+        chen::json::Type type() const;
 
         /**
          * Check the json type
          */
-        virtual bool isObject() const;
-        virtual bool isArray()  const;
-        virtual bool isNumber() const;
-        virtual bool isString() const;
-        virtual bool isTrue()   const;
-        virtual bool isFalse()  const;
-        virtual bool isNull()   const;
+        bool isObject() const;
+        bool isArray()  const;
+        bool isNumber() const;
+        bool isString() const;
+        bool isTrue()   const;
+        bool isFalse()  const;
+        bool isNull()   const;
 
-        virtual bool isBool() const;
-        virtual bool isNone() const;
+        bool isBool() const;
+        bool isNone() const;
 
     public:
         /**
          * Get value, throw exception if type is incorrect
          */
-        virtual const chen::json::object& getObject() const;
-        virtual const chen::json::array& getArray() const;
-        virtual double getNumber() const;
-        virtual std::int32_t getInteger() const;
-        virtual std::uint32_t getUnsigned() const;
-        virtual const std::string& getString() const;
-        virtual bool getBool() const;
+        const chen::json::object& getObject() const;
+        const chen::json::array& getArray() const;
+        double getNumber() const;
+        std::int32_t getInteger() const;
+        std::uint32_t getUnsigned() const;
+        const std::string& getString() const;
+        bool getBool() const;
 
         /**
          * Get value via operators
@@ -186,26 +186,26 @@ namespace chen
          * @caution the integer method does not exist because we store number as double
          * @caution the bool method does not exist because modify it will result in wrong type
          */
-        virtual chen::json::object& getObject();
-        virtual chen::json::array& getArray();
-        virtual double& getNumber();
-        virtual std::string& getString();
+        chen::json::object& getObject();
+        chen::json::array& getArray();
+        double& getNumber();
+        std::string& getString();
 
         /**
          * Convert value to the desired type as possible
          */
-        virtual chen::json::object toObject() const;
-        virtual chen::json::array toArray() const;
-        virtual double toNumber() const;
-        virtual std::int32_t toInteger() const;
-        virtual std::uint32_t toUnsigned() const;
-        virtual std::string toString() const;
-        virtual bool toBool() const;
+        chen::json::object toObject() const;
+        chen::json::array toArray() const;
+        double toNumber() const;
+        std::int32_t toInteger() const;
+        std::uint32_t toUnsigned() const;
+        std::string toString() const;
+        bool toBool() const;
 
         /**
          * Clear the internal state
          */
-        virtual void clear();
+        void clear();
 
     protected:
         /**

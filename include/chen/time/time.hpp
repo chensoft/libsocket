@@ -14,23 +14,22 @@ namespace chen
     {
     public:
         explicit time(bool start = false);
-        virtual ~time() = default;
 
     public:
         /**
          * Start timing
          */
-        virtual void start();
+        void start();
 
         /**
          * Stop timing
          */
-        virtual void stop();
+        void stop();
 
         /**
          * Elapsed time(seconds, in double)
          */
-        virtual double elapsed() const;
+        double elapsed() const;
 
     protected:
         std::chrono::high_resolution_clock::time_point _beg;

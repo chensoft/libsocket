@@ -62,7 +62,6 @@ namespace chen
     {
     public:
         explicit cmd(const std::string &app = "");
-        virtual ~cmd() = default;
 
     public:
         /**
@@ -74,9 +73,9 @@ namespace chen
          * @param desc action description
          * @param bind call the function when parse this action
          */
-        virtual void create(const std::string &action,
-                            const std::string &desc,
-                            std::function<void (const chen::cmd &cmd)> bind = nullptr);
+        void create(const std::string &action,
+                    const std::string &desc,
+                    std::function<void (const chen::cmd &cmd)> bind = nullptr);
 
         /**
          * Define option of the action
@@ -85,56 +84,56 @@ namespace chen
          * @param desc description of the option
          * @param def the default value when the option is not specified
          */
-        virtual void define(const std::string &option,
-                            const std::string &tiny,
-                            const std::string &desc,
-                            const chen::any &def);
+        void define(const std::string &option,
+                    const std::string &tiny,
+                    const std::string &desc,
+                    const chen::any &def);
 
         /**
          * Change the action
          */
-        virtual void change(const std::string &action);
+        void change(const std::string &action);
 
         /**
          * Check if the action or option exist
          */
-        virtual bool exist(const std::string &action, const std::string &option = "") const;
+        bool exist(const std::string &action, const std::string &option = "") const;
 
     public:
         /**
          * Parse the command line
          */
-        virtual void parse(int argc, const char *const argv[]);
+        void parse(int argc, const char *const argv[]);
 
     public:
         /**
          * App name
          */
-        virtual std::string app() const;
+        std::string app() const;
 
         /**
          * Current resolved action name
          */
-        virtual std::string current() const;
+        std::string current() const;
 
         /**
          * Get the value of the option which belongs to the current resolved action
          * support bool, int, string
          * @param option the full name or tiny name of the option
          */
-        virtual bool boolVal(const std::string &option) const;
-        virtual std::int32_t intVal(const std::string &option) const;
-        virtual std::string strVal(const std::string &option) const;
+        bool boolVal(const std::string &option) const;
+        std::int32_t intVal(const std::string &option) const;
+        std::string strVal(const std::string &option) const;
 
         /**
          * Whether the option is set
          */
-        virtual bool isSet(const std::string &option) const;
+        bool isSet(const std::string &option) const;
 
         /**
          * Get the objects, which is also the unresolved arguments
          */
-        virtual const std::vector<std::string>& objects() const;
+        const std::vector<std::string>& objects() const;
 
     public:
         struct option
@@ -189,20 +188,20 @@ namespace chen
         /**
          * Get usage info
          */
-        virtual std::string usage() const;
-        virtual std::string usage(const std::string &action) const;
-        virtual std::string usage(const std::string &action, const std::string &option) const;
-        virtual std::string usage(const chen::cmd::error_parse &error) const;
+        std::string usage() const;
+        std::string usage(const std::string &action) const;
+        std::string usage(const std::string &action, const std::string &option) const;
+        std::string usage(const chen::cmd::error_parse &error) const;
 
         /**
          * Visit actions and options
          * empty name means it's the root action
          */
-        virtual void visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
-                           std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
-        virtual void visit(const std::string &action,
-                           std::function<void (const chen::cmd::option &option, std::size_t idx, std::size_t len)> callback,
-                           std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
+        void visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
+                   std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
+        void visit(const std::string &action,
+                   std::function<void (const chen::cmd::option &option, std::size_t idx, std::size_t len)> callback,
+                   std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
 
         /**
          * Provide a suggestion for a specific action
@@ -210,13 +209,13 @@ namespace chen
          * @param action action name
          * e.g: app has an action: "remove", if user input "delete", parser will prompt user "Did you mean remove?"
          */
-        virtual void suggest(const std::string &alias, const std::string &action);
+        void suggest(const std::string &alias, const std::string &action);
 
     protected:
         /**
          * Find current action's option
          */
-        virtual const chen::cmd::option& opt(const std::string &name) const;
+        const chen::cmd::option& opt(const std::string &name) const;
 
     protected:
         std::string _app;  // app name

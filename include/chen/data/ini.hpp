@@ -44,10 +44,6 @@ namespace chen
         };
 
     public:
-        ini() = default;
-        virtual ~ini() = default;
-
-    public:
         /**
          * Ini parse, accept text, file or even iterators
          * accept any iterator that satisfy the requirement of the input iterator
