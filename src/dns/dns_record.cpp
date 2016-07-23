@@ -53,6 +53,14 @@ void RR::encode(chen::dns::encoder &encoder) const
 
 void RR::decode(chen::dns::decoder &decoder)
 {
+    // unpack base fields
+    decoder.unpack(this->name, true);
+    decoder.unpack(this->rrtype);
+    decoder.unpack(this->rrclass);
+    decoder.unpack(this->ttl);
+    decoder.unpack(this->rdlength);
+
+    // unpack subclass
     this->unpack(decoder);
 }
 
@@ -98,16 +106,6 @@ std::string RR::str(const std::string &sep) const
     ret += chen::dns::table::typeToText(this->rrtype);
 
     return ret;
-}
-
-// pack & unpack
-void RR::unpack(chen::dns::decoder &decoder)
-{
-    decoder.unpack(this->name, true);
-    decoder.unpack(this->rrtype);
-    decoder.unpack(this->rrclass);
-    decoder.unpack(this->ttl);
-    decoder.unpack(this->rdlength);
 }
 
 // helper
@@ -174,7 +172,6 @@ void Raw::pack(chen::dns::encoder &encoder) const
 
 void Raw::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->rdata, this->rdlength);
 }
 
@@ -220,7 +217,6 @@ void A::pack(chen::dns::encoder &encoder) const
 
 void A::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->address);
 }
 
@@ -261,7 +257,6 @@ void NS::pack(chen::dns::encoder &encoder) const
 
 void NS::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->nsdname, true);
 }
 
@@ -296,7 +291,6 @@ void MD::pack(chen::dns::encoder &encoder) const
 
 void MD::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->madname, true);
 }
 
@@ -331,7 +325,6 @@ void MF::pack(chen::dns::encoder &encoder) const
 
 void MF::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->madname, true);
 }
 
@@ -366,7 +359,6 @@ void CNAME::pack(chen::dns::encoder &encoder) const
 
 void CNAME::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->cname, true);
 }
 
@@ -415,7 +407,6 @@ void SOA::pack(chen::dns::encoder &encoder) const
 
 void SOA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->mname, true);
     decoder.unpack(this->rname, true);
     decoder.unpack(this->serial);
@@ -462,7 +453,6 @@ void MB::pack(chen::dns::encoder &encoder) const
 
 void MB::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->madname, true);
 }
 
@@ -497,7 +487,6 @@ void MG::pack(chen::dns::encoder &encoder) const
 
 void MG::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->mgmname, true);
 }
 
@@ -532,7 +521,6 @@ void MR::pack(chen::dns::encoder &encoder) const
 
 void MR::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->newname, true);
 }
 
@@ -573,7 +561,6 @@ void NUL::pack(chen::dns::encoder &encoder) const
 
 void NUL::unpack(chen::dns::decoder &decoder)
 {
-    Raw::unpack(decoder);
     decoder.unpack(this->anything, this->rdlength);
 }
 
@@ -621,8 +608,6 @@ void WKS::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    RR::unpack(decoder);
-
     decoder.unpack(this->address);
     decoder.unpack(this->protocol);
 
@@ -667,7 +652,6 @@ void PTR::pack(chen::dns::encoder &encoder) const
 
 void PTR::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->ptrdname, true);
 }
 
@@ -704,7 +688,6 @@ void HINFO::pack(chen::dns::encoder &encoder) const
 
 void HINFO::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->cpu, false);
     decoder.unpack(this->os, false);
 }
@@ -743,7 +726,6 @@ void MINFO::pack(chen::dns::encoder &encoder) const
 
 void MINFO::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->rmailbx, true);
     decoder.unpack(this->emailbx, true);
 }
@@ -782,7 +764,6 @@ void MX::pack(chen::dns::encoder &encoder) const
 
 void MX::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->exchange, true);
 }
@@ -819,7 +800,6 @@ void TXT::pack(chen::dns::encoder &encoder) const
 
 void TXT::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->txt_data, false);
 }
 
@@ -856,7 +836,6 @@ void RP::pack(chen::dns::encoder &encoder) const
 
 void RP::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->mbox_dname, true);
     decoder.unpack(this->txt_dname, true);
 }
@@ -895,7 +874,6 @@ void AFSDB::pack(chen::dns::encoder &encoder) const
 
 void AFSDB::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->subtype);
     decoder.unpack(this->hostname, true);
 }
@@ -932,7 +910,6 @@ void X25::pack(chen::dns::encoder &encoder) const
 
 void X25::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->psdn_address, false);
 }
 
@@ -969,7 +946,6 @@ void ISDN::pack(chen::dns::encoder &encoder) const
 
 void ISDN::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->isdn_address, false);
     decoder.unpack(this->sa, false);
 }
@@ -1008,7 +984,6 @@ void RT::pack(chen::dns::encoder &encoder) const
 
 void RT::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->intermediate_host, true);
 }
@@ -1045,7 +1020,6 @@ void NSAP::pack(chen::dns::encoder &encoder) const
 
 void NSAP::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->nsap, false);
 }
 
@@ -1080,7 +1054,6 @@ void NSAPPTR::pack(chen::dns::encoder &encoder) const
 
 void NSAPPTR::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->owner, true);
 }
 
@@ -1133,7 +1106,6 @@ void SIG::pack(chen::dns::encoder &encoder) const
 
 void SIG::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->type_covered);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->labels);
@@ -1192,7 +1164,6 @@ void KEY::pack(chen::dns::encoder &encoder) const
 
 void KEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
@@ -1239,7 +1210,6 @@ void PX::pack(chen::dns::encoder &encoder) const
 
 void PX::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->map822, true);
     decoder.unpack(this->mapx400, true);
@@ -1284,7 +1254,6 @@ void GPOS::pack(chen::dns::encoder &encoder) const
 
 void GPOS::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->longitude, false);
     decoder.unpack(this->latitude, false);
     decoder.unpack(this->altitude, false);
@@ -1323,7 +1292,6 @@ void AAAA::pack(chen::dns::encoder &encoder) const
 
 void AAAA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->address);
 }
 
@@ -1373,7 +1341,6 @@ void LOC::pack(chen::dns::encoder &encoder) const
 
 void LOC::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->version);
     decoder.unpack(this->size);
     decoder.unpack(this->horiz_pre);
@@ -1424,7 +1391,6 @@ void NXT::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    RR::unpack(decoder);
     decoder.unpack(this->next_domain, true);
 
     this->type_bitmap.clear();
@@ -1467,7 +1433,6 @@ void EID::pack(chen::dns::encoder &encoder) const
 
 void EID::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->endpoint, false);
 }
 
@@ -1502,7 +1467,6 @@ void NIMLOC::pack(chen::dns::encoder &encoder) const
 
 void NIMLOC::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->locator, false);
 }
 
@@ -1545,7 +1509,6 @@ void SRV::pack(chen::dns::encoder &encoder) const
 
 void SRV::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->priority);
     decoder.unpack(this->weight);
     decoder.unpack(this->port);
@@ -1590,7 +1553,6 @@ void ATMA::pack(chen::dns::encoder &encoder) const
 
 void ATMA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->format);
     decoder.unpack(this->address, false);
 }
@@ -1639,7 +1601,6 @@ void NAPTR::pack(chen::dns::encoder &encoder) const
 
 void NAPTR::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->order);
     decoder.unpack(this->preference);
     decoder.unpack(this->flags, false);
@@ -1688,7 +1649,6 @@ void KX::pack(chen::dns::encoder &encoder) const
 
 void KX::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->exchanger, true);
 }
@@ -1733,7 +1693,6 @@ void CERT::pack(chen::dns::encoder &encoder) const
 
 void CERT::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->type);
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
@@ -1780,7 +1739,6 @@ void A6::pack(chen::dns::encoder &encoder) const
 
 void A6::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->prefix);
 
     this->suffix.clear();
@@ -1827,7 +1785,6 @@ void DNAME::pack(chen::dns::encoder &encoder) const
 
 void DNAME::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->target, true);
 }
 
@@ -1870,7 +1827,6 @@ void SINK::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    RR::unpack(decoder);
     decoder.unpack(this->coding);
     decoder.unpack(this->subcoding);
 
@@ -1935,7 +1891,6 @@ void DS::pack(chen::dns::encoder &encoder) const
 
 void DS::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
@@ -1982,7 +1937,6 @@ void SSHFP::pack(chen::dns::encoder &encoder) const
 
 void SSHFP::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->fptype);
     decoder.unpack(this->fingerprint, false);
@@ -2053,7 +2007,6 @@ void IPSECKEY::pack(chen::dns::encoder &encoder) const
 
 void IPSECKEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->precedence);
     decoder.unpack(this->gateway_type);
     decoder.unpack(this->algorithm);
@@ -2145,7 +2098,6 @@ void RRSIG::pack(chen::dns::encoder &encoder) const
 
 void RRSIG::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->type_covered);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->labels);
@@ -2200,7 +2152,6 @@ void NSEC::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    RR::unpack(decoder);
     decoder.unpack(this->next_domain, true);
 
     this->type_bitmap.clear();
@@ -2251,7 +2202,6 @@ void DNSKEY::pack(chen::dns::encoder &encoder) const
 
 void DNSKEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
@@ -2292,7 +2242,6 @@ void DHCID::pack(chen::dns::encoder &encoder) const
 
 void DHCID::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->digest, false);
 }
 
@@ -2345,7 +2294,6 @@ void NSEC3::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    RR::unpack(decoder);
     decoder.unpack(this->hash);
     decoder.unpack(this->flags);
     decoder.unpack(this->iterations);
@@ -2415,7 +2363,6 @@ void NSEC3PARAM::pack(chen::dns::encoder &encoder) const
 
 void NSEC3PARAM::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->hash);
     decoder.unpack(this->flags);
     decoder.unpack(this->iterations);
@@ -2470,7 +2417,6 @@ void TLSA::pack(chen::dns::encoder &encoder) const
 
 void TLSA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->usage);
     decoder.unpack(this->selector);
     decoder.unpack(this->matching_type);
@@ -2519,7 +2465,6 @@ void SMIMEA::pack(chen::dns::encoder &encoder) const
 
 void SMIMEA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->usage);
     decoder.unpack(this->selector);
     decoder.unpack(this->matching_type);
@@ -2572,7 +2517,6 @@ void HIP::pack(chen::dns::encoder &encoder) const
 
 void HIP::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->hit_length);
     decoder.unpack(this->pk_algorithm);
     decoder.unpack(this->pk_length);
@@ -2617,7 +2561,6 @@ void NINFO::pack(chen::dns::encoder &encoder) const
 
 void NINFO::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->zs_data, false);
 }
 
@@ -2660,7 +2603,6 @@ void RKEY::pack(chen::dns::encoder &encoder) const
 
 void RKEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
@@ -2705,7 +2647,6 @@ void TALINK::pack(chen::dns::encoder &encoder) const
 
 void TALINK::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->previous_name, true);
     decoder.unpack(this->next_name, true);
 }
@@ -2750,7 +2691,6 @@ void CDS::pack(chen::dns::encoder &encoder) const
 
 void CDS::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
@@ -2799,7 +2739,6 @@ void CDNSKEY::pack(chen::dns::encoder &encoder) const
 
 void CDNSKEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
@@ -2840,7 +2779,6 @@ void OPENPGPKEY::pack(chen::dns::encoder &encoder) const
 
 void OPENPGPKEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->publickey, false);
 }
 
@@ -2883,7 +2821,6 @@ void CSYNC::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    RR::unpack(decoder);
     decoder.unpack(this->serial);
     decoder.unpack(this->flags);
 
@@ -2928,7 +2865,6 @@ void SPF::pack(chen::dns::encoder &encoder) const
 
 void SPF::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->txt, false);
 }
 
@@ -3015,7 +2951,6 @@ void NID::pack(chen::dns::encoder &encoder) const
 
 void NID::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->node_id);
 }
@@ -3056,7 +2991,6 @@ void L32::pack(chen::dns::encoder &encoder) const
 
 void L32::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->locator32);
 }
@@ -3097,7 +3031,6 @@ void L64::pack(chen::dns::encoder &encoder) const
 
 void L64::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->locator64);
 }
@@ -3138,7 +3071,6 @@ void LP::pack(chen::dns::encoder &encoder) const
 
 void LP::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->preference);
     decoder.unpack(this->fqdn, true);
 }
@@ -3175,7 +3107,6 @@ void EUI48::pack(chen::dns::encoder &encoder) const
 
 void EUI48::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->address);
 }
 
@@ -3211,7 +3142,6 @@ void EUI64::pack(chen::dns::encoder &encoder) const
 
 void EUI64::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->address);
 }
 
@@ -3264,7 +3194,6 @@ void TKEY::pack(chen::dns::encoder &encoder) const
 
 void TKEY::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->algorithm, true);
     decoder.unpack(this->inception);
     decoder.unpack(this->expiration);
@@ -3342,7 +3271,6 @@ void TSIG::pack(chen::dns::encoder &encoder) const
 
 void TSIG::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->algorithm, true);
     decoder.unpack(this->time_signed);
     decoder.unpack(this->fudge);
@@ -3411,7 +3339,6 @@ void URI::pack(chen::dns::encoder &encoder) const
 
 void URI::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->priority);
     decoder.unpack(this->weight);
     decoder.unpack(this->target, false);
@@ -3456,7 +3383,6 @@ void CAA::pack(chen::dns::encoder &encoder) const
 
 void CAA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->flags);
     decoder.unpack(this->tag, false);
     decoder.unpack(this->value, false);
@@ -3503,7 +3429,6 @@ void TA::pack(chen::dns::encoder &encoder) const
 
 void TA::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
@@ -3552,7 +3477,6 @@ void DLV::pack(chen::dns::encoder &encoder) const
 
 void DLV::unpack(chen::dns::decoder &decoder)
 {
-    RR::unpack(decoder);
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
