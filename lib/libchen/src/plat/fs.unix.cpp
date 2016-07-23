@@ -10,7 +10,7 @@
 #include <chen/base/str.hpp>
 #include <fstream>
 #include <cstdlib>
-#include <climits>
+#include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -77,8 +77,12 @@ char fs::separator()
 
 std::string fs::realpath(const std::string &path)
 {
+    // realpath
     char buf[PATH_MAX] = {0};
-    std::string ret(::realpath(path.c_str(), buf));
+    ::realpath(fs::absolute(path).c_str(), buf);
+
+    // existence
+    std::string ret(buf);
     return fs::isExist(ret) ? ret : "";
 }
 

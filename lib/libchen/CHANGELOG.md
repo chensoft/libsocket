@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- fs: expand '~' to home directory when use realpath and absolute.
 
 ## [1.1.0] - 2016-07-22
 ### Added

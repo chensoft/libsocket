@@ -91,7 +91,7 @@ std::string fs::realpath(const std::string &path)
     CHAR buf[MAX_PATH] = { 0 };
     DWORD size = sizeof(buf);
 
-    if (::GetFullPathName(path.c_str(), size, buf, NULL))
+    if (::GetFullPathName(fs::absolute(path).c_str(), size, buf, NULL))
     {
         std::string ret(buf);
         return fs::isExist(ret) ? ret : "";

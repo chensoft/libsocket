@@ -73,14 +73,16 @@ namespace chen
 
         /**
          * Expand all symbolic links and remove ".", ".." and redundant separators
-         * this function will check the existence of the path, if path is invalid will return empty
+         * it will treat the beginning '~' as current user's home directory
+         * @caution this function will check the existence of the path, return "" if path is invalid
          */
         static std::string realpath(const std::string &path);
 
         /**
          * Absolute path, append to current working directory, without ".", ".." and separators
-         * this function didn't check the existence of the path and didn't follow symbolic link
+         * it will treat the beginning '~' as current user's home directory
          * e.g: if cwd is /home/staff/Downloads, then path "file.txt" will be appended to cwd
+         * @caution this function didn't check the existence of the path and didn't follow symbolic link
          */
         static std::string absolute(const std::string &path);
         static std::string absolute(const std::string &path, const std::string &cwd);
