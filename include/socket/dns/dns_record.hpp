@@ -67,8 +67,8 @@ namespace chen
             /**
              * Escape string, used in description
              */
-            std::string escape(const std::string &text) const;
-            std::string escape(std::size_t bits) const;
+            static std::string escape(const std::string &text);
+            static std::string escape(std::size_t bits);
 
         public:
             std::string name;

@@ -33,19 +33,19 @@ void RR::encode(chen::dns::encoder &encoder) const
     encoder.pack(static_cast<std::uint16_t>(0));
 
     // current size
-    auto size = encoder.size();
+    auto before = encoder.size();
 
     // encode subclass
     this->pack(encoder);
 
     // rdlength
     auto len = encoder.size();
-    size     = len - size;
+    auto off = len - before;
 
-    if (size > std::numeric_limits<std::uint16_t>::max())
+    if (off > std::numeric_limits<std::uint16_t>::max())
         throw error_size("dns: codec pack rdata size is overflow");
 
-    auto tmp = static_cast<std::uint16_t>(size);
+    auto tmp = static_cast<std::uint16_t>(off);
 
     encoder.change(len - tmp - 2, static_cast<std::uint8_t>(tmp >> 8 & 0xFF));
     encoder.change(len - tmp - 1, static_cast<std::uint8_t>(tmp & 0xFF));
@@ -58,6 +58,10 @@ void RR::decode(chen::dns::decoder &decoder)
 
 void RR::decode(const chen::json::object &object)
 {
+    // unpack ttl only in base class
+    this->ttl = chen::map::find(object, "ttl", this->ttl);
+
+    // unpack subclass
     this->unpack(object);
 }
 
@@ -106,12 +110,6 @@ void RR::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->rdlength);
 }
 
-void RR::unpack(const chen::json::object &object)
-{
-    // unpack ttl only
-    this->ttl = chen::map::find(object, "ttl", this->ttl);
-}
-
 // helper
 std::size_t RR::remain(const chen::dns::codec::iterator &beg,
                        const chen::dns::codec::iterator &cur) const
@@ -123,7 +121,7 @@ std::size_t RR::remain(const chen::dns::codec::iterator &beg,
     return static_cast<std::size_t>(this->rdlength - used);
 }
 
-std::string RR::escape(const std::string &text) const
+std::string RR::escape(const std::string &text)
 {
     std::string ret("\"");
 
@@ -141,7 +139,7 @@ std::string RR::escape(const std::string &text) const
     return ret;
 }
 
-std::string RR::escape(std::size_t bits) const
+std::string RR::escape(std::size_t bits)
 {
     return "<<" + chen::num::str(bits) + "bits>>";
 }
@@ -160,7 +158,7 @@ Raw::Raw(chen::dns::RRType type) : RR(type)
 std::string Raw::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + this->escape(this->rdata.size());
+    ret += sep + RR::escape(this->rdata.size());
     return ret;
 }
 
@@ -182,8 +180,6 @@ void Raw::unpack(chen::dns::decoder &decoder)
 
 void Raw::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
-
     this->rdata.clear();
 
     std::string rdata = chen::map::find(object, "rdata");
@@ -230,8 +226,6 @@ void A::unpack(chen::dns::decoder &decoder)
 
 void A::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
-
     // if address is string then use address_v4::toInteger
     auto address = chen::map::find(object, "address");
 
@@ -273,7 +267,6 @@ void NS::unpack(chen::dns::decoder &decoder)
 
 void NS::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->nsdname = chen::map::find(object, "nsdname", this->nsdname);
 }
 
@@ -309,7 +302,6 @@ void MD::unpack(chen::dns::decoder &decoder)
 
 void MD::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->madname = chen::map::find(object, "madname", this->madname);
 }
 
@@ -345,7 +337,6 @@ void MF::unpack(chen::dns::decoder &decoder)
 
 void MF::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->madname = chen::map::find(object, "madname", this->madname);
 }
 
@@ -381,7 +372,6 @@ void CNAME::unpack(chen::dns::decoder &decoder)
 
 void CNAME::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->cname = chen::map::find(object, "cname", this->cname);
 }
 
@@ -437,7 +427,6 @@ void SOA::unpack(chen::dns::decoder &decoder)
 
 void SOA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->mname   = chen::map::find(object, "mname", this->mname);
     this->rname   = chen::map::find(object, "rname", this->rname);
     this->serial  = chen::map::find(object, "serial", this->serial);
@@ -479,7 +468,6 @@ void MB::unpack(chen::dns::decoder &decoder)
 
 void MB::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->madname = chen::map::find(object, "madname", this->madname);
 }
 
@@ -515,7 +503,6 @@ void MG::unpack(chen::dns::decoder &decoder)
 
 void MG::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->mgmname = chen::map::find(object, "mgmname", this->mgmname);
 }
 
@@ -551,7 +538,6 @@ void MR::unpack(chen::dns::decoder &decoder)
 
 void MR::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->newname = chen::map::find(object, "newname", this->newname);
 }
 
@@ -565,7 +551,7 @@ NUL::NUL() : Raw(chen::dns::RRType::NUL)
 std::string NUL::str(const std::string &sep) const
 {
     auto ret = Raw::str(sep);
-    ret += sep + this->escape(this->anything.size());
+    ret += sep + RR::escape(this->anything.size());
     return ret;
 }
 
@@ -614,7 +600,7 @@ std::string WKS::str(const std::string &sep) const
 
     ret += sep + chen::num::str(this->address);
     ret += " " + chen::num::str(this->protocol);
-    ret += " " + this->escape(this->bitmap.size());
+    ret += " " + RR::escape(this->bitmap.size());
 
     return ret;
 }
@@ -646,8 +632,6 @@ void WKS::unpack(chen::dns::decoder &decoder)
 
 void WKS::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
-
     this->address  = chen::map::find(object, "address", this->address);
     this->protocol = chen::map::find(object, "protocol", this->protocol);
 
@@ -689,7 +673,6 @@ void PTR::unpack(chen::dns::decoder &decoder)
 
 void PTR::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->ptrdname = chen::map::find(object, "ptrdname", this->ptrdname);
 }
 
@@ -728,7 +711,6 @@ void HINFO::unpack(chen::dns::decoder &decoder)
 
 void HINFO::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->cpu = chen::map::find(object, "cpu", this->cpu);
     this->os  = chen::map::find(object, "os", this->os);
 }
@@ -768,7 +750,6 @@ void MINFO::unpack(chen::dns::decoder &decoder)
 
 void MINFO::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->rmailbx = chen::map::find(object, "rmailbx", this->rmailbx);
     this->emailbx = chen::map::find(object, "emailbx", this->emailbx);
 }
@@ -808,7 +789,6 @@ void MX::unpack(chen::dns::decoder &decoder)
 
 void MX::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->exchange   = chen::map::find(object, "exchange", this->exchange);
 }
@@ -823,7 +803,7 @@ TXT::TXT() : RR(chen::dns::RRType::TXT)
 std::string TXT::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + this->escape(this->txt_data);
+    ret += sep + RR::escape(this->txt_data);
     return ret;
 }
 
@@ -845,7 +825,6 @@ void TXT::unpack(chen::dns::decoder &decoder)
 
 void TXT::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->txt_data = chen::map::find(object, "txt_data", this->txt_data);
 }
 
@@ -884,7 +863,6 @@ void RP::unpack(chen::dns::decoder &decoder)
 
 void RP::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->mbox_dname = chen::map::find(object, "mbox_dname", this->mbox_dname);
     this->txt_dname  = chen::map::find(object, "txt_dname", this->txt_dname);
 }
@@ -924,7 +902,6 @@ void AFSDB::unpack(chen::dns::decoder &decoder)
 
 void AFSDB::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->subtype  = chen::map::find(object, "subtype", this->subtype);
     this->hostname = chen::map::find(object, "hostname", this->hostname);
 }
@@ -961,7 +938,6 @@ void X25::unpack(chen::dns::decoder &decoder)
 
 void X25::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->psdn_address = chen::map::find(object, "psdn_address", this->psdn_address);
 }
 
@@ -1000,7 +976,6 @@ void ISDN::unpack(chen::dns::decoder &decoder)
 
 void ISDN::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->isdn_address = chen::map::find(object, "isdn_address", this->isdn_address);
     this->sa           = chen::map::find(object, "sa", this->sa);
 }
@@ -1040,7 +1015,6 @@ void RT::unpack(chen::dns::decoder &decoder)
 
 void RT::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference        = chen::map::find(object, "preference", this->preference);
     this->intermediate_host = chen::map::find(object, "intermediate_host", this->intermediate_host);
 }
@@ -1077,7 +1051,6 @@ void NSAP::unpack(chen::dns::decoder &decoder)
 
 void NSAP::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->nsap = chen::map::find(object, "nsap", this->nsap);
 }
 
@@ -1113,7 +1086,6 @@ void NSAPPTR::unpack(chen::dns::decoder &decoder)
 
 void NSAPPTR::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->owner = chen::map::find(object, "owner", this->owner);
 }
 
@@ -1175,7 +1147,6 @@ void SIG::unpack(chen::dns::decoder &decoder)
 
 void SIG::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->type_covered = chen::map::find(object, "type_covered", this->type_covered);
     this->algorithm    = chen::map::find(object, "algorithm", this->algorithm);
     this->labels       = chen::map::find(object, "labels", this->labels);
@@ -1230,7 +1201,6 @@ void KEY::unpack(chen::dns::decoder &decoder)
 
 void KEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
@@ -1277,7 +1247,6 @@ void PX::unpack(chen::dns::decoder &decoder)
 
 void PX::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->map822     = chen::map::find(object, "map822", this->map822);
     this->mapx400    = chen::map::find(object, "mapx400", this->mapx400);
@@ -1323,7 +1292,6 @@ void GPOS::unpack(chen::dns::decoder &decoder)
 
 void GPOS::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->longitude = chen::map::find(object, "longitude", this->longitude);
     this->latitude  = chen::map::find(object, "latitude", this->latitude);
     this->altitude  = chen::map::find(object, "altitude", this->altitude);
@@ -1361,7 +1329,6 @@ void AAAA::unpack(chen::dns::decoder &decoder)
 
 void AAAA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     auto address = chen::map::find(object, "address");
     this->address = chen::ip::address_v6::toBytes(address);
 }
@@ -1418,7 +1385,6 @@ void LOC::unpack(chen::dns::decoder &decoder)
 
 void LOC::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->version   = chen::map::find(object, "version", this->version);
     this->size      = chen::map::find(object, "size", this->size);
     this->horiz_pre = chen::map::find(object, "horiz_pre", this->horiz_pre);
@@ -1439,7 +1405,7 @@ std::string NXT::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
     ret += sep + this->next_domain;
-    ret += " " + this->escape(this->type_bitmap.size());
+    ret += " " + RR::escape(this->type_bitmap.size());
     return ret;
 }
 
@@ -1467,7 +1433,6 @@ void NXT::unpack(chen::dns::decoder &decoder)
 
 void NXT::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->next_domain = chen::map::find(object, "next_domain", this->next_domain);
 
     this->type_bitmap.clear();
@@ -1508,7 +1473,6 @@ void EID::unpack(chen::dns::decoder &decoder)
 
 void EID::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->endpoint = chen::map::find(object, "endpoint", this->endpoint);
 }
 
@@ -1544,7 +1508,6 @@ void NIMLOC::unpack(chen::dns::decoder &decoder)
 
 void NIMLOC::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->locator = chen::map::find(object, "locator", this->locator);
 }
 
@@ -1591,7 +1554,6 @@ void SRV::unpack(chen::dns::decoder &decoder)
 
 void SRV::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->priority = chen::map::find(object, "priority", this->priority);
     this->weight   = chen::map::find(object, "weight", this->weight);
     this->port     = chen::map::find(object, "port", this->port);
@@ -1635,7 +1597,6 @@ void ATMA::unpack(chen::dns::decoder &decoder)
 
 void ATMA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->format  = chen::map::find(object, "format", this->format);
     this->address = chen::map::find(object, "address", this->address);
 }
@@ -1689,7 +1650,6 @@ void NAPTR::unpack(chen::dns::decoder &decoder)
 
 void NAPTR::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->order       = chen::map::find(object, "order", this->order);
     this->preference  = chen::map::find(object, "preference", this->preference);
     this->flags       = chen::map::find(object, "flags", this->flags);
@@ -1735,7 +1695,6 @@ void KX::unpack(chen::dns::decoder &decoder)
 
 void KX::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->exchanger  = chen::map::find(object, "exchanger", this->exchanger);
 }
@@ -1783,7 +1742,6 @@ void CERT::unpack(chen::dns::decoder &decoder)
 
 void CERT::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->type        = chen::map::find(object, "type", this->type);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
@@ -1802,7 +1760,7 @@ std::string A6::str(const std::string &sep) const
     auto ret = RR::str(sep);
 
     ret += sep + chen::num::str(this->prefix);
-    ret += " " + this->escape(this->suffix.size());
+    ret += " " + RR::escape(this->suffix.size());
     ret += " " + this->prefix_name;
 
     return ret;
@@ -1833,7 +1791,6 @@ void A6::unpack(chen::dns::decoder &decoder)
 
 void A6::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->prefix = chen::map::find(object, "prefix", this->prefix);
 
     this->suffix.clear();
@@ -1876,7 +1833,6 @@ void DNAME::unpack(chen::dns::decoder &decoder)
 
 void DNAME::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->target = chen::map::find(object, "target", this->target);
 }
 
@@ -1893,7 +1849,7 @@ std::string SINK::str(const std::string &sep) const
 
     ret += sep + chen::num::str(this->coding);
     ret += " " + chen::num::str(this->subcoding);
-    ret += " " + this->escape(this->sdata.size());
+    ret += " " + RR::escape(this->sdata.size());
 
     return ret;
 }
@@ -1924,7 +1880,6 @@ void SINK::unpack(chen::dns::decoder &decoder)
 
 void SINK::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->coding    = chen::map::find(object, "coding", this->coding);
     this->subcoding = chen::map::find(object, "subcoding", this->subcoding);
 
@@ -1989,7 +1944,6 @@ void DS::unpack(chen::dns::decoder &decoder)
 
 void DS::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
@@ -2036,7 +1990,6 @@ void SSHFP::unpack(chen::dns::decoder &decoder)
 
 void SSHFP::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->fptype      = chen::map::find(object, "fptype", this->fptype);
     this->fingerprint = chen::map::find(object, "fingerprint", this->fingerprint);
@@ -2056,7 +2009,7 @@ std::string IPSECKEY::str(const std::string &sep) const
     ret += sep + chen::num::str(this->precedence);
     ret += " " + chen::num::str(this->gateway_type);
     ret += " " + chen::num::str(this->algorithm);
-    ret += " " + this->escape(this->gateway.size());
+    ret += " " + RR::escape(this->gateway.size());
     ret += " " + this->publickey;
 
     return ret;
@@ -2136,7 +2089,6 @@ void IPSECKEY::unpack(chen::dns::decoder &decoder)
 
 void IPSECKEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->precedence   = chen::map::find(object, "precedence", this->precedence);
     this->gateway_type = chen::map::find(object, "gateway_type", this->gateway_type);
     this->algorithm    = chen::map::find(object, "algorithm", this->algorithm);
@@ -2207,7 +2159,6 @@ void RRSIG::unpack(chen::dns::decoder &decoder)
 
 void RRSIG::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->type_covered = chen::map::find(object, "type_covered", this->type_covered);
     this->algorithm    = chen::map::find(object, "algorithm", this->algorithm);
     this->labels       = chen::map::find(object, "labels", this->labels);
@@ -2230,7 +2181,7 @@ std::string NSEC::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
     ret += sep + this->next_domain;
-    ret += " " + this->escape(this->type_bitmap.size());
+    ret += " " + RR::escape(this->type_bitmap.size());
     return ret;
 }
 
@@ -2258,7 +2209,6 @@ void NSEC::unpack(chen::dns::decoder &decoder)
 
 void NSEC::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->next_domain = chen::map::find(object, "next_domain", this->next_domain);
 
     this->type_bitmap.clear();
@@ -2310,7 +2260,6 @@ void DNSKEY::unpack(chen::dns::decoder &decoder)
 
 void DNSKEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
@@ -2349,7 +2298,6 @@ void DHCID::unpack(chen::dns::decoder &decoder)
 
 void DHCID::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->digest = chen::map::find(object, "digest", this->digest);
 }
 
@@ -2368,10 +2316,10 @@ std::string NSEC3::str(const std::string &sep) const
     ret += " " + chen::num::str(this->flags);
     ret += " " + chen::num::str(this->iterations);
     ret += " " + chen::num::str(this->salt_length);
-    ret += " " + this->escape(this->salt.size());
+    ret += " " + RR::escape(this->salt.size());
     ret += " " + chen::num::str(this->hash_length);
     ret += " " + this->next_owner;
-    ret += " " + this->escape(this->type_bitmap.size());
+    ret += " " + RR::escape(this->type_bitmap.size());
 
     return ret;
 }
@@ -2412,7 +2360,6 @@ void NSEC3::unpack(chen::dns::decoder &decoder)
 
 void NSEC3::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->hash = chen::map::find(object, "hash", this->hash);
     this->flags = chen::map::find(object, "flags", this->flags);
     this->iterations = chen::map::find(object, "iterations", this->iterations);
@@ -2447,7 +2394,7 @@ std::string NSEC3PARAM::str(const std::string &sep) const
     ret += " " + chen::num::str(this->flags);
     ret += " " + chen::num::str(this->iterations);
     ret += " " + chen::num::str(this->salt_length);
-    ret += " " + this->escape(this->salt.size());
+    ret += " " + RR::escape(this->salt.size());
 
     return ret;
 }
@@ -2478,7 +2425,6 @@ void NSEC3PARAM::unpack(chen::dns::decoder &decoder)
 
 void NSEC3PARAM::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->hash        = chen::map::find(object, "hash", this->hash);
     this->flags       = chen::map::find(object, "flags", this->flags);
     this->iterations  = chen::map::find(object, "iterations", this->iterations);
@@ -2533,7 +2479,6 @@ void TLSA::unpack(chen::dns::decoder &decoder)
 
 void TLSA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->usage         = chen::map::find(object, "usage", this->usage);
     this->selector      = chen::map::find(object, "selector", this->selector);
     this->matching_type = chen::map::find(object, "matching_type", this->matching_type);
@@ -2583,7 +2528,6 @@ void SMIMEA::unpack(chen::dns::decoder &decoder)
 
 void SMIMEA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->usage         = chen::map::find(object, "usage", this->usage);
     this->selector      = chen::map::find(object, "selector", this->selector);
     this->matching_type = chen::map::find(object, "matching_type", this->matching_type);
@@ -2639,7 +2583,6 @@ void HIP::unpack(chen::dns::decoder &decoder)
 
 void HIP::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->hit_length         = chen::map::find(object, "hit_length", this->hit_length);
     this->pk_algorithm       = chen::map::find(object, "pk_algorithm", this->pk_algorithm);
     this->pk_length          = chen::map::find(object, "pk_length", this->pk_length);
@@ -2680,7 +2623,6 @@ void NINFO::unpack(chen::dns::decoder &decoder)
 
 void NINFO::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->zs_data = chen::map::find(object, "zs_data", this->zs_data);
 }
 
@@ -2727,7 +2669,6 @@ void RKEY::unpack(chen::dns::decoder &decoder)
 
 void RKEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
@@ -2771,7 +2712,6 @@ void TALINK::unpack(chen::dns::decoder &decoder)
 
 void TALINK::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->previous_name = chen::map::find(object, "previous_name", this->previous_name);
     this->next_name     = chen::map::find(object, "next_name", this->next_name);
 }
@@ -2819,7 +2759,6 @@ void CDS::unpack(chen::dns::decoder &decoder)
 
 void CDS::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
@@ -2869,7 +2808,6 @@ void CDNSKEY::unpack(chen::dns::decoder &decoder)
 
 void CDNSKEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->flags     = chen::map::find(object, "flags", this->flags);
     this->protocol  = chen::map::find(object, "protocol", this->protocol);
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
@@ -2908,7 +2846,6 @@ void OPENPGPKEY::unpack(chen::dns::decoder &decoder)
 
 void OPENPGPKEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->publickey = chen::map::find(object, "publickey", this->publickey);
 }
 
@@ -2925,7 +2862,7 @@ std::string CSYNC::str(const std::string &sep) const
 
     ret += sep + chen::num::str(this->serial);
     ret += " " + chen::num::str(this->flags);
-    ret += " " + this->escape(this->type_bitmap.size());
+    ret += " " + RR::escape(this->type_bitmap.size());
 
     return ret;
 }
@@ -2956,7 +2893,6 @@ void CSYNC::unpack(chen::dns::decoder &decoder)
 
 void CSYNC::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->serial = chen::map::find(object, "serial", this->serial);
     this->flags  = chen::map::find(object, "flags", this->flags);
 
@@ -2976,7 +2912,7 @@ SPF::SPF() : RR(chen::dns::RRType::SPF)
 std::string SPF::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + this->escape(this->txt);
+    ret += sep + RR::escape(this->txt);
     return ret;
 }
 
@@ -2998,7 +2934,6 @@ void SPF::unpack(chen::dns::decoder &decoder)
 
 void SPF::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->txt = chen::map::find(object, "txt", this->txt);
 }
 
@@ -3087,7 +3022,6 @@ void NID::unpack(chen::dns::decoder &decoder)
 
 void NID::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->node_id    = chen::map::find(object, "node_id", this->node_id);
 }
@@ -3129,7 +3063,6 @@ void L32::unpack(chen::dns::decoder &decoder)
 
 void L32::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->locator32  = chen::map::find(object, "locator32", this->locator32);
 }
@@ -3171,7 +3104,6 @@ void L64::unpack(chen::dns::decoder &decoder)
 
 void L64::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->locator64  = chen::map::find(object, "locator64", this->locator64);
 }
@@ -3213,7 +3145,6 @@ void LP::unpack(chen::dns::decoder &decoder)
 
 void LP::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->preference = chen::map::find(object, "preference", this->preference);
     this->fqdn       = chen::map::find(object, "fqdn", this->fqdn);
 }
@@ -3228,7 +3159,7 @@ EUI48::EUI48() : RR(chen::dns::RRType::EUI48)
 std::string EUI48::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + this->escape(this->address.size());
+    ret += sep + RR::escape(this->address.size());
     return ret;
 }
 
@@ -3250,7 +3181,6 @@ void EUI48::unpack(chen::dns::decoder &decoder)
 
 void EUI48::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     std::string address = chen::map::find(object, "address", std::string());
     std::copy(address.begin(), address.end(), this->address.begin());
 }
@@ -3287,7 +3217,6 @@ void EUI64::unpack(chen::dns::decoder &decoder)
 
 void EUI64::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->address = chen::map::find(object, "address", this->address);
 }
 
@@ -3308,9 +3237,9 @@ std::string TKEY::str(const std::string &sep) const
     ret += " " + chen::num::str(this->mode);
     ret += " " + chen::num::str(this->error);
     ret += " " + chen::num::str(this->key_size);
-    ret += " " + this->escape(this->key.size());
+    ret += " " + RR::escape(this->key.size());
     ret += " " + chen::num::str(this->other_len);
-    ret += " " + this->escape(this->other_data.size());
+    ret += " " + RR::escape(this->other_data.size());
 
     return ret;
 }
@@ -3349,7 +3278,6 @@ void TKEY::unpack(chen::dns::decoder &decoder)
 
 void TKEY::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->algorithm  = chen::map::find(object, "algorithm", this->algorithm);
     this->inception  = chen::map::find(object, "inception", this->inception);
     this->expiration = chen::map::find(object, "expiration", this->expiration);
@@ -3382,14 +3310,14 @@ std::string TSIG::str(const std::string &sep) const
     auto ret = RR::str(sep);
 
     ret += sep + this->algorithm;
-    ret += " " + this->escape(this->time_signed.size());
+    ret += " " + RR::escape(this->time_signed.size());
     ret += " " + chen::num::str(this->fudge);
     ret += " " + chen::num::str(this->mac_size);
-    ret += " " + this->escape(this->mac.size());
+    ret += " " + RR::escape(this->mac.size());
     ret += " " + chen::num::str(this->original_id);
     ret += " " + chen::num::str(this->error);
     ret += " " + chen::num::str(this->other_len);
-    ret += " " + this->escape(this->other_data.size());
+    ret += " " + RR::escape(this->other_data.size());
 
     return ret;
 }
@@ -3428,8 +3356,6 @@ void TSIG::unpack(chen::dns::decoder &decoder)
 
 void TSIG::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
-
     this->algorithm = chen::map::find(object, "algorithm", this->algorithm);
 
     std::string time_signed = chen::map::find(object, "time_signed", std::string());
@@ -3493,7 +3419,6 @@ void URI::unpack(chen::dns::decoder &decoder)
 
 void URI::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->priority = chen::map::find(object, "priority", this->priority);
     this->weight   = chen::map::find(object, "weight", this->weight);
     this->target   = chen::map::find(object, "target", this->target);
@@ -3539,7 +3464,6 @@ void CAA::unpack(chen::dns::decoder &decoder)
 
 void CAA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->flags = chen::map::find(object, "flags", this->flags);
     this->tag   = chen::map::find(object, "tag", this->tag);
     this->value = chen::map::find(object, "value", this->value);
@@ -3588,7 +3512,6 @@ void TA::unpack(chen::dns::decoder &decoder)
 
 void TA::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
@@ -3638,7 +3561,6 @@ void DLV::unpack(chen::dns::decoder &decoder)
 
 void DLV::unpack(const chen::json::object &object)
 {
-    RR::unpack(object);
     this->key_tag     = chen::map::find(object, "key_tag", this->key_tag);
     this->algorithm   = chen::map::find(object, "algorithm", this->algorithm);
     this->digest_type = chen::map::find(object, "digest_type", this->digest_type);
