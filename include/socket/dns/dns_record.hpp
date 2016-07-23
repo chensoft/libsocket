@@ -943,11 +943,25 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // A6(OBSOLETE - use AAAA)
-        class A6 : public AAAA
+        // A6(rfc2874, section 3.1, OBSOLETE - use AAAA instead)
+        class A6 : public RR
         {
         public:
+            A6();
+
+        public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        public:
+            virtual void encode(chen::dns::encoder &encoder) const override;
+            virtual void decode(chen::dns::decoder &decoder) override;
+            virtual void decode(const chen::json::object &object) override;
+
+        public:
+            std::uint8_t prefix = 0;
+            std::vector<std::uint8_t> suffix;
+            std::string prefix_name;
         };
 
 

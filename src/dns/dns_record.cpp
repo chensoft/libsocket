@@ -2111,9 +2111,64 @@ void CERT::decode(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // A6
+A6::A6() : RR(chen::dns::RRType::A6)
+{
+}
+
+std::string A6::str(const std::string &sep) const
+{
+    auto ret = RR::str(sep);
+
+    ret += sep + chen::num::str(this->prefix);
+    ret += " " + this->escape(this->suffix.size());
+    ret += " " + this->prefix_name;
+
+    return ret;
+}
+
 std::shared_ptr<chen::dns::RR> A6::clone() const
 {
     return std::make_shared<A6>(*this);
+}
+
+void A6::encode(chen::dns::encoder &encoder) const
+{
+    // base
+    RR::encode(encoder);
+
+    // self
+    auto val = encoder.size();
+
+    encoder.pack(this->prefix);
+    encoder.pack(this->suffix, this->suffix.size());
+    encoder.pack(this->prefix_name, true);
+
+    // rdlength
+    this->adjust(encoder, encoder.size() - val);
+}
+
+void A6::decode(chen::dns::decoder &decoder)
+{
+    RR::decode(decoder);
+    decoder.unpack(this->prefix);
+
+    this->suffix.clear();
+    decoder.unpack(this->suffix, static_cast<std::size_t>(128 - this->prefix));
+
+    decoder.unpack(this->prefix_name, true);
+}
+
+void A6::decode(const chen::json::object &object)
+{
+    RR::decode(object);
+    this->prefix = chen::map::find(object, "prefix", this->prefix);
+
+    this->suffix.clear();
+
+    std::string suffix = chen::map::find(object, "suffix", std::string());
+    std::copy(suffix.begin(), suffix.end(), this->suffix.begin());
+
+    this->prefix_name = chen::map::find(object, "prefix_name", this->prefix_name);
 }
 
 
