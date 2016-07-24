@@ -291,7 +291,7 @@ void question::setQclass(chen::dns::RRClass value)
 void question::encode(chen::dns::encoder &encoder) const
 {
     // qname
-    encoder.pack(this->_qname, true);
+    encoder.pack(this->_qname, codec::StringType::Domain, false);
 
     // qtype
     encoder.pack(this->_qtype);
@@ -304,7 +304,7 @@ void question::decode(chen::dns::decoder &decoder)
 {
     // qname
     std::string qname;
-    decoder.unpack(qname, true);
+    decoder.unpack(qname, codec::StringType::Domain);
 
     // qtype
     chen::dns::RRType qtype = chen::dns::RRType::None;

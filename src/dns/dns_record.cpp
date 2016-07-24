@@ -23,8 +23,11 @@ RR::RR(chen::dns::RRType type) : rrtype(type)
 // encode & decode
 void RR::encode(chen::dns::encoder &encoder) const
 {
+    // according to rfc1035, section 4.1.4
+    // pointers can only be used for occurances of a domain name where the format is not class specific
+    // so I compress RR's name only
     // common
-    encoder.pack(this->name, true);
+    encoder.pack(this->name, codec::StringType::Domain, true);
     encoder.pack(this->rrtype);
     encoder.pack(this->rrclass);
     encoder.pack(this->ttl);
@@ -54,7 +57,7 @@ void RR::encode(chen::dns::encoder &encoder) const
 void RR::decode(chen::dns::decoder &decoder)
 {
     // unpack base fields
-    decoder.unpack(this->name, true);
+    decoder.unpack(this->name, codec::StringType::Domain);
     decoder.unpack(this->rrtype);
     decoder.unpack(this->rrclass);
     decoder.unpack(this->ttl);
@@ -79,7 +82,7 @@ std::shared_ptr<chen::dns::RR> RR::create(chen::dns::decoder &decoder)
 
     // detect type
     std::string unused;
-    detect.unpack(unused, true);
+    detect.unpack(unused, codec::StringType::Domain);
 
     chen::dns::RRType rrtype = chen::dns::RRType::None;
     detect.unpack(rrtype);
@@ -252,12 +255,12 @@ std::shared_ptr<chen::dns::RR> NS::clone() const
 
 void NS::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->nsdname, true);
+    encoder.pack(this->nsdname, codec::StringType::Domain, false);
 }
 
 void NS::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->nsdname, true);
+    decoder.unpack(this->nsdname, codec::StringType::Domain);
 }
 
 void NS::unpack(const chen::json::object &object)
@@ -286,12 +289,12 @@ std::shared_ptr<chen::dns::RR> MD::clone() const
 
 void MD::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->madname, true);
+    encoder.pack(this->madname, codec::StringType::Domain, false);
 }
 
 void MD::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->madname, true);
+    decoder.unpack(this->madname, codec::StringType::Domain);
 }
 
 void MD::unpack(const chen::json::object &object)
@@ -320,12 +323,12 @@ std::shared_ptr<chen::dns::RR> MF::clone() const
 
 void MF::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->madname, true);
+    encoder.pack(this->madname, codec::StringType::Domain, false);
 }
 
 void MF::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->madname, true);
+    decoder.unpack(this->madname, codec::StringType::Domain);
 }
 
 void MF::unpack(const chen::json::object &object)
@@ -354,12 +357,12 @@ std::shared_ptr<chen::dns::RR> CNAME::clone() const
 
 void CNAME::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->cname, true);
+    encoder.pack(this->cname, codec::StringType::Domain, false);
 }
 
 void CNAME::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->cname, true);
+    decoder.unpack(this->cname, codec::StringType::Domain);
 }
 
 void CNAME::unpack(const chen::json::object &object)
@@ -396,8 +399,8 @@ std::shared_ptr<chen::dns::RR> SOA::clone() const
 
 void SOA::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->mname, true);
-    encoder.pack(this->rname, true);
+    encoder.pack(this->mname, codec::StringType::Domain, false);
+    encoder.pack(this->rname, codec::StringType::Domain, false);
     encoder.pack(this->serial);
     encoder.pack(this->refresh);
     encoder.pack(this->retry);
@@ -407,8 +410,8 @@ void SOA::pack(chen::dns::encoder &encoder) const
 
 void SOA::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->mname, true);
-    decoder.unpack(this->rname, true);
+    decoder.unpack(this->mname, codec::StringType::Domain);
+    decoder.unpack(this->rname, codec::StringType::Domain);
     decoder.unpack(this->serial);
     decoder.unpack(this->refresh);
     decoder.unpack(this->retry);
@@ -448,12 +451,12 @@ std::shared_ptr<chen::dns::RR> MB::clone() const
 
 void MB::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->madname, true);
+    encoder.pack(this->madname, codec::StringType::Domain, false);
 }
 
 void MB::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->madname, true);
+    decoder.unpack(this->madname, codec::StringType::Domain);
 }
 
 void MB::unpack(const chen::json::object &object)
@@ -482,12 +485,12 @@ std::shared_ptr<chen::dns::RR> MG::clone() const
 
 void MG::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->mgmname, true);
+    encoder.pack(this->mgmname, codec::StringType::Domain, false);
 }
 
 void MG::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->mgmname, true);
+    decoder.unpack(this->mgmname, codec::StringType::Domain);
 }
 
 void MG::unpack(const chen::json::object &object)
@@ -516,12 +519,12 @@ std::shared_ptr<chen::dns::RR> MR::clone() const
 
 void MR::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->newname, true);
+    encoder.pack(this->newname, codec::StringType::Domain, false);
 }
 
 void MR::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->newname, true);
+    decoder.unpack(this->newname, codec::StringType::Domain);
 }
 
 void MR::unpack(const chen::json::object &object)
@@ -647,12 +650,12 @@ std::shared_ptr<chen::dns::RR> PTR::clone() const
 
 void PTR::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->ptrdname, true);
+    encoder.pack(this->ptrdname, codec::StringType::Domain, false);
 }
 
 void PTR::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->ptrdname, true);
+    decoder.unpack(this->ptrdname, codec::StringType::Domain);
 }
 
 void PTR::unpack(const chen::json::object &object)
@@ -682,14 +685,14 @@ std::shared_ptr<chen::dns::RR> HINFO::clone() const
 
 void HINFO::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->cpu, false);
-    encoder.pack(this->os, false);
+    encoder.pack(this->cpu, codec::StringType::Plain, false);
+    encoder.pack(this->os, codec::StringType::Plain, false);
 }
 
 void HINFO::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->cpu, false);
-    decoder.unpack(this->os, false);
+    decoder.unpack(this->cpu, codec::StringType::Plain);
+    decoder.unpack(this->os, codec::StringType::Plain);
 }
 
 void HINFO::unpack(const chen::json::object &object)
@@ -720,14 +723,14 @@ std::shared_ptr<chen::dns::RR> MINFO::clone() const
 
 void MINFO::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->rmailbx, true);
-    encoder.pack(this->emailbx, true);
+    encoder.pack(this->rmailbx, codec::StringType::Domain, false);
+    encoder.pack(this->emailbx, codec::StringType::Domain, false);
 }
 
 void MINFO::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->rmailbx, true);
-    decoder.unpack(this->emailbx, true);
+    decoder.unpack(this->rmailbx, codec::StringType::Domain);
+    decoder.unpack(this->emailbx, codec::StringType::Domain);
 }
 
 void MINFO::unpack(const chen::json::object &object)
@@ -759,13 +762,13 @@ std::shared_ptr<chen::dns::RR> MX::clone() const
 void MX::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->preference);
-    encoder.pack(this->exchange, true);
+    encoder.pack(this->exchange, codec::StringType::Domain, false);
 }
 
 void MX::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->preference);
-    decoder.unpack(this->exchange, true);
+    decoder.unpack(this->exchange, codec::StringType::Domain);
 }
 
 void MX::unpack(const chen::json::object &object)
@@ -795,12 +798,12 @@ std::shared_ptr<chen::dns::RR> TXT::clone() const
 
 void TXT::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->txt_data, false);
+    encoder.pack(this->txt_data, codec::StringType::Plain, false);
 }
 
 void TXT::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->txt_data, false);
+    decoder.unpack(this->txt_data, codec::StringType::Plain);
 }
 
 void TXT::unpack(const chen::json::object &object)
@@ -830,14 +833,14 @@ std::shared_ptr<chen::dns::RR> RP::clone() const
 
 void RP::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->mbox_dname, true);
-    encoder.pack(this->txt_dname, true);
+    encoder.pack(this->mbox_dname, codec::StringType::Domain, false);
+    encoder.pack(this->txt_dname, codec::StringType::Domain, false);
 }
 
 void RP::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->mbox_dname, true);
-    decoder.unpack(this->txt_dname, true);
+    decoder.unpack(this->mbox_dname, codec::StringType::Domain);
+    decoder.unpack(this->txt_dname, codec::StringType::Domain);
 }
 
 void RP::unpack(const chen::json::object &object)
@@ -869,13 +872,13 @@ std::shared_ptr<chen::dns::RR> AFSDB::clone() const
 void AFSDB::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->subtype);
-    encoder.pack(this->hostname, true);
+    encoder.pack(this->hostname, codec::StringType::Domain, false);
 }
 
 void AFSDB::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->subtype);
-    decoder.unpack(this->hostname, true);
+    decoder.unpack(this->hostname, codec::StringType::Domain);
 }
 
 void AFSDB::unpack(const chen::json::object &object)
@@ -905,12 +908,12 @@ std::shared_ptr<chen::dns::RR> X25::clone() const
 
 void X25::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->psdn_address, false);
+    encoder.pack(this->psdn_address, codec::StringType::Plain, false);
 }
 
 void X25::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->psdn_address, false);
+    decoder.unpack(this->psdn_address, codec::StringType::Plain);
 }
 
 void X25::unpack(const chen::json::object &object)
@@ -940,14 +943,14 @@ std::shared_ptr<chen::dns::RR> ISDN::clone() const
 
 void ISDN::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->isdn_address, false);
-    encoder.pack(this->sa, false);
+    encoder.pack(this->isdn_address, codec::StringType::Plain, false);
+    encoder.pack(this->sa, codec::StringType::Plain, false);
 }
 
 void ISDN::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->isdn_address, false);
-    decoder.unpack(this->sa, false);
+    decoder.unpack(this->isdn_address, codec::StringType::Plain);
+    decoder.unpack(this->sa, codec::StringType::Plain);
 }
 
 void ISDN::unpack(const chen::json::object &object)
@@ -979,13 +982,13 @@ std::shared_ptr<chen::dns::RR> RT::clone() const
 void RT::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->preference);
-    encoder.pack(this->intermediate_host, true);
+    encoder.pack(this->intermediate_host, codec::StringType::Domain, false);
 }
 
 void RT::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->preference);
-    decoder.unpack(this->intermediate_host, true);
+    decoder.unpack(this->intermediate_host, codec::StringType::Domain);
 }
 
 void RT::unpack(const chen::json::object &object)
@@ -1015,12 +1018,12 @@ std::shared_ptr<chen::dns::RR> NSAP::clone() const
 
 void NSAP::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->nsap, false);
+    encoder.pack(this->nsap, codec::StringType::Plain, false);
 }
 
 void NSAP::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->nsap, false);
+    decoder.unpack(this->nsap, codec::StringType::Plain);
 }
 
 void NSAP::unpack(const chen::json::object &object)
@@ -1049,12 +1052,12 @@ std::shared_ptr<chen::dns::RR> NSAPPTR::clone() const
 
 void NSAPPTR::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->owner, true);
+    encoder.pack(this->owner, codec::StringType::Domain, false);
 }
 
 void NSAPPTR::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->owner, true);
+    decoder.unpack(this->owner, codec::StringType::Domain);
 }
 
 void NSAPPTR::unpack(const chen::json::object &object)
@@ -1100,8 +1103,8 @@ void SIG::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->expiration);
     encoder.pack(this->inception);
     encoder.pack(this->key_tag);
-    encoder.pack(this->signer, true);
-    encoder.pack(this->signature, false);
+    encoder.pack(this->signer, codec::StringType::Domain, false);
+    encoder.pack(this->signature, codec::StringType::Plain, false);
 }
 
 void SIG::unpack(chen::dns::decoder &decoder)
@@ -1113,8 +1116,8 @@ void SIG::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->expiration);
     decoder.unpack(this->inception);
     decoder.unpack(this->key_tag);
-    decoder.unpack(this->signer, true);
-    decoder.unpack(this->signature, false);
+    decoder.unpack(this->signer, codec::StringType::Domain);
+    decoder.unpack(this->signature, codec::StringType::Plain);
 }
 
 void SIG::unpack(const chen::json::object &object)
@@ -1159,7 +1162,7 @@ void KEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
     encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
 void KEY::unpack(chen::dns::decoder &decoder)
@@ -1167,7 +1170,7 @@ void KEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
 void KEY::unpack(const chen::json::object &object)
@@ -1204,15 +1207,15 @@ std::shared_ptr<chen::dns::RR> PX::clone() const
 void PX::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->preference);
-    encoder.pack(this->map822, true);
-    encoder.pack(this->mapx400, true);
+    encoder.pack(this->map822, codec::StringType::Domain, false);
+    encoder.pack(this->mapx400, codec::StringType::Domain, false);
 }
 
 void PX::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->preference);
-    decoder.unpack(this->map822, true);
-    decoder.unpack(this->mapx400, true);
+    decoder.unpack(this->map822, codec::StringType::Domain);
+    decoder.unpack(this->mapx400, codec::StringType::Domain);
 }
 
 void PX::unpack(const chen::json::object &object)
@@ -1247,16 +1250,16 @@ std::shared_ptr<chen::dns::RR> GPOS::clone() const
 
 void GPOS::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->longitude, false);
-    encoder.pack(this->latitude, false);
-    encoder.pack(this->altitude, false);
+    encoder.pack(this->longitude, codec::StringType::Plain, false);
+    encoder.pack(this->latitude, codec::StringType::Plain, false);
+    encoder.pack(this->altitude, codec::StringType::Plain, false);
 }
 
 void GPOS::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->longitude, false);
-    decoder.unpack(this->latitude, false);
-    decoder.unpack(this->altitude, false);
+    decoder.unpack(this->longitude, codec::StringType::Plain);
+    decoder.unpack(this->latitude, codec::StringType::Plain);
+    decoder.unpack(this->altitude, codec::StringType::Plain);
 }
 
 void GPOS::unpack(const chen::json::object &object)
@@ -1383,7 +1386,7 @@ std::shared_ptr<chen::dns::RR> NXT::clone() const
 
 void NXT::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->next_domain, true);
+    encoder.pack(this->next_domain, codec::StringType::Domain, false);
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
@@ -1391,7 +1394,7 @@ void NXT::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    decoder.unpack(this->next_domain, true);
+    decoder.unpack(this->next_domain, codec::StringType::Domain);
 
     this->type_bitmap.clear();
     decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
@@ -1428,12 +1431,12 @@ std::shared_ptr<chen::dns::RR> EID::clone() const
 
 void EID::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->endpoint, false);
+    encoder.pack(this->endpoint, codec::StringType::Plain, false);
 }
 
 void EID::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->endpoint, false);
+    decoder.unpack(this->endpoint, codec::StringType::Plain);
 }
 
 void EID::unpack(const chen::json::object &object)
@@ -1462,12 +1465,12 @@ std::shared_ptr<chen::dns::RR> NIMLOC::clone() const
 
 void NIMLOC::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->locator, false);
+    encoder.pack(this->locator, codec::StringType::Plain, false);
 }
 
 void NIMLOC::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->locator, false);
+    decoder.unpack(this->locator, codec::StringType::Plain);
 }
 
 void NIMLOC::unpack(const chen::json::object &object)
@@ -1504,7 +1507,7 @@ void SRV::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->priority);
     encoder.pack(this->weight);
     encoder.pack(this->port);
-    encoder.pack(this->target, true);
+    encoder.pack(this->target, codec::StringType::Domain, false);
 }
 
 void SRV::unpack(chen::dns::decoder &decoder)
@@ -1512,7 +1515,7 @@ void SRV::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->priority);
     decoder.unpack(this->weight);
     decoder.unpack(this->port);
-    decoder.unpack(this->target, true);
+    decoder.unpack(this->target, codec::StringType::Domain);
 }
 
 void SRV::unpack(const chen::json::object &object)
@@ -1548,13 +1551,13 @@ std::shared_ptr<chen::dns::RR> ATMA::clone() const
 void ATMA::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->format);
-    encoder.pack(this->address, false);
+    encoder.pack(this->address, codec::StringType::Plain, false);
 }
 
 void ATMA::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->format);
-    decoder.unpack(this->address, false);
+    decoder.unpack(this->address, codec::StringType::Plain);
 }
 
 void ATMA::unpack(const chen::json::object &object)
@@ -1593,20 +1596,20 @@ void NAPTR::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->order);
     encoder.pack(this->preference);
-    encoder.pack(this->flags, false);
-    encoder.pack(this->services, false);
-    encoder.pack(this->regexp, false);
-    encoder.pack(this->replacement, true);
+    encoder.pack(this->flags, codec::StringType::Plain, false);
+    encoder.pack(this->services, codec::StringType::Plain, false);
+    encoder.pack(this->regexp, codec::StringType::Plain, false);
+    encoder.pack(this->replacement, codec::StringType::Domain, false);
 }
 
 void NAPTR::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->order);
     decoder.unpack(this->preference);
-    decoder.unpack(this->flags, false);
-    decoder.unpack(this->services, false);
-    decoder.unpack(this->regexp, false);
-    decoder.unpack(this->replacement, true);
+    decoder.unpack(this->flags, codec::StringType::Plain);
+    decoder.unpack(this->services, codec::StringType::Plain);
+    decoder.unpack(this->regexp, codec::StringType::Plain);
+    decoder.unpack(this->replacement, codec::StringType::Domain);
 }
 
 void NAPTR::unpack(const chen::json::object &object)
@@ -1644,13 +1647,13 @@ std::shared_ptr<chen::dns::RR> KX::clone() const
 void KX::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->preference);
-    encoder.pack(this->exchanger, true);
+    encoder.pack(this->exchanger, codec::StringType::Domain, false);
 }
 
 void KX::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->preference);
-    decoder.unpack(this->exchanger, true);
+    decoder.unpack(this->exchanger, codec::StringType::Domain);
 }
 
 void KX::unpack(const chen::json::object &object)
@@ -1688,7 +1691,7 @@ void CERT::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->type);
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
-    encoder.pack(this->certificate, false);
+    encoder.pack(this->certificate, codec::StringType::Plain, false);
 }
 
 void CERT::unpack(chen::dns::decoder &decoder)
@@ -1696,7 +1699,7 @@ void CERT::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->type);
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
-    decoder.unpack(this->certificate, false);
+    decoder.unpack(this->certificate, codec::StringType::Plain);
 }
 
 void CERT::unpack(const chen::json::object &object)
@@ -1734,7 +1737,7 @@ void A6::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->prefix);
     encoder.pack(this->suffix, this->suffix.size());
-    encoder.pack(this->prefix_name, true);
+    encoder.pack(this->prefix_name, codec::StringType::Domain, false);
 }
 
 void A6::unpack(chen::dns::decoder &decoder)
@@ -1744,7 +1747,7 @@ void A6::unpack(chen::dns::decoder &decoder)
     this->suffix.clear();
     decoder.unpack(this->suffix, static_cast<std::size_t>(128 - this->prefix));
 
-    decoder.unpack(this->prefix_name, true);
+    decoder.unpack(this->prefix_name, codec::StringType::Domain);
 }
 
 void A6::unpack(const chen::json::object &object)
@@ -1780,12 +1783,12 @@ std::shared_ptr<chen::dns::RR> DNAME::clone() const
 
 void DNAME::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->target, true);
+    encoder.pack(this->target, codec::StringType::Domain, false);
 }
 
 void DNAME::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->target, true);
+    decoder.unpack(this->target, codec::StringType::Domain);
 }
 
 void DNAME::unpack(const chen::json::object &object)
@@ -1886,7 +1889,7 @@ void DS::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
     encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
 void DS::unpack(chen::dns::decoder &decoder)
@@ -1894,7 +1897,7 @@ void DS::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
 void DS::unpack(const chen::json::object &object)
@@ -1932,14 +1935,14 @@ void SSHFP::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->algorithm);
     encoder.pack(this->fptype);
-    encoder.pack(this->fingerprint, false);
+    encoder.pack(this->fingerprint, codec::StringType::Plain, false);
 }
 
 void SSHFP::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->algorithm);
     decoder.unpack(this->fptype);
-    decoder.unpack(this->fingerprint, false);
+    decoder.unpack(this->fingerprint, codec::StringType::Plain);
 }
 
 void SSHFP::unpack(const chen::json::object &object)
@@ -1997,12 +2000,12 @@ void IPSECKEY::pack(chen::dns::encoder &encoder) const
         case GatewayType::Domain:
         {
             std::string domain(this->gateway.begin(), this->gateway.end());
-            encoder.pack(domain, true);
+            encoder.pack(domain, codec::StringType::Domain, false);
         }
             break;
     }
 
-    encoder.pack(this->publickey, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
 void IPSECKEY::unpack(chen::dns::decoder &decoder)
@@ -2030,14 +2033,14 @@ void IPSECKEY::unpack(chen::dns::decoder &decoder)
         case GatewayType::Domain:
         {
             std::string domain;
-            decoder.unpack(domain, true);
+            decoder.unpack(domain, codec::StringType::Domain);
 
             this->gateway.insert(this->gateway.begin(), domain.begin(), domain.end());
         }
             break;
     }
 
-    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
 void IPSECKEY::unpack(const chen::json::object &object)
@@ -2092,8 +2095,8 @@ void RRSIG::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->expiration);
     encoder.pack(this->inception);
     encoder.pack(this->key_tag);
-    encoder.pack(this->signer, true);
-    encoder.pack(this->signature, false);
+    encoder.pack(this->signer, codec::StringType::Domain, false);
+    encoder.pack(this->signature, codec::StringType::Plain, false);
 }
 
 void RRSIG::unpack(chen::dns::decoder &decoder)
@@ -2105,8 +2108,8 @@ void RRSIG::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->expiration);
     decoder.unpack(this->inception);
     decoder.unpack(this->key_tag);
-    decoder.unpack(this->signer, true);
-    decoder.unpack(this->signature, false);
+    decoder.unpack(this->signer, codec::StringType::Domain);
+    decoder.unpack(this->signature, codec::StringType::Plain);
 }
 
 void RRSIG::unpack(const chen::json::object &object)
@@ -2144,7 +2147,7 @@ std::shared_ptr<chen::dns::RR> NSEC::clone() const
 
 void NSEC::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->next_domain, true);
+    encoder.pack(this->next_domain, codec::StringType::Domain, false);
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
@@ -2152,7 +2155,7 @@ void NSEC::unpack(chen::dns::decoder &decoder)
 {
     auto tmp = decoder.cur();
 
-    decoder.unpack(this->next_domain, true);
+    decoder.unpack(this->next_domain, codec::StringType::Domain);
 
     this->type_bitmap.clear();
     decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
@@ -2197,7 +2200,7 @@ void DNSKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
     encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
 void DNSKEY::unpack(chen::dns::decoder &decoder)
@@ -2205,7 +2208,7 @@ void DNSKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
 void DNSKEY::unpack(const chen::json::object &object)
@@ -2237,12 +2240,12 @@ std::shared_ptr<chen::dns::RR> DHCID::clone() const
 
 void DHCID::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->digest, false);
+    encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
 void DHCID::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->digest, false);
+    decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
 void DHCID::unpack(const chen::json::object &object)
@@ -2286,7 +2289,7 @@ void NSEC3::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->salt_length);
     encoder.pack(this->salt, this->salt_length);
     encoder.pack(this->hash_length);
-    encoder.pack(this->next_owner, false);
+    encoder.pack(this->next_owner, codec::StringType::Plain, false);
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
@@ -2300,7 +2303,7 @@ void NSEC3::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->salt_length);
     decoder.unpack(this->salt, this->salt_length);
     decoder.unpack(this->hash_length);
-    decoder.unpack(this->next_owner, false);
+    decoder.unpack(this->next_owner, codec::StringType::Plain);
 
     this->type_bitmap.clear();
     decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
@@ -2412,7 +2415,7 @@ void TLSA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->usage);
     encoder.pack(this->selector);
     encoder.pack(this->matching_type);
-    encoder.pack(this->certificate, false);
+    encoder.pack(this->certificate, codec::StringType::Plain, false);
 }
 
 void TLSA::unpack(chen::dns::decoder &decoder)
@@ -2420,7 +2423,7 @@ void TLSA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->usage);
     decoder.unpack(this->selector);
     decoder.unpack(this->matching_type);
-    decoder.unpack(this->certificate, false);
+    decoder.unpack(this->certificate, codec::StringType::Plain);
 }
 
 void TLSA::unpack(const chen::json::object &object)
@@ -2460,7 +2463,7 @@ void SMIMEA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->usage);
     encoder.pack(this->selector);
     encoder.pack(this->matching_type);
-    encoder.pack(this->certificate, false);
+    encoder.pack(this->certificate, codec::StringType::Plain, false);
 }
 
 void SMIMEA::unpack(chen::dns::decoder &decoder)
@@ -2468,7 +2471,7 @@ void SMIMEA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->usage);
     decoder.unpack(this->selector);
     decoder.unpack(this->matching_type);
-    decoder.unpack(this->certificate, false);
+    decoder.unpack(this->certificate, codec::StringType::Plain);
 }
 
 void SMIMEA::unpack(const chen::json::object &object)
@@ -2510,9 +2513,9 @@ void HIP::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->hit_length);
     encoder.pack(this->pk_algorithm);
     encoder.pack(this->pk_length);
-    encoder.pack(this->hit, false);
-    encoder.pack(this->publickey, false);
-    encoder.pack(this->rendezvous_servers, false);
+    encoder.pack(this->hit, codec::StringType::Plain, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
+    encoder.pack(this->rendezvous_servers, codec::StringType::Plain, false);
 }
 
 void HIP::unpack(chen::dns::decoder &decoder)
@@ -2520,9 +2523,9 @@ void HIP::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->hit_length);
     decoder.unpack(this->pk_algorithm);
     decoder.unpack(this->pk_length);
-    decoder.unpack(this->hit, false);
-    decoder.unpack(this->publickey, false);
-    decoder.unpack(this->rendezvous_servers, false);
+    decoder.unpack(this->hit, codec::StringType::Plain);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
+    decoder.unpack(this->rendezvous_servers, codec::StringType::Plain);
 }
 
 void HIP::unpack(const chen::json::object &object)
@@ -2556,12 +2559,12 @@ std::shared_ptr<chen::dns::RR> NINFO::clone() const
 
 void NINFO::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->zs_data, false);
+    encoder.pack(this->zs_data, codec::StringType::Plain, false);
 }
 
 void NINFO::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->zs_data, false);
+    decoder.unpack(this->zs_data, codec::StringType::Plain);
 }
 
 void NINFO::unpack(const chen::json::object &object)
@@ -2598,7 +2601,7 @@ void RKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
     encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
 void RKEY::unpack(chen::dns::decoder &decoder)
@@ -2606,7 +2609,7 @@ void RKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
 void RKEY::unpack(const chen::json::object &object)
@@ -2641,14 +2644,14 @@ std::shared_ptr<chen::dns::RR> TALINK::clone() const
 
 void TALINK::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->previous_name, true);
-    encoder.pack(this->next_name, true);
+    encoder.pack(this->previous_name, codec::StringType::Domain, false);
+    encoder.pack(this->next_name, codec::StringType::Domain, false);
 }
 
 void TALINK::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->previous_name, true);
-    decoder.unpack(this->next_name, true);
+    decoder.unpack(this->previous_name, codec::StringType::Domain);
+    decoder.unpack(this->next_name, codec::StringType::Domain);
 }
 
 void TALINK::unpack(const chen::json::object &object)
@@ -2686,7 +2689,7 @@ void CDS::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
     encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
 void CDS::unpack(chen::dns::decoder &decoder)
@@ -2694,7 +2697,7 @@ void CDS::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
 void CDS::unpack(const chen::json::object &object)
@@ -2734,7 +2737,7 @@ void CDNSKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
     encoder.pack(this->algorithm);
-    encoder.pack(this->publickey, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
 void CDNSKEY::unpack(chen::dns::decoder &decoder)
@@ -2742,7 +2745,7 @@ void CDNSKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
     decoder.unpack(this->algorithm);
-    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
 void CDNSKEY::unpack(const chen::json::object &object)
@@ -2774,12 +2777,12 @@ std::shared_ptr<chen::dns::RR> OPENPGPKEY::clone() const
 
 void OPENPGPKEY::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->publickey, false);
+    encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
 void OPENPGPKEY::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->publickey, false);
+    decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
 void OPENPGPKEY::unpack(const chen::json::object &object)
@@ -2860,12 +2863,12 @@ std::shared_ptr<chen::dns::RR> SPF::clone() const
 
 void SPF::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->txt, false);
+    encoder.pack(this->txt, codec::StringType::Plain, false);
 }
 
 void SPF::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->txt, false);
+    decoder.unpack(this->txt, codec::StringType::Plain);
 }
 
 void SPF::unpack(const chen::json::object &object)
@@ -3066,13 +3069,13 @@ std::shared_ptr<chen::dns::RR> LP::clone() const
 void LP::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->preference);
-    encoder.pack(this->fqdn, true);
+    encoder.pack(this->fqdn, codec::StringType::Domain, false);
 }
 
 void LP::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->preference);
-    decoder.unpack(this->fqdn, true);
+    decoder.unpack(this->fqdn, codec::StringType::Domain);
 }
 
 void LP::unpack(const chen::json::object &object)
@@ -3181,7 +3184,7 @@ std::shared_ptr<chen::dns::RR> TKEY::clone() const
 
 void TKEY::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->algorithm, true);
+    encoder.pack(this->algorithm, codec::StringType::Domain, false);
     encoder.pack(this->inception);
     encoder.pack(this->expiration);
     encoder.pack(this->mode);
@@ -3194,7 +3197,7 @@ void TKEY::pack(chen::dns::encoder &encoder) const
 
 void TKEY::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->algorithm, true);
+    decoder.unpack(this->algorithm, codec::StringType::Domain);
     decoder.unpack(this->inception);
     decoder.unpack(this->expiration);
     decoder.unpack(this->mode);
@@ -3258,7 +3261,7 @@ std::shared_ptr<chen::dns::RR> TSIG::clone() const
 
 void TSIG::pack(chen::dns::encoder &encoder) const
 {
-    encoder.pack(this->algorithm, true);
+    encoder.pack(this->algorithm, codec::StringType::Domain, false);
     encoder.pack(this->time_signed);
     encoder.pack(this->fudge);
     encoder.pack(this->mac_size);
@@ -3271,7 +3274,7 @@ void TSIG::pack(chen::dns::encoder &encoder) const
 
 void TSIG::unpack(chen::dns::decoder &decoder)
 {
-    decoder.unpack(this->algorithm, true);
+    decoder.unpack(this->algorithm, codec::StringType::Domain);
     decoder.unpack(this->time_signed);
     decoder.unpack(this->fudge);
     decoder.unpack(this->mac_size);
@@ -3334,14 +3337,14 @@ void URI::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->priority);
     encoder.pack(this->weight);
-    encoder.pack(this->target, false);
+    encoder.pack(this->target, codec::StringType::Plain, false);
 }
 
 void URI::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->priority);
     decoder.unpack(this->weight);
-    decoder.unpack(this->target, false);
+    decoder.unpack(this->target, codec::StringType::Plain);
 }
 
 void URI::unpack(const chen::json::object &object)
@@ -3377,15 +3380,15 @@ std::shared_ptr<chen::dns::RR> CAA::clone() const
 void CAA::pack(chen::dns::encoder &encoder) const
 {
     encoder.pack(this->flags);
-    encoder.pack(this->tag, false);
-    encoder.pack(this->value, false);
+    encoder.pack(this->tag, codec::StringType::Plain, false);
+    encoder.pack(this->value, codec::StringType::Plain, false);
 }
 
 void CAA::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->flags);
-    decoder.unpack(this->tag, false);
-    decoder.unpack(this->value, false);
+    decoder.unpack(this->tag, codec::StringType::Plain);
+    decoder.unpack(this->value, codec::StringType::Plain);
 }
 
 void CAA::unpack(const chen::json::object &object)
@@ -3424,7 +3427,7 @@ void TA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
     encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
 void TA::unpack(chen::dns::decoder &decoder)
@@ -3432,7 +3435,7 @@ void TA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
 void TA::unpack(const chen::json::object &object)
@@ -3472,7 +3475,7 @@ void DLV::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
     encoder.pack(this->digest_type);
-    encoder.pack(this->digest, false);
+    encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
 void DLV::unpack(chen::dns::decoder &decoder)
@@ -3480,7 +3483,7 @@ void DLV::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
     decoder.unpack(this->digest_type);
-    decoder.unpack(this->digest, false);
+    decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
 void DLV::unpack(const chen::json::object &object)

@@ -23,6 +23,8 @@ namespace chen
         class codec
         {
         public:
+            enum class StringType {Plain, Domain};
+
             typedef chen::forward_iterator<const std::uint8_t, const std::uint8_t> iterator;
 
         public:
@@ -51,6 +53,8 @@ namespace chen
             const std::vector<std::uint8_t>& data() const;
             std::size_t size() const;
 
+            const std::map<std::string, std::uint16_t>& cache() const;
+
             /**
              * Reset state
              */
@@ -76,7 +80,7 @@ namespace chen
             void pack(std::uint64_t val);
             void pack(chen::dns::RRType val);
             void pack(chen::dns::RRClass val);
-            void pack(const std::string &val, bool domain);
+            void pack(const std::string &val, StringType type, bool compress);
             void pack(const std::vector<std::uint8_t> &val, std::size_t need);
 
             template <std::size_t Size>
@@ -86,7 +90,13 @@ namespace chen
             }
 
         protected:
+            void plain(const std::string &val);
+            void domain(const std::string &val, bool compress);
+            bool compress(const std::string &val);
+
+        protected:
             std::vector<std::uint8_t> _data;
+            std::map<std::string, std::uint16_t> _cache;  // compression cache
         };
 
 
@@ -108,8 +118,6 @@ namespace chen
             const decoder::iterator& cur() const;
             const decoder::iterator& end() const;
 
-            const std::map<std::size_t, std::string>& cache() const;
-
             /**
              * Reset state
              */
@@ -129,7 +137,7 @@ namespace chen
             void unpack(std::uint64_t &val);
             void unpack(chen::dns::RRType &val);
             void unpack(chen::dns::RRClass &val);
-            void unpack(std::string &val, bool domain);
+            void unpack(std::string &val, StringType type);
             void unpack(std::vector<std::uint8_t> &val, std::size_t need);
 
             template <std::size_t Size>
@@ -146,11 +154,14 @@ namespace chen
             }
 
         protected:
+            void plain(std::string &val);
+            void domain(std::string &val);
+            void extract(std::string &val, iterator &cur);
+
+        protected:
             iterator _beg;
             iterator _cur;
             iterator _end;
-
-            std::map<std::size_t, std::string> _cache;  // compression cache
         };
     }
 }
