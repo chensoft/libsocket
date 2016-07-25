@@ -25,7 +25,7 @@ namespace chen
         public:
             enum class StringType {Plain, Domain};
 
-            typedef chen::forward_iterator<const std::uint8_t, const std::uint8_t> iterator;
+            typedef chen::forward_iterator<const std::uint8_t> iterator;
 
         public:
             /**
