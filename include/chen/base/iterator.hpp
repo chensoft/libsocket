@@ -39,8 +39,8 @@ namespace chen
 
             proxy(const proxy &o) : _keep(o._keep), _data(o.clone())
             {
-                // I don't know why the Visual Studio 2015 didn't do named return value optimization
-                // so I add this copy constructor
+                // Visual Studio 2015 won't do NRVO if you turn off the optimization
+                // so I add this copy constructor to prevent pointer shallow copy error
             }
 
             proxy& operator=(const proxy&) = delete;
@@ -67,109 +67,67 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // Requirements
-        template <typename Category, typename Value, typename Reference, typename Pointer, typename Distance>
-        class base
+        // Concept
+        namespace concept
         {
-        };
-
-        /**
-         * Input & Forward iterator
-         */
-        template <typename Value, typename Reference, typename Pointer, typename Distance>
-        class base<std::input_iterator_tag, Value, Reference, Pointer, Distance>
-        {
-        public:
-            virtual ~base() = default;
-            virtual base* clone() const = 0;
-
-        public:
-            virtual Reference operator*() const = 0;
-            virtual void operator++() = 0;
-            virtual bool operator==(const base &o) const = 0;
-            virtual Distance distance() const = 0;
-        };
-
-        /**
-         * Bidirectional iterator
-         */
-        template <typename Value, typename Reference, typename Pointer, typename Distance>
-        class base<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance>
-        {
-        public:
-            virtual ~base() = default;
-            virtual base* clone() const = 0;
-
-        public:
-            virtual Reference operator*() const = 0;
-            virtual void operator++() = 0;
-            virtual bool operator==(const base &o) const = 0;
-            virtual Distance distance() const
+            class base
             {
-                // only valid in input iterator
-                // use std::distance in other iterators
-                return 0;
-            }
+            public:
+                virtual ~base() = default;
+                virtual base* clone() const = 0;
+            };
 
-        public:
-            virtual void operator--() = 0;
-        };
-
-        /**
-         * Random iterator
-         */
-        template <typename Value, typename Reference, typename Pointer, typename Distance>
-        class base<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>
-        {
-        public:
-            virtual ~base() = default;
-            virtual base* clone() const = 0;
-
-        public:
-            virtual Reference operator*() const = 0;
-            virtual void operator++() = 0;
-            virtual bool operator==(const base &o) const = 0;
-            virtual Distance distance() const
+            template <typename Value, typename Reference, typename Pointer, typename Distance>
+            class input : public base
             {
-                // only valid in input iterator
-                // use std::distance in other iterators
-                return 0;
-            }
+            public:
+                virtual Reference operator*() const = 0;
+                virtual void operator++() = 0;
+                virtual bool operator==(const base &o) const = 0;
+                virtual Distance distance() const
+                {
+                    // only valid in input iterator
+                    // use std::distance in other iterators
+                    return 0;
+                }
+            };
 
-        public:
-            virtual void operator--() = 0;
+            template <typename Value, typename Reference, typename Pointer, typename Distance>
+            class bidirectional : public input<Value, Reference, Pointer, Distance>
+            {
+            public:
+                virtual void operator--() = 0;
+            };
 
-        public:
-            virtual Reference operator[](Distance n) const = 0;
-            virtual void operator+=(Distance n) = 0;
-            virtual void operator-=(Distance n) = 0;
-            virtual bool operator<(const base &o) const = 0;
-            virtual bool operator<=(const base &o) const = 0;
-        };
+            template <typename Value, typename Reference, typename Pointer, typename Distance>
+            class random : public bidirectional<Value, Reference, Pointer, Distance>
+            {
+            public:
+                virtual Reference operator[](Distance n) const = 0;
+                virtual void operator+=(Distance n) = 0;
+                virtual void operator-=(Distance n) = 0;
+                virtual bool operator<(const base &o) const = 0;
+                virtual bool operator<=(const base &o) const = 0;
+            };
+        }
 
 
         // ---------------------------------------------------------------------
         // Implementations
-        template <typename Category, typename Iterator, typename Value, typename Reference, typename Pointer, typename Distance>
-        class impl
-        {
-        };
+        template <typename Category, typename Value, typename Reference, typename Pointer, typename Distance, typename Iterator>
+        class impl {};
 
-        /**
-         * Input & Forward iterator
-         */
-        template <typename Iterator, typename Value, typename Reference, typename Pointer, typename Distance>
-        class impl<std::input_iterator_tag, Iterator, Value, Reference, Pointer, Distance> : public base<std::input_iterator_tag, Value, Reference, Pointer, Distance>
+        // Input & Forward iterator
+        template <typename Value, typename Reference, typename Pointer, typename Distance, typename Iterator>
+        class impl<std::input_iterator_tag, Value, Reference, Pointer, Distance, Iterator>
+                : public concept::input<Value, Reference, Pointer, Distance>
         {
-        public:
-            typedef base<std::input_iterator_tag, Value, Reference, Pointer, Distance> super_class;
-
         public:
             impl(Iterator it) : _it(it)
             {
             }
 
-            virtual super_class* clone() const override
+            virtual concept::base* clone() const override
             {
                 return new impl(this->_it);
             }
@@ -186,9 +144,9 @@ namespace chen
                 ++this->_distance;
             }
 
-            virtual bool operator==(const super_class &o) const override
+            virtual bool operator==(const concept::base &o) const override
             {
-                auto tmp = dynamic_cast<const impl&>(o);
+                auto tmp = static_cast<const impl&>(o);
                 return this->_it == tmp._it;
             }
 
@@ -202,21 +160,17 @@ namespace chen
             Distance _distance = 0;
         };
 
-        /**
-         * Bidirectional iterator
-         */
-        template <typename Iterator, typename Value, typename Reference, typename Pointer, typename Distance>
-        class impl<std::bidirectional_iterator_tag, Iterator, Value, Reference, Pointer, Distance> : public base<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance>
+        // Bidirectional iterator
+        template <typename Value, typename Reference, typename Pointer, typename Distance, typename Iterator>
+        class impl<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance, Iterator>
+                : public concept::bidirectional<Value, Reference, Pointer, Distance>
         {
-        public:
-            typedef base<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance> super_class;
-
         public:
             impl(Iterator it) : _it(it)
             {
             }
 
-            virtual super_class* clone() const override
+            virtual concept::base* clone() const override
             {
                 return new impl(this->_it);
             }
@@ -232,9 +186,9 @@ namespace chen
                 ++this->_it;
             }
 
-            virtual bool operator==(const super_class &o) const override
+            virtual bool operator==(const concept::base &o) const override
             {
-                auto tmp = dynamic_cast<const impl&>(o);
+                auto tmp = static_cast<const impl&>(o);
                 return this->_it == tmp._it;
             }
 
@@ -248,21 +202,17 @@ namespace chen
             Iterator _it;
         };
 
-        /**
-         * Random iterator
-         */
-        template <typename Iterator, typename Value, typename Reference, typename Pointer, typename Distance>
-        class impl<std::random_access_iterator_tag, Iterator, Value, Reference, Pointer, Distance> : public base<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>
+        // Random iterator
+        template <typename Value, typename Reference, typename Pointer, typename Distance, typename Iterator>
+        class impl<std::random_access_iterator_tag, Value, Reference, Pointer, Distance, Iterator>
+                : public concept::random<Value, Reference, Pointer, Distance>
         {
-        public:
-            typedef base<std::random_access_iterator_tag, Value, Reference, Pointer, Distance> super_class;
-
         public:
             impl(Iterator it) : _it(it)
             {
             }
 
-            virtual super_class* clone() const override
+            virtual concept::base* clone() const override
             {
                 return new impl(this->_it);
             }
@@ -278,9 +228,9 @@ namespace chen
                 ++this->_it;
             }
 
-            virtual bool operator==(const super_class &o) const override
+            virtual bool operator==(const concept::base &o) const override
             {
-                auto tmp = dynamic_cast<const impl&>(o);
+                auto tmp = static_cast<const impl&>(o);
                 return this->_it == tmp._it;
             }
 
@@ -306,15 +256,15 @@ namespace chen
                 this->_it -= n;
             }
 
-            virtual bool operator<(const super_class &o) const override
+            virtual bool operator<(const concept::base &o) const override
             {
-                auto tmp = dynamic_cast<const impl&>(o);
+                auto tmp = static_cast<const impl&>(o);
                 return this->_it < tmp._it;
             }
 
-            virtual bool operator<=(const super_class &o) const override
+            virtual bool operator<=(const concept::base &o) const override
             {
-                auto tmp = dynamic_cast<const impl&>(o);
+                auto tmp = static_cast<const impl&>(o);
                 return this->_it <= tmp._it;
             }
 
@@ -335,7 +285,9 @@ namespace chen
             typedef Reference reference;
             typedef Category  iterator_category;
 
-            typedef base<Category, Value, Reference, Pointer, Distance> data_type;
+            typedef concept::input<Value, Reference, Pointer, Distance> input_type;
+            typedef concept::bidirectional<Value, Reference, Pointer, Distance> bidirectional_type;
+            typedef concept::random<Value, Reference, Pointer, Distance> random_type;
 
         public:
             /**
@@ -358,7 +310,7 @@ namespace chen
             /**
              * Construct by proxy
              */
-            erasure(const proxy<Value, data_type> &p) : _data(p.clone())
+            erasure(const proxy<Value, concept::base> &p) : _data(p.clone())
             {
             }
 
@@ -366,7 +318,7 @@ namespace chen
              * Wrap another iterator
              */
             template <typename Iterator>
-            erasure(Iterator it) : _data(new impl<Category, Iterator, Value, Reference, Pointer, Distance>(it))
+            erasure(Iterator it) : _data(new impl<Category, Value, Reference, Pointer, Distance, Iterator>(it))
             {
             }
 
@@ -381,25 +333,25 @@ namespace chen
              */
             reference operator*() const
             {
-                return **this->_data;
+                return **static_cast<input_type*>(this->_data);
             }
 
             erasure& operator++()
             {
-                ++*this->_data;
+                ++*static_cast<input_type*>(this->_data);
                 return *this;
             }
 
-            proxy<Value, data_type> operator++(int)
+            proxy<Value, concept::base> operator++(int)
             {
-                proxy<Value, data_type> ret(**this, this->_data);
-                ++*this->_data;
+                proxy<Value, concept::base> ret(**this, this->_data);
+                ++*static_cast<input_type*>(this->_data);
                 return ret;
             }
 
             bool operator==(const erasure &o) const
             {
-                return *this->_data == *o._data;
+                return *static_cast<input_type*>(this->_data) == *static_cast<input_type*>(o._data);
             }
 
             bool operator!=(const erasure &o) const
@@ -412,7 +364,7 @@ namespace chen
                 // since input iterator is single-pass, we can't use std::distance on it
                 // however, in some cases we want to know input iterator's position, so I add this method
                 // @caution don't use this method if your category is not input iterator
-                return this->_data->distance();
+                return static_cast<input_type*>(this->_data)->distance();
             }
 
             /**
@@ -420,14 +372,14 @@ namespace chen
              */
             erasure& operator--()
             {
-                --*this->_data;
+                --*static_cast<bidirectional_type*>(this->_data);
                 return *this;
             }
 
-            proxy<Value, data_type> operator--(int)
+            proxy<Value, concept::base> operator--(int)
             {
-                proxy<Value, data_type> ret(**this, this->_data);
-                --*this->_data;
+                proxy<Value, concept::base> ret(**this, this->_data);
+                --*static_cast<bidirectional_type*>(this->_data);
                 return ret;
             }
 
@@ -436,12 +388,12 @@ namespace chen
              */
             reference operator[](difference_type n) const
             {
-                return (*this->_data)[n];
+                return (*static_cast<random_type*>(this->_data))[n];
             }
 
             erasure& operator+=(difference_type n)
             {
-                *this->_data += n;
+                *static_cast<random_type*>(this->_data) += n;
                 return *this;
             }
 
@@ -454,7 +406,7 @@ namespace chen
 
             erasure& operator-=(difference_type n)
             {
-                *this->_data -= n;
+                *static_cast<random_type*>(this->_data) -= n;
                 return *this;
             }
 
@@ -467,7 +419,7 @@ namespace chen
 
             bool operator<(const erasure &o) const
             {
-                return *this->_data < *o._data;
+                return *static_cast<random_type*>(this->_data) < *static_cast<random_type*>(o._data);
             }
 
             bool operator>(const erasure &o) const
@@ -477,7 +429,7 @@ namespace chen
 
             bool operator<=(const erasure &o) const
             {
-                return *this->_data <= *o._data;
+                return *static_cast<random_type*>(this->_data) <= *static_cast<random_type*>(o._data);
             }
 
             bool operator>=(const erasure &o) const
@@ -486,7 +438,7 @@ namespace chen
             }
 
         private:
-            data_type *_data = nullptr;
+            concept::base *_data = nullptr;
         };
     }
 
