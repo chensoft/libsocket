@@ -13,28 +13,33 @@
 
 #include <type_traits>
 #include <iterator>
-#include <memory>
 
 namespace chen
 {
     /**
      * Helper classes
      */
-    namespace iterator_helper
+    namespace iterator
     {
         // ---------------------------------------------------------------------
         // Miscellaneous
         /**
          * Proxy when use operator++(int) and operator--(int)
-         * when working with iterators like istreambuf_iterator, we can't simply copy it and return
-         * we must save the current value and return a proxy to the caller
+         * since some iterators are single-pass(e.g: istreambuf_iterator)
+         * we can't simply copy erasure and return when call operator++(int)
+         * so we save the current value and return a proxy to the caller instead
          */
-        template <typename Value, typename Base>
+        template <typename Value, typename Data>
         class proxy
         {
         public:
-            proxy(Value keep, const Base &data) : _keep(keep), _data(data->clone())
+            proxy(Value keep, Data *data) : _keep(keep), _data(data->clone())
             {
+            }
+
+            ~proxy()
+            {
+                delete this->_data;
             }
 
             Value operator*() const
@@ -42,14 +47,14 @@ namespace chen
                 return this->_keep;
             }
 
-            Base clone() const
+            Data* clone() const
             {
-                return Base(this->_data->clone());
+                return this->_data->clone();
             }
 
         private:
             Value _keep;
-            Base _data;
+            Data *_data;
         };
 
 
@@ -308,183 +313,188 @@ namespace chen
         protected:
             Iterator _it;
         };
+
+
+        // ---------------------------------------------------------------------
+        // The erasure
+        template <typename Category, typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
+        class erasure
+        {
+        public:
+            typedef Value     value_type;
+            typedef Distance  difference_type;
+            typedef Pointer   pointer;
+            typedef Reference reference;
+            typedef Category  iterator_category;
+
+            typedef base<Category, Value, Reference, Pointer, Distance> data_type;
+
+        public:
+            /**
+             * Copy constructor
+             */
+            erasure(const erasure &o)
+            {
+                *this = o;
+            }
+
+            erasure& operator=(const erasure &o)
+            {
+                auto tmp = this->_data;
+                this->_data = o._data->clone();
+
+                delete tmp;
+                return *this;
+            }
+
+            /**
+             * Construct by proxy
+             */
+            erasure(const proxy<Value, data_type> &p) : _data(p.clone())
+            {
+            }
+
+            /**
+             * Wrap another iterator
+             */
+            template <typename Iterator>
+            erasure(Iterator it) : _data(new impl<Category, Iterator, Value, Reference, Pointer, Distance>(it))
+            {
+            }
+
+            ~erasure()
+            {
+                delete this->_data;
+            }
+
+        public:
+            /**
+             * Input & Forward iterator
+             */
+            reference operator*() const
+            {
+                return **this->_data;
+            }
+
+            erasure& operator++()
+            {
+                ++*this->_data;
+                return *this;
+            }
+
+            proxy<Value, data_type> operator++(int)
+            {
+                proxy<Value, data_type> ret(**this, this->_data);
+                ++*this->_data;
+                return ret;
+            }
+
+            bool operator==(const erasure &o) const
+            {
+                return *this->_data == *o._data;
+            }
+
+            bool operator!=(const erasure &o) const
+            {
+                return !(*this == o);
+            }
+
+            difference_type distance() const
+            {
+                // since input iterator is single-pass, we can't use std::distance on it
+                // however, in some cases we want to know input iterator's position, so I add this method
+                // @caution don't use this method if your category is not input iterator
+                return this->_data->distance();
+            }
+
+            /**
+             * Bidirectional iterator
+             */
+            erasure& operator--()
+            {
+                --*this->_data;
+                return *this;
+            }
+
+            proxy<Value, data_type> operator--(int)
+            {
+                proxy<Value, data_type> ret(**this, this->_data);
+                --*this->_data;
+                return ret;
+            }
+
+            /**
+             * Random iterator
+             */
+            reference operator[](difference_type n) const
+            {
+                return (*this->_data)[n];
+            }
+
+            erasure& operator+=(difference_type n)
+            {
+                *this->_data += n;
+                return *this;
+            }
+
+            erasure operator+(difference_type n) const
+            {
+                erasure tmp = *this;
+                tmp += n;
+                return tmp;
+            }
+
+            erasure& operator-=(difference_type n)
+            {
+                *this->_data -= n;
+                return *this;
+            }
+
+            erasure operator-(difference_type n) const
+            {
+                erasure tmp = *this;
+                tmp -= n;
+                return tmp;
+            }
+
+            bool operator<(const erasure &o) const
+            {
+                return *this->_data < *o._data;
+            }
+
+            bool operator>(const erasure &o) const
+            {
+                return o < *this;
+            }
+
+            bool operator<=(const erasure &o) const
+            {
+                return *this->_data <= *o._data;
+            }
+
+            bool operator>=(const erasure &o) const
+            {
+                return o <= *this;
+            }
+
+        private:
+            data_type *_data = nullptr;
+        };
     }
 
-    /**
-     * The iterator
-     */
-    template <typename Category, typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
-    class iterator
-    {
-    public:
-        typedef Value     value_type;
-        typedef Distance  difference_type;
-        typedef Pointer   pointer;
-        typedef Reference reference;
-        typedef Category  iterator_category;
-
-        typedef std::unique_ptr<iterator_helper::base<Category, Value, Reference, Pointer, Distance>> data_type;
-
-    public:
-        /**
-         * Copy constructor
-         */
-        iterator(const iterator &o)
-        {
-            *this = o;
-        }
-
-        iterator& operator=(const iterator &o)
-        {
-            if (this == &o)
-                return *this;
-
-            this->_ptr.reset(o._ptr->clone());
-
-            return *this;
-        }
-
-        /**
-         * Construct by proxy
-         */
-        iterator(const iterator_helper::proxy<Value, data_type> &p) : _ptr(p.clone())
-        {
-        }
-
-        /**
-         * Wrap another iterator
-         */
-        template <typename Iterator>
-        iterator(Iterator it) : _ptr(new iterator_helper::impl<Category, Iterator, Value, Reference, Pointer, Distance>(it))
-        {
-        }
-
-    public:
-        /**
-         * Input & Forward iterator
-         */
-        reference operator*() const
-        {
-            return this->_ptr->operator*();
-        }
-
-        iterator& operator++()
-        {
-            ++(*this->_ptr);
-            return *this;
-        }
-
-        iterator_helper::proxy<Value, data_type> operator++(int)
-        {
-            iterator_helper::proxy<Value, data_type> ret(**this, this->_ptr);
-            ++(*this->_ptr);
-            return ret;
-        }
-
-        bool operator==(const iterator &o) const
-        {
-            return *this->_ptr == *o._ptr;
-        }
-
-        bool operator!=(const iterator &o) const
-        {
-            return !(*this == o);
-        }
-
-        difference_type distance() const
-        {
-            // since input iterator is single-pass, we can't use std::distance on it
-            // however, in some cases we want to know input iterator's position, so I add this method
-            // @caution don't use this method if your category is not input iterator
-            return this->_ptr->distance();
-        }
-
-        /**
-         * Bidirectional iterator
-         */
-        iterator& operator--()
-        {
-            --(*this->_ptr);
-            return *this;
-        }
-
-        iterator_helper::proxy<Value, data_type> operator--(int)
-        {
-            iterator_helper::proxy<Value, data_type> ret(**this, this->_ptr);
-            --(*this->_ptr);
-            return ret;
-        }
-
-        /**
-         * Random iterator
-         */
-        reference operator[](difference_type n) const
-        {
-            return (*this->_ptr)[n];
-        }
-
-        iterator& operator+=(difference_type n)
-        {
-            (*this->_ptr) += n;
-            return *this;
-        }
-
-        iterator operator+(difference_type n) const
-        {
-            iterator tmp = *this;
-            tmp += n;
-            return tmp;
-        }
-
-        iterator& operator-=(difference_type n)
-        {
-            (*this->_ptr) -= n;
-            return *this;
-        }
-
-        iterator operator-(difference_type n) const
-        {
-            iterator tmp = *this;
-            tmp -= n;
-            return tmp;
-        }
-
-        bool operator<(const iterator &o) const
-        {
-            return *this->_ptr < *o._ptr;
-        }
-
-        bool operator>(const iterator &o) const
-        {
-            return o < *this;
-        }
-
-        bool operator<=(const iterator &o) const
-        {
-            return *this->_ptr <= *o._ptr;
-        }
-
-        bool operator>=(const iterator &o) const
-        {
-            return o <= *this;
-        }
-
-    private:
-        data_type _ptr;
-    };
 
     /**
      * Type alias(C++11)
      */
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
-    using input_iterator = iterator<std::input_iterator_tag, Value, Reference, Pointer, Distance>;
+    using input_iterator = iterator::erasure<std::input_iterator_tag, Value, Reference, Pointer, Distance>;
 
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
     using forward_iterator = input_iterator<Value, Reference, Pointer, Distance>;
 
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
-    using bidirectional_iterator = iterator<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance>;
+    using bidirectional_iterator = iterator::erasure<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance>;
 
     template<typename Value, typename Reference = Value&, typename Pointer = Value*, typename Distance = std::ptrdiff_t>
-    using random_iterator = iterator<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>;
+    using random_iterator = iterator::erasure<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>;
 }
