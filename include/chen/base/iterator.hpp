@@ -37,6 +37,14 @@ namespace chen
             {
             }
 
+            proxy(const proxy &o) : _keep(o._keep), _data(o.clone())
+            {
+                // I don't know why the Visual Studio 2015 didn't do named return value optimization
+                // so I add this copy constructor
+            }
+
+            proxy& operator=(const proxy&) = delete;
+
             ~proxy()
             {
                 delete this->_data;
