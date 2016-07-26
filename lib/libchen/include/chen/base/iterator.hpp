@@ -129,7 +129,7 @@ namespace chen
 
             virtual concept::base* clone() const override
             {
-                return new impl(this->_it);
+                return new impl(*this);
             }
 
         public:
@@ -172,7 +172,7 @@ namespace chen
 
             virtual concept::base* clone() const override
             {
-                return new impl(this->_it);
+                return new impl(*this);
             }
 
         public:
@@ -214,7 +214,7 @@ namespace chen
 
             virtual concept::base* clone() const override
             {
-                return new impl(this->_it);
+                return new impl(*this);
             }
 
         public:
@@ -290,6 +290,8 @@ namespace chen
             typedef concept::random<Value, Reference, Pointer, Distance> random_type;
 
         public:
+            erasure() = delete;
+
             /**
              * Copy constructor
              */
