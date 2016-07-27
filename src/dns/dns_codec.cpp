@@ -188,25 +188,30 @@ void encoder::domain(const std::string &val, bool compress)
 
     this->_data.emplace_back(0);  // size for next label
 
-    for (std::size_t i = 0, len = val.size(); i < len; ++i)
+    std::size_t size = val.size();
+
+    if (size > 1)
     {
-        char c = val[i];
-
-        if (c == '.')
+        for (std::size_t i = 0; i < size; ++i)
         {
-            this->_data[this->_data.size() - length - 1] = length;
-            this->_data.emplace_back(0);  // size for next label
+            char c = val[i];
 
-            length = 0;
-        }
-        else
-        {
-            ++length;
+            if (c == '.')
+            {
+                this->_data[this->_data.size() - length - 1] = length;
+                this->_data.emplace_back(0);  // size for next label
 
-            if (length > SIZE_LIMIT_LABEL)
-                throw error_codec(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+                length = 0;
+            }
+            else
+            {
+                ++length;
 
-            this->_data.emplace_back(static_cast<std::uint8_t>(c));
+                if (length > SIZE_LIMIT_LABEL)
+                    throw error_codec(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+
+                this->_data.emplace_back(static_cast<std::uint8_t>(c));
+            }
         }
     }
 
@@ -220,10 +225,16 @@ bool encoder::compress(const std::string &val)
     {
         if (str::suffix(pair.first, val))
         {
-            // first two bits are 11
-            std::uint16_t location = static_cast<std::uint16_t>(pair.second + (pair.first.size() - val.size()));
-            location |= 0xC000;
+            auto size_a = pair.first.size();
+            auto size_b = val.size();
+            auto offset = size_a - size_b;
 
+            // val must in the beginning of text, or the prev char is '.'
+            if ((size_a != size_b) && (pair.first[offset - 1] != '.'))
+                continue;
+
+            // first two bits are 11
+            std::uint16_t location = static_cast<std::uint16_t>((pair.second + offset) | 0xC000);
             this->_data.emplace_back(static_cast<uint8_t>(location >> 8 & 0xFF));
             this->_data.emplace_back(static_cast<uint8_t>(location & 0xFF));
 
@@ -388,6 +399,13 @@ void decoder::domain(std::string &val)
 
 void decoder::extract(std::string &val, iterator &cur)
 {
+    if (!*cur)
+    {
+        val += '.';
+        ++cur;
+        return;
+    }
+
     while (*cur)
     {
         // check compression
@@ -428,8 +446,8 @@ void decoder::extract(std::string &val, iterator &cur)
         for (std::size_t i = 1; i < length; ++i)
             val += *cur++;
 
-        val += ".";
+        val += '.';
     }
 
-    ++cur;  // the padding zero
+    ++cur;  // skip the ending zero
 }
