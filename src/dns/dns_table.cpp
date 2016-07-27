@@ -29,7 +29,7 @@ namespace
             {chen::dns::RRType::MB, [] () -> rr_pointer { return std::make_shared<chen::dns::MB>(); }},
             {chen::dns::RRType::MG, [] () -> rr_pointer { return std::make_shared<chen::dns::MG>(); }},
             {chen::dns::RRType::MR, [] () -> rr_pointer { return std::make_shared<chen::dns::MR>(); }},
-            {chen::dns::RRType::NUL, [] () -> rr_pointer { return std::make_shared<chen::dns::NUL>(); }},
+            {chen::dns::RRType::Null, [] () -> rr_pointer { return std::make_shared<chen::dns::Null>(); }},
             {chen::dns::RRType::WKS, [] () -> rr_pointer { return std::make_shared<chen::dns::WKS>(); }},
             {chen::dns::RRType::PTR, [] () -> rr_pointer { return std::make_shared<chen::dns::PTR>(); }},
             {chen::dns::RRType::HINFO, [] () -> rr_pointer { return std::make_shared<chen::dns::HINFO>(); }},
@@ -110,7 +110,7 @@ namespace
             {chen::dns::RRType::MB, "MB"},
             {chen::dns::RRType::MG, "MG"},
             {chen::dns::RRType::MR, "MR"},
-            {chen::dns::RRType::NUL, "NULL"},  // NULL is the official name
+            {chen::dns::RRType::Null, "NULL"},  // NULL is the official name
             {chen::dns::RRType::WKS, "WKS"},
             {chen::dns::RRType::PTR, "PTR"},
             {chen::dns::RRType::HINFO, "HINFO"},

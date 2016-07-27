@@ -534,24 +534,24 @@ void MR::unpack(const chen::json::object &object)
 
 
 // -----------------------------------------------------------------------------
-// NUL
-NUL::NUL() : Raw(chen::dns::RRType::NUL)
+// Null
+Null::Null() : Raw(chen::dns::RRType::Null)
 {
 }
 
-std::string NUL::str(const std::string &sep) const
+std::string Null::str(const std::string &sep) const
 {
     auto ret = Raw::str(sep);
     ret += sep + RR::escape(this->anything.size());
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NUL::clone() const
+std::shared_ptr<chen::dns::RR> Null::clone() const
 {
-    return std::make_shared<NUL>(*this);
+    return std::make_shared<Null>(*this);
 }
 
-void NUL::pack(chen::dns::encoder &encoder) const
+void Null::pack(chen::dns::encoder &encoder) const
 {
     // base
     Raw::pack(encoder);
@@ -562,12 +562,12 @@ void NUL::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->anything, this->anything.size());
 }
 
-void NUL::unpack(chen::dns::decoder &decoder)
+void Null::unpack(chen::dns::decoder &decoder)
 {
     decoder.unpack(this->anything, this->rdlength);
 }
 
-void NUL::unpack(const chen::json::object &object)
+void Null::unpack(const chen::json::object &object)
 {
     Raw::unpack(object);
 

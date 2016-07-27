@@ -314,10 +314,11 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NULL(rfc1035, section 3.3.10, can store anything)
-        class NUL : public Raw
+        // rename to Null to avoid confusion with the macro NULL in stddef.h
+        class Null : public Raw
         {
         public:
-            NUL();
+            Null();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;

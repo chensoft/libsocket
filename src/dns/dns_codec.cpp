@@ -408,7 +408,8 @@ void decoder::extract(std::string &val, iterator &cur)
         else if ((*cur & 0xC0) != 0)
         {
             // only bits 00 and 11 are defined in rfc1035
-            // bits 01 and 10 are defined in rfc2671, but not widely deployed now
+            // bits 01 and 10 are defined in rfc2671 and rfc2673
+            // but they are not widely deployed and deprecated now
             throw error_codec("dns: codec unpack string label type error");
         }
 

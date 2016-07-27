@@ -114,7 +114,7 @@ namespace chen
             MB         = 7,    // rfc1035, section 3.3.3, a mailbox domain name (EXPERIMENTAL)
             MG         = 8,    // rfc1035, section 3.3.6, a mail group member (EXPERIMENTAL)
             MR         = 9,    // rfc1035, section 3.3.8, a mail rename domain name (EXPERIMENTAL)
-            NUL        = 10,   // rfc1035, section 3.3.10, a null RR (EXPERIMENTAL)
+            Null       = 10,   // rfc1035, section 3.3.10, a null RR (EXPERIMENTAL)
             WKS        = 11,   // rfc1035, section 3.4.2, a well known service description
             PTR        = 12,   // rfc1035, section 3.3.12, a domain name pointer
             HINFO      = 13,   // rfc1035, section 3.3.2, host information
