@@ -14,6 +14,7 @@ namespace chen
     namespace dns
     {
         class RR;
+        class OPT;
 
         // ---------------------------------------------------------------------
         // message
@@ -48,8 +49,8 @@ namespace chen
 
             /**
              * EDNS
-             * todo get opt record
              */
+            std::shared_ptr<chen::dns::OPT> opt() const;
 
         public:
             /**

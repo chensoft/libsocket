@@ -92,6 +92,18 @@ void message::setAdditional(std::vector<record_type> value)
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
+// edns
+std::shared_ptr<chen::dns::OPT> message::opt() const
+{
+    for (auto &rr : this->_additional)
+    {
+        if (rr->rrtype == chen::dns::RRType::OPT)
+            return std::dynamic_pointer_cast<chen::dns::OPT>(rr->clone());
+    }
+
+    return nullptr;
+}
+
 // codec
 void message::encode(chen::dns::encoder &encoder) const
 {
@@ -277,7 +289,9 @@ void response::setQuestion(const chen::dns::request &request)
 
     // include the OPT record
     // rfc6891, section 6.1.1
-    // todo set OPT rr
+    auto opt = request.opt();
+    if (opt)
+        this->setAdditional(std::vector<record_type>{std::move(opt)});
 }
 
 // rotate
