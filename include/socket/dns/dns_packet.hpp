@@ -20,29 +20,51 @@ namespace chen
         class message
         {
         public:
-            virtual ~message() = 0;
+            typedef chen::dns::header header_type;
+            typedef chen::dns::question question_type;
+            typedef std::shared_ptr<chen::dns::RR> record_type;
 
         public:
             /**
-             * Get field value
+             * Property
              */
-            const chen::dns::header& header() const;
-            chen::dns::header& header();
+            header_type& header();
+
+            const header_type& header() const;
+            const std::vector<question_type>& question() const;
+            const std::vector<record_type>& answer()     const;
+            const std::vector<record_type>& authority()  const;
+            const std::vector<record_type>& additional() const;
+
+            void addQuestion(question_type value);
+            void addAnswer(record_type value);
+            void addAuthority(record_type value);
+            void addAdditional(record_type value);
+
+            void setQuestion(std::vector<question_type> value);
+            void setAnswer(std::vector<record_type> value);
+            void setAuthority(std::vector<record_type> value);
+            void setAdditional(std::vector<record_type> value);
 
             /**
-             * Set field value
+             * EDNS
+             * todo get opt record
              */
-            void setHeader(const chen::dns::header &value);
 
         public:
             /**
              * Encode & Decode
              */
-            virtual void encode(chen::dns::encoder &encoder) const;
-            virtual void decode(chen::dns::decoder &decoder);
+            void encode(chen::dns::encoder &encoder) const;
+            void decode(chen::dns::decoder &decoder);
 
         protected:
-            chen::dns::header _header;
+            header_type _header;
+
+            std::vector<question_type> _question;
+            std::vector<record_type>   _answer;
+            std::vector<record_type>   _authority;
+            std::vector<record_type>   _additional;
         };
 
 
@@ -52,23 +74,16 @@ namespace chen
         {
         public:
             /**
-             * Set question
+             * Query
              */
-            void setQuestion(const std::string &qname,
-                             chen::dns::RRType qtype,
-                             chen::dns::RRClass qclass = chen::dns::RRClass::IN,
-                             std::uint16_t id = header::random(),
-                             bool recursionDesired = true);
+            void query(const std::string &qname, chen::dns::RRType qtype);
 
-        public:
             /**
              * Question
+             * usually only one question exist
              */
-            const chen::dns::question& question() const;
-            chen::dns::question& question();
-
-            void setQuestion(const chen::dns::question &value);
-            void setQuestion(chen::dns::question &&value);
+            const question_type& question() const;
+            question_type& question();
 
         public:
             /**
@@ -84,20 +99,16 @@ namespace chen
             /**
              * Encode & Decode
              */
+            using message::encode;
+            using message::decode;
+
             std::vector<std::uint8_t> encode() const;
             void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end,
                         const std::string &addr = "", std::uint16_t port = 0);
 
-            virtual void encode(chen::dns::encoder &encoder) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
-
         protected:
-            // client address info, empty if not set
-            std::string _addr;
+            std::string _addr;  // client address info, empty if not set
             std::uint16_t _port;
-
-            // client question
-            chen::dns::question _question;
         };
 
 
@@ -106,49 +117,16 @@ namespace chen
         class response : public message
         {
         public:
-            typedef std::vector<chen::dns::question> q_type;
-            typedef std::vector<std::shared_ptr<chen::dns::RR>> rr_type;
-
-        public:
-            explicit response(bool authoritative = false);
+            explicit response(bool authoritative);
+            response(bool authoritative, const chen::dns::request &request);
 
         public:
             /**
-             * Add field value
+             * Set question by request
              */
-            void addQuestion(const chen::dns::question &value);
-            void addQuestion(chen::dns::question &&value);
+            using message::setQuestion;
+            void setQuestion(const chen::dns::request &request);
 
-            void addAnswer(std::shared_ptr<chen::dns::RR> value);
-            void addAuthority(std::shared_ptr<chen::dns::RR> value);
-            void addAdditional(std::shared_ptr<chen::dns::RR> value);
-
-        public:
-            /**
-             * Get field value
-             */
-            const q_type& question()    const;
-            const rr_type& answer()     const;
-            const rr_type& authority()  const;
-            const rr_type& additional() const;
-
-        public:
-            /**
-             * Set field value
-             */
-            void setQuestion(const chen::dns::request &value);
-
-            void setQuestion(const q_type &value);
-            void setAnswer(const rr_type &value);
-            void setAuthority(const rr_type &value);
-            void setAdditional(const rr_type &value);
-
-            void setQuestion(q_type &&value);
-            void setAnswer(rr_type &&value);
-            void setAuthority(rr_type &&value);
-            void setAdditional(rr_type &&value);
-
-        public:
             /**
              * Rotate answers
              */
@@ -158,17 +136,11 @@ namespace chen
             /**
              * Encode & Decode
              */
+            using message::encode;
+            using message::decode;
+
             std::vector<std::uint8_t> encode() const;
             void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end);
-
-            virtual void encode(chen::dns::encoder &encoder) const override;
-            virtual void decode(chen::dns::decoder &decoder) override;
-
-        protected:
-            q_type  _question;
-            rr_type _answer;
-            rr_type _authority;
-            rr_type _additional;
         };
     }
 }
