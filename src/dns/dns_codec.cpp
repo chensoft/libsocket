@@ -145,7 +145,7 @@ void encoder::pack(const std::string &val, StringType type, bool compress)
 void encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need)
 {
     if (val.size() < need)
-        throw error_size(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
+        throw error_codec(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
 
     this->_data.insert(this->_data.end(), val.begin(), val.begin() + need);
 }
@@ -157,7 +157,7 @@ void encoder::plain(const std::string &val)
     // value is plain text
     // one byte length + characters
     if (val.size() > SIZE_LIMIT_STRING)
-        throw error_size(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
+        throw error_codec(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
     this->_data.emplace_back(static_cast<std::uint8_t>(val.size()));
     this->_data.insert(this->_data.end(), val.begin(), val.end());
@@ -174,7 +174,7 @@ void encoder::domain(const std::string &val, bool compress)
     // example: www.chensoft.com. will encoded as [3, w, w, w, 8, c, h, e, n, s, o, f, t, 3, c, o, m, 0]
     // the encoded bytes can't exceed than SIZE_LIMIT_DOMAIN
     if (val.size() + 1 > SIZE_LIMIT_DOMAIN)
-        throw error_size(str::format("dns: codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
+        throw error_codec(str::format("dns: codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
 
     // try to compress
     if (compress && this->compress(val))
@@ -204,7 +204,7 @@ void encoder::domain(const std::string &val, bool compress)
             ++length;
 
             if (length > SIZE_LIMIT_LABEL)
-                throw error_size(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+                throw error_codec(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
             this->_data.emplace_back(static_cast<std::uint8_t>(c));
         }
@@ -287,7 +287,7 @@ void decoder::unpack(std::int64_t &val)
 void decoder::unpack(std::uint8_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 1)
-        throw error_size("dns: codec unpack size is not enough, require 1 bytes");
+        throw error_codec("dns: codec unpack size is not enough, require 1 bytes");
 
     val = *this->_cur++;
 }
@@ -295,7 +295,7 @@ void decoder::unpack(std::uint8_t &val)
 void decoder::unpack(std::uint16_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 2)
-        throw error_size("dns: codec unpack size is not enough, require 2 bytes");
+        throw error_codec("dns: codec unpack size is not enough, require 2 bytes");
 
     val = 0;
 
@@ -306,7 +306,7 @@ void decoder::unpack(std::uint16_t &val)
 void decoder::unpack(std::uint32_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 4)
-        throw error_size("dns: codec unpack size is not enough, require 4 bytes");
+        throw error_codec("dns: codec unpack size is not enough, require 4 bytes");
 
     val = 0;
 
@@ -317,7 +317,7 @@ void decoder::unpack(std::uint32_t &val)
 void decoder::unpack(std::uint64_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 8)
-        throw error_size("dns: codec unpack size is not enough, require 8 bytes");
+        throw error_codec("dns: codec unpack size is not enough, require 8 bytes");
 
     val = 0;
 
@@ -338,7 +338,7 @@ void decoder::unpack(chen::dns::RRClass &val)
 void decoder::unpack(std::string &val, StringType type)
 {
     if (std::distance(this->_cur, this->_end) < 1)
-        throw error_size("dns: codec unpack string size is zero");
+        throw error_codec("dns: codec unpack string size is zero");
 
     switch (type)
     {
@@ -355,7 +355,7 @@ void decoder::unpack(std::string &val, StringType type)
 void decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need)
 {
     if (std::distance(this->_cur, this->_end) < need)
-        throw error_size(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
+        throw error_codec(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
     while (need--)
         val.emplace_back(*this->_cur++);
@@ -369,7 +369,7 @@ void decoder::plain(std::string &val)
     auto length = static_cast<std::size_t>(*this->_cur) + 1;
 
     if (std::distance(this->_cur, this->_end) < length)
-        throw error_size(str::format("dns: codec unpack string size is not enough, require %d bytes", length));
+        throw error_codec(str::format("dns: codec unpack string size is not enough, require %d bytes", length));
 
     ++this->_cur;
 
@@ -395,7 +395,7 @@ void decoder::extract(std::string &val, iterator &cur)
         {
             auto byte = *cur++ & 0x3F;
             if (!*cur)
-                throw error_size("dns: codec unpack string size is not enough, require 1 bytes");
+                throw error_codec("dns: codec unpack string size is not enough, require 1 bytes");
 
             auto pos = static_cast<std::size_t>((byte << 8) | *cur++);
             auto tmp = this->_beg;
@@ -405,16 +405,22 @@ void decoder::extract(std::string &val, iterator &cur)
             // recursive process
             return this->extract(val, tmp);
         }
+        else if ((*cur & 0xC0) != 0)
+        {
+            // only bits 00 and 11 are defined in rfc1035
+            // bits 01 and 10 are defined in rfc2671, but not widely deployed now
+            throw error_codec("dns: codec unpack string label type error");
+        }
 
         // normal text
         auto length = *cur + 1;
 
         if (std::distance(cur, this->_end) < length)
-            throw error_size(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
+            throw error_codec(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
 
         // check limit
         if (length > SIZE_LIMIT_LABEL)
-            throw error_size(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+            throw error_codec(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
         ++cur;
 

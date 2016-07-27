@@ -24,12 +24,12 @@ namespace chen
 
 
         /**
-         * Size error
+         * Codec error
          */
-        class error_size : public error
+        class error_codec : public error
         {
         public:
-            explicit error_size(const std::string &what) : error(what) {}
+            explicit error_codec(const std::string &what) : error(what) {}
         };
 
 

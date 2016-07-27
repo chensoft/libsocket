@@ -145,7 +145,7 @@ namespace chen
             {
                 auto need = val.size();
                 if (std::distance(this->_cur, this->_end) < need)
-                    throw error_size(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
+                    throw error_codec(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
 
                 auto from = this->_cur;
 

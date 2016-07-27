@@ -46,7 +46,7 @@ void RR::encode(chen::dns::encoder &encoder) const
     auto off = len - before;
 
     if (off > std::numeric_limits<std::uint16_t>::max())
-        throw error_size("dns: codec pack rdata size is overflow");
+        throw error_codec("dns: codec pack rdata size is overflow");
 
     auto tmp = static_cast<std::uint16_t>(off);
 
@@ -117,7 +117,7 @@ std::size_t RR::remain(const chen::dns::codec::iterator &beg,
 {
     auto used = std::distance(beg, cur);
     if (this->rdlength < used)
-        throw error_size("dns: codec rdata is overflow");
+        throw error_codec("dns: codec rdata is overflow");
 
     return static_cast<std::size_t>(this->rdlength - used);
 }

@@ -57,7 +57,7 @@ void request::setQuestion(const std::string &qname,
 {
     // check empty
     if (qname.empty())
-        throw error_size("dns: request query name is empty");
+        throw error_codec("dns: request query name is empty");
 
     // check fqdn
     if (!codec::isFqdn(qname))
