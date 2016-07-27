@@ -159,9 +159,29 @@ void message::decode(chen::dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // request
+request::request(const std::string &qname, chen::dns::RRType qtype)
+{
+    this->setQuery(qname, qtype);
+}
 
 // query
-void request::query(const std::string &qname, chen::dns::RRType qtype)
+const request::question_type& request::query() const
+{
+    if (this->_question.empty())
+        throw chen::dns::error("dns: request question is empty");
+
+    return this->_question[0];
+}
+
+request::question_type& request::query()
+{
+    if (this->_question.empty())
+        throw chen::dns::error("dns: request question is empty");
+
+    return this->_question[0];
+}
+
+void request::setQuery(const std::string &qname, chen::dns::RRType qtype)
 {
     // check empty
     if (qname.empty())
@@ -190,22 +210,6 @@ void request::query(const std::string &qname, chen::dns::RRType qtype)
     question.setQname(qname);
     question.setQtype(qtype);
     question.setQclass(chen::dns::RRClass::IN);
-}
-
-const request::question_type& request::question() const
-{
-    if (this->_question.empty())
-        throw chen::dns::error("dns: request question is empty");
-
-    return this->_question[0];
-}
-
-request::question_type& request::question()
-{
-    if (this->_question.empty())
-        throw chen::dns::error("dns: request question is empty");
-
-    return this->_question[0];
 }
 
 // client
@@ -269,8 +273,10 @@ void response::setQuestion(const chen::dns::request &request)
     this->_header.setId(request.header().id());
     this->_header.setRecursionDesired(request.header().recursionDesired());
 
-    this->setQuestion(std::vector<question_type>{request.question()});
+    this->setQuestion(request.question());
 
+    // include the OPT record
+    // rfc6891, section 6.1.1
     // todo set OPT rr
 }
 

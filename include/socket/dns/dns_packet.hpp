@@ -73,17 +73,18 @@ namespace chen
         class request : public message
         {
         public:
+            request() = default;
+            request(const std::string &qname, chen::dns::RRType qtype);
+
+        public:
             /**
              * Query
-             */
-            void query(const std::string &qname, chen::dns::RRType qtype);
-
-            /**
-             * Question
              * usually only one question exist
              */
-            const question_type& question() const;
-            question_type& question();
+            const question_type& query() const;
+            question_type& query();
+
+            void setQuery(const std::string &qname, chen::dns::RRType qtype);
 
         public:
             /**
@@ -117,6 +118,7 @@ namespace chen
         class response : public message
         {
         public:
+            response() = default;
             explicit response(bool authoritative);
             response(bool authoritative, const chen::dns::request &request);
 
