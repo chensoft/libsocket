@@ -1855,6 +1855,82 @@ OPT::OPT() : Raw(chen::dns::RRType::OPT)
 {
 }
 
+std::uint16_t OPT::payload() const
+{
+    return static_cast<std::uint16_t>(this->rrclass);
+}
+
+std::uint16_t OPT::rcode(chen::dns::RCODE code) const
+{
+    std::uint16_t ret = this->rcode();
+    return ret << 4 | static_cast<std::uint8_t>(code);
+}
+
+std::uint8_t OPT::rcode() const
+{
+    return static_cast<std::uint8_t>(this->ttl >> 24 & 0xFF);
+}
+
+std::uint8_t OPT::version() const
+{
+    return static_cast<std::uint8_t>(this->ttl >> 16 & 0xFF);
+}
+
+std::uint16_t OPT::flag() const
+{
+    return static_cast<std::uint8_t>(this->ttl & 0xFFFF);
+}
+
+bool OPT::isDO() const
+{
+    return (this->flag() & 0x8000) == 0x8000;
+}
+
+std::uint16_t OPT::z() const
+{
+    return static_cast<std::uint16_t>(this->flag() & 0x7FFF);
+}
+
+void OPT::setPayload(std::uint16_t value)
+{
+    this->rrclass = static_cast<chen::dns::RRClass>(value);
+}
+
+void OPT::setRcode(std::uint16_t value)
+{
+    this->setRcode(static_cast<std::uint8_t>(value >> 4 & 0xFF));
+}
+
+void OPT::setRcode(std::uint8_t value)
+{
+    std::uint32_t tmp = value;
+    this->ttl = (this->ttl & 0x00FFFFFF) | (tmp << 24);
+}
+
+void OPT::setVersion(std::uint8_t value)
+{
+    std::uint32_t tmp = value;
+    this->ttl = (this->ttl & 0xFF00FFFF) | (tmp << 16);
+}
+
+void OPT::setFlag(std::uint16_t value)
+{
+    this->ttl = (this->ttl & 0xFFFF0000) | value;
+}
+
+void OPT::setDO(bool value)
+{
+    this->ttl &= 0xFFFF7FFF;
+
+    if (value)
+        this->ttl |= 0x8000;
+}
+
+void OPT::setZ(std::uint16_t value)
+{
+    this->ttl = (this->ttl & 0x8000) | value;
+}
+
 std::shared_ptr<chen::dns::RR> OPT::clone() const
 {
     return std::make_shared<OPT>(*this);

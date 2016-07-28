@@ -343,9 +343,9 @@ bool address_v4::operator<=(const address &o) const
 std::string address_v4::toString(std::uint32_t addr)
 {
     return str::format("%u.%u.%u.%u",
-                       (addr >> 24) & 0xFF,
-                       (addr >> 16) & 0xFF,
-                       (addr >> 8) & 0xFF,
+                       addr >> 24 & 0xFF,
+                       addr >> 16 & 0xFF,
+                       addr >> 8 & 0xFF,
                        addr & 0xFF);
 }
 

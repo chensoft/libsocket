@@ -1021,6 +1021,39 @@ namespace chen
             OPT();
 
         public:
+            /**
+             * Requestor's UDP payload size, stores in the rrclass field
+             * @see rfc6891, section 6.1.2
+             */
+            std::uint16_t payload() const;
+
+            /**
+             * Extended RCODE and flags, stores in the ttl field
+             * @see rfc6891, section 6.1.3 & 6.1.4
+             */
+            std::uint16_t rcode(chen::dns::RCODE code) const;  // upper 8 bits combine with 4 bits original rcode
+            std::uint8_t rcode() const;    // upper 8 bits of extended 12-bit RCODE
+            std::uint8_t version() const;  // edns version
+
+            std::uint16_t flag() const;  // edns flags
+            bool isDO() const;           // DNSSEC OK bit
+            std::uint16_t z() const;     // reserved zero bits
+
+        public:
+            /**
+             * Set property value
+             */
+            void setPayload(std::uint16_t value);
+
+            void setRcode(std::uint16_t value);   // full 12 bits value
+            void setRcode(std::uint8_t value);    // upper 8 bits
+            void setVersion(std::uint8_t value);  // edns version
+
+            void setFlag(std::uint16_t value);  // edns flags
+            void setDO(bool value);             // DNSSEC OK bit
+            void setZ(std::uint16_t value);     // reserved zero bits
+
+        public:
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
         };
 
