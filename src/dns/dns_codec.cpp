@@ -189,29 +189,28 @@ void encoder::domain(const std::string &val, bool compress)
     this->_data.emplace_back(0);  // size for next label
 
     std::size_t size = val.size();
+    if (size <= 1)
+        return;
 
-    if (size > 1)
+    for (std::size_t i = 0; i < size; ++i)
     {
-        for (std::size_t i = 0; i < size; ++i)
+        char c = val[i];
+
+        if (c == '.')
         {
-            char c = val[i];
+            this->_data[this->_data.size() - length - 1] = length;
+            this->_data.emplace_back(0);  // size for next label
 
-            if (c == '.')
-            {
-                this->_data[this->_data.size() - length - 1] = length;
-                this->_data.emplace_back(0);  // size for next label
+            length = 0;
+        }
+        else
+        {
+            ++length;
 
-                length = 0;
-            }
-            else
-            {
-                ++length;
+            if (length > SIZE_LIMIT_LABEL)
+                throw error_codec(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-                if (length > SIZE_LIMIT_LABEL)
-                    throw error_codec(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
-
-                this->_data.emplace_back(static_cast<std::uint8_t>(c));
-            }
+            this->_data.emplace_back(static_cast<std::uint8_t>(c));
         }
     }
 
@@ -399,14 +398,7 @@ void decoder::domain(std::string &val)
 
 void decoder::extract(std::string &val, iterator &cur)
 {
-    if (!*cur)
-    {
-        val += '.';
-        ++cur;
-        return;
-    }
-
-    while (*cur)
+    do
     {
         // check compression
         if ((*cur & 0xC0) == 0xC0)
@@ -441,13 +433,11 @@ void decoder::extract(std::string &val, iterator &cur)
         if (length > SIZE_LIMIT_LABEL)
             throw error_codec(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-        ++cur;
-
         for (std::size_t i = 1; i < length; ++i)
-            val += *cur++;
+            val += *++cur;
 
         val += '.';
-    }
+    } while (*cur && *++cur);
 
     ++cur;  // skip the ending zero
 }
