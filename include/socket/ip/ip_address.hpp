@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <string>
 #include <memory>
+#include <vector>
 #include <array>
 
 namespace chen
@@ -51,6 +52,11 @@ namespace chen
              * Standard canonical representation
              */
             virtual std::string str() const = 0;
+
+            /**
+             * Binary representation
+             */
+            virtual std::vector<std::uint8_t> bytes() const = 0;
 
         public:
             /**
@@ -122,6 +128,11 @@ namespace chen
              * @e.g: 127.0.0.1
              */
             virtual std::string str() const override;
+
+            /**
+             * Binary representation
+             */
+            virtual std::vector<std::uint8_t> bytes() const override;
 
             /**
              * CIDR prefix notation representation
@@ -240,6 +251,11 @@ namespace chen
              * Standard canonical representation, same to method compressed()
              */
             virtual std::string str() const override;
+
+            /**
+             * Binary representation
+             */
+            virtual std::vector<std::uint8_t> bytes() const override;
 
             /**
              * CIDR prefix notation representation

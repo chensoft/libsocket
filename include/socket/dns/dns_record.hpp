@@ -10,6 +10,7 @@
 
 #include "dns_define.hpp"
 #include "dns_codec.hpp"
+#include "dns_edns.hpp"
 #include <chen/data/json.hpp>
 #include <memory>
 
@@ -1015,8 +1016,11 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPT(rfc6891, section 6.1.2)
-        class OPT : public Raw
+        class OPT : public RR
         {
+        public:
+            typedef std::shared_ptr<chen::dns::edns0::Option> option_pointer;
+
         public:
             OPT();
 
@@ -1054,7 +1058,16 @@ namespace chen
             void setZ(std::uint16_t value);     // reserved zero bits
 
         public:
+            virtual std::string str(const std::string &sep = " ") const override;
             virtual std::shared_ptr<chen::dns::RR> clone() const override;
+
+        protected:
+            virtual void pack(chen::dns::encoder &encoder) const override;
+            virtual void unpack(chen::dns::decoder &decoder) override;
+            virtual void unpack(const chen::json::object &object) override;
+
+        public:
+            std::vector<option_pointer> options;
         };
 
 

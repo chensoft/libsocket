@@ -24,7 +24,7 @@ RR::RR(chen::dns::RRType type) : rrtype(type)
 void RR::encode(chen::dns::encoder &encoder) const
 {
     // according to rfc1035, section 4.1.4
-    // pointers can only be used for occurances of a domain name where the format is not class specific
+    // pointers can only be used for occurance of a domain name where the format is not class specific
     // so I compress RR's name only
     // common
     encoder.pack(this->name, codec::StringType::Domain, true);
@@ -90,7 +90,7 @@ std::shared_ptr<chen::dns::RR> RR::create(chen::dns::decoder &decoder)
     // build record
     std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
     if (!record)
-        record.reset(new chen::dns::Unknown);
+        return nullptr;
 
     // decode it
     record->decode(decoder);
@@ -1851,10 +1851,11 @@ void SINK::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // OPT
-OPT::OPT() : Raw(chen::dns::RRType::OPT)
+OPT::OPT() : RR(chen::dns::RRType::OPT)
 {
 }
 
+// property
 std::uint16_t OPT::payload() const
 {
     return static_cast<std::uint16_t>(this->rrclass);
@@ -1878,7 +1879,7 @@ std::uint8_t OPT::version() const
 
 std::uint16_t OPT::flag() const
 {
-    return static_cast<std::uint8_t>(this->ttl & 0xFFFF);
+    return static_cast<std::uint16_t>(this->ttl & 0xFFFF);
 }
 
 bool OPT::isDO() const
@@ -1903,14 +1904,12 @@ void OPT::setRcode(std::uint16_t value)
 
 void OPT::setRcode(std::uint8_t value)
 {
-    std::uint32_t tmp = value;
-    this->ttl = (this->ttl & 0x00FFFFFF) | (tmp << 24);
+    this->ttl = (this->ttl & 0x00FFFFFF) | (static_cast<std::uint32_t>(value) << 24);
 }
 
 void OPT::setVersion(std::uint8_t value)
 {
-    std::uint32_t tmp = value;
-    this->ttl = (this->ttl & 0xFF00FFFF) | (tmp << 16);
+    this->ttl = (this->ttl & 0xFF00FFFF) | (static_cast<std::uint32_t>(value) << 16);
 }
 
 void OPT::setFlag(std::uint16_t value)
@@ -1931,9 +1930,45 @@ void OPT::setZ(std::uint16_t value)
     this->ttl = (this->ttl & 0x8000) | value;
 }
 
+// override
+std::string OPT::str(const std::string &sep) const
+{
+    // OPT str is special than other records
+    std::string ret("OPT edns");
+
+    ret += chen::num::str(this->version()) + sep;
+    ret += "flag" + sep;
+    ret += chen::str::format("0x%04X", this->flag()) + sep;
+    ret += "udp" + sep;
+    ret += chen::num::str(this->payload()) + sep;
+    ret += "option" + sep;
+    ret += chen::num::str(this->options.size());
+
+    return ret;
+}
+
 std::shared_ptr<chen::dns::RR> OPT::clone() const
 {
     return std::make_shared<OPT>(*this);
+}
+
+void OPT::pack(chen::dns::encoder &encoder) const
+{
+    for (auto &option : this->options)
+        option->encode(encoder);
+}
+
+void OPT::unpack(chen::dns::decoder &decoder)
+{
+    this->options.clear();
+
+    while (decoder.cur() != decoder.end())
+        this->options.emplace_back(edns0::Option::create(decoder));
+}
+
+void OPT::unpack(const chen::json::object &object)
+{
+    throw error_codec("dns: unpack opt record by json is invalid");
 }
 
 

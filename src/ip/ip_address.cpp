@@ -125,6 +125,16 @@ std::string address_v4::str() const
     return address_v4::toString(this->_addr);
 }
 
+std::vector<std::uint8_t> address_v4::bytes() const
+{
+    return std::vector<std::uint8_t>{
+            static_cast<std::uint8_t>(this->_addr >> 24 & 0xFF),
+            static_cast<std::uint8_t>(this->_addr >> 16 & 0xFF),
+            static_cast<std::uint8_t>(this->_addr >> 8 & 0xFF),
+            static_cast<std::uint8_t>(this->_addr & 0xFF)
+    };
+}
+
 std::string address_v4::notation() const
 {
     return address_v4::toString(this->_addr, this->_cidr);
@@ -473,6 +483,11 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
 std::string address_v6::str() const
 {
     return address_v6::toString(this->_addr);
+}
+
+std::vector<std::uint8_t> address_v6::bytes() const
+{
+    return std::vector<std::uint8_t>(this->_addr.begin(), this->_addr.end());
 }
 
 std::string address_v6::notation() const

@@ -47,6 +47,12 @@ const std::vector<std::uint8_t>& encoder::data() const
     return this->_data;
 }
 
+std::vector<std::uint8_t> encoder::move()
+{
+    this->_cache.clear();
+    return std::move(this->_data);
+}
+
 std::size_t encoder::size() const
 {
     return this->_data.size();
@@ -61,6 +67,7 @@ const std::map<std::string, std::uint16_t>& encoder::cache() const
 void encoder::reset()
 {
     this->_data.clear();
+    this->_cache.clear();
 }
 
 // change
@@ -121,6 +128,11 @@ void encoder::pack(chen::dns::RRType val)
 void encoder::pack(chen::dns::RRClass val)
 {
     encoder::pack(static_cast<std::underlying_type<chen::dns::RRClass>::type>(val));
+}
+
+void encoder::pack(chen::dns::edns0::OptionCode val)
+{
+    encoder::pack(static_cast<std::underlying_type<chen::dns::edns0::OptionCode>::type>(val));
 }
 
 void encoder::pack(const std::string &val, StringType type, bool compress)
@@ -343,6 +355,11 @@ void decoder::unpack(chen::dns::RRType &val)
 void decoder::unpack(chen::dns::RRClass &val)
 {
     decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::RRClass>::type&>(val));
+}
+
+void decoder::unpack(chen::dns::edns0::OptionCode &val)
+{
+    decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::edns0::OptionCode>::type&>(val));
 }
 
 void decoder::unpack(std::string &val, StringType type)

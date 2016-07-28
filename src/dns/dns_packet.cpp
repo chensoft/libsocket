@@ -148,7 +148,12 @@ void message::decode(chen::dns::decoder &decoder)
 
     for (std::uint16_t i = 0, len = this->_header.ancount(); i < len; ++i)
     {
-        this->_answer.emplace_back(chen::dns::RR::create(decoder));
+        auto record = chen::dns::RR::create(decoder);
+
+        if (record)
+            this->_answer.emplace_back(std::move(record));
+        else
+            throw chen::dns::error_codec("dns: decode answer error, unknown record detect");
     }
 
     // authority
@@ -156,7 +161,12 @@ void message::decode(chen::dns::decoder &decoder)
 
     for (std::uint16_t i = 0, len = this->_header.nscount(); i < len; ++i)
     {
-        this->_authority.emplace_back(chen::dns::RR::create(decoder));
+        auto record = chen::dns::RR::create(decoder);
+
+        if (record)
+            this->_authority.emplace_back(std::move(record));
+        else
+            throw chen::dns::error_codec("dns: decode authority error, unknown record detect");
     }
 
     // additional
@@ -164,7 +174,12 @@ void message::decode(chen::dns::decoder &decoder)
 
     for (std::uint16_t i = 0, len = this->_header.arcount(); i < len; ++i)
     {
-        this->_additional.emplace_back(chen::dns::RR::create(decoder));
+        auto record = chen::dns::RR::create(decoder);
+
+        if (record)
+            this->_additional.emplace_back(std::move(record));
+        else
+            throw chen::dns::error_codec("dns: decode additional error, unknown record detect");
     }
 }
 

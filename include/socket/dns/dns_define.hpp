@@ -49,7 +49,7 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // RCODE, 4 bit(Response Code)
+        // RCODE, 4 bits response code(rfc1035), 12 bits extended code(rfc6891)
         enum class RCODE : std::uint8_t
         {
             NoError   = 0,   // rfc1035, no error
@@ -63,6 +63,7 @@ namespace chen
             NXRrSet   = 8,   // rfc2136, some RRset that ought to exist, does not exist
             NotAuth   = 9,   // rfc2136, the server is not authoritative for the zone named in the Zone Section
             NotZone   = 10,  // rfc2136, a name used in the Prerequisite or Update Section is not within the zone denoted by the Zone Section
+
             BadVers   = 16,  // rfc6891, bad OPT version
             BadSig    = 16,  // rfc2845, TSIG signature failure, same value as BadVers
             BadKey    = 17,  // rfc2845, key not recognized
@@ -212,5 +213,35 @@ namespace chen
         constexpr std::size_t SIZE_LIMIT_STRING = 255;  // plain text's size
         constexpr std::size_t SIZE_LIMIT_DOMAIN = 255;  // domain's total size(fqdn)
         constexpr std::size_t SIZE_LIMIT_LABEL  = 63;   // label's max size
+
+
+        // ---------------------------------------------------------------------
+        // EDNS0
+        namespace edns0
+        {
+            // ---------------------------------------------------------------------
+            // Option Code, 2 bytes
+            // 0, 4: Reserved
+            // 14 ~ 65000: Unassigned
+            // 65001 ~ 65534: Reserved for Local/Experimental Use
+            // 65535: Reserved for future expansion
+            // @see http://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml
+            enum class OptionCode : std::uint16_t
+            {
+                None      = 0,   // none
+                LLQ       = 1,   // http://files.dns-sd.org/draft-sekar-dns-llq.txt, DNS Long-Lived Queries
+                UL        = 2,   // http://files.dns-sd.org/draft-sekar-dns-ul.txt, Dynamic DNS Update Leases
+                NSID      = 3,   // rfc5001, DNS Name Server Identifier (NSID) Option
+                DAU       = 5,   // rfc6975, Signaling DNSSEC Algorithm Understood
+                DHU       = 6,   // rfc6975, DS Hash Understood
+                N3U       = 7,   // rfc6975, NSEC3 Hash Understood
+                Subnet    = 8,   // rfc7871, Client Subnet in DNS Queries
+                EXPIRE    = 9,   // rfc7314, Extension Mechanisms for DNS (EDNS) EXPIRE Option
+                COOKIE    = 10,  // rfc7873, Domain Name System (DNS) Cookies
+                Keepalive = 11,  // rfc7828, The edns-tcp-keepalive EDNS0 Option
+                Padding   = 12,  // rfc7830, The EDNS(0) Padding Option
+                CHAIN     = 13,  // rfc7901, CHAIN Query Requests in DNS
+            };
+        }
     }
 }

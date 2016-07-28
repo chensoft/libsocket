@@ -15,17 +15,26 @@ namespace chen
     {
         class RR;
 
+        namespace edns0
+        {
+            class Option;
+        }
+
         class table
         {
         public:
             typedef std::shared_ptr<chen::dns::RR> rr_pointer;
             typedef rr_pointer (*rr_build_type)();
 
+            typedef std::shared_ptr<chen::dns::edns0::Option> opt_pointer;
+            typedef opt_pointer (*opt_build_type)();
+
         public:
             /**
              * Build object
              */
             static rr_pointer build(chen::dns::RRType key);
+            static opt_pointer build(chen::dns::edns0::OptionCode key);
 
         public:
             /**
@@ -63,6 +72,7 @@ namespace chen
              * Set custom rr type and related value
              */
             static void set(chen::dns::RRType key, rr_build_type val);
+            static void set(chen::dns::edns0::OptionCode key, opt_build_type val);
             static void set(chen::dns::RRType key, const std::string &val);
             static void set(chen::dns::RRClass key, const std::string &val);
             static void set(chen::dns::QR key, const std::string &val);
