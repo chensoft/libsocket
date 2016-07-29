@@ -85,7 +85,7 @@ Subnet::Subnet() : Option(OptionCode::Subnet)
 
 std::string Subnet::str(const std::string &sep) const
 {
-    std::string ret("client subnet");
+    std::string ret("Client Subnet");
 
     ret += sep;
     ret += this->address->str();

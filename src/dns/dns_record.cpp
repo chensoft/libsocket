@@ -1853,6 +1853,8 @@ void SINK::unpack(const chen::json::object &object)
 // OPT
 OPT::OPT() : RR(chen::dns::RRType::OPT)
 {
+    // opt name is always '.'
+    this->name = ".";
 }
 
 // property
