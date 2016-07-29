@@ -239,7 +239,7 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817:0:0:0:200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").suppressed());
     EXPECT_EQ("2404:6800:4004:817::200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").compressed());
     EXPECT_EQ("::ffff:192.0.2.128", chen::ip::address_v6("::ffff:c000:280").mixed());
-    EXPECT_EQ(chen::ip::address_v4("192.0.2.128"), chen::ip::address_v6("::ffff:c000:280").v4());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.128"), chen::ip::address_v6("::ffff:c000:280").embedded());
 
     EXPECT_EQ(bytes, chen::ip::address_v6("2404:6800:4004:817::200e").addr());
     EXPECT_EQ(128, chen::ip::address_v6("2404:6800:4004:817::200e").cidr());

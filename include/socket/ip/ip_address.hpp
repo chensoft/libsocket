@@ -291,7 +291,7 @@ namespace chen
             /**
              * Retrieve IPv4-mapped or IPv4-compatible address
              */
-            address_v4 v4() const;
+            address_v4 embedded() const;
 
             /**
              * Get raw value

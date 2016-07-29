@@ -515,7 +515,7 @@ std::string address_v6::mixed() const
     return address_v6::toMixed(this->_addr);
 }
 
-address_v4 address_v6::v4() const
+address_v4 address_v6::embedded() const
 {
     // for IPv4-compatible & IPv4-mapped address
     return address_v4(this->_addr[12] * 256u * 256u * 256u +
