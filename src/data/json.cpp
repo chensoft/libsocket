@@ -1078,6 +1078,8 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
 
 void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
 {
+    out.clear();
+
     if ((cur == end) || (*cur != '"') || (++cur == end))
         chen::json::exception(beg, cur, end);
 
