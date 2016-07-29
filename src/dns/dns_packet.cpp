@@ -104,6 +104,22 @@ std::shared_ptr<chen::dns::OPT> message::opt() const
     return nullptr;
 }
 
+std::shared_ptr<chen::dns::edns0::Subnet> message::subnet() const
+{
+    auto opt = this->opt();
+    if (!opt)
+        return nullptr;
+
+    for (auto &ptr : opt->options)
+    {
+        auto ret = std::dynamic_pointer_cast<chen::dns::edns0::Subnet>(ptr);
+        if (ret)
+            return ret;
+    }
+
+    return nullptr;
+}
+
 // codec
 void message::encode(chen::dns::encoder &encoder) const
 {

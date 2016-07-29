@@ -7,15 +7,13 @@
 #pragma once
 
 #include "dns_header.hpp"
+#include "dns_record.hpp"
 #include <memory>
 
 namespace chen
 {
     namespace dns
     {
-        class RR;
-        class OPT;
-
         // ---------------------------------------------------------------------
         // message
         class message
@@ -51,6 +49,7 @@ namespace chen
              * EDNS
              */
             std::shared_ptr<chen::dns::OPT> opt() const;
+            std::shared_ptr<chen::dns::edns0::Subnet> subnet() const;
 
         public:
             /**

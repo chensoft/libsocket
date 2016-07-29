@@ -7,19 +7,13 @@
 #pragma once
 
 #include "dns_define.hpp"
+#include "dns_record.hpp"
 #include <memory>
 
 namespace chen
 {
     namespace dns
     {
-        class RR;
-
-        namespace edns0
-        {
-            class Option;
-        }
-
         class table
         {
         public:

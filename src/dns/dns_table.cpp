@@ -5,8 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/dns/dns_table.hpp>
-#include <socket/dns/dns_record.hpp>
-#include <socket/dns/dns_edns.hpp>
 #include <unordered_map>
 #include <functional>
 #include <map>
