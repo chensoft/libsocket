@@ -364,6 +364,8 @@ void decoder::unpack(chen::dns::edns0::OptionCode &val)
 
 void decoder::unpack(std::string &val, StringType type)
 {
+    val.clear();
+
     if (std::distance(this->_cur, this->_end) < 1)
         throw error_codec("dns: codec unpack string size is zero");
 

@@ -343,6 +343,8 @@ void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, itera
 
 void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
 {
+    out.clear();
+
     if ((cur == end) || std::isspace(*cur))
         chen::ini::exception(beg, cur, end);
 
