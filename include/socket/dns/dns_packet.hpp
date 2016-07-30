@@ -48,8 +48,24 @@ namespace chen
             /**
              * EDNS
              */
-            std::shared_ptr<chen::dns::OPT> opt() const;
-            std::shared_ptr<chen::dns::edns0::Subnet> subnet() const;
+            std::shared_ptr<chen::dns::OPT> edns0() const;
+
+            template <typename T>
+            std::shared_ptr<T> option() const
+            {
+                auto edns0 = this->edns0();
+                if (!edns0)
+                    return nullptr;
+
+                for (auto &ptr : edns0->options)
+                {
+                    auto ret = std::dynamic_pointer_cast<T>(ptr);
+                    if (ret)
+                        return ret;
+                }
+
+                return nullptr;
+            }
 
         public:
             /**
@@ -90,7 +106,7 @@ namespace chen
             /**
              * Client
              */
-            const std::string& addr() const;
+            std::string addr(bool subnet = false) const;
             std::uint16_t port() const;
 
             void setAddr(const std::string &addr);

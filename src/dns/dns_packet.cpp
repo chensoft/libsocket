@@ -93,28 +93,12 @@ void message::setAdditional(std::vector<record_type> value)
 }
 
 // edns
-std::shared_ptr<chen::dns::OPT> message::opt() const
+std::shared_ptr<chen::dns::OPT> message::edns0() const
 {
     for (auto &rr : this->_additional)
     {
         if (rr->rrtype == chen::dns::RRType::OPT)
             return std::dynamic_pointer_cast<chen::dns::OPT>(rr->clone());
-    }
-
-    return nullptr;
-}
-
-std::shared_ptr<chen::dns::edns0::Subnet> message::subnet() const
-{
-    auto opt = this->opt();
-    if (!opt)
-        return nullptr;
-
-    for (auto &ptr : opt->options)
-    {
-        auto ret = std::dynamic_pointer_cast<chen::dns::edns0::Subnet>(ptr);
-        if (ret)
-            return ret;
     }
 
     return nullptr;
@@ -256,8 +240,15 @@ void request::setQuery(const std::string &qname, chen::dns::RRType qtype)
 }
 
 // client
-const std::string& request::addr() const
+std::string request::addr(bool subnet) const
 {
+    if (subnet)
+    {
+        auto option = this->option<chen::dns::edns0::Subnet>();
+        if (option)
+            return option->address->str();
+    }
+
     return this->_addr;
 }
 
@@ -320,9 +311,9 @@ void response::setQuestion(const chen::dns::request &request)
 
     // include the OPT record
     // rfc6891, section 6.1.1
-    auto opt = request.opt();
-    if (opt)
-        this->setAdditional(std::vector<record_type>{std::move(opt)});
+    auto edns0 = request.edns0();
+    if (edns0)
+        this->setAdditional(std::vector<record_type>{std::move(edns0)});
 }
 
 // rotate
