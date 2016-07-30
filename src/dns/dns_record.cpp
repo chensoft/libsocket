@@ -188,14 +188,6 @@ void Raw::unpack(const chen::json::object &object)
 
 
 // -----------------------------------------------------------------------------
-// Unknown
-std::shared_ptr<chen::dns::RR> Unknown::clone() const
-{
-    return std::make_shared<Unknown>(*this);
-}
-
-
-// -----------------------------------------------------------------------------
 // A
 A::A() : RR(chen::dns::RRType::A)
 {

@@ -108,15 +108,6 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // Unknown(unknown record)
-        class Unknown : public Raw
-        {
-        public:
-            virtual std::shared_ptr<chen::dns::RR> clone() const override;
-        };
-
-
-        // ---------------------------------------------------------------------
         // Standard RR
         // ---------------------------------------------------------------------
         // A(rfc1035, section 3.4.1)
