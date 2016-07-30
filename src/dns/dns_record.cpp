@@ -165,7 +165,7 @@ std::string Raw::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> Raw::clone() const
 {
-    return std::make_shared<Raw>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void Raw::pack(chen::dns::encoder &encoder) const
@@ -202,7 +202,7 @@ std::string A::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> A::clone() const
 {
-    return std::make_shared<A>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void A::pack(chen::dns::encoder &encoder) const
@@ -242,7 +242,7 @@ std::string NS::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NS::clone() const
 {
-    return std::make_shared<NS>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NS::pack(chen::dns::encoder &encoder) const
@@ -276,7 +276,7 @@ std::string MD::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MD::clone() const
 {
-    return std::make_shared<MD>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MD::pack(chen::dns::encoder &encoder) const
@@ -310,7 +310,7 @@ std::string MF::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MF::clone() const
 {
-    return std::make_shared<MF>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MF::pack(chen::dns::encoder &encoder) const
@@ -344,7 +344,7 @@ std::string CNAME::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> CNAME::clone() const
 {
-    return std::make_shared<CNAME>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void CNAME::pack(chen::dns::encoder &encoder) const
@@ -386,7 +386,7 @@ std::string SOA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SOA::clone() const
 {
-    return std::make_shared<SOA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SOA::pack(chen::dns::encoder &encoder) const
@@ -438,7 +438,7 @@ std::string MB::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MB::clone() const
 {
-    return std::make_shared<MB>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MB::pack(chen::dns::encoder &encoder) const
@@ -472,7 +472,7 @@ std::string MG::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MG::clone() const
 {
-    return std::make_shared<MG>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MG::pack(chen::dns::encoder &encoder) const
@@ -506,7 +506,7 @@ std::string MR::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MR::clone() const
 {
-    return std::make_shared<MR>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MR::pack(chen::dns::encoder &encoder) const
@@ -540,7 +540,7 @@ std::string Null::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> Null::clone() const
 {
-    return std::make_shared<Null>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void Null::pack(chen::dns::encoder &encoder) const
@@ -589,7 +589,7 @@ std::string WKS::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> WKS::clone() const
 {
-    return std::make_shared<WKS>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void WKS::pack(chen::dns::encoder &encoder) const
@@ -637,7 +637,7 @@ std::string PTR::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> PTR::clone() const
 {
-    return std::make_shared<PTR>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void PTR::pack(chen::dns::encoder &encoder) const
@@ -672,7 +672,7 @@ std::string HINFO::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> HINFO::clone() const
 {
-    return std::make_shared<HINFO>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void HINFO::pack(chen::dns::encoder &encoder) const
@@ -710,7 +710,7 @@ std::string MINFO::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MINFO::clone() const
 {
-    return std::make_shared<MINFO>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MINFO::pack(chen::dns::encoder &encoder) const
@@ -748,7 +748,7 @@ std::string MX::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> MX::clone() const
 {
-    return std::make_shared<MX>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void MX::pack(chen::dns::encoder &encoder) const
@@ -785,7 +785,7 @@ std::string TXT::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> TXT::clone() const
 {
-    return std::make_shared<TXT>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void TXT::pack(chen::dns::encoder &encoder) const
@@ -820,7 +820,7 @@ std::string RP::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> RP::clone() const
 {
-    return std::make_shared<RP>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void RP::pack(chen::dns::encoder &encoder) const
@@ -858,7 +858,7 @@ std::string AFSDB::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> AFSDB::clone() const
 {
-    return std::make_shared<AFSDB>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void AFSDB::pack(chen::dns::encoder &encoder) const
@@ -895,7 +895,7 @@ std::string X25::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> X25::clone() const
 {
-    return std::make_shared<X25>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void X25::pack(chen::dns::encoder &encoder) const
@@ -930,7 +930,7 @@ std::string ISDN::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> ISDN::clone() const
 {
-    return std::make_shared<ISDN>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void ISDN::pack(chen::dns::encoder &encoder) const
@@ -968,7 +968,7 @@ std::string RT::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> RT::clone() const
 {
-    return std::make_shared<RT>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void RT::pack(chen::dns::encoder &encoder) const
@@ -1005,7 +1005,7 @@ std::string NSAP::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NSAP::clone() const
 {
-    return std::make_shared<NSAP>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NSAP::pack(chen::dns::encoder &encoder) const
@@ -1039,7 +1039,7 @@ std::string NSAPPTR::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NSAPPTR::clone() const
 {
-    return std::make_shared<NSAPPTR>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NSAPPTR::pack(chen::dns::encoder &encoder) const
@@ -1083,7 +1083,7 @@ std::string SIG::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SIG::clone() const
 {
-    return std::make_shared<SIG>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SIG::pack(chen::dns::encoder &encoder) const
@@ -1146,7 +1146,7 @@ std::string KEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> KEY::clone() const
 {
-    return std::make_shared<KEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void KEY::pack(chen::dns::encoder &encoder) const
@@ -1193,7 +1193,7 @@ std::string PX::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> PX::clone() const
 {
-    return std::make_shared<PX>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void PX::pack(chen::dns::encoder &encoder) const
@@ -1237,7 +1237,7 @@ std::string GPOS::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> GPOS::clone() const
 {
-    return std::make_shared<GPOS>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void GPOS::pack(chen::dns::encoder &encoder) const
@@ -1277,7 +1277,7 @@ std::string AAAA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> AAAA::clone() const
 {
-    return std::make_shared<AAAA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void AAAA::pack(chen::dns::encoder &encoder) const
@@ -1320,7 +1320,7 @@ std::string LOC::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> LOC::clone() const
 {
-    return std::make_shared<LOC>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void LOC::pack(chen::dns::encoder &encoder) const
@@ -1373,7 +1373,7 @@ std::string NXT::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NXT::clone() const
 {
-    return std::make_shared<NXT>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NXT::pack(chen::dns::encoder &encoder) const
@@ -1418,7 +1418,7 @@ std::string EID::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> EID::clone() const
 {
-    return std::make_shared<EID>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void EID::pack(chen::dns::encoder &encoder) const
@@ -1452,7 +1452,7 @@ std::string NIMLOC::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NIMLOC::clone() const
 {
-    return std::make_shared<NIMLOC>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NIMLOC::pack(chen::dns::encoder &encoder) const
@@ -1491,7 +1491,7 @@ std::string SRV::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SRV::clone() const
 {
-    return std::make_shared<SRV>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SRV::pack(chen::dns::encoder &encoder) const
@@ -1537,7 +1537,7 @@ std::string ATMA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> ATMA::clone() const
 {
-    return std::make_shared<ATMA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void ATMA::pack(chen::dns::encoder &encoder) const
@@ -1581,7 +1581,7 @@ std::string NAPTR::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NAPTR::clone() const
 {
-    return std::make_shared<NAPTR>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NAPTR::pack(chen::dns::encoder &encoder) const
@@ -1633,7 +1633,7 @@ std::string KX::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> KX::clone() const
 {
-    return std::make_shared<KX>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void KX::pack(chen::dns::encoder &encoder) const
@@ -1675,7 +1675,7 @@ std::string CERT::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> CERT::clone() const
 {
-    return std::make_shared<CERT>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void CERT::pack(chen::dns::encoder &encoder) const
@@ -1722,7 +1722,7 @@ std::string A6::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> A6::clone() const
 {
-    return std::make_shared<A6>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void A6::pack(chen::dns::encoder &encoder) const
@@ -1770,7 +1770,7 @@ std::string DNAME::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> DNAME::clone() const
 {
-    return std::make_shared<DNAME>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void DNAME::pack(chen::dns::encoder &encoder) const
@@ -1808,7 +1808,7 @@ std::string SINK::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SINK::clone() const
 {
-    return std::make_shared<SINK>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SINK::pack(chen::dns::encoder &encoder) const
@@ -1943,7 +1943,7 @@ std::string OPT::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> OPT::clone() const
 {
-    return std::make_shared<OPT>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void OPT::pack(chen::dns::encoder &encoder) const
@@ -1986,7 +1986,7 @@ std::string DS::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> DS::clone() const
 {
-    return std::make_shared<DS>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void DS::pack(chen::dns::encoder &encoder) const
@@ -2033,7 +2033,7 @@ std::string SSHFP::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SSHFP::clone() const
 {
-    return std::make_shared<SSHFP>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SSHFP::pack(chen::dns::encoder &encoder) const
@@ -2079,7 +2079,7 @@ std::string IPSECKEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> IPSECKEY::clone() const
 {
-    return std::make_shared<IPSECKEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void IPSECKEY::pack(chen::dns::encoder &encoder) const
@@ -2188,7 +2188,7 @@ std::string RRSIG::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> RRSIG::clone() const
 {
-    return std::make_shared<RRSIG>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void RRSIG::pack(chen::dns::encoder &encoder) const
@@ -2247,7 +2247,7 @@ std::string NSEC::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NSEC::clone() const
 {
-    return std::make_shared<NSEC>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NSEC::pack(chen::dns::encoder &encoder) const
@@ -2297,7 +2297,7 @@ std::string DNSKEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> DNSKEY::clone() const
 {
-    return std::make_shared<DNSKEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void DNSKEY::pack(chen::dns::encoder &encoder) const
@@ -2340,7 +2340,7 @@ std::string DHCID::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> DHCID::clone() const
 {
-    return std::make_shared<DHCID>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void DHCID::pack(chen::dns::encoder &encoder) const
@@ -2383,7 +2383,7 @@ std::string NSEC3::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NSEC3::clone() const
 {
-    return std::make_shared<NSEC3>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NSEC3::pack(chen::dns::encoder &encoder) const
@@ -2457,7 +2457,7 @@ std::string NSEC3PARAM::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NSEC3PARAM::clone() const
 {
-    return std::make_shared<NSEC3PARAM>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NSEC3PARAM::pack(chen::dns::encoder &encoder) const
@@ -2512,7 +2512,7 @@ std::string TLSA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> TLSA::clone() const
 {
-    return std::make_shared<TLSA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void TLSA::pack(chen::dns::encoder &encoder) const
@@ -2560,7 +2560,7 @@ std::string SMIMEA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SMIMEA::clone() const
 {
-    return std::make_shared<SMIMEA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SMIMEA::pack(chen::dns::encoder &encoder) const
@@ -2610,7 +2610,7 @@ std::string HIP::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> HIP::clone() const
 {
-    return std::make_shared<HIP>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void HIP::pack(chen::dns::encoder &encoder) const
@@ -2659,7 +2659,7 @@ std::string NINFO::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NINFO::clone() const
 {
-    return std::make_shared<NINFO>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NINFO::pack(chen::dns::encoder &encoder) const
@@ -2698,7 +2698,7 @@ std::string RKEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> RKEY::clone() const
 {
-    return std::make_shared<RKEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void RKEY::pack(chen::dns::encoder &encoder) const
@@ -2744,7 +2744,7 @@ std::string TALINK::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> TALINK::clone() const
 {
-    return std::make_shared<TALINK>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void TALINK::pack(chen::dns::encoder &encoder) const
@@ -2786,7 +2786,7 @@ std::string CDS::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> CDS::clone() const
 {
-    return std::make_shared<CDS>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void CDS::pack(chen::dns::encoder &encoder) const
@@ -2834,7 +2834,7 @@ std::string CDNSKEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> CDNSKEY::clone() const
 {
-    return std::make_shared<CDNSKEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void CDNSKEY::pack(chen::dns::encoder &encoder) const
@@ -2877,7 +2877,7 @@ std::string OPENPGPKEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> OPENPGPKEY::clone() const
 {
-    return std::make_shared<OPENPGPKEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void OPENPGPKEY::pack(chen::dns::encoder &encoder) const
@@ -2915,7 +2915,7 @@ std::string CSYNC::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> CSYNC::clone() const
 {
-    return std::make_shared<CSYNC>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void CSYNC::pack(chen::dns::encoder &encoder) const
@@ -2963,7 +2963,7 @@ std::string SPF::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> SPF::clone() const
 {
-    return std::make_shared<SPF>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void SPF::pack(chen::dns::encoder &encoder) const
@@ -2990,7 +2990,7 @@ UINFO::UINFO() : Raw(chen::dns::RRType::UINFO)
 
 std::shared_ptr<chen::dns::RR> UINFO::clone() const
 {
-    return std::make_shared<UINFO>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 
@@ -3002,7 +3002,7 @@ UID::UID() : Raw(chen::dns::RRType::UID)
 
 std::shared_ptr<chen::dns::RR> UID::clone() const
 {
-    return std::make_shared<UID>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 
@@ -3014,7 +3014,7 @@ GID::GID() : Raw(chen::dns::RRType::GID)
 
 std::shared_ptr<chen::dns::RR> GID::clone() const
 {
-    return std::make_shared<GID>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 
@@ -3026,7 +3026,7 @@ UNSPEC::UNSPEC() : Raw(chen::dns::RRType::UNSPEC)
 
 std::shared_ptr<chen::dns::RR> UNSPEC::clone() const
 {
-    return std::make_shared<UNSPEC>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 
@@ -3048,7 +3048,7 @@ std::string NID::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> NID::clone() const
 {
-    return std::make_shared<NID>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void NID::pack(chen::dns::encoder &encoder) const
@@ -3088,7 +3088,7 @@ std::string L32::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> L32::clone() const
 {
-    return std::make_shared<L32>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void L32::pack(chen::dns::encoder &encoder) const
@@ -3128,7 +3128,7 @@ std::string L64::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> L64::clone() const
 {
-    return std::make_shared<L64>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void L64::pack(chen::dns::encoder &encoder) const
@@ -3168,7 +3168,7 @@ std::string LP::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> LP::clone() const
 {
-    return std::make_shared<LP>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void LP::pack(chen::dns::encoder &encoder) const
@@ -3205,7 +3205,7 @@ std::string EUI48::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> EUI48::clone() const
 {
-    return std::make_shared<EUI48>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void EUI48::pack(chen::dns::encoder &encoder) const
@@ -3240,7 +3240,7 @@ std::string EUI64::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> EUI64::clone() const
 {
-    return std::make_shared<EUI64>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void EUI64::pack(chen::dns::encoder &encoder) const
@@ -3284,7 +3284,7 @@ std::string TKEY::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> TKEY::clone() const
 {
-    return std::make_shared<TKEY>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void TKEY::pack(chen::dns::encoder &encoder) const
@@ -3361,7 +3361,7 @@ std::string TSIG::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> TSIG::clone() const
 {
-    return std::make_shared<TSIG>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void TSIG::pack(chen::dns::encoder &encoder) const
@@ -3435,7 +3435,7 @@ std::string URI::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> URI::clone() const
 {
-    return std::make_shared<URI>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void URI::pack(chen::dns::encoder &encoder) const
@@ -3479,7 +3479,7 @@ std::string CAA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> CAA::clone() const
 {
-    return std::make_shared<CAA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void CAA::pack(chen::dns::encoder &encoder) const
@@ -3524,7 +3524,7 @@ std::string TA::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> TA::clone() const
 {
-    return std::make_shared<TA>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void TA::pack(chen::dns::encoder &encoder) const
@@ -3572,7 +3572,7 @@ std::string DLV::str(const std::string &sep) const
 
 std::shared_ptr<chen::dns::RR> DLV::clone() const
 {
-    return std::make_shared<DLV>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 void DLV::pack(chen::dns::encoder &encoder) const

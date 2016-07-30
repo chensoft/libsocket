@@ -1,7 +1,8 @@
 /**
  * Created by Jian Chen
  * I'm very carefully to ensure that these rr's fields are accurate
- * Field is whether signed or unsigned is according to its related rfc
+ * Fields are whether signed or unsigned is according to its related rfc
+ * Fields are little-endian, they will be convert to network byte order when encoding
  * @since  2015.11.27
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
@@ -65,6 +66,7 @@ namespace chen
             std::size_t remain(const chen::dns::codec::iterator &beg,
                                const chen::dns::codec::iterator &cur) const;
 
+        public:
             /**
              * Escape string, used in description
              */

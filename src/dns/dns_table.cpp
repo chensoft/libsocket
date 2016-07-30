@@ -102,7 +102,18 @@ namespace
     using opt_pointer = table::opt_pointer;
 
     std::map<edns0::OptionCode, table::opt_build_type> g_opt_build {
-            {edns0::OptionCode::Subnet, [] () -> opt_pointer { return std::make_shared<edns0::Subnet>(); }}
+            {edns0::OptionCode::LLQ, [] () -> opt_pointer { return std::make_shared<edns0::LLQ>(); }},
+            {edns0::OptionCode::UL, [] () -> opt_pointer { return std::make_shared<edns0::UL>(); }},
+            {edns0::OptionCode::NSID, [] () -> opt_pointer { return std::make_shared<edns0::NSID>(); }},
+            {edns0::OptionCode::DAU, [] () -> opt_pointer { return std::make_shared<edns0::DAU>(); }},
+            {edns0::OptionCode::DHU, [] () -> opt_pointer { return std::make_shared<edns0::DHU>(); }},
+            {edns0::OptionCode::N3U, [] () -> opt_pointer { return std::make_shared<edns0::N3U>(); }},
+            {edns0::OptionCode::Subnet, [] () -> opt_pointer { return std::make_shared<edns0::Subnet>(); }},
+            {edns0::OptionCode::EXPIRE, [] () -> opt_pointer { return std::make_shared<edns0::EXPIRE>(); }},
+            {edns0::OptionCode::COOKIE, [] () -> opt_pointer { return std::make_shared<edns0::COOKIE>(); }},
+            {edns0::OptionCode::Keepalive, [] () -> opt_pointer { return std::make_shared<edns0::Keepalive>(); }},
+            {edns0::OptionCode::Padding, [] () -> opt_pointer { return std::make_shared<edns0::Padding>(); }},
+            {edns0::OptionCode::CHAIN, [] () -> opt_pointer { return std::make_shared<edns0::CHAIN>(); }}
     };
 
     std::map<RRType, std::string> g_rr_type_text = {
