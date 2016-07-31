@@ -126,7 +126,12 @@ std::shared_ptr<chen::dns::OPT> message::edns0() const
     for (auto &rr : this->_additional)
     {
         if (rr->rrtype == chen::dns::RRType::OPT)
-            return std::dynamic_pointer_cast<chen::dns::OPT>(rr->clone());
+        {
+            // check edns version
+            auto ret = std::dynamic_pointer_cast<chen::dns::OPT>(rr->clone());
+            if (ret->version() == 0)
+                return ret;
+        }
     }
 
     return nullptr;
