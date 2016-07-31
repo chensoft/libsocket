@@ -158,7 +158,7 @@ NSID::NSID() : Option(OptionCode::NSID)
 std::string NSID::str(const std::string &sep) const
 {
     std::string ret("NSID");
-    ret += sep + RR::escape(this->data.size());
+    ret += sep + RR::escape(this->data);
     return ret;
 }
 

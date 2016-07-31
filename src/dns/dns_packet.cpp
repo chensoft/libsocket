@@ -68,6 +68,34 @@ void message::addAdditional(record_type value)
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
+void message::setQuestion(question_type value)
+{
+    this->_question.clear();
+    this->_question.emplace_back(std::move(value));
+    this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
+}
+
+void message::setAnswer(record_type value)
+{
+    this->_answer.clear();
+    this->_answer.emplace_back(std::move(value));
+    this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
+}
+
+void message::setAuthority(record_type value)
+{
+    this->_authority.clear();
+    this->_authority.emplace_back(std::move(value));
+    this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
+}
+
+void message::setAdditional(record_type value)
+{
+    this->_additional.clear();
+    this->_additional.emplace_back(std::move(value));
+    this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
+}
+
 void message::setQuestion(std::vector<question_type> value)
 {
     this->_question = std::move(value);
@@ -231,7 +259,7 @@ void request::setQuery(const std::string &qname, chen::dns::RRType qtype)
     this->_header.setRecursionDesired(true);
 
     // set question
-    this->setQuestion(std::vector<question_type>{});
+    this->setQuestion(question_type());
 
     question_type &question = this->_question[0];
     question.setQname(qname);
@@ -313,7 +341,7 @@ void response::setQuestion(const chen::dns::request &request)
     // rfc6891, section 6.1.1
     auto edns0 = request.edns0();
     if (edns0)
-        this->setAdditional(std::vector<record_type>{std::move(edns0)});
+        this->setAdditional(std::move(edns0));
 }
 
 // rotate

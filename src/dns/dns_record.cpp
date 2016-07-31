@@ -122,6 +122,16 @@ std::size_t RR::remain(const chen::dns::codec::iterator &beg,
     return static_cast<std::size_t>(this->rdlength - used);
 }
 
+std::string RR::escape(const std::vector<std::uint8_t> &data)
+{
+    std::string ret;
+
+    for (auto ch : data)
+        ret += chen::str::format("%02X", ch);
+
+    return ret;
+}
+
 std::string RR::escape(const std::string &text)
 {
     std::string ret("\"");

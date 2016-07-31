@@ -70,6 +70,7 @@ namespace chen
             /**
              * Escape string, used in description
              */
+            static std::string escape(const std::vector<std::uint8_t> &data);
             static std::string escape(const std::string &text);
             static std::string escape(std::size_t bits);
 

@@ -40,6 +40,11 @@ namespace chen
             void addAuthority(record_type value);
             void addAdditional(record_type value);
 
+            void setQuestion(question_type value);
+            void setAnswer(record_type value);
+            void setAuthority(record_type value);
+            void setAdditional(record_type value);
+
             void setQuestion(std::vector<question_type> value);
             void setAnswer(std::vector<record_type> value);
             void setAuthority(std::vector<record_type> value);
