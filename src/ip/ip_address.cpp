@@ -517,11 +517,61 @@ std::string address_v6::mixed() const
 
 address_v4 address_v6::embedded() const
 {
-    // for IPv4-compatible & IPv4-mapped address
-    return address_v4(this->_addr[12] * 256u * 256u * 256u +
-                      this->_addr[13] * 256u * 256u +
-                      this->_addr[14] * 256u +
-                      this->_addr[15]);
+    // IPv4-compatible & IPv4-mapped address, @see rfc4291, section 2.5.5
+    // IPv4-embedded address, @see rfc6052, section 2.2
+    unsigned cidr = this->isIPv4Compatible() || this->isIPv4Mapped() ? 128 : this->_cidr;
+    unsigned a = 0, b = 0, c = 0, d = 0;
+
+    switch (cidr)
+    {
+        case 32:
+            a = this->_addr[4];
+            b = this->_addr[5];
+            c = this->_addr[6];
+            d = this->_addr[7];
+            break;
+
+        case 40:
+            a = this->_addr[5];
+            b = this->_addr[6];
+            c = this->_addr[7];
+            d = this->_addr[9];  // pass 'u'
+            break;
+
+        case 48:
+            a = this->_addr[6];
+            b = this->_addr[7];
+            c = this->_addr[9];  // pass 'u'
+            d = this->_addr[10];
+            break;
+
+        case 56:
+            a = this->_addr[7];
+            b = this->_addr[9];  // pass 'u'
+            c = this->_addr[10];
+            d = this->_addr[11];
+            break;
+
+        case 64:
+            a = this->_addr[9];  // pass 'u'
+            b = this->_addr[10];
+            c = this->_addr[11];
+            d = this->_addr[12];
+            break;
+
+        default:
+            // IPv4-compatible & IPv4-mapped or IPv4-embedded with 96 bits prefix
+            a = this->_addr[12];
+            b = this->_addr[13];
+            c = this->_addr[14];
+            d = this->_addr[15];
+            break;
+    }
+
+    return address_v4(a * 256u * 256u * 256u +
+                      b * 256u * 256u +
+                      c * 256u +
+                      d);
 }
 
 const std::array<std::uint8_t, 16>& address_v6::addr() const
@@ -676,6 +726,19 @@ bool address_v6::isMulticast() const
     // first 8 bits is 0xFF
     // @see rfc4291, section 2.7
     return this->_addr[0] == 0xFF;
+}
+
+// NAT64
+bool address_v6::isIPv4EmbeddedWellKnown() const
+{
+    // "64:ff9b::/96"
+    // @see rfc6052, section 2.1
+    if ((this->_addr[0] != 0) || (this->_addr[1] != 0x64) || (this->_addr[2] != 0xFF) || (this->_addr[3] != 0x9b))
+        return false;
+
+    return std::all_of(this->_addr.begin() + 4, this->_addr.begin() + 12, [] (const std::uint8_t &ch) -> bool {
+        return ch == 0;
+    });
 }
 
 // operator

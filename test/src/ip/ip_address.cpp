@@ -239,7 +239,15 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817:0:0:0:200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").suppressed());
     EXPECT_EQ("2404:6800:4004:817::200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").compressed());
     EXPECT_EQ("::ffff:192.0.2.128", chen::ip::address_v6("::ffff:c000:280").mixed());
+
     EXPECT_EQ(chen::ip::address_v4("192.0.2.128"), chen::ip::address_v6("::ffff:c000:280").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:c000:221::/32").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:1c0:2:21::/40").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:122:c000:2:2100::/48").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:122:3c0:0:221::/56").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:122:344:c0:2:2100::/64").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:122:344::192.0.2.33/96").embedded());
+    EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("64:ff9b::192.0.2.33/96").embedded());
 
     EXPECT_EQ(bytes, chen::ip::address_v6("2404:6800:4004:817::200e").addr());
     EXPECT_EQ(128, chen::ip::address_v6("2404:6800:4004:817::200e").cidr());
@@ -290,8 +298,11 @@ TEST(IPAddressTest, IPv6)
     EXPECT_TRUE(chen::ip::address_v6("::ffff:192.168.1.1").isIPv4Mapped());
     EXPECT_FALSE(chen::ip::address_v6("::192.168.1.1").isIPv4Mapped());
 
-    EXPECT_TRUE(chen::ip::address_v6("FF01:0:0:0:0:0:0:1").isMulticast());
-    EXPECT_FALSE(chen::ip::address_v6("fe80::7a31:c1ff:fec2:b5aa").isMulticast());
+    EXPECT_TRUE(chen::ip::address_v6("::ffff:192.168.1.1").isIPv4Mapped());
+    EXPECT_FALSE(chen::ip::address_v6("::192.168.1.1").isIPv4Mapped());
+
+    EXPECT_TRUE(chen::ip::address_v6("64:ff9b::73b6:405e/96").isIPv4EmbeddedWellKnown());
+    EXPECT_FALSE(chen::ip::address_v6("2001:db8:122:344::/96").isIPv4EmbeddedWellKnown());
 
     // operator
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e"));

@@ -92,13 +92,13 @@ namespace chen
 
             /**
              * Construct by ipv4 dotted decimal string and CIDR prefix
-             * @e.g: address_v4("127.0.0.1") or address_v4("127.0.0.1/8")
-             * @e.g: address_v4("127.0.0.1", 8)
-             * @e.g: address_v4("127.0.0.1", "255.0.0.0")
+             * e.g: address_v4("127.0.0.1") or address_v4("127.0.0.1/8")
+             * e.g: address_v4("127.0.0.1", 8)
+             * e.g: address_v4("127.0.0.1", "255.0.0.0")
              * Accept some special address format
-             * @e.g: "127" -> "127.0.0.0"
-             * @e.g: "127.1" -> "127.0.0.1"
-             * @e.g: "192.168.1" -> "192.168.0.1"
+             * e.g: "127" -> "127.0.0.0"
+             * e.g: "127.1" -> "127.0.0.1"
+             * e.g: "192.168.1" -> "192.168.0.1"
              * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(const std::string &addr);
@@ -107,10 +107,10 @@ namespace chen
 
             /**
              * Construct by ipv4 integer and CIDR prefix
-             * @e.g: "127.0.0.1" is 0x7F000001, also is 2130706433
-             * @e.g: address_v4(0x7F000001)
-             * @e.g: address_v4(0x7F000001, 8)
-             * @e.g: address_v4(0x7F000001, "255.0.0.0")
+             * e.g: "127.0.0.1" is 0x7F000001, also is 2130706433
+             * e.g: address_v4(0x7F000001)
+             * e.g: address_v4(0x7F000001, 8)
+             * e.g: address_v4(0x7F000001, "255.0.0.0")
              * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(std::uint32_t addr);
@@ -125,7 +125,7 @@ namespace chen
         public:
             /**
              * Standard canonical representation
-             * @e.g: 127.0.0.1
+             * e.g: 127.0.0.1
              */
             virtual std::string str() const override;
 
@@ -136,7 +136,7 @@ namespace chen
 
             /**
              * CIDR prefix notation representation
-             * @e.g: 127.0.0.1/8
+             * e.g: 127.0.0.1/8
              */
             std::string notation() const;
 
@@ -259,37 +259,38 @@ namespace chen
 
             /**
              * CIDR prefix notation representation
-             * @e.g: 2404:6800:4004:817::200e/64
+             * e.g: 2404:6800:4004:817::200e/64
              */
             std::string notation() const;
 
             /**
              * Expanded representation, no compressed
-             * @e.g: 2404:6800:4004:817:0000:0000:0000:200e
+             * e.g: 2404:6800:4004:817:0000:0000:0000:200e
              */
             std::string expanded() const;
 
             /**
              * Leading zero suppressed representation
-             * @e.g: 2404:6800:4004:817:0:0:0:200e
+             * e.g: 2404:6800:4004:817:0:0:0:200e
              */
             std::string suppressed() const;
 
             /**
              * Zero compressed representation
-             * @e.g: 2404:6800:4004:817::200e
-             * @e.g: ::
+             * e.g: 2404:6800:4004:817::200e
+             * e.g: ::
              */
             std::string compressed() const;
 
             /**
              * Mixed representation, used for IPv4-mapped address
-             * @e.g: ::ffff:192.0.2.128
+             * e.g: ::ffff:192.0.2.128
              */
             std::string mixed() const;
 
             /**
              * Retrieve IPv4-mapped or IPv4-compatible address
+             * or IPv4-embedded address according to its CIDR length
              */
             address_v4 embedded() const;
 
@@ -329,10 +330,19 @@ namespace chen
             bool isLinkLocalUnicast() const;
             bool isSiteLocalUnicast() const;
 
-            bool isIPv4Compatible() const;
-            bool isIPv4Mapped() const;
+            bool isIPv4Compatible() const;  // rfc4291
+            bool isIPv4Mapped() const;      // rfc4291
 
             bool isMulticast() const;
+
+            /**
+             * NAT64(IPv6-only network) well-known prefix
+             * "64:ff9b::/96" is the well-known prefix for IPv4-Embedded address
+             * e.g: v4 "115.182.64.94" -> v6 "64:ff9b::73b6:405e/96", aka "64:ff9b::115.182.64.94/96"
+             * @link https://tools.ietf.org/html/rfc6052
+             * @link https://developer.apple.com/library/mac/documentation/NetworkingInternetWeb/Conceptual/NetworkingOverview/UnderstandingandPreparingfortheIPv6Transition/UnderstandingandPreparingfortheIPv6Transition.html#//apple_ref/doc/uid/TP40010220-CH213-SW1
+             */
+            bool isIPv4EmbeddedWellKnown() const;
 
         public:
             /**
