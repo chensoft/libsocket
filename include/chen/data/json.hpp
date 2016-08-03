@@ -51,7 +51,13 @@ namespace chen
         class error : public std::runtime_error
         {
         public:
+            static const std::size_t npos = static_cast<std::size_t>(-1);
+
             explicit error(const std::string &what) : std::runtime_error(what) {}
+            error(const std::string &what, std::size_t position) : std::runtime_error(what), position(position) {}
+
+        public:
+            std::size_t position = npos;  // only valid when syntax error occur
         };
 
     public:
