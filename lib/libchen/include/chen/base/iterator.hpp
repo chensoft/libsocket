@@ -84,7 +84,7 @@ namespace chen
                 virtual Reference operator*() const = 0;
                 virtual void operator++() = 0;
                 virtual bool operator==(const base &o) const = 0;
-                virtual Distance distance() const
+                virtual std::size_t distance() const
                 {
                     // only valid in input iterator
                     // use std::distance in other iterators
@@ -150,14 +150,14 @@ namespace chen
                 return this->_it == tmp._it;
             }
 
-            virtual Distance distance() const override
+            virtual std::size_t distance() const override
             {
                 return this->_distance;
             }
 
         protected:
             Iterator _it;
-            Distance _distance = 0;
+            std::size_t _distance = 0;
         };
 
         // Bidirectional iterator
@@ -361,7 +361,7 @@ namespace chen
                 return !(*this == o);
             }
 
-            difference_type distance() const
+            std::size_t distance() const
             {
                 // since input iterator is single-pass, we can't use std::distance on it
                 // however, in some cases we want to know input iterator's position, so I add this method

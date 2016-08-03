@@ -140,7 +140,7 @@ TEST(DataJsonTest, Validate)
     EXPECT_THROW(chen::json::parse(conf::data + "/json/not_exist.json", true), chen::json::error);
 
     // equal
-    auto text  = R"([
+    std::string text = R"([
     1,
     2,
     3,
@@ -153,4 +153,17 @@ TEST(DataJsonTest, Validate)
 
     auto parse = chen::json::parse(text);
     EXPECT_EQ(text, chen::json::stringify(parse, 4));
+
+    // error
+    text = "{unquoted_key: \"keys must be quoted\"}";
+    EXPECT_THROW(chen::json::parse(text), chen::json::error);
+
+    try
+    {
+        chen::json::parse(text);
+    }
+    catch (const chen::json::error &e)
+    {
+        EXPECT_EQ(1, e.position);
+    }
 }

@@ -3,5 +3,3 @@
 -) add socket opt support, such as tcp reuse address
 
 -) add connecting state
-
--) add other edns0 opt

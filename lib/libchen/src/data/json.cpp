@@ -123,7 +123,6 @@ json::json(bool v) : _type(v ? Type::True : Type::False)
 
 json::json(std::nullptr_t) : _type(Type::Null)
 {
-
 }
 
 json::~json()
@@ -711,7 +710,7 @@ std::string json::toString() const
     switch (this->_type)
     {
         case Type::Number:
-            return chen::num::str(this->_data.d);
+            return num::str(this->_data.d);
 
         case Type::String:
             return *this->_data.s;
@@ -740,7 +739,7 @@ bool json::toBool() const
             return true;
 
         case Type::Number:
-            return !chen::num::equal(this->_data.d, 0.0);
+            return !num::equal(this->_data.d, 0.0);
 
         case Type::String:
             return !this->_data.s->empty();
@@ -783,14 +782,13 @@ void chen::json::exception(const iterator &beg, iterator &cur, iterator &end)
 {
     if (cur == end)
     {
-        throw chen::json::error("json: unexpected end of input");
+        throw json::error("json: unexpected end of input");
     }
     else
     {
-        auto pos = chen::num::str(cur.distance());
-        auto tok = std::isprint(*cur) ? std::string(1, *cur) : chen::str::format("\\x%02x", static_cast<int>(*cur));
-
-        throw chen::json::error(chen::str::format("json: unexpected token '%s' at position %s", tok.c_str(), pos.c_str()));
+        auto pos = cur.distance();
+        auto tok = std::isprint(*cur) ? std::string(1, *cur) : str::format("\\x%02x", *cur);
+        throw json::error(str::format("json: unexpected token '%s' at position %lu", tok.c_str(), pos), pos);
     }
 }
 
@@ -1064,13 +1062,13 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
 
     if (std::isinf(d))
     {
-        auto pos = chen::num::str(cur.distance() - str.size());
-        throw chen::json::error(chen::str::format("json: number '%s' is overflow at position %s", str.c_str(), pos.c_str()));
+        auto pos = cur.distance() - str.size();
+        throw json::error(str::format("json: number '%s' is overflow at position %lu", str.c_str(), pos), pos);
     }
     else if (std::isnan(d))
     {
-        auto pos = chen::num::str(cur.distance() - str.size());
-        throw chen::json::error(chen::str::format("json: number '%s' is invalid at position %s", str.c_str(), pos.c_str()));
+        auto pos = cur.distance() - str.size();
+        throw json::error(str::format("json: number '%s' is invalid at position %lu", str.c_str(), pos), pos);
     }
 
     out = d;
@@ -1090,8 +1088,8 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
         // control characters must use escape
         if ((ch >= 0) && (ch <= 31))  // see ASCII
         {
-            auto pos = chen::num::str(cur.distance());
-            throw chen::json::error(chen::str::format("json: control character code '%d' is not escaped at position %s", static_cast<int>(ch), pos.c_str()));
+            auto pos = cur.distance();
+            throw json::error(str::format("json: control character code '%d' is not escaped at position %lu", static_cast<int>(ch), pos), pos);
         }
 
         // unescape characters
@@ -1157,8 +1155,8 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
                     catch (...)
                     {
                         // e.g: \uD83D\uDE00, it's a emoji character
-                        auto pos = chen::num::str(cur.distance() - 4);
-                        throw chen::json::error(chen::str::format("json: invalid unicode char '\\u%s' at position %s", unicode, pos.c_str()));
+                        auto pos = cur.distance() - 4;
+                        throw json::error(str::format("json: invalid unicode char '\\u%s' at position %lu", unicode, pos), pos);
                     }
                 }
                     break;
@@ -1324,7 +1322,7 @@ void json::encode(const chen::json::array &v, std::size_t space, std::string &ou
 
 void json::encode(double v, std::string &output)
 {
-    output.append(chen::num::str(v));
+    output.append(num::str(v));
 }
 
 void json::encode(const std::string &v, std::string &output)
