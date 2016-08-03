@@ -7,7 +7,6 @@
 #include <chen/data/ini.hpp>
 #include <chen/base/utf8.hpp>
 #include <chen/base/str.hpp>
-#include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
 #include <fstream>
 #include <cstdlib>
@@ -187,10 +186,10 @@ void chen::ini::exception(const iterator &beg, iterator &cur, iterator &end)
     }
     else
     {
-        auto pos = chen::num::str(cur.distance());
-        auto tok = std::isprint(*cur) ? std::string(1, *cur) : chen::str::format("\\x%02x", static_cast<int>(*cur));
+        auto pos = cur.distance();
+        auto tok = std::isprint(*cur) ? std::string(1, *cur) : str::format("\\x%02x", static_cast<int>(*cur));
 
-        throw chen::ini::error(chen::str::format("ini: unexpected token '%s' at position %s", tok.c_str(), pos.c_str()));
+        throw chen::ini::error(str::format("ini: unexpected token '%s' at position %lu", tok.c_str(), pos), pos);
     }
 }
 
@@ -227,7 +226,7 @@ void chen::ini::decode(chen::ini::value_type &out, const iterator &beg, iterator
                 if (out.find(s.first) == out.end())
                     out.emplace(std::move(s));
                 else
-                    throw chen::ini::error(chen::str::format("ini: duplicate section '%s' found", s.first.c_str()));
+                    throw chen::ini::error(str::format("ini: duplicate section '%s' found", s.first.c_str()));
             }
                 break;
 
@@ -311,8 +310,8 @@ void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, itera
 
         if (out.find(key) != out.end())
         {
-            auto pos = chen::num::str(cur.distance() - key.size());
-            throw chen::ini::error(chen::str::format("ini: duplicate key '%s' found at position %s", key.c_str(), pos.c_str()));
+            auto pos = cur.distance() - key.size();
+            throw chen::ini::error(str::format("ini: duplicate key '%s' found at position %lu", key.c_str(), pos), pos);
         }
 
         // equal
@@ -448,8 +447,8 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
                 catch (...)
                 {
                     // e.g: \xD83D\xDE00, it's a emoji character
-                    auto pos = chen::num::str(cur.distance() - 4);
-                    throw chen::ini::error(chen::str::format("ini: invalid unicode char '\\u%s' at position %s", unicode, pos.c_str()));
+                    auto pos = cur.distance() - 4;
+                    throw chen::ini::error(str::format("ini: invalid unicode char '\\u%s' at position %lu", unicode, pos), pos);
                 }
             }
                 break;

@@ -156,6 +156,7 @@ TEST(DataJsonTest, Validate)
 
     // error
     text = "{unquoted_key: \"keys must be quoted\"}";
+    EXPECT_THROW(chen::json::parse(text), chen::json::error);
 
     try
     {

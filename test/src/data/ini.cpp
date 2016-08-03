@@ -28,7 +28,7 @@ TEST(DataIniTest, General)
     }
 
     // equal(usage of block text in C++11)
-    auto text  = R"([section]
+    std::string text = R"([section]
 key="simple \\\0\a\b\t\r\n\:\"\;\#value")";
 
     auto parse = chen::ini::parse(text);
@@ -39,4 +39,19 @@ key="simple \\\0\a\b\t\r\n\:\"\;\#value")";
     EXPECT_THROW(chen::ini::parse("ab=\\x9A"), chen::ini::error);
     EXPECT_THROW(chen::ini::parse("ab=\\x9A@@"), chen::ini::error);
     EXPECT_THROW(chen::ini::parse("emoji=\\xD83D\\xDE00"), chen::ini::error);
+
+    // error
+    text = R"([section
+key="section is not enclosed")";
+
+    EXPECT_THROW(chen::ini::parse(text), chen::ini::error);
+
+    try
+    {
+        chen::ini::parse(text);
+    }
+    catch (const chen::ini::error &e)
+    {
+        EXPECT_EQ(8, e.position);
+    }
 }
