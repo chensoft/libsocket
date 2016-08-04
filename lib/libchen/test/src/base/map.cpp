@@ -19,6 +19,15 @@ TEST(BaseMapTest, General)
     EXPECT_EQ(8, chen::map::find(map, 3));
     EXPECT_EQ(15, chen::map::find(map, 10, 15));
 
+    // write
+    int out = 0;
+
+    chen::map::write(map, 10, out);
+    EXPECT_EQ(0, out);
+
+    chen::map::write(map, 3, out);
+    EXPECT_EQ(8, out);
+
     // keys
     auto keys = chen::map::keys(map);
     std::sort(keys.begin(), keys.end());
