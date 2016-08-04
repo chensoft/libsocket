@@ -48,7 +48,7 @@ namespace chen
         {
             auto it = m.find(k);
             if (it != m.end())
-                o = it->second;
+                o = static_cast<O>(it->second);
         }
 
         /**
