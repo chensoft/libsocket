@@ -7,7 +7,6 @@
 #pragma once
 
 #include <socket/ip/ip_address.hpp>
-#include <memory>
 
 namespace chen
 {
@@ -28,7 +27,10 @@ namespace chen
              * Property
              */
             const chen::ip::address& addr() const;
-            std::uint16_t port() const;
+            const std::uint16_t& port() const;
+
+            chen::ip::address& addr();
+            std::uint16_t& port();
 
         public:
             /**

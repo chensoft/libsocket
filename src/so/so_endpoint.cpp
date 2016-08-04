@@ -15,8 +15,7 @@ endpoint::endpoint(const std::string &addr, std::uint16_t port) : _addr(chen::ip
 {
 }
 
-endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port)
-: endpoint(addr.clone(), port)
+endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port) : endpoint(addr.clone(), port)
 {
 }
 
@@ -30,7 +29,17 @@ const chen::ip::address& endpoint::addr() const
     return *this->_addr;
 }
 
-std::uint16_t endpoint::port() const
+const std::uint16_t& endpoint::port() const
+{
+    return this->_port;
+}
+
+chen::ip::address& endpoint::addr()
+{
+    return *this->_addr;
+}
+
+std::uint16_t& endpoint::port()
 {
     return this->_port;
 }
