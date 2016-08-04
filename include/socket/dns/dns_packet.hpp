@@ -8,7 +8,7 @@
 
 #include "dns_header.hpp"
 #include "dns_record.hpp"
-#include <memory>
+#include "dns_codec.hpp"
 
 namespace chen
 {

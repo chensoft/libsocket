@@ -8,7 +8,6 @@
 
 #include "dns_define.hpp"
 #include "dns_record.hpp"
-#include <memory>
 
 namespace chen
 {

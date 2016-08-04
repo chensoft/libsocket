@@ -9,11 +9,9 @@
  */
 #pragma once
 
-#include "dns_define.hpp"
-#include "dns_codec.hpp"
-#include "dns_edns.hpp"
 #include <chen/data/json.hpp>
-#include <memory>
+#include "dns_define.hpp"
+#include "dns_edns.hpp"
 
 namespace chen
 {
@@ -63,8 +61,7 @@ namespace chen
             /**
              * Check remain data when decode
              */
-            std::size_t remain(const chen::dns::codec::iterator &beg,
-                               const chen::dns::codec::iterator &cur) const;
+            std::size_t remain(std::size_t used) const;
 
         public:
             /**

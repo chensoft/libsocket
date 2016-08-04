@@ -6,6 +6,7 @@
  */
 #include <socket/dns/dns_header.hpp>
 #include <socket/dns/dns_table.hpp>
+#include <socket/dns/dns_codec.hpp>
 #include <chen/base/num.hpp>
 
 using namespace chen;

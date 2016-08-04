@@ -6,6 +6,7 @@
  */
 #include <socket/dns/dns_record.hpp>
 #include <socket/dns/dns_table.hpp>
+#include <socket/dns/dns_codec.hpp>
 #include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/map.hpp>
@@ -115,10 +116,8 @@ std::string RR::str(const std::string &sep) const
 }
 
 // helper
-std::size_t RR::remain(const chen::dns::codec::iterator &beg,
-                       const chen::dns::codec::iterator &cur) const
+std::size_t RR::remain(std::size_t used) const
 {
-    auto used = std::distance(beg, cur);
     if (this->rdlength < used)
         throw error_codec("dns: codec rdata is overflow");
 
@@ -620,7 +619,7 @@ void WKS::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->protocol);
 
     this->bitmap.clear();
-    decoder.unpack(this->bitmap, this->remain(tmp, decoder.cur()));
+    decoder.unpack(this->bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
 void WKS::unpack(const chen::json::object &object)
@@ -1402,7 +1401,7 @@ void NXT::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->next_domain, codec::StringType::Domain);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+    decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
 void NXT::unpack(const chen::json::object &object)
@@ -1839,7 +1838,7 @@ void SINK::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->subcoding);
 
     this->sdata.clear();
-    decoder.unpack(this->sdata, this->remain(tmp, decoder.cur()));
+    decoder.unpack(this->sdata, this->remain(std::distance(tmp, decoder.cur())));
 }
 
 void SINK::unpack(const chen::json::object &object)
@@ -2276,7 +2275,7 @@ void NSEC::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->next_domain, codec::StringType::Domain);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+    decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
 void NSEC::unpack(const chen::json::object &object)
@@ -2424,7 +2423,7 @@ void NSEC3::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->next_owner, codec::StringType::Plain);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+    decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
 void NSEC3::unpack(const chen::json::object &object)
@@ -2946,7 +2945,7 @@ void CSYNC::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->flags);
 
     this->type_bitmap.clear();
-    decoder.unpack(this->type_bitmap, this->remain(tmp, decoder.cur()));
+    decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
 void CSYNC::unpack(const chen::json::object &object)

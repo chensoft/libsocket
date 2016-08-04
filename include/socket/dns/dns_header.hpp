@@ -7,12 +7,15 @@
 #pragma once
 
 #include "dns_define.hpp"
-#include "dns_codec.hpp"
+#include <string>
 
 namespace chen
 {
     namespace dns
     {
+        class encoder;
+        class decoder;
+
         // ---------------------------------------------------------------------
         // header
         class header
