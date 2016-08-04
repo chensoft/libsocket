@@ -41,6 +41,17 @@ namespace chen
         }
 
         /**
+         * Write value if find
+         */
+        template <typename M, typename O>
+        static void write(const M &m, const typename M::key_type &k, O &o)
+        {
+            auto it = m.find(k);
+            if (it != m.end())
+                o = it->second;
+        }
+
+        /**
          * The keys of a map
          */
         template <typename M>
