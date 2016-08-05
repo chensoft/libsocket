@@ -245,6 +245,14 @@ namespace chen
             static std::uint32_t toInteger(const std::string &addr);
             static std::uint32_t toInteger(const std::string &addr, std::uint8_t &cidr);
 
+        public:
+            /**
+             * Common addresses
+             */
+            static address_v4 any();
+            static address_v4 broad();
+            static address_v4 loopback();
+
         protected:
             std::uint32_t _addr = 0;  // 32 bit ipv4 address
             std::uint8_t  _cidr = 0;  // CIDR notation prefix length
@@ -428,6 +436,13 @@ namespace chen
 
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr);
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t &cidr);
+
+        public:
+            /**
+             * Common addresses
+             */
+            static address_v6 any();
+            static address_v6 loopback();
 
         protected:
             /**

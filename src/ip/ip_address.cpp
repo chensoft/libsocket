@@ -504,6 +504,22 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
     return val;
 }
 
+// common
+address_v4 address_v4::any()
+{
+    return address_v4();
+}
+
+address_v4 address_v4::broad()
+{
+    return address_v4(0xFFFFFFFFu);
+}
+
+address_v4 address_v4::loopback()
+{
+    return address_v4(0x7F000001);
+}
+
 
 // -----------------------------------------------------------------------------
 // address_v6
@@ -1057,6 +1073,17 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
 
     return ret;
 };
+
+// common
+address_v6 address_v6::any()
+{
+    return address_v6();
+}
+
+address_v6 address_v6::loopback()
+{
+    return address_v6(std::array<std::uint8_t, 16>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01});
+}
 
 // compress
 std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator beg,

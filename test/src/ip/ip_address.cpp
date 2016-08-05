@@ -205,6 +205,11 @@ TEST(IPAddressTest, IPv4)
     EXPECT_GE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1"));
     EXPECT_GE(chen::ip::address_v4("127.0.0.1"), chen::ip::address_v4("127.0.0.1/8"));
 
+    // common
+    EXPECT_EQ("0.0.0.0", chen::ip::address_v4::any().str());
+    EXPECT_EQ("255.255.255.255", chen::ip::address_v4::broad().str());
+    EXPECT_EQ("127.0.0.1", chen::ip::address_v4::loopback().str());
+
     // invalid test
     EXPECT_THROW(chen::ip::address_v4::toInteger("127..1"), chen::ip::address::error);
     EXPECT_THROW(chen::ip::address_v4::toInteger("999.0.0.0"), chen::ip::address::error);
@@ -316,6 +321,9 @@ TEST(IPAddressTest, IPv6)
     EXPECT_TRUE(chen::ip::address_v6("::ffff:192.168.1.1").isIPv4Mapped());
     EXPECT_FALSE(chen::ip::address_v6("::192.168.1.1").isIPv4Mapped());
 
+    EXPECT_TRUE(chen::ip::address_v6("ff02::1").isMulticast());
+    EXPECT_FALSE(chen::ip::address_v6("2404::192.168.1.1").isMulticast());
+
     EXPECT_TRUE(chen::ip::address_v6("64:ff9b::73b6:405e/96").isIPv4EmbeddedWellKnown());
     EXPECT_FALSE(chen::ip::address_v6("2001:db8:122:344::/96").isIPv4EmbeddedWellKnown());
 
@@ -339,6 +347,10 @@ TEST(IPAddressTest, IPv6)
     EXPECT_GE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::"));
     EXPECT_GE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e"));
     EXPECT_GE(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6("2404:6800:4004:817::200e/64"));
+
+    // common
+    EXPECT_EQ("::", chen::ip::address_v6::any().str());
+    EXPECT_EQ("::1", chen::ip::address_v6::loopback().str());
 
     // invalid test
     EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e", 200), chen::ip::address::error);
