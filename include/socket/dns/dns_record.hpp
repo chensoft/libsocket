@@ -1016,7 +1016,7 @@ namespace chen
         class OPT : public RR
         {
         public:
-            typedef std::shared_ptr<chen::dns::edns0::Option> option_pointer;
+            typedef std::shared_ptr<chen::dns::edns0::Option> opt_pointer;
 
         public:
             OPT();
@@ -1064,7 +1064,7 @@ namespace chen
             virtual void unpack(const chen::json::object &object) override;
 
         public:
-            std::vector<option_pointer> options;
+            std::vector<opt_pointer> options;
         };
 
 

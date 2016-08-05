@@ -3,3 +3,27 @@
 -) add socket opt support, such as tcp reuse address
 
 -) add connecting state
+
+-) enum network interfaces, mac addresses, ip addresses and so on
+
+-) socket can accept or connect on specific interface according to its name
+
+-) socket support queued data or msg, queued data will be sent after connect success
+
+-) support read, read some, read all, read until separator occur
+
+-) client connect to server via specific port, it's an advance tool
+
+-) store connected host and ip address
+
+-) if multiple ip addresses exist when query dns, socket can polling to connect to a valid address
+
+-) timeout when user connect in but no send any data
+
+-) anti slow packet attack
+
+-) use chen::ip_address in socket methods
+
+-) rename so::socket to basic
+
+-) advance dns query(sync and async) methods
