@@ -161,6 +161,12 @@ void address_v4::assign(std::uint32_t addr, const std::string &mask)
     this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
 }
 
+address& address_v4::operator=(const std::string &addr)
+{
+    this->assign(addr);
+    return *this;
+}
+
 // representation
 std::string address_v4::str() const
 {
@@ -571,6 +577,12 @@ void address_v6::assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
 
     if (this->_cidr > 128)
         throw address::error("ipv6: CIDR prefix must less than 128");
+}
+
+address& address_v6::operator=(const std::string &addr)
+{
+    this->assign(addr);
+    return *this;
 }
 
 // representation

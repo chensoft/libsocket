@@ -52,6 +52,13 @@ namespace chen
 
         public:
             /**
+             * Assignment
+             */
+            virtual void assign(const std::string &addr) = 0;
+            virtual address& operator=(const std::string &addr) = 0;
+
+        public:
+            /**
              * Standard canonical representation
              */
             virtual std::string str() const = 0;
@@ -139,7 +146,7 @@ namespace chen
             /**
              * Assignment
              */
-            void assign(const std::string &addr);
+            virtual void assign(const std::string &addr) override;
             void assign(const std::string &addr, std::uint8_t cidr);
             void assign(const std::string &addr, const std::string &mask);
 
@@ -147,7 +154,8 @@ namespace chen
             void assign(std::uint32_t addr, std::uint8_t cidr);
             void assign(std::uint32_t addr, const std::string &mask);
 
-            // todo operator=
+            virtual address& operator=(const std::string &addr) override;
+
             // todo reference addr and cidr?
 
         public:
@@ -284,7 +292,7 @@ namespace chen
             /**
              * Assignment
              */
-            void assign(const std::string &addr);
+            virtual void assign(const std::string &addr) override;
             void assign(const std::string &addr, std::uint8_t cidr);
 
             void assign(const std::array<std::uint8_t, 16> &addr);
@@ -293,7 +301,7 @@ namespace chen
             void assign(std::array<std::uint8_t, 16> &&addr);
             void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
 
-            // todo operator=
+            virtual address& operator=(const std::string &addr) override;
             // todo reference addr and cidr?
 
         public:

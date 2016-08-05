@@ -23,7 +23,7 @@ TEST(SOEndpointTest, General)
     EXPECT_EQ(chen::ip::address_v4("127.0.0.1"), ep3.addr());
 
     ep3.port() = 443;
-//    ep3.addr() = "192.168.1.1";  // todo
+    ep3.addr() = "192.168.1.1";
 
     EXPECT_EQ(443, ep3.port());
     EXPECT_EQ(chen::ip::address_v4("192.168.1.1").str(), ep3.addr().str());
