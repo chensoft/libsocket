@@ -63,19 +63,6 @@ namespace chen
 
         public:
             /**
-             * Generate ipv4 or ipv6 address automatically
-             */
-            static std::shared_ptr<chen::ip::address> create(const std::string &addr);
-            static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
-
-            /**
-             * Detect ipv4 or ipv6 according to string
-             */
-            static bool isIPv4(const std::string &addr);
-            static bool isIPv6(const std::string &addr);
-
-        public:
-            /**
              * Operator
              */
             virtual bool operator==(const address &o) const = 0;
@@ -86,6 +73,19 @@ namespace chen
 
             virtual bool operator<=(const address &o) const = 0;
             virtual bool operator>=(const address &o) const;
+
+        public:
+            /**
+             * Generate ipv4 or ipv6 address automatically
+             */
+            static std::shared_ptr<chen::ip::address> create(const std::string &addr);
+            static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
+
+            /**
+             * Detect ipv4 or ipv6 according to string
+             */
+            static bool isIPv4(const std::string &addr);
+            static bool isIPv6(const std::string &addr);
 
         protected:
             /**
@@ -134,6 +134,21 @@ namespace chen
              * Clone current object
              */
             virtual std::shared_ptr<chen::ip::address> clone() const override;
+
+        public:
+            /**
+             * Assignment
+             */
+            void assign(const std::string &addr);
+            void assign(const std::string &addr, std::uint8_t cidr);
+            void assign(const std::string &addr, const std::string &mask);
+
+            void assign(std::uint32_t addr);
+            void assign(std::uint32_t addr, std::uint8_t cidr);
+            void assign(std::uint32_t addr, const std::string &mask);
+
+            // todo operator=
+            // todo reference addr and cidr?
 
         public:
             /**
@@ -257,10 +272,29 @@ namespace chen
             address_v6(const std::array<std::uint8_t, 16> &addr);
             address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
 
+            address_v6(std::array<std::uint8_t, 16> &&addr);
+            address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+
             /**
              * Clone current object
              */
             virtual std::shared_ptr<chen::ip::address> clone() const override;
+
+        public:
+            /**
+             * Assignment
+             */
+            void assign(const std::string &addr);
+            void assign(const std::string &addr, std::uint8_t cidr);
+
+            void assign(const std::array<std::uint8_t, 16> &addr);
+            void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+
+            void assign(std::array<std::uint8_t, 16> &&addr);
+            void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+
+            // todo operator=
+            // todo reference addr and cidr?
 
         public:
             /**

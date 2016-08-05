@@ -226,6 +226,12 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(bytes));
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(bytes, 64));
 
+    auto move1 = bytes;
+    auto move2 = bytes;
+
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(std::move(move1)));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(std::move(move2), 64));
+
     EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e/129"), chen::ip::address::error);
     EXPECT_THROW(chen::ip::address_v6(bytes, 129), chen::ip::address::error);
 
