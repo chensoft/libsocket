@@ -20,6 +20,8 @@ namespace chen
         class address_v4;
         class address_v6;
 
+        // ---------------------------------------------------------------------
+        // Abstract address
         class address
         {
         public:
@@ -30,6 +32,7 @@ namespace chen
             };
 
         public:
+            address() = default;
             virtual ~address() = default;
 
             /**
@@ -83,8 +86,15 @@ namespace chen
 
             virtual bool operator<=(const address &o) const = 0;
             virtual bool operator>=(const address &o) const;
+
+        protected:
+            address(const address&) = default;
+            address& operator=(const address&) = default;
         };
 
+
+        // ---------------------------------------------------------------------
+        // IPv4
         class address_v4 : public address
         {
         public:
@@ -213,6 +223,9 @@ namespace chen
             std::uint8_t  _cidr = 0;  // CIDR notation prefix length
         };
 
+
+        // ---------------------------------------------------------------------
+        // IPv6
         class address_v6 : public address
         {
         public:
