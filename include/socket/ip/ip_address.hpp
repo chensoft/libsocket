@@ -88,6 +88,9 @@ namespace chen
             virtual bool operator>=(const address &o) const;
 
         protected:
+            /**
+             * Allow copy in derived class
+             */
             address(const address&) = default;
             address& operator=(const address&) = default;
         };

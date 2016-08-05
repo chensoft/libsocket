@@ -60,6 +60,10 @@ namespace chen
             static std::string rcodeToText(chen::dns::RCODE key);
             static chen::dns::RCODE textToRcode(const std::string &key);
 
+            /**
+             * EDNS0 OptionCode & Text
+             */
+
         public:
             /**
              * Set custom rr type and related value

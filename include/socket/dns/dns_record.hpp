@@ -57,19 +57,25 @@ namespace chen
             virtual void unpack(chen::dns::decoder &decoder) = 0;
             virtual void unpack(const chen::json::object &object) = 0;
 
-        protected:
+        public:
             /**
              * Check remain data when decode
              */
             std::size_t remain(std::size_t used) const;
 
-        public:
             /**
              * Escape string, used in description
              */
             static std::string escape(const std::vector<std::uint8_t> &data);
             static std::string escape(const std::string &text);
             static std::string escape(std::size_t bits);
+
+        protected:
+            /**
+             * Allow copy in derived class
+             */
+            RR(const RR&) = default;
+            RR& operator=(const RR&) = default;
 
         public:
             std::string name;

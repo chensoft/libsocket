@@ -54,6 +54,13 @@ namespace chen
                 virtual void pack(chen::dns::encoder &encoder) const = 0;
                 virtual void unpack(chen::dns::decoder &decoder) = 0;
 
+            protected:
+                /**
+                 * Allow copy in derived class
+                 */
+                Option(const Option&) = default;
+                Option& operator=(const Option&) = default;
+
             public:
                 OptionCode code = OptionCode::None;
 
