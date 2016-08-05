@@ -188,15 +188,25 @@ std::string address_v4::notation() const
     return address_v4::toString(this->_addr, this->_cidr);
 }
 
-std::uint32_t address_v4::addr() const
+const std::uint32_t& address_v4::addr() const
 {
     // @see rfc791
     return this->_addr;
 }
 
-std::uint8_t address_v4::cidr() const
+const std::uint8_t& address_v4::cidr() const
 {
     // @see rfc1519
+    return this->_cidr;
+}
+
+std::uint32_t& address_v4::addr()
+{
+    return this->_addr;
+}
+
+std::uint8_t& address_v4::cidr()
+{
     return this->_cidr;
 }
 
@@ -685,7 +695,17 @@ const std::array<std::uint8_t, 16>& address_v6::addr() const
     return this->_addr;
 }
 
-std::uint8_t address_v6::cidr() const
+const std::uint8_t& address_v6::cidr() const
+{
+    return this->_cidr;
+}
+
+std::array<std::uint8_t, 16>& address_v6::addr()
+{
+    return this->_addr;
+}
+
+std::uint8_t& address_v6::cidr()
 {
     return this->_cidr;
 }

@@ -156,8 +156,6 @@ namespace chen
 
             virtual address& operator=(const std::string &addr) override;
 
-            // todo reference addr and cidr?
-
         public:
             /**
              * Standard canonical representation
@@ -179,8 +177,11 @@ namespace chen
             /**
              * Get raw value
              */
-            std::uint32_t addr() const;
-            std::uint8_t  cidr() const;
+            const std::uint32_t& addr() const;
+            const std::uint8_t&  cidr() const;
+
+            std::uint32_t& addr();
+            std::uint8_t&  cidr();
 
             /**
              * Netmask & Wildcard mask
@@ -302,7 +303,6 @@ namespace chen
             void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
 
             virtual address& operator=(const std::string &addr) override;
-            // todo reference addr and cidr?
 
         public:
             /**
@@ -356,7 +356,10 @@ namespace chen
              * Get raw value
              */
             const std::array<std::uint8_t, 16>& addr() const;
-            std::uint8_t cidr() const;
+            const std::uint8_t& cidr() const;
+
+            std::array<std::uint8_t, 16>& addr();
+            std::uint8_t& cidr();
 
             /**
              * Netmask & Wildcard mask
