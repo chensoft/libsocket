@@ -63,6 +63,8 @@ namespace chen
             /**
              * EDNS0 OptionCode & Text
              */
+            static std::string edns0ToText(chen::dns::edns0::OptionCode key);
+            static chen::dns::edns0::OptionCode textToEDNS0(const std::string &key);
 
         public:
             /**
@@ -75,6 +77,7 @@ namespace chen
             static void set(chen::dns::QR key, const std::string &val);
             static void set(chen::dns::OPCODE key, const std::string &val);
             static void set(chen::dns::RCODE key, const std::string &val);
+            static void set(chen::dns::edns0::OptionCode key, const std::string &val);
         };
     }
 }

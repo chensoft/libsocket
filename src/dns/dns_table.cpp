@@ -258,6 +258,23 @@ namespace
 
     std::unordered_map<std::string, RCODE> g_rr_text_rcode;
 
+    std::map<edns0::OptionCode, std::string> g_rr_edns0_text = {
+            {edns0::OptionCode::LLQ, "LLQ"},
+            {edns0::OptionCode::UL, "UL"},
+            {edns0::OptionCode::NSID, "NSID"},
+            {edns0::OptionCode::DAU, "DAU"},
+            {edns0::OptionCode::DHU, "DHU"},
+            {edns0::OptionCode::N3U, "N3U"},
+            {edns0::OptionCode::Subnet, "Subnet"},
+            {edns0::OptionCode::EXPIRE, "EXPIRE"},
+            {edns0::OptionCode::COOKIE, "COOKIE"},
+            {edns0::OptionCode::Keepalive, "Keepalive"},
+            {edns0::OptionCode::Padding, "Padding"},
+            {edns0::OptionCode::CHAIN, "CHAIN"},
+    };
+
+    std::unordered_map<std::string, edns0::OptionCode> g_rr_text_edns0;
+
     // helper
     class helper
     {
@@ -278,6 +295,9 @@ namespace
 
             for (auto &it : g_rr_rcode_text)
                 g_rr_text_rcode[it.second] = it.first;
+
+            for (auto &it : g_rr_edns0_text)
+                g_rr_text_edns0[it.second] = it.first;
         }
     };
 
@@ -366,6 +386,19 @@ RCODE table::textToRcode(const std::string &key)
     return it != g_rr_text_rcode.end() ? it->second : RCODE::NoError;
 }
 
+// edns0 option code
+std::string table::edns0ToText(chen::dns::edns0::OptionCode key)
+{
+    auto it = g_rr_edns0_text.find(key);
+    return it != g_rr_edns0_text.end() ? it->second : "";
+}
+
+chen::dns::edns0::OptionCode table::textToEDNS0(const std::string &key)
+{
+    auto it = g_rr_text_edns0.find(key);
+    return it != g_rr_text_edns0.end() ? it->second : edns0::OptionCode::None;
+}
+
 // set
 void table::set(RRType key, rr_build_type val)
 {
@@ -405,4 +438,10 @@ void table::set(RCODE key, const std::string &val)
 {
     g_rr_rcode_text[key] = val;
     g_rr_text_rcode[val] = key;
+}
+
+void table::set(chen::dns::edns0::OptionCode key, const std::string &val)
+{
+    g_rr_edns0_text[key] = val;
+    g_rr_text_edns0[val] = key;
 }
