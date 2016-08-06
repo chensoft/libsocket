@@ -155,6 +155,11 @@ namespace chen
              */
             void rotate();
 
+            /**
+             * Make answers random
+             */
+            void random();
+
         public:
             /**
              * Encode & Decode

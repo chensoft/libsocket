@@ -360,6 +360,15 @@ void response::rotate()
     this->_answer.emplace_back(std::move(rr));
 }
 
+// random
+void response::random()
+{
+    if (this->_answer.size() <= 1)
+        return;
+
+    std::random_shuffle(this->_answer.begin(), this->_answer.end());
+}
+
 // codec
 std::vector<std::uint8_t> response::encode() const
 {
