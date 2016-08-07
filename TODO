@@ -1,8 +1,14 @@
 -) the capability of sending raw packet
 
+-) implement unix domain socket only under Unix
+
 -) add socket opt support, such as tcp reuse address
 
 -) add connecting state
+
+-) tcp client reconnect using stored address and port
+
+-) parse [fe80::1%lo0] v6 address with scope, store scope id to address_v6
 
 -) enum network interfaces, mac addresses, ip addresses and so on
 
@@ -27,3 +33,27 @@
 -) rename so::socket to basic
 
 -) advance dns query(sync and async) methods
+
+-) split host add port in so::endpoint?
+
+-) accept "host:port" as param name addr when connect, ipv6 is "[fe80::1%lo0]:53"
+
+-) specify query v4 or v6 dns only when specify host in connect
+
+-) accept address_vx, port when connect
+
+-) accept host, port when connect
+
+-) allow query protocol port, use ":http" like string to connect
+
+-) use std::future if make an async dns query
+
+-) create udp conn like tcp conn, udp conn from the origin udp's same socket fd
+
+-) using mutex to serialize read and write in udp and tcp
+
+-) allow udp connect to a fixed address
+
+-) report error if udp already connect to a fixed addr but still send to another address
+
+-) how to add epoll, kqueue?
