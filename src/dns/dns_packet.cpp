@@ -6,6 +6,7 @@
  */
 #include <socket/dns/dns_packet.hpp>
 #include <socket/dns/dns_record.hpp>
+#include <algorithm>
 
 using namespace chen;
 using namespace chen::dns;

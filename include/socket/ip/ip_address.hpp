@@ -199,7 +199,7 @@ namespace chen
              * Common addresses
              */
             static address_v4 any();
-            static address_v4 broad();
+            static address_v4 broadcast();
             static address_v4 loopback();
 
         protected:
@@ -251,7 +251,7 @@ namespace chen
 
         public:
             /**
-             * Standard canonical representation, same to method compressed()
+             * Standard canonical representation, same to the method compressed()
              * e.g: 2404:6800:4004:817::200e
              */
             virtual std::string str() const override;
@@ -358,7 +358,6 @@ namespace chen
             static address_v6 any();
             static address_v6 loopback();
 
-        protected:
             /**
              * Compress data
              */

@@ -185,7 +185,7 @@ TEST(IPAddressTest, IPv4)
 
     // common
     EXPECT_EQ("0.0.0.0", chen::ip::address_v4::any().str());
-    EXPECT_EQ("255.255.255.255", chen::ip::address_v4::broad().str());
+    EXPECT_EQ("255.255.255.255", chen::ip::address_v4::broadcast().str());
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4::loopback().str());
 
     // invalid test

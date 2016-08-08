@@ -414,7 +414,7 @@ address_v4 address_v4::any()
     return address_v4();
 }
 
-address_v4 address_v4::broad()
+address_v4 address_v4::broadcast()
 {
     return address_v4(0xFFFFFFFFu);
 }
