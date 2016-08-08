@@ -5,11 +5,11 @@
  * @link   http://chensoft.com
  */
 #include <socket/ip/ip_address.hpp>
+#include <socket/ip/ip_subnet.hpp>
 #include <socket/ip/ip_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
-#include <bitset>
 
 using namespace chen;
 using namespace chen::ip;
@@ -64,7 +64,7 @@ std::shared_ptr<chen::ip::address> address::create(const std::string &addr)
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr, std::uint8_t cidr)
 {
     if (address::isIPv4(addr))
-        return std::make_shared<chen::ip::address_v4>(addr, cidr);
+        return std::make_shared<chen::ip::subnet_v4>(addr, cidr);
     else
         return std::make_shared<chen::ip::address_v6>(addr, cidr);
 }
@@ -82,23 +82,9 @@ bool address::isIPv6(const std::string &addr)
 
 // -----------------------------------------------------------------------------
 // address_v4
-address_v4::address_v4() : _cidr(32)
-{
-}
-
 address_v4::address_v4(const std::string &addr)
 {
     this->assign(addr);
-}
-
-address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
-{
-    this->assign(addr, cidr);
-}
-
-address_v4::address_v4(const std::string &addr, const std::string &mask)
-{
-    this->assign(addr, mask);
 }
 
 address_v4::address_v4(std::uint32_t addr)
@@ -106,60 +92,20 @@ address_v4::address_v4(std::uint32_t addr)
     this->assign(addr);
 }
 
-address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
-{
-    this->assign(addr, cidr);
-}
-
-address_v4::address_v4(std::uint32_t addr, const std::string &mask)
-{
-    this->assign(addr, mask);
-}
-
 std::shared_ptr<chen::ip::address> address_v4::clone() const
 {
-    return std::make_shared<chen::ip::address_v4>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 // assignment
 void address_v4::assign(const std::string &addr)
 {
-    this->_addr = address_v4::toInteger(addr, this->_cidr);
-}
-
-void address_v4::assign(const std::string &addr, std::uint8_t cidr)
-{
     this->_addr = address_v4::toInteger(addr);
-    this->_cidr = cidr;
-
-    if (this->_cidr > 32)
-        throw error_address("ipv4: CIDR prefix must less than 32");
-}
-
-void address_v4::assign(const std::string &addr, const std::string &mask)
-{
-    this->_addr = address_v4::toInteger(addr);
-    this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
 }
 
 void address_v4::assign(std::uint32_t addr)
 {
-    this->assign(addr, 32);
-}
-
-void address_v4::assign(std::uint32_t addr, std::uint8_t cidr)
-{
     this->_addr = addr;
-    this->_cidr = cidr;
-
-    if (this->_cidr > 32)
-        throw error_address("ipv4: CIDR prefix must less than 32");
-}
-
-void address_v4::assign(std::uint32_t addr, const std::string &mask)
-{
-    this->_addr = addr;
-    this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
 }
 
 address& address_v4::operator=(const std::string &addr)
@@ -190,70 +136,15 @@ std::vector<std::uint8_t> address_v4::bytes() const
     };
 }
 
-std::string address_v4::notation() const
-{
-    return address_v4::toString(this->_addr, this->_cidr);
-}
-
 const std::uint32_t& address_v4::addr() const
 {
     // @see rfc791
     return this->_addr;
 }
 
-const std::uint8_t& address_v4::cidr() const
-{
-    // @see rfc1519
-    return this->_cidr;
-}
-
 std::uint32_t& address_v4::addr()
 {
     return this->_addr;
-}
-
-std::uint8_t& address_v4::cidr()
-{
-    return this->_cidr;
-}
-
-std::uint32_t address_v4::netmask() const
-{
-    // @see rfc1878
-    return 0xFFFFFFFFu << (32 - this->_cidr);
-}
-
-std::uint32_t address_v4::wildcard() const
-{
-    // @link https://en.wikipedia.org/wiki/Wildcard_mask
-    return ~this->netmask();
-}
-
-// network
-address_v4 address_v4::network() const
-{
-    return address_v4(this->_addr & this->netmask(), this->_cidr);
-}
-
-address_v4 address_v4::minhost() const
-{
-    return address_v4((this->_addr & this->netmask()) | 0x00000001, this->_cidr);
-}
-
-address_v4 address_v4::maxhost() const
-{
-    return address_v4((this->_addr | this->wildcard()) & 0xFFFFFFFE, this->_cidr);
-}
-
-address_v4 address_v4::broadcast() const
-{
-    return address_v4(this->_addr | this->wildcard(), this->_cidr);
-}
-
-// hosts
-std::size_t address_v4::hosts() const
-{
-    return this->maxhost().addr() - this->minhost().addr() + 1;
 }
 
 // special
@@ -353,12 +244,6 @@ bool address_v4::isMulticast() const
     return this->isClassD();
 }
 
-bool address_v4::isBroadcast() const
-{
-    // host bits are 1
-    return (this->_addr | this->wildcard()) == this->_addr;
-}
-
 // classful
 bool address_v4::isClassA() const
 {
@@ -399,19 +284,19 @@ bool address_v4::isClassE() const
 bool address_v4::operator==(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-    return (this->_addr == a._addr) && (this->_cidr == a._cidr);
+    return (this->_addr == a._addr);
 }
 
 bool address_v4::operator<(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-    return (this->_addr == a._addr) ? this->_cidr < a._cidr : this->_addr < a._addr;
+    return this->_addr < a._addr;
 }
 
 bool address_v4::operator<=(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-    return (this->_addr == a._addr) ? this->_cidr <= a._cidr : this->_addr < a._addr;
+    return this->_addr <= a._addr;
 }
 
 // convert
@@ -503,7 +388,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
             tmp = tmp * 10 + (*cur - '0');
 
         if (tmp > 32)
-            throw error_address("ipv4: CIDR prefix must less than 32");
+            throw error_subnet("ipv4: CIDR prefix must less than 32");
 
         cidr = static_cast<uint8_t>(tmp);
     }
@@ -566,7 +451,7 @@ address_v6::address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
 
 std::shared_ptr<chen::ip::address> address_v6::clone() const
 {
-    return std::make_shared<chen::ip::address_v6>(*this);
+    return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
 // assignment
