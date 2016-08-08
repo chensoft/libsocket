@@ -126,10 +126,95 @@ namespace chen
         class subnet_v6 : public address_v6
         {
         public:
+            subnet_v6() = default;
+
+            /**
+             * Construct by ipv6 address, accept the following format:
+             * :-) subnet_v6("::")
+             * :-) subnet_v6("::1")
+             * :-) subnet_v6("0:0:0:0:0:0:0:1")
+             * :-) subnet_v6("2404:6800:4004:817::200e")
+             * :-) subnet_v6("2404:6800:4004:817:0:0:0:200e")
+             * :-) subnet_v6("2404:6800:4004:817:0000:0000:0000:200e")
+             * :-) subnet_v6("::192.168.0.1")
+             * Also accept CIDR prefix like:
+             * :-) subnet_v6("2404:6800:4004:817::200e/64")
+             * :-) subnet_v6("2404:6800:4004:817::200e", 64)
+             * @caution default CIDR prefix will be 128 if you don't provide
+             */
+            subnet_v6(const std::string &addr);
+            subnet_v6(const std::string &addr, std::uint8_t cidr);
+
+            /**
+             * Construct by bytes array
+             * @caution default CIDR prefix will be 128 if you don't provide
+             */
+            subnet_v6(const std::array<std::uint8_t, 16> &addr);
+            subnet_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+
+            subnet_v6(std::array<std::uint8_t, 16> &&addr);
+            subnet_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+
             /**
              * Clone current object
              */
             virtual std::shared_ptr<chen::ip::address> clone() const override;
+
+        public:
+            /**
+             * Assignment
+             */
+            virtual void assign(const std::string &addr) override;
+            virtual void assign(const std::string &addr, std::uint8_t cidr);
+
+            virtual void assign(const std::array<std::uint8_t, 16> &addr) override;
+            virtual void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+
+            virtual void assign(std::array<std::uint8_t, 16> &&addr) override;
+            virtual void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+
+            virtual address& operator=(const std::string &addr) override;
+            virtual address& operator=(const std::array<std::uint8_t, 16> &addr) override;
+            virtual address& operator=(std::array<std::uint8_t, 16> &&addr) override;
+
+        public:
+            /**
+             * Standard canonical representation(with CIDR notation)
+             * e.g: 2404:6800:4004:817::200e/64
+             */
+            virtual std::string str() const override;
+
+            /**
+             * Get raw value
+             */
+            const std::uint8_t& cidr() const;
+            std::uint8_t& cidr();
+
+            /**
+             * Netmask & Wildcard mask
+             * @caution use uint128 if supported in the future
+             */
+            std::array<std::uint8_t, 16> netmask() const;
+            std::array<std::uint8_t, 16> wildcard() const;
+
+        public:
+            /**
+             * Network address based on current ip
+             */
+            subnet_v6 network() const;
+            subnet_v6 minhost() const;
+            subnet_v6 maxhost() const;
+
+        public:
+            /**
+             * Operator
+             */
+            virtual bool operator==(const address &o) const override;
+            virtual bool operator<(const address &o) const override;
+            virtual bool operator<=(const address &o) const override;
+            
+        protected:
+            std::uint8_t _cidr = 128;  // CIDR notation prefix length
         };
     }
 }

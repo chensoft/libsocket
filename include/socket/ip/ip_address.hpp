@@ -216,7 +216,7 @@ namespace chen
         class address_v6 : public address
         {
         public:
-            address_v6();
+            address_v6() = default;
 
             /**
              * Construct by ipv6 address, accept the following format:
@@ -227,23 +227,14 @@ namespace chen
              * :-) address_v6("2404:6800:4004:817:0:0:0:200e")
              * :-) address_v6("2404:6800:4004:817:0000:0000:0000:200e")
              * :-) address_v6("::192.168.0.1")
-             * Also accept CIDR prefix like:
-             * :-) address_v6("2404:6800:4004:817::200e/64")
-             * :-) address_v6("2404:6800:4004:817::200e", 64)
-             * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::string &addr);
-            address_v6(const std::string &addr, std::uint8_t cidr);
 
             /**
              * Construct by bytes array
-             * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::array<std::uint8_t, 16> &addr);
-            address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
-
             address_v6(std::array<std::uint8_t, 16> &&addr);
-            address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
 
             /**
              * Clone current object
@@ -255,19 +246,17 @@ namespace chen
              * Assignment
              */
             virtual void assign(const std::string &addr) override;
-            void assign(const std::string &addr, std::uint8_t cidr);
-
-            void assign(const std::array<std::uint8_t, 16> &addr);
-            void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
-
-            void assign(std::array<std::uint8_t, 16> &&addr);
-            void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+            virtual void assign(const std::array<std::uint8_t, 16> &addr);
+            virtual void assign(std::array<std::uint8_t, 16> &&addr);
 
             virtual address& operator=(const std::string &addr) override;
+            virtual address& operator=(const std::array<std::uint8_t, 16> &addr);
+            virtual address& operator=(std::array<std::uint8_t, 16> &&addr);
 
         public:
             /**
              * Standard canonical representation, same to method compressed()
+             * e.g: 2404:6800:4004:817::200e
              */
             virtual std::string str() const override;
 
@@ -275,12 +264,6 @@ namespace chen
              * Binary representation
              */
             virtual std::vector<std::uint8_t> bytes() const override;
-
-            /**
-             * CIDR prefix notation representation
-             * e.g: 2404:6800:4004:817::200e/64
-             */
-            std::string notation() const;
 
             /**
              * Expanded representation, no compressed
@@ -311,31 +294,13 @@ namespace chen
              * Retrieve IPv4-mapped or IPv4-compatible address
              * or IPv4-embedded address according to its CIDR length
              */
-            address_v4 embedded() const;
+            address_v4 embedded(std::uint8_t cidr = 128) const;
 
             /**
              * Get raw value
              */
             const std::array<std::uint8_t, 16>& addr() const;
-            const std::uint8_t& cidr() const;
-
             std::array<std::uint8_t, 16>& addr();
-            std::uint8_t& cidr();
-
-            /**
-             * Netmask & Wildcard mask
-             * @caution use uint128 if supported in the future
-             */
-            std::array<std::uint8_t, 16> netmask() const;
-            std::array<std::uint8_t, 16> wildcard() const;
-
-        public:
-            /**
-             * Network address based on current ip
-             */
-            address_v6 network() const;
-            address_v6 minhost() const;
-            address_v6 maxhost() const;
 
         public:
             /**
@@ -406,7 +371,6 @@ namespace chen
 
         protected:
             std::array<std::uint8_t, 16> _addr = {};
-            std::uint8_t _cidr = 0;
         };
     }
 }
