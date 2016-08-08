@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/ip/ip_address.hpp>
+#include <socket/ip/ip_error.hpp>
 #include <gtest/gtest.h>
 
 TEST(IPAddressTest, Base)
@@ -70,8 +71,8 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ(chen::ip::address_v4(0x7F000001, 8), chen::ip::address_v4("127.0.0.1/8"));
     EXPECT_EQ(chen::ip::address_v4(0x7F000001, "255.0.0.0"), chen::ip::address_v4("127.0.0.1/8"));
 
-    EXPECT_THROW(chen::ip::address_v4("127.0.0.1", 33), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v4(0x7F000001, 33), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v4("127.0.0.1", 33), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v4(0x7F000001, 33), chen::ip::error_address);
 
     chen::ip::address_v4 v4("127");
     EXPECT_EQ("127.0.0.0", v4.str());
@@ -211,9 +212,9 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ("127.0.0.1", chen::ip::address_v4::loopback().str());
 
     // invalid test
-    EXPECT_THROW(chen::ip::address_v4::toInteger("127..1"), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v4::toInteger("999.0.0.0"), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v4::toInteger("127.0.0.1/99"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v4::toInteger("127..1"), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v4::toInteger("999.0.0.0"), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v4::toInteger("127.0.0.1/99"), chen::ip::error_address);
 }
 
 TEST(IPAddressTest, IPv6)
@@ -240,8 +241,8 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(std::array<std::uint8_t, 16>(bytes)));
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(std::array<std::uint8_t, 16>(bytes), 64));
 
-    EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e/129"), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v6(bytes, 129), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e/129"), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v6(bytes, 129), chen::ip::error_address);
 
     chen::ip::address_v6 v6("::1");
     EXPECT_EQ("::1", v6.str());
@@ -353,10 +354,10 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("::1", chen::ip::address_v6::loopback().str());
 
     // invalid test
-    EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e", 200), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v6(bytes, 200), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v6::toBytes("::1::1"), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v6::toBytes("::192.fe:1:1"), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v6::toBytes("::1^$"), chen::ip::address::error);
-    EXPECT_THROW(chen::ip::address_v6::toBytes("::1/200"), chen::ip::address::error);
+    EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e", 200), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v6(bytes, 200), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::1::1"), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::192.fe:1:1"), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::1^$"), chen::ip::error_address);
+    EXPECT_THROW(chen::ip::address_v6::toBytes("::1/200"), chen::ip::error_address);
 }

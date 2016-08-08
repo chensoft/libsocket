@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include <stdexcept>
 #include <cstdint>
 #include <string>
 #include <memory>
@@ -24,13 +23,6 @@ namespace chen
         // Abstract address
         class address
         {
-        public:
-            class error : public std::runtime_error
-            {
-            public:
-                explicit error(const std::string &what) : std::runtime_error(what) {}
-            };
-
         public:
             address() = default;
             virtual ~address() = default;
@@ -83,13 +75,13 @@ namespace chen
 
         public:
             /**
-             * Generate ipv4 or ipv6 address automatically
+             * Generate IPv4 or ipv6 address automatically
              */
             static std::shared_ptr<chen::ip::address> create(const std::string &addr);
             static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
 
             /**
-             * Detect ipv4 or ipv6 according to string
+             * Detect IPv4 or ipv6 according to string
              */
             static bool isIPv4(const std::string &addr);
             static bool isIPv6(const std::string &addr);
@@ -111,14 +103,15 @@ namespace chen
             address_v4();
 
             /**
-             * Construct by ipv4 dotted decimal string and CIDR prefix
-             * e.g: address_v4("127.0.0.1") or address_v4("127.0.0.1/8")
-             * e.g: address_v4("127.0.0.1", 8)
-             * e.g: address_v4("127.0.0.1", "255.0.0.0")
+             * Construct by IPv4 dotted decimal string and CIDR prefix
+             * :-) address_v4("127.0.0.1")
+             * :-) address_v4("127.0.0.1/8")
+             * :-) address_v4("127.0.0.1", 8)
+             * :-) address_v4("127.0.0.1", "255.0.0.0")
              * Accept some special address format
-             * e.g: "127" -> "127.0.0.0"
-             * e.g: "127.1" -> "127.0.0.1"
-             * e.g: "192.168.1" -> "192.168.0.1"
+             * :-) address_v4("127")       -> "127.0.0.0"
+             * :-) address_v4("127.1")     -> "127.0.0.1"
+             * :-) address_v4("192.168.1") -> "192.168.0.1"
              * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(const std::string &addr);
@@ -126,11 +119,12 @@ namespace chen
             address_v4(const std::string &addr, const std::string &mask);
 
             /**
-             * Construct by ipv4 integer and CIDR prefix
+             * Construct by IPv4 integer and CIDR prefix
              * e.g: "127.0.0.1" is 0x7F000001, also is 2130706433
-             * e.g: address_v4(0x7F000001)
-             * e.g: address_v4(0x7F000001, 8)
-             * e.g: address_v4(0x7F000001, "255.0.0.0")
+             * :-) address_v4(2130706433)
+             * :-) address_v4(0x7F000001)
+             * :-) address_v4(0x7F000001, 8)
+             * :-) address_v4(0x7F000001, "255.0.0.0")
              * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(std::uint32_t addr);
@@ -155,6 +149,7 @@ namespace chen
             void assign(std::uint32_t addr, const std::string &mask);
 
             virtual address& operator=(const std::string &addr) override;
+            address& operator=(std::uint32_t addr);
 
         public:
             /**
@@ -227,7 +222,7 @@ namespace chen
 
         public:
             /**
-             * Operator, compare based on ipv4 address
+             * Operator, compare based on IPv4 address
              * @caution consider CIDR prefix when address is equal
              */
             virtual bool operator==(const address &o) const override;
@@ -254,7 +249,7 @@ namespace chen
             static address_v4 loopback();
 
         protected:
-            std::uint32_t _addr = 0;  // 32 bit ipv4 address
+            std::uint32_t _addr = 0;  // 32 bit IPv4 address
             std::uint8_t  _cidr = 0;  // CIDR notation prefix length
         };
 
@@ -268,15 +263,16 @@ namespace chen
 
             /**
              * Construct by ipv6 address, accept the following format:
-             * :-) ::
-             * :-) ::1
-             * :-) 0:0:0:0:0:0:0:1
-             * :-) 2404:6800:4004:817::200e
-             * :-) 2404:6800:4004:817:0:0:0:200e
-             * :-) 2404:6800:4004:817:0000:0000:0000:200e
-             * :-) ::192.168.0.1
+             * :-) address_v6("::")
+             * :-) address_v6("::1")
+             * :-) address_v6("0:0:0:0:0:0:0:1")
+             * :-) address_v6("2404:6800:4004:817::200e")
+             * :-) address_v6("2404:6800:4004:817:0:0:0:200e")
+             * :-) address_v6("2404:6800:4004:817:0000:0000:0000:200e")
+             * :-) address_v6("::192.168.0.1")
              * Also accept CIDR prefix like:
-             * :-) 2404:6800:4004:817::200e/64
+             * :-) address_v6("2404:6800:4004:817::200e/64")
+             * :-) address_v6("2404:6800:4004:817::200e", 64)
              * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::string &addr);
@@ -423,7 +419,7 @@ namespace chen
 
         public:
             /**
-             * Convert between integer and string
+             * Convert between bytes and string
              * @caution default CIDR prefix will be 128 if you don't provide
              */
             static std::string toString(const std::array<std::uint8_t, 16> &addr);
