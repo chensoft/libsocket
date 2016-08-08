@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/ip/ip_address.hpp>
+#include <socket/ip/ip_subnet.hpp>
 #include <socket/ip/ip_error.hpp>
 #include <gtest/gtest.h>
 
@@ -21,10 +22,18 @@ TEST(IPAddressTest, Base)
     EXPECT_EQ(ptr.get(), ptr->v4());
     EXPECT_EQ(nullptr, ptr->v6());
 
+    ptr = chen::ip::address::create("127.0.0.1/8");
+
+    EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v4>(ptr));
+    EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v6>(ptr));
+    EXPECT_EQ("127.0.0.1/8", ptr->str());
+    EXPECT_EQ(ptr.get(), ptr->v4());
+    EXPECT_EQ(nullptr, ptr->v6());
+
     ptr = chen::ip::address::create("127.0.0.1", 8);
 
-    EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
-    EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
+    EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v4>(ptr));
+    EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v6>(ptr));
     EXPECT_EQ("127.0.0.1/8", ptr->str());
     EXPECT_EQ(ptr.get(), ptr->v4());
     EXPECT_EQ(nullptr, ptr->v6());
@@ -40,15 +49,23 @@ TEST(IPAddressTest, Base)
     EXPECT_EQ(nullptr, ptr->v4());
     EXPECT_EQ(ptr.get(), ptr->v6());
 
-    ptr = chen::ip::address::create("2404:6800:4004:817::200e", 64);
+    ptr = chen::ip::address::create("2404:6800:4004:817::200e/64");
 
-    EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::address_v6>(ptr));
-    EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::address_v4>(ptr));
+    EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v6>(ptr));
+    EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v4>(ptr));
     EXPECT_EQ("2404:6800:4004:817::200e/64", ptr->str());
     EXPECT_EQ(nullptr, ptr->v4());
     EXPECT_EQ(ptr.get(), ptr->v6());
 
-    std::shared_ptr<const chen::ip::address> p = chen::ip::address::create("2404:6800:4004:817::200e", 64);
+    ptr = chen::ip::address::create("2404:6800:4004:817::200e", 64);
+
+    EXPECT_NE(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v6>(ptr));
+    EXPECT_EQ(nullptr, std::dynamic_pointer_cast<chen::ip::subnet_v4>(ptr));
+    EXPECT_EQ("2404:6800:4004:817::200e/64", ptr->str());
+    EXPECT_EQ(nullptr, ptr->v4());
+    EXPECT_EQ(ptr.get(), ptr->v6());
+
+    auto p = chen::ip::address::create("2404:6800:4004:817::200e", 64);
 
     EXPECT_EQ(nullptr, p->v4());
     EXPECT_EQ(p.get(), p->v6());

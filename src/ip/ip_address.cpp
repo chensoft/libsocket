@@ -55,10 +55,22 @@ bool address::operator>=(const address &o) const
 // create
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr)
 {
+    bool subnet = str::contain(addr, "/");
+
     if (address::isIPv4(addr))
-        return std::make_shared<chen::ip::address_v4>(addr);
+    {
+        if (subnet)
+            return std::make_shared<chen::ip::subnet_v4>(addr);
+        else
+            return std::make_shared<chen::ip::address_v4>(addr);
+    }
     else
-        return std::make_shared<chen::ip::address_v6>(addr);
+    {
+        if (subnet)
+            return std::make_shared<chen::ip::subnet_v6>(addr);
+        else
+            return std::make_shared<chen::ip::address_v6>(addr);
+    }
 }
 
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr, std::uint8_t cidr)

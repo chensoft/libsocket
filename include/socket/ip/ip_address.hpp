@@ -76,13 +76,9 @@ namespace chen
 
         public:
             /**
-             * Generate IPv4 or ipv6 address automatically
+             * Generate IPv4 or ipv6 address or subnet automatically
              */
             static std::shared_ptr<chen::ip::address> create(const std::string &addr);
-
-            /**
-             * Generate IPv4 or ipv6 subnet automatically
-             */
             static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
 
             /**
