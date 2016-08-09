@@ -434,19 +434,19 @@ namespace chen
              * Convert between bytes and string
              * @caution default CIDR prefix will be 128 if you don't provide
              */
-            static std::string toString(const std::array<std::uint8_t, 16> &addr);
-            static std::string toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+            static std::string toString(const std::uint8_t addr[16]);
+            static std::string toString(const std::uint8_t addr[16], std::uint8_t cidr);
 
-            static std::string toExpanded(const std::array<std::uint8_t, 16> &addr);
-            static std::string toSuppressed(const std::array<std::uint8_t, 16> &addr);
-            static std::string toCompressed(const std::array<std::uint8_t, 16> &addr);
-            static std::string toMixed(const std::array<std::uint8_t, 16> &addr);
+            static std::string toExpanded(const std::uint8_t addr[16]);
+            static std::string toSuppressed(const std::uint8_t addr[16]);
+            static std::string toCompressed(const std::uint8_t addr[16]);
+            static std::string toMixed(const std::uint8_t addr[16]);
 
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr);
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr);
 
             static std::uint8_t toCIDR(const std::string &mask);
-            static std::uint8_t toCIDR(const std::array<std::uint8_t, 16> &mask);
+            static std::uint8_t toCIDR(const std::uint8_t mask[16]);
 
         public:
             /**

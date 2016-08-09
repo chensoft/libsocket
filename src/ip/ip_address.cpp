@@ -682,7 +682,7 @@ address& address_v6::operator=(const std::uint8_t addr[16])
 // representation
 std::string address_v6::str(bool cidr) const
 {
-    return !cidr ? address_v6::toString(this->_addr) : address_v6::toString(this->_addr, this->_cidr);
+    return !cidr ? address_v6::toString(this->_addr.data()) : address_v6::toString(this->_addr.data(), this->_cidr);
 }
 
 std::vector<std::uint8_t> address_v6::bytes() const
@@ -692,22 +692,22 @@ std::vector<std::uint8_t> address_v6::bytes() const
 
 std::string address_v6::expanded() const
 {
-    return address_v6::toExpanded(this->_addr);
+    return address_v6::toExpanded(this->_addr.data());
 }
 
 std::string address_v6::suppressed() const
 {
-    return address_v6::toSuppressed(this->_addr);
+    return address_v6::toSuppressed(this->_addr.data());
 }
 
 std::string address_v6::compressed() const
 {
-    return address_v6::toCompressed(this->_addr);
+    return address_v6::toCompressed(this->_addr.data());
 }
 
 std::string address_v6::mixed() const
 {
-    return address_v6::toMixed(this->_addr);
+    return address_v6::toMixed(this->_addr.data());
 }
 
 address_v4 address_v6::embedded() const
@@ -956,17 +956,17 @@ bool address_v6::operator<=(const address &o) const
 }
 
 // convert
-std::string address_v6::toString(const std::array<std::uint8_t, 16> &addr)
+std::string address_v6::toString(const std::uint8_t addr[16])
 {
     return address_v6::toCompressed(addr);
 }
 
-std::string address_v6::toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+std::string address_v6::toString(const std::uint8_t addr[16], std::uint8_t cidr)
 {
     return address_v6::toCompressed(addr) + "/" + num::str(cidr);
 }
 
-std::string address_v6::toExpanded(const std::array<std::uint8_t, 16> &addr)
+std::string address_v6::toExpanded(const std::uint8_t addr[16])
 {
     return str::format("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
                        (static_cast<unsigned>(addr[0]) << 8) + addr[1],
@@ -979,7 +979,7 @@ std::string address_v6::toExpanded(const std::array<std::uint8_t, 16> &addr)
                        (static_cast<unsigned>(addr[14]) << 8) + addr[15]);
 }
 
-std::string address_v6::toSuppressed(const std::array<std::uint8_t, 16> &addr)
+std::string address_v6::toSuppressed(const std::uint8_t addr[16])
 {
     return str::format("%x:%x:%x:%x:%x:%x:%x:%x",
                        (static_cast<unsigned>(addr[0]) << 8) + addr[1],
@@ -992,20 +992,20 @@ std::string address_v6::toSuppressed(const std::array<std::uint8_t, 16> &addr)
                        (static_cast<unsigned>(addr[14]) << 8) + addr[15]);
 }
 
-std::string address_v6::toCompressed(const std::array<std::uint8_t, 16> &addr)
+std::string address_v6::toCompressed(const std::uint8_t addr[16])
 {
-    return address_v6::compress(addr.begin(), addr.end());
+    return address_v6::compress(addr, addr + 16);
 }
 
-std::string address_v6::toMixed(const std::array<std::uint8_t, 16> &addr)
+std::string address_v6::toMixed(const std::uint8_t addr[16])
 {
     // first 12 bytes
-    auto ret = address_v6::compress(addr.begin(), addr.begin() + 12);
+    auto ret = address_v6::compress(addr, addr + 12);
 
     // dotted decimal IPv4 address
-    auto beg = addr.begin() + 12;
+    auto beg = addr + 12;
 
-    for (auto it = beg; it != addr.end(); ++it)
+    for (auto it = beg, end = addr + 16; it != end; ++it)
     {
         ret += (it != beg) ? '.' : ':';
         ret.append(num::str(*it));
@@ -1191,17 +1191,17 @@ std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator be
 
 std::uint8_t address_v6::toCIDR(const std::string &mask)
 {
-    return address_v6::toCIDR(address_v6::toBytes(mask));
+    return address_v6::toCIDR(address_v6::toBytes(mask).data());
 }
 
-std::uint8_t address_v6::toCIDR(const std::array<std::uint8_t, 16> &mask)
+std::uint8_t address_v6::toCIDR(const std::uint8_t mask[16])
 {
     std::uint8_t cidr = 0;
     std::bitset<8> bits;
 
-    for (auto ch : mask)
+    for (int i = 0; i < 16; ++i)
     {
-        bits  = ch;
+        bits  = mask[i];
         cidr += bits.count();
     }
 
