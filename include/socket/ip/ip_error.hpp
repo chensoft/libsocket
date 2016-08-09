@@ -24,6 +24,16 @@ namespace chen
 
 
         /**
+         * IP interface error
+         */
+        class error_interface : public error
+        {
+        public:
+            explicit error_interface(const std::string &what) : error(what) {}
+        };
+
+
+        /**
          * IP address error
          */
         class error_address : public error
