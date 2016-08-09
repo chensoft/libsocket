@@ -141,7 +141,7 @@ std::shared_ptr<chen::ip::address> address_v4::clone() const
 // assignment
 void address_v4::assign(const std::string &addr)
 {
-    this->_addr = address_v4::toInteger(addr, this->_cidr);
+    this->_addr = address_v4::toInteger(addr, &this->_cidr);
 }
 
 void address_v4::assign(const std::string &addr, std::uint8_t cidr)
@@ -156,7 +156,7 @@ void address_v4::assign(const std::string &addr, std::uint8_t cidr)
 void address_v4::assign(const std::string &addr, const std::string &mask)
 {
     this->_addr = address_v4::toInteger(addr);
-    this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
+    this->_cidr = address_v4::toCIDR(mask);
 }
 
 void address_v4::assign(std::uint32_t addr)
@@ -177,7 +177,7 @@ void address_v4::assign(std::uint32_t addr, std::uint8_t cidr)
 void address_v4::assign(std::uint32_t addr, const std::string &mask)
 {
     this->_addr = addr;
-    this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
+    this->_cidr = address_v4::toCIDR(mask);
 }
 
 address& address_v4::operator=(const std::string &addr)
@@ -433,11 +433,10 @@ std::string address_v4::toString(std::uint32_t addr, std::uint8_t cidr)
 
 std::uint32_t address_v4::toInteger(const std::string &addr)
 {
-    std::uint8_t cidr = 0;
-    return address_v4::toInteger(addr, cidr);
+    return address_v4::toInteger(addr, nullptr);
 }
 
-std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
+std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t *cidr)
 {
     auto cur = addr.begin();
     auto end = addr.end();
@@ -495,22 +494,30 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
     }
 
     // CIDR notation
-    cidr = 32;
-
-    if (*cur == '/')
+    if (cidr)
     {
-        std::uint32_t tmp = 0;
+        *cidr = 32;
 
-        while (std::isdigit(*++cur))
-            tmp = tmp * 10 + (*cur - '0');
+        if (*cur == '/')
+        {
+            std::uint32_t tmp = 0;
 
-        if (tmp > 32)
-            throw error_address("ipv4: CIDR prefix must less than 32");
+            while (std::isdigit(*++cur))
+                tmp = tmp * 10 + (*cur - '0');
 
-        cidr = static_cast<uint8_t>(tmp);
+            if (tmp > 32)
+                throw error_address("ipv4: CIDR prefix must less than 32");
+
+            *cidr = static_cast<uint8_t>(tmp);
+        }
     }
 
     return val;
+}
+
+std::uint8_t address_v4::toCIDR(const std::string &mask)
+{
+    return static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
 }
 
 // common
@@ -589,7 +596,7 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
 // assignment
 void address_v6::assign(const std::string &addr)
 {
-    this->_addr = std::move(address_v6::toBytes(addr, this->_cidr));
+    this->_addr = std::move(address_v6::toBytes(addr, &this->_cidr));
 }
 
 void address_v6::assign(const std::string &addr, std::uint8_t cidr)
@@ -603,7 +610,8 @@ void address_v6::assign(const std::string &addr, std::uint8_t cidr)
 
 void address_v6::assign(const std::string &addr, const std::string &mask)
 {
-    // todo
+    this->_addr = std::move(address_v6::toBytes(addr));
+    this->_cidr = address_v6::toCIDR(mask);
 }
 
 void address_v6::assign(const std::array<std::uint8_t, 16> &addr)
@@ -623,7 +631,8 @@ void address_v6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t c
 
 void address_v6::assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
 {
-    // todo
+    this->_addr = addr;
+    this->_cidr = address_v6::toCIDR(mask);
 }
 
 void address_v6::assign(std::array<std::uint8_t, 16> &&addr)
@@ -643,7 +652,8 @@ void address_v6::assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
 
 void address_v6::assign(std::array<std::uint8_t, 16> &&addr, const std::string &mask)
 {
-    // todo
+    this->_addr = std::move(addr);
+    this->_cidr = address_v6::toCIDR(mask);
 }
 
 address& address_v6::operator=(const std::string &addr)
@@ -1001,11 +1011,10 @@ std::string address_v6::toMixed(const std::array<std::uint8_t, 16> &addr)
 
 std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr)
 {
-    std::uint8_t cidr = 0;
-    return address_v6::toBytes(addr, cidr);
+    return address_v6::toBytes(addr, nullptr);
 };
 
-std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t &cidr)
+std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t *cidr)
 {
     std::array<std::uint8_t, 16> ret{};
 
@@ -1094,19 +1103,22 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
     }
 
     // CIDR notation
-    cidr = 128;
-
-    if (*cur == '/')
+    if (cidr)
     {
-        std::uint32_t tmp = 0;
+        *cidr = 128;
 
-        while (std::isdigit(*++cur))
-            tmp = tmp * 10 + (*cur - '0');
+        if (*cur == '/')
+        {
+            std::uint32_t tmp = 0;
 
-        if (tmp > 128)
-            throw error_address("ipv6: CIDR prefix must less than 128");
+            while (std::isdigit(*++cur))
+                tmp = tmp * 10 + (*cur - '0');
 
-        cidr = static_cast<uint8_t>(tmp);
+            if (tmp > 128)
+                throw error_address("ipv6: CIDR prefix must less than 128");
+
+            *cidr = static_cast<uint8_t>(tmp);
+        }
     }
 
     return ret;
@@ -1170,4 +1182,20 @@ std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator be
         ret.append("::");
 
     return ret;
+}
+
+std::uint8_t address_v6::toCIDR(const std::string &mask)
+{
+    auto bytes = address_v6::toBytes(mask);
+
+    std::uint8_t cidr = 0;
+    std::bitset<8> bits;
+
+    for (auto ch : bytes)
+    {
+        bits  = ch;
+        cidr += bits.count();
+    }
+
+    return cidr;
 }

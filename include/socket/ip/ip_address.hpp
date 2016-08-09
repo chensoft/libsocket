@@ -246,7 +246,9 @@ namespace chen
             static std::string toString(std::uint32_t addr, std::uint8_t cidr);
 
             static std::uint32_t toInteger(const std::string &addr);
-            static std::uint32_t toInteger(const std::string &addr, std::uint8_t &cidr);
+            static std::uint32_t toInteger(const std::string &addr, std::uint8_t *cidr);
+
+            static std::uint8_t toCIDR(const std::string &mask);
 
         public:
             /**
@@ -440,7 +442,9 @@ namespace chen
             static std::string toMixed(const std::array<std::uint8_t, 16> &addr);
 
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr);
-            static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t &cidr);
+            static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr);
+
+            static std::uint8_t toCIDR(const std::string &mask);
 
         public:
             /**
