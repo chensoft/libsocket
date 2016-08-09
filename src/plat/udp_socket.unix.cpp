@@ -21,16 +21,12 @@ using namespace chen::udp;
 
 // -----------------------------------------------------------------------------
 // socket
-chen::udp::socket::socket()
-: chen::so::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)
+chen::udp::socket::socket() : chen::so::socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)
 {
-
 }
 
-socket::socket(void *so)
-: chen::so::socket(so, PF_INET, SOCK_DGRAM, IPPROTO_UDP)
+socket::socket(void *so) : chen::so::socket(so, PF_INET, SOCK_DGRAM, IPPROTO_UDP)
 {
-
 }
 
 void chen::udp::socket::send(const void *data, std::size_t size, const std::string &addr, std::uint16_t port, float timeout)

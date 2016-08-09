@@ -1283,7 +1283,7 @@ AAAA::AAAA() : RR(chen::dns::RRType::AAAA)
 std::string AAAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + chen::ip::address_v6::toString(this->address);
+    ret += sep + chen::ip::address_v6::toString(this->address.data());
     return ret;
 }
 
