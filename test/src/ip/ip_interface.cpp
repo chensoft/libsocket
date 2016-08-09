@@ -28,7 +28,7 @@ TEST(IPInterfaceTest, General)
             else if (x.addr->v6())
             {
                 auto xxx = x.addr->v6();
-                printf("      addr: %s, prefix: %u, scope: 0x%x\n", xxx->str().c_str(), xxx->cidr(), 0);
+                printf("      addr: %s, prefix: %u, scope: 0x%x\n", xxx->str().c_str(), xxx->cidr(), xxx->scope());
             }
         }
     }

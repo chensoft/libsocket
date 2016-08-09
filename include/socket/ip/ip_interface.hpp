@@ -21,7 +21,6 @@ namespace chen
             bool isUp() const;
             bool isBroadcast() const;
             bool isLoopback() const;
-            bool isPointToPoint() const;
             bool isRunning() const;
             bool isPromiscuous() const;
             bool isMulticast() const;

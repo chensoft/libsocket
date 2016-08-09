@@ -59,8 +59,8 @@ namespace chen
             /**
              * Get raw value
              */
-            const std::uint8_t& cidr() const;
-            std::uint8_t& cidr();
+            std::uint8_t cidr() const;
+            void cidr(std::uint8_t value);
 
         public:
             /**
@@ -183,8 +183,8 @@ namespace chen
             /**
              * Get raw value
              */
-            const std::uint32_t& addr() const;
-            std::uint32_t& addr();
+            std::uint32_t addr() const;
+            void addr(std::uint32_t value);
 
         public:
             /**
@@ -374,7 +374,10 @@ namespace chen
              * Get raw value
              */
             const std::array<std::uint8_t, 16>& addr() const;
-            std::array<std::uint8_t, 16>& addr();
+            void addr(const std::array<std::uint8_t, 16>& value);
+
+            std::uint32_t scope() const;
+            void scope(std::uint32_t value);
 
         public:
             /**
@@ -463,6 +466,7 @@ namespace chen
 
         protected:
             std::array<std::uint8_t, 16> _addr = {};
+            std::uint32_t _scope = 0;  // IPv6 scope id, rfc4007
         };
     }
 }

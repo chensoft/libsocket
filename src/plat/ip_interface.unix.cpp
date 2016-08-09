@@ -31,7 +31,12 @@ namespace
                 return std::make_shared<address_v4>(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return std::make_shared<address_v6>(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+            {
+                auto tmp = (struct sockaddr_in6*)ptr;
+                auto ret = std::make_shared<address_v6>(tmp->sin6_addr.s6_addr);
+                ret->scope(tmp->sin6_scope_id);
+                return ret;
+            }
 
             default:
                 return nullptr;
@@ -77,11 +82,6 @@ bool interface::isLoopback() const
     return (this->flag & IFF_LOOPBACK) != 0;
 }
 
-bool interface::isPointToPoint() const
-{
-    return (this->flag & IFF_POINTOPOINT) != 0;
-}
-
 bool interface::isRunning() const
 {
     return (this->flag & IFF_RUNNING) != 0;
@@ -100,11 +100,12 @@ bool interface::isMulticast() const
 // enumerate
 std::vector<interface> interface::enumerate()
 {
-    std::vector<interface> ret;
     struct ifaddrs *list = nullptr;
 
     if (::getifaddrs(&list) < 0)
         throw error_interface(str::format("if: enumerate error: %s", chen::sys::error().c_str()));
+
+    std::vector<interface> ret;
 
     try
     {
@@ -118,7 +119,7 @@ std::vector<interface> interface::enumerate()
             if (item.addr)
             {
                 if (ptr->ifa_netmask)
-                    item.addr->cidr() = create_cidr(ptr->ifa_netmask);
+                    item.addr->cidr(create_cidr(ptr->ifa_netmask));
             }
             else
             {

@@ -20,16 +20,16 @@ address::address(std::uint8_t cidr) : _cidr(cidr)
 }
 
 // representation
-const std::uint8_t& address::cidr() const
+std::uint8_t address::cidr() const
 {
     // @see rfc1519
     return this->_cidr;
 }
 
-std::uint8_t& address::cidr()
+void address::cidr(std::uint8_t value)
 {
     // @see rfc1519
-    return this->_cidr;
+    this->_cidr = value;
 }
 
 // operator
@@ -208,16 +208,16 @@ std::vector<std::uint8_t> address_v4::bytes() const
     };
 }
 
-const std::uint32_t& address_v4::addr() const
+std::uint32_t address_v4::addr() const
 {
     // @see rfc791
     return this->_addr;
 }
 
-std::uint32_t& address_v4::addr()
+void address_v4::addr(std::uint32_t value)
 {
     // @see rfc791
-    return this->_addr;
+    this->_addr = value;
 }
 
 // network
@@ -771,12 +771,26 @@ address_v4 address_v6::embedded() const
 
 const std::array<std::uint8_t, 16>& address_v6::addr() const
 {
+    // @see rfc4291
     return this->_addr;
 }
 
-std::array<std::uint8_t, 16>& address_v6::addr()
+void address_v6::addr(const std::array<std::uint8_t, 16> &value)
 {
-    return this->_addr;
+    // @see rfc4291
+    this->_addr = value;
+}
+
+std::uint32_t address_v6::scope() const
+{
+    // @see rfc4007
+    return this->_scope;
+}
+
+void address_v6::scope(std::uint32_t value)
+{
+    // @see rfc4007
+    this->_scope = value;
 }
 
 // network

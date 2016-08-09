@@ -27,10 +27,10 @@ namespace chen
              * Property
              */
             const chen::ip::address& addr() const;
-            const std::uint16_t& port() const;
+            std::uint16_t port() const;
 
-            chen::ip::address& addr();
-            std::uint16_t& port();
+            void addr(const chen::ip::address &value);
+            void port(std::uint16_t value);
 
         public:
             /**

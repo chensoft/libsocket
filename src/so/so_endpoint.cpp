@@ -29,19 +29,19 @@ const chen::ip::address& endpoint::addr() const
     return *this->_addr;
 }
 
-const std::uint16_t& endpoint::port() const
+std::uint16_t endpoint::port() const
 {
     return this->_port;
 }
 
-chen::ip::address& endpoint::addr()
+void endpoint::addr(const chen::ip::address &value)
 {
-    return *this->_addr;
+    this->_addr = value.clone();
 }
 
-std::uint16_t& endpoint::port()
+void endpoint::port(std::uint16_t value)
 {
-    return this->_port;
+    this->_port = value;
 }
 
 // operator
