@@ -33,7 +33,7 @@ std::vector<interface> interface::enumerate()
             interface item;
             item.name = ptr->ifa_name;
             item.flag = ptr->ifa_flags;
-            item.addr = std::make_shared<subnet_v4>();
+            item.addr = std::make_shared<address_v4>();
 
             ret.emplace_back(std::move(item));
         }

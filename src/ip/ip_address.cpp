@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/ip/ip_address.hpp>
-#include <socket/ip/ip_subnet.hpp>
 #include <socket/ip/ip_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
@@ -16,6 +15,40 @@ using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
 // address
+address::address(std::uint8_t cidr) : _cidr(cidr)
+{
+}
+
+// representation
+const std::uint8_t& address::cidr() const
+{
+    // @see rfc1519
+    return this->_cidr;
+}
+
+std::uint8_t& address::cidr()
+{
+    // @see rfc1519
+    return this->_cidr;
+}
+
+// operator
+bool address::operator!=(const address &o) const
+{
+    return !(*this == o);
+}
+
+bool address::operator>(const address &o) const
+{
+    return o < *this;
+}
+
+bool address::operator>=(const address &o) const
+{
+    return o <= *this;
+}
+
+// convert
 const address_v4* address::v4() const
 {
     return dynamic_cast<const address_v4*>(this);
@@ -36,49 +69,21 @@ address_v6* address::v6()
     return dynamic_cast<address_v6*>(this);
 }
 
-// operator
-bool address::operator!=(const address &o) const
-{
-    return !(*this == o);
-}
-
-bool address::operator>(const address &o) const
-{
-    return o < *this;
-}
-
-bool address::operator>=(const address &o) const
-{
-    return o <= *this;
-}
-
 // create
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr)
 {
-    bool subnet = str::contain(addr, "/");
-
     if (address::isIPv4(addr))
-    {
-        if (subnet)
-            return std::make_shared<chen::ip::subnet_v4>(addr);
-        else
-            return std::make_shared<chen::ip::address_v4>(addr);
-    }
+        return std::make_shared<chen::ip::address_v4>(addr);
     else
-    {
-        if (subnet)
-            return std::make_shared<chen::ip::subnet_v6>(addr);
-        else
-            return std::make_shared<chen::ip::address_v6>(addr);
-    }
+        return std::make_shared<chen::ip::address_v6>(addr);
 }
 
 std::shared_ptr<chen::ip::address> address::create(const std::string &addr, std::uint8_t cidr)
 {
     if (address::isIPv4(addr))
-        return std::make_shared<chen::ip::subnet_v4>(addr, cidr);
+        return std::make_shared<chen::ip::address_v4>(addr, cidr);
     else
-        return std::make_shared<chen::ip::subnet_v6>(addr, cidr);
+        return std::make_shared<chen::ip::address_v6>(addr, cidr);
 }
 
 bool address::isIPv4(const std::string &addr)
@@ -94,14 +99,38 @@ bool address::isIPv6(const std::string &addr)
 
 // -----------------------------------------------------------------------------
 // address_v4
+address_v4::address_v4() : address(32)
+{
+}
+
 address_v4::address_v4(const std::string &addr)
 {
     this->assign(addr);
 }
 
+address_v4::address_v4(const std::string &addr, std::uint8_t cidr)
+{
+    this->assign(addr, cidr);
+}
+
+address_v4::address_v4(const std::string &addr, const std::string &mask)
+{
+    this->assign(addr, mask);
+}
+
 address_v4::address_v4(std::uint32_t addr)
 {
     this->assign(addr);
+}
+
+address_v4::address_v4(std::uint32_t addr, std::uint8_t cidr)
+{
+    this->assign(addr, cidr);
+}
+
+address_v4::address_v4(std::uint32_t addr, const std::string &mask)
+{
+    this->assign(addr, mask);
 }
 
 std::shared_ptr<chen::ip::address> address_v4::clone() const
@@ -112,12 +141,43 @@ std::shared_ptr<chen::ip::address> address_v4::clone() const
 // assignment
 void address_v4::assign(const std::string &addr)
 {
+    this->_addr = address_v4::toInteger(addr, this->_cidr);
+}
+
+void address_v4::assign(const std::string &addr, std::uint8_t cidr)
+{
     this->_addr = address_v4::toInteger(addr);
+    this->_cidr = cidr;
+
+    if (this->_cidr > 32)
+        throw error_address("ipv4: CIDR prefix must less than 32");
+}
+
+void address_v4::assign(const std::string &addr, const std::string &mask)
+{
+    this->_addr = address_v4::toInteger(addr);
+    this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
 }
 
 void address_v4::assign(std::uint32_t addr)
 {
     this->_addr = addr;
+    this->_cidr = 32;
+}
+
+void address_v4::assign(std::uint32_t addr, std::uint8_t cidr)
+{
+    this->_addr = addr;
+    this->_cidr = cidr;
+
+    if (this->_cidr > 32)
+        throw error_address("ipv4: CIDR prefix must less than 32");
+}
+
+void address_v4::assign(std::uint32_t addr, const std::string &mask)
+{
+    this->_addr = addr;
+    this->_cidr = static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
 }
 
 address& address_v4::operator=(const std::string &addr)
@@ -133,9 +193,9 @@ address& address_v4::operator=(std::uint32_t addr)
 }
 
 // representation
-std::string address_v4::str() const
+std::string address_v4::str(bool cidr) const
 {
-    return address_v4::toString(this->_addr);
+    return !cidr ? address_v4::toString(this->_addr) : address_v4::toString(this->_addr, this->_cidr);
 }
 
 std::vector<std::uint8_t> address_v4::bytes() const
@@ -156,7 +216,46 @@ const std::uint32_t& address_v4::addr() const
 
 std::uint32_t& address_v4::addr()
 {
+    // @see rfc791
     return this->_addr;
+}
+
+// network
+std::uint32_t address_v4::netmask() const
+{
+    // @see rfc1878
+    return 0xFFFFFFFFu << (32 - this->_cidr);
+}
+
+std::uint32_t address_v4::wildcard() const
+{
+    // @link https://en.wikipedia.org/wiki/Wildcard_mask
+    return ~this->netmask();
+}
+
+address_v4 address_v4::network() const
+{
+    return address_v4(this->_addr & this->netmask(), this->_cidr);
+}
+
+address_v4 address_v4::minhost() const
+{
+    return address_v4((this->_addr & this->netmask()) | 0x00000001, this->_cidr);
+}
+
+address_v4 address_v4::maxhost() const
+{
+    return address_v4((this->_addr | this->wildcard()) & 0xFFFFFFFE, this->_cidr);
+}
+
+address_v4 address_v4::broadcast() const
+{
+    return address_v4(this->_addr | this->wildcard(), this->_cidr);
+}
+
+std::size_t address_v4::hosts() const
+{
+    return this->maxhost().addr() - this->minhost().addr() + 1;
 }
 
 // special
@@ -256,6 +355,12 @@ bool address_v4::isMulticast() const
     return this->isClassD();
 }
 
+bool address_v4::isBroadcast() const
+{
+    // host bits are 1
+    return (this->_addr | this->wildcard()) == this->_addr;
+}
+
 // classful
 bool address_v4::isClassA() const
 {
@@ -296,19 +401,19 @@ bool address_v4::isClassE() const
 bool address_v4::operator==(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-    return this->_addr == a._addr;
+    return (this->_addr == a._addr) && (this->_cidr == a._cidr);
 }
 
 bool address_v4::operator<(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-    return this->_addr < a._addr;
+    return (this->_addr == a._addr) ? this->_cidr < a._cidr : this->_addr < a._addr;
 }
 
 bool address_v4::operator<=(const address &o) const
 {
     const address_v4 &a = dynamic_cast<const address_v4&>(o);
-    return this->_addr <= a._addr;
+    return (this->_addr == a._addr) ? this->_cidr <= a._cidr : this->_addr <= a._addr;
 }
 
 // convert
@@ -400,7 +505,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t &cidr)
             tmp = tmp * 10 + (*cur - '0');
 
         if (tmp > 32)
-            throw error_subnet("ipv4: CIDR prefix must less than 32");
+            throw error_address("ipv4: CIDR prefix must less than 32");
 
         cidr = static_cast<uint8_t>(tmp);
     }
@@ -414,7 +519,7 @@ address_v4 address_v4::any()
     return address_v4();
 }
 
-address_v4 address_v4::broadcast()
+address_v4 address_v4::broad()
 {
     return address_v4(0xFFFFFFFFu);
 }
@@ -427,9 +532,23 @@ address_v4 address_v4::loopback()
 
 // -----------------------------------------------------------------------------
 // address_v6
+address_v6::address_v6() : address(128)
+{
+}
+
 address_v6::address_v6(const std::string &addr)
 {
     this->assign(addr);
+}
+
+address_v6::address_v6(const std::string &addr, std::uint8_t cidr)
+{
+    this->assign(addr, cidr);
+}
+
+address_v6::address_v6(const std::string &addr, const std::string &mask)
+{
+    this->assign(addr, mask);
 }
 
 address_v6::address_v6(const std::array<std::uint8_t, 16> &addr)
@@ -437,9 +556,29 @@ address_v6::address_v6(const std::array<std::uint8_t, 16> &addr)
     this->assign(addr);
 }
 
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+{
+    this->assign(addr, cidr);
+}
+
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
+{
+    this->assign(addr, mask);
+}
+
 address_v6::address_v6(std::array<std::uint8_t, 16> &&addr)
 {
     this->assign(std::move(addr));
+}
+
+address_v6::address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
+{
+    this->assign(std::move(addr), cidr);
+}
+
+address_v6::address_v6(std::array<std::uint8_t, 16> &&addr, const std::string &mask)
+{
+    this->assign(std::move(addr), mask);
 }
 
 std::shared_ptr<chen::ip::address> address_v6::clone() const
@@ -450,17 +589,61 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
 // assignment
 void address_v6::assign(const std::string &addr)
 {
+    this->_addr = std::move(address_v6::toBytes(addr, this->_cidr));
+}
+
+void address_v6::assign(const std::string &addr, std::uint8_t cidr)
+{
     this->_addr = std::move(address_v6::toBytes(addr));
+    this->_cidr = cidr;
+
+    if (this->_cidr > 128)
+        throw error_address("ipv6: CIDR prefix must less than 128");
+}
+
+void address_v6::assign(const std::string &addr, const std::string &mask)
+{
+    // todo
 }
 
 void address_v6::assign(const std::array<std::uint8_t, 16> &addr)
 {
     this->_addr = addr;
+    this->_cidr = 128;
+}
+
+void address_v6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+{
+    this->_addr = addr;
+    this->_cidr = cidr;
+
+    if (this->_cidr > 128)
+        throw error_address("ipv6: CIDR prefix must less than 128");
+}
+
+void address_v6::assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
+{
+    // todo
 }
 
 void address_v6::assign(std::array<std::uint8_t, 16> &&addr)
 {
     this->_addr = std::move(addr);
+    this->_cidr = 128;
+}
+
+void address_v6::assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
+{
+    this->_addr = std::move(addr);
+    this->_cidr = cidr;
+
+    if (this->_cidr > 128)
+        throw error_address("ipv6: CIDR prefix must less than 128");
+}
+
+void address_v6::assign(std::array<std::uint8_t, 16> &&addr, const std::string &mask)
+{
+    // todo
 }
 
 address& address_v6::operator=(const std::string &addr)
@@ -482,9 +665,9 @@ address& address_v6::operator=(std::array<std::uint8_t, 16> &&addr)
 }
 
 // representation
-std::string address_v6::str() const
+std::string address_v6::str(bool cidr) const
 {
-    return address_v6::toString(this->_addr);
+    return !cidr ? address_v6::toString(this->_addr) : address_v6::toString(this->_addr, this->_cidr);
 }
 
 std::vector<std::uint8_t> address_v6::bytes() const
@@ -512,10 +695,11 @@ std::string address_v6::mixed() const
     return address_v6::toMixed(this->_addr);
 }
 
-address_v4 address_v6::embedded(std::uint8_t cidr) const
+address_v4 address_v6::embedded() const
 {
     // IPv4-compatible & IPv4-mapped address, @see rfc4291, section 2.5.5
     // IPv4-embedded address, @see rfc6052, section 2.2
+    unsigned cidr = this->isIPv4Compatible() || this->isIPv4Mapped() ? 128 : this->_cidr;
     unsigned a = 0, b = 0, c = 0, d = 0;
 
     switch (cidr)
@@ -578,6 +762,75 @@ const std::array<std::uint8_t, 16>& address_v6::addr() const
 std::array<std::uint8_t, 16>& address_v6::addr()
 {
     return this->_addr;
+}
+
+// network
+std::array<std::uint8_t, 16> address_v6::netmask() const
+{
+    std::array<std::uint8_t, 16> ret{};
+
+    std::uint8_t len = static_cast<std::uint8_t>(this->_cidr / 8);
+    std::uint8_t mod = static_cast<std::uint8_t>(this->_cidr % 8);
+
+    std::uint8_t i = 0;
+
+    for (; i < len; ++i)
+        ret[i] = 0xFF;
+
+    if (mod)
+        ret[i] = static_cast<std::uint8_t>(0xFF << (8 - mod));
+
+    return ret;
+};
+
+std::array<std::uint8_t, 16> address_v6::wildcard() const
+{
+    std::array<std::uint8_t, 16> ret{};
+
+    std::uint8_t len = static_cast<std::uint8_t>(this->_cidr / 8);
+    std::uint8_t mod = static_cast<std::uint8_t>(this->_cidr % 8);
+
+    auto it = ret.begin() + len;
+
+    if (mod)
+    {
+        ++it;
+        ret[len] = static_cast<std::uint8_t>(~(0xFF << (8 - mod)));
+    }
+
+    for (; it != ret.end(); ++it)
+        *it = 0xFF;
+
+    return ret;
+};
+
+address_v6 address_v6::network() const
+{
+    std::array<std::uint8_t, 16> ret{};
+    std::array<std::uint8_t, 16> mask = this->netmask();
+
+    for (std::size_t i = 0, len = ret.size(); i < len; ++i)
+        ret[i] = this->_addr[i] & mask[i];
+
+    return address_v6(ret, this->_cidr);
+}
+
+address_v6 address_v6::minhost() const
+{
+    // IPv6 host begins with 0
+    return this->network();
+}
+
+address_v6 address_v6::maxhost() const
+{
+    // IPv6 host ends with 1
+    std::array<std::uint8_t, 16> ret{};
+    std::array<std::uint8_t, 16> mask = this->wildcard();
+
+    for (std::size_t i = 0, len = ret.size(); i < len; ++i)
+        ret[i] = this->_addr[i] | mask[i];
+
+    return address_v6(ret, this->_cidr);
 }
 
 // special
@@ -672,19 +925,19 @@ bool address_v6::isIPv4EmbeddedWellKnown() const
 bool address_v6::operator==(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-    return this->_addr == a._addr;
+    return (this->_addr == a._addr) && (this->_cidr == a._cidr);
 }
 
 bool address_v6::operator<(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-    return this->_addr < a._addr;
+    return (this->_addr == a._addr) ? this->_cidr < a._cidr : this->_addr < a._addr;
 }
 
 bool address_v6::operator<=(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-    return this->_addr <= a._addr;
+    return (this->_addr == a._addr) ? this->_cidr <= a._cidr : this->_addr <= a._addr;
 }
 
 // convert
@@ -851,7 +1104,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
             tmp = tmp * 10 + (*cur - '0');
 
         if (tmp > 128)
-            throw error_subnet("ipv6: CIDR prefix must less than 128");
+            throw error_address("ipv6: CIDR prefix must less than 128");
 
         cidr = static_cast<uint8_t>(tmp);
     }

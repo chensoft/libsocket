@@ -9,7 +9,6 @@
 #include <socket/dns/dns_codec.hpp>
 #include <chen/base/num.hpp>
 #include <cmath>
-#include <socket/ip/ip_subnet.hpp>
 
 using namespace chen;
 using namespace chen::dns;
@@ -302,7 +301,7 @@ void Subnet::pack(chen::dns::encoder &encoder) const
             if (this->source > 32)
                 throw error_codec("dns: codec pack edns0 subnet source prefix is greater than 32");
 
-            auto v4 = std::dynamic_pointer_cast<ip::subnet_v4>(this->address);
+            auto v4 = std::dynamic_pointer_cast<ip::address_v4>(this->address);
             if (!v4)
                 throw error_codec("dns: codec pack edns0 subnet address is not ipv4");
 
@@ -318,7 +317,7 @@ void Subnet::pack(chen::dns::encoder &encoder) const
             if (this->source > 128)
                 throw error_codec("dns: codec pack edns0 subnet source prefix is greater than 128");
 
-            auto v6 = std::dynamic_pointer_cast<ip::subnet_v6>(this->address);
+            auto v6 = std::dynamic_pointer_cast<ip::address_v6>(this->address);
             if (!v6)
                 throw error_codec("dns: codec pack edns0 subnet address is not ipv6");
 
@@ -353,7 +352,7 @@ void Subnet::unpack(chen::dns::decoder &decoder)
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[3 - i]);
 
-            this->address = std::make_shared<chen::ip::subnet_v4>(*reinterpret_cast<std::uint32_t*>(addr), this->source);
+            this->address = std::make_shared<chen::ip::address_v4>(*reinterpret_cast<std::uint32_t*>(addr), this->source);
         }
             break;
 
@@ -368,7 +367,7 @@ void Subnet::unpack(chen::dns::decoder &decoder)
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[15 - i]);
 
-            this->address = std::make_shared<chen::ip::subnet_v6>(addr, this->source);
+            this->address = std::make_shared<chen::ip::address_v6>(addr, this->source);
         }
             break;
 

@@ -25,6 +25,8 @@ namespace chen
         {
         public:
             address() = default;
+            address(std::uint8_t cidr);
+
             virtual ~address() = default;
 
             /**
@@ -34,32 +36,31 @@ namespace chen
 
         public:
             /**
-             * Convert base address to its real type
-             * @result nullptr if type is mismatch
-             */
-            const address_v4* v4() const;
-            const address_v6* v6() const;
-
-            address_v4* v4();
-            address_v6* v6();
-
-        public:
-            /**
              * Assignment
              */
             virtual void assign(const std::string &addr) = 0;
+            virtual void assign(const std::string &addr, std::uint8_t cidr) = 0;
+            virtual void assign(const std::string &addr, const std::string &mask) = 0;
+
             virtual address& operator=(const std::string &addr) = 0;
 
         public:
             /**
-             * Standard canonical representation
+             * Standard representation
+             * with CIDR notation or not
              */
-            virtual std::string str() const = 0;
+            virtual std::string str(bool cidr = false) const = 0;
 
             /**
              * Binary representation
              */
             virtual std::vector<std::uint8_t> bytes() const = 0;
+
+            /**
+             * Get raw value
+             */
+            const std::uint8_t& cidr() const;
+            std::uint8_t& cidr();
 
         public:
             /**
@@ -76,7 +77,18 @@ namespace chen
 
         public:
             /**
-             * Generate IPv4 or ipv6 address or subnet automatically
+             * Convert base address to its real type
+             * @result nullptr if type is mismatch
+             */
+            const address_v4* v4() const;
+            const address_v6* v6() const;
+
+            address_v4* v4();
+            address_v6* v6();
+
+        public:
+            /**
+             * Generate IPv4 or ipv6 address automatically
              */
             static std::shared_ptr<chen::ip::address> create(const std::string &addr);
             static std::shared_ptr<chen::ip::address> create(const std::string &addr, std::uint8_t cidr);
@@ -93,6 +105,9 @@ namespace chen
              */
             address(const address&) = default;
             address& operator=(const address&) = default;
+
+        protected:
+            std::uint8_t _cidr;  // CIDR notation prefix length
         };
 
 
@@ -101,25 +116,36 @@ namespace chen
         class address_v4 : public address
         {
         public:
-            address_v4() = default;
+            address_v4();
 
             /**
-             * Construct by IPv4 dotted decimal string
+             * Construct by IPv4 dotted decimal string and CIDR prefix
              * :-) address_v4("127.0.0.1")
+             * :-) address_v4("127.0.0.1/8")
+             * :-) address_v4("127.0.0.1", 8)
+             * :-) address_v4("127.0.0.1", "255.0.0.0")
              * Accept some special address format
              * :-) address_v4("127")       -> "127.0.0.0"
              * :-) address_v4("127.1")     -> "127.0.0.1"
              * :-) address_v4("192.168.1") -> "192.168.0.1"
+             * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(const std::string &addr);
+            address_v4(const std::string &addr, std::uint8_t cidr);
+            address_v4(const std::string &addr, const std::string &mask);
 
             /**
-             * Construct by IPv4 integer
+             * Construct by IPv4 integer and CIDR prefix
              * e.g: "127.0.0.1" is 0x7F000001, also is 2130706433
              * :-) address_v4(2130706433)
              * :-) address_v4(0x7F000001)
+             * :-) address_v4(0x7F000001, 8)
+             * :-) address_v4(0x7F000001, "255.0.0.0")
+             * @caution default CIDR prefix will be 32 if you don't provide
              */
             address_v4(std::uint32_t addr);
+            address_v4(std::uint32_t addr, std::uint8_t cidr);
+            address_v4(std::uint32_t addr, const std::string &mask);
 
             /**
              * Clone current object
@@ -131,17 +157,23 @@ namespace chen
              * Assignment
              */
             virtual void assign(const std::string &addr) override;
+            virtual void assign(const std::string &addr, std::uint8_t cidr) override;
+            virtual void assign(const std::string &addr, const std::string &mask) override;
+
             virtual void assign(std::uint32_t addr);
+            virtual void assign(std::uint32_t addr, std::uint8_t cidr);
+            virtual void assign(std::uint32_t addr, const std::string &mask);
 
             virtual address& operator=(const std::string &addr) override;
             virtual address& operator=(std::uint32_t addr);
 
         public:
             /**
-             * Standard canonical representation
+             * Standard representation
              * e.g: 127.0.0.1
+             * e.g: 127.0.0.1/8
              */
-            virtual std::string str() const override;
+            virtual std::string str(bool cidr = false) const override;
 
             /**
              * Binary representation
@@ -156,6 +188,26 @@ namespace chen
 
         public:
             /**
+             * Netmask & Wildcard mask
+             */
+            std::uint32_t netmask() const;
+            std::uint32_t wildcard() const;
+
+            /**
+             * Network address based on current ip
+             */
+            address_v4 network() const;
+            address_v4 minhost() const;
+            address_v4 maxhost() const;
+            address_v4 broadcast() const;
+
+            /**
+             * Calculate hosts count based on this network
+             */
+            std::size_t hosts() const;
+
+        public:
+            /**
              * Special addressing type
              */
             bool isReserved() const;
@@ -163,6 +215,7 @@ namespace chen
             bool isLoopback() const;
             bool isLinkLocal() const;
             bool isMulticast() const;
+            bool isBroadcast() const;
 
         public:
             /**
@@ -178,6 +231,7 @@ namespace chen
         public:
             /**
              * Operator, compare based on IPv4 address
+             * @caution consider CIDR prefix when address is equal
              */
             virtual bool operator==(const address &o) const override;
             virtual bool operator<(const address &o) const override;
@@ -199,11 +253,11 @@ namespace chen
              * Common addresses
              */
             static address_v4 any();
-            static address_v4 broadcast();
+            static address_v4 broad();
             static address_v4 loopback();
 
         protected:
-            std::uint32_t _addr = 0;  // 32 bit IPv4 address
+            std::uint32_t _addr = 0;  // 32 bits IPv4 address
         };
 
 
@@ -212,7 +266,7 @@ namespace chen
         class address_v6 : public address
         {
         public:
-            address_v6() = default;
+            address_v6();
 
             /**
              * Construct by ipv6 address, accept the following format:
@@ -223,14 +277,26 @@ namespace chen
              * :-) address_v6("2404:6800:4004:817:0:0:0:200e")
              * :-) address_v6("2404:6800:4004:817:0000:0000:0000:200e")
              * :-) address_v6("::192.168.0.1")
+             * Also accept CIDR prefix like:
+             * :-) address_v6("2404:6800:4004:817::200e/64")
+             * :-) address_v6("2404:6800:4004:817::200e", 64)
+             * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::string &addr);
+            address_v6(const std::string &addr, std::uint8_t cidr);
+            address_v6(const std::string &addr, const std::string &mask);
 
             /**
              * Construct by bytes array
+             * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::array<std::uint8_t, 16> &addr);
+            address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+            address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
+
             address_v6(std::array<std::uint8_t, 16> &&addr);
+            address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+            address_v6(std::array<std::uint8_t, 16> &&addr, const std::string &mask);
 
             /**
              * Clone current object
@@ -242,8 +308,16 @@ namespace chen
              * Assignment
              */
             virtual void assign(const std::string &addr) override;
+            virtual void assign(const std::string &addr, std::uint8_t cidr) override;
+            virtual void assign(const std::string &addr, const std::string &mask) override;
+
             virtual void assign(const std::array<std::uint8_t, 16> &addr);
+            virtual void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+            virtual void assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
+
             virtual void assign(std::array<std::uint8_t, 16> &&addr);
+            virtual void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
+            virtual void assign(std::array<std::uint8_t, 16> &&addr, const std::string &mask);
 
             virtual address& operator=(const std::string &addr) override;
             virtual address& operator=(const std::array<std::uint8_t, 16> &addr);
@@ -251,10 +325,11 @@ namespace chen
 
         public:
             /**
-             * Standard canonical representation, same to the method compressed()
+             * Standard representation, same to the method compressed()
              * e.g: 2404:6800:4004:817::200e
+             * e.g: 2404:6800:4004:817::200e/64
              */
-            virtual std::string str() const override;
+            virtual std::string str(bool cidr = false) const override;
 
             /**
              * Binary representation
@@ -290,13 +365,28 @@ namespace chen
              * Retrieve IPv4-mapped or IPv4-compatible address
              * or IPv4-embedded address according to its CIDR length
              */
-            address_v4 embedded(std::uint8_t cidr = 128) const;
+            address_v4 embedded() const;
 
             /**
              * Get raw value
              */
             const std::array<std::uint8_t, 16>& addr() const;
             std::array<std::uint8_t, 16>& addr();
+
+        public:
+            /**
+             * Netmask & Wildcard mask
+             * @caution use uint128 if supported in the future
+             */
+            std::array<std::uint8_t, 16> netmask() const;
+            std::array<std::uint8_t, 16> wildcard() const;
+
+            /**
+             * Network address based on current ip
+             */
+            address_v6 network() const;
+            address_v6 minhost() const;
+            address_v6 maxhost() const;
 
         public:
             /**
@@ -330,6 +420,7 @@ namespace chen
         public:
             /**
              * Operator
+             * @caution consider CIDR prefix when address is equal
              */
             virtual bool operator==(const address &o) const override;
             virtual bool operator<(const address &o) const override;

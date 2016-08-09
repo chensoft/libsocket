@@ -41,15 +41,5 @@ namespace chen
         public:
             explicit error_address(const std::string &what) : error(what) {}
         };
-
-
-        /**
-         * IP subnet error
-         */
-        class error_subnet : public error
-        {
-        public:
-            explicit error_subnet(const std::string &what) : error(what) {}
-        };
     }
 }

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "ip_subnet.hpp"
+#include "ip_address.hpp"
 
 namespace chen
 {
@@ -23,7 +23,7 @@ namespace chen
         public:
             std::string name;               // interface name, e.g: lo0, en0, eth0
             std::uint32_t flag = 0;         // interface flags, determine status, broadcast and more
-            std::shared_ptr<address> addr;  // ip address, its real type is subnet_v4 or subnet_v6
+            std::shared_ptr<address> addr;  // ip address, its real type is address_v4 or address_v6
         };
     }
 }
