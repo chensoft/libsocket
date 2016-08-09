@@ -264,9 +264,11 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(bytes, 64));
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(bytes, "ffff:ffff:ffff:ffff::"));
 
-    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(std::array<std::uint8_t, 16>(bytes)));
-    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(std::array<std::uint8_t, 16>(bytes), 64));
-    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(std::array<std::uint8_t, 16>(bytes), "ffff:ffff:ffff:ffff::"));
+    const std::uint8_t c_bytes[16] = {0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e};
+
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(c_bytes));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(c_bytes, 64));
+    EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e/64"), chen::ip::address_v6(c_bytes, "ffff:ffff:ffff:ffff::"));
 
     EXPECT_THROW(chen::ip::address_v6("2404:6800:4004:817::200e/129"), chen::ip::error_address);
     EXPECT_THROW(chen::ip::address_v6(bytes, 129), chen::ip::error_address);

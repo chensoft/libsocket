@@ -517,7 +517,12 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t *cidr)
 
 std::uint8_t address_v4::toCIDR(const std::string &mask)
 {
-    return static_cast<std::uint8_t>(std::bitset<32>(address_v4::toInteger(mask)).count());
+    return address_v4::toCIDR(address_v4::toInteger(mask));
+}
+
+std::uint8_t address_v4::toCIDR(std::uint32_t mask)
+{
+    return static_cast<std::uint8_t>(std::bitset<32>(mask).count());
 }
 
 // common
@@ -573,19 +578,19 @@ address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, const std::stri
     this->assign(addr, mask);
 }
 
-address_v6::address_v6(std::array<std::uint8_t, 16> &&addr)
+address_v6::address_v6(const std::uint8_t addr[16])
 {
-    this->assign(std::move(addr));
+    this->assign(addr);
 }
 
-address_v6::address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
+address_v6::address_v6(const std::uint8_t addr[16], std::uint8_t cidr)
 {
-    this->assign(std::move(addr), cidr);
+    this->assign(addr, cidr);
 }
 
-address_v6::address_v6(std::array<std::uint8_t, 16> &&addr, const std::string &mask)
+address_v6::address_v6(const std::uint8_t addr[16], const std::string &mask)
 {
-    this->assign(std::move(addr), mask);
+    this->assign(addr, mask);
 }
 
 std::shared_ptr<chen::ip::address> address_v6::clone() const
@@ -596,12 +601,12 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
 // assignment
 void address_v6::assign(const std::string &addr)
 {
-    this->_addr = std::move(address_v6::toBytes(addr, &this->_cidr));
+    this->_addr = address_v6::toBytes(addr, &this->_cidr);
 }
 
 void address_v6::assign(const std::string &addr, std::uint8_t cidr)
 {
-    this->_addr = std::move(address_v6::toBytes(addr));
+    this->_addr = address_v6::toBytes(addr);
     this->_cidr = cidr;
 
     if (this->_cidr > 128)
@@ -610,7 +615,7 @@ void address_v6::assign(const std::string &addr, std::uint8_t cidr)
 
 void address_v6::assign(const std::string &addr, const std::string &mask)
 {
-    this->_addr = std::move(address_v6::toBytes(addr));
+    this->_addr = address_v6::toBytes(addr);
     this->_cidr = address_v6::toCIDR(mask);
 }
 
@@ -635,24 +640,24 @@ void address_v6::assign(const std::array<std::uint8_t, 16> &addr, const std::str
     this->_cidr = address_v6::toCIDR(mask);
 }
 
-void address_v6::assign(std::array<std::uint8_t, 16> &&addr)
+void address_v6::assign(const std::uint8_t addr[16])
 {
-    this->_addr = std::move(addr);
+    std::copy(addr, addr + 16, this->_addr.begin());
     this->_cidr = 128;
 }
 
-void address_v6::assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr)
+void address_v6::assign(const std::uint8_t addr[16], std::uint8_t cidr)
 {
-    this->_addr = std::move(addr);
+    std::copy(addr, addr + 16, this->_addr.begin());
     this->_cidr = cidr;
 
     if (this->_cidr > 128)
         throw error_address("ipv6: CIDR prefix must less than 128");
 }
 
-void address_v6::assign(std::array<std::uint8_t, 16> &&addr, const std::string &mask)
+void address_v6::assign(const std::uint8_t addr[16], const std::string &mask)
 {
-    this->_addr = std::move(addr);
+    std::copy(addr, addr + 16, this->_addr.begin());
     this->_cidr = address_v6::toCIDR(mask);
 }
 
@@ -668,9 +673,9 @@ address& address_v6::operator=(const std::array<std::uint8_t, 16> &addr)
     return *this;
 }
 
-address& address_v6::operator=(std::array<std::uint8_t, 16> &&addr)
+address& address_v6::operator=(const std::uint8_t addr[16])
 {
-    this->assign(std::move(addr));
+    this->assign(addr);
     return *this;
 }
 
@@ -1186,12 +1191,15 @@ std::string address_v6::compress(std::array<std::uint8_t, 16>::const_iterator be
 
 std::uint8_t address_v6::toCIDR(const std::string &mask)
 {
-    auto bytes = address_v6::toBytes(mask);
+    return address_v6::toCIDR(address_v6::toBytes(mask));
+}
 
+std::uint8_t address_v6::toCIDR(const std::array<std::uint8_t, 16> &mask)
+{
     std::uint8_t cidr = 0;
     std::bitset<8> bits;
 
-    for (auto ch : bytes)
+    for (auto ch : mask)
     {
         bits  = ch;
         cidr += bits.count();

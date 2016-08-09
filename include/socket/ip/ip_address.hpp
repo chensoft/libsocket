@@ -249,6 +249,7 @@ namespace chen
             static std::uint32_t toInteger(const std::string &addr, std::uint8_t *cidr);
 
             static std::uint8_t toCIDR(const std::string &mask);
+            static std::uint8_t toCIDR(std::uint32_t mask);
 
         public:
             /**
@@ -259,7 +260,7 @@ namespace chen
             static address_v4 loopback();
 
         protected:
-            std::uint32_t _addr = 0;  // 32 bits IPv4 address
+            std::uint32_t _addr = 0;  // 32 bits IPv4 address, little-endian
         };
 
 
@@ -296,9 +297,9 @@ namespace chen
             address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
             address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
 
-            address_v6(std::array<std::uint8_t, 16> &&addr);
-            address_v6(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
-            address_v6(std::array<std::uint8_t, 16> &&addr, const std::string &mask);
+            address_v6(const std::uint8_t addr[16]);
+            address_v6(const std::uint8_t addr[16], std::uint8_t cidr);
+            address_v6(const std::uint8_t addr[16], const std::string &mask);
 
             /**
              * Clone current object
@@ -317,13 +318,13 @@ namespace chen
             virtual void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
             virtual void assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
 
-            virtual void assign(std::array<std::uint8_t, 16> &&addr);
-            virtual void assign(std::array<std::uint8_t, 16> &&addr, std::uint8_t cidr);
-            virtual void assign(std::array<std::uint8_t, 16> &&addr, const std::string &mask);
+            virtual void assign(const std::uint8_t addr[16]);
+            virtual void assign(const std::uint8_t addr[16], std::uint8_t cidr);
+            virtual void assign(const std::uint8_t addr[16], const std::string &mask);
 
             virtual address& operator=(const std::string &addr) override;
             virtual address& operator=(const std::array<std::uint8_t, 16> &addr);
-            virtual address& operator=(std::array<std::uint8_t, 16> &&addr);
+            virtual address& operator=(const std::uint8_t addr[16]);
 
         public:
             /**
@@ -445,6 +446,7 @@ namespace chen
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr);
 
             static std::uint8_t toCIDR(const std::string &mask);
+            static std::uint8_t toCIDR(const std::array<std::uint8_t, 16> &mask);
 
         public:
             /**
