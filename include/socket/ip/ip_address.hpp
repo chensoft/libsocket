@@ -466,7 +466,7 @@ namespace chen
 
         protected:
             std::array<std::uint8_t, 16> _addr = {};
-            std::uint32_t _scope = 0;  // IPv6 scope id, rfc4007
+            std::uint32_t _scope = 0;  // IPv6 scope zone id, rfc4007, section 11
         };
     }
 }

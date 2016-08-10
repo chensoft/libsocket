@@ -152,17 +152,31 @@ std::map<std::string, interface> interface::enumerate()
 }
 
 // scope
-std::uint32_t interface::scope(const std::string &name)
+std::uint32_t interface::scope(const std::array<std::uint8_t, 16> &addr, const std::string &name)
 {
-    // todo compare both ipv6 address and interface name?
+    // if name is integer
+    bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
+        return std::isdigit(ch);
+    });
+
+    if (digits)
+        return static_cast<std::uint32_t>(std::atoi(name.c_str()));
+
+    // if name is interface name
     std::uint32_t id = 0;
 
     visit([&] (struct ifaddrs *ptr, bool &stop) {
         if ((name != ptr->ifa_name) || !ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 
-        id   = ((struct sockaddr_in6*)ptr->ifa_addr)->sin6_scope_id;
-        stop = true;
+        // check address
+        auto tmp = (struct sockaddr_in6*)ptr->ifa_addr;
+
+        if (std::equal(addr.begin(), addr.end(), tmp->sin6_addr.s6_addr))
+        {
+            id   = tmp->sin6_scope_id;
+            stop = true;
+        }
     });
 
     return id;

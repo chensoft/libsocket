@@ -37,9 +37,10 @@ namespace chen
             static std::map<std::string, interface> enumerate();
 
             /**
-             * Get IPv6 scope id by interface name
+             * Get IPv6 scope id by address and interface name
+             * if the name is a integer, then it's the scope zone id
              */
-            static std::uint32_t scope(const std::string &name);
+            static std::uint32_t scope(const std::array<std::uint8_t, 16> &addr, const std::string &name);
 
         public:
             std::string name;           // interface name, e.g: lo0, en0, eth0
