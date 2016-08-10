@@ -98,35 +98,39 @@ bool interface::isMulticast() const
 }
 
 // enumerate
-std::vector<interface> interface::enumerate()
+std::map<std::string, interface> interface::enumerate()
 {
     struct ifaddrs *list = nullptr;
-
     if (::getifaddrs(&list) < 0)
         throw error_interface(str::format("if: enumerate error: %s", chen::sys::error().c_str()));
 
-    std::vector<interface> ret;
+    std::map<std::string, interface> map;
 
     try
     {
         for (auto ptr = list; ptr != nullptr; ptr = ptr->ifa_next)
         {
-            interface item;
-            item.name = ptr->ifa_name;
-            item.flag = ptr->ifa_flags;
-            item.addr = create_address(ptr->ifa_addr);
+            auto &item = map[ptr->ifa_name];
 
-            if (item.addr)
+            if (item.name.empty())
+            {
+                item.name = ptr->ifa_name;
+                item.flag = ptr->ifa_flags;
+            }
+
+            auto addr = create_address(ptr->ifa_addr);
+
+            if (addr)
             {
                 if (ptr->ifa_netmask)
-                    item.addr->cidr(create_cidr(ptr->ifa_netmask));
+                    addr->cidr(create_cidr(ptr->ifa_netmask));
+
+                item.addr.emplace_back(std::move(addr));
             }
             else
             {
                 continue;
             }
-
-            ret.emplace_back(std::move(item));
         }
     }
     catch (...)
@@ -136,7 +140,14 @@ std::vector<interface> interface::enumerate()
     }
 
     ::freeifaddrs(list);
-    return ret;
+    return map;
+}
+
+// scope
+std::uint32_t interface::scope(const std::string &name)
+{
+    // todo
+    return 0;
 }
 
 #endif

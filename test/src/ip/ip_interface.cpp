@@ -14,20 +14,20 @@ TEST(IPInterfaceTest, General)
     // todo
     auto list = chen::ip::interface::enumerate();
 
-    for (auto x : list)
+    for (auto &pair : list)
     {
-        printf("name: %s, flags: %u\n", x.name.c_str(), x.flag);
+        printf("name: %s, flags: %x\n", pair.first.c_str(), pair.second.flag);
 
-        if (x.addr)
+        for (auto x : pair.second.addr)
         {
-            if (x.addr->v4())
+            if (x->v4())
             {
-                auto xxx = x.addr->v4();
+                auto xxx = x->v4();
                 printf("      addr: %s, mask: 0x%x, broad: %s\n", xxx->str().c_str(), xxx->netmask(), xxx->broadcast().str().c_str());
             }
-            else if (x.addr->v6())
+            else if (x->v6())
             {
-                auto xxx = x.addr->v6();
+                auto xxx = x->v6();
                 printf("      addr: %s, prefix: %u, scope: 0x%x\n", xxx->str().c_str(), xxx->cidr(), xxx->scope());
             }
         }

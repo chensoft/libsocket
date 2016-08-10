@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ip_address.hpp"
+#include <map>
 
 namespace chen
 {
@@ -14,6 +15,9 @@ namespace chen
     {
         class interface
         {
+        public:
+            typedef std::shared_ptr<address> address;
+
         public:
             /**
              * Flags
@@ -30,12 +34,17 @@ namespace chen
              * Enumerate all interfaces
              * @caution only enumerate interfaces with IPv4 or IPv6 address
              */
-            static std::vector<interface> enumerate();
+            static std::map<std::string, interface> enumerate();
+
+            /**
+             * Get IPv6 scope id by interface name
+             */
+            static std::uint32_t scope(const std::string &name);
 
         public:
-            std::string name;               // interface name, e.g: lo0, en0, eth0
-            std::uint32_t flag = 0;         // interface flags, determine status, broadcast and more
-            std::shared_ptr<address> addr;  // ip address, netmask, broadcast all in one
+            std::string name;           // interface name, e.g: lo0, en0, eth0
+            std::uint32_t flag = 0;     // interface flags, determine status, broadcast and more
+            std::vector<address> addr;  // all ip addresses on this interface, each address has netmask, broadcast and scope id
         };
     }
 }
