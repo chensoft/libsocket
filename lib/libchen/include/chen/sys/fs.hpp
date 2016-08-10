@@ -264,7 +264,10 @@ namespace chen
          * @param recursive (optional) check items recursively
          */
         static void visit(const std::string &directory,
-                          std::function<bool (const std::string &path)> callback,
+                          std::function<void (const std::string &path)> callback,
+                          bool recursive = true);
+        static void visit(const std::string &directory,
+                          std::function<void (const std::string &path, bool &stop)> callback,
                           bool recursive = true);
 
         /**

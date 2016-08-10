@@ -245,8 +245,8 @@ bool fs::change(const std::string &directory)
 
 // visit
 void fs::visit(const std::string &directory,
-                 std::function<bool (const std::string &path)> callback,
-                 bool recursive)
+               std::function<void (const std::string &path, bool &stop)> callback,
+               bool recursive)
 {
     DIR    *dir = ::opendir(directory.c_str());
     dirent *cur = nullptr;
@@ -254,7 +254,8 @@ void fs::visit(const std::string &directory,
     if (!dir)
         return;
 
-    auto sep = fs::separator();
+    auto sep  = fs::separator();
+    auto stop = false;
 
     while ((cur = ::readdir(dir)))
     {
@@ -265,7 +266,8 @@ void fs::visit(const std::string &directory,
 
         std::string full(*(directory.end() - 1) == sep ? directory + name : directory + sep + name);
 
-        if (!callback(full))
+        callback(full, stop);
+        if (stop)
             break;
 
         if (recursive && fs::isDir(full))

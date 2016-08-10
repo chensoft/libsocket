@@ -20,7 +20,7 @@ using namespace chen::ip;
 // helper
 namespace
 {
-    void visit(std::function<bool (struct ifaddrs *ptr)> cb)
+    void visit(std::function<void (struct ifaddrs *ptr, bool &stop)> cb)
     {
         struct ifaddrs *list = nullptr;
         if (::getifaddrs(&list) < 0)
@@ -28,9 +28,12 @@ namespace
 
         try
         {
+            bool stop = false;
+
             for (auto ptr = list; ptr != nullptr; ptr = ptr->ifa_next)
             {
-                if (!cb(ptr))
+                cb(ptr, stop);
+                if (stop)
                     break;
             }
         }
@@ -125,7 +128,7 @@ std::map<std::string, interface> interface::enumerate()
 {
     std::map<std::string, interface> map;
 
-    visit([&] (struct ifaddrs *ptr) -> bool {
+    visit([&] (struct ifaddrs *ptr, bool &stop) {
         auto &item = map[ptr->ifa_name];
 
         if (item.name.empty())
@@ -143,8 +146,6 @@ std::map<std::string, interface> interface::enumerate()
 
             item.addr.emplace_back(std::move(addr));
         }
-
-        return true;
     });
 
     return map;
@@ -156,12 +157,12 @@ std::uint32_t interface::scope(const std::string &name)
     // todo compare both ipv6 address and interface name?
     std::uint32_t id = 0;
 
-    visit([&] (struct ifaddrs *ptr) -> bool {
+    visit([&] (struct ifaddrs *ptr, bool &stop) {
         if ((name != ptr->ifa_name) || !ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
-            return true;
+            return;
 
-        id = ((struct sockaddr_in6*)ptr->ifa_addr)->sin6_scope_id;
-        return false;
+        id   = ((struct sockaddr_in6*)ptr->ifa_addr)->sin6_scope_id;
+        stop = true;
     });
 
     return id;

@@ -262,7 +262,7 @@ bool fs::change(const std::string &directory)
 
 // visit
 void fs::visit(const std::string &directory,
-               std::function<bool (const std::string &path)> callback,
+               std::function<void (const std::string &path, bool &stop)> callback,
                bool recursive)
 {
     WIN32_FIND_DATA data;
@@ -271,7 +271,8 @@ void fs::visit(const std::string &directory,
     if (find == INVALID_HANDLE_VALUE)
         return;
 
-    auto sep = fs::separator();
+    auto sep  = fs::separator();
+    auto stop = false;
 
     do
     {
@@ -282,7 +283,8 @@ void fs::visit(const std::string &directory,
 
         std::string full(*(directory.end() - 1) == sep ? directory + name : directory + sep + name);
 
-        if (!callback(full))
+        callback(full, stop);
+        if (stop)
             break;
 
         if (recursive && fs::isDir(full))
