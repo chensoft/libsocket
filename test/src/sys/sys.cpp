@@ -9,5 +9,6 @@
 
 TEST(SysSysTest, General)
 {
+    chen::sys::stack();
     EXPECT_NE(chen::sys::uuid(), chen::sys::uuid());
 }
