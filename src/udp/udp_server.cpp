@@ -7,6 +7,7 @@
 #include <socket/udp/udp_server.hpp>
 #include <socket/udp/udp_define.hpp>
 #include <socket/so/so_error.hpp>
+#include <chen/chen.hpp>
 
 using namespace chen;
 using namespace chen::udp;
@@ -30,8 +31,18 @@ void server::start()
         std::string addr;
         std::uint16_t port = 0;
 
-        // todo recv maybe throw exception, how to handle it?
-        std::size_t size = this->recv(buffer, length, addr, port);
+        std::size_t size = 0;
+
+        try
+        {
+            size = this->recv(buffer, length, addr, port);
+        }
+        catch (const std::exception &e)
+        {
+            // todo notify recv exception to handler
+            PILogE("%s", e.what());
+            continue;
+        }
 
         // post result to callback
         if (size)
