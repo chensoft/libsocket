@@ -316,7 +316,7 @@ bool fs::copy(const std::string &path_old, const std::string &path_new)
         auto size = path_old.size();
         auto ret  = true;
 
-        fs::visit(path_old, [size, &ret, path_new] (const std::string &name) -> bool {
+        fs::visit(path_old, [size, &ret, path_new] (const std::string &name, bool &stop) {
             auto sub = name.substr(size, name.size() - size);
 
             if (fs::isFile(name))
@@ -325,7 +325,7 @@ bool fs::copy(const std::string &path_old, const std::string &path_new)
                 ret = fs::create(path_new + sub, 0, false);
 
             // exit if occur an error
-            return ret;
+            stop = !ret;
         });
 
         return ret;
@@ -337,13 +337,21 @@ bool fs::copy(const std::string &path_old, const std::string &path_new)
 }
 
 // visit
+void fs::visit(const std::string &directory,
+               std::function<void (const std::string &path)> callback,
+               bool recursive)
+{
+    fs::visit(directory, [&] (const std::string &path, bool &stop) {
+        callback(path);
+    }, recursive);
+}
+
 std::vector<std::string> fs::collect(const std::string &directory, bool recursive)
 {
     std::vector<std::string> store;
 
-    fs::visit(directory, [&store] (const std::string &path) -> bool {
+    fs::visit(directory, [&store] (const std::string &path) {
         store.emplace_back(path);
-        return true;
     }, recursive);
 
     return store;
@@ -360,15 +368,13 @@ std::size_t fs::count(const std::string &directory,
 
     std::size_t num = 0;
 
-    fs::visit(directory, [&] (const std::string &path) -> bool {
+    fs::visit(directory, [&] (const std::string &path) {
         if ((contain_file && contain_dir) ||
             (contain_file && fs::isFile(path)) ||
             (contain_dir && fs::isDir(path)))
         {
             ++num;
         }
-
-        return true;
     }, recursive);
 
     return num;

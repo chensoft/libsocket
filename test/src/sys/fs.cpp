@@ -138,8 +138,7 @@ TEST(SysFsTest, General)
     chen::fs::collect("/", false);
     chen::fs::count("/", false);
     chen::fs::count("/", false, false, false);
-    chen::fs::visit("/", [] (const std::string &path) -> bool {
-        return true;
+    chen::fs::visit("/", [] (const std::string &path) {
     }, false);
 #endif
 }

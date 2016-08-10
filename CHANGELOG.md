@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file(see http://k
 - ini: user can retrieve error position when syntax error.
 - json: user can retrieve error position when syntax error.
 
+### Changed
+- fs: accept two types of lambda callbacks.
+
 ## [1.1.0] - 2016-07-22
 ### Added
 - str: lowercase, uppercase, capitalize a string.
