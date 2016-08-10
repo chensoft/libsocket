@@ -7,7 +7,6 @@
 #ifndef _WIN32
 
 #include <socket/ip/ip_interface.hpp>
-#include <socket/ip/ip_error.hpp>
 #include <chen/chen.hpp>
 #include <ifaddrs.h>
 #include <net/if.h>
@@ -24,7 +23,7 @@ namespace
     {
         struct ifaddrs *list = nullptr;
         if (::getifaddrs(&list) < 0)
-            throw error_interface(str::format("if: enumerate interface error: %s", chen::sys::error().c_str()));
+            return;
 
         try
         {
@@ -180,6 +179,26 @@ std::uint32_t interface::scope(const std::array<std::uint8_t, 16> &addr, const s
     });
 
     return id;
+}
+
+std::string interface::scope(std::uint32_t id)
+{
+    std::string name;
+
+    visit([&] (struct ifaddrs *ptr, bool &stop) {
+        if (!ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
+            return;
+
+        auto tmp = (struct sockaddr_in6*)ptr->ifa_addr;
+
+        if (tmp->sin6_scope_id == id)
+        {
+            name = ptr->ifa_name;
+            stop = true;
+        }
+    });
+
+    return !name.empty() ? name : num::str(id);
 }
 
 #endif

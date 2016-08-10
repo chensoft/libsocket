@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_address.hpp>
+#include <socket/ip/ip_interface.hpp>
 #include <socket/ip/ip_error.hpp>
 #include <gtest/gtest.h>
 
@@ -258,6 +258,15 @@ TEST(IPAddressTest, IPv6)
 
     EXPECT_EQ(chen::ip::address_v6("::c0a8:1"), chen::ip::address_v6("::192.168.0.1"));
 
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1"), chen::ip::address_v6("fe80::1%1"));
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1"), chen::ip::address_v6("fe80::1%1", 128));
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1"), chen::ip::address_v6("fe80::1", 128, 1));
+
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1/64"), chen::ip::address_v6("fe80::1%1", 64));
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1/64"), chen::ip::address_v6("fe80::1", 64, 1));
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1/64"), chen::ip::address_v6("fe80::1%1", "ffff:ffff:ffff:ffff::"));
+    EXPECT_EQ(chen::ip::address_v6("fe80::1%1/64"), chen::ip::address_v6("fe80::1", "ffff:ffff:ffff:ffff::", 1));
+
     std::array<std::uint8_t, 16> bytes = {{0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e}};
 
     EXPECT_EQ(chen::ip::address_v6("2404:6800:4004:817::200e"), chen::ip::address_v6(bytes));
@@ -293,6 +302,11 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817:0:0:0:200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").suppressed());
     EXPECT_EQ("2404:6800:4004:817::200e", chen::ip::address_v6("2404:6800:4004:817:0000:0000:0000:200e").compressed());
     EXPECT_EQ("::ffff:192.0.2.128", chen::ip::address_v6("::ffff:c000:280").mixed());
+
+    auto scope = chen::ip::interface::scope(1);
+
+    EXPECT_EQ("fe80::1%" + scope, chen::ip::address_v6("fe80::1%1").str(false, true));
+    EXPECT_EQ("fe80::1%" + scope + "/128", chen::ip::address_v6("fe80::1%1").str(true, true));
 
     EXPECT_EQ(chen::ip::address_v4("192.0.2.128"), chen::ip::address_v6("::ffff:c000:280").embedded());
     EXPECT_EQ(chen::ip::address_v4("192.0.2.33"), chen::ip::address_v6("2001:db8:c000:221::/32").embedded());

@@ -283,11 +283,21 @@ namespace chen
              * Also accept CIDR prefix like:
              * :-) address_v6("2404:6800:4004:817::200e/64")
              * :-) address_v6("2404:6800:4004:817::200e", 64)
+             * :-) address_v6("2404:6800:4004:817::200e", "ffff:ffff:ffff:ffff::")
+             * And accept scope id like:
+             * :-) address_v6("fe80::1%1")
+             * :-) address_v6("fe80::1%lo0")
+             * :-) address_v6("fe80::1%1/64")
+             * :-) address_v6("fe80::1%lo0/64")
+             * :-) address_v6("fe80::1%lo0", 64)
+             * :-) address_v6("fe80::1%lo0", "ffff:ffff:ffff:ffff::")
              * @caution default CIDR prefix will be 128 if you don't provide
              */
             address_v6(const std::string &addr);
             address_v6(const std::string &addr, std::uint8_t cidr);
+            address_v6(const std::string &addr, std::uint8_t cidr, std::uint32_t scope);
             address_v6(const std::string &addr, const std::string &mask);
+            address_v6(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
             /**
              * Construct by bytes array
@@ -295,11 +305,15 @@ namespace chen
              */
             address_v6(const std::array<std::uint8_t, 16> &addr);
             address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+            address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope);
             address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
+            address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope);
 
             address_v6(const std::uint8_t addr[16]);
             address_v6(const std::uint8_t addr[16], std::uint8_t cidr);
+            address_v6(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
             address_v6(const std::uint8_t addr[16], const std::string &mask);
+            address_v6(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope);
 
             /**
              * Clone current object
@@ -312,15 +326,21 @@ namespace chen
              */
             virtual void assign(const std::string &addr) override;
             virtual void assign(const std::string &addr, std::uint8_t cidr) override;
+            virtual void assign(const std::string &addr, std::uint8_t cidr, std::uint32_t scope);
             virtual void assign(const std::string &addr, const std::string &mask) override;
+            virtual void assign(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
             virtual void assign(const std::array<std::uint8_t, 16> &addr);
             virtual void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
+            virtual void assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope);
             virtual void assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
+            virtual void assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope);
 
             virtual void assign(const std::uint8_t addr[16]);
             virtual void assign(const std::uint8_t addr[16], std::uint8_t cidr);
+            virtual void assign(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
             virtual void assign(const std::uint8_t addr[16], const std::string &mask);
+            virtual void assign(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope);
 
             virtual address& operator=(const std::string &addr) override;
             virtual address& operator=(const std::array<std::uint8_t, 16> &addr);
@@ -333,6 +353,14 @@ namespace chen
              * e.g: 2404:6800:4004:817::200e/64
              */
             virtual std::string str(bool cidr = false) const override;
+
+            /**
+             * Standard representation, with scope id
+             * e.g: fe80::1%1      if interface name is not found
+             * e.g: fe80::1%lo0    if scope id to interface name is found
+             * e.g: fe80::1%lo0/64 if cidr is enabled
+             */
+            virtual std::string str(bool cidr, bool scope) const;
 
             /**
              * Binary representation
@@ -440,6 +468,9 @@ namespace chen
             static std::string toString(const std::uint8_t addr[16]);
             static std::string toString(const std::uint8_t addr[16], std::uint8_t cidr);
 
+            static std::string toScope(const std::uint8_t addr[16], std::uint32_t scope);
+            static std::string toScope(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
+
             static std::string toExpanded(const std::uint8_t addr[16]);
             static std::string toSuppressed(const std::uint8_t addr[16]);
             static std::string toCompressed(const std::uint8_t addr[16]);
@@ -447,6 +478,7 @@ namespace chen
 
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr);
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr);
+            static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr, std::uint32_t *scope);
 
             static std::uint8_t toCIDR(const std::string &mask);
             static std::uint8_t toCIDR(const std::uint8_t mask[16]);
@@ -466,7 +498,7 @@ namespace chen
 
         protected:
             std::array<std::uint8_t, 16> _addr = {};
-            std::uint32_t _scope = 0;  // IPv6 scope zone id, rfc4007, section 11
+            std::uint32_t _scope = 0;  // link-local address's(e.g: fe80::1%lo0) scope zone id, rfc4007, section 11
         };
     }
 }

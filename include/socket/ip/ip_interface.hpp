@@ -42,6 +42,12 @@ namespace chen
              */
             static std::uint32_t scope(const std::array<std::uint8_t, 16> &addr, const std::string &name);
 
+            /**
+             * Get interface name by IPv6 scope id
+             * if interface is not found then return the integer string
+             */
+            static std::string scope(std::uint32_t id);
+
         public:
             std::string name;           // interface name, e.g: lo0, en0, eth0
             std::uint32_t flag = 0;     // interface flags, determine status, broadcast and more

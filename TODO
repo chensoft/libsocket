@@ -4,6 +4,8 @@
 
 -) add socket opt support, such as tcp reuse address
 
+-) get socket mtu after connected
+
 -) add connecting state
 
 -) tcp client reconnect using stored address and port

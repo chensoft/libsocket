@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_address.hpp>
+#include <socket/ip/ip_interface.hpp>
 #include <socket/ip/ip_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
@@ -502,7 +502,7 @@ std::uint32_t address_v4::toInteger(const std::string &addr, std::uint8_t *cidr)
         {
             std::uint32_t tmp = 0;
 
-            while (std::isdigit(*++cur))
+            while ((cur != end) && std::isdigit(*++cur))
                 tmp = tmp * 10 + (*cur - '0');
 
             if (tmp > 32)
@@ -558,9 +558,19 @@ address_v6::address_v6(const std::string &addr, std::uint8_t cidr)
     this->assign(addr, cidr);
 }
 
+address_v6::address_v6(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
+{
+    this->assign(addr, cidr, scope);
+}
+
 address_v6::address_v6(const std::string &addr, const std::string &mask)
 {
     this->assign(addr, mask);
+}
+
+address_v6::address_v6(const std::string &addr, const std::string &mask, std::uint32_t scope)
+{
+    this->assign(addr, mask, scope);
 }
 
 address_v6::address_v6(const std::array<std::uint8_t, 16> &addr)
@@ -573,9 +583,19 @@ address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t ci
     this->assign(addr, cidr);
 }
 
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope)
+{
+    this->assign(addr, cidr, scope);
+}
+
 address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
 {
     this->assign(addr, mask);
+}
+
+address_v6::address_v6(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope)
+{
+    this->assign(addr, mask, scope);
 }
 
 address_v6::address_v6(const std::uint8_t addr[16])
@@ -588,9 +608,19 @@ address_v6::address_v6(const std::uint8_t addr[16], std::uint8_t cidr)
     this->assign(addr, cidr);
 }
 
+address_v6::address_v6(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
+{
+    this->assign(addr, cidr, scope);
+}
+
 address_v6::address_v6(const std::uint8_t addr[16], const std::string &mask)
 {
     this->assign(addr, mask);
+}
+
+address_v6::address_v6(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope)
+{
+    this->assign(addr, mask, scope);
 }
 
 std::shared_ptr<chen::ip::address> address_v6::clone() const
@@ -601,13 +631,23 @@ std::shared_ptr<chen::ip::address> address_v6::clone() const
 // assignment
 void address_v6::assign(const std::string &addr)
 {
-    this->_addr = address_v6::toBytes(addr, &this->_cidr);
+    this->_addr = address_v6::toBytes(addr, &this->_cidr, &this->_scope);
 }
 
 void address_v6::assign(const std::string &addr, std::uint8_t cidr)
 {
-    this->_addr = address_v6::toBytes(addr);
+    this->_addr = address_v6::toBytes(addr, nullptr, &this->_scope);
     this->_cidr = cidr;
+
+    if (this->_cidr > 128)
+        throw error_address("ipv6: CIDR prefix must less than 128");
+}
+
+void address_v6::assign(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
+{
+    this->_addr  = address_v6::toBytes(addr);
+    this->_cidr  = cidr;
+    this->_scope = scope;
 
     if (this->_cidr > 128)
         throw error_address("ipv6: CIDR prefix must less than 128");
@@ -615,20 +655,32 @@ void address_v6::assign(const std::string &addr, std::uint8_t cidr)
 
 void address_v6::assign(const std::string &addr, const std::string &mask)
 {
-    this->_addr = address_v6::toBytes(addr);
+    this->_addr = address_v6::toBytes(addr, nullptr, &this->_scope);
     this->_cidr = address_v6::toCIDR(mask);
+}
+
+void address_v6::assign(const std::string &addr, const std::string &mask, std::uint32_t scope)
+{
+    this->_addr  = address_v6::toBytes(addr);
+    this->_cidr  = address_v6::toCIDR(mask);
+    this->_scope = scope;
 }
 
 void address_v6::assign(const std::array<std::uint8_t, 16> &addr)
 {
-    this->_addr = addr;
-    this->_cidr = 128;
+    this->assign(addr, 128, 0);
 }
 
 void address_v6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
 {
-    this->_addr = addr;
-    this->_cidr = cidr;
+    this->assign(addr, cidr, 0);
+}
+
+void address_v6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope)
+{
+    this->_addr  = addr;
+    this->_cidr  = cidr;
+    this->_scope = scope;
 
     if (this->_cidr > 128)
         throw error_address("ipv6: CIDR prefix must less than 128");
@@ -636,20 +688,32 @@ void address_v6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t c
 
 void address_v6::assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
 {
-    this->_addr = addr;
-    this->_cidr = address_v6::toCIDR(mask);
+    this->assign(addr, mask, 0);
+}
+
+void address_v6::assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope)
+{
+    this->_addr  = addr;
+    this->_cidr  = address_v6::toCIDR(mask);
+    this->_scope = scope;
 }
 
 void address_v6::assign(const std::uint8_t addr[16])
 {
-    std::copy(addr, addr + 16, this->_addr.begin());
-    this->_cidr = 128;
+    this->assign(addr, 128, 0);
 }
 
 void address_v6::assign(const std::uint8_t addr[16], std::uint8_t cidr)
 {
+    this->assign(addr, cidr, 0);
+}
+
+void address_v6::assign(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
+{
     std::copy(addr, addr + 16, this->_addr.begin());
-    this->_cidr = cidr;
+
+    this->_cidr  = cidr;
+    this->_scope = scope;
 
     if (this->_cidr > 128)
         throw error_address("ipv6: CIDR prefix must less than 128");
@@ -657,8 +721,14 @@ void address_v6::assign(const std::uint8_t addr[16], std::uint8_t cidr)
 
 void address_v6::assign(const std::uint8_t addr[16], const std::string &mask)
 {
+    this->assign(addr, mask, 0);
+}
+
+void address_v6::assign(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope)
+{
     std::copy(addr, addr + 16, this->_addr.begin());
-    this->_cidr = address_v6::toCIDR(mask);
+    this->_cidr  = address_v6::toCIDR(mask);
+    this->_scope = scope;
 }
 
 address& address_v6::operator=(const std::string &addr)
@@ -682,7 +752,19 @@ address& address_v6::operator=(const std::uint8_t addr[16])
 // representation
 std::string address_v6::str(bool cidr) const
 {
-    return !cidr ? address_v6::toString(this->_addr.data()) : address_v6::toString(this->_addr.data(), this->_cidr);
+    return this->str(cidr, false);
+}
+
+std::string address_v6::str(bool cidr, bool scope) const
+{
+    if (cidr && scope)
+        return address_v6::toScope(this->_addr.data(), this->_cidr, this->_scope);
+    else if (cidr)
+        return address_v6::toString(this->_addr.data(), this->_cidr);
+    else if (scope)
+        return address_v6::toScope(this->_addr.data(), this->_scope);
+    else
+        return address_v6::toString(this->_addr.data());
 }
 
 std::vector<std::uint8_t> address_v6::bytes() const
@@ -841,7 +923,7 @@ address_v6 address_v6::network() const
     for (std::size_t i = 0, len = ret.size(); i < len; ++i)
         ret[i] = this->_addr[i] & mask[i];
 
-    return address_v6(ret, this->_cidr);
+    return address_v6(ret, this->_cidr, this->_scope);
 }
 
 address_v6 address_v6::minhost() const
@@ -859,7 +941,7 @@ address_v6 address_v6::maxhost() const
     for (std::size_t i = 0, len = ret.size(); i < len; ++i)
         ret[i] = this->_addr[i] | mask[i];
 
-    return address_v6(ret, this->_cidr);
+    return address_v6(ret, this->_cidr, this->_scope);
 }
 
 // special
@@ -954,19 +1036,27 @@ bool address_v6::isIPv4EmbeddedWellKnown() const
 bool address_v6::operator==(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-    return (this->_addr == a._addr) && (this->_cidr == a._cidr);
+    return (this->_addr == a._addr) && (this->_cidr == a._cidr) && (this->_scope == a._scope);
 }
 
 bool address_v6::operator<(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-    return (this->_addr == a._addr) ? this->_cidr < a._cidr : this->_addr < a._addr;
+
+    if (this->_addr == a._addr)
+        return this->_cidr == a._cidr ? this->_scope < a._scope : this->_cidr < a._cidr;
+    else
+        return this->_addr < a._addr;
 }
 
 bool address_v6::operator<=(const address &o) const
 {
     const address_v6 &a = dynamic_cast<const address_v6&>(o);
-    return (this->_addr == a._addr) ? this->_cidr <= a._cidr : this->_addr <= a._addr;
+
+    if (this->_addr == a._addr)
+        return this->_cidr == a._cidr ? this->_scope <= a._scope : this->_cidr <= a._cidr;
+    else
+        return this->_addr <= a._addr;
 }
 
 // convert
@@ -978,6 +1068,16 @@ std::string address_v6::toString(const std::uint8_t addr[16])
 std::string address_v6::toString(const std::uint8_t addr[16], std::uint8_t cidr)
 {
     return address_v6::toCompressed(addr) + "/" + num::str(cidr);
+}
+
+std::string address_v6::toScope(const std::uint8_t addr[16], std::uint32_t scope)
+{
+    return address_v6::toCompressed(addr) + "%" + interface::scope(scope);
+}
+
+std::string address_v6::toScope(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
+{
+    return address_v6::toCompressed(addr) + "%" + interface::scope(scope) + "/" + num::str(cidr);
 }
 
 std::string address_v6::toExpanded(const std::uint8_t addr[16])
@@ -1035,6 +1135,11 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr)
 
 std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t *cidr)
 {
+    return address_v6::toBytes(addr, cidr, nullptr);
+};
+
+std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::uint8_t *cidr, std::uint32_t *scope)
+{
     std::array<std::uint8_t, 16> ret{};
 
     auto ptr = ret.begin();  // current insert position
@@ -1046,7 +1151,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
     auto len = 8;  // maximum loop count, default is 8, if has dotted format, then change to 10
     bool hex = true;
 
-    for (int i = 0; (i < len) && (cur != end) && (*cur != '/'); ++i)
+    for (int i = 0; (i < len) && (cur != end) && (*cur != '/') && (*cur != '%'); ++i)
     {
         // check "::"
         if ((cur != beg) && (*cur == ':') && (*(cur - 1) == ':'))
@@ -1090,7 +1195,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
                 hex = false;  // current chars are decimal integer
                 break;
             }
-            else if (ch != '/')
+            else if ((ch != '/') && (ch != '%'))
             {
                 // unrecognized char
                 throw error_address("ipv6: addr format is wrong");
@@ -1121,6 +1226,22 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
             *copy++ = *it;
     }
 
+    // scope id
+    if (*cur == '%')
+    {
+        std::string tmp;
+
+        while ((cur != end) && (*++cur != '/') && *cur)
+            tmp += *cur;
+
+        if (scope)
+            *scope = interface::scope(ret, tmp);
+    }
+    else if (scope)
+    {
+        *scope = 0;
+    }
+
     // CIDR notation
     if (cidr)
     {
@@ -1130,7 +1251,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
         {
             std::uint32_t tmp = 0;
 
-            while (std::isdigit(*++cur))
+            while ((cur != end) && std::isdigit(*++cur))
                 tmp = tmp * 10 + (*cur - '0');
 
             if (tmp > 128)
@@ -1141,7 +1262,7 @@ std::array<std::uint8_t, 16> address_v6::toBytes(const std::string &addr, std::u
     }
 
     return ret;
-};
+}
 
 // common
 address_v6 address_v6::any()
