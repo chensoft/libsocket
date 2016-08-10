@@ -16,8 +16,18 @@ using namespace chen;
 // sys
 std::string sys::error()
 {
+    if (!errno)
+        return "No error";
+
     char buf[1024] = {0};
-    return errno && !::strerror_r(errno, buf, sizeof(buf)) ? std::string(buf) : "No error";
+
+#if (!defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE >= 200112L)) && !_GNU_SOURCE
+    // XSI-compliant strerror_r
+    return !::strerror_r(errno, buf, sizeof(buf)) ? std::string(buf) : "Unknown error";
+#else
+    // GNU-specific strerror_r
+    return ::strerror_r(errno, buf, sizeof(buf));
+#endif
 }
 
 #endif
