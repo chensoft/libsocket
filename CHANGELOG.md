@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file(see http://k
 ### Changed
 - fs: accept two types of lambda callbacks.
 
+### Fixed
+- sys: use XSI-compliant strerror_r only if some macro defined.
+
 ## [1.1.0] - 2016-07-22
 ### Added
 - str: lowercase, uppercase, capitalize a string.
