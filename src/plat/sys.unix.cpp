@@ -21,11 +21,13 @@ using namespace chen;
 // helper
 namespace
 {
+#ifndef __APPLE__
     std::string peek(char *result, char *buffer)
     {
         // GNU-specific strerror_r, result type is char*, will not write to buffer
         return result;
     }
+#endif
     
     std::string peek(int result, char *buffer)
     {
