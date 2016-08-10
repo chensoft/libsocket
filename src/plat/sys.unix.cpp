@@ -7,46 +7,62 @@
 #ifndef _WIN32
 
 #include <chen/sys/sys.hpp>
-#include <execinfo.h>
 #include <string.h>
 #include <cstdlib>
 #include <cerrno>
 
+#ifndef ANDROID
+#include <execinfo.h>
+#endif
+
 using namespace chen;
+
+// -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    std::string peek(char *result, char *buffer)
+    {
+        // GNU-specific strerror_r, result type is char*, will not write to buffer
+        return result;
+    }
+    
+    std::string peek(int result, char *buffer)
+    {
+        // XSI-compliant strerror_r, result type is int, write error string to buffer
+        return !result ? buffer : "Unknown error";
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // sys
 std::string sys::error()
 {
     char buf[1024] = {0};
-
-#if (!defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE >= 200112L)) && !_GNU_SOURCE
-    // XSI-compliant strerror_r
-    return !errno ? "No error" : (!::strerror_r(errno, buf, sizeof(buf)) ? std::string(buf) : "Unknown error");
-#else
-    // GNU-specific strerror_r
-    return !errno ? "No error" : ::strerror_r(errno, buf, sizeof(buf));
-#endif
+    return !errno ? "No error" : peek(::strerror_r(errno, buf, sizeof(buf)), buf);
 }
 
+#ifndef ANDROID
 std::vector<std::string> sys::stack()
 {
     void *buffer[1024];
-
+    
     auto size = ::backtrace(buffer, 1024);
     auto list = ::backtrace_symbols(buffer, size);
-
+    
     if (!list)
         return {};
-
+    
     std::vector<std::string> ret;
-
+    
     for (int i = 0; i < size; ++i)
         ret.push_back(list[i]);
-
+    
     ::free(list);
-
+    
     return ret;
 }
+#endif
 
 #endif
