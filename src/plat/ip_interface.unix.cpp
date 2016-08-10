@@ -20,7 +20,30 @@ using namespace chen::ip;
 // helper
 namespace
 {
-    std::shared_ptr<address> create_address(struct sockaddr *ptr)
+    void visit(std::function<bool (struct ifaddrs *ptr)> cb)
+    {
+        struct ifaddrs *list = nullptr;
+        if (::getifaddrs(&list) < 0)
+            throw error_interface(str::format("if: enumerate interface error: %s", chen::sys::error().c_str()));
+
+        try
+        {
+            for (auto ptr = list; ptr != nullptr; ptr = ptr->ifa_next)
+            {
+                if (!cb(ptr))
+                    break;
+            }
+        }
+        catch (...)
+        {
+            ::freeifaddrs(list);
+            throw;
+        }
+
+        ::freeifaddrs(list);
+    }
+
+    std::shared_ptr<address> create(struct sockaddr *ptr)
     {
         if (!ptr)
             return nullptr;
@@ -43,7 +66,7 @@ namespace
         }
     }
 
-    std::uint8_t create_cidr(struct sockaddr *ptr)
+    std::uint8_t netmask(struct sockaddr *ptr)
     {
         if (!ptr)
             return 0;
@@ -100,54 +123,48 @@ bool interface::isMulticast() const
 // enumerate
 std::map<std::string, interface> interface::enumerate()
 {
-    struct ifaddrs *list = nullptr;
-    if (::getifaddrs(&list) < 0)
-        throw error_interface(str::format("if: enumerate error: %s", chen::sys::error().c_str()));
-
     std::map<std::string, interface> map;
 
-    try
-    {
-        for (auto ptr = list; ptr != nullptr; ptr = ptr->ifa_next)
+    visit([&] (struct ifaddrs *ptr) -> bool {
+        auto &item = map[ptr->ifa_name];
+
+        if (item.name.empty())
         {
-            auto &item = map[ptr->ifa_name];
-
-            if (item.name.empty())
-            {
-                item.name = ptr->ifa_name;
-                item.flag = ptr->ifa_flags;
-            }
-
-            auto addr = create_address(ptr->ifa_addr);
-
-            if (addr)
-            {
-                if (ptr->ifa_netmask)
-                    addr->cidr(create_cidr(ptr->ifa_netmask));
-
-                item.addr.emplace_back(std::move(addr));
-            }
-            else
-            {
-                continue;
-            }
+            item.name = ptr->ifa_name;
+            item.flag = ptr->ifa_flags;
         }
-    }
-    catch (...)
-    {
-        ::freeifaddrs(list);
-        throw;
-    }
 
-    ::freeifaddrs(list);
+        auto addr = create(ptr->ifa_addr);
+
+        if (addr)
+        {
+            if (ptr->ifa_netmask)
+                addr->cidr(netmask(ptr->ifa_netmask));
+
+            item.addr.emplace_back(std::move(addr));
+        }
+
+        return true;
+    });
+
     return map;
 }
 
 // scope
 std::uint32_t interface::scope(const std::string &name)
 {
-    // todo
-    return 0;
+    // todo compare both ipv6 address and interface name?
+    std::uint32_t id = 0;
+
+    visit([&] (struct ifaddrs *ptr) -> bool {
+        if ((name != ptr->ifa_name) || !ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
+            return true;
+
+        id = ((struct sockaddr_in6*)ptr->ifa_addr)->sin6_scope_id;
+        return false;
+    });
+
+    return id;
 }
 
 #endif
