@@ -45,9 +45,9 @@ std::string sys::error()
     return !errno ? "No error" : peek(::strerror_r(errno, buf, sizeof(buf)), buf);
 }
 
-#ifndef ANDROID
 std::vector<std::string> sys::stack()
 {
+#ifndef ANDROID
     void *buffer[1024];
     
     auto size = ::backtrace(buffer, 1024);
@@ -64,7 +64,10 @@ std::vector<std::string> sys::stack()
     ::free(list);
     
     return ret;
-}
+#else
+    // todo support android
+    return {};
 #endif
+}
 
 #endif

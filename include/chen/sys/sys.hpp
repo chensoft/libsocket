@@ -20,12 +20,10 @@ namespace chen
          */
         static std::string error();
 
-#ifndef ANDROID
         /**
          * Get current thread's call stack
          */
         static std::vector<std::string> stack();
-#endif
 
         /**
          * UUID string
