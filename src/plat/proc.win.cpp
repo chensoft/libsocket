@@ -13,6 +13,11 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // proc
+bool proc::daemon()
+{
+    return false;
+}
+
 std::string proc::path(int argc, const char *const argv[])
 {
     CHAR buf[MAX_PATH] = { 0 };

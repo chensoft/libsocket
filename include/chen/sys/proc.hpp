@@ -18,12 +18,11 @@ namespace chen
          * after this function return, parent process will exit
          * the current directory will change to '/' on Unix
          * standard file descriptors will be closed
+         * @result true if os support it, otherwise false
          * @link http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
-         * @caution support Unix only
+         * @caution now only support Unix
          */
-#ifndef _WIN32
-        static void daemon();
-#endif
+        static bool daemon();
 
         /**
          * Current executable path
