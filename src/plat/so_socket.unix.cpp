@@ -8,7 +8,7 @@
 
 #include "so_socket.unix.hpp"
 #include <socket/so/so_error.hpp>
-#include <chen/chen.hpp>
+#include <chen/sys/sys.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -158,7 +158,7 @@ void socket::build()
     auto sock = ::socket(this->_impl->_domain, this->_impl->_type, this->_impl->_protocol);
 
     if (sock == -1)
-        throw error_build("so: " + chen::sys::error());
+        throw error_build("so: " + sys::error());
     else
         this->_impl->_socket = sock;
 }

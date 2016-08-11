@@ -9,7 +9,7 @@
 #include "so_socket.unix.hpp"
 #include <socket/udp/udp_server.hpp>
 #include <socket/so/so_error.hpp>
-#include <chen/chen.hpp>
+#include <chen/sys/sys.hpp>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cstring>
@@ -35,7 +35,7 @@ void server::bind(const std::string &addr, std::uint16_t port)
     in.sin_port        = htons(port);
 
     if (::bind(this->_impl->_socket, (struct sockaddr*)&in, sizeof(in)) == -1)
-        throw error_bind("udp: " + chen::sys::error());
+        throw error_bind("udp: " + sys::error());
 }
 
 #endif

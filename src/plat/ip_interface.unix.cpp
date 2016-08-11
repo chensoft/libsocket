@@ -7,10 +7,11 @@
 #ifndef _WIN32
 
 #include <socket/ip/ip_interface.hpp>
-#include <chen/chen.hpp>
+#include <chen/base/num.hpp>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <netdb.h>
+#include <cstdlib>
 
 using namespace chen;
 using namespace chen::ip;
