@@ -16,6 +16,21 @@ using namespace chen;
 using namespace chen::ip;
 
 // -----------------------------------------------------------------------------
+// version
+std::uint8_t version::cidr() const
+{
+    // @see rfc1519
+    return this->_cidr;
+}
+
+void version::cidr(std::uint8_t value)
+{
+    // @see rfc1519
+    this->_cidr = value;
+}
+
+
+// -----------------------------------------------------------------------------
 // version4
 version4::version4(const std::string &addr)
 {
@@ -133,18 +148,6 @@ void version4::addr(std::uint32_t value)
 {
     // @see rfc791
     this->_addr = value;
-}
-
-std::uint8_t version4::cidr() const
-{
-    // @see rfc1519
-    return this->_cidr;
-}
-
-void version4::cidr(std::uint8_t value)
-{
-    // @see rfc1519
-    this->_cidr = value;
 }
 
 // network
@@ -794,18 +797,6 @@ void version6::scope(std::uint32_t value)
 {
     // @see rfc4007
     this->_scope = value;
-}
-
-std::uint8_t version6::cidr() const
-{
-    // @see rfc1519
-    return this->_cidr;
-}
-
-void version6::cidr(std::uint8_t value)
-{
-    // @see rfc1519
-    this->_cidr = value;
 }
 
 // network

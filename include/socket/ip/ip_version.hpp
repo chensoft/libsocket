@@ -16,8 +16,24 @@ namespace chen
     namespace ip
     {
         // ---------------------------------------------------------------------
+        // Base
+        class version
+        {
+        public:
+            /**
+             * Get raw value
+             */
+            std::uint8_t cidr() const;
+            void cidr(std::uint8_t value);
+
+        protected:
+            std::uint8_t _cidr;  // CIDR notation prefix length
+        };
+
+
+        // ---------------------------------------------------------------------
         // IPv4
-        class version4
+        class version4 : public version
         {
             friend class address;
             version4() = default;  // trivial constructor, used by address only
@@ -91,9 +107,6 @@ namespace chen
             std::uint32_t addr() const;
             void addr(std::uint32_t value);
 
-            std::uint8_t cidr() const;
-            void cidr(std::uint8_t value);
-
         public:
             /**
              * Netmask & Wildcard mask
@@ -166,13 +179,12 @@ namespace chen
 
         private:
             std::uint32_t _addr;  // 32 bits IPv4 address, little-endian
-            std::uint8_t  _cidr;  // CIDR notation prefix length
         };
 
 
         // ---------------------------------------------------------------------
         // IPv6
-        class version6
+        class version6 : public version
         {
             friend class address;
             version6() = default;  // trivial constructor, used by address only
@@ -311,9 +323,6 @@ namespace chen
             const std::array<std::uint8_t, 16>& addr() const;
             void addr(const std::array<std::uint8_t, 16>& value);
 
-            std::uint8_t cidr() const;
-            void cidr(std::uint8_t value);
-
             std::uint32_t scope() const;
             void scope(std::uint32_t value);
 
@@ -407,8 +416,6 @@ namespace chen
 
         private:
             std::array<std::uint8_t, 16> _addr;  // todo use plain old array?
-
-            std::uint8_t  _cidr;   // CIDR notation prefix length
             std::uint32_t _scope;  // link-local address's(e.g: fe80::1%lo0) scope zone id, rfc4007, section 11
         };
     }
