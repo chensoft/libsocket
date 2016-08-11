@@ -11,22 +11,18 @@ using namespace chen::so;
 
 // -----------------------------------------------------------------------------
 // endpoint
-endpoint::endpoint(const std::string &addr, std::uint16_t port) : _addr(chen::ip::address::create(addr)), _port(port)
+endpoint::endpoint(const std::string &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
-endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port) : endpoint(addr.clone(), port)
-{
-}
-
-endpoint::endpoint(std::shared_ptr<chen::ip::address> addr, std::uint16_t port) : _addr(addr), _port(port)
+endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
 // property
 const chen::ip::address& endpoint::addr() const
 {
-    return *this->_addr;
+    return this->_addr;
 }
 
 std::uint16_t endpoint::port() const
@@ -36,7 +32,7 @@ std::uint16_t endpoint::port() const
 
 void endpoint::addr(const chen::ip::address &value)
 {
-    this->_addr = value.clone();
+    this->_addr = value;
 }
 
 void endpoint::port(std::uint16_t value)
@@ -47,7 +43,7 @@ void endpoint::port(std::uint16_t value)
 // operator
 bool endpoint::operator==(const endpoint &o) const
 {
-    return (*this->_addr == *o._addr) && (this->_port == o._port);
+    return (this->_addr == o._addr) && (this->_port == o._port);
 }
 
 bool endpoint::operator!=(const endpoint &o) const
@@ -57,7 +53,7 @@ bool endpoint::operator!=(const endpoint &o) const
 
 bool endpoint::operator<(const endpoint &o) const
 {
-    return (*this->_addr == *o._addr) ? this->_port < o._port : *this->_addr < *o._addr;
+    return (this->_addr == o._addr) ? this->_port < o._port : this->_addr < o._addr;
 }
 
 bool endpoint::operator>(const endpoint &o) const
@@ -67,7 +63,7 @@ bool endpoint::operator>(const endpoint &o) const
 
 bool endpoint::operator<=(const endpoint &o) const
 {
-    return (*this->_addr == *o._addr) ? this->_port <= o._port : *this->_addr < *o._addr;
+    return (this->_addr == o._addr) ? this->_port <= o._port : this->_addr < o._addr;
 }
 
 bool endpoint::operator>=(const endpoint &o) const

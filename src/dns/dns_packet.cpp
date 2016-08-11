@@ -280,7 +280,7 @@ std::string request::addr(bool subnet) const
     {
         auto option = this->option<chen::dns::edns0::Subnet>();
         if (option)
-            return option->address->str();
+            return option->address.str();
     }
 
     return this->_addr;

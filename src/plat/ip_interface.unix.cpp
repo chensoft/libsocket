@@ -45,7 +45,7 @@ namespace
         ::freeifaddrs(list);
     }
 
-    std::shared_ptr<address> create(struct sockaddr *ptr)
+    std::unique_ptr<address> create(struct sockaddr *ptr)
     {
         if (!ptr)
             return nullptr;
@@ -53,12 +53,12 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return std::make_shared<address_v4>(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
+                return std::unique_ptr<address>(new address(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr)));
 
             case AF_INET6:
             {
                 auto tmp = (struct sockaddr_in6*)ptr;
-                auto ret = std::make_shared<address_v6>(tmp->sin6_addr.s6_addr);
+                auto ret = std::unique_ptr<address>(new address(tmp->sin6_addr.s6_addr));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
             }
@@ -76,10 +76,10 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return address_v4::toCIDR(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
+                return version4::toCIDR(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return address_v6::toCIDR(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+                return version6::toCIDR(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr);
 
             default:
                 return 0;
@@ -143,7 +143,7 @@ std::map<std::string, interface> interface::enumerate()
             if (ptr->ifa_netmask)
                 addr->cidr(netmask(ptr->ifa_netmask));
 
-            item.addr.emplace_back(std::move(addr));
+            item.addr.emplace_back(*addr);
         }
     });
 
