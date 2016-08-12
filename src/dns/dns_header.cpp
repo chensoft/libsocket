@@ -78,14 +78,14 @@ void header::setArcount(std::uint16_t value)
 }
 
 // flag value
-chen::dns::QR header::qr() const
+QR header::qr() const
 {
-    return static_cast<chen::dns::QR>(this->_flag & FLAG_MASK_QR);
+    return static_cast<QR>(this->_flag & FLAG_MASK_QR);
 }
 
-chen::dns::OPCODE header::opcode() const
+OPCODE header::opcode() const
 {
-    return static_cast<chen::dns::OPCODE>(this->_flag & FLAG_MASK_OPCODE);
+    return static_cast<OPCODE>(this->_flag & FLAG_MASK_OPCODE);
 }
 
 bool header::authoritative() const
@@ -123,18 +123,18 @@ bool header::checkingDisabled() const
     return static_cast<bool>(this->_flag & FLAG_MASK_CD);
 }
 
-chen::dns::RCODE header::rcode() const
+RCODE header::rcode() const
 {
-    return static_cast<chen::dns::RCODE>(this->_flag & FLAG_MASK_RCODE);
+    return static_cast<RCODE>(this->_flag & FLAG_MASK_RCODE);
 }
 
 // set flag value
-void header::setQr(chen::dns::QR value)
+void header::setQr(QR value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_QR) | ((static_cast<std::uint16_t>(value) << FLAG_POS_QR) & FLAG_MASK_QR);
 }
 
-void header::setOpcode(chen::dns::OPCODE value)
+void header::setOpcode(OPCODE value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_OPCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_OPCODE) & FLAG_MASK_OPCODE);
 }
@@ -174,13 +174,13 @@ void header::setCheckingDisabled(bool value)
     this->_flag = (this->_flag & ~FLAG_MASK_CD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_CD) & FLAG_MASK_CD);
 }
 
-void header::setRcode(chen::dns::RCODE value)
+void header::setRcode(RCODE value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_RCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE);
 }
 
 // codec
-void header::encode(chen::dns::encoder &encoder) const
+void header::encode(encoder &encoder) const
 {
     // id
     encoder.pack(this->_id);
@@ -201,7 +201,7 @@ void header::encode(chen::dns::encoder &encoder) const
     encoder.pack(this->_arcount);
 }
 
-void header::decode(chen::dns::decoder &decoder)
+void header::decode(decoder &decoder)
 {
     // id
     std::uint16_t id = 0;
@@ -246,8 +246,8 @@ std::uint16_t header::random()
 // -----------------------------------------------------------------------------
 // question
 question::question(const std::string &qname,
-                   chen::dns::RRType qtype,
-                   chen::dns::RRClass qclass) : _qname(qname), _qtype(qtype), _qclass(qclass)
+                   RRType qtype,
+                   RRClass qclass) : _qname(qname), _qtype(qtype), _qclass(qclass)
 {
 }
 
@@ -257,12 +257,12 @@ const std::string& question::qname() const
     return this->_qname;
 }
 
-chen::dns::RRType question::qtype() const
+RRType question::qtype() const
 {
     return this->_qtype;
 }
 
-chen::dns::RRClass question::qclass() const
+RRClass question::qclass() const
 {
     return this->_qclass;
 }
@@ -278,18 +278,18 @@ void question::setQname(std::string &&value)
     this->_qname = std::move(value);
 }
 
-void question::setQtype(chen::dns::RRType value)
+void question::setQtype(RRType value)
 {
     this->_qtype = value;
 }
 
-void question::setQclass(chen::dns::RRClass value)
+void question::setQclass(RRClass value)
 {
     this->_qclass = value;
 }
 
 // codec
-void question::encode(chen::dns::encoder &encoder) const
+void question::encode(encoder &encoder) const
 {
     // qname
     encoder.pack(this->_qname, codec::StringType::Domain, false);
@@ -301,18 +301,18 @@ void question::encode(chen::dns::encoder &encoder) const
     encoder.pack(this->_qclass);
 }
 
-void question::decode(chen::dns::decoder &decoder)
+void question::decode(decoder &decoder)
 {
     // qname
     std::string qname;
     decoder.unpack(qname, codec::StringType::Domain);
 
     // qtype
-    chen::dns::RRType qtype = chen::dns::RRType::None;
+    RRType qtype = RRType::None;
     decoder.unpack(qtype);
 
     // qclass
-    chen::dns::RRClass qclass = chen::dns::RRClass::IN;
+    RRClass qclass = RRClass::IN;
     decoder.unpack(qclass);
 
     // set
@@ -327,8 +327,8 @@ std::string question::str(const std::string &sep) const
     std::string ret;
 
     ret += this->_qname + sep;
-    ret += chen::dns::table::classToText(this->_qclass) + sep;
-    ret += chen::dns::table::typeToText(this->_qtype);
+    ret += table::classToText(this->_qclass) + sep;
+    ret += table::typeToText(this->_qtype);
 
     return ret;
 }

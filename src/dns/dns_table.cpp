@@ -387,13 +387,13 @@ RCODE table::textToRcode(const std::string &key)
 }
 
 // edns0 option code
-std::string table::edns0ToText(chen::dns::edns0::OptionCode key)
+std::string table::edns0ToText(edns0::OptionCode key)
 {
     auto it = g_rr_edns0_text.find(key);
     return it != g_rr_edns0_text.end() ? it->second : "";
 }
 
-chen::dns::edns0::OptionCode table::textToEDNS0(const std::string &key)
+edns0::OptionCode table::textToEDNS0(const std::string &key)
 {
     auto it = g_rr_text_edns0.find(key);
     return it != g_rr_text_edns0.end() ? it->second : edns0::OptionCode::None;
@@ -440,7 +440,7 @@ void table::set(RCODE key, const std::string &val)
     g_rr_text_rcode[val] = key;
 }
 
-void table::set(chen::dns::edns0::OptionCode key, const std::string &val)
+void table::set(edns0::OptionCode key, const std::string &val)
 {
     g_rr_edns0_text[key] = val;
     g_rr_text_edns0[val] = key;

@@ -45,22 +45,22 @@ namespace chen
             /**
              * Get flag value
              */
-            chen::dns::QR qr()         const;  // query or response
-            chen::dns::OPCODE opcode() const;  // operation code
-            bool authoritative()       const;  // authoritative answer
-            bool truncated()           const;  // truncated response
-            bool recursionDesired()    const;  // recursion desired
-            bool recursionAvailable()  const;  // recursion available
-            bool zero()                const;  // reserved
-            bool authenticData()       const;  // authentic data
-            bool checkingDisabled()    const;  // checking disabled
-            chen::dns::RCODE rcode()   const;  // response code
+            QR qr()                   const;  // query or response
+            OPCODE opcode()           const;  // operation code
+            bool authoritative()      const;  // authoritative answer
+            bool truncated()          const;  // truncated response
+            bool recursionDesired()   const;  // recursion desired
+            bool recursionAvailable() const;  // recursion available
+            bool zero()               const;  // reserved
+            bool authenticData()      const;  // authentic data
+            bool checkingDisabled()   const;  // checking disabled
+            RCODE rcode()             const;  // response code
 
             /**
              * Set flag value
              */
-            void setQr(chen::dns::QR value);
-            void setOpcode(chen::dns::OPCODE value);
+            void setQr(QR value);
+            void setOpcode(OPCODE value);
             void setAuthoritative(bool value);
             void setTruncated(bool value);
             void setRecursionDesired(bool value);
@@ -68,14 +68,14 @@ namespace chen
             void setZero(bool value);
             void setAuthenticData(bool value);
             void setCheckingDisabled(bool value);
-            void setRcode(chen::dns::RCODE value);
+            void setRcode(RCODE value);
 
         public:
             /**
              * Encode & Decode
              */
-            void encode(chen::dns::encoder &encoder) const;
-            void decode(chen::dns::decoder &decoder);
+            void encode(encoder &encoder) const;
+            void decode(decoder &decoder);
 
         public:
             /**
@@ -100,31 +100,31 @@ namespace chen
         public:
             question() = default;
             question(const std::string &qname,
-                     chen::dns::RRType qtype,
-                     chen::dns::RRClass qclass = chen::dns::RRClass::IN);
+                     RRType qtype,
+                     RRClass qclass = RRClass::IN);
 
         public:
             /**
              * Get field value
              */
             const std::string& qname()  const;
-            chen::dns::RRType qtype()   const;
-            chen::dns::RRClass qclass() const;
+            RRType qtype()   const;
+            RRClass qclass() const;
 
             /**
              * Set field value
              */
             void setQname(const std::string &value);
             void setQname(std::string &&value);
-            void setQtype(chen::dns::RRType value);
-            void setQclass(chen::dns::RRClass value);
+            void setQtype(RRType value);
+            void setQclass(RRClass value);
 
         public:
             /**
              * Encode & Decode
              */
-            void encode(chen::dns::encoder &encoder) const;
-            void decode(chen::dns::decoder &decoder);
+            void encode(encoder &encoder) const;
+            void decode(decoder &decoder);
 
         public:
             /**
@@ -134,8 +134,8 @@ namespace chen
 
         private:
             std::string _qname;
-            chen::dns::RRType  _qtype  = chen::dns::RRType::None;
-            chen::dns::RRClass _qclass = chen::dns::RRClass::IN;
+            RRType  _qtype  = RRType::None;
+            RRClass _qclass = RRClass::IN;
         };
     }
 }

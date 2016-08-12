@@ -19,9 +19,9 @@ namespace chen
         class message
         {
         public:
-            typedef chen::dns::header header_type;
-            typedef chen::dns::question question_type;
-            typedef std::shared_ptr<chen::dns::RR> record_type;
+            typedef header header_type;
+            typedef question question_type;
+            typedef std::shared_ptr<RR> record_type;
 
         public:
             /**
@@ -53,7 +53,7 @@ namespace chen
             /**
              * EDNS
              */
-            std::shared_ptr<chen::dns::OPT> edns0() const;
+            std::shared_ptr<OPT> edns0() const;
 
             template <typename T>
             std::shared_ptr<T> option() const
@@ -76,8 +76,8 @@ namespace chen
             /**
              * Encode & Decode
              */
-            void encode(chen::dns::encoder &encoder) const;
-            void decode(chen::dns::decoder &decoder);
+            void encode(encoder &encoder) const;
+            void decode(decoder &decoder);
 
         protected:
             header_type _header;
@@ -95,7 +95,7 @@ namespace chen
         {
         public:
             request() = default;
-            request(const std::string &qname, chen::dns::RRType qtype);
+            request(const std::string &qname, RRType qtype);
 
         public:
             /**
@@ -105,7 +105,7 @@ namespace chen
             const question_type& query() const;
             question_type& query();
 
-            void setQuery(const std::string &qname, chen::dns::RRType qtype);
+            void setQuery(const std::string &qname, RRType qtype);
 
         public:
             /**
@@ -125,7 +125,7 @@ namespace chen
             using message::decode;
 
             std::vector<std::uint8_t> encode() const;
-            void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end,
+            void decode(codec::iterator beg, codec::iterator end,
                         const std::string &addr = "", std::uint16_t port = 0);
 
         protected:
@@ -141,14 +141,14 @@ namespace chen
         public:
             response() = default;
             explicit response(bool authoritative);
-            response(bool authoritative, const chen::dns::request &request);
+            response(bool authoritative, const request &request);
 
         public:
             /**
              * Set question by request
              */
             using message::setQuestion;
-            void setQuestion(const chen::dns::request &request);
+            void setQuestion(const request &request);
 
             /**
              * Rotate answers
@@ -168,7 +168,7 @@ namespace chen
             using message::decode;
 
             std::vector<std::uint8_t> encode() const;
-            void decode(chen::dns::codec::iterator beg, chen::dns::codec::iterator end);
+            void decode(codec::iterator beg, codec::iterator end);
         };
     }
 }

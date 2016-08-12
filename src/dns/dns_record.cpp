@@ -17,12 +17,12 @@ using namespace chen::dns;
 
 // -----------------------------------------------------------------------------
 // RR
-RR::RR(chen::dns::RRType type) : rrtype(type)
+RR::RR(RRType type) : rrtype(type)
 {
 }
 
 // encode & decode
-void RR::encode(chen::dns::encoder &encoder) const
+void RR::encode(encoder &encoder) const
 {
     // according to rfc1035, section 4.1.4
     // pointers can only be used for occurance of a domain name where the format is not class specific
@@ -55,7 +55,7 @@ void RR::encode(chen::dns::encoder &encoder) const
     encoder.change(len - tmp - 1, static_cast<std::uint8_t>(tmp & 0xFF));
 }
 
-void RR::decode(chen::dns::decoder &decoder)
+void RR::decode(decoder &decoder)
 {
     // unpack base fields
     decoder.unpack(this->name, codec::StringType::Domain);
@@ -68,7 +68,7 @@ void RR::decode(chen::dns::decoder &decoder)
     this->unpack(decoder);
 }
 
-void RR::decode(const chen::json::object &object)
+void RR::decode(const json::object &object)
 {
     // unpack base fields, ignore rdlength
     map::write(object, "name", this->name);
@@ -80,19 +80,19 @@ void RR::decode(const chen::json::object &object)
     this->unpack(object);
 }
 
-std::shared_ptr<chen::dns::RR> RR::create(chen::dns::decoder &decoder)
+std::shared_ptr<RR> RR::create(decoder &decoder)
 {
-    chen::dns::decoder detect(decoder);
+    dns::decoder detect(decoder);
 
     // detect type
     std::string unused;
     detect.unpack(unused, codec::StringType::Domain);
 
-    chen::dns::RRType rrtype = chen::dns::RRType::None;
+    RRType rrtype = RRType::None;
     detect.unpack(rrtype);
 
     // build record
-    std::shared_ptr<chen::dns::RR> record = table::build(rrtype);
+    std::shared_ptr<RR> record = table::build(rrtype);
     if (!record)
         return nullptr;
 
@@ -109,8 +109,8 @@ std::string RR::str(const std::string &sep) const
 
     ret += this->name + sep;
     ret += num::str(this->ttl) + sep;
-    ret += chen::dns::table::classToText(this->rrclass) + sep;
-    ret += chen::dns::table::typeToText(this->rrtype);
+    ret += table::classToText(this->rrclass) + sep;
+    ret += table::typeToText(this->rrtype);
 
     return ret;
 }
@@ -160,11 +160,11 @@ std::string RR::escape(std::size_t bits)
 
 // -----------------------------------------------------------------------------
 // Raw
-Raw::Raw() : Raw(chen::dns::RRType::None)
+Raw::Raw() : Raw(RRType::None)
 {
 }
 
-Raw::Raw(chen::dns::RRType type) : RR(type)
+Raw::Raw(RRType type) : RR(type)
 {
 }
 
@@ -175,22 +175,22 @@ std::string Raw::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> Raw::clone() const
+std::shared_ptr<RR> Raw::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Raw::pack(chen::dns::encoder &encoder) const
+void Raw::pack(encoder &encoder) const
 {
     encoder.pack(this->rdata, this->rdata.size());
 }
 
-void Raw::unpack(chen::dns::decoder &decoder)
+void Raw::unpack(decoder &decoder)
 {
     decoder.unpack(this->rdata, this->rdlength);
 }
 
-void Raw::unpack(const chen::json::object &object)
+void Raw::unpack(const json::object &object)
 {
     this->rdata.clear();
 
@@ -201,39 +201,39 @@ void Raw::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // A
-A::A() : RR(chen::dns::RRType::A)
+A::A() : RR(RRType::A)
 {
 }
 
 std::string A::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + chen::ip::version4::toString(this->address);
+    ret += sep + ip::version4::toString(this->address);
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> A::clone() const
+std::shared_ptr<RR> A::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void A::pack(chen::dns::encoder &encoder) const
+void A::pack(encoder &encoder) const
 {
     encoder.pack(this->address);
 }
 
-void A::unpack(chen::dns::decoder &decoder)
+void A::unpack(decoder &decoder)
 {
     decoder.unpack(this->address);
 }
 
-void A::unpack(const chen::json::object &object)
+void A::unpack(const json::object &object)
 {
     // if address is string then use address_v4::toInteger
     auto address = map::find(object, "address");
 
     if (address.isString())
-        this->address = chen::ip::version4::toInteger(address);
+        this->address = ip::version4::toInteger(address);
     else
         this->address = address.toUnsigned();
 }
@@ -241,7 +241,7 @@ void A::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NS
-NS::NS() : RR(chen::dns::RRType::NS)
+NS::NS() : RR(RRType::NS)
 {
 }
 
@@ -252,22 +252,22 @@ std::string NS::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NS::clone() const
+std::shared_ptr<RR> NS::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NS::pack(chen::dns::encoder &encoder) const
+void NS::pack(encoder &encoder) const
 {
     encoder.pack(this->nsdname, codec::StringType::Domain, false);
 }
 
-void NS::unpack(chen::dns::decoder &decoder)
+void NS::unpack(decoder &decoder)
 {
     decoder.unpack(this->nsdname, codec::StringType::Domain);
 }
 
-void NS::unpack(const chen::json::object &object)
+void NS::unpack(const json::object &object)
 {
     map::write(object, "nsdname", this->nsdname);
 }
@@ -275,7 +275,7 @@ void NS::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MD
-MD::MD() : RR(chen::dns::RRType::MD)
+MD::MD() : RR(RRType::MD)
 {
 }
 
@@ -286,22 +286,22 @@ std::string MD::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MD::clone() const
+std::shared_ptr<RR> MD::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MD::pack(chen::dns::encoder &encoder) const
+void MD::pack(encoder &encoder) const
 {
     encoder.pack(this->madname, codec::StringType::Domain, false);
 }
 
-void MD::unpack(chen::dns::decoder &decoder)
+void MD::unpack(decoder &decoder)
 {
     decoder.unpack(this->madname, codec::StringType::Domain);
 }
 
-void MD::unpack(const chen::json::object &object)
+void MD::unpack(const json::object &object)
 {
     map::write(object, "madname", this->madname);
 }
@@ -309,7 +309,7 @@ void MD::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MF
-MF::MF() : RR(chen::dns::RRType::MF)
+MF::MF() : RR(RRType::MF)
 {
 }
 
@@ -320,22 +320,22 @@ std::string MF::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MF::clone() const
+std::shared_ptr<RR> MF::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MF::pack(chen::dns::encoder &encoder) const
+void MF::pack(encoder &encoder) const
 {
     encoder.pack(this->madname, codec::StringType::Domain, false);
 }
 
-void MF::unpack(chen::dns::decoder &decoder)
+void MF::unpack(decoder &decoder)
 {
     decoder.unpack(this->madname, codec::StringType::Domain);
 }
 
-void MF::unpack(const chen::json::object &object)
+void MF::unpack(const json::object &object)
 {
     map::write(object, "madname", this->madname);
 }
@@ -343,7 +343,7 @@ void MF::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // CNAME
-CNAME::CNAME() : RR(chen::dns::RRType::CNAME)
+CNAME::CNAME() : RR(RRType::CNAME)
 {
 }
 
@@ -354,22 +354,22 @@ std::string CNAME::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> CNAME::clone() const
+std::shared_ptr<RR> CNAME::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CNAME::pack(chen::dns::encoder &encoder) const
+void CNAME::pack(encoder &encoder) const
 {
     encoder.pack(this->cname, codec::StringType::Domain, false);
 }
 
-void CNAME::unpack(chen::dns::decoder &decoder)
+void CNAME::unpack(decoder &decoder)
 {
     decoder.unpack(this->cname, codec::StringType::Domain);
 }
 
-void CNAME::unpack(const chen::json::object &object)
+void CNAME::unpack(const json::object &object)
 {
     map::write(object, "cname", this->cname);
 }
@@ -377,7 +377,7 @@ void CNAME::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SOA
-SOA::SOA() : RR(chen::dns::RRType::SOA)
+SOA::SOA() : RR(RRType::SOA)
 {
 }
 
@@ -396,12 +396,12 @@ std::string SOA::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SOA::clone() const
+std::shared_ptr<RR> SOA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SOA::pack(chen::dns::encoder &encoder) const
+void SOA::pack(encoder &encoder) const
 {
     encoder.pack(this->mname, codec::StringType::Domain, false);
     encoder.pack(this->rname, codec::StringType::Domain, false);
@@ -412,7 +412,7 @@ void SOA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->minimum);
 }
 
-void SOA::unpack(chen::dns::decoder &decoder)
+void SOA::unpack(decoder &decoder)
 {
     decoder.unpack(this->mname, codec::StringType::Domain);
     decoder.unpack(this->rname, codec::StringType::Domain);
@@ -423,7 +423,7 @@ void SOA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->minimum);
 }
 
-void SOA::unpack(const chen::json::object &object)
+void SOA::unpack(const json::object &object)
 {
     map::write(object, "mname", this->mname);
     map::write(object, "rname", this->rname);
@@ -437,7 +437,7 @@ void SOA::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MB
-MB::MB() : RR(chen::dns::RRType::MB)
+MB::MB() : RR(RRType::MB)
 {
 }
 
@@ -448,22 +448,22 @@ std::string MB::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MB::clone() const
+std::shared_ptr<RR> MB::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MB::pack(chen::dns::encoder &encoder) const
+void MB::pack(encoder &encoder) const
 {
     encoder.pack(this->madname, codec::StringType::Domain, false);
 }
 
-void MB::unpack(chen::dns::decoder &decoder)
+void MB::unpack(decoder &decoder)
 {
     decoder.unpack(this->madname, codec::StringType::Domain);
 }
 
-void MB::unpack(const chen::json::object &object)
+void MB::unpack(const json::object &object)
 {
     map::write(object, "madname", this->madname);
 }
@@ -471,7 +471,7 @@ void MB::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MG
-MG::MG() : RR(chen::dns::RRType::MG)
+MG::MG() : RR(RRType::MG)
 {
 }
 
@@ -482,22 +482,22 @@ std::string MG::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MG::clone() const
+std::shared_ptr<RR> MG::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MG::pack(chen::dns::encoder &encoder) const
+void MG::pack(encoder &encoder) const
 {
     encoder.pack(this->mgmname, codec::StringType::Domain, false);
 }
 
-void MG::unpack(chen::dns::decoder &decoder)
+void MG::unpack(decoder &decoder)
 {
     decoder.unpack(this->mgmname, codec::StringType::Domain);
 }
 
-void MG::unpack(const chen::json::object &object)
+void MG::unpack(const json::object &object)
 {
     map::write(object, "mgmname", this->mgmname);
 }
@@ -505,7 +505,7 @@ void MG::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MR
-MR::MR() : RR(chen::dns::RRType::MR)
+MR::MR() : RR(RRType::MR)
 {
 }
 
@@ -516,22 +516,22 @@ std::string MR::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MR::clone() const
+std::shared_ptr<RR> MR::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MR::pack(chen::dns::encoder &encoder) const
+void MR::pack(encoder &encoder) const
 {
     encoder.pack(this->newname, codec::StringType::Domain, false);
 }
 
-void MR::unpack(chen::dns::decoder &decoder)
+void MR::unpack(decoder &decoder)
 {
     decoder.unpack(this->newname, codec::StringType::Domain);
 }
 
-void MR::unpack(const chen::json::object &object)
+void MR::unpack(const json::object &object)
 {
     map::write(object, "newname", this->newname);
 }
@@ -539,7 +539,7 @@ void MR::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // Null
-Null::Null() : Raw(chen::dns::RRType::Null)
+Null::Null() : Raw(RRType::Null)
 {
 }
 
@@ -550,12 +550,12 @@ std::string Null::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> Null::clone() const
+std::shared_ptr<RR> Null::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Null::pack(chen::dns::encoder &encoder) const
+void Null::pack(encoder &encoder) const
 {
     // base
     Raw::pack(encoder);
@@ -566,12 +566,12 @@ void Null::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->anything, this->anything.size());
 }
 
-void Null::unpack(chen::dns::decoder &decoder)
+void Null::unpack(decoder &decoder)
 {
     decoder.unpack(this->anything, this->rdlength);
 }
 
-void Null::unpack(const chen::json::object &object)
+void Null::unpack(const json::object &object)
 {
     Raw::unpack(object);
 
@@ -584,7 +584,7 @@ void Null::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // WKS
-WKS::WKS() : RR(chen::dns::RRType::WKS)
+WKS::WKS() : RR(RRType::WKS)
 {
 }
 
@@ -599,19 +599,19 @@ std::string WKS::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> WKS::clone() const
+std::shared_ptr<RR> WKS::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void WKS::pack(chen::dns::encoder &encoder) const
+void WKS::pack(encoder &encoder) const
 {
     encoder.pack(this->address);
     encoder.pack(this->protocol);
     encoder.pack(this->bitmap, this->bitmap.size());
 }
 
-void WKS::unpack(chen::dns::decoder &decoder)
+void WKS::unpack(decoder &decoder)
 {
     auto tmp = decoder.cur();
 
@@ -622,7 +622,7 @@ void WKS::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
-void WKS::unpack(const chen::json::object &object)
+void WKS::unpack(const json::object &object)
 {
     map::write(object, "address", this->address);
     map::write(object, "protocol", this->protocol);
@@ -636,7 +636,7 @@ void WKS::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // PTR
-PTR::PTR() : RR(chen::dns::RRType::PTR)
+PTR::PTR() : RR(RRType::PTR)
 {
 }
 
@@ -647,22 +647,22 @@ std::string PTR::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> PTR::clone() const
+std::shared_ptr<RR> PTR::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void PTR::pack(chen::dns::encoder &encoder) const
+void PTR::pack(encoder &encoder) const
 {
     encoder.pack(this->ptrdname, codec::StringType::Domain, false);
 }
 
-void PTR::unpack(chen::dns::decoder &decoder)
+void PTR::unpack(decoder &decoder)
 {
     decoder.unpack(this->ptrdname, codec::StringType::Domain);
 }
 
-void PTR::unpack(const chen::json::object &object)
+void PTR::unpack(const json::object &object)
 {
     map::write(object, "ptrdname", this->ptrdname);
 }
@@ -670,7 +670,7 @@ void PTR::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // HINFO
-HINFO::HINFO() : RR(chen::dns::RRType::HINFO)
+HINFO::HINFO() : RR(RRType::HINFO)
 {
 }
 
@@ -682,24 +682,24 @@ std::string HINFO::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> HINFO::clone() const
+std::shared_ptr<RR> HINFO::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void HINFO::pack(chen::dns::encoder &encoder) const
+void HINFO::pack(encoder &encoder) const
 {
     encoder.pack(this->cpu, codec::StringType::Plain, false);
     encoder.pack(this->os, codec::StringType::Plain, false);
 }
 
-void HINFO::unpack(chen::dns::decoder &decoder)
+void HINFO::unpack(decoder &decoder)
 {
     decoder.unpack(this->cpu, codec::StringType::Plain);
     decoder.unpack(this->os, codec::StringType::Plain);
 }
 
-void HINFO::unpack(const chen::json::object &object)
+void HINFO::unpack(const json::object &object)
 {
     map::write(object, "cpu", this->cpu);
     map::write(object, "os", this->os);
@@ -708,7 +708,7 @@ void HINFO::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MINFO
-MINFO::MINFO() : RR(chen::dns::RRType::MINFO)
+MINFO::MINFO() : RR(RRType::MINFO)
 {
 }
 
@@ -720,24 +720,24 @@ std::string MINFO::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MINFO::clone() const
+std::shared_ptr<RR> MINFO::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MINFO::pack(chen::dns::encoder &encoder) const
+void MINFO::pack(encoder &encoder) const
 {
     encoder.pack(this->rmailbx, codec::StringType::Domain, false);
     encoder.pack(this->emailbx, codec::StringType::Domain, false);
 }
 
-void MINFO::unpack(chen::dns::decoder &decoder)
+void MINFO::unpack(decoder &decoder)
 {
     decoder.unpack(this->rmailbx, codec::StringType::Domain);
     decoder.unpack(this->emailbx, codec::StringType::Domain);
 }
 
-void MINFO::unpack(const chen::json::object &object)
+void MINFO::unpack(const json::object &object)
 {
     map::write(object, "rmailbx", this->rmailbx);
     map::write(object, "emailbx", this->emailbx);
@@ -746,7 +746,7 @@ void MINFO::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // MX
-MX::MX() : RR(chen::dns::RRType::MX)
+MX::MX() : RR(RRType::MX)
 {
 }
 
@@ -758,24 +758,24 @@ std::string MX::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> MX::clone() const
+std::shared_ptr<RR> MX::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void MX::pack(chen::dns::encoder &encoder) const
+void MX::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->exchange, codec::StringType::Domain, false);
 }
 
-void MX::unpack(chen::dns::decoder &decoder)
+void MX::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->exchange, codec::StringType::Domain);
 }
 
-void MX::unpack(const chen::json::object &object)
+void MX::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "exchange", this->exchange);
@@ -784,7 +784,7 @@ void MX::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // TXT
-TXT::TXT() : RR(chen::dns::RRType::TXT)
+TXT::TXT() : RR(RRType::TXT)
 {
 }
 
@@ -795,22 +795,22 @@ std::string TXT::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> TXT::clone() const
+std::shared_ptr<RR> TXT::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void TXT::pack(chen::dns::encoder &encoder) const
+void TXT::pack(encoder &encoder) const
 {
     encoder.pack(this->txt_data, codec::StringType::Plain, false);
 }
 
-void TXT::unpack(chen::dns::decoder &decoder)
+void TXT::unpack(decoder &decoder)
 {
     decoder.unpack(this->txt_data, codec::StringType::Plain);
 }
 
-void TXT::unpack(const chen::json::object &object)
+void TXT::unpack(const json::object &object)
 {
     map::write(object, "txt_data", this->txt_data);
 }
@@ -818,7 +818,7 @@ void TXT::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // RP
-RP::RP() : RR(chen::dns::RRType::RP)
+RP::RP() : RR(RRType::RP)
 {
 }
 
@@ -830,24 +830,24 @@ std::string RP::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> RP::clone() const
+std::shared_ptr<RR> RP::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void RP::pack(chen::dns::encoder &encoder) const
+void RP::pack(encoder &encoder) const
 {
     encoder.pack(this->mbox_dname, codec::StringType::Domain, false);
     encoder.pack(this->txt_dname, codec::StringType::Domain, false);
 }
 
-void RP::unpack(chen::dns::decoder &decoder)
+void RP::unpack(decoder &decoder)
 {
     decoder.unpack(this->mbox_dname, codec::StringType::Domain);
     decoder.unpack(this->txt_dname, codec::StringType::Domain);
 }
 
-void RP::unpack(const chen::json::object &object)
+void RP::unpack(const json::object &object)
 {
     map::write(object, "mbox_dname", this->mbox_dname);
     map::write(object, "txt_dname", this->txt_dname);
@@ -856,7 +856,7 @@ void RP::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // AFSDB
-AFSDB::AFSDB() : RR(chen::dns::RRType::AFSDB)
+AFSDB::AFSDB() : RR(RRType::AFSDB)
 {
 }
 
@@ -868,24 +868,24 @@ std::string AFSDB::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> AFSDB::clone() const
+std::shared_ptr<RR> AFSDB::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void AFSDB::pack(chen::dns::encoder &encoder) const
+void AFSDB::pack(encoder &encoder) const
 {
     encoder.pack(this->subtype);
     encoder.pack(this->hostname, codec::StringType::Domain, false);
 }
 
-void AFSDB::unpack(chen::dns::decoder &decoder)
+void AFSDB::unpack(decoder &decoder)
 {
     decoder.unpack(this->subtype);
     decoder.unpack(this->hostname, codec::StringType::Domain);
 }
 
-void AFSDB::unpack(const chen::json::object &object)
+void AFSDB::unpack(const json::object &object)
 {
     map::write(object, "subtype", this->subtype);
     map::write(object, "hostname", this->hostname);
@@ -894,7 +894,7 @@ void AFSDB::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // X25
-X25::X25() : RR(chen::dns::RRType::X25)
+X25::X25() : RR(RRType::X25)
 {
 }
 
@@ -905,22 +905,22 @@ std::string X25::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> X25::clone() const
+std::shared_ptr<RR> X25::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void X25::pack(chen::dns::encoder &encoder) const
+void X25::pack(encoder &encoder) const
 {
     encoder.pack(this->psdn_address, codec::StringType::Plain, false);
 }
 
-void X25::unpack(chen::dns::decoder &decoder)
+void X25::unpack(decoder &decoder)
 {
     decoder.unpack(this->psdn_address, codec::StringType::Plain);
 }
 
-void X25::unpack(const chen::json::object &object)
+void X25::unpack(const json::object &object)
 {
     map::write(object, "psdn_address", this->psdn_address);
 }
@@ -928,7 +928,7 @@ void X25::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // ISDN
-ISDN::ISDN() : RR(chen::dns::RRType::ISDN)
+ISDN::ISDN() : RR(RRType::ISDN)
 {
 }
 
@@ -940,24 +940,24 @@ std::string ISDN::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> ISDN::clone() const
+std::shared_ptr<RR> ISDN::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void ISDN::pack(chen::dns::encoder &encoder) const
+void ISDN::pack(encoder &encoder) const
 {
     encoder.pack(this->isdn_address, codec::StringType::Plain, false);
     encoder.pack(this->sa, codec::StringType::Plain, false);
 }
 
-void ISDN::unpack(chen::dns::decoder &decoder)
+void ISDN::unpack(decoder &decoder)
 {
     decoder.unpack(this->isdn_address, codec::StringType::Plain);
     decoder.unpack(this->sa, codec::StringType::Plain);
 }
 
-void ISDN::unpack(const chen::json::object &object)
+void ISDN::unpack(const json::object &object)
 {
     map::write(object, "isdn_address", this->isdn_address);
     map::write(object, "sa", this->sa);
@@ -966,7 +966,7 @@ void ISDN::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // RT
-RT::RT() : RR(chen::dns::RRType::RT)
+RT::RT() : RR(RRType::RT)
 {
 }
 
@@ -978,24 +978,24 @@ std::string RT::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> RT::clone() const
+std::shared_ptr<RR> RT::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void RT::pack(chen::dns::encoder &encoder) const
+void RT::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->intermediate_host, codec::StringType::Domain, false);
 }
 
-void RT::unpack(chen::dns::decoder &decoder)
+void RT::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->intermediate_host, codec::StringType::Domain);
 }
 
-void RT::unpack(const chen::json::object &object)
+void RT::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "intermediate_host", this->intermediate_host);
@@ -1004,7 +1004,7 @@ void RT::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSAP
-NSAP::NSAP() : RR(chen::dns::RRType::NSAP)
+NSAP::NSAP() : RR(RRType::NSAP)
 {
 }
 
@@ -1015,22 +1015,22 @@ std::string NSAP::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NSAP::clone() const
+std::shared_ptr<RR> NSAP::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSAP::pack(chen::dns::encoder &encoder) const
+void NSAP::pack(encoder &encoder) const
 {
     encoder.pack(this->nsap, codec::StringType::Plain, false);
 }
 
-void NSAP::unpack(chen::dns::decoder &decoder)
+void NSAP::unpack(decoder &decoder)
 {
     decoder.unpack(this->nsap, codec::StringType::Plain);
 }
 
-void NSAP::unpack(const chen::json::object &object)
+void NSAP::unpack(const json::object &object)
 {
     map::write(object, "nsap", this->nsap);
 }
@@ -1038,7 +1038,7 @@ void NSAP::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSAPPTR
-NSAPPTR::NSAPPTR() : RR(chen::dns::RRType::NSAPPTR)
+NSAPPTR::NSAPPTR() : RR(RRType::NSAPPTR)
 {
 }
 
@@ -1049,22 +1049,22 @@ std::string NSAPPTR::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NSAPPTR::clone() const
+std::shared_ptr<RR> NSAPPTR::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSAPPTR::pack(chen::dns::encoder &encoder) const
+void NSAPPTR::pack(encoder &encoder) const
 {
     encoder.pack(this->owner, codec::StringType::Domain, false);
 }
 
-void NSAPPTR::unpack(chen::dns::decoder &decoder)
+void NSAPPTR::unpack(decoder &decoder)
 {
     decoder.unpack(this->owner, codec::StringType::Domain);
 }
 
-void NSAPPTR::unpack(const chen::json::object &object)
+void NSAPPTR::unpack(const json::object &object)
 {
     map::write(object, "owner", this->owner);
 }
@@ -1072,7 +1072,7 @@ void NSAPPTR::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SIG
-SIG::SIG() : RR(chen::dns::RRType::SIG)
+SIG::SIG() : RR(RRType::SIG)
 {
 }
 
@@ -1093,12 +1093,12 @@ std::string SIG::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SIG::clone() const
+std::shared_ptr<RR> SIG::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SIG::pack(chen::dns::encoder &encoder) const
+void SIG::pack(encoder &encoder) const
 {
     encoder.pack(this->type_covered);
     encoder.pack(this->algorithm);
@@ -1111,7 +1111,7 @@ void SIG::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->signature, codec::StringType::Plain, false);
 }
 
-void SIG::unpack(chen::dns::decoder &decoder)
+void SIG::unpack(decoder &decoder)
 {
     decoder.unpack(this->type_covered);
     decoder.unpack(this->algorithm);
@@ -1124,7 +1124,7 @@ void SIG::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->signature, codec::StringType::Plain);
 }
 
-void SIG::unpack(const chen::json::object &object)
+void SIG::unpack(const json::object &object)
 {
     map::write(object, "type_covered", this->type_covered);
     map::write(object, "algorithm", this->algorithm);
@@ -1140,7 +1140,7 @@ void SIG::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // KEY
-KEY::KEY() : RR(chen::dns::RRType::KEY)
+KEY::KEY() : RR(RRType::KEY)
 {
 }
 
@@ -1156,12 +1156,12 @@ std::string KEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> KEY::clone() const
+std::shared_ptr<RR> KEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void KEY::pack(chen::dns::encoder &encoder) const
+void KEY::pack(encoder &encoder) const
 {
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
@@ -1169,7 +1169,7 @@ void KEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
-void KEY::unpack(chen::dns::decoder &decoder)
+void KEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
@@ -1177,7 +1177,7 @@ void KEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
-void KEY::unpack(const chen::json::object &object)
+void KEY::unpack(const json::object &object)
 {
     map::write(object, "flags", this->flags);
     map::write(object, "protocol", this->protocol);
@@ -1188,7 +1188,7 @@ void KEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // PX
-PX::PX() : RR(chen::dns::RRType::PX)
+PX::PX() : RR(RRType::PX)
 {
 }
 
@@ -1203,26 +1203,26 @@ std::string PX::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> PX::clone() const
+std::shared_ptr<RR> PX::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void PX::pack(chen::dns::encoder &encoder) const
+void PX::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->map822, codec::StringType::Domain, false);
     encoder.pack(this->mapx400, codec::StringType::Domain, false);
 }
 
-void PX::unpack(chen::dns::decoder &decoder)
+void PX::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->map822, codec::StringType::Domain);
     decoder.unpack(this->mapx400, codec::StringType::Domain);
 }
 
-void PX::unpack(const chen::json::object &object)
+void PX::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "map822", this->map822);
@@ -1232,7 +1232,7 @@ void PX::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // GPOS
-GPOS::GPOS() : RR(chen::dns::RRType::GPOS)
+GPOS::GPOS() : RR(RRType::GPOS)
 {
 }
 
@@ -1247,26 +1247,26 @@ std::string GPOS::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> GPOS::clone() const
+std::shared_ptr<RR> GPOS::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void GPOS::pack(chen::dns::encoder &encoder) const
+void GPOS::pack(encoder &encoder) const
 {
     encoder.pack(this->longitude, codec::StringType::Plain, false);
     encoder.pack(this->latitude, codec::StringType::Plain, false);
     encoder.pack(this->altitude, codec::StringType::Plain, false);
 }
 
-void GPOS::unpack(chen::dns::decoder &decoder)
+void GPOS::unpack(decoder &decoder)
 {
     decoder.unpack(this->longitude, codec::StringType::Plain);
     decoder.unpack(this->latitude, codec::StringType::Plain);
     decoder.unpack(this->altitude, codec::StringType::Plain);
 }
 
-void GPOS::unpack(const chen::json::object &object)
+void GPOS::unpack(const json::object &object)
 {
     map::write(object, "longitude", this->longitude);
     map::write(object, "latitude", this->latitude);
@@ -1276,42 +1276,42 @@ void GPOS::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // AAAA
-AAAA::AAAA() : RR(chen::dns::RRType::AAAA)
+AAAA::AAAA() : RR(RRType::AAAA)
 {
 }
 
 std::string AAAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + chen::ip::version6::toString(this->address.data());
+    ret += sep + ip::version6::toString(this->address.data());
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> AAAA::clone() const
+std::shared_ptr<RR> AAAA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void AAAA::pack(chen::dns::encoder &encoder) const
+void AAAA::pack(encoder &encoder) const
 {
     encoder.pack(this->address);
 }
 
-void AAAA::unpack(chen::dns::decoder &decoder)
+void AAAA::unpack(decoder &decoder)
 {
     decoder.unpack(this->address);
 }
 
-void AAAA::unpack(const chen::json::object &object)
+void AAAA::unpack(const json::object &object)
 {
     auto address = map::find(object, "address");
-    this->address = chen::ip::version6::toBytes(address);
+    this->address = ip::version6::toBytes(address);
 }
 
 
 // -----------------------------------------------------------------------------
 // LOC
-LOC::LOC() : RR(chen::dns::RRType::LOC)
+LOC::LOC() : RR(RRType::LOC)
 {
 }
 
@@ -1330,12 +1330,12 @@ std::string LOC::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> LOC::clone() const
+std::shared_ptr<RR> LOC::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void LOC::pack(chen::dns::encoder &encoder) const
+void LOC::pack(encoder &encoder) const
 {
     encoder.pack(this->version);
     encoder.pack(this->size);
@@ -1346,7 +1346,7 @@ void LOC::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->altitude);
 }
 
-void LOC::unpack(chen::dns::decoder &decoder)
+void LOC::unpack(decoder &decoder)
 {
     decoder.unpack(this->version);
     decoder.unpack(this->size);
@@ -1357,7 +1357,7 @@ void LOC::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->altitude);
 }
 
-void LOC::unpack(const chen::json::object &object)
+void LOC::unpack(const json::object &object)
 {
     map::write(object, "version", this->version);
     map::write(object, "size", this->size);
@@ -1371,7 +1371,7 @@ void LOC::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NXT
-NXT::NXT() : RR(chen::dns::RRType::NXT)
+NXT::NXT() : RR(RRType::NXT)
 {
 }
 
@@ -1383,18 +1383,18 @@ std::string NXT::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NXT::clone() const
+std::shared_ptr<RR> NXT::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NXT::pack(chen::dns::encoder &encoder) const
+void NXT::pack(encoder &encoder) const
 {
     encoder.pack(this->next_domain, codec::StringType::Domain, false);
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-void NXT::unpack(chen::dns::decoder &decoder)
+void NXT::unpack(decoder &decoder)
 {
     auto tmp = decoder.cur();
 
@@ -1404,7 +1404,7 @@ void NXT::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
-void NXT::unpack(const chen::json::object &object)
+void NXT::unpack(const json::object &object)
 {
     map::write(object, "next_domain", this->next_domain);
 
@@ -1417,7 +1417,7 @@ void NXT::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // EID
-EID::EID() : RR(chen::dns::RRType::EID)
+EID::EID() : RR(RRType::EID)
 {
 }
 
@@ -1428,22 +1428,22 @@ std::string EID::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> EID::clone() const
+std::shared_ptr<RR> EID::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void EID::pack(chen::dns::encoder &encoder) const
+void EID::pack(encoder &encoder) const
 {
     encoder.pack(this->endpoint, codec::StringType::Plain, false);
 }
 
-void EID::unpack(chen::dns::decoder &decoder)
+void EID::unpack(decoder &decoder)
 {
     decoder.unpack(this->endpoint, codec::StringType::Plain);
 }
 
-void EID::unpack(const chen::json::object &object)
+void EID::unpack(const json::object &object)
 {
     map::write(object, "endpoint", this->endpoint);
 }
@@ -1451,7 +1451,7 @@ void EID::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NIMLOC
-NIMLOC::NIMLOC() : RR(chen::dns::RRType::NIMLOC)
+NIMLOC::NIMLOC() : RR(RRType::NIMLOC)
 {
 }
 
@@ -1462,22 +1462,22 @@ std::string NIMLOC::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NIMLOC::clone() const
+std::shared_ptr<RR> NIMLOC::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NIMLOC::pack(chen::dns::encoder &encoder) const
+void NIMLOC::pack(encoder &encoder) const
 {
     encoder.pack(this->locator, codec::StringType::Plain, false);
 }
 
-void NIMLOC::unpack(chen::dns::decoder &decoder)
+void NIMLOC::unpack(decoder &decoder)
 {
     decoder.unpack(this->locator, codec::StringType::Plain);
 }
 
-void NIMLOC::unpack(const chen::json::object &object)
+void NIMLOC::unpack(const json::object &object)
 {
     map::write(object, "locator", this->locator);
 }
@@ -1485,7 +1485,7 @@ void NIMLOC::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SRV
-SRV::SRV() : RR(chen::dns::RRType::SRV)
+SRV::SRV() : RR(RRType::SRV)
 {
 }
 
@@ -1501,12 +1501,12 @@ std::string SRV::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SRV::clone() const
+std::shared_ptr<RR> SRV::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SRV::pack(chen::dns::encoder &encoder) const
+void SRV::pack(encoder &encoder) const
 {
     encoder.pack(this->priority);
     encoder.pack(this->weight);
@@ -1514,7 +1514,7 @@ void SRV::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->target, codec::StringType::Domain, false);
 }
 
-void SRV::unpack(chen::dns::decoder &decoder)
+void SRV::unpack(decoder &decoder)
 {
     decoder.unpack(this->priority);
     decoder.unpack(this->weight);
@@ -1522,7 +1522,7 @@ void SRV::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->target, codec::StringType::Domain);
 }
 
-void SRV::unpack(const chen::json::object &object)
+void SRV::unpack(const json::object &object)
 {
     map::write(object, "priority", this->priority);
     map::write(object, "weight", this->weight);
@@ -1533,7 +1533,7 @@ void SRV::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // ATMA
-ATMA::ATMA() : RR(chen::dns::RRType::ATMA)
+ATMA::ATMA() : RR(RRType::ATMA)
 {
 }
 
@@ -1547,24 +1547,24 @@ std::string ATMA::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> ATMA::clone() const
+std::shared_ptr<RR> ATMA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void ATMA::pack(chen::dns::encoder &encoder) const
+void ATMA::pack(encoder &encoder) const
 {
     encoder.pack(this->format);
     encoder.pack(this->address, codec::StringType::Plain, false);
 }
 
-void ATMA::unpack(chen::dns::decoder &decoder)
+void ATMA::unpack(decoder &decoder)
 {
     decoder.unpack(this->format);
     decoder.unpack(this->address, codec::StringType::Plain);
 }
 
-void ATMA::unpack(const chen::json::object &object)
+void ATMA::unpack(const json::object &object)
 {
     map::write(object, "format", this->format);
     map::write(object, "address", this->address);
@@ -1573,7 +1573,7 @@ void ATMA::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NAPTR
-NAPTR::NAPTR() : RR(chen::dns::RRType::NAPTR)
+NAPTR::NAPTR() : RR(RRType::NAPTR)
 {
 }
 
@@ -1591,12 +1591,12 @@ std::string NAPTR::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NAPTR::clone() const
+std::shared_ptr<RR> NAPTR::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NAPTR::pack(chen::dns::encoder &encoder) const
+void NAPTR::pack(encoder &encoder) const
 {
     encoder.pack(this->order);
     encoder.pack(this->preference);
@@ -1606,7 +1606,7 @@ void NAPTR::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->replacement, codec::StringType::Domain, false);
 }
 
-void NAPTR::unpack(chen::dns::decoder &decoder)
+void NAPTR::unpack(decoder &decoder)
 {
     decoder.unpack(this->order);
     decoder.unpack(this->preference);
@@ -1616,7 +1616,7 @@ void NAPTR::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->replacement, codec::StringType::Domain);
 }
 
-void NAPTR::unpack(const chen::json::object &object)
+void NAPTR::unpack(const json::object &object)
 {
     map::write(object, "order", this->order);
     map::write(object, "preference", this->preference);
@@ -1629,7 +1629,7 @@ void NAPTR::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // KX
-KX::KX() : RR(chen::dns::RRType::KX)
+KX::KX() : RR(RRType::KX)
 {
 }
 
@@ -1643,24 +1643,24 @@ std::string KX::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> KX::clone() const
+std::shared_ptr<RR> KX::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void KX::pack(chen::dns::encoder &encoder) const
+void KX::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->exchanger, codec::StringType::Domain, false);
 }
 
-void KX::unpack(chen::dns::decoder &decoder)
+void KX::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->exchanger, codec::StringType::Domain);
 }
 
-void KX::unpack(const chen::json::object &object)
+void KX::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "exchanger", this->exchanger);
@@ -1669,7 +1669,7 @@ void KX::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // CERT
-CERT::CERT() : RR(chen::dns::RRType::CERT)
+CERT::CERT() : RR(RRType::CERT)
 {
 }
 
@@ -1685,12 +1685,12 @@ std::string CERT::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> CERT::clone() const
+std::shared_ptr<RR> CERT::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CERT::pack(chen::dns::encoder &encoder) const
+void CERT::pack(encoder &encoder) const
 {
     encoder.pack(this->type);
     encoder.pack(this->key_tag);
@@ -1698,7 +1698,7 @@ void CERT::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->certificate, codec::StringType::Plain, false);
 }
 
-void CERT::unpack(chen::dns::decoder &decoder)
+void CERT::unpack(decoder &decoder)
 {
     decoder.unpack(this->type);
     decoder.unpack(this->key_tag);
@@ -1706,7 +1706,7 @@ void CERT::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->certificate, codec::StringType::Plain);
 }
 
-void CERT::unpack(const chen::json::object &object)
+void CERT::unpack(const json::object &object)
 {
     map::write(object, "type", this->type);
     map::write(object, "key_tag", this->key_tag);
@@ -1717,7 +1717,7 @@ void CERT::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // A6
-A6::A6() : RR(chen::dns::RRType::A6)
+A6::A6() : RR(RRType::A6)
 {
 }
 
@@ -1732,19 +1732,19 @@ std::string A6::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> A6::clone() const
+std::shared_ptr<RR> A6::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void A6::pack(chen::dns::encoder &encoder) const
+void A6::pack(encoder &encoder) const
 {
     encoder.pack(this->prefix);
     encoder.pack(this->suffix, this->suffix.size());
     encoder.pack(this->prefix_name, codec::StringType::Domain, false);
 }
 
-void A6::unpack(chen::dns::decoder &decoder)
+void A6::unpack(decoder &decoder)
 {
     decoder.unpack(this->prefix);
 
@@ -1754,7 +1754,7 @@ void A6::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->prefix_name, codec::StringType::Domain);
 }
 
-void A6::unpack(const chen::json::object &object)
+void A6::unpack(const json::object &object)
 {
     map::write(object, "prefix", this->prefix);
 
@@ -1769,7 +1769,7 @@ void A6::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // DNAME
-DNAME::DNAME() : RR(chen::dns::RRType::DNAME)
+DNAME::DNAME() : RR(RRType::DNAME)
 {
 }
 
@@ -1780,22 +1780,22 @@ std::string DNAME::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> DNAME::clone() const
+std::shared_ptr<RR> DNAME::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DNAME::pack(chen::dns::encoder &encoder) const
+void DNAME::pack(encoder &encoder) const
 {
     encoder.pack(this->target, codec::StringType::Domain, false);
 }
 
-void DNAME::unpack(chen::dns::decoder &decoder)
+void DNAME::unpack(decoder &decoder)
 {
     decoder.unpack(this->target, codec::StringType::Domain);
 }
 
-void DNAME::unpack(const chen::json::object &object)
+void DNAME::unpack(const json::object &object)
 {
     map::write(object, "target", this->target);
 }
@@ -1803,7 +1803,7 @@ void DNAME::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SINK
-SINK::SINK() : RR(chen::dns::RRType::SINK)
+SINK::SINK() : RR(RRType::SINK)
 {
 }
 
@@ -1818,19 +1818,19 @@ std::string SINK::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SINK::clone() const
+std::shared_ptr<RR> SINK::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SINK::pack(chen::dns::encoder &encoder) const
+void SINK::pack(encoder &encoder) const
 {
     encoder.pack(this->coding);
     encoder.pack(this->subcoding);
     encoder.pack(this->sdata, this->sdata.size());
 }
 
-void SINK::unpack(chen::dns::decoder &decoder)
+void SINK::unpack(decoder &decoder)
 {
     auto tmp = decoder.cur();
 
@@ -1841,7 +1841,7 @@ void SINK::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->sdata, this->remain(std::distance(tmp, decoder.cur())));
 }
 
-void SINK::unpack(const chen::json::object &object)
+void SINK::unpack(const json::object &object)
 {
     map::write(object, "coding", this->coding);
     map::write(object, "subcoding", this->subcoding);
@@ -1855,7 +1855,7 @@ void SINK::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // OPT
-OPT::OPT() : RR(chen::dns::RRType::OPT)
+OPT::OPT() : RR(RRType::OPT)
 {
     // opt name is always '.'
     this->name = ".";
@@ -1867,7 +1867,7 @@ std::uint16_t OPT::payload() const
     return static_cast<std::uint16_t>(this->rrclass);
 }
 
-std::uint16_t OPT::rcode(chen::dns::RCODE code) const
+std::uint16_t OPT::rcode(RCODE code) const
 {
     std::uint16_t ret = this->rcode();
     return ret << 4 | static_cast<std::uint8_t>(code);
@@ -1900,7 +1900,7 @@ std::uint16_t OPT::z() const
 
 void OPT::setPayload(std::uint16_t value)
 {
-    this->rrclass = static_cast<chen::dns::RRClass>(value);
+    this->rrclass = static_cast<RRClass>(value);
 }
 
 void OPT::setRcode(std::uint16_t value)
@@ -1953,18 +1953,18 @@ std::string OPT::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> OPT::clone() const
+std::shared_ptr<RR> OPT::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void OPT::pack(chen::dns::encoder &encoder) const
+void OPT::pack(encoder &encoder) const
 {
     for (auto &option : this->options)
         option->encode(encoder);
 }
 
-void OPT::unpack(chen::dns::decoder &decoder)
+void OPT::unpack(decoder &decoder)
 {
     this->options.clear();
 
@@ -1972,7 +1972,7 @@ void OPT::unpack(chen::dns::decoder &decoder)
         this->options.emplace_back(edns0::Option::create(decoder));
 }
 
-void OPT::unpack(const chen::json::object &object)
+void OPT::unpack(const json::object &object)
 {
     throw error_codec("dns: unpack opt record by json is invalid");
 }
@@ -1980,7 +1980,7 @@ void OPT::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // DS
-DS::DS() : RR(chen::dns::RRType::DS)
+DS::DS() : RR(RRType::DS)
 {
 }
 
@@ -1996,12 +1996,12 @@ std::string DS::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> DS::clone() const
+std::shared_ptr<RR> DS::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DS::pack(chen::dns::encoder &encoder) const
+void DS::pack(encoder &encoder) const
 {
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
@@ -2009,7 +2009,7 @@ void DS::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
-void DS::unpack(chen::dns::decoder &decoder)
+void DS::unpack(decoder &decoder)
 {
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
@@ -2017,7 +2017,7 @@ void DS::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
-void DS::unpack(const chen::json::object &object)
+void DS::unpack(const json::object &object)
 {
     map::write(object, "key_tag", this->key_tag);
     map::write(object, "algorithm", this->algorithm);
@@ -2028,7 +2028,7 @@ void DS::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SSHFP
-SSHFP::SSHFP() : RR(chen::dns::RRType::SSHFP)
+SSHFP::SSHFP() : RR(RRType::SSHFP)
 {
 }
 
@@ -2043,26 +2043,26 @@ std::string SSHFP::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SSHFP::clone() const
+std::shared_ptr<RR> SSHFP::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SSHFP::pack(chen::dns::encoder &encoder) const
+void SSHFP::pack(encoder &encoder) const
 {
     encoder.pack(this->algorithm);
     encoder.pack(this->fptype);
     encoder.pack(this->fingerprint, codec::StringType::Plain, false);
 }
 
-void SSHFP::unpack(chen::dns::decoder &decoder)
+void SSHFP::unpack(decoder &decoder)
 {
     decoder.unpack(this->algorithm);
     decoder.unpack(this->fptype);
     decoder.unpack(this->fingerprint, codec::StringType::Plain);
 }
 
-void SSHFP::unpack(const chen::json::object &object)
+void SSHFP::unpack(const json::object &object)
 {
     map::write(object, "algorithm", this->algorithm);
     map::write(object, "fptype", this->fptype);
@@ -2072,7 +2072,7 @@ void SSHFP::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // IPSECKEY
-IPSECKEY::IPSECKEY() : RR(chen::dns::RRType::IPSECKEY)
+IPSECKEY::IPSECKEY() : RR(RRType::IPSECKEY)
 {
 }
 
@@ -2089,12 +2089,12 @@ std::string IPSECKEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> IPSECKEY::clone() const
+std::shared_ptr<RR> IPSECKEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void IPSECKEY::pack(chen::dns::encoder &encoder) const
+void IPSECKEY::pack(encoder &encoder) const
 {
     encoder.pack(this->precedence);
     encoder.pack(this->gateway_type);
@@ -2125,7 +2125,7 @@ void IPSECKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
-void IPSECKEY::unpack(chen::dns::decoder &decoder)
+void IPSECKEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->precedence);
     decoder.unpack(this->gateway_type);
@@ -2160,7 +2160,7 @@ void IPSECKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
-void IPSECKEY::unpack(const chen::json::object &object)
+void IPSECKEY::unpack(const json::object &object)
 {
     map::write(object, "precedence", this->precedence);
     map::write(object, "gateway_type", this->gateway_type);
@@ -2177,7 +2177,7 @@ void IPSECKEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // RRSIG
-RRSIG::RRSIG() : RR(chen::dns::RRType::RRSIG)
+RRSIG::RRSIG() : RR(RRType::RRSIG)
 {
 }
 
@@ -2198,12 +2198,12 @@ std::string RRSIG::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> RRSIG::clone() const
+std::shared_ptr<RR> RRSIG::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void RRSIG::pack(chen::dns::encoder &encoder) const
+void RRSIG::pack(encoder &encoder) const
 {
     encoder.pack(this->type_covered);
     encoder.pack(this->algorithm);
@@ -2216,7 +2216,7 @@ void RRSIG::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->signature, codec::StringType::Plain, false);
 }
 
-void RRSIG::unpack(chen::dns::decoder &decoder)
+void RRSIG::unpack(decoder &decoder)
 {
     decoder.unpack(this->type_covered);
     decoder.unpack(this->algorithm);
@@ -2229,7 +2229,7 @@ void RRSIG::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->signature, codec::StringType::Plain);
 }
 
-void RRSIG::unpack(const chen::json::object &object)
+void RRSIG::unpack(const json::object &object)
 {
     map::write(object, "type_covered", this->type_covered);
     map::write(object, "algorithm", this->algorithm);
@@ -2245,7 +2245,7 @@ void RRSIG::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSEC
-NSEC::NSEC() : RR(chen::dns::RRType::NSEC)
+NSEC::NSEC() : RR(RRType::NSEC)
 {
 }
 
@@ -2257,18 +2257,18 @@ std::string NSEC::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NSEC::clone() const
+std::shared_ptr<RR> NSEC::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSEC::pack(chen::dns::encoder &encoder) const
+void NSEC::pack(encoder &encoder) const
 {
     encoder.pack(this->next_domain, codec::StringType::Domain, false);
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-void NSEC::unpack(chen::dns::decoder &decoder)
+void NSEC::unpack(decoder &decoder)
 {
     auto tmp = decoder.cur();
 
@@ -2278,7 +2278,7 @@ void NSEC::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
-void NSEC::unpack(const chen::json::object &object)
+void NSEC::unpack(const json::object &object)
 {
     map::write(object, "next_domain", this->next_domain);
 
@@ -2291,7 +2291,7 @@ void NSEC::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // DNSKEY
-DNSKEY::DNSKEY() : RR(chen::dns::RRType::DNSKEY)
+DNSKEY::DNSKEY() : RR(RRType::DNSKEY)
 {
 }
 
@@ -2307,12 +2307,12 @@ std::string DNSKEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> DNSKEY::clone() const
+std::shared_ptr<RR> DNSKEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DNSKEY::pack(chen::dns::encoder &encoder) const
+void DNSKEY::pack(encoder &encoder) const
 {
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
@@ -2320,7 +2320,7 @@ void DNSKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
-void DNSKEY::unpack(chen::dns::decoder &decoder)
+void DNSKEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
@@ -2328,7 +2328,7 @@ void DNSKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
-void DNSKEY::unpack(const chen::json::object &object)
+void DNSKEY::unpack(const json::object &object)
 {
     map::write(object, "flags", this->flags);
     map::write(object, "protocol", this->protocol);
@@ -2339,7 +2339,7 @@ void DNSKEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // DHCID
-DHCID::DHCID() : RR(chen::dns::RRType::DHCID)
+DHCID::DHCID() : RR(RRType::DHCID)
 {
 }
 
@@ -2350,22 +2350,22 @@ std::string DHCID::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> DHCID::clone() const
+std::shared_ptr<RR> DHCID::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DHCID::pack(chen::dns::encoder &encoder) const
+void DHCID::pack(encoder &encoder) const
 {
     encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
-void DHCID::unpack(chen::dns::decoder &decoder)
+void DHCID::unpack(decoder &decoder)
 {
     decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
-void DHCID::unpack(const chen::json::object &object)
+void DHCID::unpack(const json::object &object)
 {
     map::write(object, "digest", this->digest);
 }
@@ -2373,7 +2373,7 @@ void DHCID::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSEC3
-NSEC3::NSEC3() : RR(chen::dns::RRType::NSEC3)
+NSEC3::NSEC3() : RR(RRType::NSEC3)
 {
 }
 
@@ -2393,12 +2393,12 @@ std::string NSEC3::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NSEC3::clone() const
+std::shared_ptr<RR> NSEC3::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSEC3::pack(chen::dns::encoder &encoder) const
+void NSEC3::pack(encoder &encoder) const
 {
     encoder.pack(this->hash);
     encoder.pack(this->flags);
@@ -2410,7 +2410,7 @@ void NSEC3::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-void NSEC3::unpack(chen::dns::decoder &decoder)
+void NSEC3::unpack(decoder &decoder)
 {
     auto tmp = decoder.cur();
 
@@ -2426,7 +2426,7 @@ void NSEC3::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
-void NSEC3::unpack(const chen::json::object &object)
+void NSEC3::unpack(const json::object &object)
 {
     map::write(object, "hash", this->hash);
     map::write(object, "flags", this->flags);
@@ -2450,7 +2450,7 @@ void NSEC3::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSEC3PARAM
-NSEC3PARAM::NSEC3PARAM() : RR(chen::dns::RRType::NSEC3PARAM)
+NSEC3PARAM::NSEC3PARAM() : RR(RRType::NSEC3PARAM)
 {
 }
 
@@ -2467,12 +2467,12 @@ std::string NSEC3PARAM::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NSEC3PARAM::clone() const
+std::shared_ptr<RR> NSEC3PARAM::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSEC3PARAM::pack(chen::dns::encoder &encoder) const
+void NSEC3PARAM::pack(encoder &encoder) const
 {
     encoder.pack(this->hash);
     encoder.pack(this->flags);
@@ -2481,7 +2481,7 @@ void NSEC3PARAM::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->salt, this->salt_length);
 }
 
-void NSEC3PARAM::unpack(chen::dns::decoder &decoder)
+void NSEC3PARAM::unpack(decoder &decoder)
 {
     decoder.unpack(this->hash);
     decoder.unpack(this->flags);
@@ -2490,7 +2490,7 @@ void NSEC3PARAM::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->salt, this->salt_length);
 }
 
-void NSEC3PARAM::unpack(const chen::json::object &object)
+void NSEC3PARAM::unpack(const json::object &object)
 {
     map::write(object, "hash", this->hash);
     map::write(object, "flags", this->flags);
@@ -2506,7 +2506,7 @@ void NSEC3PARAM::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // TLSA
-TLSA::TLSA() : RR(chen::dns::RRType::TLSA)
+TLSA::TLSA() : RR(RRType::TLSA)
 {
 }
 
@@ -2522,12 +2522,12 @@ std::string TLSA::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> TLSA::clone() const
+std::shared_ptr<RR> TLSA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void TLSA::pack(chen::dns::encoder &encoder) const
+void TLSA::pack(encoder &encoder) const
 {
     encoder.pack(this->usage);
     encoder.pack(this->selector);
@@ -2535,7 +2535,7 @@ void TLSA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->certificate, codec::StringType::Plain, false);
 }
 
-void TLSA::unpack(chen::dns::decoder &decoder)
+void TLSA::unpack(decoder &decoder)
 {
     decoder.unpack(this->usage);
     decoder.unpack(this->selector);
@@ -2543,7 +2543,7 @@ void TLSA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->certificate, codec::StringType::Plain);
 }
 
-void TLSA::unpack(const chen::json::object &object)
+void TLSA::unpack(const json::object &object)
 {
     map::write(object, "usage", this->usage);
     map::write(object, "selector", this->selector);
@@ -2554,7 +2554,7 @@ void TLSA::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SMIMEA
-SMIMEA::SMIMEA() : RR(chen::dns::RRType::SMIMEA)
+SMIMEA::SMIMEA() : RR(RRType::SMIMEA)
 {
 }
 
@@ -2570,12 +2570,12 @@ std::string SMIMEA::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SMIMEA::clone() const
+std::shared_ptr<RR> SMIMEA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SMIMEA::pack(chen::dns::encoder &encoder) const
+void SMIMEA::pack(encoder &encoder) const
 {
     encoder.pack(this->usage);
     encoder.pack(this->selector);
@@ -2583,7 +2583,7 @@ void SMIMEA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->certificate, codec::StringType::Plain, false);
 }
 
-void SMIMEA::unpack(chen::dns::decoder &decoder)
+void SMIMEA::unpack(decoder &decoder)
 {
     decoder.unpack(this->usage);
     decoder.unpack(this->selector);
@@ -2591,7 +2591,7 @@ void SMIMEA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->certificate, codec::StringType::Plain);
 }
 
-void SMIMEA::unpack(const chen::json::object &object)
+void SMIMEA::unpack(const json::object &object)
 {
     map::write(object, "usage", this->usage);
     map::write(object, "selector", this->selector);
@@ -2602,7 +2602,7 @@ void SMIMEA::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // HIP
-HIP::HIP() : RR(chen::dns::RRType::HIP)
+HIP::HIP() : RR(RRType::HIP)
 {
 }
 
@@ -2620,12 +2620,12 @@ std::string HIP::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> HIP::clone() const
+std::shared_ptr<RR> HIP::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void HIP::pack(chen::dns::encoder &encoder) const
+void HIP::pack(encoder &encoder) const
 {
     encoder.pack(this->hit_length);
     encoder.pack(this->pk_algorithm);
@@ -2635,7 +2635,7 @@ void HIP::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->rendezvous_servers, codec::StringType::Plain, false);
 }
 
-void HIP::unpack(chen::dns::decoder &decoder)
+void HIP::unpack(decoder &decoder)
 {
     decoder.unpack(this->hit_length);
     decoder.unpack(this->pk_algorithm);
@@ -2645,7 +2645,7 @@ void HIP::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->rendezvous_servers, codec::StringType::Plain);
 }
 
-void HIP::unpack(const chen::json::object &object)
+void HIP::unpack(const json::object &object)
 {
     map::write(object, "hit_length", this->hit_length);
     map::write(object, "pk_algorithm", this->pk_algorithm);
@@ -2658,7 +2658,7 @@ void HIP::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // NINFO
-NINFO::NINFO() : RR(chen::dns::RRType::NINFO)
+NINFO::NINFO() : RR(RRType::NINFO)
 {
 }
 
@@ -2669,22 +2669,22 @@ std::string NINFO::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NINFO::clone() const
+std::shared_ptr<RR> NINFO::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NINFO::pack(chen::dns::encoder &encoder) const
+void NINFO::pack(encoder &encoder) const
 {
     encoder.pack(this->zs_data, codec::StringType::Plain, false);
 }
 
-void NINFO::unpack(chen::dns::decoder &decoder)
+void NINFO::unpack(decoder &decoder)
 {
     decoder.unpack(this->zs_data, codec::StringType::Plain);
 }
 
-void NINFO::unpack(const chen::json::object &object)
+void NINFO::unpack(const json::object &object)
 {
     map::write(object, "zs_data", this->zs_data);
 }
@@ -2692,7 +2692,7 @@ void NINFO::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // RKEY
-RKEY::RKEY() : RR(chen::dns::RRType::RKEY)
+RKEY::RKEY() : RR(RRType::RKEY)
 {
 }
 
@@ -2708,12 +2708,12 @@ std::string RKEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> RKEY::clone() const
+std::shared_ptr<RR> RKEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void RKEY::pack(chen::dns::encoder &encoder) const
+void RKEY::pack(encoder &encoder) const
 {
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
@@ -2721,7 +2721,7 @@ void RKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
-void RKEY::unpack(chen::dns::decoder &decoder)
+void RKEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
@@ -2729,7 +2729,7 @@ void RKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
-void RKEY::unpack(const chen::json::object &object)
+void RKEY::unpack(const json::object &object)
 {
     map::write(object, "flags", this->flags);
     map::write(object, "protocol", this->protocol);
@@ -2740,7 +2740,7 @@ void RKEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // TALINK
-TALINK::TALINK() : RR(chen::dns::RRType::TALINK)
+TALINK::TALINK() : RR(RRType::TALINK)
 {
 }
 
@@ -2754,24 +2754,24 @@ std::string TALINK::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> TALINK::clone() const
+std::shared_ptr<RR> TALINK::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void TALINK::pack(chen::dns::encoder &encoder) const
+void TALINK::pack(encoder &encoder) const
 {
     encoder.pack(this->previous_name, codec::StringType::Domain, false);
     encoder.pack(this->next_name, codec::StringType::Domain, false);
 }
 
-void TALINK::unpack(chen::dns::decoder &decoder)
+void TALINK::unpack(decoder &decoder)
 {
     decoder.unpack(this->previous_name, codec::StringType::Domain);
     decoder.unpack(this->next_name, codec::StringType::Domain);
 }
 
-void TALINK::unpack(const chen::json::object &object)
+void TALINK::unpack(const json::object &object)
 {
     map::write(object, "previous_name", this->previous_name);
     map::write(object, "next_name", this->next_name);
@@ -2780,7 +2780,7 @@ void TALINK::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // CDS
-CDS::CDS() : RR(chen::dns::RRType::CDS)
+CDS::CDS() : RR(RRType::CDS)
 {
 }
 
@@ -2796,12 +2796,12 @@ std::string CDS::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> CDS::clone() const
+std::shared_ptr<RR> CDS::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CDS::pack(chen::dns::encoder &encoder) const
+void CDS::pack(encoder &encoder) const
 {
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
@@ -2809,7 +2809,7 @@ void CDS::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
-void CDS::unpack(chen::dns::decoder &decoder)
+void CDS::unpack(decoder &decoder)
 {
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
@@ -2817,7 +2817,7 @@ void CDS::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
-void CDS::unpack(const chen::json::object &object)
+void CDS::unpack(const json::object &object)
 {
     map::write(object, "key_tag", this->key_tag);
     map::write(object, "algorithm", this->algorithm);
@@ -2828,7 +2828,7 @@ void CDS::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // CDNSKEY
-CDNSKEY::CDNSKEY() : RR(chen::dns::RRType::CDNSKEY)
+CDNSKEY::CDNSKEY() : RR(RRType::CDNSKEY)
 {
 }
 
@@ -2844,12 +2844,12 @@ std::string CDNSKEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> CDNSKEY::clone() const
+std::shared_ptr<RR> CDNSKEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CDNSKEY::pack(chen::dns::encoder &encoder) const
+void CDNSKEY::pack(encoder &encoder) const
 {
     encoder.pack(this->flags);
     encoder.pack(this->protocol);
@@ -2857,7 +2857,7 @@ void CDNSKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
-void CDNSKEY::unpack(chen::dns::decoder &decoder)
+void CDNSKEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->flags);
     decoder.unpack(this->protocol);
@@ -2865,7 +2865,7 @@ void CDNSKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
-void CDNSKEY::unpack(const chen::json::object &object)
+void CDNSKEY::unpack(const json::object &object)
 {
     map::write(object, "flags", this->flags);
     map::write(object, "protocol", this->protocol);
@@ -2876,7 +2876,7 @@ void CDNSKEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // OPENPGPKEY
-OPENPGPKEY::OPENPGPKEY() : RR(chen::dns::RRType::OPENPGPKEY)
+OPENPGPKEY::OPENPGPKEY() : RR(RRType::OPENPGPKEY)
 {
 }
 
@@ -2887,22 +2887,22 @@ std::string OPENPGPKEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> OPENPGPKEY::clone() const
+std::shared_ptr<RR> OPENPGPKEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void OPENPGPKEY::pack(chen::dns::encoder &encoder) const
+void OPENPGPKEY::pack(encoder &encoder) const
 {
     encoder.pack(this->publickey, codec::StringType::Plain, false);
 }
 
-void OPENPGPKEY::unpack(chen::dns::decoder &decoder)
+void OPENPGPKEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->publickey, codec::StringType::Plain);
 }
 
-void OPENPGPKEY::unpack(const chen::json::object &object)
+void OPENPGPKEY::unpack(const json::object &object)
 {
     map::write(object, "publickey", this->publickey);
 }
@@ -2910,7 +2910,7 @@ void OPENPGPKEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // CSYNC
-CSYNC::CSYNC() : RR(chen::dns::RRType::CSYNC)
+CSYNC::CSYNC() : RR(RRType::CSYNC)
 {
 }
 
@@ -2925,19 +2925,19 @@ std::string CSYNC::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> CSYNC::clone() const
+std::shared_ptr<RR> CSYNC::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CSYNC::pack(chen::dns::encoder &encoder) const
+void CSYNC::pack(encoder &encoder) const
 {
     encoder.pack(this->serial);
     encoder.pack(this->flags);
     encoder.pack(this->type_bitmap, this->type_bitmap.size());
 }
 
-void CSYNC::unpack(chen::dns::decoder &decoder)
+void CSYNC::unpack(decoder &decoder)
 {
     auto tmp = decoder.cur();
 
@@ -2948,7 +2948,7 @@ void CSYNC::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->type_bitmap, this->remain(std::distance(tmp, decoder.cur())));
 }
 
-void CSYNC::unpack(const chen::json::object &object)
+void CSYNC::unpack(const json::object &object)
 {
     map::write(object, "serial", this->serial);
     map::write(object, "flags", this->flags);
@@ -2962,7 +2962,7 @@ void CSYNC::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // SPF
-SPF::SPF() : RR(chen::dns::RRType::SPF)
+SPF::SPF() : RR(RRType::SPF)
 {
 }
 
@@ -2973,22 +2973,22 @@ std::string SPF::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> SPF::clone() const
+std::shared_ptr<RR> SPF::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void SPF::pack(chen::dns::encoder &encoder) const
+void SPF::pack(encoder &encoder) const
 {
     encoder.pack(this->txt, codec::StringType::Plain, false);
 }
 
-void SPF::unpack(chen::dns::decoder &decoder)
+void SPF::unpack(decoder &decoder)
 {
     decoder.unpack(this->txt, codec::StringType::Plain);
 }
 
-void SPF::unpack(const chen::json::object &object)
+void SPF::unpack(const json::object &object)
 {
     map::write(object, "txt", this->txt);
 }
@@ -2996,11 +2996,11 @@ void SPF::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // UINFO
-UINFO::UINFO() : Raw(chen::dns::RRType::UINFO)
+UINFO::UINFO() : Raw(RRType::UINFO)
 {
 }
 
-std::shared_ptr<chen::dns::RR> UINFO::clone() const
+std::shared_ptr<RR> UINFO::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
@@ -3008,11 +3008,11 @@ std::shared_ptr<chen::dns::RR> UINFO::clone() const
 
 // -----------------------------------------------------------------------------
 // UID
-UID::UID() : Raw(chen::dns::RRType::UID)
+UID::UID() : Raw(RRType::UID)
 {
 }
 
-std::shared_ptr<chen::dns::RR> UID::clone() const
+std::shared_ptr<RR> UID::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
@@ -3020,11 +3020,11 @@ std::shared_ptr<chen::dns::RR> UID::clone() const
 
 // -----------------------------------------------------------------------------
 // GID
-GID::GID() : Raw(chen::dns::RRType::GID)
+GID::GID() : Raw(RRType::GID)
 {
 }
 
-std::shared_ptr<chen::dns::RR> GID::clone() const
+std::shared_ptr<RR> GID::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
@@ -3032,11 +3032,11 @@ std::shared_ptr<chen::dns::RR> GID::clone() const
 
 // -----------------------------------------------------------------------------
 // UNSPEC
-UNSPEC::UNSPEC() : Raw(chen::dns::RRType::UNSPEC)
+UNSPEC::UNSPEC() : Raw(RRType::UNSPEC)
 {
 }
 
-std::shared_ptr<chen::dns::RR> UNSPEC::clone() const
+std::shared_ptr<RR> UNSPEC::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
@@ -3044,7 +3044,7 @@ std::shared_ptr<chen::dns::RR> UNSPEC::clone() const
 
 // -----------------------------------------------------------------------------
 // NID
-NID::NID() : RR(chen::dns::RRType::NID)
+NID::NID() : RR(RRType::NID)
 {
 }
 
@@ -3058,24 +3058,24 @@ std::string NID::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> NID::clone() const
+std::shared_ptr<RR> NID::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NID::pack(chen::dns::encoder &encoder) const
+void NID::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->node_id);
 }
 
-void NID::unpack(chen::dns::decoder &decoder)
+void NID::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->node_id);
 }
 
-void NID::unpack(const chen::json::object &object)
+void NID::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "node_id", this->node_id);
@@ -3084,7 +3084,7 @@ void NID::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // L32
-L32::L32() : RR(chen::dns::RRType::L32)
+L32::L32() : RR(RRType::L32)
 {
 }
 
@@ -3098,24 +3098,24 @@ std::string L32::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> L32::clone() const
+std::shared_ptr<RR> L32::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void L32::pack(chen::dns::encoder &encoder) const
+void L32::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->locator32);
 }
 
-void L32::unpack(chen::dns::decoder &decoder)
+void L32::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->locator32);
 }
 
-void L32::unpack(const chen::json::object &object)
+void L32::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "locator32", this->locator32);
@@ -3124,7 +3124,7 @@ void L32::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // L64
-L64::L64() : RR(chen::dns::RRType::L64)
+L64::L64() : RR(RRType::L64)
 {
 }
 
@@ -3138,24 +3138,24 @@ std::string L64::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> L64::clone() const
+std::shared_ptr<RR> L64::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void L64::pack(chen::dns::encoder &encoder) const
+void L64::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->locator64);
 }
 
-void L64::unpack(chen::dns::decoder &decoder)
+void L64::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->locator64);
 }
 
-void L64::unpack(const chen::json::object &object)
+void L64::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "locator64", this->locator64);
@@ -3164,7 +3164,7 @@ void L64::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // LP
-LP::LP() : RR(chen::dns::RRType::LP)
+LP::LP() : RR(RRType::LP)
 {
 }
 
@@ -3178,24 +3178,24 @@ std::string LP::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> LP::clone() const
+std::shared_ptr<RR> LP::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void LP::pack(chen::dns::encoder &encoder) const
+void LP::pack(encoder &encoder) const
 {
     encoder.pack(this->preference);
     encoder.pack(this->fqdn, codec::StringType::Domain, false);
 }
 
-void LP::unpack(chen::dns::decoder &decoder)
+void LP::unpack(decoder &decoder)
 {
     decoder.unpack(this->preference);
     decoder.unpack(this->fqdn, codec::StringType::Domain);
 }
 
-void LP::unpack(const chen::json::object &object)
+void LP::unpack(const json::object &object)
 {
     map::write(object, "preference", this->preference);
     map::write(object, "fqdn", this->fqdn);
@@ -3204,7 +3204,7 @@ void LP::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // EUI48
-EUI48::EUI48() : RR(chen::dns::RRType::EUI48)
+EUI48::EUI48() : RR(RRType::EUI48)
 {
 }
 
@@ -3215,22 +3215,22 @@ std::string EUI48::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> EUI48::clone() const
+std::shared_ptr<RR> EUI48::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void EUI48::pack(chen::dns::encoder &encoder) const
+void EUI48::pack(encoder &encoder) const
 {
     encoder.pack(this->address);
 }
 
-void EUI48::unpack(chen::dns::decoder &decoder)
+void EUI48::unpack(decoder &decoder)
 {
     decoder.unpack(this->address);
 }
 
-void EUI48::unpack(const chen::json::object &object)
+void EUI48::unpack(const json::object &object)
 {
     std::string address = map::find(object, "address", std::string());
     std::copy(address.begin(), address.end(), this->address.begin());
@@ -3239,7 +3239,7 @@ void EUI48::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // EUI64
-EUI64::EUI64() : RR(chen::dns::RRType::EUI64)
+EUI64::EUI64() : RR(RRType::EUI64)
 {
 }
 
@@ -3250,22 +3250,22 @@ std::string EUI64::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> EUI64::clone() const
+std::shared_ptr<RR> EUI64::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void EUI64::pack(chen::dns::encoder &encoder) const
+void EUI64::pack(encoder &encoder) const
 {
     encoder.pack(this->address);
 }
 
-void EUI64::unpack(chen::dns::decoder &decoder)
+void EUI64::unpack(decoder &decoder)
 {
     decoder.unpack(this->address);
 }
 
-void EUI64::unpack(const chen::json::object &object)
+void EUI64::unpack(const json::object &object)
 {
     map::write(object, "address", this->address);
 }
@@ -3273,7 +3273,7 @@ void EUI64::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // TKEY
-TKEY::TKEY() : RR(chen::dns::RRType::TKEY)
+TKEY::TKEY() : RR(RRType::TKEY)
 {
 }
 
@@ -3294,12 +3294,12 @@ std::string TKEY::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> TKEY::clone() const
+std::shared_ptr<RR> TKEY::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void TKEY::pack(chen::dns::encoder &encoder) const
+void TKEY::pack(encoder &encoder) const
 {
     encoder.pack(this->algorithm, codec::StringType::Domain, false);
     encoder.pack(this->inception);
@@ -3312,7 +3312,7 @@ void TKEY::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->other_data, this->other_len);
 }
 
-void TKEY::unpack(chen::dns::decoder &decoder)
+void TKEY::unpack(decoder &decoder)
 {
     decoder.unpack(this->algorithm, codec::StringType::Domain);
     decoder.unpack(this->inception);
@@ -3325,7 +3325,7 @@ void TKEY::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->other_data, this->other_len);
 }
 
-void TKEY::unpack(const chen::json::object &object)
+void TKEY::unpack(const json::object &object)
 {
     map::write(object, "algorithm", this->algorithm);
     map::write(object, "inception", this->inception);
@@ -3350,7 +3350,7 @@ void TKEY::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // TSIG
-TSIG::TSIG() : RR(chen::dns::RRType::TSIG)
+TSIG::TSIG() : RR(RRType::TSIG)
 {
 }
 
@@ -3371,12 +3371,12 @@ std::string TSIG::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> TSIG::clone() const
+std::shared_ptr<RR> TSIG::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void TSIG::pack(chen::dns::encoder &encoder) const
+void TSIG::pack(encoder &encoder) const
 {
     encoder.pack(this->algorithm, codec::StringType::Domain, false);
     encoder.pack(this->time_signed);
@@ -3389,7 +3389,7 @@ void TSIG::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->other_data, this->other_len);
 }
 
-void TSIG::unpack(chen::dns::decoder &decoder)
+void TSIG::unpack(decoder &decoder)
 {
     decoder.unpack(this->algorithm, codec::StringType::Domain);
     decoder.unpack(this->time_signed);
@@ -3402,7 +3402,7 @@ void TSIG::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->other_data, this->other_len);
 }
 
-void TSIG::unpack(const chen::json::object &object)
+void TSIG::unpack(const json::object &object)
 {
     map::write(object, "algorithm", this->algorithm);
 
@@ -3430,7 +3430,7 @@ void TSIG::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // URI
-URI::URI() : RR(chen::dns::RRType::URI)
+URI::URI() : RR(RRType::URI)
 {
 }
 
@@ -3445,26 +3445,26 @@ std::string URI::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> URI::clone() const
+std::shared_ptr<RR> URI::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void URI::pack(chen::dns::encoder &encoder) const
+void URI::pack(encoder &encoder) const
 {
     encoder.pack(this->priority);
     encoder.pack(this->weight);
     encoder.pack(this->target, codec::StringType::Plain, false);
 }
 
-void URI::unpack(chen::dns::decoder &decoder)
+void URI::unpack(decoder &decoder)
 {
     decoder.unpack(this->priority);
     decoder.unpack(this->weight);
     decoder.unpack(this->target, codec::StringType::Plain);
 }
 
-void URI::unpack(const chen::json::object &object)
+void URI::unpack(const json::object &object)
 {
     map::write(object, "priority", this->priority);
     map::write(object, "weight", this->weight);
@@ -3474,7 +3474,7 @@ void URI::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // CAA
-CAA::CAA() : RR(chen::dns::RRType::CAA)
+CAA::CAA() : RR(RRType::CAA)
 {
 }
 
@@ -3489,26 +3489,26 @@ std::string CAA::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> CAA::clone() const
+std::shared_ptr<RR> CAA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CAA::pack(chen::dns::encoder &encoder) const
+void CAA::pack(encoder &encoder) const
 {
     encoder.pack(this->flags);
     encoder.pack(this->tag, codec::StringType::Plain, false);
     encoder.pack(this->value, codec::StringType::Plain, false);
 }
 
-void CAA::unpack(chen::dns::decoder &decoder)
+void CAA::unpack(decoder &decoder)
 {
     decoder.unpack(this->flags);
     decoder.unpack(this->tag, codec::StringType::Plain);
     decoder.unpack(this->value, codec::StringType::Plain);
 }
 
-void CAA::unpack(const chen::json::object &object)
+void CAA::unpack(const json::object &object)
 {
     map::write(object, "flags", this->flags);
     map::write(object, "tag", this->tag);
@@ -3518,7 +3518,7 @@ void CAA::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // TA
-TA::TA() : RR(chen::dns::RRType::TA)
+TA::TA() : RR(RRType::TA)
 {
 }
 
@@ -3534,12 +3534,12 @@ std::string TA::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> TA::clone() const
+std::shared_ptr<RR> TA::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void TA::pack(chen::dns::encoder &encoder) const
+void TA::pack(encoder &encoder) const
 {
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
@@ -3547,7 +3547,7 @@ void TA::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
-void TA::unpack(chen::dns::decoder &decoder)
+void TA::unpack(decoder &decoder)
 {
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
@@ -3555,7 +3555,7 @@ void TA::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
-void TA::unpack(const chen::json::object &object)
+void TA::unpack(const json::object &object)
 {
     map::write(object, "key_tag", this->key_tag);
     map::write(object, "algorithm", this->algorithm);
@@ -3566,7 +3566,7 @@ void TA::unpack(const chen::json::object &object)
 
 // -----------------------------------------------------------------------------
 // DLV
-DLV::DLV() : RR(chen::dns::RRType::DLV)
+DLV::DLV() : RR(RRType::DLV)
 {
 }
 
@@ -3582,12 +3582,12 @@ std::string DLV::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<chen::dns::RR> DLV::clone() const
+std::shared_ptr<RR> DLV::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DLV::pack(chen::dns::encoder &encoder) const
+void DLV::pack(encoder &encoder) const
 {
     encoder.pack(this->key_tag);
     encoder.pack(this->algorithm);
@@ -3595,7 +3595,7 @@ void DLV::pack(chen::dns::encoder &encoder) const
     encoder.pack(this->digest, codec::StringType::Plain, false);
 }
 
-void DLV::unpack(chen::dns::decoder &decoder)
+void DLV::unpack(decoder &decoder)
 {
     decoder.unpack(this->key_tag);
     decoder.unpack(this->algorithm);
@@ -3603,7 +3603,7 @@ void DLV::unpack(chen::dns::decoder &decoder)
     decoder.unpack(this->digest, codec::StringType::Plain);
 }
 
-void DLV::unpack(const chen::json::object &object)
+void DLV::unpack(const json::object &object)
 {
     map::write(object, "key_tag", this->key_tag);
     map::write(object, "algorithm", this->algorithm);

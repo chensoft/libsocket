@@ -22,6 +22,8 @@
 
 -) client connect to server via specific port, it's an advance tool
 
+-) client use specific port and address, if host have multiple NICs, but want use specific NIC
+
 -) store connected host and ip address
 
 -) if multiple ip addresses exist when query dns, socket can polling to connect to a valid address
@@ -37,6 +39,8 @@
 -) advance dns query(sync and async) methods
 
 -) split host add port in so::endpoint?
+
+-) store host into tcp/udp socket class
 
 -) accept "host:port" as param name addr when connect, ipv6 is "[fe80::1%lo0]:53"
 
@@ -56,6 +60,10 @@
 
 -) allow udp connect to a fixed address
 
+-) if udp is connected to a address, then send and recv only allow this address's packets
+
 -) report error if udp already connect to a fixed addr but still send to another address
 
 -) how to add epoll, kqueue?
+
+-) allow multicast and broadcast on socket

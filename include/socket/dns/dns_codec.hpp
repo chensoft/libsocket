@@ -79,9 +79,9 @@ namespace chen
             void pack(std::uint16_t val);
             void pack(std::uint32_t val);
             void pack(std::uint64_t val);
-            void pack(chen::dns::RRType val);
-            void pack(chen::dns::RRClass val);
-            void pack(chen::dns::edns0::OptionCode val);
+            void pack(RRType val);
+            void pack(RRClass val);
+            void pack(edns0::OptionCode val);
             void pack(const std::string &val, StringType type, bool compress);
             void pack(const std::vector<std::uint8_t> &val, std::size_t need);
 
@@ -137,9 +137,9 @@ namespace chen
             void unpack(std::uint16_t &val);
             void unpack(std::uint32_t &val);
             void unpack(std::uint64_t &val);
-            void unpack(chen::dns::RRType &val);
-            void unpack(chen::dns::RRClass &val);
-            void unpack(chen::dns::edns0::OptionCode &val);
+            void unpack(RRType &val);
+            void unpack(RRClass &val);
+            void unpack(edns0::OptionCode &val);
             void unpack(std::string &val, StringType type);
             void unpack(std::vector<std::uint8_t> &val, std::size_t need);
 

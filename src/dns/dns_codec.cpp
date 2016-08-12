@@ -120,19 +120,19 @@ void encoder::pack(std::uint64_t val)
         this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(chen::dns::RRType val)
+void encoder::pack(RRType val)
 {
-    encoder::pack(static_cast<std::underlying_type<chen::dns::RRType>::type>(val));
+    encoder::pack(static_cast<std::underlying_type<RRType>::type>(val));
 }
 
-void encoder::pack(chen::dns::RRClass val)
+void encoder::pack(RRClass val)
 {
-    encoder::pack(static_cast<std::underlying_type<chen::dns::RRClass>::type>(val));
+    encoder::pack(static_cast<std::underlying_type<RRClass>::type>(val));
 }
 
-void encoder::pack(chen::dns::edns0::OptionCode val)
+void encoder::pack(edns0::OptionCode val)
 {
-    encoder::pack(static_cast<std::underlying_type<chen::dns::edns0::OptionCode>::type>(val));
+    encoder::pack(static_cast<std::underlying_type<edns0::OptionCode>::type>(val));
 }
 
 void encoder::pack(const std::string &val, StringType type, bool compress)
@@ -347,19 +347,19 @@ void decoder::unpack(std::uint64_t &val)
         val |= *this->_cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(chen::dns::RRType &val)
+void decoder::unpack(RRType &val)
 {
-    decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::RRType>::type&>(val));
+    decoder::unpack(reinterpret_cast<std::underlying_type<RRType>::type&>(val));
 }
 
-void decoder::unpack(chen::dns::RRClass &val)
+void decoder::unpack(RRClass &val)
 {
-    decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::RRClass>::type&>(val));
+    decoder::unpack(reinterpret_cast<std::underlying_type<RRClass>::type&>(val));
 }
 
-void decoder::unpack(chen::dns::edns0::OptionCode &val)
+void decoder::unpack(edns0::OptionCode &val)
 {
-    decoder::unpack(reinterpret_cast<std::underlying_type<chen::dns::edns0::OptionCode>::type&>(val));
+    decoder::unpack(reinterpret_cast<std::underlying_type<edns0::OptionCode>::type&>(val));
 }
 
 void decoder::unpack(std::string &val, StringType type)
