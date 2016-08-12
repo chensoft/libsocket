@@ -11,16 +11,13 @@
 #include <cstdlib>
 #include <cerrno>
 
-#ifndef ANDROID
-#include <execinfo.h>
-#endif
-
 using namespace chen;
 
 // -----------------------------------------------------------------------------
 // helper
 namespace
 {
+    // disable unused function warning on OS X
 #ifndef __APPLE__
     std::string peek(char *result, char *buffer)
     {
@@ -43,31 +40,6 @@ std::string sys::error()
 {
     char buf[1024] = {0};
     return !errno ? "No error" : peek(::strerror_r(errno, buf, sizeof(buf)), buf);
-}
-
-std::vector<std::string> sys::stack()
-{
-#ifndef ANDROID
-    void *buffer[1024];
-    
-    auto size = ::backtrace(buffer, 1024);
-    auto list = ::backtrace_symbols(buffer, size);
-    
-    if (!list)
-        return {};
-    
-    std::vector<std::string> ret;
-    
-    for (int i = 0; i < size; ++i)
-        ret.push_back(list[i]);
-    
-    ::free(list);
-    
-    return ret;
-#else
-    // todo support android
-    return {};
-#endif
 }
 
 #endif

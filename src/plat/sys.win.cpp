@@ -19,10 +19,4 @@ std::string sys::error()
     return !errno ? "No error" : (!::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "Unknown error");
 }
 
-std::vector<std::string> sys::stack()
-{
-    // todo
-    return {};
-}
-
 #endif

@@ -7,7 +7,6 @@ All notable changes to this project will be documented in this file(see http://k
 - map: write value to variable only when it exist.
 - ini: user can retrieve error position when syntax error.
 - json: user can retrieve error position when syntax error.
-- sys: retrieve current thread's call stack.
 
 ### Changed
 - fs: accept two types of lambda callbacks.
