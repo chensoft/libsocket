@@ -17,7 +17,7 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // ini
-chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
+ini::value_type ini::parse(const std::string &text, bool file)
 {
     if (file)
     {
@@ -36,7 +36,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
         }
         catch (const std::exception&)
         {
-            throw ini::error(str::format("ini: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
+            throw ini::error(str::format("ini: decode %s: %s", text.c_str(), sys::error().c_str()));
         }
     }
     else
@@ -45,30 +45,30 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
     }
 }
 
-chen::ini::value_type chen::ini::parse(iterator cur, iterator end)
+ini::value_type ini::parse(iterator cur, iterator end)
 {
-    chen::ini::value_type item;
+    ini::value_type item;
 
     const iterator beg = cur;
 
     // trim left spaces
-    if (!chen::ini::advance(beg, cur, end))
+    if (!ini::advance(beg, cur, end))
         return item;
 
     // decode item
-    chen::ini::decode(item, beg, cur, end);
+    ini::decode(item, beg, cur, end);
 
     // trim right spaces
-    chen::ini::advance(beg, cur, end);
+    ini::advance(beg, cur, end);
 
     // should reach end
     if (cur != end)
-        chen::ini::exception(beg, cur, end);
+        ini::exception(beg, cur, end);
 
     return item;
 }
 
-std::string chen::ini::stringify(const chen::ini::value_type &map)
+std::string ini::stringify(const ini::value_type &map)
 {
     std::string ret;
     std::size_t idx = 0;
@@ -178,23 +178,23 @@ std::string chen::ini::stringify(const chen::ini::value_type &map)
 }
 
 // exception
-void chen::ini::exception(const iterator &beg, iterator &cur, iterator &end)
+void ini::exception(const iterator &beg, iterator &cur, iterator &end)
 {
     if (cur == end)
     {
-        throw chen::ini::error("ini: unexpected end of input");
+        throw ini::error("ini: unexpected end of input");
     }
     else
     {
         auto pos = cur.distance();
         auto tok = std::isprint(*cur) ? std::string(1, *cur) : str::format("\\x%02x", static_cast<int>(*cur));
 
-        throw chen::ini::error(str::format("ini: unexpected token '%s' at position %lu", tok.c_str(), pos), pos);
+        throw ini::error(str::format("ini: unexpected token '%s' at position %lu", tok.c_str(), pos), pos);
     }
 }
 
 // advance
-bool chen::ini::advance(const iterator &beg, iterator &cur, iterator &end)
+bool ini::advance(const iterator &beg, iterator &cur, iterator &end)
 {
     // skip whitespaces
     while ((cur != end) && std::isspace(*cur))
@@ -205,13 +205,13 @@ bool chen::ini::advance(const iterator &beg, iterator &cur, iterator &end)
 }
 
 // decode
-void chen::ini::decode(chen::ini::value_type &out, const iterator &beg, iterator &cur, iterator &end)
+void ini::decode(ini::value_type &out, const iterator &beg, iterator &cur, iterator &end)
 {
     bool root = true;
 
     while (cur != end)
     {
-        if (!chen::ini::advance(beg, cur, end))
+        if (!ini::advance(beg, cur, end))
             break;
 
         switch (*cur)
@@ -220,40 +220,40 @@ void chen::ini::decode(chen::ini::value_type &out, const iterator &beg, iterator
             {
                 root = false;
 
-                chen::ini::section_type s;
-                chen::ini::decode(s, beg, cur, end);
+                ini::section_type s;
+                ini::decode(s, beg, cur, end);
 
                 if (out.find(s.first) == out.end())
                     out.emplace(std::move(s));
                 else
-                    throw chen::ini::error(str::format("ini: duplicate section '%s' found", s.first.c_str()));
+                    throw ini::error(str::format("ini: duplicate section '%s' found", s.first.c_str()));
             }
                 break;
 
             case ';':
-                chen::ini::comment(beg, cur, end);
+                ini::comment(beg, cur, end);
                 break;
 
             default:
                 if (root)
                 {
-                    chen::ini::property_type p;
-                    chen::ini::decode(p, beg, cur, end);
+                    ini::property_type p;
+                    ini::decode(p, beg, cur, end);
                     out.emplace("", std::move(p));
                 }
                 else
                 {
-                    chen::ini::exception(beg, cur, end);
+                    ini::exception(beg, cur, end);
                 }
                 break;
         }
     }
 }
 
-void chen::ini::decode(chen::ini::section_type &out, const iterator &beg, iterator &cur, iterator &end)
+void ini::decode(ini::section_type &out, const iterator &beg, iterator &cur, iterator &end)
 {
     if ((cur == end) || (*cur != '['))
-        chen::ini::exception(beg, cur, end);
+        ini::exception(beg, cur, end);
     else
         ++cur;
 
@@ -264,26 +264,26 @@ void chen::ini::decode(chen::ini::section_type &out, const iterator &beg, iterat
         name += *cur++;
 
     if (name.empty() || (cur == end) || (*cur != ']'))
-        chen::ini::exception(beg, cur, end);
+        ini::exception(beg, cur, end);
     else
         ++cur;
 
     out.first = std::move(name);
 
     // properties
-    chen::ini::advance(beg, cur, end);
+    ini::advance(beg, cur, end);
 
-    chen::ini::property_type p;
-    chen::ini::decode(p, beg, cur, end);
+    ini::property_type p;
+    ini::decode(p, beg, cur, end);
     out.second = std::move(p);
 }
 
-void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, iterator &cur, iterator &end)
+void ini::decode(ini::property_type &out, const iterator &beg, iterator &cur, iterator &end)
 {
     while (cur != end)
     {
         // skip
-        if (!chen::ini::advance(beg, cur, end) || (*cur == '['))
+        if (!ini::advance(beg, cur, end) || (*cur == '['))
             break;
 
         std::string key;
@@ -299,24 +299,24 @@ void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, itera
         {
             if ((cur != end) && (*cur == ';'))
             {
-                chen::ini::comment(beg, cur, end);
+                ini::comment(beg, cur, end);
                 continue;
             }
             else
             {
-                chen::ini::exception(beg, cur, end);
+                ini::exception(beg, cur, end);
             }
         }
 
         if (out.find(key) != out.end())
         {
             auto pos = cur.distance() - key.size();
-            throw chen::ini::error(str::format("ini: duplicate key '%s' found at position %lu", key.c_str(), pos), pos);
+            throw ini::error(str::format("ini: duplicate key '%s' found at position %lu", key.c_str(), pos), pos);
         }
 
         // equal
         if ((cur == end) || (*cur != '='))
-            chen::ini::exception(beg, cur, end);
+            ini::exception(beg, cur, end);
         else
             ++cur;
 
@@ -327,7 +327,7 @@ void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, itera
         if ((cur != end) && (*cur != '\n'))
         {
             std::string s;
-            chen::ini::decode(s, beg, cur, end);
+            ini::decode(s, beg, cur, end);
             val = std::move(s);
         }
 
@@ -340,12 +340,12 @@ void chen::ini::decode(chen::ini::property_type &out, const iterator &beg, itera
     }
 }
 
-void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
+void ini::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
 {
     out.clear();
 
     if ((cur == end) || std::isspace(*cur))
-        chen::ini::exception(beg, cur, end);
+        ini::exception(beg, cur, end);
 
     bool quote = false;
 
@@ -359,7 +359,7 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
     {
         if (!quote && (*cur == ';'))
         {
-            chen::ini::comment(beg, cur, end);
+            ini::comment(beg, cur, end);
             break;
         }
         else if (*cur != '\\')
@@ -370,7 +370,7 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
 
         // escape
         if (++cur == end)
-            chen::ini::exception(beg, cur, end);
+            ini::exception(beg, cur, end);
 
         switch (*cur)
         {
@@ -429,32 +429,32 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
                 for (auto i = 0; i < 4; ++i, ++cur)
                 {
                     if (cur == end)
-                        chen::ini::exception(beg, cur, end);
+                        ini::exception(beg, cur, end);
 
                     auto ch = *cur;
 
                     if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
                         unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
                     else
-                        chen::ini::exception(beg, cur, end);
+                        ini::exception(beg, cur, end);
                 }
 
                 // convert utf-16 to utf-8
                 try
                 {
-                    out.append(chen::utf8::convert(static_cast<std::uint32_t>(std::strtol(unicode, nullptr, 16))));
+                    out.append(utf8::convert(static_cast<std::uint32_t>(std::strtol(unicode, nullptr, 16))));
                 }
                 catch (...)
                 {
                     // e.g: \xD83D\xDE00, it's a emoji character
                     auto pos = cur.distance() - 4;
-                    throw chen::ini::error(str::format("ini: invalid unicode char '\\u%s' at position %lu", unicode, pos), pos);
+                    throw ini::error(str::format("ini: invalid unicode char '\\u%s' at position %lu", unicode, pos), pos);
                 }
             }
                 break;
 
             default:
-                chen::ini::exception(beg, cur, end);
+                ini::exception(beg, cur, end);
                 break;
         }
 
@@ -464,7 +464,7 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
     if (quote)
     {
         if ((cur == end) || (*cur != '"'))
-            chen::ini::exception(beg, cur, end);
+            ini::exception(beg, cur, end);
         else
             ++cur;
     }
@@ -474,10 +474,10 @@ void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, ite
     }
 }
 
-void chen::ini::comment(const iterator &beg, iterator &cur, iterator &end)
+void ini::comment(const iterator &beg, iterator &cur, iterator &end)
 {
     if ((cur == end) || (*cur != ';'))
-        chen::ini::exception(beg, cur, end);
+        ini::exception(beg, cur, end);
 
     while ((cur != end) && (*cur != '\n'))
         ++cur;

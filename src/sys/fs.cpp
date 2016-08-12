@@ -197,7 +197,7 @@ std::string fs::basename(const std::string &path, const std::string &suffix)
     if (flag_b != end)
     {
         auto ret = path.substr(static_cast<std::size_t>(end - flag_a) + abs.size(), static_cast<std::size_t>(flag_a - flag_b));
-        return suffix.empty() || !chen::str::suffix(ret, suffix) ? ret : ret.substr(0, ret.size() - suffix.size());
+        return suffix.empty() || !str::suffix(ret, suffix) ? ret : ret.substr(0, ret.size() - suffix.size());
     }
     else
     {

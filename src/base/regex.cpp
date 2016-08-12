@@ -47,7 +47,7 @@ std::string regex::expand(const std::string &text, const std::regex &regex, cons
     if (std::regex_search(text, mt, regex))
     {
         for (auto &str : mt)
-            chen::str::replace(ret, "$" + chen::num::str(idx++), str);
+            str::replace(ret, "$" + num::str(idx++), str);
     }
 
     return ret;

@@ -9,11 +9,13 @@
 #include <array>
 #include <list>
 
+using namespace chen;
+
 TEST(BaseIterTest, General)
 {
     // plain text
     char buf[] = "chen";
-    chen::random_iterator<char> iter(buf);
+    random_iterator<char> iter(buf);
 
     EXPECT_EQ('c', *iter);
     EXPECT_EQ('c', *iter++);
@@ -37,10 +39,10 @@ TEST(BaseIterTest, General)
     iter -= 3;
     EXPECT_EQ('c', *iter);
 
-    chen::random_iterator<char> proxy(iter++);
+    random_iterator<char> proxy(iter++);
     EXPECT_EQ('c', *proxy);
 
-    chen::random_iterator<char> other(iter);
+    random_iterator<char> other(iter);
 
     EXPECT_TRUE(iter == other);
     EXPECT_TRUE(iter <= other);
@@ -56,8 +58,8 @@ TEST(BaseIterTest, General)
     std::vector<char> vector(buf, buf + ::strlen(buf));
     std::array<char, 4> array{};
 
-    chen::input_iterator<char> cur(vector.begin());
-    chen::input_iterator<char> end(vector.end());
+    input_iterator<char> cur(vector.begin());
+    input_iterator<char> end(vector.end());
 
     std::copy(cur, end, array.begin());
     EXPECT_TRUE(std::equal(vector.begin(), vector.end(), array.begin()));
@@ -65,10 +67,10 @@ TEST(BaseIterTest, General)
     // list, its iterator is a bidirectional iterator
     std::list<char> list{'c', 'h', 'e', 'n'};
 
-    chen::bidirectional_iterator<char> a(list.begin());
-    chen::bidirectional_iterator<char> b(list.end());
+    bidirectional_iterator<char> a(list.begin());
+    bidirectional_iterator<char> b(list.end());
 
-    chen::forward_iterator<char> f(buf);
+    forward_iterator<char> f(buf);
 
     while (a != b)
         EXPECT_TRUE(*a++ == *f++);

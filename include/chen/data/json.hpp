@@ -35,15 +35,15 @@ namespace chen
     public:
         typedef chen::input_iterator<const char, const char> iterator;  // it's an input iterator
 
-        typedef std::unordered_map<std::string, chen::json> object;
-        typedef std::vector<chen::json> array;
+        typedef std::unordered_map<std::string, json> object;
+        typedef std::vector<json> array;
 
         enum class Type {None, Object, Array, Number, String, True, False, Null};
 
         union Data
         {
-            chen::json::object *o;
-            chen::json::array *a;
+            json::object *o;
+            json::array *a;
             double d;
             std::string *s;
         };
@@ -65,16 +65,16 @@ namespace chen
          * Constructor
          */
         json() = default;
-        json(chen::json::Type type);
+        json(json::Type type);
 
         json(const json &o);
         json(json &&o);
 
-        json(const chen::json::object &v);
-        json(chen::json::object &&v);
+        json(const json::object &v);
+        json(json::object &&v);
 
-        json(const chen::json::array &v);
-        json(chen::json::array &&v);
+        json(const json::array &v);
+        json(json::array &&v);
 
         json(double v);
         json(std::int32_t v);
@@ -98,11 +98,11 @@ namespace chen
         json& operator=(const json &o);
         json& operator=(json &&o);
 
-        json& operator=(const chen::json::object &v);
-        json& operator=(chen::json::object &&v);
+        json& operator=(const json::object &v);
+        json& operator=(json::object &&v);
 
-        json& operator=(const chen::json::array &v);
-        json& operator=(chen::json::array &&v);
+        json& operator=(const json::array &v);
+        json& operator=(json::array &&v);
 
         json& operator=(double v);
         json& operator=(std::int32_t v);
@@ -119,13 +119,13 @@ namespace chen
          * Json parse, accept text, file or even iterators
          * accept any iterator that satisfy the requirement of the input iterator
          */
-        static chen::json parse(const std::string &text, bool file = false);
-        static chen::json parse(iterator cur, iterator end);
+        static json parse(const std::string &text, bool file = false);
+        static json parse(iterator cur, iterator end);
 
         /**
          * Json stringify
          */
-        static std::string stringify(const chen::json &json, std::size_t space = 0);
+        static std::string stringify(const json &json, std::size_t space = 0);
 
     public:
         /**
@@ -139,7 +139,7 @@ namespace chen
         /**
          * Get the json type
          */
-        chen::json::Type type() const;
+        json::Type type() const;
 
         /**
          * Check the json type
@@ -159,8 +159,8 @@ namespace chen
         /**
          * Get value, throw exception if type is incorrect
          */
-        const chen::json::object& getObject() const;
-        const chen::json::array& getArray() const;
+        const json::object& getObject() const;
+        const json::array& getArray() const;
         double getNumber() const;
         std::int32_t getInteger() const;
         std::uint32_t getUnsigned() const;
@@ -170,11 +170,11 @@ namespace chen
         /**
          * Get value via operators
          * e.g:
-         * >> chen::json json(115);
+         * >> json json(115);
          * >> int val = json;
          */
-        operator chen::json::object() const;
-        operator chen::json::array() const;
+        operator json::object() const;
+        operator json::array() const;
         operator double() const;
         operator std::int8_t() const;  // maybe losing precision
         operator std::uint8_t() const;
@@ -192,16 +192,16 @@ namespace chen
          * @caution the integer method does not exist because we store number as double
          * @caution the bool method does not exist because modify it will result in wrong type
          */
-        chen::json::object& getObject();
-        chen::json::array& getArray();
+        json::object& getObject();
+        json::array& getArray();
         double& getNumber();
         std::string& getString();
 
         /**
          * Convert value to the desired type as possible
          */
-        chen::json::object toObject() const;
-        chen::json::array toArray() const;
+        json::object toObject() const;
+        json::array toArray() const;
         double toNumber() const;
         std::int32_t toInteger() const;
         std::uint32_t toUnsigned() const;
@@ -227,9 +227,9 @@ namespace chen
         /**
          * Decode specific type
          */
-        static void decode(chen::json &out, const iterator &beg, iterator &cur, iterator &end);
-        static void decode(chen::json::object &out, const iterator &beg, iterator &cur, iterator &end);
-        static void decode(chen::json::array &out, const iterator &beg, iterator &cur, iterator &end);
+        static void decode(json &out, const iterator &beg, iterator &cur, iterator &end);
+        static void decode(json::object &out, const iterator &beg, iterator &cur, iterator &end);
+        static void decode(json::array &out, const iterator &beg, iterator &cur, iterator &end);
         static void decode(double &out, const iterator &beg, iterator &cur, iterator &end);
         static void decode(std::string &out, const iterator &beg, iterator &cur, iterator &end);
         static void decode(bool v, const iterator &beg, iterator &cur, iterator &end);
@@ -238,9 +238,9 @@ namespace chen
         /**
          * Encode specific type
          */
-        static void encode(const chen::json &v, std::size_t space, std::string &output, std::size_t &indent);
-        static void encode(const chen::json::object &v, std::size_t space, std::string &output, std::size_t &indent);
-        static void encode(const chen::json::array &v, std::size_t space, std::string &output, std::size_t &indent);
+        static void encode(const json &v, std::size_t space, std::string &output, std::size_t &indent);
+        static void encode(const json::object &v, std::size_t space, std::string &output, std::size_t &indent);
+        static void encode(const json::array &v, std::size_t space, std::string &output, std::size_t &indent);
         static void encode(double v, std::string &output);
         static void encode(const std::string &v, std::string &output);
         static void encode(bool v, std::string &output);

@@ -75,7 +75,7 @@ namespace chen
          */
         void create(const std::string &action,
                     const std::string &desc,
-                    std::function<void (const chen::cmd &cmd)> bind = nullptr);
+                    std::function<void (const cmd &cmd)> bind = nullptr);
 
         /**
          * Define option of the action
@@ -87,7 +87,7 @@ namespace chen
         void define(const std::string &option,
                     const std::string &tiny,
                     const std::string &desc,
-                    const chen::any &def);
+                    const any &def);
 
         /**
          * Change the action
@@ -143,7 +143,7 @@ namespace chen
             std::string desc;
 
             std::string val;
-            chen::any   def;
+            any         def;
 
             bool set = false;
         };
@@ -152,10 +152,10 @@ namespace chen
         {
             std::string name;
             std::string desc;
-            std::function<void (const chen::cmd &cmd)> bind;
+            std::function<void (const cmd &cmd)> bind;
 
             std::vector<std::string> order;  // option insertion order
-            std::unordered_map<std::string, chen::cmd::option> options;
+            std::unordered_map<std::string, cmd::option> options;
             std::unordered_map<std::string, std::string> alias;
         };
 
@@ -165,19 +165,19 @@ namespace chen
             explicit error(const std::string &what) : std::runtime_error(what) {}
         };
 
-        class error_general : public chen::cmd::error
+        class error_general : public cmd::error
         {
         public:
-            explicit error_general(const std::string &what) : chen::cmd::error(what) {}
+            explicit error_general(const std::string &what) : cmd::error(what) {}
         };
 
-        class error_parse : public chen::cmd::error
+        class error_parse : public cmd::error
         {
         public:
             explicit error_parse(const std::string &what,
                                  const std::string &action,
                                  const std::string &option)
-                    : chen::cmd::error(what), action(action), option(option) {}
+                    : cmd::error(what), action(action), option(option) {}
 
         public:
             std::string action;
@@ -191,16 +191,16 @@ namespace chen
         std::string usage() const;
         std::string usage(const std::string &action) const;
         std::string usage(const std::string &action, const std::string &option) const;
-        std::string usage(const chen::cmd::error_parse &error) const;
+        std::string usage(const cmd::error_parse &error) const;
 
         /**
          * Visit actions and options
          * empty name means it's the root action
          */
-        void visit(std::function<void (const chen::cmd::action &action, std::size_t idx, std::size_t len)> callback,
+        void visit(std::function<void (const cmd::action &action, std::size_t idx, std::size_t len)> callback,
                    std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
         void visit(const std::string &action,
-                   std::function<void (const chen::cmd::option &option, std::size_t idx, std::size_t len)> callback,
+                   std::function<void (const cmd::option &option, std::size_t idx, std::size_t len)> callback,
                    std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
 
         /**
@@ -215,18 +215,18 @@ namespace chen
         /**
          * Find current action's option
          */
-        const chen::cmd::option& opt(const std::string &name) const;
+        const cmd::option& opt(const std::string &name) const;
 
     protected:
         std::string _app;  // app name
 
-        std::unique_ptr<chen::cmd::action> _action;  // resolved action
+        std::unique_ptr<cmd::action> _action;  // resolved action
         std::vector<std::string> _objects;           // unresolved params
 
-        chen::cmd::action *_cursor = nullptr;              // cursor action, weak ref
+        cmd::action *_cursor = nullptr;              // cursor action, weak ref
 
         std::vector<std::string> _order;  // action insertion order
-        std::unordered_map<std::string, chen::cmd::action> _define;  // action defines
+        std::unordered_map<std::string, cmd::action> _define;  // action defines
 
         std::unordered_map<std::string, std::string> _suggest;  // intelligent suggestion
     };

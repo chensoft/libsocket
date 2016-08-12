@@ -7,138 +7,140 @@
 #include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
 
+using namespace chen;
+
 TEST(SysFsTest, General)
 {
     // path
-    chen::fs::home();
-    chen::fs::temp();
+    fs::home();
+    fs::temp();
 
     // drive
-    EXPECT_EQ("C:\\", chen::fs::drive("C:\\Windows\\System32"));
-    EXPECT_EQ("/", chen::fs::drive("/usr/local"));
-    EXPECT_EQ("", chen::fs::drive("file.txt"));
-    EXPECT_EQ("", chen::fs::drive(""));
+    EXPECT_EQ("C:\\", fs::drive("C:\\Windows\\System32"));
+    EXPECT_EQ("/", fs::drive("/usr/local"));
+    EXPECT_EQ("", fs::drive("file.txt"));
+    EXPECT_EQ("", fs::drive(""));
 
     // path
-    EXPECT_EQ(chen::fs::current(), chen::fs::realpath(chen::fs::current()));
-    EXPECT_EQ(chen::fs::current(), chen::fs::absolute(".", chen::fs::current()));
+    EXPECT_EQ(fs::current(), fs::realpath(fs::current()));
+    EXPECT_EQ(fs::current(), fs::absolute(".", fs::current()));
 
-    EXPECT_EQ(chen::fs::home(), chen::fs::realpath("~"));
-    EXPECT_EQ(chen::fs::home(), chen::fs::absolute("~"));
-    EXPECT_EQ(chen::fs::home() + "/Downloads", chen::fs::absolute("~/Downloads"));
+    EXPECT_EQ(fs::home(), fs::realpath("~"));
+    EXPECT_EQ(fs::home(), fs::absolute("~"));
+    EXPECT_EQ(fs::home() + "/Downloads", fs::absolute("~/Downloads"));
 
     // normalize
-    EXPECT_EQ("", chen::fs::normalize(""));
-    EXPECT_EQ("a", chen::fs::normalize("./a"));
-    EXPECT_EQ("a/b", chen::fs::normalize("a/./b"));
-    EXPECT_EQ("a/b", chen::fs::normalize("a///b"));
-    EXPECT_EQ("a/.../b", chen::fs::normalize("a/.../b"));  // this is a invalid path
-    EXPECT_EQ("../b", chen::fs::normalize("a/../../b"));   // the second .. don't know how to removed
-    EXPECT_EQ("/usr/local", chen::fs::normalize("/usr/local/etc/.."));
+    EXPECT_EQ("", fs::normalize(""));
+    EXPECT_EQ("a", fs::normalize("./a"));
+    EXPECT_EQ("a/b", fs::normalize("a/./b"));
+    EXPECT_EQ("a/b", fs::normalize("a///b"));
+    EXPECT_EQ("a/.../b", fs::normalize("a/.../b"));  // this is a invalid path
+    EXPECT_EQ("../b", fs::normalize("a/../../b"));   // the second .. don't know how to removed
+    EXPECT_EQ("/usr/local", fs::normalize("/usr/local/etc/.."));
 
-    EXPECT_EQ("C:\\a", chen::fs::normalize("C:\\a"));
-    EXPECT_EQ("C:\\a", chen::fs::normalize("C:\\.\\a"));
-    EXPECT_EQ("C:\\a\\...\\b", chen::fs::normalize("C:\\a\\...\\b"));
-    EXPECT_EQ("C:\\..\\b", chen::fs::normalize("C:\\a\\..\\..\\b"));
-    EXPECT_EQ("C:\\b", chen::fs::normalize("C:\\a\\..\\b"));
+    EXPECT_EQ("C:\\a", fs::normalize("C:\\a"));
+    EXPECT_EQ("C:\\a", fs::normalize("C:\\.\\a"));
+    EXPECT_EQ("C:\\a\\...\\b", fs::normalize("C:\\a\\...\\b"));
+    EXPECT_EQ("C:\\..\\b", fs::normalize("C:\\a\\..\\..\\b"));
+    EXPECT_EQ("C:\\b", fs::normalize("C:\\a\\..\\b"));
 
     // dirname
-    EXPECT_EQ("", chen::fs::dirname(""));
-    EXPECT_EQ("/home/staff/Downloads", chen::fs::dirname("/home/staff/Downloads/file.txt"));
-    EXPECT_EQ("/usr", chen::fs::dirname("/usr/."));
-    EXPECT_EQ("/", chen::fs::dirname("/usr/"));
-    EXPECT_EQ("/", chen::fs::dirname("/usr///"));
-    EXPECT_EQ("/", chen::fs::dirname("/"));
-    EXPECT_EQ(".", chen::fs::dirname("file.txt"));
+    EXPECT_EQ("", fs::dirname(""));
+    EXPECT_EQ("/home/staff/Downloads", fs::dirname("/home/staff/Downloads/file.txt"));
+    EXPECT_EQ("/usr", fs::dirname("/usr/."));
+    EXPECT_EQ("/", fs::dirname("/usr/"));
+    EXPECT_EQ("/", fs::dirname("/usr///"));
+    EXPECT_EQ("/", fs::dirname("/"));
+    EXPECT_EQ(".", fs::dirname("file.txt"));
 
-    EXPECT_EQ("C:\\Windows", chen::fs::dirname("C:\\Windows\\System32"));
-    EXPECT_EQ("C:\\Windows\\System32", chen::fs::dirname("C:\\Windows\\System32\\cmd.exe"));
-    EXPECT_EQ("C:\\", chen::fs::dirname("C:\\\\\\"));
-    EXPECT_EQ("C:\\", chen::fs::dirname("C:\\"));
+    EXPECT_EQ("C:\\Windows", fs::dirname("C:\\Windows\\System32"));
+    EXPECT_EQ("C:\\Windows\\System32", fs::dirname("C:\\Windows\\System32\\cmd.exe"));
+    EXPECT_EQ("C:\\", fs::dirname("C:\\\\\\"));
+    EXPECT_EQ("C:\\", fs::dirname("C:\\"));
 
     // basename
-    EXPECT_EQ("file.txt", chen::fs::basename("/home/staff/Downloads/file.txt"));
-    EXPECT_EQ("home", chen::fs::basename("/home/"));
-    EXPECT_EQ("", chen::fs::basename("/"));
-    EXPECT_EQ("file.txt", chen::fs::basename("file.txt"));
-    EXPECT_EQ("file.txt", chen::fs::basename("file.txt", "none"));
-    EXPECT_EQ("file", chen::fs::basename("file.txt", ".txt"));
+    EXPECT_EQ("file.txt", fs::basename("/home/staff/Downloads/file.txt"));
+    EXPECT_EQ("home", fs::basename("/home/"));
+    EXPECT_EQ("", fs::basename("/"));
+    EXPECT_EQ("file.txt", fs::basename("file.txt"));
+    EXPECT_EQ("file.txt", fs::basename("file.txt", "none"));
+    EXPECT_EQ("file", fs::basename("file.txt", ".txt"));
 
-    EXPECT_EQ("cmd.exe", chen::fs::basename("C:\\Windows\\System32\\cmd.exe"));
-    EXPECT_EQ("", chen::fs::basename("C:\\"));
+    EXPECT_EQ("cmd.exe", fs::basename("C:\\Windows\\System32\\cmd.exe"));
+    EXPECT_EQ("", fs::basename("C:\\"));
 
     // extname
-    EXPECT_EQ("", chen::fs::extname("file.txt", 0));
-    EXPECT_EQ(".txt", chen::fs::extname("/home/staff/Downloads/file.txt"));
-    EXPECT_EQ("", chen::fs::extname("/home/"));
-    EXPECT_EQ("", chen::fs::extname("/"));
+    EXPECT_EQ("", fs::extname("file.txt", 0));
+    EXPECT_EQ(".txt", fs::extname("/home/staff/Downloads/file.txt"));
+    EXPECT_EQ("", fs::extname("/home/"));
+    EXPECT_EQ("", fs::extname("/"));
 
-    EXPECT_EQ(".exe", chen::fs::extname("C:\\Windows\\System32\\cmd.exe"));
-    EXPECT_EQ("", chen::fs::extname("C:\\"));
+    EXPECT_EQ(".exe", fs::extname("C:\\Windows\\System32\\cmd.exe"));
+    EXPECT_EQ("", fs::extname("C:\\"));
 
     // absolute
-    EXPECT_TRUE(chen::fs::isAbsolute("/usr/local"));
-    EXPECT_FALSE(chen::fs::isAbsolute("file.txt"));
-    EXPECT_FALSE(chen::fs::isAbsolute(""));
+    EXPECT_TRUE(fs::isAbsolute("/usr/local"));
+    EXPECT_FALSE(fs::isAbsolute("file.txt"));
+    EXPECT_FALSE(fs::isAbsolute(""));
 
-    EXPECT_TRUE(chen::fs::isAbsolute("C:\\Windows\\System32"));
+    EXPECT_TRUE(fs::isAbsolute("C:\\Windows\\System32"));
 
     // change
-    auto cwd = chen::fs::current();
-    chen::fs::change(cwd);
-    EXPECT_EQ(cwd, chen::fs::current());
+    auto cwd = fs::current();
+    fs::change(cwd);
+    EXPECT_EQ(cwd, fs::current());
 
     // platform dependent
 #ifndef _WIN32
-    EXPECT_EQ("/", chen::fs::root());
-    EXPECT_EQ(std::vector<std::string>({"/"}), chen::fs::drives());
-    EXPECT_EQ('/', chen::fs::separator());
+    EXPECT_EQ("/", fs::root());
+    EXPECT_EQ(std::vector<std::string>({"/"}), fs::drives());
+    EXPECT_EQ('/', fs::separator());
 
     // absolute
-    EXPECT_EQ(chen::fs::normalize(chen::fs::current() + "/../a/b"), chen::fs::absolute("../a/b"));
-    EXPECT_EQ("/a/b", chen::fs::absolute("/a/b"));
-    EXPECT_EQ("/a/b", chen::fs::absolute("/a/b", chen::fs::current()));
+    EXPECT_EQ(fs::normalize(fs::current() + "/../a/b"), fs::absolute("../a/b"));
+    EXPECT_EQ("/a/b", fs::absolute("/a/b"));
+    EXPECT_EQ("/a/b", fs::absolute("/a/b", fs::current()));
 
     // check
-    EXPECT_TRUE(chen::fs::isExist("/"));
-    EXPECT_TRUE(chen::fs::isDir("/"));
-    EXPECT_FALSE(chen::fs::isFile("/"));
-    EXPECT_FALSE(chen::fs::isLink("/"));
+    EXPECT_TRUE(fs::isExist("/"));
+    EXPECT_TRUE(fs::isDir("/"));
+    EXPECT_FALSE(fs::isFile("/"));
+    EXPECT_FALSE(fs::isLink("/"));
 
     // just call
-    chen::fs::isReadable("/");
-    chen::fs::isWritable("/");
-    chen::fs::isExecutable("/");
+    fs::isReadable("/");
+    fs::isWritable("/");
+    fs::isExecutable("/");
 
-    chen::fs::atime("/");
-    chen::fs::mtime("/");
-    chen::fs::ctime("/");
+    fs::atime("/");
+    fs::mtime("/");
+    fs::ctime("/");
 
     // touch
-    chen::fs::write("/tmp/test_libchen.tmp", "content");
-    chen::fs::write("/tmp/test_libchen.tmp", "content", 7);
-    chen::fs::append("/tmp/test_libchen.tmp", "content");
-    chen::fs::append("/tmp/test_libchen.tmp", "content", 7);
-    chen::fs::read("/tmp/test_libchen.tmp", '\n');
+    fs::write("/tmp/test_libchen.tmp", "content");
+    fs::write("/tmp/test_libchen.tmp", "content", 7);
+    fs::append("/tmp/test_libchen.tmp", "content");
+    fs::append("/tmp/test_libchen.tmp", "content", 7);
+    fs::read("/tmp/test_libchen.tmp", '\n');
 
-    chen::fs::touch("/tmp/test_libchen.tmp");
-    chen::fs::touch("/tmp/test_libchen.tmp", std::time(nullptr), std::time(nullptr));
-    chen::fs::copy("/tmp/test_libchen.tmp", "/tmp/test_libchen1.tmp");
-    chen::fs::rename("/tmp/test_libchen.tmp", "/tmp/test_libchen2.tmp");
-    chen::fs::remove("/tmp/test_libchen.tmp");
-    chen::fs::remove("/tmp/test_libchen1.tmp");
-    chen::fs::remove("/tmp/test_libchen2.tmp");
+    fs::touch("/tmp/test_libchen.tmp");
+    fs::touch("/tmp/test_libchen.tmp", std::time(nullptr), std::time(nullptr));
+    fs::copy("/tmp/test_libchen.tmp", "/tmp/test_libchen1.tmp");
+    fs::rename("/tmp/test_libchen.tmp", "/tmp/test_libchen2.tmp");
+    fs::remove("/tmp/test_libchen.tmp");
+    fs::remove("/tmp/test_libchen1.tmp");
+    fs::remove("/tmp/test_libchen2.tmp");
 
-    chen::fs::create("/tmp/folder_libchen/nest", 0, true);
-    chen::fs::copy("/tmp/folder_libchen", "/tmp/folder_libchen_copy");
-    chen::fs::remove("/tmp/folder_libchen");
-    chen::fs::remove("/tmp/folder_libchen_copy");
+    fs::create("/tmp/folder_libchen/nest", 0, true);
+    fs::copy("/tmp/folder_libchen", "/tmp/folder_libchen_copy");
+    fs::remove("/tmp/folder_libchen");
+    fs::remove("/tmp/folder_libchen_copy");
 
     // visit
-    chen::fs::collect("/", false);
-    chen::fs::count("/", false);
-    chen::fs::count("/", false, false, false);
-    chen::fs::visit("/", [] (const std::string &path) {
+    fs::collect("/", false);
+    fs::count("/", false);
+    fs::count("/", false, false, false);
+    fs::visit("/", [] (const std::string &path) {
     }, false);
 #endif
 }

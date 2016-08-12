@@ -19,7 +19,7 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // json
-json::json(chen::json::Type type)
+json::json(json::Type type)
 {
     // handy method to create default json
     switch (type)
@@ -28,11 +28,11 @@ json::json(chen::json::Type type)
             break;
 
         case Type::Object:
-            *this = chen::json::object();
+            *this = json::object();
             break;
 
         case Type::Array:
-            *this = chen::json::array();
+            *this = json::array();
             break;
 
         case Type::Number:
@@ -67,24 +67,24 @@ json::json(json &&o)
     *this = std::move(o);
 }
 
-json::json(const chen::json::object &v) : _type(Type::Object)
+json::json(const json::object &v) : _type(Type::Object)
 {
-    this->_data.o = new chen::json::object(v);
+    this->_data.o = new json::object(v);
 }
 
-json::json(chen::json::object &&v) : _type(Type::Object)
+json::json(json::object &&v) : _type(Type::Object)
 {
-    this->_data.o = new chen::json::object(std::move(v));
+    this->_data.o = new json::object(std::move(v));
 }
 
-json::json(const chen::json::array &v) : _type(Type::Array)
+json::json(const json::array &v) : _type(Type::Array)
 {
-    this->_data.a = new chen::json::array(v);
+    this->_data.a = new json::array(v);
 }
 
-json::json(chen::json::array &&v) : _type(Type::Array)
+json::json(json::array &&v) : _type(Type::Array)
 {
-    this->_data.a = new chen::json::array(std::move(v));
+    this->_data.a = new json::array(std::move(v));
 }
 
 json::json(double v) : _type(Type::Number)
@@ -152,11 +152,11 @@ json& json::operator=(const json &o)
     switch (this->_type)
     {
         case Type::Object:
-            this->_data.o = new chen::json::object(*o._data.o);
+            this->_data.o = new json::object(*o._data.o);
             break;
 
         case Type::Array:
-            this->_data.a = new chen::json::array(*o._data.a);
+            this->_data.a = new json::array(*o._data.a);
             break;
 
         case Type::Number:
@@ -190,7 +190,7 @@ json& json::operator=(json &&o)
     return *this;
 }
 
-json& json::operator=(const chen::json::object &v)
+json& json::operator=(const json::object &v)
 {
     if ((this->_type == Type::Object) && (this->_data.o == &v))
         return *this;
@@ -198,12 +198,12 @@ json& json::operator=(const chen::json::object &v)
     this->clear();
 
     this->_type   = Type::Object;
-    this->_data.o = new chen::json::object(v);
+    this->_data.o = new json::object(v);
 
     return *this;
 }
 
-json& json::operator=(chen::json::object &&v)
+json& json::operator=(json::object &&v)
 {
     if ((this->_type == Type::Object) && (this->_data.o == &v))
         return *this;
@@ -211,12 +211,12 @@ json& json::operator=(chen::json::object &&v)
     this->clear();
 
     this->_type   = Type::Object;
-    this->_data.o = new chen::json::object(std::move(v));
+    this->_data.o = new json::object(std::move(v));
 
     return *this;
 }
 
-json& json::operator=(const chen::json::array &v)
+json& json::operator=(const json::array &v)
 {
     if ((this->_type == Type::Array) && (this->_data.a == &v))
         return *this;
@@ -224,12 +224,12 @@ json& json::operator=(const chen::json::array &v)
     this->clear();
 
     this->_type   = Type::Array;
-    this->_data.a = new chen::json::array(v);
+    this->_data.a = new json::array(v);
 
     return *this;
 }
 
-json& json::operator=(chen::json::array &&v)
+json& json::operator=(json::array &&v)
 {
     if ((this->_type == Type::Array) && (this->_data.a == &v))
         return *this;
@@ -237,7 +237,7 @@ json& json::operator=(chen::json::array &&v)
     this->clear();
 
     this->_type   = Type::Array;
-    this->_data.a = new chen::json::array(std::move(v));
+    this->_data.a = new json::array(std::move(v));
 
     return *this;
 }
@@ -303,7 +303,7 @@ json& json::operator=(bool v)
 }
 
 // parse & stringify
-chen::json json::parse(const std::string &text, bool file)
+json json::parse(const std::string &text, bool file)
 {
     if (file)
     {
@@ -324,7 +324,7 @@ chen::json json::parse(const std::string &text, bool file)
         {
             // can't catch std::ios_base::failure in here
             // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145
-            throw json::error(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
+            throw json::error(str::format("json: decode %s: %s", text.c_str(), sys::error().c_str()));
         }
     }
     else
@@ -333,30 +333,30 @@ chen::json json::parse(const std::string &text, bool file)
     }
 }
 
-chen::json chen::json::parse(iterator cur, iterator end)
+json json::parse(iterator cur, iterator end)
 {
-    chen::json item;
+    json item;
 
     const iterator beg = cur;
 
     // trim left spaces
-    if (!chen::json::advance(beg, cur, end, false))
+    if (!json::advance(beg, cur, end, false))
         return item;
 
     // decode item
-    chen::json::decode(item, beg, cur, end);
+    json::decode(item, beg, cur, end);
 
     // trim right spaces
-    chen::json::advance(beg, cur, end, false);
+    json::advance(beg, cur, end, false);
 
     // should reach end
     if (cur != end)
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
     return item;
 }
 
-std::string json::stringify(const chen::json &json, std::size_t space)
+std::string json::stringify(const json &json, std::size_t space)
 {
     std::string output;
     std::size_t indent = 0;
@@ -384,7 +384,7 @@ void json::validate(const std::string &text, bool file)
         }
         catch (const std::exception&)
         {
-            throw json::error(str::format("json: decode %s: %s", text.c_str(), chen::sys::error().c_str()));
+            throw json::error(str::format("json: decode %s: %s", text.c_str(), sys::error().c_str()));
         }
     }
     else
@@ -393,23 +393,23 @@ void json::validate(const std::string &text, bool file)
     }
 }
 
-void chen::json::validate(iterator cur, iterator end)
+void json::validate(iterator cur, iterator end)
 {
     const iterator beg = cur;
 
-    if (!chen::json::advance(beg, cur, end, false))
+    if (!json::advance(beg, cur, end, false))
         return;
 
     // a valid json must start by '{' or '['
     if ((*cur != '{') && (*cur != '['))
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
     // check syntax error
-    chen::json::parse(beg, end);  // use beg, not cur, to report correct position
+    json::parse(beg, end);  // use beg, not cur, to report correct position
 }
 
 // type
-chen::json::Type json::type() const
+json::Type json::type() const
 {
     return this->_type;
 }
@@ -461,7 +461,7 @@ bool json::isNone() const
 }
 
 // get value
-const chen::json::object& json::getObject() const
+const json::object& json::getObject() const
 {
     if (this->_type == Type::Object)
         return *this->_data.o;
@@ -469,7 +469,7 @@ const chen::json::object& json::getObject() const
         throw json::error("json: type is not object");
 }
 
-const chen::json::array& json::getArray() const
+const json::array& json::getArray() const
 {
     if (this->_type == Type::Array)
         return *this->_data.a;
@@ -520,12 +520,12 @@ bool json::getBool() const
 }
 
 // operator
-json::operator chen::json::object() const
+json::operator json::object() const
 {
     return this->getObject();
 }
 
-json::operator chen::json::array() const
+json::operator json::array() const
 {
     return this->getArray();
 }
@@ -585,7 +585,7 @@ json::operator bool() const
     return this->getBool();
 }
 
-chen::json::object& json::getObject()
+json::object& json::getObject()
 {
     if (this->_type == Type::Object)
         return *this->_data.o;
@@ -593,7 +593,7 @@ chen::json::object& json::getObject()
         throw json::error("json: type is not object");
 }
 
-chen::json::array& json::getArray()
+json::array& json::getArray()
 {
     if (this->_type == Type::Array)
         return *this->_data.a;
@@ -618,7 +618,7 @@ std::string& json::getString()
 }
 
 // convert value
-chen::json::object json::toObject() const
+json::object json::toObject() const
 {
     switch (this->_type)
     {
@@ -626,11 +626,11 @@ chen::json::object json::toObject() const
             return *this->_data.o;
 
         default:
-            return chen::json::object();
+            return json::object();
     }
 }
 
-chen::json::array json::toArray() const
+json::array json::toArray() const
 {
     switch (this->_type)
     {
@@ -638,7 +638,7 @@ chen::json::array json::toArray() const
             return *this->_data.a;
 
         default:
-            return chen::json::array();
+            return json::array();
     }
 }
 
@@ -778,7 +778,7 @@ void json::clear()
 }
 
 // exception
-void chen::json::exception(const iterator &beg, iterator &cur, iterator &end)
+void json::exception(const iterator &beg, iterator &cur, iterator &end)
 {
     if (cur == end)
     {
@@ -793,7 +793,7 @@ void chen::json::exception(const iterator &beg, iterator &cur, iterator &end)
 }
 
 // advance
-bool chen::json::advance(const iterator &beg, iterator &cur, iterator &end, bool require)
+bool json::advance(const iterator &beg, iterator &cur, iterator &end, bool require)
 {
     // skip whitespaces
     while ((cur != end) && std::isspace(*cur))
@@ -803,7 +803,7 @@ bool chen::json::advance(const iterator &beg, iterator &cur, iterator &end, bool
     if (cur == end)
     {
         if (require)
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
         else
             return false;
     }
@@ -812,24 +812,24 @@ bool chen::json::advance(const iterator &beg, iterator &cur, iterator &end, bool
 }
 
 // decode type
-void chen::json::decode(chen::json &out, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(json &out, const iterator &beg, iterator &cur, iterator &end)
 {
-    chen::json::advance(beg, cur, end);
+    json::advance(beg, cur, end);
 
     switch (*cur)
     {
         case '{':  // object
         {
-            chen::json::object o;
-            chen::json::decode(o, beg, cur, end);
+            json::object o;
+            json::decode(o, beg, cur, end);
             out = std::move(o);
         }
             break;
 
         case '[':  // array
         {
-            chen::json::array a;
-            chen::json::decode(a, beg, cur, end);
+            json::array a;
+            json::decode(a, beg, cur, end);
             out = std::move(a);
         }
             break;
@@ -837,23 +837,23 @@ void chen::json::decode(chen::json &out, const iterator &beg, iterator &cur, ite
         case '"':  // string
         {
             std::string s;
-            chen::json::decode(s, beg, cur, end);
+            json::decode(s, beg, cur, end);
             out = std::move(s);
         }
             break;
 
         case 't':  // true
-            chen::json::decode(true, beg, cur, end);
+            json::decode(true, beg, cur, end);
             out = true;
             break;
 
         case 'f':  // false
-            chen::json::decode(false, beg, cur, end);
+            json::decode(false, beg, cur, end);
             out = false;
             break;
 
         case 'n':  // null
-            chen::json::decode(nullptr, beg, cur, end);
+            json::decode(nullptr, beg, cur, end);
             out = nullptr;
             break;
 
@@ -861,63 +861,63 @@ void chen::json::decode(chen::json &out, const iterator &beg, iterator &cur, ite
             if (std::isdigit(*cur) || (*cur == '-'))  // number
             {
                 double d = 0;
-                chen::json::decode(d, beg, cur, end);
+                json::decode(d, beg, cur, end);
                 out = d;
             }
             else
             {
-                chen::json::exception(beg, cur, end);
+                json::exception(beg, cur, end);
             }
             break;
     }
 }
 
-void chen::json::decode(chen::json::object &out, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(json::object &out, const iterator &beg, iterator &cur, iterator &end)
 {
     if ((cur == end) || (*cur != '{'))
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
-    chen::json::advance(beg, ++cur, end);
+    json::advance(beg, ++cur, end);
 
     while (cur != end)
     {
         // skip spaces
-        chen::json::advance(beg, cur, end);
+        json::advance(beg, cur, end);
 
         if (*cur == '}')
             break;
 
         // find key
         if (*cur != '"')
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
 
         std::string key;
-        chen::json::decode(key, beg, cur, end);
+        json::decode(key, beg, cur, end);
 
         // find separator
-        chen::json::advance(beg, cur, end);
+        json::advance(beg, cur, end);
 
         if (*cur != ':')  // separator
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
 
-        chen::json::advance(beg, ++cur, end);
+        json::advance(beg, ++cur, end);
 
         // find value
-        chen::json item;
-        chen::json::decode(item, beg, cur, end);
+        json item;
+        json::decode(item, beg, cur, end);
 
         out[std::move(key)] = std::move(item);  // override if key already exist
 
         // find comma or ending
-        chen::json::advance(beg, cur, end);
+        json::advance(beg, cur, end);
 
         if (*cur == ',')
         {
-            chen::json::advance(beg, ++cur, end);
+            json::advance(beg, ++cur, end);
 
             // don't allow json like {"k":1,}
             if (*cur == '}')
-                chen::json::exception(beg, cur, end);
+                json::exception(beg, cur, end);
         }
         else if (*cur == '}')
         {
@@ -925,22 +925,22 @@ void chen::json::decode(chen::json::object &out, const iterator &beg, iterator &
         }
         else
         {
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
         }
     }
 
     if (cur == end)
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
     ++cur;
 }
 
-void chen::json::decode(chen::json::array &out, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(json::array &out, const iterator &beg, iterator &cur, iterator &end)
 {
     if ((cur == end) || (*cur != '['))
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
-    chen::json::advance(beg, ++cur, end);
+    json::advance(beg, ++cur, end);
 
     while (cur != end)
     {
@@ -948,21 +948,21 @@ void chen::json::decode(chen::json::array &out, const iterator &beg, iterator &c
             break;
 
         // find value
-        chen::json item;
-        chen::json::decode(item, beg, cur, end);
+        json item;
+        json::decode(item, beg, cur, end);
 
         out.emplace_back(std::move(item));
 
         // find comma or ending
-        chen::json::advance(beg, cur, end);
+        json::advance(beg, cur, end);
 
         if (*cur == ',')
         {
-            chen::json::advance(beg, ++cur, end);
+            json::advance(beg, ++cur, end);
 
             // don't allow json like [1,]
             if (*cur == ']')
-                chen::json::exception(beg, cur, end);
+                json::exception(beg, cur, end);
         }
         else if (*cur == ']')
         {
@@ -970,20 +970,20 @@ void chen::json::decode(chen::json::array &out, const iterator &beg, iterator &c
         }
         else
         {
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
         }
     }
 
     if (cur == end)
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
     ++cur;
 }
 
-void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(double &out, const iterator &beg, iterator &cur, iterator &end)
 {
     if (cur == end)
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
     std::string str(1, *cur++);
 
@@ -992,20 +992,20 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
     {
         if ((cur == end) || !std::isdigit(*cur))
         {
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
         }
         else if (*cur == '0')
         {
             str += *cur++;
 
             if ((cur != end) && std::isdigit(*cur))
-                chen::json::exception(beg, cur, end);
+                json::exception(beg, cur, end);
         }
     }
     else if ((str[0] == '0') && std::isdigit(*cur))
     {
         // if the first char is '0', then the whole number must be 0
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
     }
 
     // collect integer parts
@@ -1021,7 +1021,7 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
         if ((cur != end) && std::isdigit(*cur))
             str += *cur++;
         else
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
 
         // digits
         while ((cur != end) && std::isdigit(*cur))
@@ -1044,7 +1044,7 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
                 if ((cur != end) && std::isdigit(*cur))
                     str += *cur++;
                 else
-                    chen::json::exception(beg, cur, end);
+                    json::exception(beg, cur, end);
             }
 
             // last
@@ -1053,7 +1053,7 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
         }
         else
         {
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
         }
     }
 
@@ -1074,12 +1074,12 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
     out = d;
 }
 
-void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
 {
     out.clear();
 
     if ((cur == end) || (*cur != '"') || (++cur == end))
-        chen::json::exception(beg, cur, end);
+        json::exception(beg, cur, end);
 
     char ch = *cur;
 
@@ -1096,7 +1096,7 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
         if (ch == '\\')
         {
             if (++cur == end)
-                chen::json::exception(beg, cur, end);
+                json::exception(beg, cur, end);
             else
                 ch = *cur;
 
@@ -1137,20 +1137,20 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
                     for (auto i = 0; i < 4; ++i)
                     {
                         if (++cur == end)
-                            chen::json::exception(beg, cur, end);
+                            json::exception(beg, cur, end);
 
                         ch = *cur;
 
                         if (((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'f')) || ((ch >= 'A') && (ch <= 'F')))
                             unicode[i] = ch;  // char must in range of '0' ~ '9', 'a' ~ 'f', 'A' ~ 'F'
                         else
-                            chen::json::exception(beg, cur, end);
+                            json::exception(beg, cur, end);
                     }
 
                     // convert utf-16 to utf-8
                     try
                     {
-                        out.append(chen::utf8::convert(static_cast<std::uint32_t>(std::strtol(unicode, nullptr, 16))));
+                        out.append(utf8::convert(static_cast<std::uint32_t>(std::strtol(unicode, nullptr, 16))));
                     }
                     catch (...)
                     {
@@ -1162,7 +1162,7 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
                     break;
 
                 default:
-                    chen::json::exception(beg, cur, end);
+                    json::exception(beg, cur, end);
             }
         }
         else
@@ -1171,7 +1171,7 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
         }
 
         if (++cur == end)
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
         else
             ch = *cur;
     }
@@ -1179,7 +1179,7 @@ void chen::json::decode(std::string &out, const iterator &beg, iterator &cur, it
     ++cur;
 }
 
-void chen::json::decode(bool v, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(bool v, const iterator &beg, iterator &cur, iterator &end)
 {
     constexpr char t[] = "true";
     constexpr char f[] = "false";
@@ -1190,11 +1190,11 @@ void chen::json::decode(bool v, const iterator &beg, iterator &cur, iterator &en
     for (std::size_t i = 0; i < l; ++i, ++cur)
     {
         if ((cur == end) || (*cur != s[i]))
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
     }
 }
 
-void chen::json::decode(std::nullptr_t, const iterator &beg, iterator &cur, iterator &end)
+void json::decode(std::nullptr_t, const iterator &beg, iterator &cur, iterator &end)
 {
     constexpr char n[] = "null";
     constexpr auto len = sizeof(n) - 1;
@@ -1202,12 +1202,12 @@ void chen::json::decode(std::nullptr_t, const iterator &beg, iterator &cur, iter
     for (std::size_t i = 0; i < len; ++i, ++cur)
     {
         if ((cur == end) || (*cur != n[i]))
-            chen::json::exception(beg, cur, end);
+            json::exception(beg, cur, end);
     }
 }
 
 // encode type
-void json::encode(const chen::json &v, std::size_t space, std::string &output, std::size_t &indent)
+void json::encode(const json &v, std::size_t space, std::string &output, std::size_t &indent)
 {
     switch (v.type())
     {
@@ -1235,7 +1235,7 @@ void json::encode(const chen::json &v, std::size_t space, std::string &output, s
     }
 }
 
-void json::encode(const chen::json::object &v, std::size_t space, std::string &output, std::size_t &indent)
+void json::encode(const json::object &v, std::size_t space, std::string &output, std::size_t &indent)
 {
     output += '{';
 
@@ -1284,7 +1284,7 @@ void json::encode(const chen::json::object &v, std::size_t space, std::string &o
     output += '}';
 }
 
-void json::encode(const chen::json::array &v, std::size_t space, std::string &output, std::size_t &indent)
+void json::encode(const json::array &v, std::size_t space, std::string &output, std::size_t &indent)
 {
     output += '[';
 
