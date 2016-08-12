@@ -1,3 +1,5 @@
+-) simplify the usage of chen:: namespace
+
 -) the capability of sending raw packet
 
 -) implement unix domain socket only under Unix

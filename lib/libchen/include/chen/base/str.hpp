@@ -50,19 +50,19 @@ namespace chen
         template <typename ...Args>
         static void printf(const char *fmt, Args... args)
         {
-            chen::str::print(chen::str::format(fmt, args...), false);
+            str::print(str::format(fmt, args...), false);
         }
 
         template <typename ...Args>
         static void printf(std::ostream &out, const char *fmt, Args... args)
         {
-            chen::str::print(out, chen::str::format(fmt, args...), false);
+            str::print(out, str::format(fmt, args...), false);
         }
 
         template <typename ...Args>
         static void printf(std::ostream &out, std::mutex &mutex, const char *fmt, Args... args)
         {
-            chen::str::print(out, mutex, chen::str::format(fmt, args...), false);
+            str::print(out, mutex, str::format(fmt, args...), false);
         }
 
         static void print(const std::string &text, bool br = true);

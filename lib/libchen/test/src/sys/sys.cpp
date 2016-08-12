@@ -7,7 +7,9 @@
 #include <chen/sys/sys.hpp>
 #include <gtest/gtest.h>
 
+using namespace chen;
+
 TEST(SysSysTest, General)
 {
-    EXPECT_NE(chen::sys::uuid(), chen::sys::uuid());
+    EXPECT_NE(sys::uuid(), sys::uuid());
 }

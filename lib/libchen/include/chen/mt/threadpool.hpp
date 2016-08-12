@@ -72,7 +72,7 @@ namespace chen
         std::atomic<bool> _exit;
         std::vector<std::thread> _pool;
 
-        chen::semaphore _semaphore;
+        semaphore _semaphore;
 
     private:
         threadpool(const threadpool&) = delete;

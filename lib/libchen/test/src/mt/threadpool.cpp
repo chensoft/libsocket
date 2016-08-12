@@ -8,13 +8,15 @@
 #include <chen/base/num.hpp>
 #include <gtest/gtest.h>
 
+using namespace chen;
+
 TEST(MtThreadpoolTest, Single)
 {
     // check prime number, it's time consuming
     // when build in release mode, it takes about 100ms on my Macbook
     // my cpu is 2.6 GHz Intel Core i5
     for (std::size_t i = 1; i <= 20000; ++i)
-        chen::num::prime(i);
+        num::prime(i);
 }
 
 TEST(MtThreadpoolTest, Multiple)
@@ -23,10 +25,10 @@ TEST(MtThreadpoolTest, Multiple)
     // it takes about 50ms on my Macbook because my cpu is dual-core
     auto check = [] (std::size_t min, std::size_t max) {
         for (std::size_t i = min; i <= max; ++i)
-            chen::num::prime(i);
+            num::prime(i);
     };
 
-    chen::threadpool pool;
+    threadpool pool;
     std::vector<std::future<void>> task;
 
     // we split task into several parts

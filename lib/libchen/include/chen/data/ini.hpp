@@ -54,13 +54,13 @@ namespace chen
          * Ini parse, accept text, file or even iterators
          * accept any iterator that satisfy the requirement of the input iterator
          */
-        static chen::ini::value_type parse(const std::string &text, bool file = false);
-        static chen::ini::value_type parse(iterator cur, iterator end);
+        static ini::value_type parse(const std::string &text, bool file = false);
+        static ini::value_type parse(iterator cur, iterator end);
 
         /**
          * Ini stringify
          */
-        static std::string stringify(const chen::ini::value_type &map);
+        static std::string stringify(const ini::value_type &map);
 
     protected:
         /**
@@ -76,9 +76,9 @@ namespace chen
         /**
          * Decode specific type
          */
-        static void decode(chen::ini::value_type &out, const iterator &beg, iterator &cur, iterator &end);
-        static void decode(chen::ini::section_type &out, const iterator &beg, iterator &cur, iterator &end);
-        static void decode(chen::ini::property_type &out, const iterator &beg, iterator &cur, iterator &end);
+        static void decode(ini::value_type &out, const iterator &beg, iterator &cur, iterator &end);
+        static void decode(ini::section_type &out, const iterator &beg, iterator &cur, iterator &end);
+        static void decode(ini::property_type &out, const iterator &beg, iterator &cur, iterator &end);
         static void decode(std::string &out, const iterator &beg, iterator &cur, iterator &end);
 
         static void comment(const iterator &beg, iterator &cur, iterator &end);
