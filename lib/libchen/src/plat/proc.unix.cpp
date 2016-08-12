@@ -19,7 +19,7 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // proc
-void proc::daemon()
+bool proc::daemon()
 {
     // Note:
     // code is copied from http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html, thanks to its author
@@ -50,6 +50,8 @@ void proc::daemon()
     ::close(STDIN_FILENO);
     ::close(STDOUT_FILENO);
     ::close(STDERR_FILENO);
+
+    return true;
 }
 
 std::string proc::path(int argc, const char *const argv[])

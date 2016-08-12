@@ -8,26 +8,38 @@
 
 #include <chen/sys/sys.hpp>
 #include <string.h>
+#include <cstdlib>
 #include <cerrno>
 
 using namespace chen;
 
 // -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    // disable unused function warning on OS X
+#ifndef __APPLE__
+    std::string peek(char *result, char *buffer)
+    {
+        // GNU-specific strerror_r, result type is char*, will not write to buffer
+        return result;
+    }
+#endif
+    
+    std::string peek(int result, char *buffer)
+    {
+        // XSI-compliant strerror_r, result type is int, write error string to buffer
+        return !result ? buffer : "Unknown error";
+    }
+}
+
+
+// -----------------------------------------------------------------------------
 // sys
 std::string sys::error()
 {
-    if (!errno)
-        return "No error";
-
     char buf[1024] = {0};
-
-#if (!defined(_POSIX_C_SOURCE) || (_POSIX_C_SOURCE >= 200112L)) && !_GNU_SOURCE
-    // XSI-compliant strerror_r
-    return !::strerror_r(errno, buf, sizeof(buf)) ? std::string(buf) : "Unknown error";
-#else
-    // GNU-specific strerror_r
-    return ::strerror_r(errno, buf, sizeof(buf));
-#endif
+    return !errno ? "No error" : peek(::strerror_r(errno, buf, sizeof(buf)), buf);
 }
 
 #endif
