@@ -375,7 +375,7 @@ namespace chen
             /**
              * Helper function to build array from raw c-array
              */
-            static std::array<std::uint8_t, 16> array(const std::uint8_t addr[16]);
+            static std::array<std::uint8_t, 16> array(const std::uint8_t (&addr)[16]);
 
             /**
              * Convert between bytes and string
