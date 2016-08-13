@@ -219,12 +219,6 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(bytes, 64)));
     EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(bytes, "ffff:ffff:ffff:ffff::")));
 
-    const std::uint8_t c_bytes[16] = {0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e};
-
-    EXPECT_EQ(address("2404:6800:4004:817::200e"), address(c_bytes));
-    EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(c_bytes, 64)));
-    EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(c_bytes, "ffff:ffff:ffff:ffff::")));
-
     EXPECT_THROW(address("2404:6800:4004:817::200e/129"), error_address);
     EXPECT_THROW(address(version6(bytes, 129)), error_address);
 

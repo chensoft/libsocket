@@ -59,7 +59,7 @@ namespace
             case AF_INET6:
             {
                 auto tmp = (struct sockaddr_in6*)ptr;
-                auto ret = std::unique_ptr<address>(new address(tmp->sin6_addr.s6_addr));
+                auto ret = std::unique_ptr<address>(new address(version6::array(tmp->sin6_addr.s6_addr)));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
             }
@@ -80,7 +80,7 @@ namespace
                 return version4::toCIDR(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return version6::toCIDR(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+                return version6::toCIDR(version6::array(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr));
 
             default:
                 return 0;

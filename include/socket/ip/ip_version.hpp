@@ -202,12 +202,6 @@ namespace chen
             version6(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
             version6(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope);
 
-            version6(const std::uint8_t addr[16]);
-            version6(const std::uint8_t addr[16], std::uint8_t cidr);
-            version6(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
-            version6(const std::uint8_t addr[16], const std::string &mask);
-            version6(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope);
-
         public:
             /**
              * Assign empty address
@@ -252,18 +246,11 @@ namespace chen
             void assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask);
             void assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope);
 
-            void assign(const std::uint8_t addr[16]);
-            void assign(const std::uint8_t addr[16], std::uint8_t cidr);
-            void assign(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
-            void assign(const std::uint8_t addr[16], const std::string &mask);
-            void assign(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope);
-
             /**
              * Assignment operator
              */
             version6& operator=(const std::string &addr);
             version6& operator=(const std::array<std::uint8_t, 16> &addr);
-            version6& operator=(const std::uint8_t addr[16]);
 
         public:
             /**
@@ -386,26 +373,31 @@ namespace chen
 
         public:
             /**
+             * Helper function to build array from raw c-array
+             */
+            static std::array<std::uint8_t, 16> array(const std::uint8_t addr[16]);
+
+            /**
              * Convert between bytes and string
              * @caution default CIDR prefix will be 128 if you don't provide
              */
-            static std::string toString(const std::uint8_t addr[16]);
-            static std::string toString(const std::uint8_t addr[16], std::uint8_t cidr);
+            static std::string toString(const std::array<std::uint8_t, 16> &addr);
+            static std::string toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr);
 
-            static std::string toScope(const std::uint8_t addr[16], std::uint32_t scope);
-            static std::string toScope(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
+            static std::string toScope(const std::array<std::uint8_t, 16> &addr, std::uint32_t scope);
+            static std::string toScope(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope);
 
-            static std::string toExpanded(const std::uint8_t addr[16]);
-            static std::string toSuppressed(const std::uint8_t addr[16]);
-            static std::string toCompressed(const std::uint8_t addr[16]);
-            static std::string toMixed(const std::uint8_t addr[16]);
+            static std::string toExpanded(const std::array<std::uint8_t, 16> &addr);
+            static std::string toSuppressed(const std::array<std::uint8_t, 16> &addr);
+            static std::string toCompressed(const std::array<std::uint8_t, 16> &addr);
+            static std::string toMixed(const std::array<std::uint8_t, 16> &addr);
 
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr);
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr);
             static std::array<std::uint8_t, 16> toBytes(const std::string &addr, std::uint8_t *cidr, std::uint32_t *scope);
 
             static std::uint8_t toCIDR(const std::string &mask);
-            static std::uint8_t toCIDR(const std::uint8_t mask[16]);
+            static std::uint8_t toCIDR(const std::array<std::uint8_t, 16> &mask);
 
         public:
             /**
@@ -415,7 +407,7 @@ namespace chen
                                         std::array<std::uint8_t, 16>::const_iterator end);
 
         private:
-            std::array<std::uint8_t, 16> _addr;  // todo use plain old array?
+            std::array<std::uint8_t, 16> _addr;
             std::uint32_t _scope;  // link-local address's(e.g: fe80::1%lo0) scope zone id, rfc4007, section 11
         };
     }

@@ -295,12 +295,12 @@ namespace chen
             /**
              * Copy constructor
              */
-            erasure(const erasure &o)
+            erasure(const erasure<Category, Value, Reference, Pointer, Distance> &o)
             {
                 *this = o;
             }
 
-            erasure& operator=(const erasure &o)
+            erasure& operator=(const erasure<Category, Value, Reference, Pointer, Distance> &o)
             {
                 auto tmp = this->_data;
                 this->_data = o._data->clone();
@@ -322,6 +322,9 @@ namespace chen
             template <typename Iterator>
             erasure(Iterator it) : _data(new impl<Category, Value, Reference, Pointer, Distance, Iterator>(it))
             {
+                static_assert(!std::is_same<Iterator, erasure<std::input_iterator_tag, Value, Reference, Pointer, Distance>>::value, "don't use erasure to initialize erasure");
+                static_assert(!std::is_same<Iterator, erasure<std::bidirectional_iterator_tag, Value, Reference, Pointer, Distance>>::value, "don't use erasure to initialize erasure");
+                static_assert(!std::is_same<Iterator, erasure<std::random_access_iterator_tag, Value, Reference, Pointer, Distance>>::value, "don't use erasure to initialize erasure");
             }
 
             ~erasure()

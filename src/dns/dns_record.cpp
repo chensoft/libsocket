@@ -1283,7 +1283,7 @@ AAAA::AAAA() : RR(RRType::AAAA)
 std::string AAAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + ip::version6::toString(this->address.data());
+    ret += sep + ip::version6::toString(this->address);
     return ret;
 }
 
