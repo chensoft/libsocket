@@ -25,25 +25,12 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/ip/ip_error.hpp>
 
 #include <socket/so/so_endpoint.hpp>
-#include <socket/so/so_socket.hpp>
-#include <socket/so/so_error.hpp>
 
-#include <socket/tcp/tcp_define.hpp>
-#include <socket/tcp/tcp_socket.hpp>
-#include <socket/tcp/tcp_client.hpp>
-#include <socket/tcp/tcp_server.hpp>
-#include <socket/tcp/tcp_conn.hpp>
-
-#include <socket/udp/udp_define.hpp>
-#include <socket/udp/udp_socket.hpp>
-#include <socket/udp/udp_client.hpp>
-#include <socket/udp/udp_server.hpp>
-
-#include <socket/dns/dns_edns.hpp>
-#include <socket/dns/dns_error.hpp>
-#include <socket/dns/dns_codec.hpp>
-#include <socket/dns/dns_table.hpp>
 #include <socket/dns/dns_define.hpp>
-#include <socket/dns/dns_record.hpp>
 #include <socket/dns/dns_header.hpp>
 #include <socket/dns/dns_packet.hpp>
+#include <socket/dns/dns_record.hpp>
+#include <socket/dns/dns_codec.hpp>
+#include <socket/dns/dns_table.hpp>
+#include <socket/dns/dns_error.hpp>
+#include <socket/dns/dns_edns.hpp>

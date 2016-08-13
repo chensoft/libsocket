@@ -46,6 +46,8 @@
 
 -) accept "host:port" as param name addr when connect, ipv6 is "[fe80::1%lo0]:53"
 
+-) ipv6-only dns query handle
+
 -) specify query v4 or v6 dns only when specify host in connect
 
 -) accept address_vx, port when connect
@@ -69,3 +71,5 @@
 -) how to add epoll, kqueue?
 
 -) allow multicast and broadcast on socket
+
+-) if client socket is connecting, then still allow reading and writing, if connected then send it immediately
