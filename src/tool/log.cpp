@@ -12,10 +12,10 @@ using namespace chen;
 
 // -----------------------------------------------------------------------------
 // log
-log  log::_default;
-log *log::_current = &log::_default;
+chen::log  log::_default;
+chen::log *log::_current = &log::_default;
 
-log& log::current()
+chen::log& log::current()
 {
     return *log::_current;
 }
