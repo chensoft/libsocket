@@ -11,10 +11,10 @@
 
 namespace chen
 {
-    namespace ip
+    namespace net
     {
         /**
-         * IP general error
+         * Network general error
          */
         class error : public std::runtime_error
         {
@@ -24,7 +24,7 @@ namespace chen
 
 
         /**
-         * IP interface error
+         * Network interface error
          */
         class error_interface : public error
         {

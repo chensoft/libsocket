@@ -22,14 +22,12 @@ include_directories(lib/libchen/include)
 
 # source codes
 file(GLOB INC_ROOT include/socket/*.hpp)
-file(GLOB INC_IP   include/socket/ip/*.hpp)
-file(GLOB INC_SO   include/socket/so/*.hpp)
+file(GLOB INC_NET  include/socket/net/*.hpp)
 file(GLOB INC_TCP  include/socket/tcp/*.hpp)
 file(GLOB INC_UDP  include/socket/udp/*.hpp)
 file(GLOB INC_DNS  include/socket/dns/*.hpp)
 
-aux_source_directory(src/ip   SRC_IP)
-aux_source_directory(src/so   SRC_SO)
+aux_source_directory(src/net  SRC_NET)
 aux_source_directory(src/tcp  SRC_TCP)
 aux_source_directory(src/udp  SRC_UDP)
 aux_source_directory(src/dns  SRC_DNS)
@@ -38,8 +36,8 @@ aux_source_directory(src/plat SRC_PLAT)
 # generate lib(both static and shared)
 # rename library to libsocket.a & libsocket.so or libsocket.dylib
 set(ALL_FILES
-        ${INC_IP} ${INC_SO} ${INC_TCP} ${INC_UDP} ${INC_DNS} ${INC_ROOT}
-        ${SRC_IP} ${SRC_SO} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS} ${SRC_PLAT})
+        ${INC_NET} ${INC_TCP} ${INC_UDP} ${INC_DNS} ${INC_ROOT}
+        ${SRC_NET} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS} ${SRC_PLAT})
 
 if(LIBSOCKET_BUILD_STATIC)
     add_library(libsocket_static STATIC ${ALL_FILES})
@@ -55,14 +53,12 @@ endif()
 
 # group files in IDEs like Xcode and Visual Studio
 source_group("include\\socket"      FILES ${INC_ROOT})
-source_group("include\\socket\\ip"  FILES ${INC_IP})
-source_group("include\\socket\\so"  FILES ${INC_SO})
+source_group("include\\socket\\net" FILES ${INC_NET})
 source_group("include\\socket\\tcp" FILES ${INC_TCP})
 source_group("include\\socket\\udp" FILES ${INC_UDP})
 source_group("include\\socket\\dns" FILES ${INC_DNS})
 
-source_group("src\\ip"   FILES ${SRC_IP})
-source_group("src\\so"   FILES ${SRC_SO})
+source_group("src\\net"  FILES ${SRC_NET})
 source_group("src\\tcp"  FILES ${SRC_TCP})
 source_group("src\\udp"  FILES ${SRC_UDP})
 source_group("src\\dns"  FILES ${SRC_DNS})

@@ -7,7 +7,7 @@
 #include <socket/dns/dns_record.hpp>
 #include <socket/dns/dns_table.hpp>
 #include <socket/dns/dns_codec.hpp>
-#include <socket/ip/ip_address.hpp>
+#include <socket/net/net_address.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/map.hpp>
 #include <limits>
@@ -208,7 +208,7 @@ A::A() : RR(RRType::A)
 std::string A::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + ip::version4::toString(this->address);
+    ret += sep + net::version4::toString(this->address);
     return ret;
 }
 
@@ -233,7 +233,7 @@ void A::unpack(const json::object &object)
     auto address = map::find(object, "address");
 
     if (address.isString())
-        this->address = ip::version4::toInteger(address);
+        this->address = net::version4::toInteger(address);
     else
         this->address = address.toUnsigned();
 }
@@ -1283,7 +1283,7 @@ AAAA::AAAA() : RR(RRType::AAAA)
 std::string AAAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + ip::version6::toString(this->address);
+    ret += sep + net::version6::toString(this->address);
     return ret;
 }
 
@@ -1305,7 +1305,7 @@ void AAAA::unpack(decoder &decoder)
 void AAAA::unpack(const json::object &object)
 {
     auto address = map::find(object, "address");
-    this->address = ip::version6::toBytes(address);
+    this->address = net::version6::toBytes(address);
 }
 
 

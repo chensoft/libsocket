@@ -6,24 +6,24 @@
  */
 #pragma once
 
-#include <socket/ip/ip_address.hpp>
+#include <socket/net/net_address.hpp>
 
 namespace chen
 {
-    namespace so
+    namespace net
     {
         class endpoint
         {
         public:
             endpoint(const std::string &addr, std::uint16_t port);
-            endpoint(const ip::address &addr, std::uint16_t port);
+            endpoint(const net::address &addr, std::uint16_t port);
 
         public:
             /**
              * Property
              */
-            const ip::address& addr() const;
-            void addr(const ip::address &value);
+            const net::address& addr() const;
+            void addr(const net::address &value);
 
             std::uint16_t port() const;
             void port(std::uint16_t value);
@@ -42,7 +42,7 @@ namespace chen
             bool operator>=(const endpoint &o) const;
 
         private:
-            ip::address _addr;
+            net::address _addr;
             std::uint16_t _port = 0;
         };
     }

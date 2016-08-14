@@ -4,28 +4,28 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/so/so_endpoint.hpp>
+#include <socket/net/net_endpoint.hpp>
 
 using namespace chen;
-using namespace chen::so;
+using namespace chen::net;
 
 // -----------------------------------------------------------------------------
 // endpoint
-endpoint::endpoint(const std::string &addr, std::uint16_t port) : endpoint(ip::address(addr), port)
+endpoint::endpoint(const std::string &addr, std::uint16_t port) : endpoint(net::address(addr), port)
 {
 }
 
-endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
+endpoint::endpoint(const net::address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
 // property
-const ip::address& endpoint::addr() const
+const net::address& endpoint::addr() const
 {
     return this->_addr;
 }
 
-void endpoint::addr(const ip::address &value)
+void endpoint::addr(const net::address &value)
 {
     this->_addr = value;
 }

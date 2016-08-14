@@ -4,13 +4,12 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/so/so_endpoint.hpp>
+#include <socket/net/net_endpoint.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen::ip;
-using namespace chen::so;
+using namespace chen::net;
 
-TEST(SOEndpointTest, General)
+TEST(NetEndpointTest, General)
 {
     const endpoint ep1("127.0.0.1", 80);
     const endpoint ep2(address("127.0.0.1"), 80);

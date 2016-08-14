@@ -1,5 +1,3 @@
--) simplify the usage of chen:: namespace
-
 -) the capability of sending raw packet
 
 -) implement unix domain socket only under Unix
@@ -11,10 +9,6 @@
 -) add connecting state
 
 -) tcp client reconnect using stored address and port
-
--) parse [fe80::1%lo0] v6 address with scope, store scope id to address_v6
-
--) enum network interfaces, mac addresses, ip addresses and so on
 
 -) socket can accept or connect on specific interface according to its name
 
@@ -34,13 +28,9 @@
 
 -) anti slow packet attack
 
--) use chen::ip_address in socket methods
-
--) rename so::socket to basic
-
 -) advance dns query(sync and async) methods
 
--) split host add port in so::endpoint?
+-) split host add port in so::socket?
 
 -) store host into tcp/udp socket class
 

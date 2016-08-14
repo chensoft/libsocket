@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/ip/ip_interface.hpp>
+#include <socket/net/net_interface.hpp>
 #include <chen/base/num.hpp>
 #include <ifaddrs.h>
 #include <net/if.h>
@@ -14,7 +14,7 @@
 #include <cstdlib>
 
 using namespace chen;
-using namespace chen::ip;
+using namespace chen::net;
 
 // -----------------------------------------------------------------------------
 // helper

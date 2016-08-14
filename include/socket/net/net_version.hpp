@@ -13,7 +13,7 @@
 
 namespace chen
 {
-    namespace ip
+    namespace net
     {
         // ---------------------------------------------------------------------
         // Base

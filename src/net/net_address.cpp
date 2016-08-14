@@ -4,11 +4,11 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_address.hpp>
+#include <socket/net/net_address.hpp>
 #include <chen/base/str.hpp>
 
 using namespace chen;
-using namespace chen::ip;
+using namespace chen::net;
 
 // -----------------------------------------------------------------------------
 // address

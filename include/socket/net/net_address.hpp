@@ -6,11 +6,11 @@
  */
 #pragma once
 
-#include "ip_version.hpp"
+#include "net_version.hpp"
 
 namespace chen
 {
-    namespace ip
+    namespace net
     {
         class address
         {

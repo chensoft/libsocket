@@ -4,16 +4,16 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_version.hpp>
-#include <socket/ip/ip_interface.hpp>
-#include <socket/ip/ip_error.hpp>
+#include <socket/net/net_version.hpp>
+#include <socket/net/net_interface.hpp>
+#include <socket/net/net_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
 #include <bitset>
 
 using namespace chen;
-using namespace chen::ip;
+using namespace chen::net;
 
 // -----------------------------------------------------------------------------
 // version

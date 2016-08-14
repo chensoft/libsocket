@@ -350,7 +350,7 @@ void Subnet::unpack(decoder &decoder)
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[3 - i]);
 
-            this->address = ip::version4(*reinterpret_cast<std::uint32_t*>(addr), this->source);
+            this->address = net::version4(*reinterpret_cast<std::uint32_t*>(addr), this->source);
         }
             break;
 
@@ -365,7 +365,7 @@ void Subnet::unpack(decoder &decoder)
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[15 - i]);
 
-            this->address = ip::version6(addr, this->source);
+            this->address = net::version6(addr, this->source);
         }
             break;
 

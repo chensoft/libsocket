@@ -4,20 +4,20 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_interface.hpp>
-#include <socket/ip/ip_error.hpp>
+#include <socket/net/net_interface.hpp>
+#include <socket/net/net_error.hpp>
 #include <gtest/gtest.h>
 
 using namespace chen;
-using namespace chen::ip;
+using namespace chen::net;
 
-TEST(IPAddressTest, Base)
+TEST(NetAddressTest, Base)
 {
     EXPECT_EQ(address::Type::IPv4, address::detect("127.0.0.1"));
     EXPECT_EQ(address::Type::IPv6, address::detect("2404:6800:4004:817::200e"));
 }
 
-TEST(IPAddressTest, IPv4)
+TEST(NetAddressTest, IPv4)
 {
     // assign
     EXPECT_EQ(address(), address("0.0.0.0"));
@@ -187,7 +187,7 @@ TEST(IPAddressTest, IPv4)
     EXPECT_THROW(version4::toInteger("127.0.0.1/99", &cidr), error_address);
 }
 
-TEST(IPAddressTest, IPv6)
+TEST(NetAddressTest, IPv6)
 {
     // assign
     EXPECT_EQ(address(address::Type::IPv6), address("::"));
