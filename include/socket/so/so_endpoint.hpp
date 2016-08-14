@@ -15,20 +15,17 @@ namespace chen
         class endpoint
         {
         public:
-            /**
-             * Construct by ip address and port number
-             */
             endpoint(const std::string &addr, std::uint16_t port);
-            endpoint(const chen::ip::address &addr, std::uint16_t port);
+            endpoint(const ip::address &addr, std::uint16_t port);
 
         public:
             /**
              * Property
              */
-            const chen::ip::address& addr() const;
-            std::uint16_t port() const;
+            const ip::address& addr() const;
+            void addr(const ip::address &value);
 
-            void addr(const chen::ip::address &value);
+            std::uint16_t port() const;
             void port(std::uint16_t value);
 
         public:
@@ -45,7 +42,7 @@ namespace chen
             bool operator>=(const endpoint &o) const;
 
         private:
-            chen::ip::address _addr;
+            ip::address _addr;
             std::uint16_t _port = 0;
         };
     }

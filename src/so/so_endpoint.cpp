@@ -11,28 +11,28 @@ using namespace chen::so;
 
 // -----------------------------------------------------------------------------
 // endpoint
-endpoint::endpoint(const std::string &addr, std::uint16_t port) : _addr(addr), _port(port)
+endpoint::endpoint(const std::string &addr, std::uint16_t port) : endpoint(ip::address(addr), port)
 {
 }
 
-endpoint::endpoint(const chen::ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
+endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
 // property
-const chen::ip::address& endpoint::addr() const
+const ip::address& endpoint::addr() const
 {
     return this->_addr;
+}
+
+void endpoint::addr(const ip::address &value)
+{
+    this->_addr = value;
 }
 
 std::uint16_t endpoint::port() const
 {
     return this->_port;
-}
-
-void endpoint::addr(const chen::ip::address &value)
-{
-    this->_addr = value;
 }
 
 void endpoint::port(std::uint16_t value)
@@ -63,7 +63,7 @@ bool endpoint::operator>(const endpoint &o) const
 
 bool endpoint::operator<=(const endpoint &o) const
 {
-    return (this->_addr == o._addr) ? this->_port <= o._port : this->_addr < o._addr;
+    return (this->_addr == o._addr) ? this->_port <= o._port : this->_addr <= o._addr;
 }
 
 bool endpoint::operator>=(const endpoint &o) const

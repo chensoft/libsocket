@@ -7,39 +7,42 @@
 #include <socket/so/so_endpoint.hpp>
 #include <gtest/gtest.h>
 
+using namespace chen::ip;
+using namespace chen::so;
+
 TEST(SOEndpointTest, General)
 {
-    const chen::so::endpoint ep1("127.0.0.1", 80);
-    const chen::so::endpoint ep2(chen::ip::address("127.0.0.1"), 80);
+    const endpoint ep1("127.0.0.1", 80);
+    const endpoint ep2(address("127.0.0.1"), 80);
 
     EXPECT_EQ(80, ep1.port());
 
-    EXPECT_EQ(chen::ip::address("127.0.0.1"), ep1.addr());
-    EXPECT_EQ(chen::ip::address("127.0.0.1"), ep2.addr());
+    EXPECT_EQ("127.0.0.1", ep1.addr().str());
+    EXPECT_EQ("127.0.0.1", ep2.addr().str());
 
-    chen::so::endpoint ep3("127.0.0.1", 80);
+    endpoint ep3("127.0.0.1", 80);
 
     EXPECT_EQ(80, ep3.port());
-    EXPECT_EQ(chen::ip::address("127.0.0.1"), ep3.addr());
+    EXPECT_EQ(address("127.0.0.1"), ep3.addr());
 
     ep3.port(443);
-    ep3.addr(chen::ip::address("192.168.1.1"));
+    ep3.addr(address("192.168.1.1"));
 
     EXPECT_EQ(443, ep3.port());
-    EXPECT_EQ(chen::ip::address("192.168.1.1").str(), ep3.addr().str());
+    EXPECT_EQ(address("192.168.1.1").str(), ep3.addr().str());
 
-    EXPECT_EQ(chen::so::endpoint("127.0.0.1", 80), chen::so::endpoint("127.0.0.1", 80));
-    EXPECT_NE(chen::so::endpoint("192.168.0.1", 80), chen::so::endpoint("127.0.0.1", 80));
+    EXPECT_EQ(endpoint("127.0.0.1", 80), endpoint("127.0.0.1", 80));
+    EXPECT_NE(endpoint("192.168.0.1", 80), endpoint("127.0.0.1", 80));
 
-    EXPECT_LT(chen::so::endpoint("127.0.0.0", 80), chen::so::endpoint("127.0.0.1", 80));
-    EXPECT_LT(chen::so::endpoint("127.0.0.1", 53), chen::so::endpoint("127.0.0.1", 80));
+    EXPECT_LT(endpoint("127.0.0.0", 80), endpoint("127.0.0.1", 80));
+    EXPECT_LT(endpoint("127.0.0.1", 53), endpoint("127.0.0.1", 80));
 
-    EXPECT_LE(chen::so::endpoint("127.0.0.1", 80), chen::so::endpoint("127.0.0.1", 80));
-    EXPECT_LE(chen::so::endpoint("127.0.0.1", 53), chen::so::endpoint("127.0.0.1", 80));
+    EXPECT_LE(endpoint("127.0.0.1", 80), endpoint("127.0.0.1", 80));
+    EXPECT_LE(endpoint("127.0.0.1", 53), endpoint("127.0.0.1", 80));
 
-    EXPECT_GT(chen::so::endpoint("127.0.0.1", 80), chen::so::endpoint("127.0.0.0", 80));
-    EXPECT_GT(chen::so::endpoint("127.0.0.1", 80), chen::so::endpoint("127.0.0.1", 53));
+    EXPECT_GT(endpoint("127.0.0.1", 80), endpoint("127.0.0.0", 80));
+    EXPECT_GT(endpoint("127.0.0.1", 80), endpoint("127.0.0.1", 53));
 
-    EXPECT_GE(chen::so::endpoint("127.0.0.1", 80), chen::so::endpoint("127.0.0.1", 80));
-    EXPECT_GE(chen::so::endpoint("127.0.0.1", 80), chen::so::endpoint("127.0.0.1", 53));
+    EXPECT_GE(endpoint("127.0.0.1", 80), endpoint("127.0.0.1", 80));
+    EXPECT_GE(endpoint("127.0.0.1", 80), endpoint("127.0.0.1", 53));
 }
