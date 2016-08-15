@@ -13,9 +13,8 @@ namespace chen
 {
     namespace net
     {
-        /**
-         * Network general error
-         */
+        // ---------------------------------------------------------------------
+        // Network general error
         class error : public std::runtime_error
         {
         public:
@@ -23,9 +22,8 @@ namespace chen
         };
 
 
-        /**
-         * Network interface error
-         */
+        // ---------------------------------------------------------------------
+        // Network interface error
         class error_interface : public error
         {
         public:
@@ -33,13 +31,21 @@ namespace chen
         };
 
 
-        /**
-         * IP address error
-         */
+        // ---------------------------------------------------------------------
+        // IP address error
         class error_address : public error
         {
         public:
             explicit error_address(const std::string &what) : error(what) {}
+        };
+
+
+        // ---------------------------------------------------------------------
+        // Socket related error
+        class error_socket : public error
+        {
+        public:
+            explicit error_socket(const std::string &what) : error(what) {}
         };
     }
 }
