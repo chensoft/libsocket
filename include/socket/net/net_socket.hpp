@@ -7,6 +7,7 @@
 #pragma once
 
 #include "net_endpoint.hpp"
+#include <system_error>
 
 namespace chen
 {
@@ -15,7 +16,8 @@ namespace chen
         /**
          * This class is a wrapper for BSD socket related functions
          * you usually should not use this class directly
-         * use specific class instead, e.g: tcp::server, udp::server and so on
+         * use other class instead, e.g: tcp::server, udp::server and so on
+         * @caution you can retrieve last error info use the error() method
          */
         class socket
         {
@@ -29,6 +31,7 @@ namespace chen
         public:
             /**
              * Construct socket
+             * todo add reset method
              */
             socket(Family family, Protocol protocol);
             ~socket();
@@ -95,6 +98,12 @@ namespace chen
             void close();
 
         public:
+            /**
+             * Last error info, compare it with std::errc enum class
+             * e.g: socket.error() == std::errc::operation_would_block
+             */
+            std::error_code error() const;
+
             /**
              * Socket info
              */

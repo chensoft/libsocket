@@ -68,6 +68,12 @@ socket::~socket()
 {
 }
 
+// error
+std::error_code socket::error() const
+{
+    return std::error_code(errno, std::system_category());
+}
+
 // info
 socket::Family socket::family() const
 {
