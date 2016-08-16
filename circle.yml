@@ -1,0 +1,9 @@
+test:
+  override:
+    - cmake --version
+    - gcc --version
+    - g++ --version
+    - pwd
+    - mkdir test/build
+    - cd test/build; cmake ..; make
+    - test/build/test_libsocket
