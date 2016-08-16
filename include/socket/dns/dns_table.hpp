@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#include "dns_define.hpp"
-#include "dns_record.hpp"
+#include <socket/dns/dns_define.hpp>
+#include <socket/dns/dns_record.hpp>
 
 namespace chen
 {

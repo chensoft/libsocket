@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include <socket/dns/dns_define.hpp>
+#include <socket/dns/dns_edns.hpp>
 #include <chen/data/json.hpp>
-#include "dns_define.hpp"
-#include "dns_edns.hpp"
 
 namespace chen
 {

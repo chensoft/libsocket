@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#include "dns_define.hpp"
-#include "dns_error.hpp"
+#include <socket/dns/dns_define.hpp>
+#include <socket/dns/dns_error.hpp>
 #include <chen/base/iterator.hpp>
 #include <chen/base/str.hpp>
 #include <vector>

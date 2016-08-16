@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include "net_endpoint.hpp"
+#include <socket/net/net_endpoint.hpp>
 #include <system_error>
 
 namespace chen
@@ -15,8 +15,7 @@ namespace chen
     {
         /**
          * This class is a wrapper for BSD socket related functions
-         * you usually should not use this class directly
-         * use other class instead, e.g: tcp::server, udp::server and so on
+         * you should not use this class directly, use class like tcp::server instead
          * @caution you can retrieve last error info use the error() method
          */
         class socket
