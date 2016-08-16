@@ -74,8 +74,8 @@ namespace chen
             /**
              * Encode & Decode
              */
-            void encode(encoder &encoder) const;
-            void decode(decoder &decoder);
+            void encode(dns::encoder &encoder) const;
+            void decode(dns::decoder &decoder);
 
         public:
             /**
@@ -123,8 +123,8 @@ namespace chen
             /**
              * Encode & Decode
              */
-            void encode(encoder &encoder) const;
-            void decode(decoder &decoder);
+            void encode(dns::encoder &encoder) const;
+            void decode(dns::decoder &decoder);
 
         public:
             /**

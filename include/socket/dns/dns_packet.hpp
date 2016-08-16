@@ -19,8 +19,8 @@ namespace chen
         class message
         {
         public:
-            typedef header header_type;
-            typedef question question_type;
+            typedef dns::header header_type;
+            typedef dns::question question_type;
             typedef std::shared_ptr<RR> record_type;
 
         public:
@@ -76,8 +76,8 @@ namespace chen
             /**
              * Encode & Decode
              */
-            void encode(encoder &encoder) const;
-            void decode(decoder &decoder);
+            void encode(dns::encoder &encoder) const;
+            void decode(dns::decoder &decoder);
 
         protected:
             header_type _header;
@@ -141,14 +141,14 @@ namespace chen
         public:
             response() = default;
             explicit response(bool authoritative);
-            response(bool authoritative, const request &request);
+            response(bool authoritative, const dns::request &request);
 
         public:
             /**
              * Set question by request
              */
             using message::setQuestion;
-            void setQuestion(const request &request);
+            void setQuestion(const dns::request &request);
 
             /**
              * Rotate answers

@@ -29,14 +29,14 @@ namespace chen
             /**
              * Encode & Decode
              */
-            void encode(encoder &encoder) const;
-            void decode(decoder &decoder);
+            void encode(dns::encoder &encoder) const;
+            void decode(dns::decoder &decoder);
             void decode(const json::object &object);
 
             /**
              * Create RR and detect its type automatically
              */
-            static std::shared_ptr<RR> create(decoder &decoder);
+            static std::shared_ptr<RR> create(dns::decoder &decoder);
 
         public:
             /**
@@ -53,8 +53,8 @@ namespace chen
             /**
              * Pack & Unpack
              */
-            virtual void pack(encoder &encoder) const = 0;
-            virtual void unpack(decoder &decoder) = 0;
+            virtual void pack(dns::encoder &encoder) const = 0;
+            virtual void unpack(dns::decoder &decoder) = 0;
             virtual void unpack(const json::object &object) = 0;
 
         public:
@@ -104,8 +104,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -127,8 +127,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -148,8 +148,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -169,8 +169,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -190,8 +190,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -211,8 +211,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -232,8 +232,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -259,8 +259,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -280,8 +280,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -301,8 +301,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -323,8 +323,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -344,8 +344,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -367,8 +367,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -388,8 +388,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -410,8 +410,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -432,8 +432,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -454,8 +454,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -475,8 +475,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -497,8 +497,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -519,8 +519,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -540,8 +540,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -562,8 +562,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -584,8 +584,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -605,8 +605,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -626,8 +626,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -655,8 +655,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -679,8 +679,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -702,8 +702,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -725,8 +725,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -746,8 +746,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -774,8 +774,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -796,8 +796,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -817,8 +817,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -838,8 +838,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -862,8 +862,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -884,8 +884,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -910,8 +910,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -932,8 +932,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -956,8 +956,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -979,8 +979,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1000,8 +1000,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1059,8 +1059,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1080,8 +1080,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1104,8 +1104,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1130,8 +1130,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1155,8 +1155,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1184,8 +1184,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1206,8 +1206,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1230,8 +1230,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1251,8 +1251,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1279,8 +1279,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1304,8 +1304,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1328,8 +1328,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1352,8 +1352,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1378,8 +1378,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1399,8 +1399,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1423,8 +1423,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1445,8 +1445,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1469,8 +1469,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1493,8 +1493,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1514,8 +1514,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1537,8 +1537,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1606,8 +1606,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1628,8 +1628,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1650,8 +1650,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1672,8 +1672,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1694,8 +1694,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1715,8 +1715,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1736,8 +1736,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1765,8 +1765,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1794,8 +1794,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1817,8 +1817,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1840,8 +1840,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:
@@ -1864,8 +1864,8 @@ namespace chen
             virtual std::shared_ptr<RR> clone() const override;
 
         protected:
-            virtual void pack(encoder &encoder) const override;
-            virtual void unpack(decoder &decoder) override;
+            virtual void pack(dns::encoder &encoder) const override;
+            virtual void unpack(dns::decoder &decoder) override;
             virtual void unpack(const json::object &object) override;
 
         public:

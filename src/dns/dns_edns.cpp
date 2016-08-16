@@ -20,7 +20,7 @@ Option::Option(OptionCode code) : code(code)
 {
 }
 
-void Option::encode(encoder &encoder) const
+void Option::encode(dns::encoder &encoder) const
 {
     // common
     encoder.pack(this->code);
@@ -47,7 +47,7 @@ void Option::encode(encoder &encoder) const
     encoder.change(len - tmp - 1, static_cast<std::uint8_t>(tmp & 0xFF));
 }
 
-void Option::decode(decoder &decoder)
+void Option::decode(dns::decoder &decoder)
 {
     // unpack base fields
     decoder.unpack(this->code);
@@ -57,7 +57,7 @@ void Option::decode(decoder &decoder)
     this->unpack(decoder);
 }
 
-std::shared_ptr<edns0::Option> Option::create(decoder &decoder)
+std::shared_ptr<edns0::Option> Option::create(dns::decoder &decoder)
 {
     dns::decoder detect(decoder);
 
@@ -101,7 +101,7 @@ std::shared_ptr<edns0::Option> LLQ::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void LLQ::pack(encoder &encoder) const
+void LLQ::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->version);
     encoder.pack(this->llq_opcode);
@@ -110,7 +110,7 @@ void LLQ::pack(encoder &encoder) const
     encoder.pack(this->lease_life);
 }
 
-void LLQ::unpack(decoder &decoder)
+void LLQ::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->version);
     decoder.unpack(this->llq_opcode);
@@ -138,12 +138,12 @@ std::shared_ptr<edns0::Option> UL::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void UL::pack(encoder &encoder) const
+void UL::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->lease);
 }
 
-void UL::unpack(decoder &decoder)
+void UL::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->lease);
 }
@@ -167,12 +167,12 @@ std::shared_ptr<edns0::Option> NSID::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSID::pack(encoder &encoder) const
+void NSID::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->data, this->data.size());
 }
 
-void NSID::unpack(decoder &decoder)
+void NSID::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->data, this->length);
 }
@@ -196,12 +196,12 @@ std::shared_ptr<edns0::Option> DAU::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DAU::pack(encoder &encoder) const
+void DAU::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->alg_code, this->alg_code.size());
 }
 
-void DAU::unpack(decoder &decoder)
+void DAU::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->alg_code, this->length);
 }
@@ -225,12 +225,12 @@ std::shared_ptr<edns0::Option> DHU::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DHU::pack(encoder &encoder) const
+void DHU::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->alg_code, this->alg_code.size());
 }
 
-void DHU::unpack(decoder &decoder)
+void DHU::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->alg_code, this->length);
 }
@@ -254,12 +254,12 @@ std::shared_ptr<edns0::Option> N3U::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void N3U::pack(encoder &encoder) const
+void N3U::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->alg_code, this->alg_code.size());
 }
 
-void N3U::unpack(decoder &decoder)
+void N3U::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->alg_code, this->length);
 }
@@ -287,7 +287,7 @@ std::shared_ptr<edns0::Option> Subnet::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Subnet::pack(encoder &encoder) const
+void Subnet::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->family);
     encoder.pack(this->source);
@@ -331,7 +331,7 @@ void Subnet::pack(encoder &encoder) const
     }
 }
 
-void Subnet::unpack(decoder &decoder)
+void Subnet::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->family);
     decoder.unpack(this->source);
@@ -393,12 +393,12 @@ std::shared_ptr<edns0::Option> EXPIRE::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void EXPIRE::pack(encoder &encoder) const
+void EXPIRE::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->expire);
 }
 
-void EXPIRE::unpack(decoder &decoder)
+void EXPIRE::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->expire);
 }
@@ -432,13 +432,13 @@ std::shared_ptr<edns0::Option> COOKIE::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void COOKIE::pack(encoder &encoder) const
+void COOKIE::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->client_cookie, this->client_cookie.size());
     encoder.pack(this->server_cookie, this->server_cookie.size());
 }
 
-void COOKIE::unpack(decoder &decoder)
+void COOKIE::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->client_cookie, 8);
     decoder.unpack(this->server_cookie, this->length - 8u);
@@ -463,12 +463,12 @@ std::shared_ptr<edns0::Option> Keepalive::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Keepalive::pack(encoder &encoder) const
+void Keepalive::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->timeout);
 }
 
-void Keepalive::unpack(decoder &decoder)
+void Keepalive::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->timeout);
 }
@@ -492,12 +492,12 @@ std::shared_ptr<edns0::Option> Padding::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Padding::pack(encoder &encoder) const
+void Padding::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->padding, this->padding.size());
 }
 
-void Padding::unpack(decoder &decoder)
+void Padding::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->padding, this->length);
 }
@@ -521,12 +521,12 @@ std::shared_ptr<edns0::Option> CHAIN::clone() const
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CHAIN::pack(encoder &encoder) const
+void CHAIN::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->point, codec::StringType::Domain, false);
 }
 
-void CHAIN::unpack(decoder &decoder)
+void CHAIN::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->point, codec::StringType::Domain);
 }

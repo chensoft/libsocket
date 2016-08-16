@@ -139,7 +139,7 @@ std::shared_ptr<OPT> message::edns0() const
 }
 
 // codec
-void message::encode(encoder &encoder) const
+void message::encode(dns::encoder &encoder) const
 {
     // header
     this->_header.encode(encoder);
@@ -161,7 +161,7 @@ void message::encode(encoder &encoder) const
         val->encode(encoder);
 }
 
-void message::decode(decoder &decoder)
+void message::decode(dns::decoder &decoder)
 {
     // header
     this->_header.decode(decoder);
@@ -330,13 +330,13 @@ response::response(bool authoritative)
     this->_header.setRcode(RCODE::NoError);
 }
 
-response::response(bool authoritative, const request &request) : response(authoritative)
+response::response(bool authoritative, const dns::request &request) : response(authoritative)
 {
     this->setQuestion(request);
 }
 
 // question
-void response::setQuestion(const request &request)
+void response::setQuestion(const dns::request &request)
 {
     this->_header.setId(request.header().id());
     this->_header.setRecursionDesired(request.header().recursionDesired());

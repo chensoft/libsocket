@@ -42,17 +42,17 @@ namespace chen
                 /**
                  * Encode & Decode
                  */
-                void encode(encoder &encoder) const;
-                void decode(decoder &decoder);
+                void encode(dns::encoder &encoder) const;
+                void decode(dns::decoder &decoder);
 
-                static std::shared_ptr<edns0::Option> create(decoder &decoder);
+                static std::shared_ptr<edns0::Option> create(dns::decoder &decoder);
 
             protected:
                 /**
                  * Pack & Unpack
                  */
-                virtual void pack(encoder &encoder) const = 0;
-                virtual void unpack(decoder &decoder) = 0;
+                virtual void pack(dns::encoder &encoder) const = 0;
+                virtual void unpack(dns::decoder &decoder) = 0;
 
             protected:
                 /**
@@ -81,8 +81,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::uint16_t version    = 0;  // Version of LLQ protocol implemented
@@ -105,8 +105,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::int32_t lease = 0;  // desired lease (request) or granted lease (response), in seconds
@@ -125,8 +125,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::vector<std::uint8_t> data;
@@ -145,8 +145,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::vector<std::uint8_t> alg_code;  // the list of assigned values of DNSSEC zone signing algorithms
@@ -165,8 +165,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::vector<std::uint8_t> alg_code;  // the list of assigned values of DNSSEC zone signing algorithms
@@ -185,8 +185,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::vector<std::uint8_t> alg_code;  // the list of assigned values of DNSSEC zone signing algorithms
@@ -205,8 +205,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::uint16_t family = 0;  // address family
@@ -228,8 +228,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::int32_t expire = 0;  // expire value, in seconds
@@ -248,8 +248,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::vector<std::uint8_t> client_cookie;  // fixed 8 bytes
@@ -269,8 +269,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::uint16_t timeout = 0;  // an idle timeout value for the TCP connection, specified in units of 100 milliseconds
@@ -289,8 +289,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::vector<std::uint8_t> padding;
@@ -309,8 +309,8 @@ namespace chen
                 virtual std::shared_ptr<edns0::Option> clone() const override;
 
             protected:
-                virtual void pack(encoder &encoder) const override;
-                virtual void unpack(decoder &decoder) override;
+                virtual void pack(dns::encoder &encoder) const override;
+                virtual void unpack(dns::decoder &decoder) override;
 
             public:
                 std::string point;  // Closest trust point, a variable-length Fully-Qualified Domain Name(FQDN) in DNS wire format of the requested start point of the chain

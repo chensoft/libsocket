@@ -180,7 +180,7 @@ void header::setRcode(RCODE value)
 }
 
 // codec
-void header::encode(encoder &encoder) const
+void header::encode(dns::encoder &encoder) const
 {
     // id
     encoder.pack(this->_id);
@@ -201,7 +201,7 @@ void header::encode(encoder &encoder) const
     encoder.pack(this->_arcount);
 }
 
-void header::decode(decoder &decoder)
+void header::decode(dns::decoder &decoder)
 {
     // id
     std::uint16_t id = 0;
@@ -289,7 +289,7 @@ void question::setQclass(RRClass value)
 }
 
 // codec
-void question::encode(encoder &encoder) const
+void question::encode(dns::encoder &encoder) const
 {
     // qname
     encoder.pack(this->_qname, codec::StringType::Domain, false);
@@ -301,7 +301,7 @@ void question::encode(encoder &encoder) const
     encoder.pack(this->_qclass);
 }
 
-void question::decode(decoder &decoder)
+void question::decode(dns::decoder &decoder)
 {
     // qname
     std::string qname;
