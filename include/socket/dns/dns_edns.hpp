@@ -7,8 +7,9 @@
  */
 #pragma once
 
-#include <socket/net/net_address.hpp>
 #include "dns_define.hpp"
+#include <socket/net/net_address.hpp>
+#include <memory>
 
 namespace chen
 {

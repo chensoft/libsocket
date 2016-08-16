@@ -8,10 +8,13 @@
 
 #include <socket/net/net_interface.hpp>
 #include <chen/base/num.hpp>
+#include <functional>
+#include <algorithm>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <netdb.h>
 #include <cstdlib>
+#include <memory>
 
 using namespace chen;
 using namespace chen::net;
