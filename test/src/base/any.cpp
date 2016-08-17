@@ -7,10 +7,10 @@
 #include <chen/base/any.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(BaseAnyTest, General)
 {
+    using chen::any;
+
     // empty
     any val;
 

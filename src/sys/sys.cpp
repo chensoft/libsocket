@@ -9,11 +9,9 @@
 #include <sstream>
 #include <random>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // sys
-std::string sys::uuid()
+std::string chen::sys::uuid()
 {
     std::string unique("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx");
 

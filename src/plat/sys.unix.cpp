@@ -11,8 +11,6 @@
 #include <cstdlib>
 #include <cerrno>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // helper
 namespace
@@ -25,7 +23,7 @@ namespace
         return result;
     }
 #endif
-    
+
     std::string peek(int result, char *buffer)
     {
         // XSI-compliant strerror_r, result type is int, write error string to buffer
@@ -36,7 +34,7 @@ namespace
 
 // -----------------------------------------------------------------------------
 // sys
-std::string sys::error()
+std::string chen::sys::error()
 {
     char buf[1024] = {0};
     return !errno ? "No error" : peek(::strerror_r(errno, buf, sizeof(buf)), buf);

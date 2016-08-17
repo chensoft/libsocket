@@ -7,10 +7,10 @@
 #include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(SysFsTest, General)
 {
+    using chen::fs;
+
     // path
     fs::home();
     fs::temp();

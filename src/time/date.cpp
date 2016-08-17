@@ -8,11 +8,9 @@
 #include <chen/base/str.hpp>
 #include <chrono>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // date
-std::string date::stamp(const std::string &sep, bool utc)
+std::string chen::date::stamp(const std::string &sep, bool utc)
 {
     std::time_t time = std::time(nullptr);
     struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
@@ -24,7 +22,7 @@ std::string date::stamp(const std::string &sep, bool utc)
     return str::format("%d%s%02d%s%02d", year, sep.c_str(), month, sep.c_str(), day);
 }
 
-std::string date::time(const std::string &sep, bool utc, bool microseconds)
+std::string chen::date::time(const std::string &sep, bool utc, bool microseconds)
 {
     auto high = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     auto last = high - high / 1000000 * 1000000;

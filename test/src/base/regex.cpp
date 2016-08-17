@@ -8,10 +8,10 @@
 #include <gtest/gtest.h>
 #include "../../conf.hpp"
 
-using namespace chen;
-
 TEST(BaseRegexTest, General)
 {
+    using chen::regex;
+
     try
     {
         std::string pattern(R"(^\d+$)");

@@ -7,10 +7,10 @@
 #include <chen/base/map.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(BaseMapTest, General)
 {
+    using chen::map;
+
     // exist
     std::map<int, int> map = {{1, 6}, {2, 7}, {3, 8}, {4, 9}, {5, 10}};
 

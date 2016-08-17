@@ -7,10 +7,10 @@
 #include <chen/base/vector.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(BaseVectorTest, General)
 {
+    using chen::vector;
+
     // unique
     std::vector<int> vector({1, 2, 2, 1, 3, 4, 4, 5});
     vector::unique(vector);

@@ -8,19 +8,17 @@
 #include <chen/time/date.hpp>
 #include <map>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // log
-chen::log  log::_default;
-chen::log *log::_current = &log::_default;
+chen::log chen::log::_default;
+chen::log *chen::log::_current = &chen::log::_default;
 
-chen::log& log::current()
+chen::log& chen::log::current()
 {
     return *log::_current;
 }
 
-log::~log()
+chen::log::~log()
 {
     if (this == &log::_default)
         log::_current = nullptr;
@@ -28,51 +26,51 @@ log::~log()
         this->demote();
 }
 
-void log::limit(log::Level level)
+void chen::log::limit(log::Level level)
 {
     this->_level = level;
 }
 
-log::Level log::level() const
+chen::log::Level chen::log::level() const
 {
     return this->_level;
 }
 
-void log::promote()
+void chen::log::promote()
 {
     log::_current = this;
 }
 
-void log::demote()
+void chen::log::demote()
 {
     if (this == log::_current)
         log::_current = &log::_default;
 }
 
-std::string log::format(const std::string &text, log::Level level)
+std::string chen::log::format(const std::string &text, log::Level level)
 {
     static std::map<log::Level, std::string> map = {
-        {Level::Trace, "T"},
-        {Level::Debug, "D"},
-        {Level::Info,  "I"},
-        {Level::Warn,  "W"},
-        {Level::Error, "E"},
-        {Level::Fatal, "F"},
+            {Level::Trace, "T"},
+            {Level::Debug, "D"},
+            {Level::Info,  "I"},
+            {Level::Warn,  "W"},
+            {Level::Error, "E"},
+            {Level::Fatal, "F"},
     };
-    
+
     std::string out(date::stamp());
-    
+
     out += " ";
     out += date::time(":", true, true);
     out += " UTC [";
     out += map[level];
     out += "] ";
     out += text;
-    
+
     return out;
 }
 
-void log::output(const std::string &text, log::Level level)
+void chen::log::output(const std::string &text, log::Level level)
 {
     str::print(this->format(text, level));
 }

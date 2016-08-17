@@ -9,10 +9,11 @@
 #include <gtest/gtest.h>
 #include "../../conf.hpp"
 
-using namespace chen;
-
 TEST(BaseUtf8Test, General)
 {
+    using chen::fs;
+    using chen::utf8;
+
     if (conf::data.empty())
         return ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip utf8 test\n\n");
 

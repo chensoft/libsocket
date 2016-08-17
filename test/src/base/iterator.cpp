@@ -9,10 +9,13 @@
 #include <array>
 #include <list>
 
-using namespace chen;
-
 TEST(BaseIterTest, General)
 {
+    using chen::input_iterator;
+    using chen::forward_iterator;
+    using chen::bidirectional_iterator;
+    using chen::random_iterator;
+
     // plain text
     char buf[] = "chen";
     random_iterator<char> iter(buf);

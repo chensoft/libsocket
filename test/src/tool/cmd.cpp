@@ -7,10 +7,10 @@
 #include <chen/tool/cmd.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(ToolCmdTest, General)
 {
+    using chen::cmd;
+
     cmd cmd;
 
     // help

@@ -9,56 +9,54 @@
 #include <algorithm>
 #include <random>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // num
 
 // equal
-bool num::equal(float a, float b, float epsilon)
+bool chen::num::equal(float a, float b, float epsilon)
 {
     return std::fabs(a - b) < epsilon;
 }
 
-bool num::equal(double a, double b, double epsilon)
+bool chen::num::equal(double a, double b, double epsilon)
 {
     return std::fabs(a - b) < epsilon;
 }
 
-bool num::equal(long double a, long double b, long double epsilon)
+bool chen::num::equal(long double a, long double b, long double epsilon)
 {
     return std::fabs(a - b) < epsilon;
 }
 
 // swap
-std::int16_t num::swap(std::int16_t value)
+std::int16_t chen::num::swap(std::int16_t value)
 {
     return static_cast<std::int16_t>(num::swap(static_cast<std::uint16_t>(value)));
 }
 
-std::int32_t num::swap(std::int32_t value)
+std::int32_t chen::num::swap(std::int32_t value)
 {
     return static_cast<std::int32_t>(num::swap(static_cast<std::uint32_t>(value)));
 }
 
-std::int64_t num::swap(std::int64_t value)
+std::int64_t chen::num::swap(std::int64_t value)
 {
     return static_cast<std::int64_t>(num::swap(static_cast<std::uint64_t>(value)));
 }
 
-std::uint16_t num::swap(std::uint16_t value)
+std::uint16_t chen::num::swap(std::uint16_t value)
 {
     return (value << 8) | (value >> 8);
 }
 
-std::uint32_t num::swap(std::uint32_t value)
+std::uint32_t chen::num::swap(std::uint32_t value)
 {
     std::uint8_t *ptr = reinterpret_cast<std::uint8_t*>(&value);
     std::reverse(ptr, ptr + sizeof(value));
     return value;
 }
 
-std::uint64_t num::swap(std::uint64_t value)
+std::uint64_t chen::num::swap(std::uint64_t value)
 {
     std::uint8_t *ptr = reinterpret_cast<std::uint8_t*>(&value);
     std::reverse(ptr, ptr + sizeof(value));
@@ -66,22 +64,22 @@ std::uint64_t num::swap(std::uint64_t value)
 }
 
 // str
-std::string num::str(bool value)
+std::string chen::num::str(bool value)
 {
     return value ? "true" : "false";
 }
 
-std::string num::str(int value)
+std::string chen::num::str(int value)
 {
     return num::str(static_cast<long long>(value));
 }
 
-std::string num::str(long value)
+std::string chen::num::str(long value)
 {
     return num::str(static_cast<long long>(value));
 }
 
-std::string num::str(long long value)
+std::string chen::num::str(long long value)
 {
     std::string temp;
     bool sign = false;
@@ -103,17 +101,17 @@ std::string num::str(long long value)
     return temp;
 }
 
-std::string num::str(unsigned int value)
+std::string chen::num::str(unsigned int value)
 {
     return num::str(static_cast<unsigned long long>(value));
 }
 
-std::string num::str(unsigned long value)
+std::string chen::num::str(unsigned long value)
 {
     return num::str(static_cast<unsigned long long>(value));
 }
 
-std::string num::str(unsigned long long value)
+std::string chen::num::str(unsigned long long value)
 {
     std::string temp;
 
@@ -125,23 +123,23 @@ std::string num::str(unsigned long long value)
     return temp;
 }
 
-std::string num::str(float value)
+std::string chen::num::str(float value)
 {
     return str::format("%g", value);
 }
 
-std::string num::str(double value)
+std::string chen::num::str(double value)
 {
     return str::format("%g", value);
 }
 
-std::string num::str(long double value)
+std::string chen::num::str(long double value)
 {
     return str::format("%Lg", value);
 }
 
 // random
-double num::random(double lower, double upper)
+double chen::num::random(double lower, double upper)
 {
     std::random_device device;
     std::mt19937 engine(device());
@@ -150,7 +148,7 @@ double num::random(double lower, double upper)
     return uniform(engine);
 }
 
-int num::random(int lower, int upper)
+int chen::num::random(int lower, int upper)
 {
     std::random_device device;
     std::mt19937 engine(device());
@@ -160,7 +158,7 @@ int num::random(int lower, int upper)
 }
 
 // prime
-bool num::prime(std::uint64_t value)
+bool chen::num::prime(std::uint64_t value)
 {
     if (value <= 1)  // exclude 0 and 1
         return false;

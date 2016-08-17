@@ -10,10 +10,10 @@
 #include <gtest/gtest.h>
 #include "../../conf.hpp"
 
-using namespace chen;
-
 TEST(DataJsonTest, Type)
 {
+    using chen::json;
+
     json json_object(json::Type::Object);
     json json_array(json::Type::Array);
     json json_number(json::Type::Number);
@@ -118,6 +118,9 @@ TEST(DataJsonTest, Type)
 
 TEST(DataJsonTest, Validate)
 {
+    using chen::json;
+    using chen::str;
+
     if (conf::data.empty())
         return ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip json test\n\n");
 

@@ -7,10 +7,10 @@
 #include <chen/base/num.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(BaseNumTest, General)
 {
+    using chen::num;
+
     // equal
     EXPECT_TRUE(num::equal(0.1, 0.1));
     EXPECT_TRUE(num::equal(0.1f, 0.100000001490116119715002586f));

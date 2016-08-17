@@ -13,11 +13,9 @@
 #include <cctype>
 #include <locale>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // ini
-ini::value_type ini::parse(const std::string &text, bool file)
+chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
 {
     if (file)
     {
@@ -45,7 +43,7 @@ ini::value_type ini::parse(const std::string &text, bool file)
     }
 }
 
-ini::value_type ini::parse(iterator cur, iterator end)
+chen::ini::value_type chen::ini::parse(iterator cur, iterator end)
 {
     ini::value_type item;
 
@@ -68,7 +66,7 @@ ini::value_type ini::parse(iterator cur, iterator end)
     return item;
 }
 
-std::string ini::stringify(const ini::value_type &map)
+std::string chen::ini::stringify(const ini::value_type &map)
 {
     std::string ret;
     std::size_t idx = 0;
@@ -178,7 +176,7 @@ std::string ini::stringify(const ini::value_type &map)
 }
 
 // exception
-void ini::exception(const iterator &beg, iterator &cur, iterator &end)
+void chen::ini::exception(const iterator &beg, iterator &cur, iterator &end)
 {
     if (cur == end)
     {
@@ -194,7 +192,7 @@ void ini::exception(const iterator &beg, iterator &cur, iterator &end)
 }
 
 // advance
-bool ini::advance(const iterator &beg, iterator &cur, iterator &end)
+bool chen::ini::advance(const iterator &beg, iterator &cur, iterator &end)
 {
     // skip whitespaces
     while ((cur != end) && std::isspace(*cur))
@@ -205,7 +203,7 @@ bool ini::advance(const iterator &beg, iterator &cur, iterator &end)
 }
 
 // decode
-void ini::decode(ini::value_type &out, const iterator &beg, iterator &cur, iterator &end)
+void chen::ini::decode(ini::value_type &out, const iterator &beg, iterator &cur, iterator &end)
 {
     bool root = true;
 
@@ -250,7 +248,7 @@ void ini::decode(ini::value_type &out, const iterator &beg, iterator &cur, itera
     }
 }
 
-void ini::decode(ini::section_type &out, const iterator &beg, iterator &cur, iterator &end)
+void chen::ini::decode(ini::section_type &out, const iterator &beg, iterator &cur, iterator &end)
 {
     if ((cur == end) || (*cur != '['))
         ini::exception(beg, cur, end);
@@ -278,7 +276,7 @@ void ini::decode(ini::section_type &out, const iterator &beg, iterator &cur, ite
     out.second = std::move(p);
 }
 
-void ini::decode(ini::property_type &out, const iterator &beg, iterator &cur, iterator &end)
+void chen::ini::decode(ini::property_type &out, const iterator &beg, iterator &cur, iterator &end)
 {
     while (cur != end)
     {
@@ -340,7 +338,7 @@ void ini::decode(ini::property_type &out, const iterator &beg, iterator &cur, it
     }
 }
 
-void ini::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
+void chen::ini::decode(std::string &out, const iterator &beg, iterator &cur, iterator &end)
 {
     out.clear();
 
@@ -474,7 +472,7 @@ void ini::decode(std::string &out, const iterator &beg, iterator &cur, iterator 
     }
 }
 
-void ini::comment(const iterator &beg, iterator &cur, iterator &end)
+void chen::ini::comment(const iterator &beg, iterator &cur, iterator &end)
 {
     if ((cur == end) || (*cur != ';'))
         ini::exception(beg, cur, end);

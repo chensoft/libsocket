@@ -10,10 +10,11 @@
 #include <gtest/gtest.h>
 #include "../../conf.hpp"
 
-using namespace chen;
-
 TEST(DataIniTest, General)
 {
+    using chen::ini;
+    using chen::str;
+
     if (conf::data.empty())
         return ::testing::internal::ColoredPrintf(::testing::internal::COLOR_YELLOW, "warning: you didn't specify test data folder, skip ini test\n\n");
 

@@ -9,11 +9,9 @@
 #include <chen/sys/sys.hpp>
 #include <Windows.h>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // sys
-std::string sys::error()
+std::string chen::sys::error()
 {
     char buf[1024] = {0};
     return !errno ? "No error" : (!::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "Unknown error");

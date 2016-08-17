@@ -15,11 +15,9 @@
 #include <signal.h>
 #include <cstdlib>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // proc
-bool proc::daemon()
+bool chen::proc::daemon()
 {
     // Note:
     // code is copied from http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html, thanks to its author
@@ -54,7 +52,7 @@ bool proc::daemon()
     return true;
 }
 
-std::string proc::path(int argc, const char *const argv[])
+std::string chen::proc::path(int argc, const char *const argv[])
 {
     if (!argc)
         return "";
@@ -83,17 +81,17 @@ std::string proc::path(int argc, const char *const argv[])
     return "";
 }
 
-int proc::pid()
+int chen::proc::pid()
 {
     return ::getpid();
 }
 
-bool proc::kill(int pid)
+bool chen::proc::kill(int pid)
 {
     return !::kill(pid, SIGKILL);
 }
 
-bool proc::exist(int pid)
+bool chen::proc::exist(int pid)
 {
     return ::getpgid(pid) >= 0;
 }
