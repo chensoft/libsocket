@@ -6,27 +6,25 @@
  */
 #include <chen/time/time.hpp>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // time
-time::time(bool start)
+chen::time::time(bool start)
 {
     if (start)
         this->start();
 }
 
-void time::start()
+void chen::time::start()
 {
     this->_beg = std::chrono::high_resolution_clock::now();
 }
 
-void time::stop()
+void chen::time::stop()
 {
     this->_end = std::chrono::high_resolution_clock::now();
 }
 
-double time::elapsed() const
+double chen::time::elapsed() const
 {
     std::chrono::duration<double> off = this->_end - this->_beg;
     return off.count();

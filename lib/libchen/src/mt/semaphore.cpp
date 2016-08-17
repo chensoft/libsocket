@@ -6,23 +6,20 @@
  */
 #include <chen/mt/semaphore.hpp>
 
-using namespace chen;
-
 // ------------------------------------------------------------------
 // semaphore
-semaphore::semaphore(std::size_t count) : _count(count)
+chen::semaphore::semaphore(std::size_t count) : _count(count)
 {
-
 }
 
-void semaphore::post()
+void chen::semaphore::post()
 {
     std::unique_lock<std::mutex> lock(this->_mutex);
     ++this->_count;
     this->_cond.notify_one();
 }
 
-void semaphore::wait()
+void chen::semaphore::wait()
 {
     std::unique_lock<std::mutex> lock(this->_mutex);
 

@@ -9,11 +9,9 @@
 #include <sys/stat.h>
 #include <cctype>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // path
-std::string fs::drive(const std::string &path)
+std::string chen::fs::drive(const std::string &path)
 {
     auto sep = fs::separator(path);
 
@@ -25,7 +23,7 @@ std::string fs::drive(const std::string &path)
         return "";
 }
 
-char fs::separator(const std::string &path)
+char chen::fs::separator(const std::string &path)
 {
     // '\' if path is Windows path, otherwise use '/'
     if ((path.size() >= 3) && (path[2] == '\\') && (path[1] == ':') && std::isalpha(path[0]))
@@ -34,12 +32,12 @@ char fs::separator(const std::string &path)
         return '/';
 }
 
-std::string fs::absolute(const std::string &path)
+std::string chen::fs::absolute(const std::string &path)
 {
     return fs::absolute(path, fs::current());
 }
 
-std::string fs::absolute(const std::string &path, const std::string &cwd)
+std::string chen::fs::absolute(const std::string &path, const std::string &cwd)
 {
     std::string expand;
 
@@ -54,7 +52,7 @@ std::string fs::absolute(const std::string &path, const std::string &cwd)
         return fs::normalize(temp);
 }
 
-std::string fs::normalize(const std::string &path)
+std::string chen::fs::normalize(const std::string &path)
 {
     if (path.empty())
         return "";
@@ -118,7 +116,7 @@ std::string fs::normalize(const std::string &path)
     return ret;
 }
 
-std::string fs::dirname(const std::string &path)
+std::string chen::fs::dirname(const std::string &path)
 {
     if (path.empty())
         return "";
@@ -167,7 +165,7 @@ std::string fs::dirname(const std::string &path)
     }
 }
 
-std::string fs::basename(const std::string &path, const std::string &suffix)
+std::string chen::fs::basename(const std::string &path, const std::string &suffix)
 {
     auto abs = fs::drive(path);
     auto sep = fs::separator(path);
@@ -205,7 +203,7 @@ std::string fs::basename(const std::string &path, const std::string &suffix)
     }
 }
 
-std::string fs::extname(const std::string &path, std::size_t dots)
+std::string chen::fs::extname(const std::string &path, std::size_t dots)
 {
     if (!dots)
         return "";
@@ -236,44 +234,44 @@ std::string fs::extname(const std::string &path, std::size_t dots)
 }
 
 // exist
-bool fs::isAbsolute(const std::string &path)
+bool chen::fs::isAbsolute(const std::string &path)
 {
     return (fs::separator(path) == '\\') || (!path.empty() && (path[0] == '/'));
 }
 
-bool fs::isRelative(const std::string &path)
+bool chen::fs::isRelative(const std::string &path)
 {
     return !fs::isAbsolute(path);
 }
 
 // time
-time_t fs::atime(const std::string &path)
+time_t chen::fs::atime(const std::string &path)
 {
     struct stat st = {0};
     return !::stat(path.c_str(), &st) ? st.st_atime : 0;
 }
 
-time_t fs::mtime(const std::string &path)
+time_t chen::fs::mtime(const std::string &path)
 {
     struct stat st = {0};
     return !::stat(path.c_str(), &st) ? st.st_mtime : 0;
 }
 
-time_t fs::ctime(const std::string &path)
+time_t chen::fs::ctime(const std::string &path)
 {
     struct stat st = {0};
     return !::stat(path.c_str(), &st) ? st.st_ctime : 0;
 }
 
 // size
-off_t fs::filesize(const std::string &file)
+off_t chen::fs::filesize(const std::string &file)
 {
     struct stat st = {0};
     return !::stat(file.c_str(), &st) ? st.st_size : 0;
 }
 
 // rename
-bool fs::rename(const std::string &path_old, const std::string &path_new)
+bool chen::fs::rename(const std::string &path_old, const std::string &path_new)
 {
     // remove new path if it's already exist
     if (!fs::remove(path_new))
@@ -284,7 +282,7 @@ bool fs::rename(const std::string &path_old, const std::string &path_new)
 }
 
 // copy
-bool fs::copy(const std::string &path_old, const std::string &path_new)
+bool chen::fs::copy(const std::string &path_old, const std::string &path_new)
 {
     if (fs::isFile(path_old))
     {
@@ -337,16 +335,16 @@ bool fs::copy(const std::string &path_old, const std::string &path_new)
 }
 
 // visit
-void fs::visit(const std::string &directory,
-               std::function<void (const std::string &path)> callback,
-               bool recursive)
+void chen::fs::visit(const std::string &directory,
+                     std::function<void (const std::string &path)> callback,
+                     bool recursive)
 {
     fs::visit(directory, [&] (const std::string &path, bool &stop) {
         callback(path);
     }, recursive);
 }
 
-std::vector<std::string> fs::collect(const std::string &directory, bool recursive)
+std::vector<std::string> chen::fs::collect(const std::string &directory, bool recursive)
 {
     std::vector<std::string> store;
 
@@ -358,10 +356,10 @@ std::vector<std::string> fs::collect(const std::string &directory, bool recursiv
 }
 
 // count
-std::size_t fs::count(const std::string &directory,
-                      bool recursive,
-                      bool contain_file,
-                      bool contain_dir)
+std::size_t chen::fs::count(const std::string &directory,
+                            bool recursive,
+                            bool contain_file,
+                            bool contain_dir)
 {
     if (!contain_file && !contain_dir)
         return 0;
@@ -381,12 +379,12 @@ std::size_t fs::count(const std::string &directory,
 }
 
 // read
-std::string fs::read(const std::string &file)
+std::string chen::fs::read(const std::string &file)
 {
     return fs::read(file, 0, fs::filesize(file));
 }
 
-std::string fs::read(const std::string &file, std::streamoff start, std::streamoff length)
+std::string chen::fs::read(const std::string &file, std::streamoff start, std::streamoff length)
 {
     if (length <= 0)
         return "";
@@ -406,7 +404,7 @@ std::string fs::read(const std::string &file, std::streamoff start, std::streamo
     return "";
 }
 
-std::vector<std::string> fs::read(const std::string &file, char delimiter)
+std::vector<std::string> chen::fs::read(const std::string &file, char delimiter)
 {
     std::vector<std::string> ret;
     std::ifstream in(file, std::ios_base::binary);
@@ -419,7 +417,7 @@ std::vector<std::string> fs::read(const std::string &file, char delimiter)
 }
 
 // write
-bool fs::write(const std::string &file, const std::string &data)
+bool chen::fs::write(const std::string &file, const std::string &data)
 {
     if (!fs::create(fs::dirname(file)))
         return false;
@@ -431,7 +429,7 @@ bool fs::write(const std::string &file, const std::string &data)
     return out.good();
 }
 
-bool fs::write(const std::string &file, const void *data, std::streamsize size)
+bool chen::fs::write(const std::string &file, const void *data, std::streamsize size)
 {
     if (!fs::create(fs::dirname(file)))
         return false;
@@ -443,7 +441,7 @@ bool fs::write(const std::string &file, const void *data, std::streamsize size)
     return out.good();
 }
 
-bool fs::append(const std::string &file, const std::string &data)
+bool chen::fs::append(const std::string &file, const std::string &data)
 {
     if (!fs::create(fs::dirname(file)))
         return false;
@@ -455,7 +453,7 @@ bool fs::append(const std::string &file, const std::string &data)
     return out.good();
 }
 
-bool fs::append(const std::string &file, const void *data, std::streamsize size)
+bool chen::fs::append(const std::string &file, const void *data, std::streamsize size)
 {
     if (!fs::create(fs::dirname(file)))
         return false;

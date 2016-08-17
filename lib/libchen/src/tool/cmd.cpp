@@ -11,20 +11,18 @@
 #include <algorithm>
 #include <cstdlib>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // cmd
-cmd::cmd(const std::string &app) : _app(app)
+chen::cmd::cmd(const std::string &app) : _app(app)
 {
     // create root action
     this->create("", "");
 }
 
 // action
-void cmd::create(const std::string &action,
-                 const std::string &desc,
-                 std::function<void (const cmd &cmd)> bind)
+void chen::cmd::create(const std::string &action,
+                       const std::string &desc,
+                       std::function<void (const cmd &cmd)> bind)
 {
     auto it = this->_define.find(action);
 
@@ -48,10 +46,10 @@ void cmd::create(const std::string &action,
 }
 
 // define
-void cmd::define(const std::string &option,
-                 const std::string &tiny,
-                 const std::string &desc,
-                 const any &def)
+void chen::cmd::define(const std::string &option,
+                       const std::string &tiny,
+                       const std::string &desc,
+                       const any &def)
 {
     // full name can't be null
     if (option.empty())
@@ -89,7 +87,7 @@ void cmd::define(const std::string &option,
 }
 
 // change
-void cmd::change(const std::string &action)
+void chen::cmd::change(const std::string &action)
 {
     auto it = this->_define.find(action);
 
@@ -100,7 +98,7 @@ void cmd::change(const std::string &action)
 }
 
 // exist
-bool cmd::exist(const std::string &action, const std::string &option) const
+bool chen::cmd::exist(const std::string &action, const std::string &option) const
 {
     auto it = this->_define.find(action);
     if (it == this->_define.end())
@@ -110,7 +108,7 @@ bool cmd::exist(const std::string &action, const std::string &option) const
 }
 
 // parse
-void cmd::parse(int argc, const char *const argv[])
+void chen::cmd::parse(int argc, const char *const argv[])
 {
     // argc must greater than 0
     if (argc < 1)
@@ -298,13 +296,13 @@ void cmd::parse(int argc, const char *const argv[])
 }
 
 // app
-std::string cmd::app() const
+std::string chen::cmd::app() const
 {
     return this->_app;
 }
 
 // current
-std::string cmd::current() const
+std::string chen::cmd::current() const
 {
     if (this->_action)
         return this->_action->name;
@@ -313,19 +311,19 @@ std::string cmd::current() const
 }
 
 // option value
-bool cmd::boolVal(const std::string &option) const
+bool chen::cmd::boolVal(const std::string &option) const
 {
     auto opt = this->opt(option);
     return opt.set ? true : static_cast<bool>(opt.def);
 }
 
-std::int32_t cmd::intVal(const std::string &option) const
+std::int32_t chen::cmd::intVal(const std::string &option) const
 {
     auto opt = this->opt(option);
     return opt.set ? std::atoi(opt.val.c_str()) : static_cast<std::int32_t>(opt.def);
 }
 
-std::string cmd::strVal(const std::string &option) const
+std::string chen::cmd::strVal(const std::string &option) const
 {
     auto opt = this->opt(option);
 
@@ -348,20 +346,20 @@ std::string cmd::strVal(const std::string &option) const
 }
 
 // set
-bool cmd::isSet(const std::string &option) const
+bool chen::cmd::isSet(const std::string &option) const
 {
     auto opt = this->opt(option);
     return opt.set;
 }
 
 // object value
-const std::vector<std::string>& cmd::objects() const
+const std::vector<std::string>& chen::cmd::objects() const
 {
     return this->_objects;
 }
 
 // usage
-std::string cmd::usage() const
+std::string chen::cmd::usage() const
 {
     if (this->_define.size() == 1)
     {
@@ -394,7 +392,7 @@ std::string cmd::usage() const
     }
 }
 
-std::string cmd::usage(const std::string &action) const
+std::string chen::cmd::usage(const std::string &action) const
 {
     if (this->_define.find(action) == this->_define.end())
         return this->usage(action, "");
@@ -425,7 +423,7 @@ std::string cmd::usage(const std::string &action) const
     return ret;
 }
 
-std::string cmd::usage(const std::string &action, const std::string &option) const
+std::string chen::cmd::usage(const std::string &action, const std::string &option) const
 {
     if (!option.empty())
     {
@@ -521,13 +519,12 @@ std::string cmd::usage(const std::string &action, const std::string &option) con
     }
 }
 
-std::string cmd::usage(const cmd::error_parse &error) const
+std::string chen::cmd::usage(const cmd::error_parse &error) const
 {
     return this->usage(error.action, error.option);
 }
 
-void cmd::visit(std::function<void (const cmd::action &action, std::size_t idx, std::size_t len)> callback,
-                std::function<bool (const std::string &a, const std::string &b)> compare) const
+void chen::cmd::visit(callback_action callback, callback_compare compare) const
 {
     // sort the keys
     std::vector<std::string> keys = this->_order;
@@ -539,9 +536,7 @@ void cmd::visit(std::function<void (const cmd::action &action, std::size_t idx, 
         callback(this->_define.at(keys[i]), i, len);
 }
 
-void cmd::visit(const std::string &action,
-                std::function<void (const cmd::option &option, std::size_t idx, std::size_t len)> callback,
-                std::function<bool (const std::string &a, const std::string &b)> compare) const
+void chen::cmd::visit(const std::string &action, callback_option callback, callback_compare compare) const
 {
     auto find = this->_define.find(action);
     if (find == this->_define.end())
@@ -559,13 +554,13 @@ void cmd::visit(const std::string &action,
         callback(act.options.at(keys[i]), i, len);
 }
 
-void cmd::suggest(const std::string &alias, const std::string &action)
+void chen::cmd::suggest(const std::string &alias, const std::string &action)
 {
     this->_suggest[alias] = action;
 }
 
 // option
-const cmd::option& cmd::opt(const std::string &name) const
+const chen::cmd::option& chen::cmd::opt(const std::string &name) const
 {
     if (this->_action)
     {

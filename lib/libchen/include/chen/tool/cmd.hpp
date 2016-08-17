@@ -155,7 +155,7 @@ namespace chen
             std::function<void (const cmd &cmd)> bind;
 
             std::vector<std::string> order;  // option insertion order
-            std::unordered_map<std::string, cmd::option> options;
+            std::unordered_map<std::string, option> options;
             std::unordered_map<std::string, std::string> alias;
         };
 
@@ -165,24 +165,28 @@ namespace chen
             explicit error(const std::string &what) : std::runtime_error(what) {}
         };
 
-        class error_general : public cmd::error
+        class error_general : public error
         {
         public:
-            explicit error_general(const std::string &what) : cmd::error(what) {}
+            explicit error_general(const std::string &what) : error(what) {}
         };
 
-        class error_parse : public cmd::error
+        class error_parse : public error
         {
         public:
             explicit error_parse(const std::string &what,
                                  const std::string &action,
                                  const std::string &option)
-                    : cmd::error(what), action(action), option(option) {}
+                    : error(what), action(action), option(option) {}
 
         public:
             std::string action;
             std::string option;
         };
+
+        typedef std::function<void (const action &action, std::size_t idx, std::size_t len)> callback_action;
+        typedef std::function<void (const option &option, std::size_t idx, std::size_t len)> callback_option;
+        typedef std::function<bool (const std::string &a, const std::string &b)> callback_compare;
 
     public:
         /**
@@ -191,17 +195,14 @@ namespace chen
         std::string usage() const;
         std::string usage(const std::string &action) const;
         std::string usage(const std::string &action, const std::string &option) const;
-        std::string usage(const cmd::error_parse &error) const;
+        std::string usage(const error_parse &error) const;
 
         /**
          * Visit actions and options
          * empty name means it's the root action
          */
-        void visit(std::function<void (const cmd::action &action, std::size_t idx, std::size_t len)> callback,
-                   std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
-        void visit(const std::string &action,
-                   std::function<void (const cmd::option &option, std::size_t idx, std::size_t len)> callback,
-                   std::function<bool (const std::string &a, const std::string &b)> compare = nullptr) const;
+        void visit(callback_action callback, callback_compare compare = nullptr) const;
+        void visit(const std::string &action, callback_option callback, callback_compare compare = nullptr) const;
 
         /**
          * Provide a suggestion for a specific action
@@ -215,18 +216,18 @@ namespace chen
         /**
          * Find current action's option
          */
-        const cmd::option& opt(const std::string &name) const;
+        const option& opt(const std::string &name) const;
 
     protected:
         std::string _app;  // app name
 
-        std::unique_ptr<cmd::action> _action;  // resolved action
+        std::unique_ptr<action> _action;  // resolved action
         std::vector<std::string> _objects;           // unresolved params
 
-        cmd::action *_cursor = nullptr;              // cursor action, weak ref
+        action *_cursor = nullptr;              // cursor action, weak ref
 
         std::vector<std::string> _order;  // action insertion order
-        std::unordered_map<std::string, cmd::action> _define;  // action defines
+        std::unordered_map<std::string, action> _define;  // action defines
 
         std::unordered_map<std::string, std::string> _suggest;  // intelligent suggestion
     };

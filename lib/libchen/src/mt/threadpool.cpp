@@ -7,11 +7,9 @@
 #include <chen/mt/threadpool.hpp>
 #include <algorithm>
 
-using namespace chen;
-
 // ------------------------------------------------------------------
 // threadpool
-threadpool::threadpool(std::size_t count) : _exit(false)
+chen::threadpool::threadpool(std::size_t count) : _exit(false)
 {
     if (!count)
         count = std::max(1u, std::thread::hardware_concurrency());
@@ -31,17 +29,17 @@ threadpool::threadpool(std::size_t count) : _exit(false)
     }
 }
 
-threadpool::~threadpool()
+chen::threadpool::~threadpool()
 {
     this->clean();
 }
 
-std::size_t threadpool::count() const
+std::size_t chen::threadpool::count() const
 {
     return this->_pool.size();
 }
 
-void threadpool::run()
+void chen::threadpool::run()
 {
     while (true)
     {
@@ -63,7 +61,7 @@ void threadpool::run()
     }
 }
 
-void threadpool::clean()
+void chen::threadpool::clean()
 {
     this->_exit = true;
 

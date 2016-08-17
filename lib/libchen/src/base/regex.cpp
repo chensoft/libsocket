@@ -8,36 +8,34 @@
 #include <chen/base/str.hpp>
 #include <chen/base/num.hpp>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // regex
-bool regex::match(const std::string &text, const std::string &pattern)
+bool chen::regex::match(const std::string &text, const std::string &pattern)
 {
     return regex::match(text, std::regex(pattern));
 }
 
-bool regex::match(const std::string &text, const std::regex &regex)
+bool chen::regex::match(const std::string &text, const std::regex &regex)
 {
     return std::regex_search(text, regex);
 }
 
-std::string regex::replace(const std::string &text, const std::string &pattern, const std::string &replace)
+std::string chen::regex::replace(const std::string &text, const std::string &pattern, const std::string &replace)
 {
     return regex::replace(text, std::regex(pattern), replace);
 }
 
-std::string regex::replace(const std::string &text, const std::regex &regex, const std::string &replace)
+std::string chen::regex::replace(const std::string &text, const std::regex &regex, const std::string &replace)
 {
     return std::regex_replace(text, regex, replace);
 }
 
-std::string regex::expand(const std::string &text, const std::string &pattern, const std::string &expand)
+std::string chen::regex::expand(const std::string &text, const std::string &pattern, const std::string &expand)
 {
     return regex::expand(text, std::regex(pattern), expand);
 }
 
-std::string regex::expand(const std::string &text, const std::regex &regex, const std::string &expand)
+std::string chen::regex::expand(const std::string &text, const std::regex &regex, const std::string &expand)
 {
     std::smatch mt;
 
@@ -53,12 +51,12 @@ std::string regex::expand(const std::string &text, const std::regex &regex, cons
     return ret;
 }
 
-std::vector<std::string> regex::group(const std::string &text, const std::string &pattern)
+std::vector<std::string> chen::regex::group(const std::string &text, const std::string &pattern)
 {
     return regex::group(text, std::regex(pattern));
 }
 
-std::vector<std::string> regex::group(const std::string &text, const std::regex &regex)
+std::vector<std::string> chen::regex::group(const std::string &text, const std::regex &regex)
 {
     std::vector<std::string> ret;
 

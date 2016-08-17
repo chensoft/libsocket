@@ -7,10 +7,10 @@
 #include <chen/base/str.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(BaseStrTest, General)
 {
+    using chen::str;
+
     // format
     EXPECT_EQ("", str::format(""));
     EXPECT_EQ("plain", str::format("plain"));

@@ -9,16 +9,14 @@
 #include <chen/sys/proc.hpp>
 #include <Windows.h>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // proc
-bool proc::daemon()
+bool chen::proc::daemon()
 {
     return false;
 }
 
-std::string proc::path(int argc, const char *const argv[])
+std::string chen::proc::path(int argc, const char *const argv[])
 {
     CHAR buf[MAX_PATH] = { 0 };
 
@@ -28,12 +26,12 @@ std::string proc::path(int argc, const char *const argv[])
         return "";
 }
 
-int proc::pid()
+int chen::proc::pid()
 {
     return ::GetCurrentProcessId();
 }
 
-bool proc::kill(int pid)
+bool chen::proc::kill(int pid)
 {
     HANDLE handle = ::OpenProcess(PROCESS_TERMINATE, FALSE, pid);
     if (handle == INVALID_HANDLE_VALUE)
@@ -45,7 +43,7 @@ bool proc::kill(int pid)
     return ret == TRUE;
 }
 
-bool proc::exist(int pid)
+bool chen::proc::exist(int pid)
 {
     HANDLE handle = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
     if (handle == INVALID_HANDLE_VALUE)

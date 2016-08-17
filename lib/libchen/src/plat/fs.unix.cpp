@@ -18,16 +18,14 @@
 #include <utime.h>
 #include <pwd.h>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // path
-std::string fs::root()
+std::string chen::fs::root()
 {
     return "/";
 }
 
-std::string fs::home()
+std::string chen::fs::home()
 {
     // check env variable first
     auto env = ::getenv("HOME");
@@ -39,7 +37,7 @@ std::string fs::home()
     return pw->pw_dir;
 }
 
-std::string fs::temp()
+std::string chen::fs::temp()
 {
     auto env = ::getenv("TMPDIR");
 
@@ -59,23 +57,23 @@ std::string fs::temp()
     }
 }
 
-std::string fs::current()
+std::string chen::fs::current()
 {
     char cwd[PATH_MAX] = {0};
     return std::string(::getcwd(cwd, PATH_MAX));
 }
 
-std::vector<std::string> fs::drives()
+std::vector<std::string> chen::fs::drives()
 {
     return {"/"};
 }
 
-char fs::separator()
+char chen::fs::separator()
 {
     return '/';
 }
 
-std::string fs::realpath(const std::string &path)
+std::string chen::fs::realpath(const std::string &path)
 {
     // realpath
     char buf[PATH_MAX] = {0};
@@ -87,48 +85,48 @@ std::string fs::realpath(const std::string &path)
 }
 
 // exist
-bool fs::isExist(const std::string &path)
+bool chen::fs::isExist(const std::string &path)
 {
     return !::access(path.c_str(), F_OK);
 }
 
-bool fs::isDir(const std::string &path, bool strict)
+bool chen::fs::isDir(const std::string &path, bool strict)
 {
     struct stat st = {0};
     auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
     return ok && S_ISDIR(st.st_mode);
 }
 
-bool fs::isFile(const std::string &path, bool strict)
+bool chen::fs::isFile(const std::string &path, bool strict)
 {
     struct stat st = {0};
     auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
     return ok && S_ISREG(st.st_mode);
 }
 
-bool fs::isLink(const std::string &path)
+bool chen::fs::isLink(const std::string &path)
 {
     struct stat st = {0};
     return !::lstat(path.c_str(), &st) && S_ISLNK(st.st_mode);
 }
 
-bool fs::isReadable(const std::string &path)
+bool chen::fs::isReadable(const std::string &path)
 {
     return !::access(path.c_str(), R_OK);
 }
 
-bool fs::isWritable(const std::string &path)
+bool chen::fs::isWritable(const std::string &path)
 {
     return !::access(path.c_str(), W_OK);
 }
 
-bool fs::isExecutable(const std::string &path)
+bool chen::fs::isExecutable(const std::string &path)
 {
     return !::access(path.c_str(), X_OK);
 }
 
 // create
-bool fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
+bool chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
 {
     // using current time if it's zero
     if (!mtime)
@@ -166,7 +164,7 @@ bool fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
     }
 }
 
-bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
+bool chen::fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
 {
     if (!mode)
         mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
@@ -194,7 +192,7 @@ bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
     }
 }
 
-bool fs::remove(const std::string &path)
+bool chen::fs::remove(const std::string &path)
 {
     if (fs::isFile(path))
     {
@@ -238,15 +236,15 @@ bool fs::remove(const std::string &path)
 }
 
 // change
-bool fs::change(const std::string &directory)
+bool chen::fs::change(const std::string &directory)
 {
     return !::chdir(directory.c_str());
 }
 
 // visit
-void fs::visit(const std::string &directory,
-               std::function<void (const std::string &path, bool &stop)> callback,
-               bool recursive)
+void chen::fs::visit(const std::string &directory,
+                     std::function<void (const std::string &path, bool &stop)> callback,
+                     bool recursive)
 {
     DIR    *dir = ::opendir(directory.c_str());
     dirent *cur = nullptr;

@@ -7,15 +7,15 @@
 #include <chen/base/vector.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-
 TEST(BaseVectorTest, General)
 {
-    // unique
-    std::vector<int> vector({1, 2, 2, 1, 3, 4, 4, 5});
-    vector::unique(vector);
+    using chen::vector;
 
-    EXPECT_EQ(std::vector<int>({1, 2, 3, 4, 5}), vector);
+    // unique
+    std::vector<int> vec({1, 2, 2, 1, 3, 4, 4, 5});
+    vector::unique(vec);
+
+    EXPECT_EQ(std::vector<int>({1, 2, 3, 4, 5}), vec);
 
     // union
     std::vector<int> v1 = {1, 2, 3};

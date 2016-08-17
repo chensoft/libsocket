@@ -16,11 +16,9 @@
 
 #pragma comment(lib, "userenv.lib")
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // fs
-std::string fs::root()
+std::string chen::fs::root()
 {
 	CHAR buf[MAX_PATH] = { 0 };
 
@@ -30,7 +28,7 @@ std::string fs::root()
 		return "";
 }
 
-std::string fs::home()
+std::string chen::fs::home()
 {
     CHAR buf[MAX_PATH] = { 0 };
 
@@ -46,7 +44,7 @@ std::string fs::home()
     return ok ? buf : "";
 }
 
-std::string fs::temp()
+std::string chen::fs::temp()
 {
     CHAR buf[MAX_PATH] = { 0 };
 
@@ -56,7 +54,7 @@ std::string fs::temp()
         return "";
 }
 
-std::string fs::current()
+std::string chen::fs::current()
 {
     CHAR buf[MAX_PATH] = { 0 };
 
@@ -66,7 +64,7 @@ std::string fs::current()
         return "";
 }
 
-std::vector<std::string> fs::drives()
+std::vector<std::string> chen::fs::drives()
 {
     std::vector<std::string> ret;
 
@@ -81,12 +79,12 @@ std::vector<std::string> fs::drives()
     return ret;
 }
 
-char fs::separator()
+char chen::fs::separator()
 {
     return '\\';
 }
 
-std::string fs::realpath(const std::string &path)
+std::string chen::fs::realpath(const std::string &path)
 {
     CHAR buf[MAX_PATH] = { 0 };
     DWORD size = sizeof(buf);
@@ -103,49 +101,49 @@ std::string fs::realpath(const std::string &path)
 }
 
 // exist
-bool fs::isExist(const std::string &path)
+bool chen::fs::isExist(const std::string &path)
 {
     DWORD attr = ::GetFileAttributes(path.c_str());
     return attr != INVALID_FILE_ATTRIBUTES;
 }
 
-bool fs::isDir(const std::string &path, bool strict)
+bool chen::fs::isDir(const std::string &path, bool strict)
 {
     DWORD attr = ::GetFileAttributes(path.c_str());
     return (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-bool fs::isFile(const std::string &path, bool strict)
+bool chen::fs::isFile(const std::string &path, bool strict)
 {
     DWORD attr = ::GetFileAttributes(path.c_str());
     return (attr != INVALID_FILE_ATTRIBUTES) && !(attr & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-bool fs::isLink(const std::string &path)
+bool chen::fs::isLink(const std::string &path)
 {
     return false;
 }
 
-bool fs::isReadable(const std::string &path)
+bool chen::fs::isReadable(const std::string &path)
 {
     // see https://msdn.microsoft.com/en-us/library/1w06ktdy.aspx
     // 0: Existence only, 2: Write-only, 4: Read-only, 6: Read and write
     return !::_access(path.c_str(), 6) || !::_access(path.c_str(), 4);
 }
 
-bool fs::isWritable(const std::string &path)
+bool chen::fs::isWritable(const std::string &path)
 {
     return !::_access(path.c_str(), 6) || !::_access(path.c_str(), 2);
 }
 
-bool fs::isExecutable(const std::string &path)
+bool chen::fs::isExecutable(const std::string &path)
 {
     DWORD type = 0;
     return ::GetBinaryType(path.c_str(), &type) == TRUE;
 }
 
 // create
-bool fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
+bool chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
 {
     // using current time if it's zero
     if (!mtime)
@@ -185,7 +183,7 @@ bool fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
     }
 }
 
-bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
+bool chen::fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
 {
     // ignore mode
     if (!fs::isDir(dir))
@@ -211,7 +209,7 @@ bool fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
     }
 }
 
-bool fs::remove(const std::string &path)
+bool chen::fs::remove(const std::string &path)
 {
     if (fs::isFile(path))
     {
@@ -255,15 +253,15 @@ bool fs::remove(const std::string &path)
 }
 
 // change
-bool fs::change(const std::string &directory)
+bool chen::fs::change(const std::string &directory)
 {
     return ::SetCurrentDirectory(directory.c_str()) == TRUE;
 }
 
 // visit
-void fs::visit(const std::string &directory,
-               std::function<void (const std::string &path, bool &stop)> callback,
-               bool recursive)
+void chen::fs::visit(const std::string &directory,
+                     std::function<void (const std::string &path, bool &stop)> callback,
+                     bool recursive)
 {
     WIN32_FIND_DATA data;
     HANDLE find = ::FindFirstFile((directory + "\\*").c_str(), &data);

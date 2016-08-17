@@ -7,11 +7,9 @@
 #include <chen/base/utf8.hpp>
 #include <stdexcept>
 
-using namespace chen;
-
 // -----------------------------------------------------------------------------
 // utf8
-std::size_t utf8::count(const std::string &text)
+std::size_t chen::utf8::count(const std::string &text)
 {
     auto ptr = text.data();
     auto len = text.size();
@@ -44,7 +42,7 @@ std::size_t utf8::count(const std::string &text)
     return num;
 }
 
-std::string utf8::substr(const std::string &text, std::size_t start, std::size_t count)
+std::string chen::utf8::substr(const std::string &text, std::size_t start, std::size_t count)
 {
     if (!count)
         return "";
@@ -88,7 +86,7 @@ std::string utf8::substr(const std::string &text, std::size_t start, std::size_t
     return ret;
 }
 
-bool utf8::bom(const std::string &text)
+bool chen::utf8::bom(const std::string &text)
 {
     return (text.size() >= 3) &&
            (static_cast<unsigned char>(text[0]) == 0xEF) &&
@@ -96,7 +94,7 @@ bool utf8::bom(const std::string &text)
            (static_cast<unsigned char>(text[2]) == 0xBF);
 }
 
-std::string utf8::convert(std::uint32_t ch)
+std::string chen::utf8::convert(std::uint32_t ch)
 {
     // I want to use C++11's codecvt to do the convert
     // but unfortunately the cocos2d-x didn't support it on Android now
