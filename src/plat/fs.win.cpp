@@ -259,9 +259,9 @@ bool chen::fs::change(const std::string &directory)
 }
 
 // visit
-void fs::visit(const std::string &directory,
-               std::function<void (const std::string &path, bool &stop)> callback,
-               bool recursive)
+void chen::fs::visit(const std::string &directory,
+                     std::function<void (const std::string &path, bool &stop)> callback,
+                     bool recursive)
 {
     WIN32_FIND_DATA data;
     HANDLE find = ::FindFirstFile((directory + "\\*").c_str(), &data);

@@ -12,10 +12,10 @@ TEST(BaseVectorTest, General)
     using chen::vector;
 
     // unique
-    std::vector<int> vector({1, 2, 2, 1, 3, 4, 4, 5});
-    vector::unique(vector);
+    std::vector<int> vec({1, 2, 2, 1, 3, 4, 4, 5});
+    vector::unique(vec);
 
-    EXPECT_EQ(std::vector<int>({1, 2, 3, 4, 5}), vector);
+    EXPECT_EQ(std::vector<int>({1, 2, 3, 4, 5}), vec);
 
     // union
     std::vector<int> v1 = {1, 2, 3};
