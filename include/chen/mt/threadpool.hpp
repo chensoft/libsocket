@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include "semaphore.hpp"
-#include "callable.hpp"
+#include <chen/mt/semaphore.hpp>
+#include <chen/mt/callable.hpp>
 #include <functional>
 #include <future>
 #include <thread>

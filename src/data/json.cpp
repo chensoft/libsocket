@@ -1060,12 +1060,12 @@ void json::decode(double &out, const iterator &beg, iterator &cur, iterator &end
     // check if number is overflow
     double d = std::atof(str.c_str());
 
-    if (std::isinf(d))
+    if (::isinf(d))
     {
         auto pos = cur.distance() - str.size();
         throw json::error(str::format("json: number '%s' is overflow at position %lu", str.c_str(), pos), pos);
     }
-    else if (std::isnan(d))
+    else if (::isnan(d))
     {
         auto pos = cur.distance() - str.size();
         throw json::error(str::format("json: number '%s' is invalid at position %lu", str.c_str(), pos), pos);
