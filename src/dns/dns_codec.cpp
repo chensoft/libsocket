@@ -6,33 +6,30 @@
  */
 #include <socket/dns/dns_codec.hpp>
 
-using namespace chen;
-using namespace chen::dns;
-
 // -----------------------------------------------------------------------------
 // codec
 
 // fqdn
-bool codec::isFqdn(const std::string &name)
+bool chen::dns::codec::isFqdn(const std::string &name)
 {
     return name.empty() ? false : name.back() == '.';
 }
 
-std::string& codec::fqdn(std::string &name)
+std::string& chen::dns::codec::fqdn(std::string &name)
 {
     if (!codec::isFqdn(name))
         name += '.';
     return name;
 }
 
-std::string codec::fqdn(const std::string &name)
+std::string chen::dns::codec::fqdn(const std::string &name)
 {
     std::string temp(name);
     return codec::fqdn(temp);
 }
 
 // pqdn
-bool codec::isPqdn(const std::string &name, const std::string &fqdn)
+bool chen::dns::codec::isPqdn(const std::string &name, const std::string &fqdn)
 {
     return !codec::isFqdn(name) && codec::isFqdn(fqdn) && str::prefix(fqdn, name);
 }
@@ -42,100 +39,100 @@ bool codec::isPqdn(const std::string &name, const std::string &fqdn)
 // encoder
 
 // property
-const std::vector<std::uint8_t>& encoder::data() const
+const std::vector<std::uint8_t>& chen::dns::encoder::data() const
 {
     return this->_data;
 }
 
-std::vector<std::uint8_t> encoder::move()
+std::vector<std::uint8_t> chen::dns::encoder::move()
 {
     this->_cache.clear();
     return std::move(this->_data);
 }
 
-std::size_t encoder::size() const
+std::size_t chen::dns::encoder::size() const
 {
     return this->_data.size();
 }
 
-const std::map<std::string, std::uint16_t>& encoder::cache() const
+const std::map<std::string, std::uint16_t>& chen::dns::encoder::cache() const
 {
     return this->_cache;
 }
 
 // reset
-void encoder::reset()
+void chen::dns::encoder::reset()
 {
     this->_data.clear();
     this->_cache.clear();
 }
 
 // change
-void encoder::change(std::size_t pos, std::uint8_t byte)
+void chen::dns::encoder::change(std::size_t pos, std::uint8_t byte)
 {
     this->_data[pos] = byte;
 }
 
 // pack
-void encoder::pack(std::int8_t val)
+void chen::dns::encoder::pack(std::int8_t val)
 {
     encoder::pack(static_cast<std::uint8_t>(val));
 }
 
-void encoder::pack(std::int16_t val)
+void chen::dns::encoder::pack(std::int16_t val)
 {
     encoder::pack(static_cast<std::uint16_t>(val));
 }
 
-void encoder::pack(std::int32_t val)
+void chen::dns::encoder::pack(std::int32_t val)
 {
     encoder::pack(static_cast<std::uint32_t>(val));
 }
 
-void encoder::pack(std::int64_t val)
+void chen::dns::encoder::pack(std::int64_t val)
 {
     encoder::pack(static_cast<std::uint64_t>(val));
 }
 
-void encoder::pack(std::uint8_t val)
+void chen::dns::encoder::pack(std::uint8_t val)
 {
     this->_data.emplace_back(val);
 }
 
-void encoder::pack(std::uint16_t val)
+void chen::dns::encoder::pack(std::uint16_t val)
 {
     for (int i = 8; i >= 0; i -= 8)
         this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(std::uint32_t val)
+void chen::dns::encoder::pack(std::uint32_t val)
 {
     for (int i = 24; i >= 0; i -= 8)
         this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(std::uint64_t val)
+void chen::dns::encoder::pack(std::uint64_t val)
 {
     for (int i = 56; i >= 0; i -= 8)
         this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
 }
 
-void encoder::pack(RRType val)
+void chen::dns::encoder::pack(RRType val)
 {
     encoder::pack(static_cast<std::underlying_type<RRType>::type>(val));
 }
 
-void encoder::pack(RRClass val)
+void chen::dns::encoder::pack(RRClass val)
 {
     encoder::pack(static_cast<std::underlying_type<RRClass>::type>(val));
 }
 
-void encoder::pack(edns0::OptionCode val)
+void chen::dns::encoder::pack(edns0::OptionCode val)
 {
     encoder::pack(static_cast<std::underlying_type<edns0::OptionCode>::type>(val));
 }
 
-void encoder::pack(const std::string &val, StringType type, bool compress)
+void chen::dns::encoder::pack(const std::string &val, StringType type, bool compress)
 {
     // according to rfc1035, section 4.1.4
     // the compression scheme allows a domain name in a message to be represented as either:
@@ -154,7 +151,7 @@ void encoder::pack(const std::string &val, StringType type, bool compress)
     }
 }
 
-void encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need)
+void chen::dns::encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need)
 {
     if (val.size() < need)
         throw error_codec(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
@@ -163,7 +160,7 @@ void encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need)
 }
 
 // string
-void encoder::plain(const std::string &val)
+void chen::dns::encoder::plain(const std::string &val)
 {
     // Note:
     // value is plain text
@@ -175,7 +172,7 @@ void encoder::plain(const std::string &val)
     this->_data.insert(this->_data.end(), val.begin(), val.end());
 }
 
-void encoder::domain(const std::string &val, bool compress)
+void chen::dns::encoder::domain(const std::string &val, bool compress)
 {
     // check fqdn
     if (!codec::isFqdn(val))
@@ -230,7 +227,7 @@ void encoder::domain(const std::string &val, bool compress)
     this->_cache[val] = cursor;
 }
 
-bool encoder::compress(const std::string &val)
+bool chen::dns::encoder::compress(const std::string &val)
 {
     for (auto &pair : this->_cache)
     {
@@ -259,54 +256,54 @@ bool encoder::compress(const std::string &val)
 
 // -----------------------------------------------------------------------------
 // decoder
-decoder::decoder(iterator beg, iterator end) : _beg(beg), _cur(beg), _end(end)
+chen::dns::decoder::decoder(iterator beg, iterator end) : _beg(beg), _cur(beg), _end(end)
 {
 }
 
 // property
-const decoder::iterator& decoder::beg() const
+const chen::dns::decoder::iterator& chen::dns::decoder::beg() const
 {
     return this->_beg;
 }
 
-const decoder::iterator& decoder::cur() const
+const chen::dns::decoder::iterator& chen::dns::decoder::cur() const
 {
     return this->_cur;
 }
 
-const decoder::iterator& decoder::end() const
+const chen::dns::decoder::iterator& chen::dns::decoder::end() const
 {
     return this->_end;
 }
 
 // reset
-void decoder::reset()
+void chen::dns::decoder::reset()
 {
     this->_cur = this->_beg;
 }
 
 // unpack
-void decoder::unpack(std::int8_t &val)
+void chen::dns::decoder::unpack(std::int8_t &val)
 {
     decoder::unpack(reinterpret_cast<std::uint8_t&>(val));
 }
 
-void decoder::unpack(std::int16_t &val)
+void chen::dns::decoder::unpack(std::int16_t &val)
 {
     decoder::unpack(reinterpret_cast<std::uint16_t&>(val));
 }
 
-void decoder::unpack(std::int32_t &val)
+void chen::dns::decoder::unpack(std::int32_t &val)
 {
     decoder::unpack(reinterpret_cast<std::uint32_t&>(val));
 }
 
-void decoder::unpack(std::int64_t &val)
+void chen::dns::decoder::unpack(std::int64_t &val)
 {
     decoder::unpack(reinterpret_cast<std::uint64_t&>(val));
 }
 
-void decoder::unpack(std::uint8_t &val)
+void chen::dns::decoder::unpack(std::uint8_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 1)
         throw error_codec("dns: codec unpack size is not enough, require 1 bytes");
@@ -314,7 +311,7 @@ void decoder::unpack(std::uint8_t &val)
     val = *this->_cur++;
 }
 
-void decoder::unpack(std::uint16_t &val)
+void chen::dns::decoder::unpack(std::uint16_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 2)
         throw error_codec("dns: codec unpack size is not enough, require 2 bytes");
@@ -325,7 +322,7 @@ void decoder::unpack(std::uint16_t &val)
         val |= *this->_cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(std::uint32_t &val)
+void chen::dns::decoder::unpack(std::uint32_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 4)
         throw error_codec("dns: codec unpack size is not enough, require 4 bytes");
@@ -336,7 +333,7 @@ void decoder::unpack(std::uint32_t &val)
         val |= *this->_cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(std::uint64_t &val)
+void chen::dns::decoder::unpack(std::uint64_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 8)
         throw error_codec("dns: codec unpack size is not enough, require 8 bytes");
@@ -347,22 +344,22 @@ void decoder::unpack(std::uint64_t &val)
         val |= *this->_cur++ << (len - i - 1) * 8;
 }
 
-void decoder::unpack(RRType &val)
+void chen::dns::decoder::unpack(RRType &val)
 {
     decoder::unpack(reinterpret_cast<std::underlying_type<RRType>::type&>(val));
 }
 
-void decoder::unpack(RRClass &val)
+void chen::dns::decoder::unpack(RRClass &val)
 {
     decoder::unpack(reinterpret_cast<std::underlying_type<RRClass>::type&>(val));
 }
 
-void decoder::unpack(edns0::OptionCode &val)
+void chen::dns::decoder::unpack(edns0::OptionCode &val)
 {
     decoder::unpack(reinterpret_cast<std::underlying_type<edns0::OptionCode>::type&>(val));
 }
 
-void decoder::unpack(std::string &val, StringType type)
+void chen::dns::decoder::unpack(std::string &val, StringType type)
 {
     val.clear();
 
@@ -381,7 +378,7 @@ void decoder::unpack(std::string &val, StringType type)
     }
 }
 
-void decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need)
+void chen::dns::decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need)
 {
     if (std::distance(this->_cur, this->_end) < need)
         throw error_codec(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
@@ -390,7 +387,7 @@ void decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need)
         val.emplace_back(*this->_cur++);
 }
 
-void decoder::plain(std::string &val)
+void chen::dns::decoder::plain(std::string &val)
 {
     // Note:
     // value is plain text
@@ -406,7 +403,7 @@ void decoder::plain(std::string &val)
         val += *this->_cur++;
 }
 
-void decoder::domain(std::string &val)
+void chen::dns::decoder::domain(std::string &val)
 {
     // Note:
     // value contains multiple labels, each label is split by a dot
@@ -415,7 +412,7 @@ void decoder::domain(std::string &val)
     this->extract(val, this->_cur);
 }
 
-void decoder::extract(std::string &val, iterator &cur)
+void chen::dns::decoder::extract(std::string &val, iterator &cur)
 {
     do
     {

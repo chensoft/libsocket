@@ -7,53 +7,50 @@
 #include <socket/net/net_address.hpp>
 #include <chen/base/str.hpp>
 
-using namespace chen;
-using namespace chen::net;
-
 // -----------------------------------------------------------------------------
 // address
-address::address(Type type)
+chen::net::address::address(Type type)
 {
     this->assign(type);
 }
 
-address::address(version4 v4)
+chen::net::address::address(version4 v4)
 {
     this->assign(v4);
 }
 
-address::address(version6 v6)
+chen::net::address::address(version6 v6)
 {
     this->assign(v6);
 }
 
-address::address(const std::string &addr)
+chen::net::address::address(const std::string &addr)
 {
     this->assign(addr);
 }
 
-address::address(const std::string &addr, std::uint8_t cidr)
+chen::net::address::address(const std::string &addr, std::uint8_t cidr)
 {
     this->assign(addr, cidr);
 }
 
-address::address(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
+chen::net::address::address(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
 {
     this->assign(addr, cidr, scope);
 }
 
-address::address(const std::string &addr, const std::string &mask)
+chen::net::address::address(const std::string &addr, const std::string &mask)
 {
     this->assign(addr, mask);
 }
 
-address::address(const std::string &addr, const std::string &mask, std::uint32_t scope)
+chen::net::address::address(const std::string &addr, const std::string &mask, std::uint32_t scope)
 {
     this->assign(addr, mask, scope);
 }
 
 // assignment
-void address::assign(Type type)
+void chen::net::address::assign(Type type)
 {
     this->_type = type;
 
@@ -69,19 +66,19 @@ void address::assign(Type type)
     }
 }
 
-void address::assign(version4 v4)
+void chen::net::address::assign(version4 v4)
 {
     this->_type    = Type::IPv4;
     this->_impl.v4 = v4;
 }
 
-void address::assign(version6 v6)
+void chen::net::address::assign(version6 v6)
 {
     this->_type    = Type::IPv6;
     this->_impl.v6 = v6;
 }
 
-void address::assign(const std::string &addr)
+void chen::net::address::assign(const std::string &addr)
 {
     switch (address::detect(addr))
     {
@@ -97,7 +94,7 @@ void address::assign(const std::string &addr)
     }
 }
 
-void address::assign(const std::string &addr, std::uint8_t cidr)
+void chen::net::address::assign(const std::string &addr, std::uint8_t cidr)
 {
     switch (address::detect(addr))
     {
@@ -113,7 +110,7 @@ void address::assign(const std::string &addr, std::uint8_t cidr)
     }
 }
 
-void address::assign(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
+void chen::net::address::assign(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
 {
     switch (address::detect(addr))
     {
@@ -129,7 +126,7 @@ void address::assign(const std::string &addr, std::uint8_t cidr, std::uint32_t s
     }
 }
 
-void address::assign(const std::string &addr, const std::string &mask)
+void chen::net::address::assign(const std::string &addr, const std::string &mask)
 {
     switch (address::detect(addr))
     {
@@ -145,7 +142,7 @@ void address::assign(const std::string &addr, const std::string &mask)
     }
 }
 
-void address::assign(const std::string &addr, const std::string &mask, std::uint32_t scope)
+void chen::net::address::assign(const std::string &addr, const std::string &mask, std::uint32_t scope)
 {
     switch (address::detect(addr))
     {
@@ -161,68 +158,68 @@ void address::assign(const std::string &addr, const std::string &mask, std::uint
     }
 }
 
-address& address::operator=(Type type)
+chen::net::address& chen::net::address::operator=(Type type)
 {
     this->assign(type);
     return *this;
 }
 
-address& address::operator=(version4 v4)
+chen::net::address& chen::net::address::operator=(version4 v4)
 {
     this->assign(v4);
     return *this;
 }
 
-address& address::operator=(version6 v6)
+chen::net::address& chen::net::address::operator=(version6 v6)
 {
     this->assign(v6);
     return *this;
 }
 
-address& address::operator=(const std::string &addr)
+chen::net::address& chen::net::address::operator=(const std::string &addr)
 {
     this->assign(addr);
     return *this;
 }
 
 // detect
-address::Type address::type() const
+chen::net::address::Type chen::net::address::type() const
 {
     return this->_type;
 }
 
-bool address::isIPv4() const
+bool chen::net::address::isIPv4() const
 {
     return this->_type == Type::IPv4;
 }
 
-bool address::isIPv6() const
+bool chen::net::address::isIPv6() const
 {
     return this->_type == Type::IPv6;
 }
 
-const version4& address::v4() const
+const chen::net::version4& chen::net::address::v4() const
 {
     return this->_impl.v4;
 }
 
-const version6& address::v6() const
+const chen::net::version6& chen::net::address::v6() const
 {
     return this->_impl.v6;
 }
 
-version4& address::v4()
+chen::net::version4& chen::net::address::v4()
 {
     return this->_impl.v4;
 }
 
-version6& address::v6()
+chen::net::version6& chen::net::address::v6()
 {
     return this->_impl.v6;
 }
 
 // representation
-std::string address::str(bool cidr) const
+std::string chen::net::address::str(bool cidr) const
 {
     switch (this->_type)
     {
@@ -234,7 +231,7 @@ std::string address::str(bool cidr) const
     }
 }
 
-std::vector<std::uint8_t> address::bytes() const
+std::vector<std::uint8_t> chen::net::address::bytes() const
 {
     switch (this->_type)
     {
@@ -246,7 +243,7 @@ std::vector<std::uint8_t> address::bytes() const
     }
 }
 
-std::uint8_t address::cidr() const
+std::uint8_t chen::net::address::cidr() const
 {
     switch (this->_type)
     {
@@ -258,7 +255,7 @@ std::uint8_t address::cidr() const
     }
 }
 
-void address::cidr(std::uint8_t value)
+void chen::net::address::cidr(std::uint8_t value)
 {
     switch (this->_type)
     {
@@ -272,7 +269,7 @@ void address::cidr(std::uint8_t value)
     }
 }
 
-std::uint32_t address::scope() const
+std::uint32_t chen::net::address::scope() const
 {
     switch (this->_type)
     {
@@ -284,7 +281,7 @@ std::uint32_t address::scope() const
     }
 }
 
-void address::scope(std::uint32_t value)
+void chen::net::address::scope(std::uint32_t value)
 {
     switch (this->_type)
     {
@@ -298,7 +295,7 @@ void address::scope(std::uint32_t value)
 }
 
 // network
-address address::network() const
+chen::net::address chen::net::address::network() const
 {
     switch (this->_type)
     {
@@ -310,7 +307,7 @@ address address::network() const
     }
 }
 
-address address::minhost() const
+chen::net::address chen::net::address::minhost() const
 {
     switch (this->_type)
     {
@@ -322,7 +319,7 @@ address address::minhost() const
     }
 }
 
-address address::maxhost() const
+chen::net::address chen::net::address::maxhost() const
 {
     switch (this->_type)
     {
@@ -335,7 +332,7 @@ address address::maxhost() const
 }
 
 // special
-bool address::isUnspecified() const
+bool chen::net::address::isUnspecified() const
 {
     switch (this->_type)
     {
@@ -347,7 +344,7 @@ bool address::isUnspecified() const
     }
 }
 
-bool address::isLoopback() const
+bool chen::net::address::isLoopback() const
 {
     switch (this->_type)
     {
@@ -359,7 +356,7 @@ bool address::isLoopback() const
     }
 }
 
-bool address::isMulticast() const
+bool chen::net::address::isMulticast() const
 {
     switch (this->_type)
     {
@@ -372,7 +369,7 @@ bool address::isMulticast() const
 }
 
 // operator
-bool address::operator==(const address &o) const
+bool chen::net::address::operator==(const address &o) const
 {
     if (this->_type != o._type)
         return false;
@@ -387,12 +384,12 @@ bool address::operator==(const address &o) const
     }
 }
 
-bool address::operator!=(const address &o) const
+bool chen::net::address::operator!=(const address &o) const
 {
     return !(*this == o);
 }
 
-bool address::operator<(const address &o) const
+bool chen::net::address::operator<(const address &o) const
 {
     if (this->_type != o._type)
         return false;
@@ -407,12 +404,12 @@ bool address::operator<(const address &o) const
     }
 }
 
-bool address::operator>(const address &o) const
+bool chen::net::address::operator>(const address &o) const
 {
     return o < *this;
 }
 
-bool address::operator<=(const address &o) const
+bool chen::net::address::operator<=(const address &o) const
 {
     if (this->_type != o._type)
         return false;
@@ -427,13 +424,13 @@ bool address::operator<=(const address &o) const
     }
 }
 
-bool address::operator>=(const address &o) const
+bool chen::net::address::operator>=(const address &o) const
 {
     return o <= *this;
 }
 
 // common
-address address::any(Type type)
+chen::net::address chen::net::address::any(Type type)
 {
     address ret;
 
@@ -453,7 +450,7 @@ address address::any(Type type)
     return ret;
 }
 
-address address::loopback(Type type)
+chen::net::address chen::net::address::loopback(Type type)
 {
     address ret;
 
@@ -474,7 +471,7 @@ address address::loopback(Type type)
 }
 
 // helper
-address::Type address::detect(const std::string &addr)
+chen::net::address::Type chen::net::address::detect(const std::string &addr)
 {
     return str::contain(addr, ":") ? Type::IPv6 : Type::IPv4;
 }

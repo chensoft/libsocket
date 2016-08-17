@@ -8,121 +8,118 @@
 #include <socket/dns/dns_record.hpp>
 #include <algorithm>
 
-using namespace chen;
-using namespace chen::dns;
-
 // -----------------------------------------------------------------------------
 // message
 
 // property
-message::header_type& message::header()
+chen::dns::message::header_type& chen::dns::message::header()
 {
     return this->_header;
 }
 
-const message::header_type& message::header() const
+const chen::dns::message::header_type& chen::dns::message::header() const
 {
     return this->_header;
 }
 
-const std::vector<message::question_type>& message::question() const
+const std::vector<chen::dns::message::question_type>& chen::dns::message::question() const
 {
     return this->_question;
 }
 
-const std::vector<message::record_type>& message::answer() const
+const std::vector<chen::dns::message::record_type>& chen::dns::message::answer() const
 {
     return this->_answer;
 }
 
-const std::vector<message::record_type>& message::authority() const
+const std::vector<chen::dns::message::record_type>& chen::dns::message::authority() const
 {
     return this->_authority;
 }
 
-const std::vector<message::record_type>& message::additional() const
+const std::vector<chen::dns::message::record_type>& chen::dns::message::additional() const
 {
     return this->_additional;
 }
 
-void message::addQuestion(question_type value)
+void chen::dns::message::addQuestion(question_type value)
 {
     this->_question.emplace_back(std::move(value));
     this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
-void message::addAnswer(record_type value)
+void chen::dns::message::addAnswer(record_type value)
 {
     this->_answer.emplace_back(std::move(value));
     this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
-void message::addAuthority(record_type value)
+void chen::dns::message::addAuthority(record_type value)
 {
     this->_authority.emplace_back(std::move(value));
     this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
-void message::addAdditional(record_type value)
+void chen::dns::message::addAdditional(record_type value)
 {
     this->_additional.emplace_back(std::move(value));
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
-void message::setQuestion(question_type value)
+void chen::dns::message::setQuestion(question_type value)
 {
     this->_question.clear();
     this->_question.emplace_back(std::move(value));
     this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
-void message::setAnswer(record_type value)
+void chen::dns::message::setAnswer(record_type value)
 {
     this->_answer.clear();
     this->_answer.emplace_back(std::move(value));
     this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
-void message::setAuthority(record_type value)
+void chen::dns::message::setAuthority(record_type value)
 {
     this->_authority.clear();
     this->_authority.emplace_back(std::move(value));
     this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
-void message::setAdditional(record_type value)
+void chen::dns::message::setAdditional(record_type value)
 {
     this->_additional.clear();
     this->_additional.emplace_back(std::move(value));
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
-void message::setQuestion(std::vector<question_type> value)
+void chen::dns::message::setQuestion(std::vector<question_type> value)
 {
     this->_question = std::move(value);
     this->_header.setQdcount(static_cast<std::uint16_t>(this->_question.size()));
 }
 
-void message::setAnswer(std::vector<record_type> value)
+void chen::dns::message::setAnswer(std::vector<record_type> value)
 {
     this->_answer = std::move(value);
     this->_header.setAncount(static_cast<std::uint16_t>(this->_answer.size()));
 }
 
-void message::setAuthority(std::vector<record_type> value)
+void chen::dns::message::setAuthority(std::vector<record_type> value)
 {
     this->_authority = std::move(value);
     this->_header.setNscount(static_cast<std::uint16_t>(this->_authority.size()));
 }
 
-void message::setAdditional(std::vector<record_type> value)
+void chen::dns::message::setAdditional(std::vector<record_type> value)
 {
     this->_additional = std::move(value);
     this->_header.setArcount(static_cast<std::uint16_t>(this->_additional.size()));
 }
 
 // edns
-std::shared_ptr<OPT> message::edns0() const
+std::shared_ptr<chen::dns::OPT> chen::dns::message::edns0() const
 {
     for (auto &rr : this->_additional)
     {
@@ -139,7 +136,7 @@ std::shared_ptr<OPT> message::edns0() const
 }
 
 // codec
-void message::encode(dns::encoder &encoder) const
+void chen::dns::message::encode(dns::encoder &encoder) const
 {
     // header
     this->_header.encode(encoder);
@@ -161,7 +158,7 @@ void message::encode(dns::encoder &encoder) const
         val->encode(encoder);
 }
 
-void message::decode(dns::decoder &decoder)
+void chen::dns::message::decode(dns::decoder &decoder)
 {
     // header
     this->_header.decode(decoder);
@@ -220,13 +217,13 @@ void message::decode(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // request
-request::request(const std::string &qname, RRType qtype)
+chen::dns::request::request(const std::string &qname, RRType qtype)
 {
     this->setQuery(qname, qtype);
 }
 
 // query
-const request::question_type& request::query() const
+const chen::dns::request::question_type& chen::dns::request::query() const
 {
     if (this->_question.empty())
         throw error("dns: request question is empty");
@@ -234,7 +231,7 @@ const request::question_type& request::query() const
     return this->_question[0];
 }
 
-request::question_type& request::query()
+chen::dns::request::question_type& chen::dns::request::query()
 {
     if (this->_question.empty())
         throw error("dns: request question is empty");
@@ -242,7 +239,7 @@ request::question_type& request::query()
     return this->_question[0];
 }
 
-void request::setQuery(const std::string &qname, RRType qtype)
+void chen::dns::request::setQuery(const std::string &qname, RRType qtype)
 {
     // check empty
     if (qname.empty())
@@ -274,7 +271,7 @@ void request::setQuery(const std::string &qname, RRType qtype)
 }
 
 // client
-std::string request::addr(bool subnet) const
+std::string chen::dns::request::addr(bool subnet) const
 {
     if (subnet)
     {
@@ -286,31 +283,31 @@ std::string request::addr(bool subnet) const
     return this->_addr;
 }
 
-std::uint16_t request::port() const
+std::uint16_t chen::dns::request::port() const
 {
     return this->_port;
 }
 
-void request::setAddr(const std::string &addr)
+void chen::dns::request::setAddr(const std::string &addr)
 {
     this->_addr = addr;
 }
 
-void request::setPort(std::uint16_t port)
+void chen::dns::request::setPort(std::uint16_t port)
 {
     this->_port = port;
 }
 
 // codec
-std::vector<std::uint8_t> request::encode() const
+std::vector<std::uint8_t> chen::dns::request::encode() const
 {
     encoder encoder;
     this->encode(encoder);
     return encoder.data();
 }
 
-void request::decode(codec::iterator beg, codec::iterator end,
-                     const std::string &addr, std::uint16_t port)
+void chen::dns::request::decode(codec::iterator beg, codec::iterator end,
+                                const std::string &addr, std::uint16_t port)
 {
     decoder decoder(beg, end);
     this->decode(decoder);
@@ -322,7 +319,7 @@ void request::decode(codec::iterator beg, codec::iterator end,
 
 // -----------------------------------------------------------------------------
 // response
-response::response(bool authoritative)
+chen::dns::response::response(bool authoritative)
 {
     this->_header.setQr(QR::Response);
     this->_header.setOpcode(OPCODE::Query);
@@ -330,13 +327,13 @@ response::response(bool authoritative)
     this->_header.setRcode(RCODE::NoError);
 }
 
-response::response(bool authoritative, const dns::request &request) : response(authoritative)
+chen::dns::response::response(bool authoritative, const dns::request &request) : response(authoritative)
 {
     this->setQuestion(request);
 }
 
 // question
-void response::setQuestion(const dns::request &request)
+void chen::dns::response::setQuestion(const dns::request &request)
 {
     this->_header.setId(request.header().id());
     this->_header.setRecursionDesired(request.header().recursionDesired());
@@ -351,7 +348,7 @@ void response::setQuestion(const dns::request &request)
 }
 
 // rotate
-void response::rotate()
+void chen::dns::response::rotate()
 {
     if (this->_answer.size() <= 1)
         return;
@@ -362,7 +359,7 @@ void response::rotate()
 }
 
 // random
-void response::random()
+void chen::dns::response::random()
 {
     if (this->_answer.size() <= 1)
         return;
@@ -371,14 +368,14 @@ void response::random()
 }
 
 // codec
-std::vector<std::uint8_t> response::encode() const
+std::vector<std::uint8_t> chen::dns::response::encode() const
 {
     encoder encoder;
     this->encode(encoder);
     return encoder.data();
 }
 
-void response::decode(codec::iterator beg, codec::iterator end)
+void chen::dns::response::decode(codec::iterator beg, codec::iterator end)
 {
     decoder decoder(beg, end);
     this->decode(decoder);

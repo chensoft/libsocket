@@ -16,39 +16,36 @@
 // todo
 #endif
 
-using namespace chen;
-using namespace chen::net;
-
 // -----------------------------------------------------------------------------
 // helper
 namespace
 {
-    int af(socket::Family family)
+    int af(chen::net::socket::Family family)
     {
         switch (family)
         {
-            case socket::Family::IPv4:
+            case chen::net::socket::Family::IPv4:
                 return AF_INET;
 
-            case socket::Family::IPv6:
+            case chen::net::socket::Family::IPv6:
                 return AF_INET6;
 
-            case socket::Family::Unix:
+            case chen::net::socket::Family::Unix:
                 return AF_UNIX;
         }
     }
 
-    int type(socket::Protocol protocol)
+    int type(chen::net::socket::Protocol protocol)
     {
         switch (protocol)
         {
-            case socket::Protocol::TCP:
+            case chen::net::socket::Protocol::TCP:
                 return SOCK_STREAM;
 
-            case socket::Protocol::UDP:
+            case chen::net::socket::Protocol::UDP:
                 return SOCK_DGRAM;
 
-            case socket::Protocol::RAW:
+            case chen::net::socket::Protocol::RAW:
                 return SOCK_RAW;
         }
     }
@@ -57,30 +54,30 @@ namespace
 
 // -----------------------------------------------------------------------------
 // socket
-socket::socket(Family family, Protocol protocol) : _family(family), _protocol(protocol)
+chen::net::socket::socket(Family family, Protocol protocol) : _family(family), _protocol(protocol)
 {
     this->_fd = ::socket(af(family), type(protocol), 0);
     if (this->_fd < 0)
         throw error_socket("socket: " + sys::error());
 }
 
-socket::~socket()
+chen::net::socket::~socket()
 {
 }
 
 // error
-std::error_code socket::error() const
+std::error_code chen::net::socket::error() const
 {
     return std::error_code(errno, std::system_category());
 }
 
 // info
-socket::Family socket::family() const
+chen::net::socket::Family chen::net::socket::family() const
 {
     return this->_family;
 }
 
-socket::Protocol socket::protocol() const
+chen::net::socket::Protocol chen::net::socket::protocol() const
 {
     return this->_protocol;
 }

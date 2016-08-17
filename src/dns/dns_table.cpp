@@ -9,111 +9,114 @@
 #include <functional>
 #include <map>
 
-using namespace chen;
-using namespace chen::dns;
-
 // -----------------------------------------------------------------------------
 // helper
 namespace
 {
-    using rr_pointer = table::rr_pointer;
+    using chen::dns::RRType;
+    using chen::dns::RRClass;
+    using chen::dns::QR;
+    using chen::dns::OPCODE;
+    using chen::dns::RCODE;
+    using chen::dns::edns0::OptionCode;
 
-    std::map<RRType, table::rr_build_type> g_rr_build = {
-            {RRType::A, [] () -> rr_pointer { return std::make_shared<A>(); }},
-            {RRType::NS, [] () -> rr_pointer { return std::make_shared<NS>(); }},
-            {RRType::MD, [] () -> rr_pointer { return std::make_shared<MD>(); }},
-            {RRType::MF, [] () -> rr_pointer { return std::make_shared<MF>(); }},
-            {RRType::CNAME, [] () -> rr_pointer { return std::make_shared<CNAME>(); }},
-            {RRType::SOA, [] () -> rr_pointer { return std::make_shared<SOA>(); }},
-            {RRType::MB, [] () -> rr_pointer { return std::make_shared<MB>(); }},
-            {RRType::MG, [] () -> rr_pointer { return std::make_shared<MG>(); }},
-            {RRType::MR, [] () -> rr_pointer { return std::make_shared<MR>(); }},
-            {RRType::Null, [] () -> rr_pointer { return std::make_shared<Null>(); }},
-            {RRType::WKS, [] () -> rr_pointer { return std::make_shared<WKS>(); }},
-            {RRType::PTR, [] () -> rr_pointer { return std::make_shared<PTR>(); }},
-            {RRType::HINFO, [] () -> rr_pointer { return std::make_shared<HINFO>(); }},
-            {RRType::MINFO, [] () -> rr_pointer { return std::make_shared<MINFO>(); }},
-            {RRType::MX, [] () -> rr_pointer { return std::make_shared<MX>(); }},
-            {RRType::TXT, [] () -> rr_pointer { return std::make_shared<TXT>(); }},
-            {RRType::RP, [] () -> rr_pointer { return std::make_shared<RP>(); }},
-            {RRType::AFSDB, [] () -> rr_pointer { return std::make_shared<AFSDB>(); }},
-            {RRType::X25, [] () -> rr_pointer { return std::make_shared<X25>(); }},
-            {RRType::ISDN, [] () -> rr_pointer { return std::make_shared<ISDN>(); }},
-            {RRType::RT, [] () -> rr_pointer { return std::make_shared<RT>(); }},
-            {RRType::NSAP, [] () -> rr_pointer { return std::make_shared<NSAP>(); }},
-            {RRType::NSAPPTR, [] () -> rr_pointer { return std::make_shared<NSAPPTR>(); }},
-            {RRType::SIG, [] () -> rr_pointer { return std::make_shared<SIG>(); }},
-            {RRType::KEY, [] () -> rr_pointer { return std::make_shared<KEY>(); }},
-            {RRType::PX, [] () -> rr_pointer { return std::make_shared<PX>(); }},
-            {RRType::GPOS, [] () -> rr_pointer { return std::make_shared<GPOS>(); }},
-            {RRType::AAAA, [] () -> rr_pointer { return std::make_shared<AAAA>(); }},
-            {RRType::LOC, [] () -> rr_pointer { return std::make_shared<LOC>(); }},
-            {RRType::NXT, [] () -> rr_pointer { return std::make_shared<NXT>(); }},
-            {RRType::EID, [] () -> rr_pointer { return std::make_shared<EID>(); }},
-            {RRType::NIMLOC, [] () -> rr_pointer { return std::make_shared<NIMLOC>(); }},
-            {RRType::SRV, [] () -> rr_pointer { return std::make_shared<SRV>(); }},
-            {RRType::ATMA, [] () -> rr_pointer { return std::make_shared<ATMA>(); }},
-            {RRType::NAPTR, [] () -> rr_pointer { return std::make_shared<NAPTR>(); }},
-            {RRType::KX, [] () -> rr_pointer { return std::make_shared<KX>(); }},
-            {RRType::CERT, [] () -> rr_pointer { return std::make_shared<CERT>(); }},
-            {RRType::A6, [] () -> rr_pointer { return std::make_shared<A6>(); }},
-            {RRType::DNAME, [] () -> rr_pointer { return std::make_shared<DNAME>(); }},
-            {RRType::SINK, [] () -> rr_pointer { return std::make_shared<SINK>(); }},
-            {RRType::OPT, [] () -> rr_pointer { return std::make_shared<OPT>(); }},
-            {RRType::DS, [] () -> rr_pointer { return std::make_shared<DS>(); }},
-            {RRType::SSHFP, [] () -> rr_pointer { return std::make_shared<SSHFP>(); }},
-            {RRType::IPSECKEY, [] () -> rr_pointer { return std::make_shared<IPSECKEY>(); }},
-            {RRType::RRSIG, [] () -> rr_pointer { return std::make_shared<RRSIG>(); }},
-            {RRType::NSEC, [] () -> rr_pointer { return std::make_shared<NSEC>(); }},
-            {RRType::DNSKEY, [] () -> rr_pointer { return std::make_shared<DNSKEY>(); }},
-            {RRType::DHCID, [] () -> rr_pointer { return std::make_shared<DHCID>(); }},
-            {RRType::NSEC3, [] () -> rr_pointer { return std::make_shared<NSEC3>(); }},
-            {RRType::NSEC3PARAM, [] () -> rr_pointer { return std::make_shared<NSEC3PARAM>(); }},
-            {RRType::TLSA, [] () -> rr_pointer { return std::make_shared<TLSA>(); }},
-            {RRType::SMIMEA, [] () -> rr_pointer { return std::make_shared<SMIMEA>(); }},
-            {RRType::HIP, [] () -> rr_pointer { return std::make_shared<HIP>(); }},
-            {RRType::NINFO, [] () -> rr_pointer { return std::make_shared<NINFO>(); }},
-            {RRType::RKEY, [] () -> rr_pointer { return std::make_shared<RKEY>(); }},
-            {RRType::TALINK, [] () -> rr_pointer { return std::make_shared<TALINK>(); }},
-            {RRType::CDS, [] () -> rr_pointer { return std::make_shared<CDS>(); }},
-            {RRType::CDNSKEY, [] () -> rr_pointer { return std::make_shared<CDNSKEY>(); }},
-            {RRType::OPENPGPKEY, [] () -> rr_pointer { return std::make_shared<OPENPGPKEY>(); }},
-            {RRType::CSYNC, [] () -> rr_pointer { return std::make_shared<CSYNC>(); }},
-            {RRType::SPF, [] () -> rr_pointer { return std::make_shared<SPF>(); }},
-            {RRType::UINFO, [] () -> rr_pointer { return std::make_shared<UINFO>(); }},
-            {RRType::UID, [] () -> rr_pointer { return std::make_shared<UID>(); }},
-            {RRType::GID, [] () -> rr_pointer { return std::make_shared<GID>(); }},
-            {RRType::UNSPEC, [] () -> rr_pointer { return std::make_shared<UNSPEC>(); }},
-            {RRType::NID, [] () -> rr_pointer { return std::make_shared<NID>(); }},
-            {RRType::L32, [] () -> rr_pointer { return std::make_shared<L32>(); }},
-            {RRType::L64, [] () -> rr_pointer { return std::make_shared<L64>(); }},
-            {RRType::LP, [] () -> rr_pointer { return std::make_shared<LP>(); }},
-            {RRType::EUI48, [] () -> rr_pointer { return std::make_shared<EUI48>(); }},
-            {RRType::EUI64, [] () -> rr_pointer { return std::make_shared<EUI64>(); }},
-            {RRType::TKEY, [] () -> rr_pointer { return std::make_shared<TKEY>(); }},
-            {RRType::TSIG, [] () -> rr_pointer { return std::make_shared<TSIG>(); }},
+    using rr_pointer = chen::dns::table::rr_pointer;
+    using opt_pointer = chen::dns::table::opt_pointer;
 
-            {RRType::URI, [] () -> rr_pointer { return std::make_shared<URI>(); }},
-            {RRType::CAA, [] () -> rr_pointer { return std::make_shared<CAA>(); }},
-            {RRType::TA, [] () -> rr_pointer { return std::make_shared<TA>(); }},
-            {RRType::DLV, [] () -> rr_pointer { return std::make_shared<DLV>(); }}
+    std::map<RRType, chen::dns::table::rr_build_type> g_rr_build = {
+            {RRType::A, [] () -> rr_pointer { return std::make_shared<chen::dns::A>(); }},
+            {RRType::NS, [] () -> rr_pointer { return std::make_shared<chen::dns::NS>(); }},
+            {RRType::MD, [] () -> rr_pointer { return std::make_shared<chen::dns::MD>(); }},
+            {RRType::MF, [] () -> rr_pointer { return std::make_shared<chen::dns::MF>(); }},
+            {RRType::CNAME, [] () -> rr_pointer { return std::make_shared<chen::dns::CNAME>(); }},
+            {RRType::SOA, [] () -> rr_pointer { return std::make_shared<chen::dns::SOA>(); }},
+            {RRType::MB, [] () -> rr_pointer { return std::make_shared<chen::dns::MB>(); }},
+            {RRType::MG, [] () -> rr_pointer { return std::make_shared<chen::dns::MG>(); }},
+            {RRType::MR, [] () -> rr_pointer { return std::make_shared<chen::dns::MR>(); }},
+            {RRType::Null, [] () -> rr_pointer { return std::make_shared<chen::dns::Null>(); }},
+            {RRType::WKS, [] () -> rr_pointer { return std::make_shared<chen::dns::WKS>(); }},
+            {RRType::PTR, [] () -> rr_pointer { return std::make_shared<chen::dns::PTR>(); }},
+            {RRType::HINFO, [] () -> rr_pointer { return std::make_shared<chen::dns::HINFO>(); }},
+            {RRType::MINFO, [] () -> rr_pointer { return std::make_shared<chen::dns::MINFO>(); }},
+            {RRType::MX, [] () -> rr_pointer { return std::make_shared<chen::dns::MX>(); }},
+            {RRType::TXT, [] () -> rr_pointer { return std::make_shared<chen::dns::TXT>(); }},
+            {RRType::RP, [] () -> rr_pointer { return std::make_shared<chen::dns::RP>(); }},
+            {RRType::AFSDB, [] () -> rr_pointer { return std::make_shared<chen::dns::AFSDB>(); }},
+            {RRType::X25, [] () -> rr_pointer { return std::make_shared<chen::dns::X25>(); }},
+            {RRType::ISDN, [] () -> rr_pointer { return std::make_shared<chen::dns::ISDN>(); }},
+            {RRType::RT, [] () -> rr_pointer { return std::make_shared<chen::dns::RT>(); }},
+            {RRType::NSAP, [] () -> rr_pointer { return std::make_shared<chen::dns::NSAP>(); }},
+            {RRType::NSAPPTR, [] () -> rr_pointer { return std::make_shared<chen::dns::NSAPPTR>(); }},
+            {RRType::SIG, [] () -> rr_pointer { return std::make_shared<chen::dns::SIG>(); }},
+            {RRType::KEY, [] () -> rr_pointer { return std::make_shared<chen::dns::KEY>(); }},
+            {RRType::PX, [] () -> rr_pointer { return std::make_shared<chen::dns::PX>(); }},
+            {RRType::GPOS, [] () -> rr_pointer { return std::make_shared<chen::dns::GPOS>(); }},
+            {RRType::AAAA, [] () -> rr_pointer { return std::make_shared<chen::dns::AAAA>(); }},
+            {RRType::LOC, [] () -> rr_pointer { return std::make_shared<chen::dns::LOC>(); }},
+            {RRType::NXT, [] () -> rr_pointer { return std::make_shared<chen::dns::NXT>(); }},
+            {RRType::EID, [] () -> rr_pointer { return std::make_shared<chen::dns::EID>(); }},
+            {RRType::NIMLOC, [] () -> rr_pointer { return std::make_shared<chen::dns::NIMLOC>(); }},
+            {RRType::SRV, [] () -> rr_pointer { return std::make_shared<chen::dns::SRV>(); }},
+            {RRType::ATMA, [] () -> rr_pointer { return std::make_shared<chen::dns::ATMA>(); }},
+            {RRType::NAPTR, [] () -> rr_pointer { return std::make_shared<chen::dns::NAPTR>(); }},
+            {RRType::KX, [] () -> rr_pointer { return std::make_shared<chen::dns::KX>(); }},
+            {RRType::CERT, [] () -> rr_pointer { return std::make_shared<chen::dns::CERT>(); }},
+            {RRType::A6, [] () -> rr_pointer { return std::make_shared<chen::dns::A6>(); }},
+            {RRType::DNAME, [] () -> rr_pointer { return std::make_shared<chen::dns::DNAME>(); }},
+            {RRType::SINK, [] () -> rr_pointer { return std::make_shared<chen::dns::SINK>(); }},
+            {RRType::OPT, [] () -> rr_pointer { return std::make_shared<chen::dns::OPT>(); }},
+            {RRType::DS, [] () -> rr_pointer { return std::make_shared<chen::dns::DS>(); }},
+            {RRType::SSHFP, [] () -> rr_pointer { return std::make_shared<chen::dns::SSHFP>(); }},
+            {RRType::IPSECKEY, [] () -> rr_pointer { return std::make_shared<chen::dns::IPSECKEY>(); }},
+            {RRType::RRSIG, [] () -> rr_pointer { return std::make_shared<chen::dns::RRSIG>(); }},
+            {RRType::NSEC, [] () -> rr_pointer { return std::make_shared<chen::dns::NSEC>(); }},
+            {RRType::DNSKEY, [] () -> rr_pointer { return std::make_shared<chen::dns::DNSKEY>(); }},
+            {RRType::DHCID, [] () -> rr_pointer { return std::make_shared<chen::dns::DHCID>(); }},
+            {RRType::NSEC3, [] () -> rr_pointer { return std::make_shared<chen::dns::NSEC3>(); }},
+            {RRType::NSEC3PARAM, [] () -> rr_pointer { return std::make_shared<chen::dns::NSEC3PARAM>(); }},
+            {RRType::TLSA, [] () -> rr_pointer { return std::make_shared<chen::dns::TLSA>(); }},
+            {RRType::SMIMEA, [] () -> rr_pointer { return std::make_shared<chen::dns::SMIMEA>(); }},
+            {RRType::HIP, [] () -> rr_pointer { return std::make_shared<chen::dns::HIP>(); }},
+            {RRType::NINFO, [] () -> rr_pointer { return std::make_shared<chen::dns::NINFO>(); }},
+            {RRType::RKEY, [] () -> rr_pointer { return std::make_shared<chen::dns::RKEY>(); }},
+            {RRType::TALINK, [] () -> rr_pointer { return std::make_shared<chen::dns::TALINK>(); }},
+            {RRType::CDS, [] () -> rr_pointer { return std::make_shared<chen::dns::CDS>(); }},
+            {RRType::CDNSKEY, [] () -> rr_pointer { return std::make_shared<chen::dns::CDNSKEY>(); }},
+            {RRType::OPENPGPKEY, [] () -> rr_pointer { return std::make_shared<chen::dns::OPENPGPKEY>(); }},
+            {RRType::CSYNC, [] () -> rr_pointer { return std::make_shared<chen::dns::CSYNC>(); }},
+            {RRType::SPF, [] () -> rr_pointer { return std::make_shared<chen::dns::SPF>(); }},
+            {RRType::UINFO, [] () -> rr_pointer { return std::make_shared<chen::dns::UINFO>(); }},
+            {RRType::UID, [] () -> rr_pointer { return std::make_shared<chen::dns::UID>(); }},
+            {RRType::GID, [] () -> rr_pointer { return std::make_shared<chen::dns::GID>(); }},
+            {RRType::UNSPEC, [] () -> rr_pointer { return std::make_shared<chen::dns::UNSPEC>(); }},
+            {RRType::NID, [] () -> rr_pointer { return std::make_shared<chen::dns::NID>(); }},
+            {RRType::L32, [] () -> rr_pointer { return std::make_shared<chen::dns::L32>(); }},
+            {RRType::L64, [] () -> rr_pointer { return std::make_shared<chen::dns::L64>(); }},
+            {RRType::LP, [] () -> rr_pointer { return std::make_shared<chen::dns::LP>(); }},
+            {RRType::EUI48, [] () -> rr_pointer { return std::make_shared<chen::dns::EUI48>(); }},
+            {RRType::EUI64, [] () -> rr_pointer { return std::make_shared<chen::dns::EUI64>(); }},
+            {RRType::TKEY, [] () -> rr_pointer { return std::make_shared<chen::dns::TKEY>(); }},
+            {RRType::TSIG, [] () -> rr_pointer { return std::make_shared<chen::dns::TSIG>(); }},
+
+            {RRType::URI, [] () -> rr_pointer { return std::make_shared<chen::dns::URI>(); }},
+            {RRType::CAA, [] () -> rr_pointer { return std::make_shared<chen::dns::CAA>(); }},
+            {RRType::TA, [] () -> rr_pointer { return std::make_shared<chen::dns::TA>(); }},
+            {RRType::DLV, [] () -> rr_pointer { return std::make_shared<chen::dns::DLV>(); }}
     };
 
-    using opt_pointer = table::opt_pointer;
-
-    std::map<edns0::OptionCode, table::opt_build_type> g_opt_build {
-            {edns0::OptionCode::LLQ, [] () -> opt_pointer { return std::make_shared<edns0::LLQ>(); }},
-            {edns0::OptionCode::UL, [] () -> opt_pointer { return std::make_shared<edns0::UL>(); }},
-            {edns0::OptionCode::NSID, [] () -> opt_pointer { return std::make_shared<edns0::NSID>(); }},
-            {edns0::OptionCode::DAU, [] () -> opt_pointer { return std::make_shared<edns0::DAU>(); }},
-            {edns0::OptionCode::DHU, [] () -> opt_pointer { return std::make_shared<edns0::DHU>(); }},
-            {edns0::OptionCode::N3U, [] () -> opt_pointer { return std::make_shared<edns0::N3U>(); }},
-            {edns0::OptionCode::Subnet, [] () -> opt_pointer { return std::make_shared<edns0::Subnet>(); }},
-            {edns0::OptionCode::EXPIRE, [] () -> opt_pointer { return std::make_shared<edns0::EXPIRE>(); }},
-            {edns0::OptionCode::COOKIE, [] () -> opt_pointer { return std::make_shared<edns0::COOKIE>(); }},
-            {edns0::OptionCode::Keepalive, [] () -> opt_pointer { return std::make_shared<edns0::Keepalive>(); }},
-            {edns0::OptionCode::Padding, [] () -> opt_pointer { return std::make_shared<edns0::Padding>(); }},
-            {edns0::OptionCode::CHAIN, [] () -> opt_pointer { return std::make_shared<edns0::CHAIN>(); }}
+    std::map<OptionCode, chen::dns::table::opt_build_type> g_opt_build {
+            {OptionCode::LLQ, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::LLQ>(); }},
+            {OptionCode::UL, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::UL>(); }},
+            {OptionCode::NSID, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::NSID>(); }},
+            {OptionCode::DAU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DAU>(); }},
+            {OptionCode::DHU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DHU>(); }},
+            {OptionCode::N3U, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::N3U>(); }},
+            {OptionCode::Subnet, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Subnet>(); }},
+            {OptionCode::EXPIRE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::EXPIRE>(); }},
+            {OptionCode::COOKIE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::COOKIE>(); }},
+            {OptionCode::Keepalive, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Keepalive>(); }},
+            {OptionCode::Padding, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Padding>(); }},
+            {OptionCode::CHAIN, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::CHAIN>(); }}
     };
 
     std::map<RRType, std::string> g_rr_type_text = {
@@ -214,7 +217,7 @@ namespace
             {RRClass::ANY, "ANY"}
     };
 
-    std::unordered_map<std::string, RRClass> g_rr_text_class;
+    std::unordered_map<std::string, chen::dns::RRClass> g_rr_text_class;
 
     std::map<QR, std::string> g_rr_qr_text = {
             {QR::Query, "QUERY"},
@@ -258,22 +261,22 @@ namespace
 
     std::unordered_map<std::string, RCODE> g_rr_text_rcode;
 
-    std::map<edns0::OptionCode, std::string> g_rr_edns0_text = {
-            {edns0::OptionCode::LLQ, "LLQ"},
-            {edns0::OptionCode::UL, "UL"},
-            {edns0::OptionCode::NSID, "NSID"},
-            {edns0::OptionCode::DAU, "DAU"},
-            {edns0::OptionCode::DHU, "DHU"},
-            {edns0::OptionCode::N3U, "N3U"},
-            {edns0::OptionCode::Subnet, "Subnet"},
-            {edns0::OptionCode::EXPIRE, "EXPIRE"},
-            {edns0::OptionCode::COOKIE, "COOKIE"},
-            {edns0::OptionCode::Keepalive, "Keepalive"},
-            {edns0::OptionCode::Padding, "Padding"},
-            {edns0::OptionCode::CHAIN, "CHAIN"},
+    std::map<OptionCode, std::string> g_rr_edns0_text = {
+            {OptionCode::LLQ, "LLQ"},
+            {OptionCode::UL, "UL"},
+            {OptionCode::NSID, "NSID"},
+            {OptionCode::DAU, "DAU"},
+            {OptionCode::DHU, "DHU"},
+            {OptionCode::N3U, "N3U"},
+            {OptionCode::Subnet, "Subnet"},
+            {OptionCode::EXPIRE, "EXPIRE"},
+            {OptionCode::COOKIE, "COOKIE"},
+            {OptionCode::Keepalive, "Keepalive"},
+            {OptionCode::Padding, "Padding"},
+            {OptionCode::CHAIN, "CHAIN"},
     };
 
-    std::unordered_map<std::string, edns0::OptionCode> g_rr_text_edns0;
+    std::unordered_map<std::string, OptionCode> g_rr_text_edns0;
 
     // helper
     class helper
@@ -309,138 +312,138 @@ namespace
 // table
 
 // build
-table::rr_pointer table::build(RRType key)
+chen::dns::table::rr_pointer chen::dns::table::build(RRType key)
 {
     auto it = g_rr_build.find(key);
     return it != g_rr_build.end() ? it->second() : nullptr;
 }
 
-table::opt_pointer table::build(edns0::OptionCode key)
+chen::dns::table::opt_pointer chen::dns::table::build(edns0::OptionCode key)
 {
     auto it = g_opt_build.find(key);
     return it != g_opt_build.end() ? it->second() : nullptr;
 }
 
 // type & text
-std::string table::typeToText(RRType key)
+std::string chen::dns::table::typeToText(RRType key)
 {
     auto it = g_rr_type_text.find(key);
     return it != g_rr_type_text.end() ? it->second : "";
 }
 
-RRType table::textToType(const std::string &key)
+RRType chen::dns::table::textToType(const std::string &key)
 {
     auto it = g_rr_text_type.find(key);
     return it != g_rr_text_type.end() ? it->second : RRType::None;
 }
 
 // class & text
-std::string table::classToText(RRClass key)
+std::string chen::dns::table::classToText(RRClass key)
 {
     auto it = g_rr_class_text.find(key);
     return it != g_rr_class_text.end() ? it->second : "";
 }
 
-RRClass table::textToClass(const std::string &key)
+RRClass chen::dns::table::textToClass(const std::string &key)
 {
     auto it = g_rr_text_class.find(key);
     return it != g_rr_text_class.end() ? it->second : RRClass::IN;
 }
 
 // qr & text
-std::string table::qrToText(QR key)
+std::string chen::dns::table::qrToText(QR key)
 {
     auto it = g_rr_qr_text.find(key);
     return it != g_rr_qr_text.end() ? it->second : "";
 }
 
-QR table::textToQr(const std::string &key)
+QR chen::dns::table::textToQr(const std::string &key)
 {
     auto it = g_rr_text_qr.find(key);
     return it != g_rr_text_qr.end() ? it->second : QR::Query;
 }
 
 // opcode & text
-std::string table::opcodeToText(OPCODE key)
+std::string chen::dns::table::opcodeToText(OPCODE key)
 {
     auto it = g_rr_opcode_text.find(key);
     return it != g_rr_opcode_text.end() ? it->second : "";
 }
 
-OPCODE table::textToOpcode(const std::string &key)
+OPCODE chen::dns::table::textToOpcode(const std::string &key)
 {
     auto it = g_rr_text_opcode.find(key);
     return it != g_rr_text_opcode.end() ? it->second : OPCODE::Query;
 }
 
 // rcode & text
-std::string table::rcodeToText(RCODE key)
+std::string chen::dns::table::rcodeToText(RCODE key)
 {
     auto it = g_rr_rcode_text.find(key);
     return it != g_rr_rcode_text.end() ? it->second : "";
 }
 
-RCODE table::textToRcode(const std::string &key)
+RCODE chen::dns::table::textToRcode(const std::string &key)
 {
     auto it = g_rr_text_rcode.find(key);
     return it != g_rr_text_rcode.end() ? it->second : RCODE::NoError;
 }
 
 // edns0 option code
-std::string table::edns0ToText(edns0::OptionCode key)
+std::string chen::dns::table::edns0ToText(edns0::OptionCode key)
 {
     auto it = g_rr_edns0_text.find(key);
     return it != g_rr_edns0_text.end() ? it->second : "";
 }
 
-edns0::OptionCode table::textToEDNS0(const std::string &key)
+chen::dns::edns0::OptionCode chen::dns::table::textToEDNS0(const std::string &key)
 {
     auto it = g_rr_text_edns0.find(key);
     return it != g_rr_text_edns0.end() ? it->second : edns0::OptionCode::None;
 }
 
 // set
-void table::set(RRType key, rr_build_type val)
+void chen::dns::table::set(RRType key, rr_build_type val)
 {
     g_rr_build[key] = val;
 }
 
-void table::set(edns0::OptionCode key, opt_build_type val)
+void chen::dns::table::set(edns0::OptionCode key, opt_build_type val)
 {
     g_opt_build[key] = val;
 }
 
-void table::set(RRType key, const std::string &val)
+void chen::dns::table::set(RRType key, const std::string &val)
 {
     g_rr_type_text[key] = val;
     g_rr_text_type[val] = key;
 }
 
-void table::set(RRClass key, const std::string &val)
+void chen::dns::table::set(RRClass key, const std::string &val)
 {
     g_rr_class_text[key] = val;
     g_rr_text_class[val] = key;
 }
 
-void table::set(QR key, const std::string &val)
+void chen::dns::table::set(QR key, const std::string &val)
 {
     g_rr_qr_text[key] = val;
     g_rr_text_qr[val] = key;
 }
 
-void table::set(OPCODE key, const std::string &val)
+void chen::dns::table::set(OPCODE key, const std::string &val)
 {
     g_rr_opcode_text[key] = val;
     g_rr_text_opcode[val] = key;
 }
 
-void table::set(RCODE key, const std::string &val)
+void chen::dns::table::set(RCODE key, const std::string &val)
 {
     g_rr_rcode_text[key] = val;
     g_rr_text_rcode[val] = key;
 }
 
-void table::set(edns0::OptionCode key, const std::string &val)
+void chen::dns::table::set(edns0::OptionCode key, const std::string &val)
 {
     g_rr_edns0_text[key] = val;
     g_rr_text_edns0[val] = key;

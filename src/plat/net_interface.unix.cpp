@@ -16,9 +16,6 @@
 #include <cstdlib>
 #include <memory>
 
-using namespace chen;
-using namespace chen::net;
-
 // -----------------------------------------------------------------------------
 // helper
 namespace
@@ -49,20 +46,22 @@ namespace
         ::freeifaddrs(list);
     }
 
-    std::unique_ptr<address> create(struct sockaddr *ptr)
+    std::unique_ptr<chen::net::address> create(struct sockaddr *ptr)
     {
+        using chen::net::address;
+
         if (!ptr)
             return nullptr;
 
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return std::unique_ptr<address>(new address(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr)));
+                return std::unique_ptr<address>(new address(chen::num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr)));
 
             case AF_INET6:
             {
                 auto tmp = (struct sockaddr_in6*)ptr;
-                auto ret = std::unique_ptr<address>(new address(version6::array(tmp->sin6_addr.s6_addr)));
+                auto ret = std::unique_ptr<address>(new address(chen::net::version6::array(tmp->sin6_addr.s6_addr)));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
             }
@@ -74,13 +73,16 @@ namespace
 
     std::uint8_t netmask(struct sockaddr *ptr)
     {
+        using chen::net::version4;
+        using chen::net::version6;
+
         if (!ptr)
             return 0;
 
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return version4::toCIDR(num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
+                return version4::toCIDR(chen::num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
                 return version6::toCIDR(version6::array(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr));
@@ -96,38 +98,38 @@ namespace
 // interface
 
 // flags
-bool interface::isUp() const
+bool chen::net::interface::isUp() const
 {
     return (this->flag & IFF_UP) != 0;
 }
 
-bool interface::isBroadcast() const
+bool chen::net::interface::isBroadcast() const
 {
     return (this->flag & IFF_BROADCAST) != 0;
 }
 
-bool interface::isLoopback() const
+bool chen::net::interface::isLoopback() const
 {
     return (this->flag & IFF_LOOPBACK) != 0;
 }
 
-bool interface::isRunning() const
+bool chen::net::interface::isRunning() const
 {
     return (this->flag & IFF_RUNNING) != 0;
 }
 
-bool interface::isPromiscuous() const
+bool chen::net::interface::isPromiscuous() const
 {
     return (this->flag & IFF_PROMISC) != 0;
 }
 
-bool interface::isMulticast() const
+bool chen::net::interface::isMulticast() const
 {
     return (this->flag & IFF_MULTICAST) != 0;
 }
 
 // enumerate
-std::map<std::string, interface> interface::enumerate()
+std::map<std::string, chen::net::interface> chen::net::interface::enumerate()
 {
     std::map<std::string, interface> map;
 
@@ -155,7 +157,7 @@ std::map<std::string, interface> interface::enumerate()
 }
 
 // scope
-std::uint32_t interface::scope(const std::array<std::uint8_t, 16> &addr, const std::string &name)
+std::uint32_t chen::net::interface::scope(const std::array<std::uint8_t, 16> &addr, const std::string &name)
 {
     // if name is integer
     bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
@@ -185,7 +187,7 @@ std::uint32_t interface::scope(const std::array<std::uint8_t, 16> &addr, const s
     return id;
 }
 
-std::string interface::scope(std::uint32_t id)
+std::string chen::net::interface::scope(std::uint32_t id)
 {
     std::string name;
 

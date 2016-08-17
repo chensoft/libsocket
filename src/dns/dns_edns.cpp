@@ -10,17 +10,13 @@
 #include <chen/base/num.hpp>
 #include <cmath>
 
-using namespace chen;
-using namespace chen::dns;
-using namespace chen::dns::edns0;
-
 // -----------------------------------------------------------------------------
 // edns0 - Option
-Option::Option(OptionCode code) : code(code)
+chen::dns::edns0::Option::Option(OptionCode code) : code(code)
 {
 }
 
-void Option::encode(dns::encoder &encoder) const
+void chen::dns::edns0::Option::encode(dns::encoder &encoder) const
 {
     // common
     encoder.pack(this->code);
@@ -47,7 +43,7 @@ void Option::encode(dns::encoder &encoder) const
     encoder.change(len - tmp - 1, static_cast<std::uint8_t>(tmp & 0xFF));
 }
 
-void Option::decode(dns::decoder &decoder)
+void chen::dns::edns0::Option::decode(dns::decoder &decoder)
 {
     // unpack base fields
     decoder.unpack(this->code);
@@ -57,7 +53,7 @@ void Option::decode(dns::decoder &decoder)
     this->unpack(decoder);
 }
 
-std::shared_ptr<edns0::Option> Option::create(dns::decoder &decoder)
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::Option::create(dns::decoder &decoder)
 {
     dns::decoder detect(decoder);
 
@@ -79,11 +75,11 @@ std::shared_ptr<edns0::Option> Option::create(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - LLQ
-LLQ::LLQ() : Option(OptionCode::LLQ)
+chen::dns::edns0::LLQ::LLQ() : Option(OptionCode::LLQ)
 {
 }
 
-std::string LLQ::str(const std::string &sep) const
+std::string chen::dns::edns0::LLQ::str(const std::string &sep) const
 {
     std::string ret("LLQ");
 
@@ -96,12 +92,12 @@ std::string LLQ::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<edns0::Option> LLQ::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::LLQ::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void LLQ::pack(dns::encoder &encoder) const
+void chen::dns::edns0::LLQ::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->version);
     encoder.pack(this->llq_opcode);
@@ -110,7 +106,7 @@ void LLQ::pack(dns::encoder &encoder) const
     encoder.pack(this->lease_life);
 }
 
-void LLQ::unpack(dns::decoder &decoder)
+void chen::dns::edns0::LLQ::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->version);
     decoder.unpack(this->llq_opcode);
@@ -122,28 +118,28 @@ void LLQ::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - UL
-UL::UL() : Option(OptionCode::UL)
+chen::dns::edns0::UL::UL() : Option(OptionCode::UL)
 {
 }
 
-std::string UL::str(const std::string &sep) const
+std::string chen::dns::edns0::UL::str(const std::string &sep) const
 {
     std::string ret("UL");
     ret += sep + num::str(this->lease);
     return ret;
 }
 
-std::shared_ptr<edns0::Option> UL::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::UL::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void UL::pack(dns::encoder &encoder) const
+void chen::dns::edns0::UL::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->lease);
 }
 
-void UL::unpack(dns::decoder &decoder)
+void chen::dns::edns0::UL::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->lease);
 }
@@ -151,28 +147,28 @@ void UL::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - NSID
-NSID::NSID() : Option(OptionCode::NSID)
+chen::dns::edns0::NSID::NSID() : Option(OptionCode::NSID)
 {
 }
 
-std::string NSID::str(const std::string &sep) const
+std::string chen::dns::edns0::NSID::str(const std::string &sep) const
 {
     std::string ret("NSID");
     ret += sep + RR::escape(this->data);
     return ret;
 }
 
-std::shared_ptr<edns0::Option> NSID::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::NSID::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void NSID::pack(dns::encoder &encoder) const
+void chen::dns::edns0::NSID::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->data, this->data.size());
 }
 
-void NSID::unpack(dns::decoder &decoder)
+void chen::dns::edns0::NSID::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->data, this->length);
 }
@@ -180,28 +176,28 @@ void NSID::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - DAU
-DAU::DAU() : Option(OptionCode::DAU)
+chen::dns::edns0::DAU::DAU() : Option(OptionCode::DAU)
 {
 }
 
-std::string DAU::str(const std::string &sep) const
+std::string chen::dns::edns0::DAU::str(const std::string &sep) const
 {
     std::string ret("DAU");
     ret += sep + RR::escape(this->alg_code.size());
     return ret;
 }
 
-std::shared_ptr<edns0::Option> DAU::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::DAU::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DAU::pack(dns::encoder &encoder) const
+void chen::dns::edns0::DAU::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->alg_code, this->alg_code.size());
 }
 
-void DAU::unpack(dns::decoder &decoder)
+void chen::dns::edns0::DAU::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->alg_code, this->length);
 }
@@ -209,28 +205,28 @@ void DAU::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - DHU
-DHU::DHU() : Option(OptionCode::DHU)
+chen::dns::edns0::DHU::DHU() : Option(OptionCode::DHU)
 {
 }
 
-std::string DHU::str(const std::string &sep) const
+std::string chen::dns::edns0::DHU::str(const std::string &sep) const
 {
     std::string ret("DHU");
     ret += sep + RR::escape(this->alg_code.size());
     return ret;
 }
 
-std::shared_ptr<edns0::Option> DHU::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::DHU::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void DHU::pack(dns::encoder &encoder) const
+void chen::dns::edns0::DHU::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->alg_code, this->alg_code.size());
 }
 
-void DHU::unpack(dns::decoder &decoder)
+void chen::dns::edns0::DHU::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->alg_code, this->length);
 }
@@ -238,28 +234,28 @@ void DHU::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - N3U
-N3U::N3U() : Option(OptionCode::N3U)
+chen::dns::edns0::N3U::N3U() : Option(OptionCode::N3U)
 {
 }
 
-std::string N3U::str(const std::string &sep) const
+std::string chen::dns::edns0::N3U::str(const std::string &sep) const
 {
     std::string ret("N3U");
     ret += sep + RR::escape(this->alg_code.size());
     return ret;
 }
 
-std::shared_ptr<edns0::Option> N3U::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::N3U::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void N3U::pack(dns::encoder &encoder) const
+void chen::dns::edns0::N3U::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->alg_code, this->alg_code.size());
 }
 
-void N3U::unpack(dns::decoder &decoder)
+void chen::dns::edns0::N3U::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->alg_code, this->length);
 }
@@ -267,11 +263,11 @@ void N3U::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Subnet
-Subnet::Subnet() : Option(OptionCode::Subnet)
+chen::dns::edns0::Subnet::Subnet() : Option(OptionCode::Subnet)
 {
 }
 
-std::string Subnet::str(const std::string &sep) const
+std::string chen::dns::edns0::Subnet::str(const std::string &sep) const
 {
     std::string ret("Client Subnet");
 
@@ -282,12 +278,12 @@ std::string Subnet::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<edns0::Option> Subnet::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::Subnet::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Subnet::pack(dns::encoder &encoder) const
+void chen::dns::edns0::Subnet::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->family);
     encoder.pack(this->source);
@@ -331,7 +327,7 @@ void Subnet::pack(dns::encoder &encoder) const
     }
 }
 
-void Subnet::unpack(dns::decoder &decoder)
+void chen::dns::edns0::Subnet::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->family);
     decoder.unpack(this->source);
@@ -377,28 +373,28 @@ void Subnet::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - EXPIRE
-EXPIRE::EXPIRE() : Option(OptionCode::EXPIRE)
+chen::dns::edns0::EXPIRE::EXPIRE() : Option(OptionCode::EXPIRE)
 {
 }
 
-std::string EXPIRE::str(const std::string &sep) const
+std::string chen::dns::edns0::EXPIRE::str(const std::string &sep) const
 {
     std::string ret("EXPIRE");
     ret += sep + num::str(this->expire);
     return ret;
 }
 
-std::shared_ptr<edns0::Option> EXPIRE::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::EXPIRE::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void EXPIRE::pack(dns::encoder &encoder) const
+void chen::dns::edns0::EXPIRE::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->expire);
 }
 
-void EXPIRE::unpack(dns::decoder &decoder)
+void chen::dns::edns0::EXPIRE::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->expire);
 }
@@ -406,11 +402,11 @@ void EXPIRE::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - COOKIE
-COOKIE::COOKIE() : Option(OptionCode::COOKIE)
+chen::dns::edns0::COOKIE::COOKIE() : Option(OptionCode::COOKIE)
 {
 }
 
-std::string COOKIE::str(const std::string &sep) const
+std::string chen::dns::edns0::COOKIE::str(const std::string &sep) const
 {
     std::string ret("COOKIE");
 
@@ -427,18 +423,18 @@ std::string COOKIE::str(const std::string &sep) const
     return ret;
 }
 
-std::shared_ptr<edns0::Option> COOKIE::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::COOKIE::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void COOKIE::pack(dns::encoder &encoder) const
+void chen::dns::edns0::COOKIE::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->client_cookie, this->client_cookie.size());
     encoder.pack(this->server_cookie, this->server_cookie.size());
 }
 
-void COOKIE::unpack(dns::decoder &decoder)
+void chen::dns::edns0::COOKIE::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->client_cookie, 8);
     decoder.unpack(this->server_cookie, this->length - 8u);
@@ -447,28 +443,28 @@ void COOKIE::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Keepalive
-Keepalive::Keepalive() : Option(OptionCode::Keepalive)
+chen::dns::edns0::Keepalive::Keepalive() : Option(OptionCode::Keepalive)
 {
 }
 
-std::string Keepalive::str(const std::string &sep) const
+std::string chen::dns::edns0::Keepalive::str(const std::string &sep) const
 {
     std::string ret("TCP Keepalive");
     ret += sep + num::str(this->timeout);
     return ret;
 }
 
-std::shared_ptr<edns0::Option> Keepalive::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::Keepalive::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Keepalive::pack(dns::encoder &encoder) const
+void chen::dns::edns0::Keepalive::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->timeout);
 }
 
-void Keepalive::unpack(dns::decoder &decoder)
+void chen::dns::edns0::Keepalive::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->timeout);
 }
@@ -476,28 +472,28 @@ void Keepalive::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Padding
-Padding::Padding() : Option(OptionCode::Padding)
+chen::dns::edns0::Padding::Padding() : Option(OptionCode::Padding)
 {
 }
 
-std::string Padding::str(const std::string &sep) const
+std::string chen::dns::edns0::Padding::str(const std::string &sep) const
 {
     std::string ret("Padding");
     ret += sep + RR::escape(this->padding.size());
     return ret;
 }
 
-std::shared_ptr<edns0::Option> Padding::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::Padding::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void Padding::pack(dns::encoder &encoder) const
+void chen::dns::edns0::Padding::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->padding, this->padding.size());
 }
 
-void Padding::unpack(dns::decoder &decoder)
+void chen::dns::edns0::Padding::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->padding, this->length);
 }
@@ -505,28 +501,28 @@ void Padding::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - CHAIN
-CHAIN::CHAIN() : Option(OptionCode::CHAIN)
+chen::dns::edns0::CHAIN::CHAIN() : Option(OptionCode::CHAIN)
 {
 }
 
-std::string CHAIN::str(const std::string &sep) const
+std::string chen::dns::edns0::CHAIN::str(const std::string &sep) const
 {
     std::string ret("CHAIN");
     ret += sep + this->point;
     return ret;
 }
 
-std::shared_ptr<edns0::Option> CHAIN::clone() const
+std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::CHAIN::clone() const
 {
     return std::make_shared<typename std::decay<decltype(*this)>::type>(*this);
 }
 
-void CHAIN::pack(dns::encoder &encoder) const
+void chen::dns::edns0::CHAIN::pack(dns::encoder &encoder) const
 {
     encoder.pack(this->point, codec::StringType::Domain, false);
 }
 
-void CHAIN::unpack(dns::decoder &decoder)
+void chen::dns::edns0::CHAIN::unpack(dns::decoder &decoder)
 {
     decoder.unpack(this->point, codec::StringType::Domain);
 }

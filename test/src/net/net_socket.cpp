@@ -7,10 +7,10 @@
 #include <socket/net/net_socket.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen::net;
-
 TEST(NetSocketTest, General)
 {
+    using chen::net::socket;
+
     // create socket
     EXPECT_NO_THROW(socket(socket::Family::IPv4, socket::Protocol::TCP));
     EXPECT_NO_THROW(socket(socket::Family::IPv4, socket::Protocol::UDP));

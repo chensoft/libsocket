@@ -8,17 +8,20 @@
 #include <socket/net/net_error.hpp>
 #include <gtest/gtest.h>
 
-using namespace chen;
-using namespace chen::net;
-
 TEST(NetAddressTest, Base)
 {
+    using chen::net::address;
+
     EXPECT_EQ(address::Type::IPv4, address::detect("127.0.0.1"));
     EXPECT_EQ(address::Type::IPv6, address::detect("2404:6800:4004:817::200e"));
 }
 
 TEST(NetAddressTest, IPv4)
 {
+    using chen::net::address;
+    using chen::net::version4;
+    using chen::net::error_address;
+
     // assign
     EXPECT_EQ(address(), address("0.0.0.0"));
 
@@ -189,6 +192,11 @@ TEST(NetAddressTest, IPv4)
 
 TEST(NetAddressTest, IPv6)
 {
+    using chen::net::address;
+    using chen::net::version6;
+    using chen::net::interface;
+    using chen::net::error_address;
+
     // assign
     EXPECT_EQ(address(address::Type::IPv6), address("::"));
     EXPECT_EQ(address("::1/64"), address("::1/64"));
