@@ -59,7 +59,7 @@ std::string chen::fs::temp()
 
 std::string chen::fs::current()
 {
-    char cwd[PATH_MAX] = {0};
+    char cwd[PATH_MAX] = {};
     return std::string(::getcwd(cwd, PATH_MAX));
 }
 
@@ -76,7 +76,7 @@ char chen::fs::separator()
 std::string chen::fs::realpath(const std::string &path)
 {
     // realpath
-    char buf[PATH_MAX] = {0};
+    char buf[PATH_MAX] = {};
     ::realpath(fs::absolute(path).c_str(), buf);
 
     // existence
@@ -92,21 +92,21 @@ bool chen::fs::isExist(const std::string &path)
 
 bool chen::fs::isDir(const std::string &path, bool strict)
 {
-    struct stat st = {0};
+    struct stat st = {};
     auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
     return ok && S_ISDIR(st.st_mode);
 }
 
 bool chen::fs::isFile(const std::string &path, bool strict)
 {
-    struct stat st = {0};
+    struct stat st = {};
     auto ok = strict ? !::lstat(path.c_str(), &st) : !::stat(path.c_str(), &st);
     return ok && S_ISREG(st.st_mode);
 }
 
 bool chen::fs::isLink(const std::string &path)
 {
-    struct stat st = {0};
+    struct stat st = {};
     return !::lstat(path.c_str(), &st) && S_ISLNK(st.st_mode);
 }
 
@@ -147,11 +147,11 @@ bool chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t ati
     ::fclose(fp);
 
     // modify mtime and atime
-    struct stat st = {0};
+    struct stat st = {};
 
     if (!::stat(file.c_str(), &st))
     {
-        struct utimbuf time = {0};
+        struct utimbuf time = {};
 
         time.modtime = mtime;
         time.actime  = atime;

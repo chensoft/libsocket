@@ -15,7 +15,7 @@ endif()
 
 # policy CMP0042
 if(APPLE)
-    SET(CMAKE_MACOSX_RPATH ON)
+    set(CMAKE_MACOSX_RPATH ON)
 endif()
 
 # use /MT static runtime in Visual Studio

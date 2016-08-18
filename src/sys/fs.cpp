@@ -213,7 +213,7 @@ std::string chen::fs::extname(const std::string &path, std::size_t dots)
     auto end = path.rend();
     auto idx = beg;
     auto cur = beg;
-    auto num = 0;
+    auto num = 0u;
 
     for (; idx != end; ++idx)
     {
@@ -247,26 +247,26 @@ bool chen::fs::isRelative(const std::string &path)
 // time
 time_t chen::fs::atime(const std::string &path)
 {
-    struct stat st = {0};
+    struct stat st = {};
     return !::stat(path.c_str(), &st) ? st.st_atime : 0;
 }
 
 time_t chen::fs::mtime(const std::string &path)
 {
-    struct stat st = {0};
+    struct stat st = {};
     return !::stat(path.c_str(), &st) ? st.st_mtime : 0;
 }
 
 time_t chen::fs::ctime(const std::string &path)
 {
-    struct stat st = {0};
+    struct stat st = {};
     return !::stat(path.c_str(), &st) ? st.st_ctime : 0;
 }
 
 // size
 off_t chen::fs::filesize(const std::string &file)
 {
-    struct stat st = {0};
+    struct stat st = {};
     return !::stat(file.c_str(), &st) ? st.st_size : 0;
 }
 

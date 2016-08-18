@@ -13,7 +13,7 @@
 // sys
 std::string chen::sys::error()
 {
-    char buf[1024] = {0};
+    char buf[1024] = {};
     return !errno ? "No error" : (!::strerror_s(buf, sizeof(buf), errno) ? std::string(buf) : "Unknown error");
 }
 
