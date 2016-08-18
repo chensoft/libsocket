@@ -75,7 +75,7 @@ TEST(NetAddressTest, IPv4)
     EXPECT_EQ("127.0.0.1/8", address("127.0.0.1/8").minhost().str(true));
     EXPECT_EQ("127.255.255.254/8", address("127.0.0.1/8").maxhost().str(true));
     EXPECT_EQ("127.255.255.255/8", address("127.0.0.1/8").v4().broadcast().str(true));
-    EXPECT_EQ(16777214, address("127.0.0.1/8").v4().hosts());
+    EXPECT_EQ(16777214u, address("127.0.0.1/8").v4().hosts());
 
     // special
     EXPECT_TRUE(address("0.0.0.0").v4().isReserved());

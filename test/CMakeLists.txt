@@ -9,9 +9,15 @@ project(test_libsocket)
 # environment
 include(../lib/libchen/CMakeEnv.cmake)
 
+if(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-parameter")
+endif()
+
 # libraries
-OPTION(LIBCHEN_BUILD_SHARED OFF)
-OPTION(LIBSOCKET_BUILD_SHARED OFF)
+option(LIBCHEN_BUILD_SHARED OFF)
+option(LIBSOCKET_BUILD_SHARED OFF)
 
 add_subdirectory(.. libsocket)
 add_subdirectory(../lib/libchen/test/lib/googletest/googletest googletest)

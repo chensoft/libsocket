@@ -380,7 +380,7 @@ void chen::dns::decoder::unpack(std::string &val, StringType type)
 
 void chen::dns::decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need)
 {
-    if (std::distance(this->_cur, this->_end) < need)
+    if (static_cast<std::size_t>(std::distance(this->_cur, this->_end)) < need)
         throw error_codec(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
     while (need--)
@@ -394,7 +394,7 @@ void chen::dns::decoder::plain(std::string &val)
     // one byte length + characters
     auto length = static_cast<std::size_t>(*this->_cur) + 1;
 
-    if (std::distance(this->_cur, this->_end) < length)
+    if (static_cast<std::size_t>(std::distance(this->_cur, this->_end)) < length)
         throw error_codec(str::format("dns: codec unpack string size is not enough, require %d bytes", length));
 
     ++this->_cur;
@@ -446,10 +446,10 @@ void chen::dns::decoder::extract(std::string &val, iterator &cur)
             throw error_codec(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
 
         // check limit
-        if (length > SIZE_LIMIT_LABEL)
+        if (static_cast<std::size_t>(length) > SIZE_LIMIT_LABEL)
             throw error_codec(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
-        for (std::size_t i = 1; i < length; ++i)
+        for (auto i = 1; i < length; ++i)
             val += *++cur;
 
         val += '.';

@@ -43,9 +43,9 @@ TEST(DataJsonTest, Type)
     EXPECT_EQ(0, unused_i16);
     EXPECT_EQ(0, unused_u16);
     EXPECT_EQ(0, unused_i32);
-    EXPECT_EQ(0, unused_u32);
+    EXPECT_EQ(0u, unused_u32);
     EXPECT_EQ(0, unused_i64);
-    EXPECT_EQ(0, unused_u64);
+    EXPECT_EQ(0u, unused_u64);
     EXPECT_EQ(true, unused_b);
 
     json_object.getObject().clear();
@@ -77,7 +77,7 @@ TEST(DataJsonTest, Type)
 
     EXPECT_EQ(123, json_string.toNumber());
     EXPECT_EQ(123, json_string.toInteger());
-    EXPECT_EQ(123, json_string.toUnsigned());
+    EXPECT_EQ(123u, json_string.toUnsigned());
     EXPECT_EQ("115", json_number.toString());
     EXPECT_TRUE(json_object.toBool());
 
@@ -169,6 +169,6 @@ TEST(DataJsonTest, Validate)
     }
     catch (const json::error &e)
     {
-        EXPECT_EQ(1, e.position);
+        EXPECT_EQ(1u, e.position);
     }
 }

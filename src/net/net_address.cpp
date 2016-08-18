@@ -463,7 +463,7 @@ chen::net::address chen::net::address::loopback(Type type)
 
         case Type::IPv6:
             ret._type = Type::IPv6;
-            ret._impl.v6.assign(std::array<std::uint8_t, 16>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01});
+            ret._impl.v6.assign(std::array<std::uint8_t, 16>{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}});
             break;
     }
 

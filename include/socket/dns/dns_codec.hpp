@@ -147,7 +147,7 @@ namespace chen
             void unpack(std::array<std::uint8_t, Size> &val)
             {
                 auto need = val.size();
-                if (std::distance(this->_cur, this->_end) < need)
+                if (static_cast<std::size_t>(std::distance(this->_cur, this->_end)) < need)
                     throw error_codec(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
 
                 auto from = this->_cur;

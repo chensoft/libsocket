@@ -36,7 +36,7 @@ namespace
 // sys
 std::string chen::sys::error()
 {
-    char buf[1024] = {0};
+    char buf[1024] = {};
     return !errno ? "No error" : peek(::strerror_r(errno, buf, sizeof(buf)), buf);
 }
 

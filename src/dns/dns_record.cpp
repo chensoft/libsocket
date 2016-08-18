@@ -558,8 +558,6 @@ void chen::dns::Null::pack(dns::encoder &encoder) const
     Raw::pack(encoder);
 
     // self
-    auto val = encoder.size();
-
     encoder.pack(this->anything, this->anything.size());
 }
 

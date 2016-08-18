@@ -12,14 +12,14 @@
 // date
 struct tm chen::date::gmtime(std::time_t time)
 {
-    struct tm now = {0};
+    struct tm now = {};
     ::gmtime_r(&time, &now);
     return now;
 }
 
 struct tm chen::date::localtime(std::time_t time)
 {
-    struct tm now = {0};
+    struct tm now = {};
     ::localtime_r(&time, &now);
     return now;
 }

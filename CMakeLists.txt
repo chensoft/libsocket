@@ -10,8 +10,8 @@ project(libsocket)
 include(lib/libchen/CMakeEnv.cmake)
 
 # build type
-OPTION(LIBSOCKET_BUILD_STATIC "Build libsocket as a static library." ON)
-OPTION(LIBSOCKET_BUILD_SHARED "Build libsocket as a shared library." ON)
+option(LIBSOCKET_BUILD_STATIC "Build libsocket as a static library." ON)
+option(LIBSOCKET_BUILD_SHARED "Build libsocket as a shared library." ON)
 
 # libraries
 add_subdirectory(lib/libchen)

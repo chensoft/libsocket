@@ -55,6 +55,6 @@ key="section is not enclosed")";
     }
     catch (const ini::error &e)
     {
-        EXPECT_EQ(8, e.position);
+        EXPECT_EQ(8u, e.position);
     }
 }

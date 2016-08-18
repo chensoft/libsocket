@@ -9,7 +9,13 @@ project(test_libchen)
 # environment
 include(../CMakeEnv.cmake)
 
-OPTION(LIBCHEN_TEST_CODE_COVERAGE "Enable libchen code coverage." OFF)
+if(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-parameter")
+endif()
+
+option(LIBCHEN_TEST_CODE_COVERAGE "Enable libchen code coverage." OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND LIBCHEN_TEST_CODE_COVERAGE)
     message("-- Enable code coverage")
@@ -18,7 +24,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND LIBCHEN_TEST_CODE_COVERAGE)
 endif()
 
 # libraries
-OPTION(LIBCHEN_BUILD_SHARED OFF)
+option(LIBCHEN_BUILD_SHARED OFF)
 
 add_subdirectory(.. libchen)
 add_subdirectory(lib/googletest/googletest)
