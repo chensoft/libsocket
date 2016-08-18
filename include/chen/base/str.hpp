@@ -7,6 +7,7 @@
 #pragma once
 
 #include <ostream>
+#include <cstdio>
 #include <vector>
 #include <string>
 #include <mutex>
