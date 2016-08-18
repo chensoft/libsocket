@@ -9,8 +9,6 @@ project(libchen)
 # environment
 include(CMakeEnv.cmake)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
-
 # build type
 option(LIBCHEN_BUILD_STATIC "Build libchen as a static library." ON)
 option(LIBCHEN_BUILD_SHARED "Build libchen as a shared library." ON)

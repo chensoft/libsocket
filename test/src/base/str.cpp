@@ -15,7 +15,7 @@ TEST(BaseStrTest, General)
     EXPECT_EQ("", str::format(""));
     EXPECT_EQ("plain", str::format("plain"));
     EXPECT_EQ("year 2016", str::format("year %d", 2016));
-    EXPECT_EQ(8, str::format("chen%s", "jian").size());
+    EXPECT_EQ(8u, str::format("chen%s", "jian").size());
 
     // check
     EXPECT_TRUE(str::equal("chen", 4, "chen", 4));
@@ -28,7 +28,7 @@ TEST(BaseStrTest, General)
     EXPECT_TRUE(str::contain("libchen", "lib"));
 
     // count
-    EXPECT_EQ(3, str::count("I scream, you scream, we all scream for ice-cream!", "scream"));
+    EXPECT_EQ(3u, str::count("I scream, you scream, we all scream for ice-cream!", "scream"));
 
     // split & join
     std::vector<std::string> split({"10", "0", "0", "1"});
@@ -58,5 +58,5 @@ TEST(BaseStrTest, General)
     EXPECT_EQ("ABCDE", str::uppercase("abCDe"));
 
     // levenshtein
-    EXPECT_EQ(2, str::levenshtein("pull", 4, "push", 4));
+    EXPECT_EQ(2u, str::levenshtein("pull", 4, "push", 4));
 }

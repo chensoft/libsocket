@@ -23,7 +23,7 @@ TEST(BaseUtf8Test, General)
     auto code  = fs::read(conf::data + "/utf8/code.txt");
     auto plain = fs::read(conf::data + "/utf8/plain.txt");
 
-    EXPECT_EQ(11, utf8::count(plain));
+    EXPECT_EQ(11u, utf8::count(plain));
     EXPECT_EQ(sub, utf8::substr(plain, 0, 7));
     EXPECT_EQ("", utf8::substr(plain, 5, 0));
     EXPECT_TRUE(utf8::bom(bom));
