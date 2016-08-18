@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <chen/mt/threadpool.hpp>
-#include <algorithm>
 
 // ------------------------------------------------------------------
 // threadpool
@@ -68,8 +67,9 @@ void chen::threadpool::clean()
     for (std::size_t i = 0, len = this->_pool.size(); i < len; ++i)
         this->_semaphore.post();
 
-    std::for_each(this->_pool.begin(), this->_pool.end(), [] (std::thread &thread) {
+    for (std::thread &thread : this->_pool)
+    {
         if (thread.joinable())
             thread.join();
-    });
+    }
 }
