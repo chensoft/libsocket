@@ -10,11 +10,12 @@
 #include <chen/base/num.hpp>
 #include <functional>
 #include <algorithm>
+#include <cstdlib>
+#include <memory>
+#include <sys/socket.h>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <netdb.h>
-#include <cstdlib>
-#include <memory>
 
 // -----------------------------------------------------------------------------
 // helper

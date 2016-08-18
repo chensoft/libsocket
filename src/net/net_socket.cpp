@@ -9,8 +9,8 @@
 #include <map>
 
 #ifndef _WIN32
-#include <sys/socket.h>
 #include <socket/net/net_error.hpp>
+#include <sys/socket.h>
 
 #else
 // todo
