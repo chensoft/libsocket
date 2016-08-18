@@ -1058,12 +1058,12 @@ void chen::json::decode(double &out, const iterator &beg, iterator &cur, iterato
     // check if number is overflow
     double d = std::atof(str.c_str());
 
-    if (::isinf(d))
+    if (std::isinf(d))
     {
         auto pos = cur.distance() - str.size();
         throw json::error(str::format("json: number '%s' is overflow at position %lu", str.c_str(), pos), pos);
     }
-    else if (::isnan(d))
+    else if (std::isnan(d))
     {
         auto pos = cur.distance() - str.size();
         throw json::error(str::format("json: number '%s' is invalid at position %lu", str.c_str(), pos), pos);
