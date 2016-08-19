@@ -21,7 +21,7 @@ namespace chen
             /**
              * Construct an null address
              */
-            explicit address(std::nullptr_t);
+            address(std::nullptr_t);
 
             /**
              * Construct an empty address, v4 or v6

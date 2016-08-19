@@ -15,7 +15,7 @@ namespace chen
         class endpoint
         {
         public:
-            explicit endpoint(std::nullptr_t);
+            endpoint(std::nullptr_t);
             endpoint(const std::string &addr, std::uint16_t port);
             endpoint(const net::address &addr, std::uint16_t port);
 

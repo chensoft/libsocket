@@ -8,8 +8,10 @@
 
 #include <socket/net/net_socket.hpp>
 #include <socket/net/net_error.hpp>
+#include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <unistd.h>
 
 // -----------------------------------------------------------------------------
@@ -29,6 +31,8 @@ namespace
             case chen::net::socket::Family::Unix:
                 return AF_UNIX;
         }
+
+        return 0;
     }
 
     int type(chen::net::socket::Protocol protocol)
@@ -44,6 +48,8 @@ namespace
             case chen::net::socket::Protocol::RAW:
                 return SOCK_RAW;
         }
+
+        return 0;
     }
 }
 
@@ -114,25 +120,46 @@ bool chen::net::socket::shutdown(Shutdown flag) noexcept
 }
 
 // info
-//chen::net::endpoint chen::net::socket::local() const noexcept
-//{
-//
-//}
+chen::net::endpoint chen::net::socket::local() const noexcept
+{
 
-//chen::net::endpoint chen::net::socket::remote() const noexcept
-//{
-//    if (!this->_impl->_socket)
-//        return "";
-//
-//    struct sockaddr_in in;
-//    socklen_t len = sizeof(in);
-//
-//    ::memset(&in, 0, sizeof(in));
-//
-//    if (::getpeername(this->_impl->_socket, (struct sockaddr*)&in, &len) == -1)
-//        return "";
-//    else
-//        return ::inet_ntoa(in.sin_addr);
-//}
+}
+
+chen::net::endpoint chen::net::socket::remote() const noexcept
+{
+    if (!this->_impl->_fd)
+        return nullptr;
+
+    switch (this->_family)
+    {
+        case socket::Family::IPv4:
+        {
+            struct sockaddr_in in{};
+            socklen_t len = sizeof(in);
+
+            if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
+                return nullptr;
+
+            return endpoint(address(num::swap(in.sin_addr.s_addr)), num::swap(in.sin_port));
+        }
+
+        case socket::Family::IPv6:
+        {
+            struct sockaddr_in6 in6{};
+            socklen_t len = sizeof(in6);
+
+            if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in6, &len) != 0)
+                return nullptr;
+
+            std::array<std::uint8_t, 16> addr;
+            std::copy(in6.sin6_addr.s6_addr, in6.sin6_addr.s6_addr + 16, addr.begin());
+
+            return endpoint(address(version6(addr, 128, in6.sin6_scope_id)), num::swap(in6.sin6_port));
+        }
+
+        default:
+            return nullptr;
+    }
+}
 
 #endif
