@@ -17,7 +17,7 @@ namespace chen
         /**
          * This class is a wrapper for BSD socket related functions
          * you should not use this class directly, use class like tcp::server instead
-         * @caution you can retrieve last error info use the error() method
+         * @caution you can retrieve last error using the error() method
          */
         class socket
         {
@@ -94,31 +94,31 @@ namespace chen
              * Close the socket, the socket will disconnect immediately
              * todo block in TIME_WAIT?
              */
-            void close();
+            bool close() noexcept;
 
             /**
              * Stop send or receive, but socket is still connected
              */
-            void shutdown(Shutdown flag);
+            bool shutdown(Shutdown flag) noexcept;
 
         public:
             /**
              * Last error info, compare it with std::errc enum class
              * e.g: socket.error() == std::errc::operation_would_block
              */
-            std::error_code error() const;
+            std::error_code error() const noexcept;
 
             /**
              * Socket info
              */
-            Family family() const;
-            Protocol protocol() const;
+            Family family() const noexcept;
+            Protocol protocol() const noexcept;
 
             /**
              * Local and remote endpoint
              */
-            endpoint local() const;
-            endpoint remote() const;
+            endpoint local() const noexcept;
+            endpoint remote() const noexcept;
 
             /**
              * Query connection status

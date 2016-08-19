@@ -9,6 +9,10 @@
 
 // -----------------------------------------------------------------------------
 // address
+chen::net::address::address(std::nullptr_t) : _type(Type::None)
+{
+}
+
 chen::net::address::address(Type type)
 {
     this->assign(type);
@@ -63,6 +67,9 @@ void chen::net::address::assign(Type type)
         case Type::IPv6:
             this->_impl.v6.assign();
             break;
+
+        default:
+            break;
     }
 }
 
@@ -91,6 +98,9 @@ void chen::net::address::assign(const std::string &addr)
             this->_type = Type::IPv6;
             this->_impl.v6.assign(addr);
             break;
+
+        default:
+            break;
     }
 }
 
@@ -106,6 +116,9 @@ void chen::net::address::assign(const std::string &addr, std::uint8_t cidr)
         case Type::IPv6:
             this->_type = Type::IPv6;
             this->_impl.v6.assign(addr, cidr);
+            break;
+
+        default:
             break;
     }
 }
@@ -123,6 +136,9 @@ void chen::net::address::assign(const std::string &addr, std::uint8_t cidr, std:
             this->_type = Type::IPv6;
             this->_impl.v6.assign(addr, cidr, scope);
             break;
+
+        default:
+            break;
     }
 }
 
@@ -139,6 +155,9 @@ void chen::net::address::assign(const std::string &addr, const std::string &mask
             this->_type = Type::IPv6;
             this->_impl.v6.assign(addr, mask);
             break;
+
+        default:
+            break;
     }
 }
 
@@ -154,6 +173,9 @@ void chen::net::address::assign(const std::string &addr, const std::string &mask
         case Type::IPv6:
             this->_type = Type::IPv6;
             this->_impl.v6.assign(addr, mask, scope);
+            break;
+
+        default:
             break;
     }
 }
@@ -228,9 +250,10 @@ std::string chen::net::address::str(bool cidr) const
 
         case Type::IPv6:
             return this->_impl.v6.str(cidr);
-    }
 
-    return "";
+        default:
+            return "";
+    }
 }
 
 std::vector<std::uint8_t> chen::net::address::bytes() const
@@ -242,9 +265,15 @@ std::vector<std::uint8_t> chen::net::address::bytes() const
 
         case Type::IPv6:
             return this->_impl.v6.bytes();
-    }
 
-    return {};
+        default:
+            return {};
+    }
+}
+
+bool chen::net::address::empty() const
+{
+    return this->_type == Type::None;
 }
 
 std::uint8_t chen::net::address::cidr() const
@@ -256,9 +285,10 @@ std::uint8_t chen::net::address::cidr() const
 
         case Type::IPv6:
             return this->_impl.v6.cidr();
-    }
 
-    return 0;
+        default:
+            return 0;
+    }
 }
 
 void chen::net::address::cidr(std::uint8_t value)
@@ -272,6 +302,9 @@ void chen::net::address::cidr(std::uint8_t value)
         case Type::IPv6:
             this->_impl.v6.cidr(value);
             break;
+
+        default:
+            break;
     }
 }
 
@@ -284,9 +317,10 @@ std::uint32_t chen::net::address::scope() const
 
         case Type::IPv6:
             return this->_impl.v6.scope();
-    }
 
-    return 0;
+        default:
+            return 0;
+    }
 }
 
 void chen::net::address::scope(std::uint32_t value)
@@ -298,6 +332,9 @@ void chen::net::address::scope(std::uint32_t value)
 
         case Type::IPv6:
             this->_impl.v6.scope(value);
+            break;
+
+        default:
             break;
     }
 }
@@ -312,9 +349,10 @@ chen::net::address chen::net::address::network() const
 
         case Type::IPv6:
             return address(this->_impl.v6.network());
-    }
 
-    return address();
+        default:
+            return address(nullptr);
+    }
 }
 
 chen::net::address chen::net::address::minhost() const
@@ -326,9 +364,10 @@ chen::net::address chen::net::address::minhost() const
 
         case Type::IPv6:
             return address(this->_impl.v6.minhost());
-    }
 
-    return address();
+        default:
+            return address(nullptr);
+    }
 }
 
 chen::net::address chen::net::address::maxhost() const
@@ -340,9 +379,10 @@ chen::net::address chen::net::address::maxhost() const
 
         case Type::IPv6:
             return address(this->_impl.v6.maxhost());
-    }
 
-    return address();
+        default:
+            return address(nullptr);
+    }
 }
 
 // special
@@ -355,9 +395,10 @@ bool chen::net::address::isUnspecified() const
 
         case Type::IPv6:
             return this->_impl.v6.isUnspecified();
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 bool chen::net::address::isLoopback() const
@@ -369,9 +410,10 @@ bool chen::net::address::isLoopback() const
 
         case Type::IPv6:
             return this->_impl.v6.isLoopback();
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 bool chen::net::address::isMulticast() const
@@ -383,9 +425,10 @@ bool chen::net::address::isMulticast() const
 
         case Type::IPv6:
             return this->_impl.v6.isMulticast();
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 // operator
@@ -401,9 +444,10 @@ bool chen::net::address::operator==(const address &o) const
 
         case Type::IPv6:
             return this->_impl.v6 == o._impl.v6;
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 bool chen::net::address::operator!=(const address &o) const
@@ -423,9 +467,10 @@ bool chen::net::address::operator<(const address &o) const
 
         case Type::IPv6:
             return this->_impl.v6 < o._impl.v6;
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 bool chen::net::address::operator>(const address &o) const
@@ -445,9 +490,10 @@ bool chen::net::address::operator<=(const address &o) const
 
         case Type::IPv6:
             return this->_impl.v6 <= o._impl.v6;
-    }
 
-    return false;
+        default:
+            return false;
+    }
 }
 
 bool chen::net::address::operator>=(const address &o) const
@@ -458,7 +504,7 @@ bool chen::net::address::operator>=(const address &o) const
 // common
 chen::net::address chen::net::address::any(Type type)
 {
-    address ret;
+    address ret(nullptr);
 
     switch (type)
     {
@@ -471,6 +517,9 @@ chen::net::address chen::net::address::any(Type type)
             ret._type = Type::IPv6;
             ret._impl.v6.assign();
             break;
+
+        default:
+            break;
     }
 
     return ret;
@@ -478,7 +527,7 @@ chen::net::address chen::net::address::any(Type type)
 
 chen::net::address chen::net::address::loopback(Type type)
 {
-    address ret;
+    address ret(nullptr);
 
     switch (type)
     {
@@ -490,6 +539,9 @@ chen::net::address chen::net::address::loopback(Type type)
         case Type::IPv6:
             ret._type = Type::IPv6;
             ret._impl.v6.assign(std::array<std::uint8_t, 16>{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}});
+            break;
+
+        default:
             break;
     }
 

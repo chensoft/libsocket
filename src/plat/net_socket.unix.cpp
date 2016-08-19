@@ -10,6 +10,7 @@
 #include <socket/net/net_error.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/socket.h>
+#include <unistd.h>
 
 // -----------------------------------------------------------------------------
 // helper
@@ -51,7 +52,7 @@ namespace
 // impl
 struct chen::net::socket::impl
 {
-    int _fd = 0;
+    int _fd = 0;  // socket file descriptor
 };
 
 
@@ -70,29 +71,68 @@ chen::net::socket::~socket()
 // reset
 void chen::net::socket::reset(Family family, Protocol protocol)
 {
-    if (this->_impl->_fd)
-    {
-        // todo notify old socket disconnect
-
-        // close old socket
-        this->close();
-    }
-
-    this->_family   = family;
-    this->_protocol = protocol;
-
-    this->_impl->_fd = ::socket(af(family), type(protocol), 0);
-    if (this->_impl->_fd < 0)
+    if (this->_impl->_fd && !this->close())
         throw error_socket("socket: " + sys::error());
+
+    auto fd = ::socket(af(family), type(protocol), 0);
+    if (fd < 0)
+        throw error_socket("socket: " + sys::error());
+
+    this->_family    = family;
+    this->_protocol  = protocol;
+    this->_impl->_fd = fd;
 }
 
 // close
-void chen::net::socket::close()
+bool chen::net::socket::close() noexcept
 {
+    if (!this->_impl->_fd)
+        return true;
+
+    if (!::close(this->_impl->_fd))
+    {
+        this->_impl->_fd = 0;
+        return true;
+    }
+
+    return false;
 }
 
-void chen::net::socket::shutdown(Shutdown flag)
+bool chen::net::socket::shutdown(Shutdown flag) noexcept
 {
+    if (!this->_impl->_fd)
+        return true;
+
+    if (flag == Shutdown::Read)
+        return !::shutdown(this->_impl->_fd, SHUT_RD);
+    else if (flag == Shutdown::Write)
+        return !::shutdown(this->_impl->_fd, SHUT_WR);
+    else if (flag == Shutdown::Both)
+        return !::shutdown(this->_impl->_fd, SHUT_RDWR);
+
+    return true;
 }
+
+// info
+//chen::net::endpoint chen::net::socket::local() const noexcept
+//{
+//
+//}
+
+//chen::net::endpoint chen::net::socket::remote() const noexcept
+//{
+//    if (!this->_impl->_socket)
+//        return "";
+//
+//    struct sockaddr_in in;
+//    socklen_t len = sizeof(in);
+//
+//    ::memset(&in, 0, sizeof(in));
+//
+//    if (::getpeername(this->_impl->_socket, (struct sockaddr*)&in, &len) == -1)
+//        return "";
+//    else
+//        return ::inet_ntoa(in.sin_addr);
+//}
 
 #endif

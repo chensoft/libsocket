@@ -8,6 +8,10 @@
 
 // -----------------------------------------------------------------------------
 // endpoint
+chen::net::endpoint::endpoint(std::nullptr_t) : _addr(nullptr)
+{
+}
+
 chen::net::endpoint::endpoint(const std::string &addr, std::uint16_t port) : endpoint(address(addr), port)
 {
 }
@@ -17,6 +21,11 @@ chen::net::endpoint::endpoint(const address &addr, std::uint16_t port) : _addr(a
 }
 
 // property
+bool chen::net::endpoint::empty() const
+{
+    return this->_addr.empty();
+}
+
 const chen::net::address& chen::net::endpoint::addr() const
 {
     return this->_addr;

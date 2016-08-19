@@ -263,7 +263,7 @@ void chen::dns::edns0::N3U::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Subnet
-chen::dns::edns0::Subnet::Subnet() : Option(OptionCode::Subnet)
+chen::dns::edns0::Subnet::Subnet() : Option(OptionCode::Subnet), address(chen::net::address::Type::IPv4)
 {
 }
 

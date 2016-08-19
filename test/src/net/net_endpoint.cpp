@@ -12,6 +12,8 @@ TEST(NetEndpointTest, General)
     using chen::net::address;
     using chen::net::endpoint;
 
+    EXPECT_TRUE(endpoint(nullptr).empty());
+
     const endpoint ep1("127.0.0.1", 80);
     const endpoint ep2(address("127.0.0.1"), 80);
 

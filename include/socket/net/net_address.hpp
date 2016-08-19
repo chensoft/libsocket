@@ -15,13 +15,18 @@ namespace chen
         class address
         {
         public:
-            enum class Type {IPv4, IPv6};
+            enum class Type {None, IPv4, IPv6};
 
         public:
             /**
+             * Construct an null address
+             */
+            explicit address(std::nullptr_t);
+
+            /**
              * Construct an empty address, v4 or v6
              */
-            explicit address(Type type = Type::IPv4);
+            explicit address(Type type);
 
             /**
              * Construct by version directly
@@ -116,6 +121,8 @@ namespace chen
             /**
              * Get raw value
              */
+            bool empty() const;
+
             std::uint8_t cidr() const;
             void cidr(std::uint8_t value);
 

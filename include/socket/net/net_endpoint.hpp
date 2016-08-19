@@ -15,6 +15,7 @@ namespace chen
         class endpoint
         {
         public:
+            explicit endpoint(std::nullptr_t);
             endpoint(const std::string &addr, std::uint16_t port);
             endpoint(const net::address &addr, std::uint16_t port);
 
@@ -22,6 +23,8 @@ namespace chen
             /**
              * Property
              */
+            bool empty() const;
+
             const net::address& addr() const;
             void addr(const net::address &value);
 
