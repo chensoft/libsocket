@@ -11,6 +11,7 @@
 #include <chen/base/num.hpp>
 #include <chen/base/map.hpp>
 #include <limits>
+#include <cctype>
 
 // -----------------------------------------------------------------------------
 // RR

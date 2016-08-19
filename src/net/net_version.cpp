@@ -11,6 +11,7 @@
 #include <chen/base/str.hpp>
 #include <algorithm>
 #include <bitset>
+#include <cctype>
 
 // -----------------------------------------------------------------------------
 // version
@@ -1201,7 +1202,7 @@ std::uint8_t chen::net::version6::toCIDR(const std::array<std::uint8_t, 16> &mas
     for (int i = 0; i < 16; ++i)
     {
         bits  = mask[i];
-        cidr += bits.count();
+        cidr += static_cast<std::uint8_t>(bits.count());
     }
 
     return cidr;
