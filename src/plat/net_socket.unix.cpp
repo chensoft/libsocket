@@ -59,7 +59,7 @@ struct chen::net::socket::impl
 // socket
 chen::net::socket::socket(Family family, Protocol protocol) : _impl(new impl)
 {
-    this->create(family, protocol);
+    this->reset(family, protocol);
 }
 
 chen::net::socket::~socket()
@@ -67,7 +67,8 @@ chen::net::socket::~socket()
     this->close();
 }
 
-void chen::net::socket::create(Family family, Protocol protocol)
+// reset
+void chen::net::socket::reset(Family family, Protocol protocol)
 {
     if (this->_impl->_fd)
     {
@@ -86,11 +87,11 @@ void chen::net::socket::create(Family family, Protocol protocol)
 }
 
 // close
-void chen::net::socket::shutdown()
+void chen::net::socket::close()
 {
 }
 
-void chen::net::socket::close()
+void chen::net::socket::shutdown(Shutdown flag)
 {
 }
 

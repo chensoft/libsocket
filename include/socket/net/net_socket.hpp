@@ -22,11 +22,9 @@ namespace chen
         class socket
         {
         public:
-            /**
-             * Common socket type
-             */
             enum class Family {IPv4, IPv6, Unix};
             enum class Protocol {TCP, UDP, RAW};
+            enum class Shutdown {Read, Write, Both};
 
         public:
             /**
@@ -34,11 +32,6 @@ namespace chen
              */
             socket(Family family, Protocol protocol);
             ~socket();
-
-            /**
-             * Create new socket
-             */
-            void create(Family family, Protocol protocol);
 
         public:
             /**
@@ -92,14 +85,21 @@ namespace chen
 
         public:
             /**
-             * Stop send or receive, but socket is still connected
+             * Reset this socket, close old socket and create new
              */
-            void shutdown();
+            void reset();
+            void reset(Family family, Protocol protocol);
 
             /**
              * Close the socket, the socket will disconnect immediately
+             * todo block in TIME_WAIT?
              */
             void close();
+
+            /**
+             * Stop send or receive, but socket is still connected
+             */
+            void shutdown(Shutdown flag);
 
         public:
             /**

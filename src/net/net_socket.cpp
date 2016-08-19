@@ -12,6 +12,7 @@
 // error
 std::error_code chen::net::socket::error() const
 {
+    // todo how about SO_ERROR?
     return std::error_code(errno, std::system_category());
 }
 
@@ -24,4 +25,10 @@ chen::net::socket::Family chen::net::socket::family() const
 chen::net::socket::Protocol chen::net::socket::protocol() const
 {
     return this->_protocol;
+}
+
+// reset
+void chen::net::socket::reset()
+{
+    this->reset(this->_family, this->_protocol);
 }

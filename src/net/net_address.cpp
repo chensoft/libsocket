@@ -229,6 +229,8 @@ std::string chen::net::address::str(bool cidr) const
         case Type::IPv6:
             return this->_impl.v6.str(cidr);
     }
+
+    return "";
 }
 
 std::vector<std::uint8_t> chen::net::address::bytes() const
@@ -241,6 +243,8 @@ std::vector<std::uint8_t> chen::net::address::bytes() const
         case Type::IPv6:
             return this->_impl.v6.bytes();
     }
+
+    return {};
 }
 
 std::uint8_t chen::net::address::cidr() const
@@ -253,6 +257,8 @@ std::uint8_t chen::net::address::cidr() const
         case Type::IPv6:
             return this->_impl.v6.cidr();
     }
+
+    return 0;
 }
 
 void chen::net::address::cidr(std::uint8_t value)
@@ -279,6 +285,8 @@ std::uint32_t chen::net::address::scope() const
         case Type::IPv6:
             return this->_impl.v6.scope();
     }
+
+    return 0;
 }
 
 void chen::net::address::scope(std::uint32_t value)
@@ -305,6 +313,8 @@ chen::net::address chen::net::address::network() const
         case Type::IPv6:
             return address(this->_impl.v6.network());
     }
+
+    return address();
 }
 
 chen::net::address chen::net::address::minhost() const
@@ -317,6 +327,8 @@ chen::net::address chen::net::address::minhost() const
         case Type::IPv6:
             return address(this->_impl.v6.minhost());
     }
+
+    return address();
 }
 
 chen::net::address chen::net::address::maxhost() const
@@ -329,6 +341,8 @@ chen::net::address chen::net::address::maxhost() const
         case Type::IPv6:
             return address(this->_impl.v6.maxhost());
     }
+
+    return address();
 }
 
 // special
@@ -342,6 +356,8 @@ bool chen::net::address::isUnspecified() const
         case Type::IPv6:
             return this->_impl.v6.isUnspecified();
     }
+
+    return false;
 }
 
 bool chen::net::address::isLoopback() const
@@ -354,6 +370,8 @@ bool chen::net::address::isLoopback() const
         case Type::IPv6:
             return this->_impl.v6.isLoopback();
     }
+
+    return false;
 }
 
 bool chen::net::address::isMulticast() const
@@ -366,6 +384,8 @@ bool chen::net::address::isMulticast() const
         case Type::IPv6:
             return this->_impl.v6.isMulticast();
     }
+
+    return false;
 }
 
 // operator
@@ -382,6 +402,8 @@ bool chen::net::address::operator==(const address &o) const
         case Type::IPv6:
             return this->_impl.v6 == o._impl.v6;
     }
+
+    return false;
 }
 
 bool chen::net::address::operator!=(const address &o) const
@@ -402,6 +424,8 @@ bool chen::net::address::operator<(const address &o) const
         case Type::IPv6:
             return this->_impl.v6 < o._impl.v6;
     }
+
+    return false;
 }
 
 bool chen::net::address::operator>(const address &o) const
@@ -422,6 +446,8 @@ bool chen::net::address::operator<=(const address &o) const
         case Type::IPv6:
             return this->_impl.v6 <= o._impl.v6;
     }
+
+    return false;
 }
 
 bool chen::net::address::operator>=(const address &o) const
