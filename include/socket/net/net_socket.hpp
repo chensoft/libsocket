@@ -8,6 +8,7 @@
 
 #include <socket/net/net_endpoint.hpp>
 #include <system_error>
+#include <memory>
 
 namespace chen
 {
@@ -30,10 +31,14 @@ namespace chen
         public:
             /**
              * Construct socket
-             * todo add reset method
              */
             socket(Family family, Protocol protocol);
             ~socket();
+
+            /**
+             * Create new socket
+             */
+            void create(Family family, Protocol protocol);
 
         public:
             /**
@@ -132,10 +137,11 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            int _fd;  // socket file descriptor(aka socket handle)
-
             Family   _family;
             Protocol _protocol;
+
+            struct impl;
+            std::unique_ptr<impl> _impl;
         };
     }
 }

@@ -16,7 +16,6 @@
 #include <netinet/in.h>
 #include <ifaddrs.h>
 #include <net/if.h>
-#include <netdb.h>
 
 // -----------------------------------------------------------------------------
 // helper
