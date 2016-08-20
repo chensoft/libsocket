@@ -13,6 +13,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <cstring>
 
 // -----------------------------------------------------------------------------
 // helper
@@ -63,7 +64,7 @@ namespace
                 auto &v4 = ep.addr().v4();
 
                 struct sockaddr_in *in = (struct sockaddr_in*)&ret;
-                in->sin_len         = sizeof(*in);
+
                 in->sin_family      = AF_INET;
                 in->sin_port        = chen::num::swap(ep.port());
                 in->sin_addr.s_addr = chen::num::swap(v4.addr());
@@ -77,7 +78,6 @@ namespace
 
                 struct sockaddr_in6 *in = (struct sockaddr_in6*)&ret;
 
-                in->sin6_len      = sizeof(*in);
                 in->sin6_family   = AF_INET6;
                 in->sin6_port     = chen::num::swap(ep.port());
                 in->sin6_scope_id = v6.scope();
@@ -120,13 +120,13 @@ chen::net::socket::~socket()
 bool chen::net::socket::connect(const endpoint &ep) noexcept
 {
     auto in = addr(ep);
-    return !::connect(this->_impl->_fd, (struct sockaddr *)&in, in.ss_len);
+    return !::connect(this->_impl->_fd, (struct sockaddr *)&in, sizeof(in));
 }
 
 bool chen::net::socket::bind(const endpoint &ep) noexcept
 {
     auto in = addr(ep);
-    return !::bind(this->_impl->_fd, (struct sockaddr *)&in, in.ss_len);
+    return !::bind(this->_impl->_fd, (struct sockaddr *)&in, sizeof(in));
 }
 
 bool chen::net::socket::listen() noexcept

@@ -36,6 +36,19 @@ TEST(BaseNumTest, General)
     EXPECT_EQ("115", num::str(115.0));
     EXPECT_EQ("115", num::str(115.0L));
 
+    // bits
+    EXPECT_EQ(0, num::bits(0u));
+    EXPECT_EQ(1, num::bits(0b1));
+    EXPECT_EQ(4, num::bits(0b1111));
+    EXPECT_EQ(7, num::bits(0b11111110));
+    EXPECT_EQ(8, num::bits(0b11111111));
+    EXPECT_EQ(14, num::bits(0b1111111011111110));
+    EXPECT_EQ(16, num::bits(0b1111111111111111));
+    EXPECT_EQ(28, num::bits(0b11111111111111111111111111110000));
+    EXPECT_EQ(31, num::bits(0b11111111111111111111111111111110));
+    EXPECT_EQ(32, num::bits(0b11111111111111111111111111111111));
+
+    // random
     auto rand_real = num::random(0.0, 2.0);
     auto rand_int  = num::random(1, 9999);
 

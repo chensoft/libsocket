@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cstring>
 #include <cctype>
-#include <bitset>
 
 // -----------------------------------------------------------------------------
 // version
@@ -463,7 +462,7 @@ std::uint8_t chen::net::version4::toCIDR(const std::string &mask)
 
 std::uint8_t chen::net::version4::toCIDR(std::uint32_t mask)
 {
-    return static_cast<std::uint8_t>(std::bitset<32>(mask).count());
+    return static_cast<std::uint8_t>(num::bits(mask));
 }
 
 
@@ -1198,13 +1197,9 @@ std::uint8_t chen::net::version6::toCIDR(const std::string &mask)
 std::uint8_t chen::net::version6::toCIDR(const std::array<std::uint8_t, 16> &mask)
 {
     std::uint8_t cidr = 0;
-    std::bitset<8> bits;
 
     for (int i = 0; i < 16; ++i)
-    {
-        bits  = mask[i];
-        cidr += static_cast<std::uint8_t>(bits.count());
-    }
+        cidr += static_cast<std::uint8_t>(num::bits(mask[i]));
 
     return cidr;
 }
