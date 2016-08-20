@@ -33,16 +33,21 @@ namespace chen
             socket(Family family, Protocol protocol);
             ~socket();
 
+            socket(socket&&) = default;
+            socket& operator=(socket&&) = default;
+
         public:
             /**
              * Connect to remote host
              */
             bool connect(const endpoint &ep) noexcept;
+            bool connect(const address &addr, std::uint16_t port) noexcept;
 
             /**
              * Bind on specific endpoint
              */
             bool bind(const endpoint &ep) noexcept;
+            bool bind(const address &addr, std::uint16_t port) noexcept;
 
             /**
              * Listen for request
@@ -52,32 +57,35 @@ namespace chen
             bool listen(int backlog) noexcept;
 
             /**
-             * Accept new request
+             * Accept new request and create a new socket
              */
-            endpoint accept() noexcept;
+            socket accept();
 
         public:
             /**
              * Send data to connected host, usually used in tcp
+             * todo make flags to enum class
              */
-            void send(const std::vector<std::uint8_t> &data, int flags);
-            void send(std::vector<std::uint8_t> &&data, int flags);
+            ssize_t send(const void *data, std::size_t size, int flags) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags) noexcept;
 
             /**
              * Send data to specific host, usually used in udp
              */
-            void send(const std::vector<std::uint8_t> &data, int flags, const endpoint &ep);
-            void send(std::vector<std::uint8_t> &&data, int flags, const endpoint &ep);
+            ssize_t send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags, const endpoint &ep) noexcept;
 
             /**
              * Receive data from connected host, usually used in tcp
              */
-            std::vector<std::uint8_t> recv(std::size_t size, int flags);
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags) noexcept;
+            std::vector<std::uint8_t> recv(std::size_t size, int flags) noexcept;
 
             /**
              * Receive data from specific host, usually used in udp
              */
-            std::vector<std::uint8_t> recv(std::size_t size, int flags, endpoint &ep);
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags, endpoint &ep) noexcept;
+            std::vector<std::uint8_t> recv(std::size_t size, int flags, endpoint &ep) noexcept;
 
         public:
             /**
@@ -125,7 +133,7 @@ namespace chen
             /**
              * Resolve host address
              */
-            static address resolve(const std::string &host);
+            static std::vector<address> resolve(const std::string &host) noexcept;
 
         private:
             socket(const socket&) = delete;

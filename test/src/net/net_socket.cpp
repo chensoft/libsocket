@@ -37,4 +37,7 @@ TEST(NetSocketTest, General)
     {
         // raw socket is not permit if you are not root user
     }
+
+    // todo
+    socket::resolve("");
 }
