@@ -39,5 +39,8 @@ TEST(NetSocketTest, General)
     }
 
     // todo
-    socket::resolve("");
+    auto ret = socket::resolve("google.com");
+
+    for (auto addr : ret)
+        printf("chen: %s\n", addr.str().c_str());
 }

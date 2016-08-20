@@ -23,7 +23,7 @@ namespace chen
         class codec
         {
         public:
-            enum class StringType {Plain, Domain};
+            enum class StringType {Plain = 1, Domain};
 
             typedef forward_iterator<const std::uint8_t> iterator;
 

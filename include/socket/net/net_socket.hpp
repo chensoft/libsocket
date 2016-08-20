@@ -22,9 +22,9 @@ namespace chen
         class socket
         {
         public:
-            enum class Family {IPv4, IPv6, Unix};
-            enum class Protocol {TCP, UDP, RAW};
-            enum class Shutdown {Read, Write, Both};
+            enum class Family {IPv4 = 1, IPv6, Unix};
+            enum class Protocol {TCP = 1, UDP, RAW};
+            enum class Shutdown {Read = 1, Write, Both};
 
         public:
             /**
