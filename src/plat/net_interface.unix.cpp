@@ -11,6 +11,7 @@
 #include <functional>
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <memory>
 #include <sys/socket.h>
 #include <netinet/in.h>

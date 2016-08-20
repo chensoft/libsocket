@@ -53,6 +53,26 @@ chen::net::address::address(const std::string &addr, const std::string &mask, st
     this->assign(addr, mask, scope);
 }
 
+chen::net::address::address(const char *addr) : address(std::string(addr))
+{
+}
+
+chen::net::address::address(const char *addr, std::uint8_t cidr) : address(std::string(addr), cidr)
+{
+}
+
+chen::net::address::address(const char *addr, std::uint8_t cidr, std::uint32_t scope) : address(std::string(addr), cidr, scope)
+{
+}
+
+chen::net::address::address(const char *addr, const std::string &mask) : address(std::string(addr), mask)
+{
+}
+
+chen::net::address::address(const char *addr, const std::string &mask, std::uint32_t scope) : address(std::string(addr), mask, scope)
+{
+}
+
 // assignment
 void chen::net::address::assign(Type type)
 {
@@ -199,6 +219,12 @@ chen::net::address& chen::net::address::operator=(version6 v6)
 }
 
 chen::net::address& chen::net::address::operator=(const std::string &addr)
+{
+    this->assign(addr);
+    return *this;
+}
+
+chen::net::address& chen::net::address::operator=(const char *addr)
 {
     this->assign(addr);
     return *this;

@@ -16,7 +16,6 @@ namespace chen
         {
         public:
             endpoint(std::nullptr_t);
-            endpoint(const std::string &addr, std::uint16_t port);
             endpoint(const address &addr, std::uint16_t port);
 
         public:

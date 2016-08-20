@@ -12,10 +12,6 @@ chen::net::endpoint::endpoint(std::nullptr_t) : _addr(nullptr)
 {
 }
 
-chen::net::endpoint::endpoint(const std::string &addr, std::uint16_t port) : endpoint(address(addr), port)
-{
-}
-
 chen::net::endpoint::endpoint(const address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
