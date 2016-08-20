@@ -158,7 +158,7 @@ chen::net::endpoint chen::net::socket::accept() noexcept
         case AF_INET6:
         {
             auto tmp = (struct sockaddr_in6*)&in;
-            return endpoint(address(version6(version6::array(tmp->sin6_addr.s6_addr), 128, tmp->sin6_scope_id)),
+            return endpoint(address(version6(tmp->sin6_addr.s6_addr, 128, tmp->sin6_scope_id)),
                             num::swap(tmp->sin6_port));
         }
 
@@ -271,7 +271,7 @@ chen::net::endpoint chen::net::socket::local() const noexcept
             if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
                 return nullptr;
 
-            return endpoint(address(version6(version6::array(in.sin6_addr.s6_addr), 128, in.sin6_scope_id)),
+            return endpoint(address(version6(in.sin6_addr.s6_addr, 128, in.sin6_scope_id)),
                             num::swap(in.sin6_port));
         }
 
@@ -306,7 +306,7 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
             if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
                 return nullptr;
 
-            return endpoint(address(version6(version6::array(in.sin6_addr.s6_addr), 128, in.sin6_scope_id)),
+            return endpoint(address(version6(in.sin6_addr.s6_addr, 128, in.sin6_scope_id)),
                             num::swap(in.sin6_port));
         }
 

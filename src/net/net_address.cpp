@@ -542,9 +542,12 @@ chen::net::address chen::net::address::loopback(Type type)
             break;
 
         case Type::IPv6:
+        {
+            std::uint8_t bytes[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01};
             ret._type = Type::IPv6;
-            ret._impl.v6.assign(std::array<std::uint8_t, 16>{{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01}});
+            ret._impl.v6.assign(bytes);
             break;
+        }
 
         default:
             break;

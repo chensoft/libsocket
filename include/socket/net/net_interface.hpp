@@ -37,7 +37,7 @@ namespace chen
              * Get IPv6 scope id by address and interface name
              * if the name is a integer, then it's the scope zone id
              */
-            static std::uint32_t scope(const std::array<std::uint8_t, 16> &addr, const std::string &name);
+            static std::uint32_t scope(const std::uint8_t addr[16], const std::string &name);
 
             /**
              * Get interface name by IPv6 scope id

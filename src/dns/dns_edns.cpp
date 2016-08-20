@@ -356,7 +356,7 @@ void chen::dns::edns0::Subnet::unpack(dns::decoder &decoder)
             if (this->source > 128)
                 throw error_codec("dns: codec unpack edns0 subnet source prefix is greater than 128");
 
-            std::array<std::uint8_t, 16> addr{};
+            std::uint8_t addr[16]{};
 
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[15 - i]);

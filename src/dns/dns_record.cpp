@@ -1279,7 +1279,7 @@ chen::dns::AAAA::AAAA() : RR(RRType::AAAA)
 std::string chen::dns::AAAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + net::version6::toString(this->address);
+    ret += sep + net::version6::toString(this->address.data());
     return ret;
 }
 

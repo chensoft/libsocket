@@ -493,27 +493,27 @@ chen::net::version6::version6(const std::string &addr, const std::string &mask, 
     this->assign(addr, mask, scope);
 }
 
-chen::net::version6::version6(const std::array<std::uint8_t, 16> &addr)
+chen::net::version6::version6(const std::uint8_t addr[16])
 {
     this->assign(addr);
 }
 
-chen::net::version6::version6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+chen::net::version6::version6(const std::uint8_t addr[16], std::uint8_t cidr)
 {
     this->assign(addr, cidr);
 }
 
-chen::net::version6::version6(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope)
+chen::net::version6::version6(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
 {
     this->assign(addr, cidr, scope);
 }
 
-chen::net::version6::version6(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
+chen::net::version6::version6(const std::uint8_t addr[16], const std::string &mask)
 {
     this->assign(addr, mask);
 }
 
-chen::net::version6::version6(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope)
+chen::net::version6::version6(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope)
 {
     this->assign(addr, mask, scope);
 }
@@ -563,19 +563,20 @@ void chen::net::version6::assign(const std::string &addr, const std::string &mas
     this->_scope = scope;
 }
 
-void chen::net::version6::assign(const std::array<std::uint8_t, 16> &addr)
+void chen::net::version6::assign(const std::uint8_t addr[16])
 {
     this->assign(addr, 128, 0);
 }
 
-void chen::net::version6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+void chen::net::version6::assign(const std::uint8_t addr[16], std::uint8_t cidr)
 {
     this->assign(addr, cidr, 0);
 }
 
-void chen::net::version6::assign(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope)
+void chen::net::version6::assign(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
 {
-    this->_addr  = addr;
+    ::memcpy(this->_addr.data(), addr, 16);
+
     this->_cidr  = cidr;
     this->_scope = scope;
 
@@ -583,14 +584,15 @@ void chen::net::version6::assign(const std::array<std::uint8_t, 16> &addr, std::
         throw error_address("ipv6: CIDR prefix must less than 128");
 }
 
-void chen::net::version6::assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask)
+void chen::net::version6::assign(const std::uint8_t addr[16], const std::string &mask)
 {
     this->assign(addr, mask, 0);
 }
 
-void chen::net::version6::assign(const std::array<std::uint8_t, 16> &addr, const std::string &mask, std::uint32_t scope)
+void chen::net::version6::assign(const std::uint8_t addr[16], const std::string &mask, std::uint32_t scope)
 {
-    this->_addr  = addr;
+    ::memcpy(this->_addr.data(), addr, 16);
+
     this->_cidr  = version6::toCIDR(mask);
     this->_scope = scope;
 }
@@ -601,7 +603,7 @@ chen::net::version6& chen::net::version6::operator=(const std::string &addr)
     return *this;
 }
 
-chen::net::version6& chen::net::version6::operator=(const std::array<std::uint8_t, 16> &addr)
+chen::net::version6& chen::net::version6::operator=(const std::uint8_t addr[16])
 {
     this->assign(addr);
     return *this;
@@ -616,13 +618,13 @@ std::string chen::net::version6::str(bool cidr) const
 std::string chen::net::version6::str(bool cidr, bool scope) const
 {
     if (cidr && scope)
-        return version6::toScope(this->_addr, this->_cidr, this->_scope);
+        return version6::toScope(this->_addr.data(), this->_cidr, this->_scope);
     else if (cidr)
-        return version6::toString(this->_addr, this->_cidr);
+        return version6::toString(this->_addr.data(), this->_cidr);
     else if (scope)
-        return version6::toScope(this->_addr, this->_scope);
+        return version6::toScope(this->_addr.data(), this->_scope);
     else
-        return version6::toString(this->_addr);
+        return version6::toString(this->_addr.data());
 }
 
 std::vector<std::uint8_t> chen::net::version6::bytes() const
@@ -632,22 +634,22 @@ std::vector<std::uint8_t> chen::net::version6::bytes() const
 
 std::string chen::net::version6::expanded() const
 {
-    return version6::toExpanded(this->_addr);
+    return version6::toExpanded(this->_addr.data());
 }
 
 std::string chen::net::version6::suppressed() const
 {
-    return version6::toSuppressed(this->_addr);
+    return version6::toSuppressed(this->_addr.data());
 }
 
 std::string chen::net::version6::compressed() const
 {
-    return version6::toCompressed(this->_addr);
+    return version6::toCompressed(this->_addr.data());
 }
 
 std::string chen::net::version6::mixed() const
 {
-    return version6::toMixed(this->_addr);
+    return version6::toMixed(this->_addr.data());
 }
 
 chen::net::version4 chen::net::version6::embedded() const
@@ -715,10 +717,10 @@ const std::array<std::uint8_t, 16>& chen::net::version6::addr() const
     return this->_addr;
 }
 
-void chen::net::version6::addr(const std::array<std::uint8_t, 16> &value)
+void chen::net::version6::addr(const std::uint8_t value[16])
 {
     // @see rfc4291
-    this->_addr = value;
+    ::memcpy(this->_addr.data(), value, 16);
 }
 
 std::uint32_t chen::net::version6::scope() const
@@ -775,10 +777,10 @@ std::array<std::uint8_t, 16> chen::net::version6::wildcard() const
 
 chen::net::version6 chen::net::version6::network() const
 {
-    std::array<std::uint8_t, 16> tmp{};
+    std::uint8_t tmp[16]{};
     std::array<std::uint8_t, 16> mask = this->netmask();
 
-    for (std::size_t i = 0, len = tmp.size(); i < len; ++i)
+    for (std::size_t i = 0, len = mask.size(); i < len; ++i)
         tmp[i] = this->_addr[i] & mask[i];
 
     return version6(tmp, this->_cidr, this->_scope);
@@ -793,10 +795,10 @@ chen::net::version6 chen::net::version6::minhost() const
 chen::net::version6 chen::net::version6::maxhost() const
 {
     // IPv6 host ends with 1
-    std::array<std::uint8_t, 16> tmp{};
+    std::uint8_t tmp[16]{};
     std::array<std::uint8_t, 16> mask = this->wildcard();
 
-    for (std::size_t i = 0, len = tmp.size(); i < len; ++i)
+    for (std::size_t i = 0, len = mask.size(); i < len; ++i)
         tmp[i] = this->_addr[i] | mask[i];
 
     return version6(tmp, this->_cidr, this->_scope);
@@ -927,36 +929,28 @@ bool chen::net::version6::operator>=(const version6 &o) const
     return o <= *this;
 }
 
-// array
-std::array<std::uint8_t, 16> chen::net::version6::array(const std::uint8_t (&addr)[16])
-{
-    std::array<std::uint8_t, 16> ret;
-    ::memcpy(ret.data(), addr, 16);
-    return ret;
-}
-
 // convert
-std::string chen::net::version6::toString(const std::array<std::uint8_t, 16> &addr)
+std::string chen::net::version6::toString(const std::uint8_t addr[16])
 {
     return version6::toCompressed(addr);
 }
 
-std::string chen::net::version6::toString(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr)
+std::string chen::net::version6::toString(const std::uint8_t addr[16], std::uint8_t cidr)
 {
     return version6::toCompressed(addr) + "/" + num::str(cidr);
 }
 
-std::string chen::net::version6::toScope(const std::array<std::uint8_t, 16> &addr, std::uint32_t scope)
+std::string chen::net::version6::toScope(const std::uint8_t addr[16], std::uint32_t scope)
 {
     return version6::toCompressed(addr) + "%" + interface::scope(scope);
 }
 
-std::string chen::net::version6::toScope(const std::array<std::uint8_t, 16> &addr, std::uint8_t cidr, std::uint32_t scope)
+std::string chen::net::version6::toScope(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
 {
     return version6::toCompressed(addr) + "%" + interface::scope(scope) + "/" + num::str(cidr);
 }
 
-std::string chen::net::version6::toExpanded(const std::array<std::uint8_t, 16> &addr)
+std::string chen::net::version6::toExpanded(const std::uint8_t addr[16])
 {
     return str::format("%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
                        (static_cast<unsigned>(addr[0]) << 8) + addr[1],
@@ -969,7 +963,7 @@ std::string chen::net::version6::toExpanded(const std::array<std::uint8_t, 16> &
                        (static_cast<unsigned>(addr[14]) << 8) + addr[15]);
 }
 
-std::string chen::net::version6::toSuppressed(const std::array<std::uint8_t, 16> &addr)
+std::string chen::net::version6::toSuppressed(const std::uint8_t addr[16])
 {
     return str::format("%x:%x:%x:%x:%x:%x:%x:%x",
                        (static_cast<unsigned>(addr[0]) << 8) + addr[1],
@@ -982,20 +976,20 @@ std::string chen::net::version6::toSuppressed(const std::array<std::uint8_t, 16>
                        (static_cast<unsigned>(addr[14]) << 8) + addr[15]);
 }
 
-std::string chen::net::version6::toCompressed(const std::array<std::uint8_t, 16> &addr)
+std::string chen::net::version6::toCompressed(const std::uint8_t addr[16])
 {
-    return version6::compress(addr.begin(), addr.begin() + 16);
+    return version6::compress(addr, addr + 16);
 }
 
-std::string chen::net::version6::toMixed(const std::array<std::uint8_t, 16> &addr)
+std::string chen::net::version6::toMixed(const std::uint8_t addr[16])
 {
     // first 12 bytes
-    auto ret = version6::compress(addr.begin(), addr.begin() + 12);
+    auto ret = version6::compress(addr, addr + 12);
 
     // dotted decimal IPv4 address
-    auto beg = addr.begin() + 12;
+    auto beg = addr + 12;
 
-    for (auto it = beg, end = addr.begin() + 16; it != end; ++it)
+    for (auto it = beg, end = addr + 16; it != end; ++it)
     {
         ret += (it != beg) ? '.' : ':';
         ret.append(num::str(*it));
@@ -1111,7 +1105,7 @@ std::array<std::uint8_t, 16> chen::net::version6::toBytes(const std::string &add
             tmp += *cur;
 
         if (scope)
-            *scope = interface::scope(ret, tmp);
+            *scope = interface::scope(ret.data(), tmp);
     }
     else if (scope)
     {
@@ -1141,8 +1135,7 @@ std::array<std::uint8_t, 16> chen::net::version6::toBytes(const std::string &add
 }
 
 // compress
-std::string chen::net::version6::compress(std::array<std::uint8_t, 16>::const_iterator beg,
-                                          std::array<std::uint8_t, 16>::const_iterator end)
+std::string chen::net::version6::compress(const std::uint8_t *beg, const std::uint8_t *end)
 {
     std::string ret;
     int zero = 0;
@@ -1191,10 +1184,10 @@ std::string chen::net::version6::compress(std::array<std::uint8_t, 16>::const_it
 
 std::uint8_t chen::net::version6::toCIDR(const std::string &mask)
 {
-    return version6::toCIDR(version6::toBytes(mask));
+    return version6::toCIDR(version6::toBytes(mask).data());
 }
 
-std::uint8_t chen::net::version6::toCIDR(const std::array<std::uint8_t, 16> &mask)
+std::uint8_t chen::net::version6::toCIDR(const std::uint8_t mask[16])
 {
     std::uint8_t cidr = 0;
 

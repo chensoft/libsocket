@@ -223,7 +223,7 @@ TEST(NetAddressTest, IPv6)
     EXPECT_EQ(address("fe80::1%1/64"), address("fe80::1%1", "ffff:ffff:ffff:ffff::"));
     EXPECT_EQ(address("fe80::1%1/64"), address("fe80::1", "ffff:ffff:ffff:ffff::", 1));
 
-    std::array<std::uint8_t, 16> bytes = {{0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e}};
+    std::uint8_t bytes[16] = {0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e};
 
     EXPECT_EQ(address("2404:6800:4004:817::200e"), address(bytes));
     EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(bytes, 64)));
@@ -270,7 +270,10 @@ TEST(NetAddressTest, IPv6)
     EXPECT_EQ("::", address(address::Type::IPv6).str());
     EXPECT_EQ("2404:6800:4004:817::200e", address("2404:6800:4004:817:0000:0000:0000:200e").str());
 
-    EXPECT_EQ(bytes, address("2404:6800:4004:817::200e").v6().addr());
+    std::array<std::uint8_t, 16> tmp;
+    ::memcpy(tmp.data(), bytes, 16);
+
+    EXPECT_EQ(tmp, address("2404:6800:4004:817::200e").v6().addr());
     EXPECT_EQ(128, address("2404:6800:4004:817::200e").cidr());
     EXPECT_EQ(128, address("2404:6800:4004:817::200e/128").cidr());
     EXPECT_EQ(64, address("2404:6800:4004:817::200e/64").cidr());

@@ -62,7 +62,7 @@ namespace
             case AF_INET6:
             {
                 auto tmp = (struct sockaddr_in6*)ptr;
-                auto ret = std::unique_ptr<address>(new address(chen::net::version6::array(tmp->sin6_addr.s6_addr)));
+                auto ret = std::unique_ptr<address>(new address(tmp->sin6_addr.s6_addr));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
             }
@@ -86,7 +86,7 @@ namespace
                 return version4::toCIDR(chen::num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return version6::toCIDR(version6::array(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr));
+                return version6::toCIDR(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr);
 
             default:
                 return 0;
@@ -158,7 +158,7 @@ std::map<std::string, chen::net::interface> chen::net::interface::enumerate()
 }
 
 // scope
-std::uint32_t chen::net::interface::scope(const std::array<std::uint8_t, 16> &addr, const std::string &name)
+std::uint32_t chen::net::interface::scope(const std::uint8_t addr[16], const std::string &name)
 {
     // if name is integer
     bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
@@ -178,7 +178,7 @@ std::uint32_t chen::net::interface::scope(const std::array<std::uint8_t, 16> &ad
         // check address
         auto tmp = (struct sockaddr_in6*)ptr->ifa_addr;
 
-        if (std::equal(addr.begin(), addr.end(), tmp->sin6_addr.s6_addr))
+        if (!::memcmp(addr, tmp->sin6_addr.s6_addr, 16))
         {
             id   = tmp->sin6_scope_id;
             stop = true;
