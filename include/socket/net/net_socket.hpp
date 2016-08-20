@@ -15,9 +15,9 @@ namespace chen
     namespace net
     {
         /**
-         * This class is a wrapper for BSD socket related functions
-         * you should not use this class directly, use class like tcp::server instead
-         * @caution you can retrieve last error using the error() method
+         * This class is a wrapper for BSD socket
+         * you should not use this class directly
+         * use classes like tcp::server or udp::server instead
          */
         class socket
         {
@@ -37,23 +37,24 @@ namespace chen
             /**
              * Connect to remote host
              */
-            void connect(const endpoint &ep);
+            bool connect(const endpoint &ep) noexcept;
 
             /**
              * Bind on specific endpoint
              */
-            void bind(const endpoint &ep);
+            bool bind(const endpoint &ep) noexcept;
 
             /**
              * Listen for request
              * @param backlog maximum queue length for pending connections
              */
-            void listen(int backlog);
+            bool listen() noexcept;
+            bool listen(int backlog) noexcept;
 
             /**
              * Accept new request
              */
-            void accept(endpoint &ep);
+            endpoint accept() noexcept;
 
         public:
             /**
@@ -119,12 +120,6 @@ namespace chen
              */
             endpoint local() const noexcept;
             endpoint remote() const noexcept;
-
-            /**
-             * Query connection status
-             */
-            bool isConnected() const;
-            bool isConnecting() const;
 
         public:
             /**

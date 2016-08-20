@@ -51,6 +51,48 @@ namespace
 
         return 0;
     }
+
+    struct sockaddr_storage addr(const chen::net::endpoint &ep)
+    {
+        struct sockaddr_storage ret{};
+
+        switch (ep.addr().type())
+        {
+            case chen::net::address::Type::IPv4:
+            {
+                auto &v4 = ep.addr().v4();
+
+                struct sockaddr_in *in = (struct sockaddr_in*)&ret;
+                in->sin_len         = sizeof(*in);
+                in->sin_family      = AF_INET;
+                in->sin_port        = chen::num::swap(ep.port());
+                in->sin_addr.s_addr = chen::num::swap(v4.addr());
+
+                break;
+            }
+
+            case chen::net::address::Type::IPv6:
+            {
+                auto &v6 = ep.addr().v6();
+
+                struct sockaddr_in6 *in = (struct sockaddr_in6*)&ret;
+
+                in->sin6_len      = sizeof(*in);
+                in->sin6_family   = AF_INET6;
+                in->sin6_port     = chen::num::swap(ep.port());
+                in->sin6_scope_id = v6.scope();
+
+                ::memcpy(in->sin6_addr.s6_addr, v6.addr().data(), 16);
+
+                break;
+            }
+
+            default:
+                break;
+        }
+
+        return ret;
+    }
 }
 
 
@@ -74,7 +116,81 @@ chen::net::socket::~socket()
     this->close();
 }
 
+// connection
+bool chen::net::socket::connect(const endpoint &ep) noexcept
+{
+    auto in = addr(ep);
+    return !::connect(this->_impl->_fd, (struct sockaddr *)&in, in.ss_len);
+}
+
+bool chen::net::socket::bind(const endpoint &ep) noexcept
+{
+    auto in = addr(ep);
+    return !::bind(this->_impl->_fd, (struct sockaddr *)&in, in.ss_len);
+}
+
+bool chen::net::socket::listen() noexcept
+{
+    return this->listen(SOMAXCONN);
+}
+
+bool chen::net::socket::listen(int backlog) noexcept
+{
+    return !::listen(this->_impl->_fd, backlog);
+}
+
+chen::net::endpoint chen::net::socket::accept() noexcept
+{
+    struct sockaddr_storage in{};
+    socklen_t len = 0;
+
+    if (::accept(this->_impl->_fd, (struct sockaddr*)&in, &len))
+        return nullptr;
+
+    switch (in.ss_family)
+    {
+        case AF_INET:
+        {
+            auto tmp = (struct sockaddr_in*)&in;
+            return endpoint(address(num::swap(tmp->sin_addr.s_addr)), num::swap(tmp->sin_port));
+        }
+
+        case AF_INET6:
+        {
+            auto tmp = (struct sockaddr_in6*)&in;
+            return endpoint(address(version6(version6::array(tmp->sin6_addr.s6_addr), 128, tmp->sin6_scope_id)),
+                            num::swap(tmp->sin6_port));
+        }
+
+        default:
+            return nullptr;
+    }
+}
+
+// error
+std::error_code chen::net::socket::error() const noexcept
+{
+    // todo how about SO_ERROR?
+    return std::error_code(errno, std::system_category());
+}
+
+// info
+chen::net::socket::Family chen::net::socket::family() const noexcept
+{
+    return this->_family;
+}
+
+chen::net::socket::Protocol chen::net::socket::protocol() const noexcept
+{
+    return this->_protocol;
+}
+
 // reset
+void chen::net::socket::reset()
+{
+    this->reset(this->_family, this->_protocol);
+}
+
 void chen::net::socket::reset(Family family, Protocol protocol)
 {
     if (this->_impl->_fd && !this->close())
@@ -92,9 +208,11 @@ void chen::net::socket::reset(Family family, Protocol protocol)
 // close
 bool chen::net::socket::close() noexcept
 {
+    // treat closed as true
     if (!this->_impl->_fd)
         return true;
 
+    // close the socket
     if (!::close(this->_impl->_fd))
     {
         this->_impl->_fd = 0;
@@ -106,15 +224,22 @@ bool chen::net::socket::close() noexcept
 
 bool chen::net::socket::shutdown(Shutdown flag) noexcept
 {
+    // treat closed as true
     if (!this->_impl->_fd)
         return true;
 
-    if (flag == Shutdown::Read)
-        return !::shutdown(this->_impl->_fd, SHUT_RD);
-    else if (flag == Shutdown::Write)
-        return !::shutdown(this->_impl->_fd, SHUT_WR);
-    else if (flag == Shutdown::Both)
-        return !::shutdown(this->_impl->_fd, SHUT_RDWR);
+    // shutdown the socket
+    switch (flag)
+    {
+        case Shutdown::Read:
+            return !::shutdown(this->_impl->_fd, SHUT_RD);
+
+        case Shutdown::Write:
+            return !::shutdown(this->_impl->_fd, SHUT_WR);
+
+        case Shutdown::Both:
+            return !::shutdown(this->_impl->_fd, SHUT_RDWR);
+    }
 
     return true;
 }
@@ -140,14 +265,14 @@ chen::net::endpoint chen::net::socket::local() const noexcept
 
         case socket::Family::IPv6:
         {
-            struct sockaddr_in6 in6{};
-            socklen_t len = sizeof(in6);
+            struct sockaddr_in6 in{};
+            socklen_t len = sizeof(in);
 
-            if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in6, &len) != 0)
+            if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
                 return nullptr;
 
-            return endpoint(address(version6(version6::array(in6.sin6_addr.s6_addr), 128, in6.sin6_scope_id)),
-                            num::swap(in6.sin6_port));
+            return endpoint(address(version6(version6::array(in.sin6_addr.s6_addr), 128, in.sin6_scope_id)),
+                            num::swap(in.sin6_port));
         }
 
         default:
@@ -175,14 +300,14 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
 
         case socket::Family::IPv6:
         {
-            struct sockaddr_in6 in6{};
-            socklen_t len = sizeof(in6);
+            struct sockaddr_in6 in{};
+            socklen_t len = sizeof(in);
 
-            if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in6, &len) != 0)
+            if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
                 return nullptr;
 
-            return endpoint(address(version6(version6::array(in6.sin6_addr.s6_addr), 128, in6.sin6_scope_id)),
-                            num::swap(in6.sin6_port));
+            return endpoint(address(version6(version6::array(in.sin6_addr.s6_addr), 128, in.sin6_scope_id)),
+                            num::swap(in.sin6_port));
         }
 
         default:

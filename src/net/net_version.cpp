@@ -931,7 +931,7 @@ bool chen::net::version6::operator>=(const version6 &o) const
 std::array<std::uint8_t, 16> chen::net::version6::array(const std::uint8_t (&addr)[16])
 {
     std::array<std::uint8_t, 16> ret;
-    std::copy(addr, addr + 16, ret.begin());
+    ::memcpy(ret.data(), addr, 16);
     return ret;
 }
 

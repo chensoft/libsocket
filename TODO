@@ -65,3 +65,5 @@
 -) if client socket is connecting, then still allow reading and writing, if connected then send it immediately
 
 -) deadline is not same as timeout, add deadline support for socket
+
+-) cancel any async operations

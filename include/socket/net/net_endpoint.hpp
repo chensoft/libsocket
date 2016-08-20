@@ -17,7 +17,7 @@ namespace chen
         public:
             endpoint(std::nullptr_t);
             endpoint(const std::string &addr, std::uint16_t port);
-            endpoint(const net::address &addr, std::uint16_t port);
+            endpoint(const address &addr, std::uint16_t port);
 
         public:
             /**
@@ -25,8 +25,8 @@ namespace chen
              */
             bool empty() const;
 
-            const net::address& addr() const;
-            void addr(const net::address &value);
+            const address& addr() const;
+            void addr(const address &value);
 
             std::uint16_t port() const;
             void port(std::uint16_t value);
@@ -45,7 +45,7 @@ namespace chen
             bool operator>=(const endpoint &o) const;
 
         private:
-            net::address _addr;
+            address _addr;
             std::uint16_t _port = 0;
         };
     }
