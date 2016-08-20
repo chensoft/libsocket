@@ -501,6 +501,11 @@ bool chen::net::address::operator>=(const address &o) const
     return o <= *this;
 }
 
+chen::net::address::operator bool() const
+{
+    return this->empty();
+}
+
 // common
 chen::net::address chen::net::address::any(Type type)
 {

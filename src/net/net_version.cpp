@@ -10,8 +10,9 @@
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
-#include <bitset>
+#include <cstring>
 #include <cctype>
+#include <bitset>
 
 // -----------------------------------------------------------------------------
 // version

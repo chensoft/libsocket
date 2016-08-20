@@ -76,3 +76,8 @@ bool chen::net::endpoint::operator>=(const endpoint &o) const
 {
     return o <= *this;
 }
+
+chen::net::endpoint::operator bool() const
+{
+    return this->empty();
+}

@@ -158,6 +158,8 @@ namespace chen
             bool operator<=(const address &o) const;
             bool operator>=(const address &o) const;
 
+            operator bool() const;
+
         public:
             /**
              * Common addresses

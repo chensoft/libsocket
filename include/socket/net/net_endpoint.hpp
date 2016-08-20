@@ -44,6 +44,8 @@ namespace chen
             bool operator<=(const endpoint &o) const;
             bool operator>=(const endpoint &o) const;
 
+            operator bool() const;
+
         private:
             address _addr;
             std::uint16_t _port = 0;
