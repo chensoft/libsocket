@@ -30,6 +30,14 @@ namespace chen
             std::uint16_t port() const;
             void port(std::uint16_t value);
 
+            /**
+             * Special ports
+             * @link http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
+             */
+            bool isWellKnownPort() const;
+            bool isRegisteredPort() const;
+            bool isDynamicPort() const;
+
         public:
             /**
              * Operator

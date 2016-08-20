@@ -42,6 +42,25 @@ void chen::net::endpoint::port(std::uint16_t value)
     this->_port = value;
 }
 
+// special
+bool chen::net::endpoint::isWellKnownPort() const
+{
+    // from 0 through 1023
+    return (this->_port >= 0) && (this->_port <= 1023);
+}
+
+bool chen::net::endpoint::isRegisteredPort() const
+{
+    // from 1024 through 49151
+    return (this->_port >= 1024) && (this->_port <= 49151);
+}
+
+bool chen::net::endpoint::isDynamicPort() const
+{
+    // from 49152 through 65535
+    return (this->_port >= 49152) && (this->_port <= 65535);
+}
+
 // operator
 bool chen::net::endpoint::operator==(const endpoint &o) const
 {

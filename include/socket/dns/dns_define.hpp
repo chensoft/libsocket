@@ -225,7 +225,7 @@ namespace chen
             // 14 ~ 65000: Unassigned
             // 65001 ~ 65534: Reserved for Local/Experimental Use
             // 65535: Reserved for future expansion
-            // @see http://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml
+            // @link http://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml
             enum class OptionCode : std::uint16_t
             {
                 None      = 0,   // none
