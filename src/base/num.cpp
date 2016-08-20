@@ -138,6 +138,15 @@ std::string chen::num::str(long double value)
     return str::format("%Lg", value);
 }
 
+// bits
+int chen::num::bits(std::uint32_t value)
+{
+    // @see http://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
+    value = value - ((value >> 1) & 0x55555555);
+    value = (value & 0x33333333) + ((value >> 2) & 0x33333333);
+    return (((value + (value >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+}
+
 // random
 double chen::num::random(double lower, double upper)
 {

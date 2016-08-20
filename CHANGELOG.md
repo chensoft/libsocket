@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Added
 - fs: expand '~' to home directory when use realpath and absolute.
+- num: check bits count of a integer.
 - map: write value to variable only when it exist.
 - ini: user can retrieve error position when syntax error.
 - json: user can retrieve error position when syntax error.

@@ -51,6 +51,11 @@ namespace chen
         static std::string str(long double value);
 
         /**
+         * Bits of one in the value
+         */
+        static int bits(std::uint32_t value);
+
+        /**
          * Get a random number between a range
          * [lower, upper) if number is double
          * [lower, upper] if number is int
