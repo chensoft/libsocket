@@ -62,8 +62,7 @@ namespace
             case chen::net::address::Type::IPv4:
             {
                 auto &v4 = ep.addr().v4();
-
-                struct sockaddr_in *in = (struct sockaddr_in*)&ret;
+                auto  in = (struct sockaddr_in*)&ret;
 
                 in->sin_family      = AF_INET;
                 in->sin_port        = chen::num::swap(ep.port());
@@ -75,8 +74,7 @@ namespace
             case chen::net::address::Type::IPv6:
             {
                 auto &v6 = ep.addr().v6();
-
-                struct sockaddr_in6 *in = (struct sockaddr_in6*)&ret;
+                auto  in = (struct sockaddr_in6*)&ret;
 
                 in->sin6_family   = AF_INET6;
                 in->sin6_port     = chen::num::swap(ep.port());
@@ -92,6 +90,29 @@ namespace
         }
 
         return ret;
+    }
+
+    chen::net::endpoint addr(const struct sockaddr_storage &sock)
+    {
+        switch (sock.ss_family)
+        {
+            case AF_INET:
+            {
+                auto in = (struct sockaddr_in*)&sock;
+                return chen::net::endpoint(chen::net::address(chen::num::swap(in->sin_addr.s_addr)),
+                                           chen::num::swap(in->sin_port));
+            }
+
+            case AF_INET6:
+            {
+                auto in = (struct sockaddr_in6*)&sock;
+                return chen::net::endpoint(chen::net::address(chen::net::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id)),
+                                           chen::num::swap(in->sin6_port));
+            }
+
+            default:
+                return nullptr;
+        }
     }
 }
 
@@ -146,25 +167,8 @@ chen::net::endpoint chen::net::socket::accept() noexcept
 
     if (::accept(this->_impl->_fd, (struct sockaddr*)&in, &len))
         return nullptr;
-
-    switch (in.ss_family)
-    {
-        case AF_INET:
-        {
-            auto tmp = (struct sockaddr_in*)&in;
-            return endpoint(address(num::swap(tmp->sin_addr.s_addr)), num::swap(tmp->sin_port));
-        }
-
-        case AF_INET6:
-        {
-            auto tmp = (struct sockaddr_in6*)&in;
-            return endpoint(address(version6(tmp->sin6_addr.s6_addr, 128, tmp->sin6_scope_id)),
-                            num::swap(tmp->sin6_port));
-        }
-
-        default:
-            return nullptr;
-    }
+    else
+        return addr(in);
 }
 
 // error
@@ -250,34 +254,13 @@ chen::net::endpoint chen::net::socket::local() const noexcept
     if (!this->_impl->_fd)
         return nullptr;
 
-    switch (this->_family)
-    {
-        case socket::Family::IPv4:
-        {
-            struct sockaddr_in in{};
-            socklen_t len = sizeof(in);
+    struct sockaddr_storage in{};
+    socklen_t len = sizeof(in);
 
-            if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
-                return nullptr;
-
-            return endpoint(address(num::swap(in.sin_addr.s_addr)), num::swap(in.sin_port));
-        }
-
-        case socket::Family::IPv6:
-        {
-            struct sockaddr_in6 in{};
-            socklen_t len = sizeof(in);
-
-            if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
-                return nullptr;
-
-            return endpoint(address(version6(in.sin6_addr.s6_addr, 128, in.sin6_scope_id)),
-                            num::swap(in.sin6_port));
-        }
-
-        default:
-            return nullptr;
-    }
+    if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
+        return nullptr;
+    else
+        return addr(in);
 }
 
 chen::net::endpoint chen::net::socket::remote() const noexcept
@@ -285,34 +268,13 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
     if (!this->_impl->_fd)
         return nullptr;
 
-    switch (this->_family)
-    {
-        case socket::Family::IPv4:
-        {
-            struct sockaddr_in in{};
-            socklen_t len = sizeof(in);
+    struct sockaddr_storage in{};
+    socklen_t len = sizeof(in);
 
-            if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
-                return nullptr;
-
-            return endpoint(address(num::swap(in.sin_addr.s_addr)), num::swap(in.sin_port));
-        }
-
-        case socket::Family::IPv6:
-        {
-            struct sockaddr_in6 in{};
-            socklen_t len = sizeof(in);
-
-            if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
-                return nullptr;
-
-            return endpoint(address(version6(in.sin6_addr.s6_addr, 128, in.sin6_scope_id)),
-                            num::swap(in.sin6_port));
-        }
-
-        default:
-            return nullptr;
-    }
+    if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
+        return nullptr;
+    else
+        return addr(in);
 }
 
 #endif
