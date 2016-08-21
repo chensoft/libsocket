@@ -118,6 +118,11 @@ namespace chen
             std::error_code error() const noexcept;
 
             /**
+             * Check socket is valid
+             */
+            bool valid() const noexcept;
+
+            /**
              * Socket info
              */
             Family family() const noexcept;
@@ -136,12 +141,21 @@ namespace chen
             static std::vector<address> resolve(const std::string &host) noexcept;
 
         private:
+            /**
+             * Record last error code
+             */
+            void record() noexcept;
+
+        private:
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;
 
         private:
             Family   _family;
             Protocol _protocol;
+
+            // todo how about SO_ERROR? treat std::error_code object as a member
+            std::error_code _error;
 
             struct impl;
             std::unique_ptr<impl> _impl;

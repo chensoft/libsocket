@@ -7,7 +7,7 @@
 #include <socket/net/net_socket.hpp>
 #include <gtest/gtest.h>
 
-TEST(NetSocketTest, General)
+TEST(NetSocketTest, Create)
 {
     using chen::net::socket;
 
@@ -28,6 +28,15 @@ TEST(NetSocketTest, General)
     EXPECT_EQ(socket::Protocol::TCP, socket(socket::Family::IPv4, socket::Protocol::TCP).protocol());
     EXPECT_EQ(socket::Protocol::UDP, socket(socket::Family::IPv4, socket::Protocol::UDP).protocol());
 
+    socket sock(socket::Family::IPv4, socket::Protocol::TCP);
+    EXPECT_TRUE(sock.valid());
+
+    sock.reset();
+    EXPECT_TRUE(sock.valid());
+
+    sock.close();
+    EXPECT_FALSE(sock.valid());
+
     try
     {
         socket(socket::Family::IPv4, socket::Protocol::RAW);
@@ -37,10 +46,4 @@ TEST(NetSocketTest, General)
     {
         // raw socket is not permit if you are not root user
     }
-
-    // todo
-    auto ret = socket::resolve("google.com");
-
-    for (auto addr : ret)
-        printf("chen: %s\n", addr.str().c_str());
 }
