@@ -8,3 +8,17 @@
 
 // -----------------------------------------------------------------------------
 // basic
+std::error_code chen::tcp::basic::error() const
+{
+    return this->_socket.error();
+}
+
+chen::net::endpoint chen::tcp::basic::local() const
+{
+    return this->_socket.local();
+}
+
+chen::net::endpoint chen::tcp::basic::remote() const
+{
+    return this->_socket.remote();
+}

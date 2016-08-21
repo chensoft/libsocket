@@ -30,13 +30,23 @@ namespace chen
             /**
              * Construct socket
              */
+            socket();
             socket(std::nullptr_t);
+
             socket(Family family, Protocol protocol);
+            socket(const address &addr, Protocol protocol);
 
             socket(socket &&o);
             socket& operator=(socket &&o);
 
             ~socket();
+
+        public:
+            /**
+             * Create socket by protocol or address type
+             */
+            void create(Family family, Protocol protocol);
+            void create(const address &addr, Protocol protocol);
 
         public:
             /**
@@ -99,7 +109,6 @@ namespace chen
              * Reset this socket, close old socket and create new
              */
             void reset();
-            void reset(Family family, Protocol protocol);
 
             /**
              * Close the socket, the socket will disconnect immediately

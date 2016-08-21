@@ -118,7 +118,7 @@ namespace chen
              * e.g: 2404:6800:4004:817::200e
              * e.g: 2404:6800:4004:817::200e/64
              */
-            std::string str(bool cidr = false) const;
+            std::string str(bool cidr = false, bool scope = false) const;
 
             /**
              * Binary representation

@@ -15,10 +15,20 @@ namespace chen
         class endpoint
         {
         public:
+            // todo add host:port string split method and constructors
             endpoint(std::nullptr_t);
             endpoint(const address &addr, std::uint16_t port);
 
         public:
+            /**
+             * Standard representation, with CIDR or not
+             * e.g: 127.0.0.1:80
+             * e.g: 127.0.0.1/8:80
+             * e.g: [2404:6800:4004:817::200e]:80
+             * e.g: [2404:6800:4004:817::200e/64]:80
+             */
+            std::string str(bool cidr = false, bool scope = false) const;
+
             /**
              * Property
              */

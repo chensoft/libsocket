@@ -34,6 +34,9 @@ TEST(NetEndpointTest, General)
     EXPECT_EQ(443, ep3.port());
     EXPECT_EQ(address("192.168.1.1").str(), ep3.addr().str());
 
+    EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1", 80).str());
+    EXPECT_EQ("[::1]:80", endpoint("::1", 80).str());
+
     EXPECT_TRUE(endpoint("127.0.0.1", 0).isWellKnownPort());
     EXPECT_FALSE(endpoint("127.0.0.1", 0).isRegisteredPort());
     EXPECT_FALSE(endpoint("127.0.0.1", 0).isDynamicPort());

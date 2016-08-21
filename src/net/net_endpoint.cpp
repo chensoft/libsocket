@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/net/net_endpoint.hpp>
+#include <chen/base/num.hpp>
 
 // -----------------------------------------------------------------------------
 // endpoint
@@ -17,6 +18,21 @@ chen::net::endpoint::endpoint(const address &addr, std::uint16_t port) : _addr(a
 }
 
 // property
+std::string chen::net::endpoint::str(bool cidr, bool scope) const
+{
+    switch (this->_addr.type())
+    {
+        case address::Type::IPv4:
+            return this->_addr.v4().str(cidr) + ":" + num::str(this->_port);
+
+        case address::Type::IPv6:
+            return "[" + this->_addr.v6().str(cidr, scope) + "]:" + num::str(this->_port);
+
+        default:
+            return "";
+    }
+}
+
 bool chen::net::endpoint::empty() const
 {
     return this->_addr.empty();

@@ -267,7 +267,7 @@ chen::net::version6& chen::net::address::v6()
 }
 
 // representation
-std::string chen::net::address::str(bool cidr) const
+std::string chen::net::address::str(bool cidr, bool scope) const
 {
     switch (this->_type)
     {
@@ -275,7 +275,7 @@ std::string chen::net::address::str(bool cidr) const
             return this->_impl.v4.str(cidr);
 
         case Type::IPv6:
-            return this->_impl.v6.str(cidr);
+            return this->_impl.v6.str(cidr, scope);
 
         default:
             return "";

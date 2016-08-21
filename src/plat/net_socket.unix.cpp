@@ -54,34 +54,38 @@ namespace
         return 0;
     }
 
-    struct sockaddr_storage addr(const chen::net::endpoint &ep)
+    struct sockaddr_storage addr(const chen::net::address &a, std::uint16_t p, socklen_t &l)
     {
         struct sockaddr_storage ret{};
 
-        switch (ep.addr().type())
+        switch (a.type())
         {
             case chen::net::address::Type::IPv4:
             {
-                auto &v4 = ep.addr().v4();
+                auto &v4 = a.v4();
                 auto  in = (struct sockaddr_in*)&ret;
 
                 in->sin_family      = AF_INET;
-                in->sin_port        = chen::num::swap(ep.port());
+                in->sin_port        = chen::num::swap(p);
                 in->sin_addr.s_addr = chen::num::swap(v4.addr());
+
+                l = sizeof(struct sockaddr_in);
 
                 break;
             }
 
             case chen::net::address::Type::IPv6:
             {
-                auto &v6 = ep.addr().v6();
+                auto &v6 = a.v6();
                 auto  in = (struct sockaddr_in6*)&ret;
 
                 in->sin6_family   = AF_INET6;
-                in->sin6_port     = chen::num::swap(ep.port());
+                in->sin6_port     = chen::num::swap(p);
                 in->sin6_scope_id = v6.scope();
 
                 ::memcpy(in->sin6_addr.s6_addr, v6.addr().data(), 16);
+
+                l = sizeof(struct sockaddr_in6);
 
                 break;
             }
@@ -133,13 +137,22 @@ struct chen::net::socket::impl
 
 // -----------------------------------------------------------------------------
 // socket
+chen::net::socket::socket() : socket(nullptr)
+{
+}
+
 chen::net::socket::socket(std::nullptr_t) : _impl(new impl)
 {
 }
 
 chen::net::socket::socket(Family family, Protocol protocol) : _impl(new impl)
 {
-    this->reset(family, protocol);
+    this->create(family, protocol);
+}
+
+chen::net::socket::socket(const address &addr, Protocol protocol) : _impl(new impl)
+{
+    this->create(addr, protocol);
 }
 
 chen::net::socket::socket(socket &&o)
@@ -165,30 +178,55 @@ chen::net::socket::~socket()
     this->close();
 }
 
+// create
+void chen::net::socket::create(Family family, Protocol protocol)
+{
+    if (this->_impl->_fd && !this->close())
+    {
+        this->record();
+        throw error_socket("socket: " + sys::error());
+    }
+
+    auto fd = ::socket(::af(family), ::type(protocol), 0);
+
+    if (fd < 0)
+    {
+        this->record();
+        throw error_socket("socket: " + sys::error());
+    }
+
+    this->_family    = family;
+    this->_protocol  = protocol;
+    this->_impl->_fd = fd;
+}
+
+void chen::net::socket::create(const address &addr, Protocol protocol)
+{
+    switch (addr.type())
+    {
+        case address::Type::IPv4:
+            return this->create(socket::Family::IPv4, protocol);
+
+        case address::Type::IPv6:
+            return this->create(socket::Family::IPv6, protocol);
+
+        default:
+            throw error_socket("socket: address type unknown");
+    }
+}
+
 // connection
 bool chen::net::socket::connect(const endpoint &ep) noexcept
 {
-    auto in = addr(ep);
-
-    if (::connect(this->_impl->_fd, (struct sockaddr *)&in, sizeof(in)))
-    {
-        this->record();
-        return false;
-    }
-
-    return true;
+    return this->connect(ep.addr(), ep.port());
 }
 
 bool chen::net::socket::connect(const address &addr, std::uint16_t port) noexcept
 {
-    return this->connect(endpoint(addr, port));
-}
+    socklen_t len = 0;
+    auto in = ::addr(addr, port, len);
 
-bool chen::net::socket::bind(const endpoint &ep) noexcept
-{
-    auto in = addr(ep);
-
-    if (::bind(this->_impl->_fd, (struct sockaddr *)&in, sizeof(in)))
+    if (::connect(this->_impl->_fd, (struct sockaddr *)&in, len))
     {
         this->record();
         return false;
@@ -197,9 +235,23 @@ bool chen::net::socket::bind(const endpoint &ep) noexcept
     return true;
 }
 
+bool chen::net::socket::bind(const endpoint &ep) noexcept
+{
+    return this->bind(ep.addr(), ep.port());
+}
+
 bool chen::net::socket::bind(const address &addr, std::uint16_t port) noexcept
 {
-    return this->bind(endpoint(addr, port));
+    socklen_t len = 0;
+    auto in = ::addr(addr, port, len);
+
+    if (::bind(this->_impl->_fd, (struct sockaddr *)&in, len))
+    {
+        this->record();
+        return false;
+    }
+
+    return true;
 }
 
 bool chen::net::socket::listen() noexcept
@@ -228,7 +280,7 @@ chen::net::socket chen::net::socket::accept()
     if (sock < 0)
     {
         this->record();
-        throw error_socket("socket: " + sys::error());
+        return nullptr;
     }
 
     socket ret(this->_family, this->_protocol);
@@ -254,8 +306,9 @@ ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags
 
 ssize_t chen::net::socket::send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept
 {
-    auto in  = addr(ep);
-    auto ret = ::sendto(this->_impl->_fd, data, size, flags, (struct sockaddr*)&in, sizeof(in));
+    socklen_t len = 0;
+    auto in  = ::addr(ep.addr(), ep.port(), len);
+    auto ret = ::sendto(this->_impl->_fd, data, size, flags, (struct sockaddr*)&in, len);
 
     if (ret < 0)
         this->record();
@@ -291,7 +344,7 @@ ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size
 
     auto ret = ::recvfrom(this->_impl->_fd, out.data(), size, flags, (struct sockaddr*)&in, &len);
     if (ret >= 0)
-        ep = addr(&in);
+        ep = ::addr(&in);
     else
         this->record();
 
@@ -325,28 +378,7 @@ chen::net::socket::Protocol chen::net::socket::protocol() const noexcept
 // reset
 void chen::net::socket::reset()
 {
-    this->reset(this->_family, this->_protocol);
-}
-
-void chen::net::socket::reset(Family family, Protocol protocol)
-{
-    if (this->_impl->_fd && !this->close())
-    {
-        this->record();
-        throw error_socket("socket: " + sys::error());
-    }
-
-    auto fd = ::socket(af(family), type(protocol), 0);
-
-    if (fd < 0)
-    {
-        this->record();
-        throw error_socket("socket: " + sys::error());
-    }
-
-    this->_family    = family;
-    this->_protocol  = protocol;
-    this->_impl->_fd = fd;
+    this->create(this->_family, this->_protocol);
 }
 
 // close
@@ -412,7 +444,7 @@ chen::net::endpoint chen::net::socket::local() const noexcept
     if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
-        return addr(&in);
+        return ::addr(&in);
 }
 
 chen::net::endpoint chen::net::socket::remote() const noexcept
@@ -426,7 +458,7 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
     if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
-        return addr(&in);
+        return ::addr(&in);
 }
 
 // empty

@@ -6,7 +6,8 @@
  */
 #pragma once
 
-#include <socket/tcp/tcp_basic.hpp>
+#include <socket/tcp/tcp_conn.hpp>
+#include <functional>
 
 namespace chen
 {
@@ -16,16 +17,36 @@ namespace chen
         class server : public basic
         {
         public:
+            typedef std::function<void (chen::tcp::conn conn)> conn_callback;
+            typedef std::function<void (chen::tcp::server *server, std::error_code code)> errc_callback;
+
+        public:
             /**
              * Start the server
              */
-            void start(const net::endpoint &ep);
-            void start(const net::address &addr, std::uint16_t port);
+            bool start(const net::endpoint &ep);
+            bool start(const net::address &addr, std::uint16_t port);
 
             /**
              * Stop the server
              */
             void stop();
+
+        public:
+            /**
+             * Attach callbacks
+             */
+            void attach(conn_callback callback);
+            void attach(errc_callback callback);
+
+            void notify(chen::tcp::conn conn);
+            void notify(chen::tcp::server *server, std::error_code code);
+
+        private:
+            bool _exit = false;
+
+            conn_callback _conn_callback;
+            errc_callback _errc_callback;
         };
     }
 }

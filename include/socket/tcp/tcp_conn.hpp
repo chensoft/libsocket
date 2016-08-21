@@ -15,6 +15,9 @@ namespace chen
         class conn : public basic
         {
         public:
+            conn(net::socket socket);
+
+        public:
             /**
              * Send data to connected host
              * todo make flags to enum class
