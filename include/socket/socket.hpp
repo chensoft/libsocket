@@ -31,6 +31,12 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/tcp/tcp_conn.hpp>
 #include <socket/tcp/tcp_server.hpp>
 
+#include <socket/udp/udp_basic.hpp>
+#include <socket/udp/udp_client.hpp>
+#include <socket/udp/udp_conn.hpp>
+#include <socket/udp/udp_define.hpp>
+#include <socket/udp/udp_server.hpp>
+
 #include <socket/dns/dns_codec.hpp>
 #include <socket/dns/dns_define.hpp>
 #include <socket/dns/dns_edns.hpp>

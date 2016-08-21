@@ -6,34 +6,33 @@
  */
 #pragma once
 
-#include <socket/tcp/tcp_basic.hpp>
+#include <socket/udp/udp_basic.hpp>
 
 namespace chen
 {
-    namespace tcp
+    namespace udp
     {
         class conn : public basic
         {
         public:
             /**
-             * Send data to connected host
+             * Send data back to the host
              * todo make flags to enum class
              * todo add deadline
              */
             ssize_t send(const void *data, std::size_t size, int flags);
             ssize_t send(const std::vector<std::uint8_t> &data, int flags);
 
-            /**
-             * Receive data from connected host
-             */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags);
-            std::vector<std::uint8_t> recv(std::size_t size, int flags);
-
         public:
             /**
-             * Close the connection
+             * Remote's request data
              */
-            bool close();
+            std::vector<std::uint8_t> data() const;
+
+            /**
+             * Remote endpoint
+             */
+            net::endpoint remote() const;
         };
     }
 }

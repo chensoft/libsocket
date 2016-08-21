@@ -33,7 +33,7 @@ namespace chen
 
         public:
             /**
-             * Send data to connected host, usually used in tcp
+             * Send data to connected host
              * todo make flags to enum class
              * todo add deadline
              */
@@ -41,7 +41,7 @@ namespace chen
             ssize_t send(const std::vector<std::uint8_t> &data, int flags);
 
             /**
-             * Receive data from connected host, usually used in tcp
+             * Receive data from connected host
              */
             ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags);
             std::vector<std::uint8_t> recv(std::size_t size, int flags);
