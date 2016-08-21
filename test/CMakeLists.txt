@@ -28,9 +28,10 @@ include_directories(../lib/libchen/test/lib/googletest/googletest/include)
 # source codes
 aux_source_directory(.       SRC_ROOT)
 aux_source_directory(src/net SRC_NET)
+aux_source_directory(src/tcp SRC_TCP)
 
 # generate app
-add_executable(test_libsocket ${SRC_ROOT} ${SRC_NET})
+add_executable(test_libsocket ${SRC_ROOT} ${SRC_NET} ${SRC_TCP})
 
 # link library
 target_link_libraries(test_libsocket libsocket_static gtest)
@@ -39,3 +40,4 @@ target_link_libraries(test_libsocket libsocket_static gtest)
 source_group("" FILES ${SRC_ROOT})
 
 source_group("src\\net" FILES ${SRC_NET})
+source_group("src\\tcp" FILES ${SRC_TCP})

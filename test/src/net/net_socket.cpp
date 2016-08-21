@@ -7,7 +7,7 @@
 #include <socket/net/net_socket.hpp>
 #include <gtest/gtest.h>
 
-TEST(NetSocketTest, Create)
+TEST(NetSocketTest, General)
 {
     using chen::net::socket;
 
@@ -29,13 +29,14 @@ TEST(NetSocketTest, Create)
     EXPECT_EQ(socket::Protocol::UDP, socket(socket::Family::IPv4, socket::Protocol::UDP).protocol());
 
     socket sock(socket::Family::IPv4, socket::Protocol::TCP);
-    EXPECT_TRUE(sock.valid());
+    EXPECT_TRUE(sock);
+    EXPECT_FALSE(sock.empty());
 
     sock.reset();
-    EXPECT_TRUE(sock.valid());
+    EXPECT_FALSE(sock.empty());
 
     sock.close();
-    EXPECT_FALSE(sock.valid());
+    EXPECT_TRUE(sock.empty());
 
     try
     {

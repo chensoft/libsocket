@@ -94,5 +94,5 @@ bool chen::net::endpoint::operator>=(const endpoint &o) const
 
 chen::net::endpoint::operator bool() const
 {
-    return this->empty();
+    return !this->empty();
 }

@@ -30,11 +30,13 @@ namespace chen
             /**
              * Construct socket
              */
+            socket(std::nullptr_t);
             socket(Family family, Protocol protocol);
-            ~socket();
 
-            socket(socket&&) = default;
-            socket& operator=(socket&&) = default;
+            socket(socket &&o);
+            socket& operator=(socket &&o);
+
+            ~socket();
 
         public:
             /**
@@ -118,11 +120,6 @@ namespace chen
             std::error_code error() const noexcept;
 
             /**
-             * Check socket is valid
-             */
-            bool valid() const noexcept;
-
-            /**
              * Socket info
              */
             Family family() const noexcept;
@@ -133,6 +130,13 @@ namespace chen
              */
             endpoint local() const noexcept;
             endpoint remote() const noexcept;
+
+        public:
+            /**
+             * Check socket is empty
+             */
+            bool empty() const noexcept;
+            operator bool() const noexcept;
 
         public:
             /**

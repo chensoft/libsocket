@@ -13,6 +13,7 @@ TEST(NetAddressTest, Base)
     using chen::net::address;
 
     EXPECT_TRUE(address(nullptr).empty());
+    EXPECT_FALSE(address(nullptr));
 
     EXPECT_EQ(address::Type::IPv4, address::detect("127.0.0.1"));
     EXPECT_EQ(address::Type::IPv6, address::detect("2404:6800:4004:817::200e"));

@@ -133,9 +133,31 @@ struct chen::net::socket::impl
 
 // -----------------------------------------------------------------------------
 // socket
+chen::net::socket::socket(std::nullptr_t) : _impl(new impl)
+{
+}
+
 chen::net::socket::socket(Family family, Protocol protocol) : _impl(new impl)
 {
     this->reset(family, protocol);
+}
+
+chen::net::socket::socket(socket &&o)
+{
+    *this = std::move(o);
+}
+
+chen::net::socket& chen::net::socket::operator=(socket &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->_family   = o._family;
+    this->_protocol = o._protocol;
+    this->_error    = std::move(o._error);
+    this->_impl     = std::move(o._impl);
+
+    return *this;
 }
 
 chen::net::socket::~socket()
@@ -289,11 +311,6 @@ std::error_code chen::net::socket::error() const noexcept
     return this->_error;
 }
 
-bool chen::net::socket::valid() const noexcept
-{
-    return this->_impl->_fd != 0;
-}
-
 // info
 chen::net::socket::Family chen::net::socket::family() const noexcept
 {
@@ -410,6 +427,17 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
         return nullptr;
     else
         return addr(&in);
+}
+
+// empty
+bool chen::net::socket::empty() const noexcept
+{
+    return !this->_impl->_fd;
+}
+
+chen::net::socket::operator bool() const noexcept
+{
+    return !this->empty();
 }
 
 // resolve

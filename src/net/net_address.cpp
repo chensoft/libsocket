@@ -529,7 +529,7 @@ bool chen::net::address::operator>=(const address &o) const
 
 chen::net::address::operator bool() const
 {
-    return this->empty();
+    return !this->empty();
 }
 
 // common

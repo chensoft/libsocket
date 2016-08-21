@@ -26,6 +26,9 @@ namespace chen
              */
             net::endpoint local() const;
             net::endpoint remote() const;
+
+        protected:
+            net::socket _socket = nullptr;
         };
     }
 }
