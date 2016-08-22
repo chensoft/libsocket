@@ -6,6 +6,7 @@
  */
 #include <socket/net/net_endpoint.hpp>
 #include <chen/base/num.hpp>
+#include <cstring>
 
 // -----------------------------------------------------------------------------
 // endpoint
@@ -111,4 +112,87 @@ bool chen::net::endpoint::operator>=(const endpoint &o) const
 chen::net::endpoint::operator bool() const
 {
     return !this->empty();
+}
+
+// conversion
+chen::net::endpoint chen::net::endpoint::toEndpoint(const struct sockaddr *addr)
+{
+    switch (addr->sa_family)
+    {
+        case AF_INET:
+        {
+            auto in = (struct sockaddr_in*)addr;
+            return endpoint(address(num::swap(in->sin_addr.s_addr)),
+                            num::swap(in->sin_port));
+        }
+
+        case AF_INET6:
+        {
+            auto in = (struct sockaddr_in6*)addr;
+            return endpoint(address(version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id)),
+                            num::swap(in->sin6_port));
+        }
+
+        default:
+            return nullptr;
+    }
+}
+
+chen::net::endpoint chen::net::endpoint::toEndpoint(const struct sockaddr_in *addr)
+{
+    return endpoint::toEndpoint((const struct sockaddr*)addr);
+}
+
+chen::net::endpoint chen::net::endpoint::toEndpoint(const struct sockaddr_in6 *addr)
+{
+    return endpoint::toEndpoint((const struct sockaddr*)addr);
+}
+
+chen::net::endpoint chen::net::endpoint::toEndpoint(const struct sockaddr_storage *addr)
+{
+    return endpoint::toEndpoint((const struct sockaddr*)addr);
+}
+
+void chen::net::endpoint::toAddress(const endpoint &ep, struct sockaddr_storage &out, socklen_t &len)
+{
+    return endpoint::toAddress(ep.addr(), ep.port(), out, len);
+}
+
+void chen::net::endpoint::toAddress(const address &addr, std::uint16_t port, struct sockaddr_storage &out, socklen_t &len)
+{
+    switch (addr.type())
+    {
+        case chen::net::address::Type::IPv4:
+        {
+            auto &v4 = addr.v4();
+            auto  in = (struct sockaddr_in*)&out;
+
+            in->sin_family      = AF_INET;
+            in->sin_port        = chen::num::swap(port);
+            in->sin_addr.s_addr = chen::num::swap(v4.addr());
+
+            len = sizeof(struct sockaddr_in);
+
+            break;
+        }
+
+        case chen::net::address::Type::IPv6:
+        {
+            auto &v6 = addr.v6();
+            auto  in = (struct sockaddr_in6*)&out;
+
+            in->sin6_family   = AF_INET6;
+            in->sin6_port     = chen::num::swap(port);
+            in->sin6_scope_id = v6.scope();
+
+            ::memcpy(in->sin6_addr.s6_addr, v6.addr().data(), 16);
+
+            len = sizeof(struct sockaddr_in6);
+
+            break;
+        }
+
+        default:
+            break;
+    }
 }

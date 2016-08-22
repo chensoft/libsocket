@@ -63,6 +63,18 @@ namespace chen
 
             operator bool() const;
 
+        public:
+            /**
+             * Conversion
+             */
+            static endpoint toEndpoint(const struct sockaddr *addr);
+            static endpoint toEndpoint(const struct sockaddr_in *addr);
+            static endpoint toEndpoint(const struct sockaddr_in6 *addr);
+            static endpoint toEndpoint(const struct sockaddr_storage *addr);
+
+            static void toAddress(const endpoint &ep, struct sockaddr_storage &out, socklen_t &len);
+            static void toAddress(const address &addr, std::uint16_t port, struct sockaddr_storage &out, socklen_t &len);
+
         private:
             address _addr;
             std::uint16_t _port = 0;

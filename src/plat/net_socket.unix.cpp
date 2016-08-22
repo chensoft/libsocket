@@ -10,84 +10,6 @@
 #include <socket/net/net_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
-#include <cstring>
-
-// -----------------------------------------------------------------------------
-// helper
-namespace
-{
-    struct sockaddr_storage addr(const chen::net::address &a, std::uint16_t p, socklen_t &l)
-    {
-        struct sockaddr_storage ret{};
-
-        switch (a.type())
-        {
-            case chen::net::address::Type::IPv4:
-            {
-                auto &v4 = a.v4();
-                auto  in = (struct sockaddr_in*)&ret;
-
-                in->sin_family      = AF_INET;
-                in->sin_port        = chen::num::swap(p);
-                in->sin_addr.s_addr = chen::num::swap(v4.addr());
-
-                l = sizeof(struct sockaddr_in);
-
-                break;
-            }
-
-            case chen::net::address::Type::IPv6:
-            {
-                auto &v6 = a.v6();
-                auto  in = (struct sockaddr_in6*)&ret;
-
-                in->sin6_family   = AF_INET6;
-                in->sin6_port     = chen::num::swap(p);
-                in->sin6_scope_id = v6.scope();
-
-                ::memcpy(in->sin6_addr.s6_addr, v6.addr().data(), 16);
-
-                l = sizeof(struct sockaddr_in6);
-
-                break;
-            }
-
-            default:
-                break;
-        }
-
-        return ret;
-    }
-
-    chen::net::endpoint addr(const struct sockaddr *sock)
-    {
-        switch (sock->sa_family)
-        {
-            case AF_INET:
-            {
-                auto in = (struct sockaddr_in*)sock;
-                return chen::net::endpoint(chen::net::address(chen::num::swap(in->sin_addr.s_addr)),
-                                           chen::num::swap(in->sin_port));
-            }
-
-            case AF_INET6:
-            {
-                auto in = (struct sockaddr_in6*)sock;
-                return chen::net::endpoint(chen::net::address(chen::net::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id)),
-                                           chen::num::swap(in->sin6_port));
-            }
-
-            default:
-                return nullptr;
-        }
-    }
-
-    chen::net::endpoint addr(const struct sockaddr_storage *sock)
-    {
-        return addr((const struct sockaddr*)sock);
-    }
-}
-
 
 // -----------------------------------------------------------------------------
 // socket
@@ -159,8 +81,10 @@ bool chen::net::socket::connect(const endpoint &ep) noexcept
 
 bool chen::net::socket::connect(const address &addr, std::uint16_t port) noexcept
 {
+    struct sockaddr_storage in{};
     socklen_t len = 0;
-    auto in = ::addr(addr, port, len);
+
+    endpoint::toAddress(addr, port, in, len);
     return !::connect(this->_fd, (struct sockaddr *)&in, len);
 }
 
@@ -171,8 +95,10 @@ bool chen::net::socket::bind(const endpoint &ep) noexcept
 
 bool chen::net::socket::bind(const address &addr, std::uint16_t port) noexcept
 {
+    struct sockaddr_storage in{};
     socklen_t len = 0;
-    auto in = ::addr(addr, port, len);
+
+    endpoint::toAddress(addr, port, in, len);
     return !::bind(this->_fd, (struct sockaddr *)&in, len);
 }
 
@@ -208,8 +134,10 @@ ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags
 
 ssize_t chen::net::socket::send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept
 {
+    struct sockaddr_storage in{};
     socklen_t len = 0;
-    auto in = ::addr(ep.addr(), ep.port(), len);
+
+    endpoint::toAddress(ep, in, len);
     return ::sendto(this->_fd, data, size, flags, (struct sockaddr*)&in, len);
 }
 
@@ -237,7 +165,7 @@ ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size
 
     auto ret = ::recvfrom(this->_fd, out.data(), size, flags, (struct sockaddr*)&in, &len);
     if (ret >= 0)
-        ep = ::addr(&in);
+        ep = endpoint::toEndpoint(&in);
 
     return ret;
 }
@@ -313,7 +241,7 @@ chen::net::endpoint chen::net::socket::local() const noexcept
     if (::getsockname(this->_fd, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
-        return ::addr(&in);
+        return endpoint::toEndpoint(&in);
 }
 
 chen::net::endpoint chen::net::socket::remote() const noexcept
@@ -327,7 +255,7 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
     if (::getpeername(this->_fd, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
-        return ::addr(&in);
+        return endpoint::toEndpoint(&in);
 }
 
 // empty
@@ -344,7 +272,7 @@ chen::net::socket::operator bool() const noexcept
 // resolve
 std::vector<chen::net::address> chen::net::socket::resolve(const std::string &host) noexcept
 {
-    return this->resolve(host, AF_UNSPEC);  // IPv4 or IPv6
+    return socket::resolve(host, AF_UNSPEC);  // IPv4 or IPv6
 }
 
 std::vector<chen::net::address> chen::net::socket::resolve(const std::string &host, int family) noexcept
@@ -361,7 +289,7 @@ std::vector<chen::net::address> chen::net::socket::resolve(const std::string &ho
     std::vector<chen::net::address> ret;
 
     for (struct addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
-        ret.emplace_back(addr(ptr->ai_addr).addr());
+        ret.emplace_back(endpoint::toEndpoint(ptr->ai_addr).addr());
 
     ::freeaddrinfo(info);
 
