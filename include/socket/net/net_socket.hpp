@@ -15,9 +15,8 @@ namespace chen
     namespace net
     {
         /**
-         * This class is a wrapper for BSD socket
-         * you should not use this class directly
-         * use classes like tcp::server or udp::server instead
+         * This class is a wrapper for BSD socket, you should not use this class directly
+         * use specific classes like tcp::server, tcp::client, udp::server and udp::client instead
          */
         class socket
         {
@@ -154,21 +153,12 @@ namespace chen
             static std::vector<address> resolve(const std::string &host) noexcept;
 
         private:
-            /**
-             * Record last error code
-             */
-            void record() noexcept;
-
-        private:
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;
 
         private:
             Family   _family;
             Protocol _protocol;
-
-            // todo how about SO_ERROR? treat std::error_code object as a member
-            std::error_code _error;
 
             struct impl;
             std::unique_ptr<impl> _impl;
