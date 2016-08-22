@@ -10,10 +10,6 @@
 #include <socket/net/net_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
 #include <cstring>
 
 // -----------------------------------------------------------------------------

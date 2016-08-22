@@ -7,14 +7,13 @@
 #ifndef _WIN32
 
 #include <socket/net/net_interface.hpp>
+#include <socket/config.hpp>
 #include <chen/base/num.hpp>
 #include <functional>
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <ifaddrs.h>
 #include <net/if.h>
 

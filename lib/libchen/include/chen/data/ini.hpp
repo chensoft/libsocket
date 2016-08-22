@@ -31,7 +31,7 @@ namespace chen
     class ini
     {
     public:
-        typedef chen::input_iterator<const char, const char> iterator;  // it's an input iterator
+        typedef chen::input_iterator<const std::uint8_t, const std::uint8_t> iterator;  // it's an input iterator
 
         typedef std::unordered_map<std::string, std::string> property_type;  // k/v pair
         typedef std::pair<std::string, property_type> section_type;          // each section

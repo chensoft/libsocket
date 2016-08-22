@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/net/net_endpoint.hpp>
+#include <socket/config.hpp>
 #include <system_error>
 #include <memory>
 
