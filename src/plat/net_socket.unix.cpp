@@ -16,40 +16,6 @@
 // helper
 namespace
 {
-//    int af(chen::net::socket::Family family)
-//    {
-//        switch (family)
-//        {
-//            case chen::net::socket::Family::IPv4:
-//                return AF_INET;
-//
-//            case chen::net::socket::Family::IPv6:
-//                return AF_INET6;
-//
-//            case chen::net::socket::Family::Unix:
-//                return AF_UNIX;
-//        }
-//
-//        return 0;
-//    }
-//
-//    int type(chen::net::socket::Protocol protocol)
-//    {
-//        switch (protocol)
-//        {
-//            case chen::net::socket::Protocol::TCP:
-//                return SOCK_STREAM;
-//
-//            case chen::net::socket::Protocol::UDP:
-//                return SOCK_DGRAM;
-//
-//            case chen::net::socket::Protocol::RAW:
-//                return SOCK_RAW;
-//        }
-//
-//        return 0;
-//    }
-
     struct sockaddr_storage addr(const chen::net::address &a, std::uint16_t p, socklen_t &l)
     {
         struct sockaddr_storage ret{};
@@ -125,11 +91,7 @@ namespace
 
 // -----------------------------------------------------------------------------
 // socket
-chen::net::socket::socket() : socket(nullptr)
-{
-}
-
-chen::net::socket::socket(std::nullptr_t) : _fd(0)
+chen::net::socket::socket(std::nullptr_t)
 {
 }
 
@@ -137,7 +99,7 @@ chen::net::socket::socket(socket_t fd) : _fd(fd)
 {
 }
 
-chen::net::socket::socket(int family, int type, int protocol) : _fd(0)
+chen::net::socket::socket(int family, int type, int protocol)
 {
     this->reset(family, type, protocol);
 }
@@ -164,6 +126,11 @@ chen::net::socket::~socket()
 }
 
 // reset
+void chen::net::socket::reset()
+{
+    // todo
+}
+
 void chen::net::socket::reset(socket_t fd)
 {
     if (this->_fd && !this->close())
@@ -242,7 +209,7 @@ ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags
 ssize_t chen::net::socket::send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept
 {
     socklen_t len = 0;
-    auto in  = ::addr(ep.addr(), ep.port(), len);
+    auto in = ::addr(ep.addr(), ep.port(), len);
     return ::sendto(this->_fd, data, size, flags, (struct sockaddr*)&in, len);
 }
 
@@ -377,10 +344,15 @@ chen::net::socket::operator bool() const noexcept
 // resolve
 std::vector<chen::net::address> chen::net::socket::resolve(const std::string &host) noexcept
 {
+    return this->resolve(host, AF_UNSPEC);  // IPv4 or IPv6
+}
+
+std::vector<chen::net::address> chen::net::socket::resolve(const std::string &host, int family) noexcept
+{
     struct addrinfo *info = nullptr;
     struct addrinfo hint{};
 
-    hint.ai_family   = AF_UNSPEC;    // IPv4 or IPv6
+    hint.ai_family   = family;
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
 
     if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))

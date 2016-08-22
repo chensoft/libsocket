@@ -8,8 +8,6 @@
 
 #include <socket/net/net_endpoint.hpp>
 #include <socket/config.hpp>
-#include <system_error>
-#include <memory>
 
 namespace chen
 {
@@ -28,8 +26,7 @@ namespace chen
             /**
              * Construct socket
              */
-            socket();
-            socket(std::nullptr_t);
+            socket(std::nullptr_t t = nullptr);
 
             socket(socket_t fd);
             socket(int family, int type, int protocol = 0);
@@ -140,13 +137,14 @@ namespace chen
              * Resolve host address
              */
             static std::vector<address> resolve(const std::string &host) noexcept;
+            static std::vector<address> resolve(const std::string &host, int family) noexcept;
 
         private:
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;
 
         private:
-            socket_t _fd;  // socket descriptor
+            socket_t _fd = socket_t();  // socket descriptor
         };
     }
 }

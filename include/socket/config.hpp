@@ -26,3 +26,6 @@ typedef int socket_t;
 typedef SOCKET socket_t;
 
 #endif
+
+// For std::error_code, std::errc
+#include <system_error>
