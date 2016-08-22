@@ -161,8 +161,7 @@ namespace chen
             Family   _family;
             Protocol _protocol;
 
-            struct impl;
-            std::unique_ptr<impl> _impl;
+            socket_t _fd;  // socket descriptor
         };
     }
 }

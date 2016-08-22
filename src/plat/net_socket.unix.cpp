@@ -124,29 +124,21 @@ namespace
 
 
 // -----------------------------------------------------------------------------
-// impl
-struct chen::net::socket::impl
-{
-    int _fd = 0;  // socket file descriptor
-};
-
-
-// -----------------------------------------------------------------------------
 // socket
 chen::net::socket::socket() : socket(nullptr)
 {
 }
 
-chen::net::socket::socket(std::nullptr_t) : _impl(new impl)
+chen::net::socket::socket(std::nullptr_t) : _fd(0)
 {
 }
 
-chen::net::socket::socket(Family family, Protocol protocol) : _impl(new impl)
+chen::net::socket::socket(Family family, Protocol protocol) : _fd(0)
 {
     this->create(family, protocol);
 }
 
-chen::net::socket::socket(const address &addr, Protocol protocol) : _impl(new impl)
+chen::net::socket::socket(const address &addr, Protocol protocol) : _fd(0)
 {
     this->create(addr, protocol);
 }
@@ -163,7 +155,7 @@ chen::net::socket& chen::net::socket::operator=(socket &&o)
 
     this->_family   = o._family;
     this->_protocol = o._protocol;
-    this->_impl     = std::move(o._impl);
+    this->_fd       = o._fd;
 
     return *this;
 }
@@ -176,7 +168,7 @@ chen::net::socket::~socket()
 // create
 void chen::net::socket::create(Family family, Protocol protocol)
 {
-    if (this->_impl->_fd && !this->close())
+    if (this->_fd && !this->close())
         throw error_socket("socket: " + sys::error());
 
     auto fd = ::socket(::af(family), ::type(protocol), 0);
@@ -185,7 +177,7 @@ void chen::net::socket::create(Family family, Protocol protocol)
 
     this->_family    = family;
     this->_protocol  = protocol;
-    this->_impl->_fd = fd;
+    this->_fd = fd;
 }
 
 void chen::net::socket::create(const address &addr, Protocol protocol)
@@ -213,7 +205,7 @@ bool chen::net::socket::connect(const address &addr, std::uint16_t port) noexcep
 {
     socklen_t len = 0;
     auto in = ::addr(addr, port, len);
-    return !::connect(this->_impl->_fd, (struct sockaddr *)&in, len);
+    return !::connect(this->_fd, (struct sockaddr *)&in, len);
 }
 
 bool chen::net::socket::bind(const endpoint &ep) noexcept
@@ -225,7 +217,7 @@ bool chen::net::socket::bind(const address &addr, std::uint16_t port) noexcept
 {
     socklen_t len = 0;
     auto in = ::addr(addr, port, len);
-    return !::bind(this->_impl->_fd, (struct sockaddr *)&in, len);
+    return !::bind(this->_fd, (struct sockaddr *)&in, len);
 }
 
 bool chen::net::socket::listen() noexcept
@@ -235,7 +227,7 @@ bool chen::net::socket::listen() noexcept
 
 bool chen::net::socket::listen(int backlog) noexcept
 {
-    return !::listen(this->_impl->_fd, backlog);
+    return !::listen(this->_fd, backlog);
 }
 
 chen::net::socket chen::net::socket::accept()
@@ -243,12 +235,12 @@ chen::net::socket chen::net::socket::accept()
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
-    int sock = ::accept(this->_impl->_fd, (struct sockaddr*)&in, &len);
+    int sock = ::accept(this->_fd, (struct sockaddr*)&in, &len);
     if (sock < 0)
         return nullptr;
 
     socket ret(this->_family, this->_protocol);
-    ret._impl->_fd = sock;
+    ret._fd = sock;
 
     return ret;
 }
@@ -256,7 +248,7 @@ chen::net::socket chen::net::socket::accept()
 // data
 ssize_t chen::net::socket::send(const void *data, std::size_t size, int flags) noexcept
 {
-    return ::send(this->_impl->_fd, data, size, flags);
+    return ::send(this->_fd, data, size, flags);
 }
 
 ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags) noexcept
@@ -268,7 +260,7 @@ ssize_t chen::net::socket::send(const void *data, std::size_t size, int flags, c
 {
     socklen_t len = 0;
     auto in  = ::addr(ep.addr(), ep.port(), len);
-    return ::sendto(this->_impl->_fd, data, size, flags, (struct sockaddr*)&in, len);
+    return ::sendto(this->_fd, data, size, flags, (struct sockaddr*)&in, len);
 }
 
 ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags, const endpoint &ep) noexcept
@@ -278,7 +270,7 @@ ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags
 
 ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, int flags) noexcept
 {
-    return ::recv(this->_impl->_fd, out.data(), size, flags);
+    return ::recv(this->_fd, out.data(), size, flags);
 }
 
 std::vector<std::uint8_t> chen::net::socket::recv(std::size_t size, int flags) noexcept
@@ -293,7 +285,7 @@ ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
-    auto ret = ::recvfrom(this->_impl->_fd, out.data(), size, flags, (struct sockaddr*)&in, &len);
+    auto ret = ::recvfrom(this->_fd, out.data(), size, flags, (struct sockaddr*)&in, &len);
     if (ret >= 0)
         ep = ::addr(&in);
 
@@ -310,13 +302,13 @@ std::vector<std::uint8_t> chen::net::socket::recv(std::size_t size, int flags, e
 // error
 std::error_code chen::net::socket::error() const noexcept
 {
-    if (!this->_impl->_fd)
+    if (!this->_fd)
         return std::error_code(0, std::system_category());
 
     int val = 0;
     socklen_t len = 0;
 
-    if (!::getsockopt(this->_impl->_fd, SOL_SOCKET, SO_ERROR, &val, &len))
+    if (!::getsockopt(this->_fd, SOL_SOCKET, SO_ERROR, &val, &len))
         return std::error_code(val, std::system_category());
     else
         return std::error_code(errno, std::system_category());
@@ -343,34 +335,34 @@ void chen::net::socket::reset()
 bool chen::net::socket::close() noexcept
 {
     // treat closed as true
-    if (!this->_impl->_fd)
+    if (!this->_fd)
         return true;
 
     // close the socket
-    if (::close(this->_impl->_fd))
+    if (::close(this->_fd))
         return false;
 
-    this->_impl->_fd = 0;
+    this->_fd = 0;
     return true;
 }
 
 bool chen::net::socket::shutdown(Shutdown flag) noexcept
 {
     // treat closed as true
-    if (!this->_impl->_fd)
+    if (!this->_fd)
         return true;
 
     // shutdown the socket
     switch (flag)
     {
         case Shutdown::Read:
-            return !::shutdown(this->_impl->_fd, SHUT_RD);
+            return !::shutdown(this->_fd, SHUT_RD);
 
         case Shutdown::Write:
-            return !::shutdown(this->_impl->_fd, SHUT_WR);
+            return !::shutdown(this->_fd, SHUT_WR);
 
         case Shutdown::Both:
-            return !::shutdown(this->_impl->_fd, SHUT_RDWR);
+            return !::shutdown(this->_fd, SHUT_RDWR);
     }
 
     return true;
@@ -379,13 +371,13 @@ bool chen::net::socket::shutdown(Shutdown flag) noexcept
 // info
 chen::net::endpoint chen::net::socket::local() const noexcept
 {
-    if (!this->_impl->_fd)
+    if (!this->_fd)
         return nullptr;
 
     struct sockaddr_storage in{};
     socklen_t len = sizeof(in);
 
-    if (::getsockname(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
+    if (::getsockname(this->_fd, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
         return ::addr(&in);
@@ -393,13 +385,13 @@ chen::net::endpoint chen::net::socket::local() const noexcept
 
 chen::net::endpoint chen::net::socket::remote() const noexcept
 {
-    if (!this->_impl->_fd)
+    if (!this->_fd)
         return nullptr;
 
     struct sockaddr_storage in{};
     socklen_t len = sizeof(in);
 
-    if (::getpeername(this->_impl->_fd, (struct sockaddr*)&in, &len) != 0)
+    if (::getpeername(this->_fd, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
         return ::addr(&in);
@@ -408,7 +400,7 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
 // empty
 bool chen::net::socket::empty() const noexcept
 {
-    return !this->_impl->_fd;
+    return !this->_fd;
 }
 
 chen::net::socket::operator bool() const noexcept
