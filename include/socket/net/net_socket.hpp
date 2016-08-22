@@ -22,8 +22,6 @@ namespace chen
         class socket
         {
         public:
-            enum class Family {IPv4 = 1, IPv6, Unix};
-            enum class Protocol {TCP = 1, UDP, RAW};
             enum class Shutdown {Read = 1, Write, Both};
 
         public:
@@ -33,8 +31,8 @@ namespace chen
             socket();
             socket(std::nullptr_t);
 
-            socket(Family family, Protocol protocol);
-            socket(const address &addr, Protocol protocol);
+            socket(socket_t fd);
+            socket(int family, int type, int protocol = 0);
 
             socket(socket &&o);
             socket& operator=(socket &&o);
@@ -43,10 +41,11 @@ namespace chen
 
         public:
             /**
-             * Create socket by protocol or address type
+             * Reset socket
              */
-            void create(Family family, Protocol protocol);
-            void create(const address &addr, Protocol protocol);
+            void reset();
+            void reset(socket_t fd);
+            void reset(int family, int type, int protocol = 0);
 
         public:
             /**
@@ -106,11 +105,6 @@ namespace chen
 
         public:
             /**
-             * Reset this socket, close old socket and create new
-             */
-            void reset();
-
-            /**
              * Close the socket, the socket will disconnect immediately
              * todo block in TIME_WAIT?
              */
@@ -127,12 +121,6 @@ namespace chen
              * e.g: socket.error() == std::errc::operation_would_block
              */
             std::error_code error() const noexcept;
-
-            /**
-             * Socket info
-             */
-            Family family() const noexcept;
-            Protocol protocol() const noexcept;
 
             /**
              * Local and remote endpoint
@@ -158,9 +146,6 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            Family   _family;
-            Protocol _protocol;
-
             socket_t _fd;  // socket descriptor
         };
     }
