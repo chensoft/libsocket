@@ -29,6 +29,7 @@ namespace chen
 
             socket(socket_t fd);
             socket(int family, int type, int protocol = 0);
+            socket(address addr, int type, int protocol = 0);
 
             socket(socket &&o);
             socket& operator=(socket &&o);
@@ -42,6 +43,7 @@ namespace chen
             void reset();
             void reset(socket_t fd);
             void reset(int family, int type, int protocol = 0);
+            void reset(address addr, int type, int protocol = 0);
 
         public:
             /**

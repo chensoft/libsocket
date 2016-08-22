@@ -15,8 +15,7 @@ bool chen::tcp::server::start(const net::endpoint &ep)
 
 bool chen::tcp::server::start(const net::address &addr, std::uint16_t port)
 {
-    // todo
-//    this->_socket.create(addr, net::socket::Protocol::TCP);
+    this->_socket.reset(addr, SOCK_STREAM);
 
     if (!this->_socket.bind(addr, port))
     {
