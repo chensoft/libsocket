@@ -133,6 +133,8 @@ TEST(DataJsonTest, Validate)
         EXPECT_THROW(json::validate(conf::data + str::format("/json/fail%d.json", i), true), json::error);
     }
 
+    EXPECT_THROW(json::validate(conf::data + "/json/role.json", true), json::error);
+
     // pass
     for (int j = 1; j <= 3; ++j)
     {
