@@ -2,8 +2,6 @@
 
 -) implement unix domain socket only under Unix
 
--) add socket opt support, such as tcp reuse address
-
 -) get socket mtu after connected
 
 -) add connecting state

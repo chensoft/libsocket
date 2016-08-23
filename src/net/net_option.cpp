@@ -47,6 +47,32 @@ bool chen::net::option::reuseaddr::apply(socket &sock)
 
 
 // -----------------------------------------------------------------------------
+// reuseport
+chen::net::option::reuseport::reuseport(const socket &sock)
+{
+#ifndef _WIN32
+    this->enable = basic::optionInt(sock.native(), SOL_SOCKET, SO_REUSEPORT) != 0;
+#else
+    this->enable = basic::optionInt(sock.native(), SOL_SOCKET, SO_REUSEADDR) != 0;
+#endif
+}
+
+chen::net::option::reuseport::reuseport(bool val) : enable(val)
+{
+}
+
+bool chen::net::option::reuseport::apply(socket &sock)
+{
+    int val = this->enable;
+#ifndef _WIN32
+    return !::setsockopt(sock.native(), SOL_SOCKET, SO_REUSEPORT, &val, sizeof(val));
+#else
+    return !::setsockopt(sock.native(), SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+#endif
+}
+
+
+// -----------------------------------------------------------------------------
 // keepalive
 chen::net::option::keepalive::keepalive(const socket &sock)
 {
