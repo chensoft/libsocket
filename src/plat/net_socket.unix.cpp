@@ -278,6 +278,12 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
         return endpoint::toEndpoint(&in);
 }
 
+// native
+chen::net::socket_t chen::net::socket::native() const noexcept
+{
+    return this->_fd;
+}
+
 // empty
 bool chen::net::socket::empty() const noexcept
 {

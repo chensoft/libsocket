@@ -14,7 +14,14 @@
 #include <unistd.h>      // socket close()
 #include <netdb.h>       // getaddrinfo
 
-typedef int socket_t;
+namespace chen
+{
+    namespace net
+    {
+        typedef int socket_t;
+        typedef socklen_t option_t;
+    }
+}
 
 #else
 
@@ -23,7 +30,14 @@ typedef int socket_t;
 #include <winsock2.h>  // socket defines
 #include <ws2tcpip.h>  // getaddrinfo
 
-typedef SOCKET socket_t;
+namespace chen
+{
+    namespace net
+    {
+        typedef SOCKET socket_t;
+        typedef int option_t;
+    }
+}
 
 #endif
 

@@ -98,11 +98,6 @@ namespace chen
 
         public:
             /**
-             * todo set opt for socket
-             */
-
-        public:
-            /**
              * Close the socket, the socket will disconnect immediately
              * todo block in TIME_WAIT?
              */
@@ -117,6 +112,7 @@ namespace chen
             /**
              * Last error info, compare it with std::errc enum class
              * e.g: socket.error() == std::errc::operation_would_block
+             * todo how to access EAI_xxx error, h_errno
              */
             std::error_code error() const noexcept;
 
@@ -125,6 +121,11 @@ namespace chen
              */
             endpoint local() const noexcept;
             endpoint remote() const noexcept;
+
+            /**
+             * Native socket handle
+             */
+            socket_t native() const noexcept;
 
         public:
             /**

@@ -7,7 +7,7 @@
 #pragma once
 
 #include <socket/net/net_version.hpp>
-#include <socket/config.hpp>
+#include <socket/net/net_config.hpp>
 
 namespace chen
 {
