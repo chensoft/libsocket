@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/net/net_socket.hpp>
+#include <socket/net/net_option.hpp>
 #include <socket/net/net_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
@@ -53,11 +53,6 @@ chen::net::socket::~socket()
 }
 
 // reset
-void chen::net::socket::reset()
-{
-    // todo
-}
-
 void chen::net::socket::reset(socket_t fd)
 {
     if (this->_fd && !this->close())
@@ -200,16 +195,7 @@ std::vector<std::uint8_t> chen::net::socket::recv(std::size_t size, int flags, e
 // error
 std::error_code chen::net::socket::error() const noexcept
 {
-    if (!this->_fd)
-        return std::error_code(0, std::system_category());
-
-    int val = 0;
-    socklen_t len = 0;
-
-    if (!::getsockopt(this->_fd, SOL_SOCKET, SO_ERROR, &val, &len))
-        return std::error_code(val, std::system_category());
-    else
-        return std::error_code(errno, std::system_category());
+    return option::error(*this).code;
 }
 
 // close

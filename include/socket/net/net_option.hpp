@@ -26,17 +26,67 @@ namespace chen
 
             // -----------------------------------------------------------------
             // SO_ACCEPTCONN(read-only, determine whether the socket is a listening socket)
-            class accept_conn : public basic
+            class acceptconn : public basic
+            {
+            public:
+                explicit acceptconn(const socket &sock);
+
+            public:
+                bool listening = false;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_REUSEADDR(allow local address reuse)
+            class reuseaddr : public basic
             {
             public:
                 /**
                  * Construct by getsockopt or bool value
                  */
-                explicit accept_conn(const socket &sock);
-                explicit accept_conn(bool val);
+                explicit reuseaddr(const socket &sock);
+                explicit reuseaddr(bool val);
 
             public:
-                bool listening = false;
+                /**
+                 * Call setsockopt to apply the value to socket
+                 */
+                bool apply(socket &sock);
+
+            public:
+                bool enable = false;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_KEEPALIVE(enable keepalive on connection-oriented socket)
+            class keepalive : public basic
+            {
+            public:
+                explicit keepalive(const socket &sock);
+                explicit keepalive(bool val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                bool enable = false;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_DONTROUTE(send packet to directly connected hosts, same as MSG_DONTROUTE flag)
+            class dontroute : public basic
+            {
+            public:
+                explicit dontroute(const socket &sock);
+                explicit dontroute(bool val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                bool enable = false;
             };
 
 
@@ -49,13 +99,115 @@ namespace chen
                 explicit broadcast(bool val);
 
             public:
-                /**
-                 * Call setsockopt to apply the value to socket
-                 */
                 bool apply(socket &sock);
 
             public:
                 bool enable = false;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_LINGER(close and shutdown will not return until data has been sent or timeout)
+            class linger : public basic
+            {
+            public:
+                explicit linger(const socket &sock);
+                explicit linger(int onoff, int value);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                int l_onoff  = 0;  // linger active
+                int l_linger = 0;  // how many seconds to linger for
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_SNDBUF(socket send buffer size)
+            class sndbuf : public basic
+            {
+            public:
+                explicit sndbuf(const socket &sock);
+                explicit sndbuf(int val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                int size = 0;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_RCVBUF(socket receive buffer size)
+            class rcvbuf : public basic
+            {
+            public:
+                explicit rcvbuf(const socket &sock);
+                explicit rcvbuf(int val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                int size = 0;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_SNDTIMEO(sending timeout)
+            class sndtimeo : public basic
+            {
+            public:
+                explicit sndtimeo(const socket &sock);
+                explicit sndtimeo(struct timeval val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                struct timeval time{};
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_RCVTIMEO(receiving timeout)
+            class rcvtimeo : public basic
+            {
+            public:
+                explicit rcvtimeo(const socket &sock);
+                explicit rcvtimeo(struct timeval val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                struct timeval time{};
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_ERROR(read-only, socket error)
+            class error : public basic
+            {
+            public:
+                explicit error(const socket &sock);
+
+            public:
+                std::error_code code;
+            };
+
+
+            // -----------------------------------------------------------------
+            // SO_TYPE(read-only, socket type, SOCK_STREAM, SOCK_DGRAM, SOCK_RAW)
+            class type : public basic
+            {
+            public:
+                explicit type(const socket &sock);
+
+            public:
+                int val = 0;
             };
         }
     }
