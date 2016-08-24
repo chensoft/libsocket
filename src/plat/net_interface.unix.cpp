@@ -19,7 +19,7 @@
 
 #ifdef __APPLE__
 #include <net/if_dl.h>
-#else
+#elif !defined(AF_LINK)
 #define AF_LINK AF_PACKET
 #endif
 
