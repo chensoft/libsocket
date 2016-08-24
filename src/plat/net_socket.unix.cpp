@@ -270,6 +270,25 @@ chen::net::socket_t chen::net::socket::native() const noexcept
     return this->_fd;
 }
 
+// non-blocking
+bool chen::net::socket::nonblocking() const noexcept
+{
+    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
+    if (flag < 0)
+        return false;
+
+    return (flag & O_NONBLOCK) == O_NONBLOCK;
+}
+
+bool chen::net::socket::nonblocking(bool enable) noexcept
+{
+    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
+    if (flag < 0)
+        return false;
+
+    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
+}
+
 // empty
 bool chen::net::socket::empty() const noexcept
 {

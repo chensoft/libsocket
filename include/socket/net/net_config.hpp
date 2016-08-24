@@ -13,6 +13,7 @@
 #include <arpa/inet.h>   // IPv4 and IPv6
 #include <unistd.h>      // socket close()
 #include <netdb.h>       // getaddrinfo
+#include <fcntl.h>       // non-blocking
 
 namespace chen
 {

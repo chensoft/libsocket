@@ -126,6 +126,12 @@ namespace chen
              */
             socket_t native() const noexcept;
 
+            /**
+             * Non-blocking status
+             */
+            bool nonblocking() const noexcept;
+            bool nonblocking(bool enable) noexcept;
+
         public:
             /**
              * Check socket is empty
