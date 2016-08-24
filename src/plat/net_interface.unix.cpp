@@ -15,8 +15,11 @@
 #include <cstring>
 #include <memory>
 #include <ifaddrs.h>
-#include <net/if_dl.h>
 #include <net/if.h>
+
+#ifdef __APPLE__
+#include <net/if_dl.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // helper
@@ -78,12 +81,6 @@ namespace
         if (ptr->ifa_addr->sa_family != AF_LINK)
             return;
 
-        // mac
-        struct sockaddr_dl *sdl  = (struct sockaddr_dl*)ptr->ifa_addr;
-        const std::uint8_t *data = (const std::uint8_t*)LLADDR(sdl);
-
-        mac = chen::str::format("%02x:%02x:%02x:%02x:%02x:%02x", data[0], data[1], data[2], data[3], data[4], data[5]);
-
         // mtu
         int fd = ::socket(AF_INET6, SOCK_DGRAM, 0);
         if (fd < 0)
@@ -96,6 +93,20 @@ namespace
         if (::ioctl(fd, SIOCGIFMTU, &ifr) >= 0)
             mtu = ifr.ifr_mtu;
 
+        // mac
+#ifdef __APPLE__
+        struct sockaddr_dl *sdl  = (struct sockaddr_dl*)ptr->ifa_addr;
+        const std::uint8_t *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
+#else
+        const std::uint8_t *data = nullptr;
+        if (::ioctl(fd, SIOCGIFHWADDR, &ifr) >= 0)
+            data = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
+#endif
+
+        if (data)
+            mac = chen::str::format("%02x:%02x:%02x:%02x:%02x:%02x", data[0], data[1], data[2], data[3], data[4], data[5]);
+
+        // clean
         ::close(fd);
     }
 
