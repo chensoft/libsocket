@@ -10,6 +10,7 @@
 
 // For Unix-like systems
 #include <sys/socket.h>  // socket macros
+#include <sys/ioctl.h>   // ioctl
 #include <arpa/inet.h>   // IPv4 and IPv6
 #include <unistd.h>      // socket close()
 #include <netdb.h>       // getaddrinfo

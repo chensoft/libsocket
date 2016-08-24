@@ -47,6 +47,8 @@ namespace chen
 
         public:
             std::string name;           // interface name, e.g: lo0, en0, eth0
+            std::string mac;            // interface mac address
+            std::int32_t   mtu = 0;     // interface mtu value
             std::uint32_t flag = 0;     // interface flags, determine status, broadcast and more
             std::vector<address> addr;  // all ip addresses on this interface, each address has netmask, broadcast and scope id
         };

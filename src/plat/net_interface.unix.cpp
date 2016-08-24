@@ -8,12 +8,14 @@
 
 #include <socket/net/net_interface.hpp>
 #include <chen/base/num.hpp>
+#include <chen/base/str.hpp>
 #include <functional>
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <ifaddrs.h>
+#include <net/if_dl.h>
 #include <net/if.h>
 
 // -----------------------------------------------------------------------------
@@ -69,6 +71,32 @@ namespace
             default:
                 return nullptr;
         }
+    }
+
+    void hardware(struct ifaddrs *ptr, std::string &mac, std::int32_t &mtu)
+    {
+        if (ptr->ifa_addr->sa_family != AF_LINK)
+            return;
+
+        // mac
+        struct sockaddr_dl *sdl  = (struct sockaddr_dl*)ptr->ifa_addr;
+        const std::uint8_t *data = (const std::uint8_t*)LLADDR(sdl);
+
+        mac = chen::str::format("%02x:%02x:%02x:%02x:%02x:%02x", data[0], data[1], data[2], data[3], data[4], data[5]);
+
+        // mtu
+        int fd = ::socket(AF_INET6, SOCK_DGRAM, 0);
+        if (fd < 0)
+            return;
+
+        struct ifreq ifr{};
+        ifr.ifr_addr.sa_family = AF_INET6;
+        ::memcpy(ifr.ifr_name, ptr->ifa_name, IFNAMSIZ);
+
+        if (::ioctl(fd, SIOCGIFMTU, &ifr) >= 0)
+            mtu = ifr.ifr_mtu;
+
+        ::close(fd);
     }
 
     std::uint8_t netmask(struct sockaddr *ptr)
@@ -133,21 +161,27 @@ std::map<std::string, chen::net::interface> chen::net::interface::enumerate()
 {
     std::map<std::string, interface> map;
 
-    visit([&] (struct ifaddrs *ptr, bool &stop) {
+    ::visit([&] (struct ifaddrs *ptr, bool &stop) {
         auto &item = map[ptr->ifa_name];
 
+        // name and flag
         if (item.name.empty())
         {
             item.name = ptr->ifa_name;
             item.flag = ptr->ifa_flags;
         }
 
-        auto addr = create(ptr->ifa_addr);
+        // mac and mtu
+        ::hardware(ptr, item.mac, item.mtu);
+
+        // address
+        auto addr = ::create(ptr->ifa_addr);
 
         if (addr)
         {
+            // netmask
             if (ptr->ifa_netmask)
-                addr->cidr(netmask(ptr->ifa_netmask));
+                addr->cidr(::netmask(ptr->ifa_netmask));
 
             item.addr.emplace_back(*addr);
         }
@@ -170,7 +204,7 @@ std::uint32_t chen::net::interface::scope(const std::uint8_t addr[16], const std
     // if name is interface name
     std::uint32_t id = 0;
 
-    visit([&] (struct ifaddrs *ptr, bool &stop) {
+    ::visit([&] (struct ifaddrs *ptr, bool &stop) {
         if ((name != ptr->ifa_name) || !ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 
@@ -191,7 +225,7 @@ std::string chen::net::interface::scope(std::uint32_t id)
 {
     std::string name;
 
-    visit([&] (struct ifaddrs *ptr, bool &stop) {
+    ::visit([&] (struct ifaddrs *ptr, bool &stop) {
         if (!ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 

@@ -244,6 +244,9 @@ TEST(NetAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817::200e", v6.str());
     EXPECT_EQ(128, v6.cidr());
 
+    // uppercase
+    EXPECT_EQ(address("fe80::1%1"), address("FE80::1%1"));
+
     // representation
     EXPECT_EQ("::", address(address::Type::IPv6).str());
     EXPECT_EQ("2404:6800:4004:817::", address("2404:6800:4004:817:0000:0000:0000:0000").str());
