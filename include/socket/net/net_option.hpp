@@ -229,6 +229,22 @@ namespace chen
             public:
                 int val = 0;
             };
+
+
+            // -----------------------------------------------------------------
+            // IP_TTL(IP packet's ttl value)
+            class ttl : public basic
+            {
+            public:
+                explicit ttl(const socket &sock);
+                explicit ttl(int val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                int val = 0;
+            };
         }
     }
 }

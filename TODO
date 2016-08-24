@@ -65,3 +65,5 @@
 -) deadline is not same as timeout, add deadline support for socket
 
 -) cancel any async operations
+
+-) does closeonexec useful
