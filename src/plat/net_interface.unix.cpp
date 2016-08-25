@@ -105,7 +105,7 @@ namespace
             data = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
 #endif
 
-        if (data)
+        if (data && std::any_of(data, data + 6, [] (std::uint8_t ch) { return ch > 0; }))
             mac = chen::str::format("%02x:%02x:%02x:%02x:%02x:%02x", data[0], data[1], data[2], data[3], data[4], data[5]);
 
         // clean
