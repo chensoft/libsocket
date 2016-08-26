@@ -26,6 +26,17 @@ namespace chen
              */
             ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags, net::endpoint &ep) noexcept;
             std::vector<std::uint8_t> recv(std::size_t size, int flags, net::endpoint &ep) noexcept;
+
+        public:
+            /**
+             * Stored host and port
+             */
+            std::string host() const;
+            std::uint16_t port() const;
+
+        private:
+            std::string _host;
+            std::uint16_t _port = 0;
         };
     }
 }

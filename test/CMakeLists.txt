@@ -13,6 +13,14 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
 endif()
 
+option(LIBSOCKET_TEST_CODE_COVERAGE "Enable libsocket code coverage." OFF)
+
+if(CMAKE_COMPILER_IS_GNUCXX AND LIBSOCKET_TEST_CODE_COVERAGE)
+    message("-- Enable code coverage")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")      # debug, no optimisation
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")  # enabling coverage
+endif()
+
 # libraries
 option(LIBCHEN_BUILD_SHARED OFF)
 option(LIBSOCKET_BUILD_SHARED OFF)

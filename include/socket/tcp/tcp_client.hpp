@@ -52,6 +52,16 @@ namespace chen
              */
             bool isConnected() const;
             bool isConnecting() const;
+
+            /**
+             * Stored host and port
+             */
+            std::string host() const;
+            std::uint16_t port() const;
+
+        private:
+            std::string _host;
+            std::uint16_t _port = 0;
         };
     }
 }
