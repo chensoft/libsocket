@@ -1,0 +1,8 @@
+test:
+  override:
+    - pwd
+    - uname -a
+    - cmake --version
+    - gcc --version
+    - g++ --version
+    - ./circle.sh
