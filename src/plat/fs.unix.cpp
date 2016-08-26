@@ -10,8 +10,8 @@
 #include <chen/base/str.hpp>
 #include <fstream>
 #include <cstdlib>
-#include <limits.h>
-#include <string.h>
+#include <climits>
+#include <cstring>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
