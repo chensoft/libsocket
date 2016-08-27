@@ -300,31 +300,4 @@ chen::net::socket::operator bool() const noexcept
     return !this->empty();
 }
 
-// resolve
-std::vector<chen::net::address> chen::net::socket::resolve(const std::string &host) noexcept
-{
-    return socket::resolve(host, AF_UNSPEC);  // IPv4 or IPv6
-}
-
-std::vector<chen::net::address> chen::net::socket::resolve(const std::string &host, int family) noexcept
-{
-    struct addrinfo *info = nullptr;
-    struct addrinfo hint{};
-
-    hint.ai_family   = family;
-    hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
-
-    if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))
-        return {};
-
-    std::vector<chen::net::address> ret;
-
-    for (struct addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
-        ret.emplace_back(endpoint::toEndpoint(ptr->ai_addr).addr());
-
-    ::freeaddrinfo(info);
-
-    return ret;
-}
-
 #endif

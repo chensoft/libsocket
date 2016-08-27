@@ -15,9 +15,40 @@ namespace chen
         class endpoint
         {
         public:
-            // todo add host:port string split method and constructors
+            /**
+             * Construct an null address
+             */
             endpoint(std::nullptr_t);
+
+            /**
+             * Construct by ip address and port
+             */
             endpoint(const address &addr, std::uint16_t port);
+
+            /**
+             * Construct by ip <-> port pair
+             */
+            endpoint(std::pair<std::string, std::uint16_t> pair);
+
+            /**
+             * Construct by "ip:port" string
+             * service name will be converted to port number
+             * For IPv4:
+             * :-) endpoint(":80")
+             * :-) endpoint("127.0.0.1")
+             * :-) endpoint("127.0.0.1:80")
+             * :-) endpoint("127.0.0.1:http")
+             * For IPv6
+             * :-) endpoint("[::]:80")
+             * :-) endpoint("[fe80::1]")
+             * :-) endpoint("[fe80::1]:80")
+             * :-) endpoint("[fe80::1]:http")
+             * :-) endpoint("[fe80::1%lo0]")
+             * :-) endpoint("[fe80::1%lo0]:80")
+             * :-) endpoint("[fe80::1%lo0]:http")
+             * @caution don't use domain in here, accept ip address only
+             */
+            endpoint(const std::string &mixed);
 
         public:
             /**

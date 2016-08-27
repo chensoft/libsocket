@@ -139,13 +139,6 @@ namespace chen
             bool empty() const noexcept;
             operator bool() const noexcept;
 
-        public:
-            /**
-             * Resolve host address
-             */
-            static std::vector<address> resolve(const std::string &host) noexcept;
-            static std::vector<address> resolve(const std::string &host, int family) noexcept;
-
         private:
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;

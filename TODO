@@ -55,3 +55,5 @@
 -) cancel any async operations
 
 -) does closeonexec useful
+
+-) add net_resolver, provide async method

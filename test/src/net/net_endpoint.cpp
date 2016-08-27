@@ -12,31 +12,40 @@ TEST(NetEndpointTest, General)
     using chen::net::address;
     using chen::net::endpoint;
 
+    // construct
     EXPECT_TRUE(endpoint(nullptr).empty());
     EXPECT_FALSE(endpoint(nullptr));
 
-    const endpoint ep1("127.0.0.1", 80);
-    const endpoint ep2(address("127.0.0.1"), 80);
+    EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1", 80).str());
+    EXPECT_EQ("0.0.0.0:80", endpoint(":80").str());
+    EXPECT_EQ("127.0.0.1:0", endpoint("127.0.0.1").str());
+    EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1:80").str());
+    EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1:http").str());
+    EXPECT_EQ("[::]:80", endpoint("[::]:80").str());
+    EXPECT_EQ("[fe80::1]:0", endpoint("[fe80::1]").str());
+    EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1]:80").str());
+    EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1]:http").str());
+    EXPECT_EQ("[fe80::1]:0", endpoint("[fe80::1%lo0]").str());
+    EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1%lo0]:80").str());
+    EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1%lo0]:http").str());
 
-    EXPECT_EQ(80, ep1.port());
+    // modify port and address
+    endpoint ep("127.0.0.1", 80);
 
-    EXPECT_EQ("127.0.0.1", ep1.addr().str());
-    EXPECT_EQ("127.0.0.1", ep2.addr().str());
+    EXPECT_EQ(80, ep.port());
+    EXPECT_EQ("127.0.0.1", ep.addr().str());
 
-    endpoint ep3("127.0.0.1", 80);
+    ep.port(443);
+    ep.addr(address("192.168.1.1"));
 
-    EXPECT_EQ(80, ep3.port());
-    EXPECT_EQ(address("127.0.0.1"), ep3.addr());
+    EXPECT_EQ(443, ep.port());
+    EXPECT_EQ("192.168.1.1", ep.addr().str());
 
-    ep3.port(443);
-    ep3.addr(address("192.168.1.1"));
-
-    EXPECT_EQ(443, ep3.port());
-    EXPECT_EQ(address("192.168.1.1").str(), ep3.addr().str());
-
+    // address with port
     EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1", 80).str());
     EXPECT_EQ("[::1]:80", endpoint("::1", 80).str());
 
+    // special ports
     EXPECT_TRUE(endpoint("127.0.0.1", 0).isWellKnownPort());
     EXPECT_FALSE(endpoint("127.0.0.1", 0).isRegisteredPort());
     EXPECT_FALSE(endpoint("127.0.0.1", 0).isDynamicPort());
@@ -52,6 +61,7 @@ TEST(NetEndpointTest, General)
     EXPECT_TRUE(endpoint("127.0.0.1", 50000).isDynamicPort());
     EXPECT_TRUE(endpoint("127.0.0.1", 65535).isDynamicPort());
 
+    // comparision
     EXPECT_EQ(endpoint("127.0.0.1", 80), endpoint("127.0.0.1", 80));
     EXPECT_NE(endpoint("192.168.0.1", 80), endpoint("127.0.0.1", 80));
 

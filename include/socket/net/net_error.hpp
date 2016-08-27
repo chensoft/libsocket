@@ -46,5 +46,14 @@ namespace chen
         public:
             explicit error_socket(const std::string &what) : error(what) {}
         };
+
+
+        // ---------------------------------------------------------------------
+        // Resolver related error
+        class error_resolver : public error
+        {
+        public:
+            explicit error_resolver(const std::string &what) : error(what) {}
+        };
     }
 }

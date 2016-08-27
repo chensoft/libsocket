@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/net_endpoint.hpp>
+#include <socket/net/net_resolver.hpp>
 #include <chen/base/num.hpp>
 #include <cstring>
 
@@ -15,6 +15,14 @@ chen::net::endpoint::endpoint(std::nullptr_t) : _addr(nullptr)
 }
 
 chen::net::endpoint::endpoint(const address &addr, std::uint16_t port) : _addr(addr), _port(port)
+{
+}
+
+chen::net::endpoint::endpoint(std::pair<std::string, std::uint16_t> pair) : _addr(pair.first), _port(pair.second)
+{
+}
+
+chen::net::endpoint::endpoint(const std::string &mixed) : endpoint(resolver::split(mixed))
 {
 }
 
