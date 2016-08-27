@@ -17,8 +17,7 @@ option(LIBCHEN_TEST_CODE_COVERAGE "Enable libchen code coverage." OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND LIBCHEN_TEST_CODE_COVERAGE)
     message("-- Enable code coverage")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")      # debug, no optimisation
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")  # enabling coverage
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")  # debug, no optimisation, enabling coverage
 endif()
 
 # libraries
