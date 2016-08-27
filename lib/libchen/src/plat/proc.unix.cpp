@@ -11,8 +11,8 @@
 #include <chen/base/str.hpp>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <string.h>
 #include <signal.h>
+#include <cstring>
 #include <cstdlib>
 
 // -----------------------------------------------------------------------------

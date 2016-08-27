@@ -35,3 +35,16 @@ std::string chen::sys::uuid()
 
     return unique;
 }
+
+// helper
+std::string chen::sys::peek(char *result, char *buffer)
+{
+    // GNU-specific strerror_r, result type is char*, will not write to buffer
+    return result;
+}
+
+std::string chen::sys::peek(int result, char *buffer)
+{
+    // XSI-compliant strerror_r, result type is int, write error string to buffer
+    return !result ? buffer : "Unknown error";
+}

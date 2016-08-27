@@ -24,5 +24,12 @@ namespace chen
          * UUID string
          */
         static std::string uuid();
+
+    private:
+        /**
+         * Helper for strerror_r
+         */
+        static std::string peek(char *result, char *buffer);
+        static std::string peek(int result, char *buffer);
     };
 }
