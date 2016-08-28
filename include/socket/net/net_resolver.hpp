@@ -16,20 +16,30 @@ namespace chen
         {
         public:
             /**
+             * Resolve host and service, return endpoints
+             * todo add family param or automatically peek tcp, udp
+             */
+            static std::vector<endpoint> resolve(const std::string &mixed);
+            static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port);
+            static std::vector<endpoint> resolve(const std::string &host, const std::string &service);
+
+        public:
+            /**
              * Resolve address
-             * todo use endpoint? store both address and port?
+             * todo determine more hints param
              */
             static std::vector<net::address> address(const std::string &host);
             static std::vector<net::address> address(const std::string &host, int family);
 
             /**
              * Resolve service
+             * todo determine more hints param
              */
-            static std::uint16_t service(const std::string &name);
+            static std::uint16_t service(const std::string &name, const std::string &protocol = "");
 
         public:
             /**
-             * Split host and port, will not resolve domain's ip address
+             * Split host and port into a pair
              * For Domain:
              * :-) split("chensoft.com")
              * :-) split("chensoft.com:80")
