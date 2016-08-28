@@ -62,6 +62,12 @@ std::uint16_t chen::net::resolver::service(const std::string &name, const std::s
     }
 }
 
+std::string chen::net::resolver::service(std::uint16_t port, const std::string &protocol)
+{
+    auto ent = ::getservbyport(port, !protocol.empty() ? protocol.c_str() : nullptr);
+    return ent ? ent->s_name : "";
+}
+
 std::pair<std::string, std::uint16_t> chen::net::resolver::split(const std::string &mixed)
 {
     if (mixed.empty())

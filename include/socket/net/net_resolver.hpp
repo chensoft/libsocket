@@ -36,6 +36,7 @@ namespace chen
              * todo determine more hints param
              */
             static std::uint16_t service(const std::string &name, const std::string &protocol = "");
+            static std::string service(std::uint16_t port, const std::string &protocol = "");
 
         public:
             /**
