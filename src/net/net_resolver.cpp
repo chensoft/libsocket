@@ -64,22 +64,47 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return ret;
 }
 
-// address
-std::vector<chen::net::address> chen::net::resolver::address(const std::string &host)
+// async
+std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &mixed)
 {
-    return resolver::address(host, net::address::Type::None);  // IPv4 or IPv6
+    return std::async([=] () {
+        return resolver::resolve(mixed);
+    });
 }
 
-std::vector<chen::net::address> chen::net::resolver::address(const std::string &host, net::address::Type type)
+std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &mixed, address::Type type)
 {
-    std::vector<chen::net::address> ret;
+    return std::async([=] () {
+        return resolver::resolve(mixed);
+    });
+}
 
-    auto eps = resolver::resolve(host, 0, type);
+std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, const std::string &service)
+{
+    return std::async([=] () {
+        return resolver::resolve(host, service);
+    });
+}
 
-    for (auto &ep : eps)
-        ret.emplace_back(ep.addr());
+std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, const std::string &service, address::Type type)
+{
+    return std::async([=] () {
+        return resolver::resolve(host, service, type);
+    });
+}
 
-    return ret;
+std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, std::uint16_t port)
+{
+    return std::async([=] () {
+        return resolver::resolve(host, port);
+    });
+}
+
+std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, std::uint16_t port, address::Type type)
+{
+    return std::async([=] () {
+        return resolver::resolve(host, port, type);
+    });
 }
 
 // service

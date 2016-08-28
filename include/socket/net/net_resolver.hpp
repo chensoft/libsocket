@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/net/net_endpoint.hpp>
+#include <future>
 
 namespace chen
 {
@@ -44,12 +45,21 @@ namespace chen
             static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port);
             static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port, address::Type type);
 
-        public:
             /**
-             * Resolve address
+             * Resolve address asynchronously
+             * Usage:
+             * >> auto future = resolver::async("chensoft.com:80");
+             * >> // do something...
+             * >> auto ret = future.get();
              */
-            static std::vector<net::address> address(const std::string &host);
-            static std::vector<net::address> address(const std::string &host, net::address::Type type);
+            static std::future<std::vector<endpoint>> async(const std::string &mixed);
+            static std::future<std::vector<endpoint>> async(const std::string &mixed, address::Type type);
+
+            static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service);
+            static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service, address::Type type);
+
+            static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port);
+            static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port, address::Type type);
 
             /**
              * Resolve service
