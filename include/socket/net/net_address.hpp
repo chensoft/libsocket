@@ -16,7 +16,11 @@ namespace chen
         class address
         {
         public:
-            enum class Type {None, IPv4, IPv6};
+            enum class Type {
+                None = AF_UNSPEC,
+                IPv4 = AF_INET,
+                IPv6 = AF_INET6
+            };
 
         public:
             /**
