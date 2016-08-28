@@ -38,6 +38,9 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port, address::Type type)
 {
+    if (host.empty())
+        return {endpoint(net::address(version4(0u)), port)};
+
     struct addrinfo *info = nullptr;
     struct addrinfo hint{};
 
@@ -108,7 +111,7 @@ std::uint16_t chen::net::resolver::service(const std::string &name, const std::s
 
 std::string chen::net::resolver::service(std::uint16_t port, const std::string &protocol)
 {
-    auto ent = ::getservbyport(port, !protocol.empty() ? protocol.c_str() : nullptr);
+    auto ent = ::getservbyport(num::swap(port), !protocol.empty() ? protocol.c_str() : nullptr);
     return ent ? ent->s_name : "";
 }
 
