@@ -89,35 +89,40 @@ void chen::net::socket::reset(address addr, int type, int protocol)
 }
 
 // connection
-bool chen::net::socket::connect(const endpoint &ep) noexcept
+std::error_code chen::net::socket::connect(const endpoint &ep) noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return !::connect(this->_fd, (struct sockaddr *)&in, len);
+    ::connect(this->_fd, (struct sockaddr *)&in, len);
+
+    return this->error();
 }
 
-bool chen::net::socket::bind(const endpoint &ep) noexcept
+std::error_code chen::net::socket::bind(const endpoint &ep) noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return !::bind(this->_fd, (struct sockaddr *)&in, len);
+    ::bind(this->_fd, (struct sockaddr *)&in, len);
+
+    return this->error();
 }
 
-bool chen::net::socket::listen() noexcept
+std::error_code chen::net::socket::listen() noexcept
 {
     return this->listen(SOMAXCONN);
 }
 
-bool chen::net::socket::listen(int backlog) noexcept
+std::error_code chen::net::socket::listen(int backlog) noexcept
 {
-    return !::listen(this->_fd, backlog);
+    ::listen(this->_fd, backlog);
+    return this->error();
 }
 
-chen::net::socket chen::net::socket::accept()
+chen::net::socket chen::net::socket::accept() noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
@@ -132,11 +137,6 @@ ssize_t chen::net::socket::send(const void *data, std::size_t size, int flags) n
     return ::send(this->_fd, data, size, flags);
 }
 
-ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, int flags) noexcept
-{
-    return this->send(data.data(), data.size(), flags);
-}
-
 ssize_t chen::net::socket::send(const void *data, std::size_t size, const endpoint &ep, int flags) noexcept
 {
     struct sockaddr_storage in{};
@@ -146,21 +146,9 @@ ssize_t chen::net::socket::send(const void *data, std::size_t size, const endpoi
     return ::sendto(this->_fd, data, size, flags, (struct sockaddr*)&in, len);
 }
 
-ssize_t chen::net::socket::send(const std::vector<std::uint8_t> &data, const endpoint &ep, int flags) noexcept
-{
-    return this->send(data.data(), data.size(), ep, flags);
-}
-
 ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, int flags) noexcept
 {
     return ::recv(this->_fd, out.data(), size, flags);
-}
-
-std::vector<std::uint8_t> chen::net::socket::recv(std::size_t size, int flags) noexcept
-{
-    std::vector<std::uint8_t> ret;
-    this->recv(ret, size, flags);
-    return ret;
 }
 
 ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, endpoint &ep, int flags) noexcept
@@ -175,13 +163,6 @@ ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size
     return ret;
 }
 
-std::vector<std::uint8_t> chen::net::socket::recv(std::size_t size, endpoint &ep, int flags) noexcept
-{
-    std::vector<std::uint8_t> ret;
-    this->recv(ret, size, ep, flags);
-    return ret;
-}
-
 // error
 std::error_code chen::net::socket::error() const noexcept
 {
@@ -189,40 +170,43 @@ std::error_code chen::net::socket::error() const noexcept
 }
 
 // close
-bool chen::net::socket::close() noexcept
+std::error_code chen::net::socket::close() noexcept
 {
     // treat closed as true
     if (!this->_fd)
-        return true;
+        return {};
 
     // close the socket
     if (::close(this->_fd))
-        return false;
+        return this->error();
 
     this->_fd = 0;
-    return true;
+    return {};
 }
 
-bool chen::net::socket::shutdown(Shutdown flag) noexcept
+std::error_code chen::net::socket::shutdown(Shutdown flag) noexcept
 {
     // treat closed as true
     if (!this->_fd)
-        return true;
+        return {};
 
     // shutdown the socket
     switch (flag)
     {
         case Shutdown::Read:
-            return !::shutdown(this->_fd, SHUT_RD);
+            ::shutdown(this->_fd, SHUT_RD);
+            break;
 
         case Shutdown::Write:
-            return !::shutdown(this->_fd, SHUT_WR);
+            ::shutdown(this->_fd, SHUT_WR);
+            break;
 
         case Shutdown::Both:
-            return !::shutdown(this->_fd, SHUT_RDWR);
+            ::shutdown(this->_fd, SHUT_RDWR);
+            break;
     }
 
-    return true;
+    return this->error();
 }
 
 // info

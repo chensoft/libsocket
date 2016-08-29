@@ -48,60 +48,56 @@ namespace chen
             /**
              * Connect to remote host
              */
-            bool connect(const endpoint &ep) noexcept;
+            std::error_code connect(const endpoint &ep) noexcept;
 
             /**
              * Bind on specific endpoint
              */
-            bool bind(const endpoint &ep) noexcept;
+            std::error_code bind(const endpoint &ep) noexcept;
 
             /**
              * Listen for request
              * @param backlog maximum queue length for pending connections
              */
-            bool listen() noexcept;
-            bool listen(int backlog) noexcept;
+            std::error_code listen() noexcept;
+            std::error_code listen(int backlog) noexcept;
 
             /**
              * Accept new request and create a new socket
              */
-            socket accept();
+            socket accept() noexcept;
 
         public:
             /**
              * Send data to connected host, usually used in tcp
              */
             ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0) noexcept;
 
             /**
              * Send data to specific host, usually used in udp
              */
             ssize_t send(const void *data, std::size_t size, const endpoint &ep, int flags = 0) noexcept;
-            ssize_t send(const std::vector<std::uint8_t> &data, const endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Receive data from connected host, usually used in tcp
              */
             ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags = 0) noexcept;
-            std::vector<std::uint8_t> recv(std::size_t size, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in udp
              */
             ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, endpoint &ep, int flags = 0) noexcept;
-            std::vector<std::uint8_t> recv(std::size_t size, endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**
              * Close the socket, the socket will disconnect immediately
              */
-            bool close() noexcept;
+            std::error_code close() noexcept;
 
             /**
              * Stop send or receive, but socket is still connected
              */
-            bool shutdown(Shutdown flag) noexcept;
+            std::error_code shutdown(Shutdown flag) noexcept;
 
         public:
             /**
