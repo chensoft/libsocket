@@ -74,10 +74,6 @@ namespace chen
             address(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
             address(const char *addr);
-            address(const char *addr, std::uint8_t cidr);
-            address(const char *addr, std::uint8_t cidr, std::uint32_t scope);
-            address(const char *addr, const std::string &mask);
-            address(const char *addr, const std::string &mask, std::uint32_t scope);
 
         public:
             /**

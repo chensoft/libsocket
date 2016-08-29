@@ -26,6 +26,10 @@ chen::net::endpoint::endpoint(const std::string &mixed) : endpoint(resolver::spl
 {
 }
 
+chen::net::endpoint::endpoint(const char *mixed) : endpoint(std::string(mixed))
+{
+}
+
 // property
 std::string chen::net::endpoint::str(bool cidr, bool scope) const
 {

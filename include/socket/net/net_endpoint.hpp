@@ -49,6 +49,7 @@ namespace chen
              * @caution don't use domain in here, accept ip address only
              */
             endpoint(const std::string &mixed);
+            endpoint(const char *mixed);
 
         public:
             /**
