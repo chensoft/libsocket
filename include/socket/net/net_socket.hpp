@@ -95,7 +95,6 @@ namespace chen
         public:
             /**
              * Close the socket, the socket will disconnect immediately
-             * todo block in TIME_WAIT?
              */
             bool close() noexcept;
 
@@ -106,7 +105,7 @@ namespace chen
 
         public:
             /**
-             * Last error info, compare it with std::errc enum class
+             * Last errno code, compare it with std::errc enum class
              * e.g: socket.error() == std::errc::operation_would_block
              */
             std::error_code error() const noexcept;

@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/net/net_option.hpp>
+#include <socket/net/net_socket.hpp>
 #include <socket/net/net_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/sys/sys.hpp>
@@ -185,7 +185,7 @@ std::vector<std::uint8_t> chen::net::socket::recv(std::size_t size, endpoint &ep
 // error
 std::error_code chen::net::socket::error() const noexcept
 {
-    return option::error(*this).code;
+    return std::error_code(errno, std::system_category());
 }
 
 // close
