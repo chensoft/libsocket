@@ -163,20 +163,15 @@ chen::net::endpoint chen::net::endpoint::toEndpoint(const struct sockaddr_storag
 
 void chen::net::endpoint::toAddress(const endpoint &ep, struct sockaddr_storage &out, socklen_t &len)
 {
-    return endpoint::toAddress(ep.addr(), ep.port(), out, len);
-}
-
-void chen::net::endpoint::toAddress(const address &addr, std::uint16_t port, struct sockaddr_storage &out, socklen_t &len)
-{
-    switch (addr.type())
+    switch (ep.addr().type())
     {
         case chen::net::address::Type::IPv4:
         {
-            auto &v4 = addr.v4();
+            auto &v4 = ep.addr().v4();
             auto  in = (struct sockaddr_in*)&out;
 
             in->sin_family      = AF_INET;
-            in->sin_port        = chen::num::swap(port);
+            in->sin_port        = chen::num::swap(ep.port());
             in->sin_addr.s_addr = chen::num::swap(v4.addr());
 
             len = sizeof(struct sockaddr_in);
@@ -186,11 +181,11 @@ void chen::net::endpoint::toAddress(const address &addr, std::uint16_t port, str
 
         case chen::net::address::Type::IPv6:
         {
-            auto &v6 = addr.v6();
+            auto &v6 = ep.addr().v6();
             auto  in = (struct sockaddr_in6*)&out;
 
             in->sin6_family   = AF_INET6;
-            in->sin6_port     = chen::num::swap(port);
+            in->sin6_port     = chen::num::swap(ep.port());
             in->sin6_scope_id = v6.scope();
 
             ::memcpy(in->sin6_addr.s6_addr, v6.addr().data(), 16);

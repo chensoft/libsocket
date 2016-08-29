@@ -49,13 +49,11 @@ namespace chen
              * Connect to remote host
              */
             bool connect(const endpoint &ep) noexcept;
-            bool connect(const address &addr, std::uint16_t port) noexcept;
 
             /**
              * Bind on specific endpoint
              */
             bool bind(const endpoint &ep) noexcept;
-            bool bind(const address &addr, std::uint16_t port) noexcept;
 
             /**
              * Listen for request
@@ -72,28 +70,27 @@ namespace chen
         public:
             /**
              * Send data to connected host, usually used in tcp
-             * todo make flags to enum class
              */
-            ssize_t send(const void *data, std::size_t size, int flags) noexcept;
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags) noexcept;
+            ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0) noexcept;
 
             /**
              * Send data to specific host, usually used in udp
              */
-            ssize_t send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept;
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags, const endpoint &ep) noexcept;
+            ssize_t send(const void *data, std::size_t size, const endpoint &ep, int flags = 0) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, const endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Receive data from connected host, usually used in tcp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags) noexcept;
-            std::vector<std::uint8_t> recv(std::size_t size, int flags) noexcept;
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags = 0) noexcept;
+            std::vector<std::uint8_t> recv(std::size_t size, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in udp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags, endpoint &ep) noexcept;
-            std::vector<std::uint8_t> recv(std::size_t size, int flags, endpoint &ep) noexcept;
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, endpoint &ep, int flags = 0) noexcept;
+            std::vector<std::uint8_t> recv(std::size_t size, endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**
@@ -111,7 +108,6 @@ namespace chen
             /**
              * Last error info, compare it with std::errc enum class
              * e.g: socket.error() == std::errc::operation_would_block
-             * todo how to access EAI_xxx error, h_errno
              */
             std::error_code error() const noexcept;
 
