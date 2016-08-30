@@ -6,22 +6,30 @@
  */
 #ifndef _WIN32
 
+#include <socket/net/net_config.hpp>
 #include <csignal>
 
 // -----------------------------------------------------------------------------
-// setup
+// helper
 namespace
 {
-    class setup
+    class helper
     {
     public:
-        setup()
+        helper()
         {
             ::signal(SIGPIPE, SIG_IGN);
         }
     };
+}
 
-    setup init;  // global initialization
+
+// -----------------------------------------------------------------------------
+// setup
+chen::net::setup::setup()
+{
+    // global initialization
+    static helper inst;
 }
 
 #endif

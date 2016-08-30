@@ -46,3 +46,18 @@ namespace chen
 
 // For std::error_code, std::errc
 #include <system_error>
+
+// For global initialization
+namespace chen
+{
+    namespace net
+    {
+        class setup
+        {
+        public:
+            setup();
+        };
+
+        static const setup setup_dummy;  // force linking the net_config
+    }
+}
