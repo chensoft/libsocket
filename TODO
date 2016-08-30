@@ -53,3 +53,7 @@
 -) cancel any async operations
 
 -) does closeonexec useful
+
+-) support both level & edge trigger
+
+-) add more tcp options, tcp_nopush, keepalive timeout, put in tcp folder
