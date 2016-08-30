@@ -245,6 +245,22 @@ namespace chen
             public:
                 int val = 0;
             };
+
+
+            // -----------------------------------------------------------------
+            // TCP_NODELAY(turn off the TCP Nagle algorithm)
+            class nodelay : public basic
+            {
+            public:
+                explicit nodelay(const socket &sock);
+                explicit nodelay(bool val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                bool enable = false;
+            };
         }
     }
 }

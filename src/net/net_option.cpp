@@ -256,3 +256,21 @@ bool chen::net::option::ttl::apply(socket &sock)
 {
     return !::setsockopt(sock.native(), IPPROTO_IP, IP_TTL, &this->val, sizeof(this->val));
 }
+
+
+// -----------------------------------------------------------------------------
+// nodelay
+chen::net::option::nodelay::nodelay(const socket &sock)
+{
+    this->enable = basic::optionInt(sock.native(), IPPROTO_TCP, TCP_NODELAY) != 0;
+}
+
+chen::net::option::nodelay::nodelay(bool val) : enable(val)
+{
+}
+
+bool chen::net::option::nodelay::apply(socket &sock)
+{
+    int val = this->enable;
+    return !::setsockopt(sock.native(), IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val));
+}
