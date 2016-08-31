@@ -34,7 +34,7 @@ chen::ini::value_type chen::ini::parse(const std::string &text, bool file)
         }
         catch (const std::exception&)
         {
-            throw ini::error(str::format("ini: decode %s: %s", text.c_str(), sys::error().c_str()));
+            throw ini::error(str::format("ini: decode %s: %s", text.c_str(), sys::error().message().c_str()));
         }
     }
     else

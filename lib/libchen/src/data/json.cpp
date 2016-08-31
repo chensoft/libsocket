@@ -322,7 +322,7 @@ chen::json chen::json::parse(const std::string &text, bool file)
         {
             // can't catch std::ios_base::failure in here
             // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66145
-            throw json::error(str::format("json: decode %s: %s", text.c_str(), sys::error().c_str()));
+            throw json::error(str::format("json: decode %s: %s", text.c_str(), sys::error().message().c_str()));
         }
     }
     else
@@ -382,7 +382,7 @@ void chen::json::validate(const std::string &text, bool file)
         }
         catch (const std::exception&)
         {
-            throw json::error(str::format("json: decode %s: %s", text.c_str(), sys::error().c_str()));
+            throw json::error(str::format("json: decode %s: %s", text.c_str(), sys::error().message().c_str()));
         }
     }
     else

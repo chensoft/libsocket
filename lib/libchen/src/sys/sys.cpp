@@ -5,12 +5,16 @@
  * @link   http://chensoft.com
  */
 #include <chen/sys/sys.hpp>
-#include <chen/time/date.hpp>
 #include <sstream>
 #include <random>
 
 // -----------------------------------------------------------------------------
 // sys
+std::error_code chen::sys::error()
+{
+    return std::error_code(errno, std::system_category());
+}
+
 std::string chen::sys::uuid()
 {
     std::string unique("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx");
@@ -34,17 +38,4 @@ std::string chen::sys::uuid()
     }
 
     return unique;
-}
-
-// helper
-std::string chen::sys::peek(char *result, char *buffer)
-{
-    // GNU-specific strerror_r, result type is char*, will not write to buffer
-    return result;
-}
-
-std::string chen::sys::peek(int result, char *buffer)
-{
-    // XSI-compliant strerror_r, result type is int, write error string to buffer
-    return !result ? buffer : "Unknown error";
 }
