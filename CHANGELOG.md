@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file(see http://k
 
 ### Changed
 - fs: accept two types of lambda callbacks.
+- sys: error method return std::error_code.
 
 ### Fixed
 - sys: use XSI-compliant strerror_r only if some macro defined.

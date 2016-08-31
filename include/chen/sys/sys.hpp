@@ -6,8 +6,7 @@
  */
 #pragma once
 
-#include <string>
-#include <vector>
+#include <system_error>
 
 namespace chen
 {
@@ -15,21 +14,14 @@ namespace chen
     {
     public:
         /**
-         * Errno to string
+         * Errno to error_code
          * @thread-safe
          */
-        static std::string error();
+        static std::error_code error();
 
         /**
          * UUID string
          */
         static std::string uuid();
-
-    private:
-        /**
-         * Helper for strerror_r
-         */
-        static std::string peek(char *result, char *buffer);
-        static std::string peek(int result, char *buffer);
     };
 }
