@@ -51,6 +51,11 @@ chen::net::notifier::~notifier()
 // add/del
 std::error_code chen::net::notifier::add(socket_t fd, Type type, callback_type callback) noexcept
 {
+    return this->add(fd, type, false, callback);
+}
+
+std::error_code chen::net::notifier::add(socket_t fd, Type type, bool once, callback_type callback) noexcept
+{
     struct kevent event{};
     int filter = 0;
 
@@ -58,12 +63,12 @@ std::error_code chen::net::notifier::add(socket_t fd, Type type, callback_type c
     {
         case Type::Read:
             filter = EVFILT_READ;
-            EV_SET(&event, fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
+            EV_SET(&event, fd, EVFILT_READ, EV_ADD | (once ? EV_ONESHOT : 0), 0, 0, nullptr);
             break;
 
         case Type::Write:
             filter = EVFILT_WRITE;
-            EV_SET(&event, fd, EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
+            EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | (once ? EV_ONESHOT : 0), 0, 0, nullptr);
             break;
     }
 
@@ -121,11 +126,24 @@ std::error_code chen::net::notifier::wait() noexcept
         if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
             return sys::error();
 
-        auto &item = this->_map[event.ident];
-        auto  find = item.find(event.flags);
+        auto  sock = static_cast<socket_t>(event.ident);
+        auto &item = this->_map[sock];
+        auto  find = item.find(event.filter);
 
         if (find != item.end())
-            find->second(static_cast<socket_t>(event.ident));
+        {
+            // be careful with callback
+            if (event.flags & EV_ONESHOT)
+            {
+                auto cb = find->second;
+                item.erase(static_cast<Type>(event.filter));
+                cb(sock);
+            }
+            else
+            {
+                find->second(sock);
+            }
+        }
     }
 
     return {};

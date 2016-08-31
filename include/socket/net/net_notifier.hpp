@@ -38,6 +38,7 @@ namespace chen
              * @caution make sure the socket is valid until deleted
              */
             std::error_code add(socket_t fd, Type type, callback_type callback) noexcept;
+            std::error_code add(socket_t fd, Type type, bool once, callback_type callback) noexcept;
 
             /**
              * Delete all events or specific event
