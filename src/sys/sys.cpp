@@ -10,6 +10,11 @@
 
 // -----------------------------------------------------------------------------
 // sys
+std::error_code chen::sys::error()
+{
+    return std::error_code(errno, std::system_category());
+}
+
 std::string chen::sys::uuid()
 {
     std::string unique("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx");
