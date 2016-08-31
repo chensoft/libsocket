@@ -63,12 +63,8 @@ std::error_code chen::net::notifier::add(socket *ptr, Type type) noexcept
             break;
     }
 
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        return this->error();
-
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
     // todo record ptr
-
-    return std::error_code();
 }
 
 std::error_code chen::net::notifier::del(socket *ptr, Type type) noexcept
@@ -86,12 +82,8 @@ std::error_code chen::net::notifier::del(socket *ptr, Type type) noexcept
             break;
     }
 
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        return this->error();
-
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
     // todo record ptr
-
-    return std::error_code();
 }
 
 // wait
@@ -109,17 +101,11 @@ std::error_code chen::net::notifier::wait() noexcept
         }
         else
         {
-            return this->error();
+            return sys::error();
         }
     }
 
     return std::error_code();
-}
-
-// error
-std::error_code chen::net::notifier::error() const noexcept
-{
-    return sys::error();
 }
 
 #endif

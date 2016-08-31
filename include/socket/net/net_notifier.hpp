@@ -46,13 +46,6 @@ namespace chen
              */
             std::error_code wait() noexcept;
 
-        public:
-            /**
-             * Last error info, compare it with std::errc enum class
-             * e.g: socket.error() == std::errc::permission_denied
-             */
-            std::error_code error() const noexcept;
-
         private:
             notifier(const notifier&) = delete;
             notifier& operator=(const notifier&) = delete;

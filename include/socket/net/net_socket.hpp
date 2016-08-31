@@ -15,6 +15,7 @@ namespace chen
         /**
          * This class is a wrapper for BSD socket, you should not use this class directly
          * use specific classes like tcp::server, tcp::client, udp::server and udp::client instead
+         * @caution std::error_code can compare with std::errc enum, e.g: socket.error() == std::errc::permission_denied
          */
         class socket
         {
@@ -100,12 +101,6 @@ namespace chen
             std::error_code shutdown(Shutdown flag) noexcept;
 
         public:
-            /**
-             * Last error info, compare it with std::errc enum class
-             * e.g: socket.error() == std::errc::permission_denied
-             */
-            std::error_code error() const noexcept;
-
             /**
              * Local and remote endpoint
              */

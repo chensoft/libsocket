@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/tcp/tcp_server.hpp>
+#include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // server
@@ -14,13 +15,13 @@ bool chen::tcp::server::start(const net::endpoint &ep)
 
     if (!this->_socket.bind(ep))
     {
-        this->notify(this, this->error());
+        this->notify(this, sys::error());
         return false;
     }
 
     if (!this->_socket.listen())
     {
-        this->notify(this, this->error());
+        this->notify(this, sys::error());
         return false;
     }
 
@@ -34,7 +35,7 @@ bool chen::tcp::server::start(const net::endpoint &ep)
         if (sock)
             this->notify(std::move(sock));
         else
-            this->notify(this, this->error());
+            this->notify(this, sys::error());
 
         // check exit flag
         // todo use poll instead of flag

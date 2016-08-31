@@ -95,9 +95,7 @@ std::error_code chen::net::socket::connect(const endpoint &ep) noexcept
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    ::connect(this->_fd, (struct sockaddr *)&in, len);
-
-    return this->error();
+    return ::connect(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
 }
 
 std::error_code chen::net::socket::bind(const endpoint &ep) noexcept
@@ -106,9 +104,7 @@ std::error_code chen::net::socket::bind(const endpoint &ep) noexcept
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    ::bind(this->_fd, (struct sockaddr *)&in, len);
-
-    return this->error();
+    return ::bind(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
 }
 
 std::error_code chen::net::socket::listen() noexcept
@@ -118,8 +114,7 @@ std::error_code chen::net::socket::listen() noexcept
 
 std::error_code chen::net::socket::listen(int backlog) noexcept
 {
-    ::listen(this->_fd, backlog);
-    return this->error();
+    return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
 }
 
 chen::net::socket chen::net::socket::accept() noexcept
@@ -172,7 +167,7 @@ std::error_code chen::net::socket::close() noexcept
 
     // close the socket
     if (::close(this->_fd))
-        return this->error();
+        return sys::error();
 
     this->_fd = 0;
     return {};
@@ -185,28 +180,24 @@ std::error_code chen::net::socket::shutdown(Shutdown flag) noexcept
         return {};
 
     // shutdown the socket
+    int ret = 0;
+
     switch (flag)
     {
         case Shutdown::Read:
-            ::shutdown(this->_fd, SHUT_RD);
+            ret = ::shutdown(this->_fd, SHUT_RD);
             break;
 
         case Shutdown::Write:
-            ::shutdown(this->_fd, SHUT_WR);
+            ret = ::shutdown(this->_fd, SHUT_WR);
             break;
 
         case Shutdown::Both:
-            ::shutdown(this->_fd, SHUT_RDWR);
+            ret = ::shutdown(this->_fd, SHUT_RDWR);
             break;
     }
 
-    return this->error();
-}
-
-// error
-std::error_code chen::net::socket::error() const noexcept
-{
-    return sys::error();
+    return ret < 0 ? sys::error() : std::error_code();
 }
 
 // info

@@ -16,12 +16,6 @@ namespace chen
         {
         public:
             /**
-             * Last error info, compare it with std::errc enum class
-             * e.g: socket.error() == std::errc::permission_denied
-             */
-            std::error_code error() const;
-
-            /**
              * Local and remote endpoint
              */
             net::endpoint local() const;
