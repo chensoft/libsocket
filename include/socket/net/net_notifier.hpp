@@ -37,8 +37,9 @@ namespace chen
             std::error_code add(socket *ptr, Type type) noexcept;
 
             /**
-             * Delete specific events
+             * Delete all events or specific event
              */
+            std::error_code del(socket *ptr) noexcept;
             std::error_code del(socket *ptr, Type type) noexcept;
 
             /**
