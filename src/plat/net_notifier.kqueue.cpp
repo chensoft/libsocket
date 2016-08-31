@@ -10,6 +10,7 @@
 #include <socket/net/net_error.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/event.h>
+#include <string>
 
 // -----------------------------------------------------------------------------
 // notifier - kqueue
@@ -48,74 +49,86 @@ chen::net::notifier::~notifier()
 }
 
 // add/del
-std::error_code chen::net::notifier::add(socket *ptr, Type type) noexcept
+std::error_code chen::net::notifier::add(socket_t fd, Type type, callback_type callback) noexcept
 {
     struct kevent event{};
+    int filter = 0;
 
     switch (type)
     {
         case Type::Read:
-            EV_SET(&event, ptr->native(), EVFILT_READ, EV_ADD, 0, 0, nullptr);
+            filter = EVFILT_READ;
+            EV_SET(&event, fd, EVFILT_READ, EV_ADD, 0, 0, nullptr);
             break;
 
         case Type::Write:
-            EV_SET(&event, ptr->native(), EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
+            filter = EVFILT_WRITE;
+            EV_SET(&event, fd, EVFILT_WRITE, EV_ADD, 0, 0, nullptr);
             break;
     }
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
         return sys::error();
 
-    this->_map[ptr->native()] = ptr;
+    this->_map[fd][filter] = callback;
+
     return {};
 }
 
-std::error_code chen::net::notifier::del(socket *ptr) noexcept
+std::error_code chen::net::notifier::del(socket_t fd) noexcept
 {
-    this->del(ptr, Type::Read);
-    this->del(ptr, Type::Write);
-    this->_map.erase(ptr->native());
+    this->del(fd, Type::Read);
+    this->del(fd, Type::Write);
+    this->_map.erase(fd);
     return {};
 }
 
-std::error_code chen::net::notifier::del(socket *ptr, Type type) noexcept
+std::error_code chen::net::notifier::del(socket_t fd, Type type) noexcept
 {
     struct kevent event{};
+    int filter = 0;
 
     switch (type)
     {
         case Type::Read:
-            EV_SET(&event, ptr->native(), EVFILT_READ, EV_DELETE, 0, 0, nullptr);
+            filter = EVFILT_READ;
+            EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
             break;
 
         case Type::Write:
-            EV_SET(&event, ptr->native(), EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+            filter = EVFILT_WRITE;
+            EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
             break;
     }
 
-    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
+    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
+        return sys::error();
+
+    auto &item = this->_map[fd];
+    item.erase(filter);
+
+    return {};
 }
 
 // wait
 std::error_code chen::net::notifier::wait() noexcept
 {
     // todo add exit method
-    // todo add dispatch
     struct kevent event{};
 
     while (true)
     {
-        if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) == 1)
-        {
-
-        }
-        else
-        {
+        if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
             return sys::error();
-        }
+
+        auto &item = this->_map[event.ident];
+        auto  find = item.find(event.flags);
+
+        if (find != item.end())
+            find->second(static_cast<socket_t>(event.ident));
     }
 
-    return std::error_code();
+    return {};
 }
 
 #endif
