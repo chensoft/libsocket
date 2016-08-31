@@ -24,6 +24,7 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/net/net_endpoint.hpp>
 #include <socket/net/net_error.hpp>
 #include <socket/net/net_interface.hpp>
+#include <socket/net/net_notifier.hpp>
 #include <socket/net/net_option.hpp>
 #include <socket/net/net_resolver.hpp>
 #include <socket/net/net_socket.hpp>

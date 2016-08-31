@@ -101,8 +101,8 @@ namespace chen
 
         public:
             /**
-             * Last errno code, compare it with std::errc enum class
-             * e.g: socket.error() == std::errc::operation_would_block
+             * Last error info, compare it with std::errc enum class
+             * e.g: socket.error() == std::errc::permission_denied
              */
             std::error_code error() const noexcept;
 
@@ -113,22 +113,21 @@ namespace chen
             endpoint remote() const noexcept;
 
             /**
-             * Native socket handle
-             */
-            socket_t native() const noexcept;
-
-            /**
              * Non-blocking status
              */
             bool nonblocking() const noexcept;
             bool nonblocking(bool enable) noexcept;
 
-        public:
             /**
              * Check socket is empty
              */
             bool empty() const noexcept;
             operator bool() const noexcept;
+
+            /**
+             * Native socket handle
+             */
+            socket_t native() const noexcept;
 
         private:
             socket(const socket&) = delete;

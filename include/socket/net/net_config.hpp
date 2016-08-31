@@ -21,8 +21,9 @@ namespace chen
 {
     namespace net
     {
-        typedef int socket_t;
-        typedef socklen_t option_t;
+        typedef int notifier_t;      // epoll, kqueue handle
+        typedef int socket_t;        // socket handle type
+        typedef socklen_t option_t;  // socket option size
     }
 }
 
@@ -37,8 +38,8 @@ namespace chen
 {
     namespace net
     {
-        typedef SOCKET socket_t;
-        typedef int option_t;
+        typedef SOCKET socket_t;  // socket handle type
+        typedef int option_t;     // socket option size
     }
 }
 

@@ -56,7 +56,7 @@ chen::net::socket::~socket()
 void chen::net::socket::reset(socket_t fd)
 {
     if (this->_fd && !this->close())
-        throw error_socket("socket: " + sys::error());
+        throw error_socket("socket: " + sys::error().message());
 
     this->_fd = fd;
 }
@@ -64,11 +64,11 @@ void chen::net::socket::reset(socket_t fd)
 void chen::net::socket::reset(int family, int type, int protocol)
 {
     if (this->_fd && !this->close())
-        throw error_socket("socket: " + sys::error());
+        throw error_socket("socket: " + sys::error().message());
 
     auto fd = ::socket(family, type, protocol);
     if (fd < 0)
-        throw error_socket("socket: " + sys::error());
+        throw error_socket("socket: " + sys::error().message());
 
     this->_fd = fd;
 }
@@ -163,12 +163,6 @@ ssize_t chen::net::socket::recv(std::vector<std::uint8_t> &out, std::size_t size
     return ret;
 }
 
-// error
-std::error_code chen::net::socket::error() const noexcept
-{
-    return std::error_code(errno, std::system_category());
-}
-
 // close
 std::error_code chen::net::socket::close() noexcept
 {
@@ -209,6 +203,12 @@ std::error_code chen::net::socket::shutdown(Shutdown flag) noexcept
     return this->error();
 }
 
+// error
+std::error_code chen::net::socket::error() const noexcept
+{
+    return sys::error();
+}
+
 // info
 chen::net::endpoint chen::net::socket::local() const noexcept
 {
@@ -236,12 +236,6 @@ chen::net::endpoint chen::net::socket::remote() const noexcept
         return nullptr;
     else
         return endpoint::toEndpoint(&in);
-}
-
-// native
-chen::net::socket_t chen::net::socket::native() const noexcept
-{
-    return this->_fd;
 }
 
 // non-blocking
@@ -272,6 +266,12 @@ bool chen::net::socket::empty() const noexcept
 chen::net::socket::operator bool() const noexcept
 {
     return !this->empty();
+}
+
+// native
+chen::net::socket_t chen::net::socket::native() const noexcept
+{
+    return this->_fd;
 }
 
 #endif
