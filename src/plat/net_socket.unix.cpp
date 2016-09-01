@@ -41,8 +41,8 @@ chen::net::socket& chen::net::socket::operator=(socket &&o)
     if (this == &o)
         return *this;
 
-    this->_fd = o._fd;
-    o._fd     = 0;
+    this->reset(o._fd);
+    o._fd = 0;
 
     return *this;
 }
