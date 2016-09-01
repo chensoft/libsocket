@@ -10,16 +10,47 @@
 #include <socket/net/net_error.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/event.h>
-#include <string>
+
+// -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    std::int16_t filterToInt(chen::net::notifier::Filter filter)
+    {
+        switch (filter)
+        {
+            case chen::net::notifier::Filter::Read:
+                return EVFILT_READ;
+
+            case chen::net::notifier::Filter::Write:
+                return EVFILT_WRITE;
+        }
+
+        return 0;
+    }
+
+    chen::net::notifier::Event filterToEvent(std::int16_t filter, std::uint16_t flags)
+    {
+        if (flags & EV_EOF)
+            return chen::net::notifier::Event::End;
+
+        switch (filter)
+        {
+            case EVFILT_READ:
+                return chen::net::notifier::Event::Read;
+
+            case EVFILT_WRITE:
+                return chen::net::notifier::Event::Write;
+
+            default:
+                return static_cast<chen::net::notifier::Event>(0);
+        }
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // notifier - kqueue
-chen::net::notifier& chen::net::notifier::standard()
-{
-    static notifier inst;
-    return inst;
-}
-
 chen::net::notifier::notifier()
 {
     this->_fd = ::kqueue();
@@ -49,74 +80,38 @@ chen::net::notifier::~notifier()
 }
 
 // add/del
-std::error_code chen::net::notifier::add(socket_t fd, Type type, callback_type callback) noexcept
+std::error_code chen::net::notifier::add(socket_t fd, Filter filter, std::uint16_t flag)
 {
-    return this->add(fd, type, false, callback);
+    struct kevent event = {};
+    std::uint16_t codes = EV_ADD;
+
+    if (flag & FlagOnce)
+        codes |= EV_ONESHOT;
+
+    if (flag & FlagEdge)
+        codes |= EV_CLEAR;
+
+    EV_SET(&event, fd, ::filterToInt(filter), codes, 0, 0, nullptr);
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
-std::error_code chen::net::notifier::add(socket_t fd, Type type, bool once, callback_type callback) noexcept
+std::error_code chen::net::notifier::del(socket_t fd)
 {
-    struct kevent event{};
-    int filter = 0;
-
-    switch (type)
-    {
-        case Type::Read:
-            filter = EVFILT_READ;
-            EV_SET(&event, fd, EVFILT_READ, EV_ADD | (once ? EV_ONESHOT : 0), 0, 0, nullptr);
-            break;
-
-        case Type::Write:
-            filter = EVFILT_WRITE;
-            EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | (once ? EV_ONESHOT : 0), 0, 0, nullptr);
-            break;
-    }
-
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
+    if (!this->del(fd, Filter::Read))
         return sys::error();
 
-    this->_map[fd][filter] = callback;
-
-    return {};
+    return this->del(fd, Filter::Write);
 }
 
-std::error_code chen::net::notifier::del(socket_t fd) noexcept
-{
-    this->del(fd, Type::Read);
-    this->del(fd, Type::Write);
-    this->_map.erase(fd);
-    return {};
-}
-
-std::error_code chen::net::notifier::del(socket_t fd, Type type) noexcept
+std::error_code chen::net::notifier::del(socket_t fd, Filter filter)
 {
     struct kevent event{};
-    int filter = 0;
-
-    switch (type)
-    {
-        case Type::Read:
-            filter = EVFILT_READ;
-            EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
-            break;
-
-        case Type::Write:
-            filter = EVFILT_WRITE;
-            EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
-            break;
-    }
-
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        return sys::error();
-
-    auto &item = this->_map[fd];
-    item.erase(filter);
-
-    return {};
+    EV_SET(&event, fd, ::filterToInt(filter), EV_DELETE, 0, 0, nullptr);
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
 // wait
-std::error_code chen::net::notifier::wait() noexcept
+std::error_code chen::net::notifier::wait()
 {
     // todo add exit method
     struct kevent event{};
@@ -126,27 +121,26 @@ std::error_code chen::net::notifier::wait() noexcept
         if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
             return sys::error();
 
-        auto  sock = static_cast<socket_t>(event.ident);
-        auto &item = this->_map[sock];
-        auto  find = item.find(event.filter);
-
-        if (find != item.end())
-        {
-            // be careful with callback
-            if (event.flags & EV_ONESHOT)
-            {
-                auto cb = find->second;
-                item.erase(static_cast<Type>(event.filter));
-                cb(sock);
-            }
-            else
-            {
-                find->second(sock);
-            }
-        }
+        this->notify(static_cast<socket_t>(event.ident), ::filterToEvent(event.filter, event.flags));
     }
+}
 
-    return {};
+// callback
+void chen::net::notifier::attach(socket_t fd, callback_type callback)
+{
+    this->_map[fd] = callback;
+}
+
+void chen::net::notifier::detach(socket_t fd)
+{
+    this->_map.erase(fd);
+}
+
+void chen::net::notifier::notify(socket_t fd, Event event)
+{
+    auto it = this->_map.find(fd);
+    if (it != this->_map.end())
+        it->second(fd, event);
 }
 
 #endif
