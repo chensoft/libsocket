@@ -6,13 +6,13 @@
  */
 #pragma once
 
-#include <socket/base/base_common.hpp>
+#include <socket/udp/udp_basic.hpp>
 
 namespace chen
 {
     namespace udp
     {
-        class server : public common
+        class server : public basic
         {
             /**
              * Start the server

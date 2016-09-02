@@ -6,22 +6,20 @@
  */
 #pragma once
 
-#include <socket/base/base_common.hpp>
+#include <socket/udp/udp_basic.hpp>
 
 namespace chen
 {
     namespace udp
     {
-        class conn : public common
+        class conn : public basic
         {
         public:
             /**
              * Send data back to the host
-             * todo make flags to enum class
-             * todo add deadline
              */
-            ssize_t send(const void *data, std::size_t size, int flags);
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags);
+            using basic::send;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0);
 
         public:
             /**

@@ -34,8 +34,6 @@ namespace chen
         public:
             /**
              * Send data to connected host
-             * todo make flags to enum class
-             * todo add deadline
              */
             using basic::send;
             ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0);

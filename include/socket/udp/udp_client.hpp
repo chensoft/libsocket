@@ -6,26 +6,26 @@
  */
 #pragma once
 
-#include <socket/base/base_common.hpp>
+#include <socket/udp/udp_basic.hpp>
 
 namespace chen
 {
     namespace udp
     {
-        class client : public common
+        class client : public basic
         {
         public:
             /**
              * Send data to specific host
              */
-            ssize_t send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept;
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags, const endpoint &ep) noexcept;
+            using basic::send;
+            ssize_t send(const std::vector<std::uint8_t> &data, const endpoint &ep, int flags = 0);
 
             /**
              * Receive data from specific host
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags, endpoint &ep) noexcept;
-            std::vector<std::uint8_t> recv(std::size_t size, int flags, endpoint &ep) noexcept;
+            using basic::recv;
+            std::vector<std::uint8_t> recv(std::size_t size, endpoint &ep, int flags = 0);
 
         public:
             /**
