@@ -39,6 +39,7 @@ namespace chen
         /**
          * Reset socket
          */
+        void reset(socket &&o);
         void reset(socket_t fd);
         void reset(int family, int type, int protocol = 0);
         void reset(ip::address addr, int type, int protocol = 0);

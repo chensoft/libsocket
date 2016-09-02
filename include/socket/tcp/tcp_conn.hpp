@@ -6,37 +6,35 @@
  */
 #pragma once
 
-#include <socket/base/base_common.hpp>
+#include <socket/tcp/tcp_basic.hpp>
 
 namespace chen
 {
     namespace tcp
     {
-        class conn : public common
+        class conn : public basic
         {
         public:
-            explicit conn(socket socket);
+            explicit conn(socket sock);
 
         public:
             /**
              * Send data to connected host
-             * todo make flags to enum class
-             * todo add deadline
              */
-            ssize_t send(const void *data, std::size_t size, int flags);
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags);
+            using basic::send;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0);
 
             /**
              * Receive data from connected host
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags);
-            std::vector<std::uint8_t> recv(std::size_t size, int flags);
+            using basic::recv;
+            std::vector<std::uint8_t> recv(std::size_t size, int flags = 0);
 
         public:
             /**
              * Close the connection
              */
-            bool close();
+            std::error_code disconnect();
         };
     }
 }

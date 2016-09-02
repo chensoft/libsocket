@@ -55,7 +55,7 @@ chen::notifier::notifier()
 {
     this->_fd = ::kqueue();
     if (this->_fd < 0)
-        throw error_notifier("notifier: " + sys::error().message());
+        throw notifier_error("notifier: " + sys::error().message());
 }
 
 chen::notifier::notifier(notifier &&o)

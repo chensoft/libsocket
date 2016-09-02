@@ -33,17 +33,12 @@ chen::socket::socket(ip::address addr, int type, int protocol)
 
 chen::socket::socket(socket &&o)
 {
-    *this = std::move(o);
+    this->reset(std::move(o));
 }
 
 chen::socket& chen::socket::operator=(socket &&o)
 {
-    if (this == &o)
-        return *this;
-
-    this->reset(o._fd);
-    o._fd = 0;
-
+    this->reset(std::move(o));
     return *this;
 }
 
@@ -53,10 +48,19 @@ chen::socket::~socket()
 }
 
 // reset
+void chen::socket::reset(socket &&o)
+{
+    if (this == &o)
+        return;
+
+    this->reset(o._fd);
+    o._fd = 0;
+}
+
 void chen::socket::reset(socket_t fd)
 {
     if (this->_fd && !this->close())
-        throw error_socket("socket: " + sys::error().message());
+        throw socket_error("socket: " + sys::error().message());
 
     this->_fd = fd;
 }
@@ -64,11 +68,11 @@ void chen::socket::reset(socket_t fd)
 void chen::socket::reset(int family, int type, int protocol)
 {
     if (this->_fd && !this->close())
-        throw error_socket("socket: " + sys::error().message());
+        throw socket_error("socket: " + sys::error().message());
 
     auto fd = ::socket(family, type, protocol);
     if (fd < 0)
-        throw error_socket("socket: " + sys::error().message());
+        throw socket_error("socket: " + sys::error().message());
 
     this->_fd = fd;
 }

@@ -22,18 +22,18 @@ namespace chen
 
     // ---------------------------------------------------------------------
     // Socket related error
-    class error_socket : public error
+    class socket_error : public error
     {
     public:
-        explicit error_socket(const std::string &what) : error(what) {}
+        explicit socket_error(const std::string &what) : error(what) {}
     };
 
 
     // ---------------------------------------------------------------------
     // Notifier related error
-    class error_notifier : public error
+    class notifier_error : public error
     {
     public:
-        explicit error_notifier(const std::string &what) : error(what) {}
+        explicit notifier_error(const std::string &what) : error(what) {}
     };
 }

@@ -8,7 +8,27 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(socket socket)
+chen::tcp::conn::conn(socket sock)
 {
-    this->_socket = std::move(socket);
+    this->reset(std::move(sock));
+}
+
+ssize_t chen::tcp::conn::send(const std::vector<std::uint8_t> &data, int flags)
+{
+    return this->send(data.data(), data.size(), flags);
+}
+
+std::vector<std::uint8_t> chen::tcp::conn::recv(std::size_t size, int flags)
+{
+    std::vector<std::uint8_t> ret(size);
+
+    auto count = this->recv(ret, size, flags);
+    ret.resize(static_cast<std::size_t>(count >= 0 ? count : 0));
+
+    return ret;
+}
+
+std::error_code chen::tcp::conn::disconnect()
+{
+    return this->close();
 }
