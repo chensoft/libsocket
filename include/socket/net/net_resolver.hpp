@@ -37,13 +37,13 @@ namespace chen
              * :-) resolve("[fe80::1%lo0]:http")
              */
             static std::vector<endpoint> resolve(const std::string &mixed);
-            static std::vector<endpoint> resolve(const std::string &mixed, address::Type type);
+            static std::vector<endpoint> resolve(const std::string &mixed, ip::address::Type type);
 
             static std::vector<endpoint> resolve(const std::string &host, const std::string &service);
-            static std::vector<endpoint> resolve(const std::string &host, const std::string &service, address::Type type);
+            static std::vector<endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type);
 
             static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port);
-            static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port, address::Type type);
+            static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
              * Resolve address asynchronously
@@ -53,13 +53,13 @@ namespace chen
              * >> auto ret = future.get();
              */
             static std::future<std::vector<endpoint>> async(const std::string &mixed);
-            static std::future<std::vector<endpoint>> async(const std::string &mixed, address::Type type);
+            static std::future<std::vector<endpoint>> async(const std::string &mixed, ip::address::Type type);
 
             static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service);
-            static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service, address::Type type);
+            static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service, ip::address::Type type);
 
             static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port);
-            static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port, address::Type type);
+            static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
              * Resolve service

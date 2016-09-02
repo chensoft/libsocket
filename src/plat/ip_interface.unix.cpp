@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/net/net_interface.hpp>
+#include <socket/ip/ip_interface.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <functional>
@@ -53,9 +53,9 @@ namespace
         ::freeifaddrs(list);
     }
 
-    std::unique_ptr<chen::net::address> create(struct sockaddr *ptr)
+    std::unique_ptr<chen::ip::address> create(struct sockaddr *ptr)
     {
-        using chen::net::address;
+        using chen::ip::address;
 
         if (!ptr)
             return nullptr;
@@ -114,8 +114,8 @@ namespace
 
     std::uint8_t netmask(struct sockaddr *ptr)
     {
-        using chen::net::version4;
-        using chen::net::version6;
+        using chen::ip::version4;
+        using chen::ip::version6;
 
         if (!ptr)
             return 0;
@@ -139,38 +139,38 @@ namespace
 // interface
 
 // flags
-bool chen::net::interface::isUp() const
+bool chen::ip::interface::isUp() const
 {
     return (this->flag & IFF_UP) != 0;
 }
 
-bool chen::net::interface::isBroadcast() const
+bool chen::ip::interface::isBroadcast() const
 {
     return (this->flag & IFF_BROADCAST) != 0;
 }
 
-bool chen::net::interface::isLoopback() const
+bool chen::ip::interface::isLoopback() const
 {
     return (this->flag & IFF_LOOPBACK) != 0;
 }
 
-bool chen::net::interface::isRunning() const
+bool chen::ip::interface::isRunning() const
 {
     return (this->flag & IFF_RUNNING) != 0;
 }
 
-bool chen::net::interface::isPromiscuous() const
+bool chen::ip::interface::isPromiscuous() const
 {
     return (this->flag & IFF_PROMISC) != 0;
 }
 
-bool chen::net::interface::isMulticast() const
+bool chen::ip::interface::isMulticast() const
 {
     return (this->flag & IFF_MULTICAST) != 0;
 }
 
 // enumerate
-std::map<std::string, chen::net::interface> chen::net::interface::enumerate()
+std::map<std::string, chen::ip::interface> chen::ip::interface::enumerate()
 {
     std::map<std::string, interface> map;
 
@@ -204,7 +204,7 @@ std::map<std::string, chen::net::interface> chen::net::interface::enumerate()
 }
 
 // scope
-std::uint32_t chen::net::interface::scope(const std::uint8_t addr[16], const std::string &name)
+std::uint32_t chen::ip::interface::scope(const std::uint8_t addr[16], const std::string &name)
 {
     // if name is integer
     bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
@@ -234,7 +234,7 @@ std::uint32_t chen::net::interface::scope(const std::uint8_t addr[16], const std
     return id;
 }
 
-std::string chen::net::interface::scope(std::uint32_t id)
+std::string chen::ip::interface::scope(std::uint32_t id)
 {
     std::string name;
 

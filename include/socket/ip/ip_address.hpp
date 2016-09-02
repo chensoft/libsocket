@@ -6,17 +6,18 @@
  */
 #pragma once
 
-#include <socket/net/net_version.hpp>
+#include <socket/ip/ip_version.hpp>
 #include <socket/config.hpp>
 
 namespace chen
 {
-    namespace net
+    namespace ip
     {
         class address
         {
         public:
-            enum class Type {
+            enum class Type
+            {
                 None = AF_UNSPEC,
                 IPv4 = AF_INET,
                 IPv6 = AF_INET6

@@ -9,7 +9,7 @@
 
 TEST(NetEndpointTest, General)
 {
-    using chen::net::address;
+    using chen::ip::address;
     using chen::net::endpoint;
 
     // construct

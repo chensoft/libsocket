@@ -7,7 +7,7 @@
 #include <socket/dns/dns_record.hpp>
 #include <socket/dns/dns_table.hpp>
 #include <socket/dns/dns_codec.hpp>
-#include <socket/net/net_address.hpp>
+#include <socket/ip/ip_address.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/map.hpp>
 #include <limits>
@@ -206,7 +206,7 @@ chen::dns::A::A() : RR(RRType::A)
 std::string chen::dns::A::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + net::version4::toString(this->address);
+    ret += sep + ip::version4::toString(this->address);
     return ret;
 }
 
@@ -231,7 +231,7 @@ void chen::dns::A::unpack(const json::object &object)
     auto address = map::find(object, "address");
 
     if (address.isString())
-        this->address = net::version4::toInteger(address);
+        this->address = ip::version4::toInteger(address);
     else
         this->address = address.toUnsigned();
 }
@@ -1279,7 +1279,7 @@ chen::dns::AAAA::AAAA() : RR(RRType::AAAA)
 std::string chen::dns::AAAA::str(const std::string &sep) const
 {
     auto ret = RR::str(sep);
-    ret += sep + net::version6::toString(this->address.data());
+    ret += sep + ip::version6::toString(this->address.data());
     return ret;
 }
 
@@ -1301,7 +1301,7 @@ void chen::dns::AAAA::unpack(dns::decoder &decoder)
 void chen::dns::AAAA::unpack(const json::object &object)
 {
     auto address = map::find(object, "address");
-    this->address = net::version6::toBytes(address);
+    this->address = ip::version6::toBytes(address);
 }
 
 

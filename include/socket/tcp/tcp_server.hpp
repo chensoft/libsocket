@@ -25,7 +25,7 @@ namespace chen
              * Start the server
              */
             bool start(const net::endpoint &ep);
-            bool start(const net::address &addr, std::uint16_t port);
+            bool start(const ip::address &addr, std::uint16_t port);
 
             /**
              * Stop the server

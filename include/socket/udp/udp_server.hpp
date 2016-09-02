@@ -18,7 +18,7 @@ namespace chen
              * Start the server
              */
             void start(const net::endpoint &ep);
-            void start(const net::address &addr, std::uint16_t port);
+            void start(const ip::address &addr, std::uint16_t port);
 
             /**
              * Stop the server

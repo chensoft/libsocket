@@ -32,10 +32,11 @@ bool chen::tcp::server::start(const net::endpoint &ep)
         // accept new request
         auto sock = this->_socket.accept();
 
-        if (sock)
-            this->notify(std::move(sock));
-        else
-            this->notify(this, sys::error());
+        // todo
+//        if (sock)
+//            this->notify(std::move(sock));
+//        else
+//            this->notify(this, sys::error());
 
         // check exit flag
         // todo use poll instead of flag
@@ -46,7 +47,7 @@ bool chen::tcp::server::start(const net::endpoint &ep)
     return true;
 }
 
-bool chen::tcp::server::start(const net::address &addr, std::uint16_t port)
+bool chen::tcp::server::start(const ip::address &addr, std::uint16_t port)
 {
     return this->start(net::endpoint(addr, port));
 }

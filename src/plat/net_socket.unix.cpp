@@ -26,7 +26,7 @@ chen::net::socket::socket(int family, int type, int protocol)
     this->reset(family, type, protocol);
 }
 
-chen::net::socket::socket(address addr, int type, int protocol)
+chen::net::socket::socket(ip::address addr, int type, int protocol)
 {
     this->reset(addr, type, protocol);
 }
@@ -73,14 +73,14 @@ void chen::net::socket::reset(int family, int type, int protocol)
     this->_fd = fd;
 }
 
-void chen::net::socket::reset(address addr, int type, int protocol)
+void chen::net::socket::reset(ip::address addr, int type, int protocol)
 {
     switch (addr.type())
     {
-        case address::Type::IPv4:
+        case ip::address::Type::IPv4:
             return this->reset(AF_INET, type, protocol);
 
-        case address::Type::IPv6:
+        case ip::address::Type::IPv6:
             return this->reset(AF_INET6, type, protocol);
 
         default:

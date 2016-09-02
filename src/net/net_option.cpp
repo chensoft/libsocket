@@ -242,23 +242,6 @@ chen::net::option::type::type(const socket &sock)
 
 
 // -----------------------------------------------------------------------------
-// ttl
-chen::net::option::ttl::ttl(const socket &sock)
-{
-    this->val = basic::optionInt(sock.native(), IPPROTO_IP, IP_TTL);
-}
-
-chen::net::option::ttl::ttl(int val) : val(val)
-{
-}
-
-bool chen::net::option::ttl::apply(socket &sock)
-{
-    return !::setsockopt(sock.native(), IPPROTO_IP, IP_TTL, &this->val, sizeof(this->val));
-}
-
-
-// -----------------------------------------------------------------------------
 // nodelay
 chen::net::option::nodelay::nodelay(const socket &sock)
 {

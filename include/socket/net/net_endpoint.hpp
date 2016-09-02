@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_address.hpp>
+#include <socket/ip/ip_address.hpp>
 
 namespace chen
 {
@@ -23,7 +23,7 @@ namespace chen
             /**
              * Construct by ip address and port
              */
-            endpoint(const address &addr, std::uint16_t port);
+            endpoint(const ip::address &addr, std::uint16_t port);
 
             /**
              * Construct by ip <-> port pair
@@ -66,8 +66,8 @@ namespace chen
              */
             bool empty() const;
 
-            const address& addr() const;
-            void addr(const address &value);
+            const ip::address& addr() const;
+            void addr(const ip::address &value);
 
             std::uint16_t port() const;
             void port(std::uint16_t value);
@@ -107,7 +107,7 @@ namespace chen
             static void toAddress(const endpoint &ep, struct sockaddr_storage &out, socklen_t &len);
 
         private:
-            address _addr;
+            ip::address _addr;
             std::uint16_t _port = 0;
         };
     }

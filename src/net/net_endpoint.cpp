@@ -14,7 +14,7 @@ chen::net::endpoint::endpoint(std::nullptr_t) : _addr(nullptr)
 {
 }
 
-chen::net::endpoint::endpoint(const address &addr, std::uint16_t port) : _addr(addr), _port(port)
+chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
@@ -35,10 +35,10 @@ std::string chen::net::endpoint::str(bool cidr, bool scope) const
 {
     switch (this->_addr.type())
     {
-        case address::Type::IPv4:
+        case ip::address::Type::IPv4:
             return this->_addr.v4().str(cidr) + ":" + num::str(this->_port);
 
-        case address::Type::IPv6:
+        case ip::address::Type::IPv6:
             return "[" + this->_addr.v6().str(cidr, scope) + "]:" + num::str(this->_port);
 
         default:
@@ -51,12 +51,12 @@ bool chen::net::endpoint::empty() const
     return this->_addr.empty();
 }
 
-const chen::net::address& chen::net::endpoint::addr() const
+const chen::ip::address& chen::net::endpoint::addr() const
 {
     return this->_addr;
 }
 
-void chen::net::endpoint::addr(const address &value)
+void chen::net::endpoint::addr(const ip::address &value)
 {
     this->_addr = value;
 }
@@ -134,14 +134,14 @@ chen::net::endpoint chen::net::endpoint::toEndpoint(const struct sockaddr *addr)
         case AF_INET:
         {
             auto in = (struct sockaddr_in*)addr;
-            return endpoint(address(num::swap(in->sin_addr.s_addr)),
+            return endpoint(ip::address(num::swap(in->sin_addr.s_addr)),
                             num::swap(in->sin_port));
         }
 
         case AF_INET6:
         {
             auto in = (struct sockaddr_in6*)addr;
-            return endpoint(address(version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id)),
+            return endpoint(ip::address(ip::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id)),
                             num::swap(in->sin6_port));
         }
 
@@ -169,7 +169,7 @@ void chen::net::endpoint::toAddress(const endpoint &ep, struct sockaddr_storage 
 {
     switch (ep.addr().type())
     {
-        case chen::net::address::Type::IPv4:
+        case chen::ip::address::Type::IPv4:
         {
             auto &v4 = ep.addr().v4();
             auto  in = (struct sockaddr_in*)&out;
@@ -183,7 +183,7 @@ void chen::net::endpoint::toAddress(const endpoint &ep, struct sockaddr_storage 
             break;
         }
 
-        case chen::net::address::Type::IPv6:
+        case chen::ip::address::Type::IPv6:
         {
             auto &v6 = ep.addr().v6();
             auto  in = (struct sockaddr_in6*)&out;

@@ -4,13 +4,13 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/net_interface.hpp>
-#include <socket/net/net_error.hpp>
+#include <socket/ip/ip_interface.hpp>
+#include <socket/ip/ip_error.hpp>
 #include <gtest/gtest.h>
 
-TEST(NetAddressTest, Base)
+TEST(IPAddressTest, Base)
 {
-    using chen::net::address;
+    using chen::ip::address;
 
     EXPECT_TRUE(address(nullptr).empty());
     EXPECT_FALSE(address(nullptr));
@@ -19,11 +19,11 @@ TEST(NetAddressTest, Base)
     EXPECT_EQ(address::Type::IPv6, address::detect("2404:6800:4004:817::200e"));
 }
 
-TEST(NetAddressTest, IPv4)
+TEST(IPAddressTest, IPv4)
 {
-    using chen::net::address;
-    using chen::net::version4;
-    using chen::net::error_address;
+    using chen::ip::address;
+    using chen::ip::version4;
+    using chen::ip::syntax_error;
 
     // assign
     EXPECT_EQ(address(address::Type::IPv4), address("0.0.0.0"));
@@ -40,8 +40,8 @@ TEST(NetAddressTest, IPv4)
     EXPECT_EQ(address(version4(0x7F000001, 8)), address("127.0.0.1/8"));
     EXPECT_EQ(address(version4(0x7F000001, "255.0.0.0")), address("127.0.0.1/8"));
 
-    EXPECT_THROW(address("127.0.0.1", 33), error_address);
-    EXPECT_THROW(address(version4(0x7F000001, 33)), error_address);
+    EXPECT_THROW(address("127.0.0.1", 33), syntax_error);
+    EXPECT_THROW(address(version4(0x7F000001, 33)), syntax_error);
 
     address v4("127");
     EXPECT_EQ("127.0.0.0", v4.str());
@@ -188,17 +188,17 @@ TEST(NetAddressTest, IPv4)
     // invalid test
     std::uint8_t cidr = 0;
 
-    EXPECT_THROW(version4::toInteger("127..1"), error_address);
-    EXPECT_THROW(version4::toInteger("999.0.0.0"), error_address);
-    EXPECT_THROW(version4::toInteger("127.0.0.1/99", &cidr), error_address);
+    EXPECT_THROW(version4::toInteger("127..1"), syntax_error);
+    EXPECT_THROW(version4::toInteger("999.0.0.0"), syntax_error);
+    EXPECT_THROW(version4::toInteger("127.0.0.1/99", &cidr), syntax_error);
 }
 
-TEST(NetAddressTest, IPv6)
+TEST(IPAddressTest, IPv6)
 {
-    using chen::net::address;
-    using chen::net::version6;
-    using chen::net::interface;
-    using chen::net::error_address;
+    using chen::ip::address;
+    using chen::ip::version6;
+    using chen::ip::interface;
+    using chen::ip::syntax_error;
 
     // assign
     EXPECT_EQ(address(address::Type::IPv6), address("::"));
@@ -230,8 +230,8 @@ TEST(NetAddressTest, IPv6)
     EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(bytes, 64)));
     EXPECT_EQ(address("2404:6800:4004:817::200e/64"), address(version6(bytes, "ffff:ffff:ffff:ffff::")));
 
-    EXPECT_THROW(address("2404:6800:4004:817::200e/129"), error_address);
-    EXPECT_THROW(address(version6(bytes, 129)), error_address);
+    EXPECT_THROW(address("2404:6800:4004:817::200e/129"), syntax_error);
+    EXPECT_THROW(address(version6(bytes, 129)), syntax_error);
 
     address v6("::1");
     EXPECT_EQ("::1", v6.str());
@@ -363,10 +363,10 @@ TEST(NetAddressTest, IPv6)
     // invalid test
     std::uint8_t cidr = 0;
 
-    EXPECT_THROW(address("2404:6800:4004:817::200e", 200), error_address);
-    EXPECT_THROW(address(version6(bytes, 200)), error_address);
-    EXPECT_THROW(version6::toBytes("::1::1"), error_address);
-    EXPECT_THROW(version6::toBytes("::192.fe:1:1"), error_address);
-    EXPECT_THROW(version6::toBytes("::1^$"), error_address);
-    EXPECT_THROW(version6::toBytes("::1/200", &cidr), error_address);
+    EXPECT_THROW(address("2404:6800:4004:817::200e", 200), syntax_error);
+    EXPECT_THROW(address(version6(bytes, 200)), syntax_error);
+    EXPECT_THROW(version6::toBytes("::1::1"), syntax_error);
+    EXPECT_THROW(version6::toBytes("::192.fe:1:1"), syntax_error);
+    EXPECT_THROW(version6::toBytes("::1^$"), syntax_error);
+    EXPECT_THROW(version6::toBytes("::1/200", &cidr), syntax_error);
 }

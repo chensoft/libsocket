@@ -6,12 +6,12 @@
  */
 #pragma once
 
-#include <socket/net/net_address.hpp>
+#include <socket/ip/ip_address.hpp>
 #include <map>
 
 namespace chen
 {
-    namespace net
+    namespace ip
     {
         class interface
         {

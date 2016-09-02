@@ -19,7 +19,7 @@ namespace chen
              * Connect to remote host
              */
             bool connect(const net::endpoint &ep);
-            bool connect(const net::address &addr, std::uint16_t port);
+            bool connect(const ip::address &addr, std::uint16_t port);
 
             /**
              * Reconnect to last host

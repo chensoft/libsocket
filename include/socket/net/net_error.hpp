@@ -32,15 +32,6 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // IP address error
-        class error_address : public error
-        {
-        public:
-            explicit error_address(const std::string &what) : error(what) {}
-        };
-
-
-        // ---------------------------------------------------------------------
         // Socket related error
         class error_socket : public error
         {
