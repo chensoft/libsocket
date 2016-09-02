@@ -22,6 +22,7 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/config.hpp>
 #include <socket/status.hpp>
 
+#include <socket/base/base_common.hpp>
 #include <socket/base/base_endpoint.hpp>
 #include <socket/base/base_error.hpp>
 #include <socket/base/base_notifier.hpp>
@@ -36,12 +37,10 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/ip/ip_option.hpp>
 #include <socket/ip/ip_version.hpp>
 
-#include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_client.hpp>
 #include <socket/tcp/tcp_conn.hpp>
 #include <socket/tcp/tcp_server.hpp>
 
-#include <socket/udp/udp_basic.hpp>
 #include <socket/udp/udp_client.hpp>
 #include <socket/udp/udp_conn.hpp>
 #include <socket/udp/udp_define.hpp>

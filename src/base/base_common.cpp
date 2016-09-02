@@ -1,44 +1,44 @@
 /**
  * Created by Jian Chen
- * @since  2016.08.21
+ * @since  2016.09.02
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/tcp/tcp_basic.hpp>
+#include <socket/base/base_common.hpp>
 
 // -----------------------------------------------------------------------------
 // basic
-chen::endpoint chen::tcp::basic::local() const
+chen::endpoint chen::common::local() const
 {
     return this->_socket.local();
 }
 
-chen::endpoint chen::tcp::basic::remote() const
+chen::endpoint chen::common::remote() const
 {
     return this->_socket.remote();
 }
 
-bool chen::tcp::basic::nonblocking() const
+bool chen::common::nonblocking() const
 {
     return this->_socket.nonblocking();
 }
 
-bool chen::tcp::basic::nonblocking(bool enable)
+bool chen::common::nonblocking(bool enable)
 {
     return this->_socket.nonblocking(enable);
 }
 
-bool chen::tcp::basic::empty() const
+bool chen::common::empty() const
 {
     return this->_socket.empty();
 }
 
-chen::tcp::basic::operator bool() const
+chen::common::operator bool() const
 {
     return this->_socket;
 }
 
-chen::socket_t chen::tcp::basic::native() const
+chen::socket_t chen::common::native() const
 {
     return this->_socket.native();
 }

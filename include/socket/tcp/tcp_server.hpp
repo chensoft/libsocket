@@ -14,7 +14,7 @@ namespace chen
     namespace tcp
     {
         // todo add notify
-        class server : public basic
+        class server : public common
         {
         public:
             typedef std::function<void (chen::tcp::conn conn)> conn_callback;

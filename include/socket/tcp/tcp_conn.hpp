@@ -6,13 +6,13 @@
  */
 #pragma once
 
-#include <socket/tcp/tcp_basic.hpp>
+#include <socket/base/base_common.hpp>
 
 namespace chen
 {
     namespace tcp
     {
-        class conn : public basic
+        class conn : public common
         {
         public:
             explicit conn(socket socket);
