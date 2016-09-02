@@ -6,8 +6,7 @@
  */
 #ifndef _WIN32
 
-// todo rename to base_setup.unix
-#include <socket/config.hpp>
+#include <socket/base/base_setup.hpp>
 #include <csignal>
 
 // -----------------------------------------------------------------------------
@@ -27,7 +26,7 @@ namespace
 
 // -----------------------------------------------------------------------------
 // setup
-chen::net::setup::setup()
+chen::setup::setup()
 {
     // global initialization
     static helper inst;

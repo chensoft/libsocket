@@ -39,22 +39,5 @@ namespace chen
 
 #endif
 
-// todo include status.hpp
-// For std::error_code, std::errc
-#include <system_error>
-
-// todo move to base_setup.hpp
-// For global initialization
-namespace chen
-{
-    namespace net
-    {
-        class setup
-        {
-        public:
-            setup();
-        };
-
-        static const setup setup_dummy;  // force linking the net_config
-    }
-}
+// For custom error code
+#include <socket/status.hpp>
