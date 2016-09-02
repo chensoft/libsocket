@@ -133,6 +133,7 @@ void chen::net::notifier::attach(socket_t fd, callback_type callback)
 
 void chen::net::notifier::detach(socket_t fd)
 {
+    this->del(fd);  // delete fd if user want to detach callback for it
     this->_map.erase(fd);
 }
 
