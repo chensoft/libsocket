@@ -239,21 +239,3 @@ chen::option::type::type(const socket &sock)
 {
     this->val = basic::optionInt(sock.native(), SOL_SOCKET, SO_TYPE);
 }
-
-
-// -----------------------------------------------------------------------------
-// nodelay
-chen::option::nodelay::nodelay(const socket &sock)
-{
-    this->enable = basic::optionInt(sock.native(), IPPROTO_TCP, TCP_NODELAY) != 0;
-}
-
-chen::option::nodelay::nodelay(bool val) : enable(val)
-{
-}
-
-bool chen::option::nodelay::apply(socket &sock)
-{
-    int val = this->enable;
-    return !::setsockopt(sock.native(), IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val));
-}
