@@ -15,30 +15,20 @@ namespace chen
         /**
          * Codec error
          */
-        class error_codec : public error
+        class codec_error : public error
         {
         public:
-            explicit error_codec(const std::string &what) : error(what) {}
+            explicit codec_error(const std::string &what) : error(what) {}
         };
 
 
         /**
          * Fqdn error
          */
-        class error_fqdn : public error
+        class fqdn_error : public error
         {
         public:
-            explicit error_fqdn(const std::string &what) : error(what) {}
-        };
-
-
-        /**
-         * Nameserver error
-         */
-        class error_nameserver : public error
-        {
-        public:
-            explicit error_nameserver(const std::string &what) : error(what) {}
+            explicit fqdn_error(const std::string &what) : error(what) {}
         };
     }
 }

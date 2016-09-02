@@ -184,7 +184,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
         if (record)
             this->_answer.emplace_back(std::move(record));
         else
-            throw error_codec("dns: decode answer error, unknown record detect");
+            throw codec_error("dns: decode answer error, unknown record detect");
     }
 
     // authority
@@ -197,7 +197,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
         if (record)
             this->_authority.emplace_back(std::move(record));
         else
-            throw error_codec("dns: decode authority error, unknown record detect");
+            throw codec_error("dns: decode authority error, unknown record detect");
     }
 
     // additional
@@ -210,7 +210,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
         if (record)
             this->_additional.emplace_back(std::move(record));
         else
-            throw error_codec("dns: decode additional error, unknown record detect");
+            throw codec_error("dns: decode additional error, unknown record detect");
     }
 }
 
@@ -243,11 +243,11 @@ void chen::dns::request::setQuery(const std::string &qname, RRType qtype)
 {
     // check empty
     if (qname.empty())
-        throw error_codec("dns: request query name is empty");
+        throw codec_error("dns: request query name is empty");
 
     // check fqdn
     if (!codec::isFqdn(qname))
-        throw error_fqdn("dns: request query name is not fqdn");
+        throw fqdn_error("dns: request query name is not fqdn");
 
     // set id
     this->_header.setId(header::random());
