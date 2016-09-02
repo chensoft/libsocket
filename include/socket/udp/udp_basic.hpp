@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_socket.hpp>
+#include <socket/base/base_socket.hpp>
 #include <socket/udp/udp_define.hpp>
 
 namespace chen
@@ -19,7 +19,7 @@ namespace chen
             /**
              * Local endpoint
              */
-            net::endpoint local() const;
+            endpoint local() const;
         };
     }
 }

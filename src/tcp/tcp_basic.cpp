@@ -8,12 +8,12 @@
 
 // -----------------------------------------------------------------------------
 // basic
-chen::net::endpoint chen::tcp::basic::local() const
+chen::endpoint chen::tcp::basic::local() const
 {
     return this->_socket.local();
 }
 
-chen::net::endpoint chen::tcp::basic::remote() const
+chen::endpoint chen::tcp::basic::remote() const
 {
     return this->_socket.remote();
 }

@@ -20,19 +20,20 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 
 // libsocket
 #include <socket/config.hpp>
+#include <socket/status.hpp>
+
+#include <socket/base/base_endpoint.hpp>
+#include <socket/base/base_error.hpp>
+#include <socket/base/base_notifier.hpp>
+#include <socket/base/base_option.hpp>
+#include <socket/base/base_resolver.hpp>
+#include <socket/base/base_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>
 #include <socket/ip/ip_error.hpp>
 #include <socket/ip/ip_interface.hpp>
 #include <socket/ip/ip_option.hpp>
 #include <socket/ip/ip_version.hpp>
-
-#include <socket/net/net_endpoint.hpp>
-#include <socket/net/net_error.hpp>
-#include <socket/net/net_notifier.hpp>
-#include <socket/net/net_option.hpp>
-#include <socket/net/net_resolver.hpp>
-#include <socket/net/net_socket.hpp>
 
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_client.hpp>

@@ -15,7 +15,7 @@ namespace chen
         class conn : public basic
         {
         public:
-            explicit conn(net::socket socket);
+            explicit conn(socket socket);
 
         public:
             /**

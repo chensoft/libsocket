@@ -32,7 +32,7 @@ namespace chen
             /**
              * Remote endpoint
              */
-            net::endpoint remote() const;
+            endpoint remote() const;
         };
     }
 }

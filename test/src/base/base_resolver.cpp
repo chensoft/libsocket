@@ -4,13 +4,13 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/net_resolver.hpp>
+#include <socket/base/base_resolver.hpp>
 #include <gtest/gtest.h>
 
-TEST(NetResolverTest, General)
+TEST(BaseResolverTest, General)
 {
-    using chen::net::resolver;
-    using chen::net::endpoint;
+    using chen::resolver;
+    using chen::endpoint;
 
     // resolve domain
     EXPECT_NO_THROW(resolver::resolve("chensoft.com"));

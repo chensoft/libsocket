@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_socket.hpp>
+#include <socket/base/base_socket.hpp>
 
 namespace chen
 {
@@ -18,8 +18,8 @@ namespace chen
             /**
              * Local and remote endpoint
              */
-            net::endpoint local() const;
-            net::endpoint remote() const;
+            endpoint local() const;
+            endpoint remote() const;
 
             /**
              * Non-blocking status
@@ -39,7 +39,7 @@ namespace chen
             socket_t native() const;
 
         protected:
-            net::socket _socket;
+            socket _socket;
         };
     }
 }

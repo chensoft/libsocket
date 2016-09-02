@@ -6,8 +6,8 @@
  */
 #if !defined(__linux__) && !defined(_WIN32)
 
-#include <socket/net/net_notifier.hpp>
-#include <socket/net/net_error.hpp>
+#include <socket/base/base_notifier.hpp>
+#include <socket/base/base_error.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/event.h>
 
@@ -15,35 +15,35 @@
 // helper
 namespace
 {
-    std::int16_t filterToInt(chen::net::notifier::Filter filter)
+    std::int16_t filterToInt(chen::notifier::Filter filter)
     {
         switch (filter)
         {
-            case chen::net::notifier::Filter::Read:
+            case chen::notifier::Filter::Read:
                 return EVFILT_READ;
 
-            case chen::net::notifier::Filter::Write:
+            case chen::notifier::Filter::Write:
                 return EVFILT_WRITE;
         }
 
         return 0;
     }
 
-    chen::net::notifier::Event filterToEvent(std::int16_t filter, std::uint16_t flags)
+    chen::notifier::Event filterToEvent(std::int16_t filter, std::uint16_t flags)
     {
         if (flags & EV_EOF)
-            return chen::net::notifier::Event::End;
+            return chen::notifier::Event::End;
 
         switch (filter)
         {
             case EVFILT_READ:
-                return chen::net::notifier::Event::Read;
+                return chen::notifier::Event::Read;
 
             case EVFILT_WRITE:
-                return chen::net::notifier::Event::Write;
+                return chen::notifier::Event::Write;
 
             default:
-                return static_cast<chen::net::notifier::Event>(0);
+                return static_cast<chen::notifier::Event>(0);
         }
     }
 }
@@ -51,19 +51,19 @@ namespace
 
 // -----------------------------------------------------------------------------
 // notifier - kqueue
-chen::net::notifier::notifier()
+chen::notifier::notifier()
 {
     this->_fd = ::kqueue();
     if (this->_fd < 0)
         throw error_notifier("notifier: " + sys::error().message());
 }
 
-chen::net::notifier::notifier(notifier &&o)
+chen::notifier::notifier(notifier &&o)
 {
     *this = std::move(o);
 }
 
-chen::net::notifier& chen::net::notifier::operator=(notifier &&o)
+chen::notifier& chen::notifier::operator=(notifier &&o)
 {
     if (this == &o)
         return *this;
@@ -74,13 +74,13 @@ chen::net::notifier& chen::net::notifier::operator=(notifier &&o)
     return *this;
 }
 
-chen::net::notifier::~notifier()
+chen::notifier::~notifier()
 {
     ::close(this->_fd);
 }
 
 // add/del
-std::error_code chen::net::notifier::add(socket_t fd, Filter filter, std::uint16_t flag)
+std::error_code chen::notifier::add(socket_t fd, Filter filter, std::uint16_t flag)
 {
     struct kevent event = {};
     std::uint16_t codes = EV_ADD;
@@ -95,7 +95,7 @@ std::error_code chen::net::notifier::add(socket_t fd, Filter filter, std::uint16
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
-std::error_code chen::net::notifier::del(socket_t fd)
+std::error_code chen::notifier::del(socket_t fd)
 {
     if (!this->del(fd, Filter::Read))
         return sys::error();
@@ -103,7 +103,7 @@ std::error_code chen::net::notifier::del(socket_t fd)
     return this->del(fd, Filter::Write);
 }
 
-std::error_code chen::net::notifier::del(socket_t fd, Filter filter)
+std::error_code chen::notifier::del(socket_t fd, Filter filter)
 {
     struct kevent event{};
     EV_SET(&event, fd, ::filterToInt(filter), EV_DELETE, 0, 0, nullptr);
@@ -111,7 +111,7 @@ std::error_code chen::net::notifier::del(socket_t fd, Filter filter)
 }
 
 // wait
-std::error_code chen::net::notifier::wait()
+std::error_code chen::notifier::wait()
 {
     // todo add exit method
     struct kevent event{};
@@ -126,18 +126,18 @@ std::error_code chen::net::notifier::wait()
 }
 
 // callback
-void chen::net::notifier::attach(socket_t fd, callback_type callback)
+void chen::notifier::attach(socket_t fd, callback_type callback)
 {
     this->_map[fd] = callback;
 }
 
-void chen::net::notifier::detach(socket_t fd)
+void chen::notifier::detach(socket_t fd)
 {
     this->del(fd);  // delete fd if user want to detach callback for it
     this->_map.erase(fd);
 }
 
-void chen::net::notifier::notify(socket_t fd, Event event)
+void chen::notifier::notify(socket_t fd, Event event)
 {
     auto it = this->_map.find(fd);
     if (it != this->_map.end())

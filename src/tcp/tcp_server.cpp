@@ -9,7 +9,7 @@
 
 // -----------------------------------------------------------------------------
 // server
-bool chen::tcp::server::start(const net::endpoint &ep)
+bool chen::tcp::server::start(const endpoint &ep)
 {
     this->_socket.reset(ep.addr(), SOCK_STREAM);
 
@@ -49,7 +49,7 @@ bool chen::tcp::server::start(const net::endpoint &ep)
 
 bool chen::tcp::server::start(const ip::address &addr, std::uint16_t port)
 {
-    return this->start(net::endpoint(addr, port));
+    return this->start(endpoint(addr, port));
 }
 
 void chen::tcp::server::stop()

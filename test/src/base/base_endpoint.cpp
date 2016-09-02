@@ -4,13 +4,13 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/net_endpoint.hpp>
+#include <socket/base/base_endpoint.hpp>
 #include <gtest/gtest.h>
 
-TEST(NetEndpointTest, General)
+TEST(BaseEndpointTest, General)
 {
     using chen::ip::address;
-    using chen::net::endpoint;
+    using chen::endpoint;
 
     // construct
     EXPECT_TRUE(endpoint(nullptr).empty());

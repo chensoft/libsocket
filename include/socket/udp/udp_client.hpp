@@ -18,14 +18,14 @@ namespace chen
             /**
              * Send data to specific host
              */
-            ssize_t send(const void *data, std::size_t size, int flags, const net::endpoint &ep) noexcept;
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags, const net::endpoint &ep) noexcept;
+            ssize_t send(const void *data, std::size_t size, int flags, const endpoint &ep) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags, const endpoint &ep) noexcept;
 
             /**
              * Receive data from specific host
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags, net::endpoint &ep) noexcept;
-            std::vector<std::uint8_t> recv(std::size_t size, int flags, net::endpoint &ep) noexcept;
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags, endpoint &ep) noexcept;
+            std::vector<std::uint8_t> recv(std::size_t size, int flags, endpoint &ep) noexcept;
 
         public:
             /**

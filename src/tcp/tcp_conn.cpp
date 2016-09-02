@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(net::socket socket)
+chen::tcp::conn::conn(socket socket)
 {
     this->_socket = std::move(socket);
 }

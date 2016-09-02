@@ -6,23 +6,12 @@
  */
 #pragma once
 
-#include <stdexcept>
-#include <string>
+#include <socket/base/base_error.hpp>
 
 namespace chen
 {
     namespace dns
     {
-        /**
-         * DNS general error
-         */
-        class error : public std::runtime_error
-        {
-        public:
-            explicit error(const std::string &what) : std::runtime_error(what) {}
-        };
-
-
         /**
          * Codec error
          */

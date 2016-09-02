@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_option.hpp>
+#include <socket/base/base_option.hpp>
 
 namespace chen
 {
@@ -16,14 +16,14 @@ namespace chen
         {
             // -----------------------------------------------------------------
             // IP_TTL(IP packet's ttl value)
-            class ttl : public net::option::basic
+            class ttl : public chen::option::basic
             {
             public:
-                explicit ttl(const net::socket &sock);
+                explicit ttl(const socket &sock);
                 explicit ttl(int val);
 
             public:
-                bool apply(net::socket &sock);
+                bool apply(socket &sock);
 
             public:
                 int val = 0;
