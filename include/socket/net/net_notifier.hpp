@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_config.hpp>
+#include <socket/config.hpp>
 #include <unordered_map>
 #include <functional>
 
@@ -23,7 +23,7 @@ namespace chen
             static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
             static constexpr std::uint16_t FlagEdge = 1 << 1;  // edge triggered
 
-            typedef std::function<void (chen::net::socket_t fd, chen::net::notifier::Event event)> callback_type;
+            typedef std::function<void (chen::socket_t fd, chen::net::notifier::Event event)> callback_type;
 
         public:
             notifier();

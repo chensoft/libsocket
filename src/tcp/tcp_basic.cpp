@@ -38,7 +38,7 @@ chen::tcp::basic::operator bool() const
     return this->_socket;
 }
 
-chen::net::socket_t chen::tcp::basic::native() const
+chen::socket_t chen::tcp::basic::native() const
 {
     return this->_socket.native();
 }

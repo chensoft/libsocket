@@ -19,12 +19,9 @@
 
 namespace chen
 {
-    namespace net
-    {
-        typedef int notifier_t;      // epoll, kqueue handle
-        typedef int socket_t;        // socket handle type
-        typedef socklen_t option_t;  // socket option size
-    }
+    typedef int notifier_t;      // epoll, kqueue handle
+    typedef int socket_t;        // socket handle type
+    typedef socklen_t option_t;  // socket option size
 }
 
 #else
@@ -36,18 +33,17 @@ namespace chen
 
 namespace chen
 {
-    namespace net
-    {
-        typedef SOCKET socket_t;  // socket handle type
-        typedef int option_t;     // socket option size
-    }
+    typedef SOCKET socket_t;  // socket handle type
+    typedef int option_t;     // socket option size
 }
 
 #endif
 
+// todo include status.hpp
 // For std::error_code, std::errc
 #include <system_error>
 
+// todo move to base_setup.hpp
 // For global initialization
 namespace chen
 {

@@ -6,7 +6,8 @@
  */
 #ifndef _WIN32
 
-#include <socket/net/net_config.hpp>
+// todo rename to base_setup.unix
+#include <socket/config.hpp>
 #include <csignal>
 
 // -----------------------------------------------------------------------------

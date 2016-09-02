@@ -36,7 +36,7 @@ namespace chen
             /**
              * Native socket handle
              */
-            net::socket_t native() const;
+            socket_t native() const;
 
         protected:
             net::socket _socket;

@@ -260,7 +260,7 @@ chen::net::socket::operator bool() const noexcept
 }
 
 // native
-chen::net::socket_t chen::net::socket::native() const noexcept
+chen::socket_t chen::net::socket::native() const noexcept
 {
     return this->_fd;
 }
