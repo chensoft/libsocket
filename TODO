@@ -12,10 +12,6 @@
 
 -) socket can accept or connect on specific interface according to its name
 
--) socket support queued data or msg, queued data will be sent after connect success
-
--) support read, read some, read all, read until separator occur
-
 -) client connect to server via specific port, it's an advance tool
 
 -) client use specific port and address, if host have multiple NICs, but want use specific NIC
@@ -29,8 +25,6 @@
 -) report error if udp already connect to a fixed addr but still send to another address
 
 -) allow multicast and broadcast on socket
-
--) if client socket is connecting, then still allow reading and writing, if connected then send it immediately
 
 -) deadline is not same as timeout, add deadline support for socket
 

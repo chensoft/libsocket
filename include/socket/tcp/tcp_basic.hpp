@@ -13,7 +13,7 @@ namespace chen
     namespace tcp
     {
         /**
-         * An non-blocking event driven tcp base class
+         * A non-blocking event driven tcp base class
          */
         class basic : protected socket
         {

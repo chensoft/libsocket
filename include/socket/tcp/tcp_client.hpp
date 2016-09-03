@@ -21,37 +21,63 @@ namespace chen
             /**
              * Connect to remote host
              */
-            std::error_code connect(const endpoint &ep);
-            std::error_code connect(const ip::address &addr, std::uint16_t port);
+            void connect(const endpoint &ep);
+            void connect(const ip::address &addr, std::uint16_t port);
 
             /**
-             * Reconnect to last host
+             * Disconnect and reconnect to last host
+             * @caution will not trigger the disconnect callback
              */
-            std::error_code reconnect();
+            void reconnect();
 
             /**
-             * Close the connection
+             * Close the connection and clear the buffer
+             * @caution will not trigger the disconnect callback
              */
-            std::error_code disconnect();
+            void disconnect();
 
         public:
             /**
-             * Send data to connected host
+             * Write data to connected host
+             * you can safely call this method even if the socket is not connected yet
+             * the data will be sent immediately after the socket is connected successfully
              */
-            using basic::send;
-            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0);
+            void write(const char *data, std::size_t size);
 
             /**
-             * Receive data from connected host
+             * Read data from connected host
+             * data will be sent to user via the read callback
+             * @param size the desired received length, actual size will be less or equal than this value
              */
-            using basic::recv;
-            std::vector<std::uint8_t> recv(std::size_t size, int flags = 0);
+            void read(std::size_t size);
+
+            /**
+             * Read all data until eof
+             */
+            void readAll();
+
+            /**
+             * Read a line until meet '\n', "\r\n" or eof
+             * @caution the delimiter will be removed, so no '\n', "\r\n" in the end
+             */
+            void readLine();
+
+            /**
+             * Read until received a certain amount of data
+             */
+            void readUntil(std::size_t size);
+
+            /**
+             * Read until meet the text
+             */
+            void readUntil(const std::string &text);
 
         public:
             /**
              * Check connection
              */
             State state() const;
+
             bool isConnected() const;
             bool isConnecting() const;
 
