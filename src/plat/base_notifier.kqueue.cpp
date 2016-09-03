@@ -51,6 +51,11 @@ namespace
 
 // -----------------------------------------------------------------------------
 // notifier - kqueue
+std::shared_ptr<chen::notifier> chen::notifier::create()
+{
+    return std::make_shared<chen::notifier>();
+}
+
 chen::notifier::notifier()
 {
     this->_fd = ::kqueue();

@@ -10,7 +10,7 @@
 
 // For Unix-like systems
 #include <netinet/tcp.h>  // TCP macros
-#include <sys/socket.h>   // socket macros
+#include <sys/socket.h>   // socket defines
 #include <sys/ioctl.h>    // ioctl
 #include <arpa/inet.h>    // IPv4 and IPv6
 #include <unistd.h>       // socket close()
@@ -19,7 +19,7 @@
 
 namespace chen
 {
-    typedef int notifier_t;      // epoll, kqueue handle
+    typedef int notifier_t;      // epoll/kqueue handle
     typedef int socket_t;        // socket handle type
     typedef socklen_t option_t;  // socket option size
 }

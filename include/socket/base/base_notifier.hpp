@@ -9,6 +9,7 @@
 #include <socket/config.hpp>
 #include <unordered_map>
 #include <functional>
+#include <memory>
 
 namespace chen
 {
@@ -24,6 +25,12 @@ namespace chen
         typedef std::function<void (chen::socket_t fd, chen::notifier::Event event)> callback_type;
 
     public:
+        /**
+         * Create shared notifier
+         */
+        static std::shared_ptr<notifier> create();
+
+    public:
         notifier();
 
         notifier(notifier &&o);
@@ -34,6 +41,7 @@ namespace chen
     public:
         /**
          * Add and listen specific event
+         * @param flag FlagOnce, FlagEdge...
          */
         std::error_code add(socket_t fd, Filter filter, std::uint16_t flag = 0);
 
@@ -61,7 +69,7 @@ namespace chen
         void detach(socket_t fd);
 
         /**
-         * Internal use, emit the event
+         * Internal use only, emit the event
          */
         void notify(socket_t fd, Event event);
 

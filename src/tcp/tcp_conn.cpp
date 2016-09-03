@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(socket sock)
+chen::tcp::conn::conn(socket &&sock)
 {
     this->reset(std::move(sock));
 }

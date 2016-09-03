@@ -15,21 +15,24 @@ namespace chen
         class client : public basic
         {
         public:
+            enum class State {None = 0, Connected, Connecting};
+
+        public:
             /**
              * Connect to remote host
              */
-            bool connect(const endpoint &ep);
-            bool connect(const ip::address &addr, std::uint16_t port);
+            std::error_code connect(const endpoint &ep);
+            std::error_code connect(const ip::address &addr, std::uint16_t port);
 
             /**
              * Reconnect to last host
              */
-            bool reconnect();
+            std::error_code reconnect();
 
             /**
              * Close the connection
              */
-            bool disconnect();
+            std::error_code disconnect();
 
         public:
             /**
@@ -48,6 +51,7 @@ namespace chen
             /**
              * Check connection
              */
+            State state() const;
             bool isConnected() const;
             bool isConnecting() const;
 
@@ -58,7 +62,9 @@ namespace chen
             std::uint16_t port() const;
 
         private:
-            std::string _host;
+            State _state = State::None;
+
+            std::string   _host;
             std::uint16_t _port = 0;
         };
     }

@@ -1,8 +1,8 @@
+-) ipv6-only dns query test
+
 -) specify query v4 or v6 dns only when specify host in connect
 
 -) if multiple ip addresses exist when query dns, socket can polling to connect to a valid address
-
-
 
 -) dns IDN convert, rfc3490, punycode
 
@@ -22,10 +22,6 @@
 
 -) timeout when user connect in but no send any data
 
--) anti slow packet attack
-
--) ipv6-only dns query test
-
 -) allow udp connect to a fixed address
 
 -) if udp is connected to a address, then send and recv only allow this address's packets
@@ -41,5 +37,3 @@
 -) cancel any async operations
 
 -) does closeonexec useful
-
--) add more tcp options, tcp_nopush, keepalive timeout, put in tcp folder
