@@ -28,6 +28,22 @@ namespace chen
             public:
                 bool enable = false;
             };
+
+
+            // -----------------------------------------------------------------
+            // TCP_KEEPALIVE(idle time used when SO_KEEPALIVE is enabled)
+            class keepalive : public chen::option::basic
+            {
+            public:
+                explicit keepalive(const socket &sock);
+                explicit keepalive(int val);
+
+            public:
+                bool apply(socket &sock);
+
+            public:
+                int timeout = 0;
+            };
         }
     }
 }
