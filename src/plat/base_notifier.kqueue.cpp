@@ -115,8 +115,8 @@ std::error_code chen::notifier::del(socket_t fd, Filter filter)
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
-// wait
-std::error_code chen::notifier::wait()
+// loop
+std::error_code chen::notifier::loop()
 {
     // todo add exit method
     struct kevent event{};

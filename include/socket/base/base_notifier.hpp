@@ -54,7 +54,7 @@ namespace chen
         /**
          * Wait events and dispatch
          */
-        std::error_code wait();
+        std::error_code loop();
 
     public:
         /**
