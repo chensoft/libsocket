@@ -1,8 +1,8 @@
--) ipv6-only dns query test
-
 -) specify query v4 or v6 dns only when specify host in connect
 
 -) if multiple ip addresses exist when query dns, socket can polling to connect to a valid address
+
+
 
 -) dns IDN convert, rfc3490, punycode
 

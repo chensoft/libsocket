@@ -8,12 +8,12 @@
 
 // -----------------------------------------------------------------------------
 // basic
-int chen::option::basic::optionInt(socket_t fd, int level, int name)
+int chen::option::basic::optionInt(socket_t handle, int level, int name)
 {
     int val = 0;
     option_t len = sizeof(val);
 
-    if (!::getsockopt(fd, level, name, &val, &len))
+    if (!::getsockopt(handle, level, name, &val, &len))
         return val;
     else
         return 0;

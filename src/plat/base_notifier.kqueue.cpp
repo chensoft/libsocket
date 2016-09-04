@@ -85,7 +85,7 @@ chen::notifier::~notifier()
 }
 
 // add/del
-std::error_code chen::notifier::add(socket_t fd, Filter filter, std::uint16_t flag)
+std::error_code chen::notifier::add(socket_t handle, Filter filter, std::uint16_t flag)
 {
     struct kevent event = {};
     std::uint16_t codes = EV_ADD;
@@ -96,22 +96,22 @@ std::error_code chen::notifier::add(socket_t fd, Filter filter, std::uint16_t fl
     if (flag & FlagEdge)
         codes |= EV_CLEAR;
 
-    EV_SET(&event, fd, ::filterToInt(filter), codes, 0, 0, nullptr);
+    EV_SET(&event, handle, ::filterToInt(filter), codes, 0, 0, nullptr);
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
-std::error_code chen::notifier::del(socket_t fd)
+std::error_code chen::notifier::del(socket_t handle)
 {
-    if (!this->del(fd, Filter::Read))
+    if (!this->del(handle, Filter::Read))
         return sys::error();
 
-    return this->del(fd, Filter::Write);
+    return this->del(handle, Filter::Write);
 }
 
-std::error_code chen::notifier::del(socket_t fd, Filter filter)
+std::error_code chen::notifier::del(socket_t handle, Filter filter)
 {
     struct kevent event{};
-    EV_SET(&event, fd, ::filterToInt(filter), EV_DELETE, 0, 0, nullptr);
+    EV_SET(&event, handle, ::filterToInt(filter), EV_DELETE, 0, 0, nullptr);
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
@@ -131,27 +131,27 @@ std::error_code chen::notifier::loop()
 }
 
 // callback
-void chen::notifier::attach(socket_t fd, callback_type callback)
+void chen::notifier::attach(socket_t handle, callback_type callback)
 {
-    this->_map[fd] = callback;
+    this->_map[handle] = callback;
 }
 
-void chen::notifier::detach(socket_t fd)
+void chen::notifier::detach(socket_t handle)
 {
-    this->del(fd);  // delete fd if user want to detach callback for it
-    this->_map.erase(fd);
+    this->del(handle);  // delete fd if user want to detach callback for it
+    this->_map.erase(handle);
 }
 
-void chen::notifier::notify(socket_t fd, Event code)
+void chen::notifier::notify(socket_t handle, Event ev)
 {
-    auto it = this->_map.find(fd);
+    auto it = this->_map.find(handle);
 
     if (it != this->_map.end())
     {
         it->second(Data{
-                .ev   = this,
-                .fd   = fd,
-                .code = code
+                .n  = this,
+                .fd = handle,
+                .ev = ev
         });
     }
 }

@@ -18,7 +18,7 @@ namespace chen
         class basic
         {
         public:
-            static int optionInt(socket_t fd, int level, int name);
+            static int optionInt(socket_t handle, int level, int name);
         };
 
 

@@ -27,7 +27,7 @@ namespace chen
          */
         socket(std::nullptr_t t = nullptr);
 
-        socket(socket_t fd);
+        socket(socket_t handle);
         socket(int family, int type, int protocol = 0);
         socket(ip::address addr, int type, int protocol = 0);
 
@@ -41,7 +41,7 @@ namespace chen
          * Reset socket
          */
         void reset(socket &&o);
-        void reset(socket_t fd);
+        void reset(socket_t handle);
         void reset(int family, int type, int protocol = 0);
         void reset(ip::address addr, int type, int protocol = 0);
 
@@ -129,7 +129,7 @@ namespace chen
          * Attach event notifier
          */
         std::shared_ptr<notifier> event() const noexcept;
-        void event(std::shared_ptr<notifier> ev) noexcept;
+        void event(std::shared_ptr<notifier> ptr) noexcept;
 
         /**
          * Event handler, derived class can overwrite this method
@@ -141,7 +141,7 @@ namespace chen
         socket& operator=(const socket&) = delete;
 
     private:
-        socket_t _fd = socket_t();      // socket descriptor
-        std::shared_ptr<notifier> _ev;  // event notifier
+        socket_t _handle = socket_t();        // socket descriptor
+        std::shared_ptr<notifier> _notifier;  // event notifier
     };
 }

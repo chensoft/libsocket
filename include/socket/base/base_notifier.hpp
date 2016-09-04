@@ -24,9 +24,9 @@ namespace chen
 
         typedef struct
         {
-            notifier *ev;
-            socket_t  fd;
-            Event   code;
+            notifier *n;
+            socket_t fd;
+            Event    ev;
         } Data;
 
         typedef std::function<void (chen::notifier::Data data)> callback_type;
@@ -50,13 +50,13 @@ namespace chen
          * Add and listen specific event
          * @param flag FlagOnce, FlagEdge...
          */
-        std::error_code add(socket_t fd, Filter filter, std::uint16_t flag = 0);
+        std::error_code add(socket_t handle, Filter filter, std::uint16_t flag = 0);
 
         /**
          * Delete all events or specific event
          */
-        std::error_code del(socket_t fd);
-        std::error_code del(socket_t fd, Filter filter);
+        std::error_code del(socket_t handle);
+        std::error_code del(socket_t handle, Filter filter);
 
         /**
          * Wait events and dispatch
@@ -68,18 +68,18 @@ namespace chen
          * Set callback for the socket
          * @caution make sure the socket is valid until detached
          */
-        void attach(socket_t fd, callback_type callback);
+        void attach(socket_t handle, callback_type callback);
 
         /**
          * Remove callback of the socket
          * @caution all the events belong to this socket will be deleted
          */
-        void detach(socket_t fd);
+        void detach(socket_t handle);
 
         /**
          * Internal use only, emit the event
          */
-        void notify(socket_t fd, Event code);
+        void notify(socket_t handle, Event ev);
 
     private:
         notifier(const notifier&) = delete;

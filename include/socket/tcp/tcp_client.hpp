@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/tcp/tcp_basic.hpp>
+#include <socket/tcp/tcp_event.hpp>
 
 namespace chen
 {
@@ -15,7 +16,9 @@ namespace chen
         class client : public basic
         {
         public:
-            enum class State {None = 0, Connected, Connecting};
+            enum class State {None = 0, Connecting, Connected};
+
+            typedef std::function<void (chen::tcp::client *c, chen::tcp::event::basic *ev)> callback_type;
 
         public:
             /**
@@ -26,13 +29,13 @@ namespace chen
 
             /**
              * Disconnect and reconnect to last host
-             * @caution will not trigger the disconnect callback
+             * @caution this method will not trigger the disconnect callback
              */
             void reconnect();
 
             /**
              * Close the connection and clear the buffer
-             * @caution will not trigger the disconnect callback
+             * @caution this method will not trigger the disconnect callback
              */
             void disconnect();
 
@@ -74,12 +77,31 @@ namespace chen
 
         public:
             /**
+             * Set callback for client
+             * many events will be triggered:
+             * :-) connecting: when user issue the connect command
+             * :-) connected: when connected to the host success or failure
+             * :-) disconnect: connection is broken
+             * :-) read: received some data
+             * :-) write: write data to socket successfully
+             * @caution if host has multiple addresses, client will try to connect each address until success
+             * every time client will notify the status via connecting & connected callback
+             */
+            void attach(callback_type cb);
+
+            /**
+             * Remove callback
+             */
+            void detach();
+
+        public:
+            /**
              * Check connection
              */
             State state() const;
 
-            bool isConnected() const;
             bool isConnecting() const;
+            bool isConnected() const;
 
             /**
              * Stored host and port
@@ -87,11 +109,19 @@ namespace chen
             std::string host() const;
             std::uint16_t port() const;
 
+        protected:
+            /**
+             * Overwrite
+             */
+            virtual void onEvent(chen::notifier::Data data) override;
+
         private:
             State _state = State::None;
 
             std::string   _host;
             std::uint16_t _port = 0;
+
+            callback_type _cb;
         };
     }
 }

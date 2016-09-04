@@ -17,7 +17,7 @@ chen::socket::socket(std::nullptr_t)
 {
 }
 
-chen::socket::socket(socket_t fd) : _fd(fd)
+chen::socket::socket(socket_t handle) : _handle(handle)
 {
 }
 
@@ -53,28 +53,28 @@ void chen::socket::reset(socket &&o)
     if (this == &o)
         return;
 
-    this->reset(o._fd);
-    o._fd = 0;
+    this->reset(o._handle);
+    o._handle = 0;
 }
 
-void chen::socket::reset(socket_t fd)
+void chen::socket::reset(socket_t handle)
 {
-    if (this->_fd && !this->close())
+    if (this->_handle && !this->close())
         throw socket_error("socket: " + sys::error().message());
 
-    this->_fd = fd;
+    this->_handle = handle;
 }
 
 void chen::socket::reset(int family, int type, int protocol)
 {
-    if (this->_fd && !this->close())
+    if (this->_handle && !this->close())
         throw socket_error("socket: " + sys::error().message());
 
-    auto fd = ::socket(family, type, protocol);
-    if (fd < 0)
+    auto handle = ::socket(family, type, protocol);
+    if (handle < 0)
         throw socket_error("socket: " + sys::error().message());
 
-    this->_fd = fd;
+    this->_handle = handle;
 }
 
 void chen::socket::reset(ip::address addr, int type, int protocol)
@@ -99,7 +99,7 @@ std::error_code chen::socket::connect(const endpoint &ep) noexcept
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::connect(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
+    return ::connect(this->_handle, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
 }
 
 std::error_code chen::socket::bind(const endpoint &ep) noexcept
@@ -108,7 +108,7 @@ std::error_code chen::socket::bind(const endpoint &ep) noexcept
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::bind(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
+    return ::bind(this->_handle, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
 }
 
 std::error_code chen::socket::listen() noexcept
@@ -118,7 +118,7 @@ std::error_code chen::socket::listen() noexcept
 
 std::error_code chen::socket::listen(int backlog) noexcept
 {
-    return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
+    return ::listen(this->_handle, backlog) < 0 ? sys::error() : std::error_code();
 }
 
 chen::socket chen::socket::accept() noexcept
@@ -126,14 +126,14 @@ chen::socket chen::socket::accept() noexcept
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
-    int fd = ::accept(this->_fd, (struct sockaddr*)&in, &len);
-    return fd >= 0 ? socket(fd) : nullptr;
+    int handle = ::accept(this->_handle, (struct sockaddr*)&in, &len);
+    return handle >= 0 ? socket(handle) : nullptr;
 }
 
 // data
 ssize_t chen::socket::send(const void *data, std::size_t size, int flags) noexcept
 {
-    return ::send(this->_fd, data, size, flags);
+    return ::send(this->_handle, data, size, flags);
 }
 
 ssize_t chen::socket::send(const void *data, std::size_t size, const endpoint &ep, int flags) noexcept
@@ -142,12 +142,12 @@ ssize_t chen::socket::send(const void *data, std::size_t size, const endpoint &e
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::sendto(this->_fd, data, size, flags, (struct sockaddr*)&in, len);
+    return ::sendto(this->_handle, data, size, flags, (struct sockaddr*)&in, len);
 }
 
 ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, int flags) noexcept
 {
-    return ::recv(this->_fd, out.data(), size, flags);
+    return ::recv(this->_handle, out.data(), size, flags);
 }
 
 ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, endpoint &ep, int flags) noexcept
@@ -155,7 +155,7 @@ ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, end
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
-    auto ret = ::recvfrom(this->_fd, out.data(), size, flags, (struct sockaddr*)&in, &len);
+    auto ret = ::recvfrom(this->_handle, out.data(), size, flags, (struct sockaddr*)&in, &len);
     if (ret >= 0)
         ep = endpoint::toEndpoint(&in);
 
@@ -166,18 +166,18 @@ ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, end
 std::error_code chen::socket::close() noexcept
 {
     // treat closed as true
-    if (!this->_fd)
+    if (!this->_handle)
         return {};
 
     // close the socket
-    if (::close(this->_fd))
+    if (::close(this->_handle))
         return sys::error();
 
     // clear the event
-    if (this->_ev)
-        this->_ev->detach(this->_fd);
+    if (this->_notifier)
+        this->_notifier->detach(this->_handle);
 
-    this->_fd = 0;
+    this->_handle = 0;
 
     return {};
 }
@@ -185,7 +185,7 @@ std::error_code chen::socket::close() noexcept
 std::error_code chen::socket::shutdown(Shutdown flag) noexcept
 {
     // treat closed as true
-    if (!this->_fd)
+    if (!this->_handle)
         return {};
 
     // shutdown the socket
@@ -194,15 +194,15 @@ std::error_code chen::socket::shutdown(Shutdown flag) noexcept
     switch (flag)
     {
         case Shutdown::Read:
-            ret = ::shutdown(this->_fd, SHUT_RD);
+            ret = ::shutdown(this->_handle, SHUT_RD);
             break;
 
         case Shutdown::Write:
-            ret = ::shutdown(this->_fd, SHUT_WR);
+            ret = ::shutdown(this->_handle, SHUT_WR);
             break;
 
         case Shutdown::Both:
-            ret = ::shutdown(this->_fd, SHUT_RDWR);
+            ret = ::shutdown(this->_handle, SHUT_RDWR);
             break;
     }
 
@@ -212,13 +212,13 @@ std::error_code chen::socket::shutdown(Shutdown flag) noexcept
 // info
 chen::endpoint chen::socket::local() const noexcept
 {
-    if (!this->_fd)
+    if (!this->_handle)
         return nullptr;
 
     struct sockaddr_storage in{};
     socklen_t len = sizeof(in);
 
-    if (::getsockname(this->_fd, (struct sockaddr*)&in, &len) != 0)
+    if (::getsockname(this->_handle, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
         return endpoint::toEndpoint(&in);
@@ -226,13 +226,13 @@ chen::endpoint chen::socket::local() const noexcept
 
 chen::endpoint chen::socket::remote() const noexcept
 {
-    if (!this->_fd)
+    if (!this->_handle)
         return nullptr;
 
     struct sockaddr_storage in{};
     socklen_t len = sizeof(in);
 
-    if (::getpeername(this->_fd, (struct sockaddr*)&in, &len) != 0)
+    if (::getpeername(this->_handle, (struct sockaddr*)&in, &len) != 0)
         return nullptr;
     else
         return endpoint::toEndpoint(&in);
@@ -241,7 +241,7 @@ chen::endpoint chen::socket::remote() const noexcept
 // non-blocking
 bool chen::socket::nonblocking() const noexcept
 {
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
+    auto flag = ::fcntl(this->_handle, F_GETFL, 0);
     if (flag < 0)
         return false;
 
@@ -250,17 +250,17 @@ bool chen::socket::nonblocking() const noexcept
 
 bool chen::socket::nonblocking(bool enable) noexcept
 {
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
+    auto flag = ::fcntl(this->_handle, F_GETFL, 0);
     if (flag < 0)
         return false;
 
-    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
+    return !::fcntl(this->_handle, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
 }
 
 // empty
 bool chen::socket::empty() const noexcept
 {
-    return !this->_fd;
+    return !this->_handle;
 }
 
 chen::socket::operator bool() const noexcept
@@ -271,23 +271,23 @@ chen::socket::operator bool() const noexcept
 // native
 chen::socket_t chen::socket::native() const noexcept
 {
-    return this->_fd;
+    return this->_handle;
 }
 
 // event
 std::shared_ptr<chen::notifier> chen::socket::event() const noexcept
 {
-    return this->_ev;
+    return this->_notifier;
 }
 
-void chen::socket::event(std::shared_ptr<notifier> ev) noexcept
+void chen::socket::event(std::shared_ptr<notifier> ptr) noexcept
 {
-    // clear old ev
-    if (this->_ev)
-        this->_ev->detach(this->_fd);
+    // clear old notifier
+    if (this->_notifier)
+        this->_notifier->detach(this->_handle);
 
-    // assign new ev
-    this->_ev = ev;
+    // assign new notifier
+    this->_notifier = ptr;
 }
 
 void chen::socket::onEvent(chen::notifier::Data data)
