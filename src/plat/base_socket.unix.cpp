@@ -173,7 +173,12 @@ std::error_code chen::socket::close() noexcept
     if (::close(this->_fd))
         return sys::error();
 
+    // clear the event
+    if (this->_ev)
+        this->_ev->detach(this->_fd);
+
     this->_fd = 0;
+
     return {};
 }
 
@@ -267,6 +272,27 @@ chen::socket::operator bool() const noexcept
 chen::socket_t chen::socket::native() const noexcept
 {
     return this->_fd;
+}
+
+// event
+std::shared_ptr<chen::notifier> chen::socket::event() const noexcept
+{
+    return this->_ev;
+}
+
+void chen::socket::event(std::shared_ptr<notifier> ev) noexcept
+{
+    // clear old ev
+    if (this->_ev)
+        this->_ev->detach(this->_fd);
+
+    // assign new ev
+    this->_ev = ev;
+}
+
+void chen::socket::onEvent(chen::notifier::Data data)
+{
+    // implement in derived class
 }
 
 #endif

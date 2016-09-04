@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <socket/base/base_notifier.hpp>
 #include <socket/base/base_endpoint.hpp>
 
 namespace chen
@@ -123,11 +124,24 @@ namespace chen
          */
         socket_t native() const noexcept;
 
+    protected:
+        /**
+         * Attach event notifier
+         */
+        std::shared_ptr<notifier> event() const noexcept;
+        void event(std::shared_ptr<notifier> ev) noexcept;
+
+        /**
+         * Event handler, derived class can overwrite this method
+         */
+        virtual void onEvent(chen::notifier::Data data);
+
     private:
         socket(const socket&) = delete;
         socket& operator=(const socket&) = delete;
 
     private:
-        socket_t _fd = socket_t();  // socket descriptor
+        socket_t _fd = socket_t();      // socket descriptor
+        std::shared_ptr<notifier> _ev;  // event notifier
     };
 }

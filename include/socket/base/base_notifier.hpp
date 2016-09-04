@@ -22,7 +22,14 @@ namespace chen
         static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
         static constexpr std::uint16_t FlagEdge = 1 << 1;  // edge triggered
 
-        typedef std::function<void (chen::socket_t fd, chen::notifier::Event event)> callback_type;
+        typedef struct
+        {
+            notifier *ev;
+            socket_t  fd;
+            Event   code;
+        } Data;
+
+        typedef std::function<void (chen::notifier::Data data)> callback_type;
 
     public:
         /**
@@ -65,13 +72,14 @@ namespace chen
 
         /**
          * Remove callback of the socket
+         * @caution all the events belong to this socket will be deleted
          */
         void detach(socket_t fd);
 
         /**
          * Internal use only, emit the event
          */
-        void notify(socket_t fd, Event event);
+        void notify(socket_t fd, Event code);
 
     private:
         notifier(const notifier&) = delete;

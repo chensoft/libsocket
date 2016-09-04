@@ -142,11 +142,18 @@ void chen::notifier::detach(socket_t fd)
     this->_map.erase(fd);
 }
 
-void chen::notifier::notify(socket_t fd, Event event)
+void chen::notifier::notify(socket_t fd, Event code)
 {
     auto it = this->_map.find(fd);
+
     if (it != this->_map.end())
-        it->second(fd, event);
+    {
+        it->second(Data{
+                .ev   = this,
+                .fd   = fd,
+                .code = code
+        });
+    }
 }
 
 #endif
