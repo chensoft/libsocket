@@ -213,7 +213,7 @@ namespace chen
             explicit error(const socket &sock);
 
         public:
-            std::error_code code;
+            chen::status code;
         };
 
 

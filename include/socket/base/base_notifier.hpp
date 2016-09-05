@@ -38,18 +38,18 @@ namespace chen
          * notifier will call socket's onEvent method if event happened
          * @param flag FlagOnce, FlagEdge...
          */
-        std::error_code add(socket *ptr, Filter filter, std::uint16_t flag = 0);
+        chen::status add(socket *ptr, Filter filter, std::uint16_t flag = 0);
 
         /**
          * Delete all events or specific event
          */
-        std::error_code del(socket *ptr);
-        std::error_code del(socket *ptr, Filter filter);
+        chen::status del(socket *ptr);
+        chen::status del(socket *ptr, Filter filter);
 
         /**
          * Wait events and dispatch
          */
-        std::error_code loop();
+        chen::status loop();
 
     private:
         notifier(const notifier&) = delete;

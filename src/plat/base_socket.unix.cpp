@@ -93,32 +93,32 @@ void chen::socket::reset(ip::address addr, int type, int protocol)
 }
 
 // connection
-std::error_code chen::socket::connect(const endpoint &ep) noexcept
+chen::status chen::socket::connect(const endpoint &ep) noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::connect(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
+    return ::connect(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : chen::status();
 }
 
-std::error_code chen::socket::bind(const endpoint &ep) noexcept
+chen::status chen::socket::bind(const endpoint &ep) noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::bind(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
+    return ::bind(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : chen::status();
 }
 
-std::error_code chen::socket::listen() noexcept
+chen::status chen::socket::listen() noexcept
 {
     return this->listen(SOMAXCONN);
 }
 
-std::error_code chen::socket::listen(int backlog) noexcept
+chen::status chen::socket::listen(int backlog) noexcept
 {
-    return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
+    return ::listen(this->_fd, backlog) < 0 ? sys::error() : chen::status();
 }
 
 chen::socket chen::socket::accept() noexcept
@@ -163,7 +163,7 @@ ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, end
 }
 
 // close
-std::error_code chen::socket::close() noexcept
+chen::status chen::socket::close() noexcept
 {
     // treat closed as true
     if (!this->_fd)
@@ -178,7 +178,7 @@ std::error_code chen::socket::close() noexcept
     return {};
 }
 
-std::error_code chen::socket::shutdown(Shutdown flag) noexcept
+chen::status chen::socket::shutdown(Shutdown flag) noexcept
 {
     // treat closed as true
     if (!this->_fd)
@@ -202,7 +202,7 @@ std::error_code chen::socket::shutdown(Shutdown flag) noexcept
             break;
     }
 
-    return ret < 0 ? sys::error() : std::error_code();
+    return ret < 0 ? sys::error() : chen::status();
 }
 
 // info

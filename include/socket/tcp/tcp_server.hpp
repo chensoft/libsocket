@@ -19,14 +19,14 @@ namespace chen
              * Start the server
              * todo create notifier in server, spawn tcp::conn with notifier, shared_ptr<notifier>
              */
-            std::error_code start(const endpoint &ep);
-            std::error_code start(const ip::address &addr, std::uint16_t port);
+            chen::status start(const endpoint &ep);
+            chen::status start(const ip::address &addr, std::uint16_t port);
 
             /**
              * Stop the server
              * todo how to exit, using pipe?
              */
-            std::error_code stop();
+            chen::status stop();
         };
     }
 }

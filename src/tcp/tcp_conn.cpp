@@ -28,7 +28,7 @@ std::vector<std::uint8_t> chen::tcp::conn::recv(std::size_t size, int flags)
     return ret;
 }
 
-std::error_code chen::tcp::conn::disconnect()
+chen::status chen::tcp::conn::disconnect()
 {
     return this->close();
 }

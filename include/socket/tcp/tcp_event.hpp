@@ -41,7 +41,7 @@ namespace chen
             {
             public:
                 endpoint ep;
-                std::error_code err;
+                chen::status err;
             };
 
 
@@ -50,7 +50,7 @@ namespace chen
             class disconnect : public basic
             {
             public:
-                std::error_code err;
+                chen::status err;
             };
 
 

@@ -14,7 +14,7 @@ namespace chen
     /**
      * This class is a wrapper for BSD socket, you should not use this class directly
      * use specific classes like tcp::server, tcp::client, udp::server and udp::client instead
-     * @caution std::error_code can compare with std::errc enum, e.g: socket.error() == std::errc::permission_denied
+     * @caution chen::status can compare with std::errc enum, e.g: socket.error() == std::errc::permission_denied
      */
     class socket
     {
@@ -49,19 +49,19 @@ namespace chen
         /**
          * Connect to remote host
          */
-        std::error_code connect(const endpoint &ep) noexcept;
+        chen::status connect(const endpoint &ep) noexcept;
 
         /**
          * Bind on specific endpoint
          */
-        std::error_code bind(const endpoint &ep) noexcept;
+        chen::status bind(const endpoint &ep) noexcept;
 
         /**
          * Listen for request
          * @param backlog maximum queue length for pending connections
          */
-        std::error_code listen() noexcept;
-        std::error_code listen(int backlog) noexcept;
+        chen::status listen() noexcept;
+        chen::status listen(int backlog) noexcept;
 
         /**
          * Accept new request and create a new socket
@@ -93,12 +93,12 @@ namespace chen
         /**
          * Close the socket, the socket will disconnect immediately
          */
-        std::error_code close() noexcept;
+        chen::status close() noexcept;
 
         /**
          * Stop send or receive, but socket is still connected
          */
-        std::error_code shutdown(Shutdown flag) noexcept;
+        chen::status shutdown(Shutdown flag) noexcept;
 
     public:
         /**

@@ -34,7 +34,7 @@ namespace chen
             /**
              * Close the connection
              */
-            std::error_code disconnect();
+            chen::status disconnect();
         };
     }
 }

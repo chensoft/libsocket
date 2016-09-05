@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // server
-std::error_code chen::tcp::server::start(const endpoint &ep)
+chen::status chen::tcp::server::start(const endpoint &ep)
 {
 //    this->_socket.reset(ep.addr(), SOCK_STREAM);
 //
@@ -46,12 +46,12 @@ std::error_code chen::tcp::server::start(const endpoint &ep)
     return {};
 }
 
-std::error_code chen::tcp::server::start(const ip::address &addr, std::uint16_t port)
+chen::status chen::tcp::server::start(const ip::address &addr, std::uint16_t port)
 {
     return this->start(endpoint(addr, port));
 }
 
-std::error_code chen::tcp::server::stop()
+chen::status chen::tcp::server::stop()
 {
 //    // todo
 //    this->_exit = true;
