@@ -7,6 +7,7 @@
 #if !defined(__linux__) && !defined(_WIN32)
 
 #include <socket/base/base_notifier.hpp>
+#include <socket/base/base_socket.hpp>
 #include <socket/base/base_error.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/event.h>
@@ -51,11 +52,6 @@ namespace
 
 // -----------------------------------------------------------------------------
 // notifier - kqueue
-std::shared_ptr<chen::notifier> chen::notifier::create()
-{
-    return std::make_shared<chen::notifier>();
-}
-
 chen::notifier::notifier()
 {
     this->_fd = ::kqueue();
@@ -85,7 +81,7 @@ chen::notifier::~notifier()
 }
 
 // add/del
-std::error_code chen::notifier::add(socket_t handle, Filter filter, std::uint16_t flag)
+std::error_code chen::notifier::add(socket *ptr, Filter filter, std::uint16_t flag)
 {
     struct kevent event = {};
     std::uint16_t codes = EV_ADD;
@@ -96,22 +92,22 @@ std::error_code chen::notifier::add(socket_t handle, Filter filter, std::uint16_
     if (flag & FlagEdge)
         codes |= EV_CLEAR;
 
-    EV_SET(&event, handle, ::filterToInt(filter), codes, 0, 0, nullptr);
+    EV_SET(&event, ptr->native(), ::filterToInt(filter), codes, 0, 0, ptr);
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
-std::error_code chen::notifier::del(socket_t handle)
+std::error_code chen::notifier::del(socket *ptr)
 {
-    if (!this->del(handle, Filter::Read))
+    if (!this->del(ptr, Filter::Read))
         return sys::error();
 
-    return this->del(handle, Filter::Write);
+    return this->del(ptr, Filter::Write);
 }
 
-std::error_code chen::notifier::del(socket_t handle, Filter filter)
+std::error_code chen::notifier::del(socket *ptr, Filter filter)
 {
     struct kevent event{};
-    EV_SET(&event, handle, ::filterToInt(filter), EV_DELETE, 0, 0, nullptr);
+    EV_SET(&event, ptr->native(), ::filterToInt(filter), EV_DELETE, 0, 0, ptr);
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
@@ -126,33 +122,12 @@ std::error_code chen::notifier::loop()
         if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
             return sys::error();
 
-        this->notify(static_cast<socket_t>(event.ident), ::filterToEvent(event.filter, event.flags));
-    }
-}
+        auto ptr = static_cast<socket*>(event.udata);
 
-// callback
-void chen::notifier::attach(socket_t handle, callback_type callback)
-{
-    this->_map[handle] = callback;
-}
-
-void chen::notifier::detach(socket_t handle)
-{
-    this->del(handle);  // delete fd if user want to detach callback for it
-    this->_map.erase(handle);
-}
-
-void chen::notifier::notify(socket_t handle, Event ev)
-{
-    auto it = this->_map.find(handle);
-
-    if (it != this->_map.end())
-    {
-        it->second(Data{
-                .n  = this,
-                .fd = handle,
-                .ev = ev
-        });
+        if (ptr)
+            ptr->onEvent(*this, ::filterToEvent(event.filter, event.flags));
+        else
+            throw notifier_error("notifier: event happened but no related socket object");
     }
 }
 

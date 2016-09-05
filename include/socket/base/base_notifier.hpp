@@ -7,12 +7,12 @@
 #pragma once
 
 #include <socket/config.hpp>
-#include <unordered_map>
 #include <functional>
-#include <memory>
 
 namespace chen
 {
+    class socket;
+
     class notifier
     {
     public:
@@ -22,21 +22,8 @@ namespace chen
         static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
         static constexpr std::uint16_t FlagEdge = 1 << 1;  // edge triggered
 
-        typedef struct
-        {
-            notifier *n;
-            socket_t fd;
-            Event    ev;
-        } Data;
-
-        typedef std::function<void (chen::notifier::Data data)> callback_type;
-
-    public:
-        /**
-         * Create shared notifier
-         */
-        static std::shared_ptr<notifier> create();
-
+        typedef std::function<void (chen::notifier &n, chen::notifier::Event ev)> callback_type;
+        
     public:
         notifier();
 
@@ -48,38 +35,21 @@ namespace chen
     public:
         /**
          * Add and listen specific event
+         * notifier will call socket's onEvent method if event happened
          * @param flag FlagOnce, FlagEdge...
          */
-        std::error_code add(socket_t handle, Filter filter, std::uint16_t flag = 0);
+        std::error_code add(socket *ptr, Filter filter, std::uint16_t flag = 0);
 
         /**
          * Delete all events or specific event
          */
-        std::error_code del(socket_t handle);
-        std::error_code del(socket_t handle, Filter filter);
+        std::error_code del(socket *ptr);
+        std::error_code del(socket *ptr, Filter filter);
 
         /**
          * Wait events and dispatch
          */
         std::error_code loop();
-
-    public:
-        /**
-         * Set callback for the socket
-         * @caution make sure the socket is valid until detached
-         */
-        void attach(socket_t handle, callback_type callback);
-
-        /**
-         * Remove callback of the socket
-         * @caution all the events belong to this socket will be deleted
-         */
-        void detach(socket_t handle);
-
-        /**
-         * Internal use only, emit the event
-         */
-        void notify(socket_t handle, Event ev);
 
     private:
         notifier(const notifier&) = delete;
@@ -87,6 +57,5 @@ namespace chen
 
     private:
         notifier_t _fd = notifier_t();
-        std::unordered_map<socket_t, callback_type> _map;
     };
 }

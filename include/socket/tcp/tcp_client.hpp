@@ -23,6 +23,7 @@ namespace chen
         public:
             /**
              * Connect to remote host
+             * todo how to deal with domain resolve error
              */
             void connect(const endpoint &ep);
             void connect(const ip::address &addr, std::uint16_t port);
@@ -113,7 +114,7 @@ namespace chen
             /**
              * Overwrite
              */
-            virtual void onEvent(chen::notifier::Data data) override;
+            virtual void onEvent(chen::notifier &n, chen::notifier::Event ev) override;
 
         private:
             State _state = State::None;
