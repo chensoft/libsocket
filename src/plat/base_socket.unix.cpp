@@ -163,19 +163,10 @@ ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, end
 }
 
 // close
-chen::status chen::socket::close() noexcept
+void chen::socket::close() noexcept
 {
-    // treat closed as true
-    if (!this->_fd)
-        return {};
-
-    // close the socket
-    if (::close(this->_fd))
-        return sys::error();
-
+    ::close(this->_fd);
     this->_fd = 0;
-
-    return {};
 }
 
 chen::status chen::socket::shutdown(Shutdown flag) noexcept

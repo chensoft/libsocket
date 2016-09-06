@@ -93,7 +93,7 @@ namespace chen
         /**
          * Close the socket, the socket will disconnect immediately
          */
-        chen::status close() noexcept;
+        void close() noexcept;
 
         /**
          * Stop send or receive, but socket is still connected
