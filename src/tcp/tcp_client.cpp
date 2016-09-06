@@ -17,8 +17,19 @@ void chen::tcp::client::connect(const endpoint &ep)
 
 void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)
 {
-    // todo reset socket
-    // todo set to non-blocking mode
+    if (!this->isDisconnected())
+        this->disconnect();
+
+    this->reset(addr, SOCK_STREAM);
+
+    // todo connect and notify, set connecting state
+}
+
+void chen::tcp::client::disconnect()
+{
+    this->close();
+
+    // todo clear buffer and state
 }
 
 // event
@@ -36,6 +47,11 @@ void chen::tcp::client::detach()
 chen::tcp::client::State chen::tcp::client::state() const
 {
     return this->_state;
+}
+
+bool chen::tcp::client::isDisconnected() const
+{
+    return this->_state == State::Disconnected;
 }
 
 bool chen::tcp::client::isConnecting() const

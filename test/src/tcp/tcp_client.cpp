@@ -12,4 +12,10 @@ TEST(TCPClientTest, Fetch)
     using chen::tcp::client;
 
     client c;
+
+    c.attach([] (chen::tcp::client &t, chen::tcp::event::basic *ev) {
+        printf("xxx\n");
+    });
+
+    c.connect("93.184.216.34", 80);
 }

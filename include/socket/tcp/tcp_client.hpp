@@ -16,9 +16,9 @@ namespace chen
         class client : public basic
         {
         public:
-            enum class State {None = 0, Connecting, Connected};
+            enum class State {Disconnected = 0, Connecting, Connected};
 
-            typedef std::function<void (chen::tcp::client *c, chen::tcp::event::basic *ev)> callback_type;
+            typedef std::function<void (chen::tcp::client &c, chen::tcp::event::basic *ev)> callback_type;
 
         public:
             /**
@@ -61,8 +61,8 @@ namespace chen
             void readAll();
 
             /**
-             * Read a line until meet '\n', "\r\n" or eof
-             * @caution the delimiter will be removed, so no '\n', "\r\n" in the end
+             * Read a line until meet "\r\n", '\n', '\r' or eof
+             * @caution the delimiter will be removed, so no "\r\n", '\n', '\r' in the end
              */
             void readLine();
 
@@ -101,6 +101,7 @@ namespace chen
              */
             State state() const;
 
+            bool isDisconnected() const;
             bool isConnecting() const;
             bool isConnected() const;
 
@@ -117,7 +118,7 @@ namespace chen
             virtual void onEvent(chen::notifier &n, chen::notifier::Event ev) override;
 
         private:
-            State _state = State::None;
+            State _state = State::Disconnected;
 
             std::string   _host;
             std::uint16_t _port = 0;
