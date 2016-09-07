@@ -18,17 +18,15 @@ namespace chen
         class basic : protected socket
         {
         public:
-            basic() = default;
-            basic(socket &&sock);
+            basic(socket_t fd);
+            basic(int family, int type, int protocol = 0);
+            basic(ip::address::Type family, int type, int protocol = 0);
 
         public:
             using socket::local;
             using socket::remote;
 
             using socket::nonblocking;
-
-            using socket::empty;
-            using socket::operator bool;
 
             using socket::native;
         };

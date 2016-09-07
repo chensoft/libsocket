@@ -8,6 +8,14 @@
 
 // -----------------------------------------------------------------------------
 // basic
-chen::tcp::basic::basic(socket &&sock) : socket(std::move(sock))
+chen::tcp::basic::basic(socket_t fd) : socket(fd)
+{
+}
+
+chen::tcp::basic::basic(int family, int type, int protocol) : socket(family, type, protocol)
+{
+}
+
+chen::tcp::basic::basic(ip::address::Type family, int type, int protocol) : socket(family, type, protocol)
 {
 }

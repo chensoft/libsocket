@@ -8,14 +8,15 @@
 
 // -----------------------------------------------------------------------------
 // client
+chen::tcp::client::client(ip::address::Type family) : basic(family, SOCK_STREAM)
+{
+}
 
 // connection
 void chen::tcp::client::connect(const endpoint &ep)
 {
     if (!this->isDisconnect())
         this->disconnect();
-
-    this->reset(ep.addr(), SOCK_STREAM);
 
     this->notifyConnecting(ep);
 

@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(socket &&sock) : basic(std::move(sock))
+chen::tcp::conn::conn(socket_t fd) : basic(fd)
 {
 }
 

@@ -13,83 +13,58 @@
 
 // -----------------------------------------------------------------------------
 // socket
-chen::socket::socket(std::nullptr_t)
-{
-}
-
 chen::socket::socket(socket_t fd) : _fd(fd)
 {
+    if (this->_fd < 0)
+        throw socket_error("socket: " + sys::error().message());
 }
 
 chen::socket::socket(int family, int type, int protocol)
 {
-    this->reset(family, type, protocol);
+    this->_fd = ::socket(family, type, protocol);
+    if (this->_fd < 0)
+        throw socket_error("socket: " + sys::error().message());
 }
 
-chen::socket::socket(const ip::address &addr, int type, int protocol)
+chen::socket::socket(ip::address::Type family, int type, int protocol)
 {
-    this->reset(addr, type, protocol);
+    switch (family)
+    {
+        case ip::address::Type::IPv4:
+            this->_fd = ::socket(AF_INET, type, protocol);
+            break;
+
+        case ip::address::Type::IPv6:
+            this->_fd = ::socket(AF_INET6, type, protocol);
+            break;
+
+        default:
+            break;
+    }
+
+    if (this->_fd < 0)
+        throw socket_error("socket: " + sys::error().message());
 }
 
 chen::socket::socket(socket &&o)
 {
-    this->reset(std::move(o));
+    *this = std::move(o);
 }
 
 chen::socket& chen::socket::operator=(socket &&o)
 {
-    this->reset(std::move(o));
+    if (this == &o)
+        return *this;
+
+    this->_fd = o._fd;
+    o._fd     = 0;
+
     return *this;
 }
 
 chen::socket::~socket()
 {
     this->close();
-}
-
-// reset
-void chen::socket::reset(socket &&o)
-{
-    if (this == &o)
-        return;
-
-    this->reset(o._fd);
-    o._fd = 0;
-}
-
-void chen::socket::reset(socket_t fd)
-{
-    if (this->_fd)
-        this->close();
-
-    this->_fd = fd;
-}
-
-void chen::socket::reset(int family, int type, int protocol)
-{
-    if (this->_fd)
-        this->close();
-
-    auto fd = ::socket(family, type, protocol);
-    if (fd < 0)
-        throw socket_error("socket: " + sys::error().message());
-
-    this->_fd = fd;
-}
-
-void chen::socket::reset(const ip::address &addr, int type, int protocol)
-{
-    switch (addr.type())
-    {
-        case ip::address::Type::IPv4:
-            return this->reset(AF_INET, type, protocol);
-
-        case ip::address::Type::IPv6:
-            return this->reset(AF_INET6, type, protocol);
-
-        default:
-            break;
-    }
 }
 
 // connection
@@ -121,13 +96,12 @@ chen::status chen::socket::listen(int backlog) noexcept
     return ::listen(this->_fd, backlog) < 0 ? sys::error() : chen::status();
 }
 
-chen::socket chen::socket::accept() noexcept
+chen::socket_t chen::socket::accept() noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
-    int fd = ::accept(this->_fd, (struct sockaddr*)&in, &len);
-    return fd >= 0 ? socket(fd) : nullptr;
+    return ::accept(this->_fd, (struct sockaddr*)&in, &len);
 }
 
 // data
@@ -242,17 +216,6 @@ bool chen::socket::nonblocking(bool enable) noexcept
         return false;
 
     return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
-}
-
-// empty
-bool chen::socket::empty() const noexcept
-{
-    return !this->_fd;
-}
-
-chen::socket::operator bool() const noexcept
-{
-    return !this->empty();
 }
 
 // native

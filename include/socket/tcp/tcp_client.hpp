@@ -21,6 +21,9 @@ namespace chen
             typedef std::function<void (chen::tcp::client &c, chen::tcp::event::basic *ev)> callback_type;
 
         public:
+            client(ip::address::Type family);
+
+        public:
             /**
              * Connect to remote host
              * todo how to deal with domain resolve error

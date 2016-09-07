@@ -25,25 +25,14 @@ namespace chen
         /**
          * Construct socket
          */
-        socket(std::nullptr_t t = nullptr);
-
         socket(socket_t fd);
         socket(int family, int type, int protocol = 0);
-        socket(const ip::address &addr, int type, int protocol = 0);
+        socket(ip::address::Type family, int type, int protocol = 0);
 
         socket(socket &&o);
         socket& operator=(socket &&o);
 
         ~socket();
-
-    public:
-        /**
-         * Reset socket
-         */
-        void reset(socket &&o);
-        void reset(socket_t fd);
-        void reset(int family, int type, int protocol = 0);
-        void reset(const ip::address &addr, int type, int protocol = 0);
 
     public:
         /**
@@ -66,7 +55,7 @@ namespace chen
         /**
          * Accept new request and create a new socket
          */
-        socket accept() noexcept;
+        socket_t accept() noexcept;
 
     public:
         /**
@@ -112,12 +101,6 @@ namespace chen
          */
         bool nonblocking() const noexcept;
         bool nonblocking(bool enable) noexcept;
-
-        /**
-         * Check socket is empty
-         */
-        bool empty() const noexcept;
-        operator bool() const noexcept;
 
         /**
          * Native socket handle
