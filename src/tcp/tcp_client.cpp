@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // client
-chen::tcp::client::client(ip::address::Type family) : basic(family, SOCK_STREAM)
+chen::tcp::client::client(ip::address::Type family) : basic(family)
 {
 }
 

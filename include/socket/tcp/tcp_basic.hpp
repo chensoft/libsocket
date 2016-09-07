@@ -19,8 +19,7 @@ namespace chen
         {
         public:
             basic(socket_t fd);
-            basic(int family, int type, int protocol = 0);
-            basic(ip::address::Type family, int type, int protocol = 0);
+            basic(ip::address::Type family);
 
         public:
             using socket::local;
