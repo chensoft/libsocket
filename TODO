@@ -1,7 +1,12 @@
+-) split socket to stream socket, datagram socket, multicast socket, raw socket, not tcp, udp...
+
 -) specify query v4 or v6 dns only when specify host in connect
 
 -) if multiple ip addresses exist when query dns, socket can polling to connect to a valid address
 
+-) move tcp events to chen::socket class? allow both sync and async operations
+
+-) listen on AF_INET6 support both v6 and v4, modern os support it
 
 
 -) dns IDN convert, rfc3490, punycode
@@ -31,3 +36,5 @@
 -) cancel any async operations
 
 -) does closeonexec useful
+
+-) support set max connections limit in tcp, udp server socket

@@ -14,8 +14,10 @@ TEST(TCPClientTest, Fetch)
     client c;
 
     c.attach([] (chen::tcp::client &t, chen::tcp::event::basic *ev) {
-        printf("xxx\n");
+        printf("client: %d\n", ev->type);
     });
+
+    c.nonblocking(true);
 
     c.connect("93.184.216.34", 80);
 }

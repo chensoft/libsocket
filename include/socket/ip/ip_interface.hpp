@@ -29,7 +29,7 @@ namespace chen
         public:
             /**
              * Enumerate all network interfaces
-             * @caution only enumerate interfaces with IPv4 or IPv6 address
+             * @notice only enumerate interfaces with IPv4 or IPv6 address
              */
             static std::map<std::string, interface> enumerate();
 

@@ -14,7 +14,7 @@ namespace chen
     /**
      * This class is a wrapper for BSD socket, you should not use this class directly
      * use specific classes like tcp::server, tcp::client, udp::server and udp::client instead
-     * @caution chen::status can compare with std::errc enum, e.g: socket.error() == std::errc::permission_denied
+     * @notice chen::status can compare with std::errc enum, e.g: socket.error() == std::errc::permission_denied
      */
     class socket
     {
@@ -29,7 +29,7 @@ namespace chen
 
         socket(socket_t fd);
         socket(int family, int type, int protocol = 0);
-        socket(ip::address addr, int type, int protocol = 0);
+        socket(const ip::address &addr, int type, int protocol = 0);
 
         socket(socket &&o);
         socket& operator=(socket &&o);
@@ -43,7 +43,7 @@ namespace chen
         void reset(socket &&o);
         void reset(socket_t fd);
         void reset(int family, int type, int protocol = 0);
-        void reset(ip::address addr, int type, int protocol = 0);
+        void reset(const ip::address &addr, int type, int protocol = 0);
 
     public:
         /**
@@ -91,14 +91,14 @@ namespace chen
 
     public:
         /**
-         * Close the socket, the socket will disconnect immediately
-         */
-        void close() noexcept;
-
-        /**
          * Stop send or receive, but socket is still connected
          */
         chen::status shutdown(Shutdown flag) noexcept;
+
+        /**
+         * Close the socket, the socket will disconnect immediately
+         */
+        void close() noexcept;
 
     public:
         /**

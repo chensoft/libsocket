@@ -19,6 +19,7 @@ namespace chen
              * Start the server
              * todo create notifier in server, spawn tcp::conn with notifier, shared_ptr<notifier>
              */
+            chen::status start(std::uint16_t port);
             chen::status start(const endpoint &ep);
             chen::status start(const ip::address &addr, std::uint16_t port);
 

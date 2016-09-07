@@ -16,7 +16,7 @@ namespace chen
         class client : public basic
         {
         public:
-            enum class State {Disconnected = 0, Connecting, Connected};
+            enum class State {Disconnect = 0, Connecting, Connected};
 
             typedef std::function<void (chen::tcp::client &c, chen::tcp::event::basic *ev)> callback_type;
 
@@ -30,13 +30,13 @@ namespace chen
 
             /**
              * Disconnect and reconnect to last host
-             * @caution this method will not trigger the disconnect callback
+             * @notice this method will not trigger the disconnect callback
              */
             void reconnect();
 
             /**
              * Close the connection and clear the buffer
-             * @caution this method will not trigger the disconnect callback
+             * @notice this method will not trigger the disconnect callback
              */
             void disconnect();
 
@@ -62,7 +62,7 @@ namespace chen
 
             /**
              * Read a line until meet "\r\n", '\n', '\r' or eof
-             * @caution the delimiter will be removed, so no "\r\n", '\n', '\r' in the end
+             * @notice the delimiter will be removed, so no "\r\n", '\n', '\r' in the end
              */
             void readLine();
 
@@ -85,7 +85,7 @@ namespace chen
              * :-) disconnect: connection is broken
              * :-) read: received some data
              * :-) write: write data to socket successfully
-             * @caution if host has multiple addresses, client will try to connect each address until success
+             * @notice if host has multiple addresses, client will try to connect each address until success
              * every time client will notify the status via connecting & connected callback
              */
             void attach(callback_type cb);
@@ -101,7 +101,7 @@ namespace chen
              */
             State state() const;
 
-            bool isDisconnected() const;
+            bool isDisconnect() const;
             bool isConnecting() const;
             bool isConnected() const;
 
@@ -113,12 +113,22 @@ namespace chen
 
         protected:
             /**
+             * Notify
+             * todo shorten the method name
+             */
+            void notifyConnecting(endpoint ep);
+            void notifyConnected(endpoint ep, chen::status err);
+            void notifyDisconnect(chen::status err);
+            void notifyRead(std::vector<std::uint8_t> data);
+            void notifyWrite(std::size_t size);
+
+            /**
              * Overwrite
              */
             virtual void onEvent(chen::notifier &n, chen::notifier::Event ev) override;
 
         private:
-            State _state = State::Disconnected;
+            State _state = State::Disconnect;
 
             std::string   _host;
             std::uint16_t _port = 0;

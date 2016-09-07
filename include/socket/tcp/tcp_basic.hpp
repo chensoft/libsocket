@@ -18,6 +18,10 @@ namespace chen
         class basic : protected socket
         {
         public:
+            basic() = default;
+            basic(socket &&sock);
+
+        public:
             using socket::local;
             using socket::remote;
 

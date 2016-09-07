@@ -26,7 +26,7 @@ chen::socket::socket(int family, int type, int protocol)
     this->reset(family, type, protocol);
 }
 
-chen::socket::socket(ip::address addr, int type, int protocol)
+chen::socket::socket(const ip::address &addr, int type, int protocol)
 {
     this->reset(addr, type, protocol);
 }
@@ -59,16 +59,16 @@ void chen::socket::reset(socket &&o)
 
 void chen::socket::reset(socket_t fd)
 {
-    if (this->_fd && !this->close())
-        throw socket_error("socket: " + sys::error().message());
+    if (this->_fd)
+        this->close();
 
     this->_fd = fd;
 }
 
 void chen::socket::reset(int family, int type, int protocol)
 {
-    if (this->_fd && !this->close())
-        throw socket_error("socket: " + sys::error().message());
+    if (this->_fd)
+        this->close();
 
     auto fd = ::socket(family, type, protocol);
     if (fd < 0)
@@ -77,7 +77,7 @@ void chen::socket::reset(int family, int type, int protocol)
     this->_fd = fd;
 }
 
-void chen::socket::reset(ip::address addr, int type, int protocol)
+void chen::socket::reset(const ip::address &addr, int type, int protocol)
 {
     switch (addr.type())
     {
@@ -163,12 +163,6 @@ ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, end
 }
 
 // close
-void chen::socket::close() noexcept
-{
-    ::close(this->_fd);
-    this->_fd = 0;
-}
-
 chen::status chen::socket::shutdown(Shutdown flag) noexcept
 {
     // treat closed as true
@@ -194,6 +188,12 @@ chen::status chen::socket::shutdown(Shutdown flag) noexcept
     }
 
     return ret < 0 ? sys::error() : chen::status();
+}
+
+void chen::socket::close() noexcept
+{
+    ::close(this->_fd);
+    this->_fd = 0;
 }
 
 // info

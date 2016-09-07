@@ -22,6 +22,9 @@ namespace chen
                 enum class Type {Connecting = 1, Connected, Disconnect, Read, Write};
 
             public:
+                explicit basic(Type t) : type(t) {}
+
+            public:
                 Type type;
             };
 
@@ -31,7 +34,10 @@ namespace chen
             class connecting : public basic
             {
             public:
-                endpoint ep;
+                connecting() : basic(Type::Connecting) {}
+
+            public:
+                endpoint ep = nullptr;
             };
 
 
@@ -40,7 +46,10 @@ namespace chen
             class connected : public basic
             {
             public:
-                endpoint ep;
+                connected() : basic(Type::Connected) {}
+
+            public:
+                endpoint ep = nullptr;
                 chen::status err;
             };
 
@@ -49,6 +58,9 @@ namespace chen
             // disconnect(connection broken)
             class disconnect : public basic
             {
+            public:
+                disconnect() : basic(Type::Disconnect) {}
+
             public:
                 chen::status err;
             };
@@ -59,6 +71,9 @@ namespace chen
             class read : public basic
             {
             public:
+                read() : basic(Type::Read) {}
+
+            public:
                 std::vector<std::uint8_t> data;
             };
 
@@ -67,6 +82,9 @@ namespace chen
             // write(send data to socket buffer)
             class write : public basic
             {
+            public:
+                write() : basic(Type::Write) {}
+
             public:
                 std::size_t size;
             };

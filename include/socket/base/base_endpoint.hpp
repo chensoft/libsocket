@@ -44,7 +44,7 @@ namespace chen
          * :-) endpoint("[fe80::1%lo0]")
          * :-) endpoint("[fe80::1%lo0]:80")
          * :-) endpoint("[fe80::1%lo0]:http")
-         * @caution don't use domain in here, accept ip address only
+         * @notice don't use domain in here, accept ip address only
          */
         endpoint(const std::string &mixed);
         endpoint(const char *mixed);

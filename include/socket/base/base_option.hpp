@@ -36,7 +36,7 @@ namespace chen
 
         // -----------------------------------------------------------------
         // SO_REUSEADDR(allow local address reuse)
-        // @caution on Windows SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT
+        // @notice on Windows SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT
         class reuseaddr : public basic
         {
         public:
@@ -59,8 +59,8 @@ namespace chen
 
         // -----------------------------------------------------------------
         // SO_REUSEPORT(allow multiple sockets bind to the same port, you can listen on multiple threads)
-        // @caution on Linux require kernel version 3.9+
-        // @caution on Windows, I use SO_REUSEADDR to implement reuseport, because SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT on Windows
+        // @notice on Linux require kernel version 3.9+
+        // @notice on Windows, I use SO_REUSEADDR to implement reuseport, because SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT on Windows
         // @link http://stackoverflow.com/questions/14388706/socket-options-so-reuseaddr-and-so-reuseport-how-do-they-differ-do-they-mean-t/14388707#14388707
         class reuseport : public basic
         {

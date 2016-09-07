@@ -63,7 +63,7 @@ namespace chen
              * :-) version4("127")       -> "127.0.0.0"
              * :-) version4("127.1")     -> "127.0.0.1"
              * :-) version4("192.168.1") -> "192.168.0.1"
-             * @caution default CIDR prefix will be 32 if you don't provide
+             * @notice default CIDR prefix will be 32 if you don't provide
              */
             void assign(const std::string &addr);
             void assign(const std::string &addr, std::uint8_t cidr);
@@ -76,7 +76,7 @@ namespace chen
              * :-) version4(0x7F000001)
              * :-) version4(0x7F000001, 8)
              * :-) version4(0x7F000001, "255.0.0.0")
-             * @caution default CIDR prefix will be 32 if you don't provide
+             * @notice default CIDR prefix will be 32 if you don't provide
              */
             void assign(std::uint32_t addr);
             void assign(std::uint32_t addr, std::uint8_t cidr);
@@ -141,7 +141,7 @@ namespace chen
         public:
             /**
              * Classful addressing type
-             * @caution since CIDR is widely used today, classful is not very useful now
+             * @notice since CIDR is widely used today, classful is not very useful now
              */
             bool isClassA() const;
             bool isClassB() const;
@@ -152,7 +152,7 @@ namespace chen
         public:
             /**
              * Operator, compare based on IPv4 address
-             * @caution consider CIDR prefix when address is equal
+             * @notice consider CIDR prefix when address is equal
              */
             bool operator==(const version4 &o) const;
             bool operator!=(const version4 &o) const;
@@ -166,7 +166,7 @@ namespace chen
         public:
             /**
              * Convert between integer and string
-             * @caution default CIDR prefix will be 32 if you don't provide
+             * @notice default CIDR prefix will be 32 if you don't provide
              */
             static std::string toString(std::uint32_t addr);
             static std::string toString(std::uint32_t addr, std::uint8_t cidr);
@@ -228,7 +228,7 @@ namespace chen
              * :-) version6("fe80::1%lo0/64")
              * :-) version6("fe80::1%lo0", 64)
              * :-) version6("fe80::1%lo0", "ffff:ffff:ffff:ffff::")
-             * @caution default CIDR prefix will be 128 if you don't provide
+             * @notice default CIDR prefix will be 128 if you don't provide
              */
             void assign(const std::string &addr);
             void assign(const std::string &addr, std::uint8_t cidr);
@@ -238,7 +238,7 @@ namespace chen
 
             /**
              * Construct by bytes array
-             * @caution default CIDR prefix will be 128 if you don't provide
+             * @notice default CIDR prefix will be 128 if you don't provide
              */
             void assign(const std::uint8_t addr[16]);
             void assign(const std::uint8_t addr[16], std::uint8_t cidr);
@@ -316,7 +316,7 @@ namespace chen
         public:
             /**
              * Netmask & Wildcard mask
-             * @caution use uint128 if supported in the future
+             * @notice use uint128 if supported in the future
              */
             std::array<std::uint8_t, 16> netmask() const;
             std::array<std::uint8_t, 16> wildcard() const;
@@ -360,7 +360,7 @@ namespace chen
         public:
             /**
              * Operator
-             * @caution consider CIDR prefix when address is equal
+             * @notice consider CIDR prefix when address is equal
              */
             bool operator==(const version6 &o) const;
             bool operator!=(const version6 &o) const;
@@ -374,7 +374,7 @@ namespace chen
         public:
             /**
              * Convert between bytes and string
-             * @caution default CIDR prefix will be 128 if you don't provide
+             * @notice default CIDR prefix will be 128 if you don't provide
              */
             static std::string toString(const std::uint8_t addr[16]);
             static std::string toString(const std::uint8_t addr[16], std::uint8_t cidr);
