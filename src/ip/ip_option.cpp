@@ -6,18 +6,19 @@
  */
 #include <socket/ip/ip_option.hpp>
 
-// -----------------------------------------------------------------------------
-// ttl
-chen::ip::option::ttl::ttl(const chen::socket &sock)
-{
-    this->val = chen::option::basic::optionInt(sock.native(), IPPROTO_IP, IP_TTL);
-}
-
-chen::ip::option::ttl::ttl(int val) : val(val)
-{
-}
-
-bool chen::ip::option::ttl::apply(chen::socket &sock)
-{
-    return !::setsockopt(sock.native(), IPPROTO_IP, IP_TTL, &this->val, sizeof(this->val));
-}
+// todo
+//// -----------------------------------------------------------------------------
+//// ttl
+//chen::ip::option::ttl::ttl(const chen::socket &sock)
+//{
+//    this->val = chen::option::basic::optionInt(sock.native(), IPPROTO_IP, IP_TTL);
+//}
+//
+//chen::ip::option::ttl::ttl(int val) : val(val)
+//{
+//}
+//
+//bool chen::ip::option::ttl::apply(chen::socket &sock)
+//{
+//    return !::setsockopt(sock.native(), IPPROTO_IP, IP_TTL, &this->val, sizeof(this->val));
+//}

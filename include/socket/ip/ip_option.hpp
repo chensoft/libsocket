@@ -6,28 +6,29 @@
  */
 #pragma once
 
-#include <socket/base/base_option.hpp>
-
-namespace chen
-{
-    namespace ip
-    {
-        namespace option
-        {
-            // -----------------------------------------------------------------
-            // IP_TTL(IP packet's ttl value)
-            class ttl : public chen::option::basic
-            {
-            public:
-                explicit ttl(const socket &sock);
-                explicit ttl(int val);
-
-            public:
-                bool apply(socket &sock);
-
-            public:
-                int val = 0;
-            };
-        }
-    }
-}
+// todo
+//#include <socket/base/base_option.hpp>
+//
+//namespace chen
+//{
+//    namespace ip
+//    {
+//        namespace option
+//        {
+//            // -----------------------------------------------------------------
+//            // IP_TTL(IP packet's ttl value)
+//            class ttl : public chen::option::basic
+//            {
+//            public:
+//                explicit ttl(const socket &sock);
+//                explicit ttl(int val);
+//
+//            public:
+//                bool apply(socket &sock);
+//
+//            public:
+//                int val = 0;
+//            };
+//        }
+//    }
+//}

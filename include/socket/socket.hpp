@@ -30,7 +30,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/base/base_endpoint.hpp>
 #include <socket/base/base_error.hpp>
 #include <socket/base/base_notifier.hpp>
-#include <socket/base/base_option.hpp>
 #include <socket/base/base_resolver.hpp>
 #include <socket/base/base_socket.hpp>
 

@@ -6,8 +6,6 @@
  */
 #pragma once
 
-// todo if not include in socket.hpp, then still init?
-
 namespace chen
 {
     namespace bsd
