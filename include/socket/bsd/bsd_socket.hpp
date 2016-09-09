@@ -121,7 +121,7 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            socket_t _fd = socket_t();  // socket descriptor
+            socket_t _fd = socket_t(-1);  // socket descriptor
         };
     }
 }
