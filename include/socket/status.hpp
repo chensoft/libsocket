@@ -15,14 +15,8 @@ namespace chen
     {
     public:
         status() = default;
-
-        status(const std::error_code &code) : error_code(code.value(), code.category())
-        {
-        }
-
-        status(int val, const std::error_category &cat) : error_code(val, cat)
-        {
-        }
+        status(const std::error_code &code) : error_code(code.value(), code.category()) {}
+        status(int val, const std::error_category &cat) : error_code(val, cat) {}
 
     public:
         /**
