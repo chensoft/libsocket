@@ -106,6 +106,12 @@ namespace chen
             bsd::option option();
 
             /**
+             * Check socket is valid
+             */
+            bool valid() const;
+            operator bool() const;
+
+            /**
              * Native socket handle
              */
             socket_t native() const;

@@ -6,11 +6,12 @@
  */
 #pragma once
 
-// todo implement ourself error_code
 #include <system_error>
 
 namespace chen
 {
+    // -------------------------------------------------------------------------
+    // ourself error_code
     class status : public std::error_code
     {
     public:
@@ -27,4 +28,8 @@ namespace chen
             return (*this == std::errc::operation_would_block) || (*this == std::errc::resource_unavailable_try_again);
         }
     };
+
+
+    // -------------------------------------------------------------------------
+
 }
