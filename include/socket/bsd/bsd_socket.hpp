@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/bsd/bsd_address.hpp>
+#include <socket/bsd/bsd_option.hpp>
 #include <socket/bsd/bsd_setup.hpp>
 #include <vector>
 
@@ -94,6 +95,15 @@ namespace chen
              */
             bool nonblocking() const;
             bool nonblocking(bool enable);
+
+            /**
+             * Get/Set socket option
+             * Usage:
+             * >> auto opt = socket.option();
+             * >> opt.reuseaddr(true);           // set option
+             * >> bool reuse = opt.reuseaddr();  // get option
+             */
+            bsd::option option();
 
             /**
              * Native socket handle
