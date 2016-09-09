@@ -23,7 +23,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/status.hpp>
 
 #include <socket/bsd/bsd_address.hpp>
-#include <socket/bsd/bsd_error.hpp>
 #include <socket/bsd/bsd_option.hpp>
 #include <socket/bsd/bsd_setup.hpp>
 #include <socket/bsd/bsd_socket.hpp>
@@ -33,7 +32,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/base/base_notifier.hpp>
 #include <socket/base/base_option.hpp>
 #include <socket/base/base_resolver.hpp>
-#include <socket/base/base_setup.hpp>
 #include <socket/base/base_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>

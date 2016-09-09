@@ -5,3 +5,5 @@
  * @link   http://chensoft.com
  */
 #pragma once
+
+// todo create option class, old options to be the methods

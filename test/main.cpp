@@ -9,10 +9,6 @@
 
 int main(int argc, char *argv[])
 {
-    using namespace chen;
-
-    bsd::socket s(0);
-
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
