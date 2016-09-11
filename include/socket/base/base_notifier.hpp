@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/config.hpp>
+#include <system_error>
 #include <functional>
 
 namespace chen
@@ -38,18 +39,18 @@ namespace chen
          * notifier will call socket's onEvent method if event happened
          * @param flag FlagOnce, FlagEdge...
          */
-        chen::status add(socket *ptr, Filter filter, std::uint16_t flag = 0);
+        std::error_code add(socket *ptr, Filter filter, std::uint16_t flag = 0);
 
         /**
          * Delete all events or specific event
          */
-        chen::status del(socket *ptr);
-        chen::status del(socket *ptr, Filter filter);
+        std::error_code del(socket *ptr);
+        std::error_code del(socket *ptr, Filter filter);
 
         /**
          * Wait events and dispatch
          */
-        chen::status loop();
+        std::error_code loop();
 
     private:
         notifier(const notifier&) = delete;

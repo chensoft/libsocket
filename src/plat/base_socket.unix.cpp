@@ -68,32 +68,32 @@ chen::socket::~socket()
 }
 
 // connection
-chen::status chen::socket::connect(const endpoint &ep) noexcept
+std::error_code chen::socket::connect(const endpoint &ep) noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::connect(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : chen::status();
+    return ::connect(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
 }
 
-chen::status chen::socket::bind(const endpoint &ep) noexcept
+std::error_code chen::socket::bind(const endpoint &ep) noexcept
 {
     struct sockaddr_storage in{};
     socklen_t len = 0;
 
     endpoint::toAddress(ep, in, len);
-    return ::bind(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : chen::status();
+    return ::bind(this->_fd, (struct sockaddr *)&in, len) < 0 ? sys::error() : std::error_code();
 }
 
-chen::status chen::socket::listen() noexcept
+std::error_code chen::socket::listen() noexcept
 {
     return this->listen(SOMAXCONN);
 }
 
-chen::status chen::socket::listen(int backlog) noexcept
+std::error_code chen::socket::listen(int backlog) noexcept
 {
-    return ::listen(this->_fd, backlog) < 0 ? sys::error() : chen::status();
+    return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
 }
 
 chen::socket_t chen::socket::accept() noexcept
@@ -137,7 +137,7 @@ ssize_t chen::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, end
 }
 
 // close
-chen::status chen::socket::shutdown(Shutdown flag) noexcept
+std::error_code chen::socket::shutdown(Shutdown flag) noexcept
 {
     // treat closed as true
     if (!this->_fd)
@@ -161,7 +161,7 @@ chen::status chen::socket::shutdown(Shutdown flag) noexcept
             break;
     }
 
-    return ret < 0 ? sys::error() : chen::status();
+    return ret < 0 ? sys::error() : std::error_code();
 }
 
 void chen::socket::close() noexcept

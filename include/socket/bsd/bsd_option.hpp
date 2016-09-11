@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/config.hpp>
+#include <system_error>
 
 namespace chen
 {
@@ -92,7 +93,7 @@ namespace chen
             /**
              * SO_ERROR(read-only, socket error)
              */
-            chen::status error() const;
+            std::error_code error() const;
 
             /**
              * SO_TYPE(read-only, socket type, SOCK_STREAM, SOCK_DGRAM, SOCK_RAW)

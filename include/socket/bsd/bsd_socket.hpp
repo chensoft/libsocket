@@ -30,19 +30,19 @@ namespace chen
             /**
              * Connect to remote address
              */
-            chen::status connect(const bsd::address &addr);
+            std::error_code connect(const bsd::address &addr);
 
             /**
              * Bind on specific address
              */
-            chen::status bind(const bsd::address &addr);
+            std::error_code bind(const bsd::address &addr);
 
             /**
              * Listen for request
              * @param backlog maximum queue length for pending connections
              */
-            chen::status listen();
-            chen::status listen(int backlog);
+            std::error_code listen();
+            std::error_code listen(int backlog);
 
             /**
              * Accept new request and create a new socket

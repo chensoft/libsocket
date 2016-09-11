@@ -156,9 +156,9 @@ bool chen::bsd::option::rcvtimeo(int sec, int usec)
 }
 
 // error
-chen::status chen::bsd::option::error() const
+std::error_code chen::bsd::option::error() const
 {
-    return chen::status(option::intVal(SOL_SOCKET, SO_ERROR), std::system_category());
+    return std::error_code(option::intVal(SOL_SOCKET, SO_ERROR), std::system_category());
 }
 
 // type

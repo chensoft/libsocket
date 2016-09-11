@@ -24,7 +24,7 @@ void chen::tcp::client::connect(const endpoint &ep)
 
     // if the socket is in non-blocking mode, then pending method will be true
     // if the socket is in blocking mode, we check error and notify to user
-    if (!status || !status.pending())
+    if (!status || (status != std::errc::resource_unavailable_try_again))
         this->notifyConnected(ep, status);
 }
 
@@ -94,7 +94,7 @@ void chen::tcp::client::notifyConnecting(endpoint ep)
         this->_cb(*this, &ev);
 }
 
-void chen::tcp::client::notifyConnected(endpoint ep, chen::status err)
+void chen::tcp::client::notifyConnected(endpoint ep, std::error_code err)
 {
     this->_state = err ? State::Connected : State::Disconnect;
 
@@ -106,7 +106,7 @@ void chen::tcp::client::notifyConnected(endpoint ep, chen::status err)
         this->_cb(*this, &ev);
 }
 
-void chen::tcp::client::notifyDisconnect(chen::status err)
+void chen::tcp::client::notifyDisconnect(std::error_code err)
 {
 
 }

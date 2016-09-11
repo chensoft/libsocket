@@ -81,7 +81,7 @@ chen::notifier::~notifier()
 }
 
 // add/del
-chen::status chen::notifier::add(socket *ptr, Filter filter, std::uint16_t flag)
+std::error_code chen::notifier::add(socket *ptr, Filter filter, std::uint16_t flag)
 {
     struct kevent event = {};
     std::uint16_t codes = EV_ADD;
@@ -93,10 +93,10 @@ chen::status chen::notifier::add(socket *ptr, Filter filter, std::uint16_t flag)
         codes |= EV_CLEAR;
 
     EV_SET(&event, ptr->native(), ::filterToInt(filter), codes, 0, 0, ptr);
-    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : chen::status();
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
-chen::status chen::notifier::del(socket *ptr)
+std::error_code chen::notifier::del(socket *ptr)
 {
     if (!this->del(ptr, Filter::Read))
         return sys::error();
@@ -104,15 +104,15 @@ chen::status chen::notifier::del(socket *ptr)
     return this->del(ptr, Filter::Write);
 }
 
-chen::status chen::notifier::del(socket *ptr, Filter filter)
+std::error_code chen::notifier::del(socket *ptr, Filter filter)
 {
     struct kevent event{};
     EV_SET(&event, ptr->native(), ::filterToInt(filter), EV_DELETE, 0, 0, ptr);
-    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : chen::status();
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0 ? sys::error() : std::error_code();
 }
 
 // loop
-chen::status chen::notifier::loop()
+std::error_code chen::notifier::loop()
 {
     // todo add exit method
     struct kevent event{};

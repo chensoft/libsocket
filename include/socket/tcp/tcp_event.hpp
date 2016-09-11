@@ -50,7 +50,7 @@ namespace chen
 
             public:
                 endpoint ep = nullptr;
-                chen::status err;
+                std::error_code err;
             };
 
 
@@ -62,7 +62,7 @@ namespace chen
                 disconnect() : basic(Type::Disconnect) {}
 
             public:
-                chen::status err;
+                std::error_code err;
             };
 
 

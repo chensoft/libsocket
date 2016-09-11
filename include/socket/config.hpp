@@ -38,6 +38,3 @@ namespace chen
 }
 
 #endif
-
-// For custom error code
-#include <socket/status.hpp>

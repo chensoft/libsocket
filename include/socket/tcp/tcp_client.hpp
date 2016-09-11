@@ -120,8 +120,8 @@ namespace chen
              * todo shorten the method name
              */
             void notifyConnecting(endpoint ep);
-            void notifyConnected(endpoint ep, chen::status err);
-            void notifyDisconnect(chen::status err);
+            void notifyConnected(endpoint ep, std::error_code err);
+            void notifyDisconnect(std::error_code err);
             void notifyRead(std::vector<std::uint8_t> data);
             void notifyWrite(std::size_t size);
 
