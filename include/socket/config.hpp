@@ -27,9 +27,9 @@ namespace chen
 #else
 
 // For Windows
-#include <windows.h>
 #include <winsock2.h>  // socket defines
 #include <ws2tcpip.h>  // getaddrinfo
+#include <windows.h>
 
 namespace chen
 {

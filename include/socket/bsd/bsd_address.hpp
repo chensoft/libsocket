@@ -12,9 +12,17 @@ namespace chen
 {
     namespace bsd
     {
-        class address
+        class address : public ::sockaddr_storage
         {
+        public:
+            bool operator==(const address &o) const;
+            bool operator!=(const address &o) const;
 
+            bool operator<(const address &o) const;
+            bool operator>(const address &o) const;
+
+            bool operator<=(const address &o) const;
+            bool operator>=(const address &o) const;
         };
     }
 }
