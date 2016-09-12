@@ -33,15 +33,15 @@ include_directories(../lib/libchen/include)
 include_directories(../lib/libchen/test/lib/googletest/googletest/include)
 
 # source codes
-aux_source_directory(.        SRC_ROOT)
-aux_source_directory(src/base SRC_BASE)
-aux_source_directory(src/ip   SRC_IP)
-aux_source_directory(src/tcp  SRC_TCP)
-aux_source_directory(src/udp  SRC_UDP)
-aux_source_directory(src/dns  SRC_DNS)
+aux_source_directory(.       SRC_ROOT)
+aux_source_directory(src/bsd SRC_BSD)
+aux_source_directory(src/ip  SRC_IP)
+aux_source_directory(src/tcp SRC_TCP)
+aux_source_directory(src/udp SRC_UDP)
+aux_source_directory(src/dns SRC_DNS)
 
 # generate app
-add_executable(test_libsocket ${SRC_ROOT} ${SRC_BASE} ${SRC_IP} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS})
+add_executable(test_libsocket ${SRC_ROOT} ${SRC_BSD} ${SRC_IP} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS})
 
 # link library
 target_link_libraries(test_libsocket libsocket_static gtest)
@@ -49,8 +49,8 @@ target_link_libraries(test_libsocket libsocket_static gtest)
 # group files in IDEs like Xcode and Visual Studio
 source_group("" FILES ${SRC_ROOT})
 
-source_group("src\\base" FILES ${SRC_BASE})
-source_group("src\\ip"   FILES ${SRC_IP})
-source_group("src\\tcp"  FILES ${SRC_TCP})
-source_group("src\\udp"  FILES ${SRC_UDP})
-source_group("src\\dns"  FILES ${SRC_DNS})
+source_group("src\\bsd" FILES ${SRC_BSD})
+source_group("src\\ip"  FILES ${SRC_IP})
+source_group("src\\tcp" FILES ${SRC_TCP})
+source_group("src\\udp" FILES ${SRC_UDP})
+source_group("src\\dns" FILES ${SRC_DNS})
