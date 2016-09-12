@@ -12,20 +12,26 @@ namespace chen
 {
     namespace bsd
     {
-        class address : public ::sockaddr_storage
+        class address
         {
         public:
-            address();
+            virtual ~address() = default;
 
         public:
-            bool operator==(const address &o) const;
-            bool operator!=(const address &o) const;
+            /**
+             * Convert specific address to sockaddr_storage
+             */
+            virtual struct ::sockaddr_storage get() const = 0;
 
-            bool operator<(const address &o) const;
-            bool operator>(const address &o) const;
+            /**
+             * Set specific address via sockaddr_storage
+             */
+            virtual void set(const struct ::sockaddr_storage &val) = 0;
 
-            bool operator<=(const address &o) const;
-            bool operator>=(const address &o) const;
+            /**
+             * Current address's sizeof length
+             */
+            virtual socklen_t len() const = 0;
         };
     }
 }

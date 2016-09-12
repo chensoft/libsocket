@@ -21,7 +21,7 @@ namespace chen
             /**
              * Construct by socket handle directly
              */
-            socket(socket_t fd);
+            socket(socket_t fd) noexcept;
 
             /**
              * Construct by socket type
@@ -31,80 +31,81 @@ namespace chen
              */
             socket(int domain, int type, int protocol);
 
-            socket(socket &&o);
-            socket& operator=(socket &&o);
+            socket(socket &&o) noexcept;
+            socket& operator=(socket &&o) noexcept;
 
-            ~socket();
+            ~socket() noexcept;
 
         public:
             /**
              * Connect to remote address
              */
-            std::error_code connect(const bsd::address &addr);
+            std::error_code connect(const bsd::address &addr) noexcept;
 
             /**
              * Bind on specific address
              */
-            std::error_code bind(const bsd::address &addr);
+            std::error_code bind(const bsd::address &addr) noexcept;
 
             /**
              * Listen for request
              * @param backlog maximum queue length for pending connections
              */
-            std::error_code listen();
-            std::error_code listen(int backlog);
+            std::error_code listen() noexcept;
+            std::error_code listen(int backlog) noexcept;
 
             /**
              * Accept new request and create a new socket
+             * @notice check to see if the result is valid before use it
              */
-            socket_t accept();
+            std::error_code accept(socket_t &fd, bsd::address &addr) noexcept;
 
         public:
             /**
              * Send data to connected host, usually used in tcp
              */
-            ssize_t send(const void *data, std::size_t size, int flags = 0);
+            ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
 
             /**
              * Send data to specific host, usually used in udp
              */
-            ssize_t send(const void *data, std::size_t size, const bsd::address &addr, int flags = 0);
+            ssize_t send(const void *data, std::size_t size, const bsd::address &addr, int flags = 0) noexcept;
 
             /**
              * Receive data from connected host, usually used in tcp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags = 0);
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in udp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, bsd::address &addr, int flags = 0);
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, bsd::address &addr, int flags = 0) noexcept;
 
         public:
             /**
              * Stop send or receive, but socket is still connected
              */
-            void shutdownBoth();
-            void shutdownRead();
-            void shutdownWrite();
+            void shutdownBoth() noexcept;
+            void shutdownRead() noexcept;
+            void shutdownWrite() noexcept;
 
             /**
              * Close the socket, the socket will disconnect immediately
              */
-            void close();
+            void close() noexcept;
 
         public:
             /**
              * Local and remote address
              */
-            bsd::address local() const;
-            bsd::address remote() const;
+            void local(bsd::address &addr) const noexcept;
+            void remote(bsd::address &addr) const noexcept;
 
             /**
              * Non-blocking status
              */
-            bool nonblocking() const;
-            bool nonblocking(bool enable);
+            bool nonblocking() const noexcept;
+            bool nonblocking(bool enable) noexcept;
 
             /**
              * Get/Set socket option
@@ -113,18 +114,18 @@ namespace chen
              * >> opt.reuseaddr(true);           // set option
              * >> bool reuse = opt.reuseaddr();  // get option
              */
-            bsd::option option();
+            bsd::option option() noexcept;
 
             /**
              * Check socket is valid
              */
-            bool valid() const;
-            operator bool() const;
+            bool valid() const noexcept;
+            operator bool() const noexcept;
 
             /**
              * Native socket handle
              */
-            socket_t native() const;
+            socket_t native() const noexcept;
 
         private:
             socket(const socket&) = delete;

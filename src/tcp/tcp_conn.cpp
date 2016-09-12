@@ -8,26 +8,26 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(socket_t fd) : basic(fd)
-{
-}
-
-ssize_t chen::tcp::conn::send(const std::vector<std::uint8_t> &data, int flags)
-{
-    return this->send(data.data(), data.size(), flags);
-}
-
-std::vector<std::uint8_t> chen::tcp::conn::recv(std::size_t size, int flags)
-{
-    std::vector<std::uint8_t> ret(size);
-
-    auto count = this->recv(ret, size, flags);
-    ret.resize(static_cast<std::size_t>(count >= 0 ? count : 0));
-
-    return ret;
-}
-
-void chen::tcp::conn::disconnect()
-{
-    this->close();
-}
+//chen::tcp::conn::conn(socket_t fd) : basic(fd)
+//{
+//}
+//
+//ssize_t chen::tcp::conn::send(const std::vector<std::uint8_t> &data, int flags)
+//{
+//    return this->send(data.data(), data.size(), flags);
+//}
+//
+//std::vector<std::uint8_t> chen::tcp::conn::recv(std::size_t size, int flags)
+//{
+//    std::vector<std::uint8_t> ret(size);
+//
+//    auto count = this->recv(ret, size, flags);
+//    ret.resize(static_cast<std::size_t>(count >= 0 ? count : 0));
+//
+//    return ret;
+//}
+//
+//void chen::tcp::conn::disconnect()
+//{
+//    this->close();
+//}

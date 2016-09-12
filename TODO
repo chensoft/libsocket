@@ -8,6 +8,8 @@
 
 -) listen on AF_INET6 support both v6 and v4, modern os support it
 
+-) provide some common flags when use socket send, recv...
+
 
 -) dns IDN convert, rfc3490, punycode
 
