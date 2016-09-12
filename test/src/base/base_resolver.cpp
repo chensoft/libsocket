@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/base/base_resolver.hpp>
+#include <socket/ip/ip_resolver.hpp>
 #include <gtest/gtest.h>
 
 TEST(BaseResolverTest, General)

@@ -6,12 +6,23 @@
  */
 #pragma once
 
-#include <socket/base/base_error.hpp>
+#include <stdexcept>
+#include <string>
 
 namespace chen
 {
     namespace ip
     {
+        /**
+         * General error
+         */
+        class error : public std::runtime_error
+        {
+        public:
+            explicit error(const std::string &what) : runtime_error(what) {}
+        };
+
+
         // ---------------------------------------------------------------------
         // Syntax error
         class syntax_error : public error
