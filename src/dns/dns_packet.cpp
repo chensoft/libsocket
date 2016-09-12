@@ -184,7 +184,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
         if (record)
             this->_answer.emplace_back(std::move(record));
         else
-            throw codec_error("dns: decode answer error, unknown record detect");
+            throw std::runtime_error("dns: decode answer error, unknown record detect");
     }
 
     // authority
@@ -197,7 +197,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
         if (record)
             this->_authority.emplace_back(std::move(record));
         else
-            throw codec_error("dns: decode authority error, unknown record detect");
+            throw std::runtime_error("dns: decode authority error, unknown record detect");
     }
 
     // additional
@@ -210,7 +210,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
         if (record)
             this->_additional.emplace_back(std::move(record));
         else
-            throw codec_error("dns: decode additional error, unknown record detect");
+            throw std::runtime_error("dns: decode additional error, unknown record detect");
     }
 }
 
@@ -226,7 +226,7 @@ chen::dns::request::request(const std::string &qname, RRType qtype)
 const chen::dns::request::question_type& chen::dns::request::query() const
 {
     if (this->_question.empty())
-        throw error("dns: request question is empty");
+        throw std::runtime_error("dns: request question is empty");
 
     return this->_question[0];
 }
@@ -234,7 +234,7 @@ const chen::dns::request::question_type& chen::dns::request::query() const
 chen::dns::request::question_type& chen::dns::request::query()
 {
     if (this->_question.empty())
-        throw error("dns: request question is empty");
+        throw std::runtime_error("dns: request question is empty");
 
     return this->_question[0];
 }
@@ -243,11 +243,11 @@ void chen::dns::request::setQuery(const std::string &qname, RRType qtype)
 {
     // check empty
     if (qname.empty())
-        throw codec_error("dns: request query name is empty");
+        throw std::runtime_error("dns: request query name is empty");
 
     // check fqdn
     if (!codec::isFqdn(qname))
-        throw fqdn_error("dns: request query name is not fqdn");
+        throw std::runtime_error("dns: request query name is not fqdn");
 
     // set id
     this->_header.setId(header::random());

@@ -35,7 +35,7 @@ void chen::dns::edns0::Option::encode(dns::encoder &encoder) const
     auto off = len - before;
 
     if (off > std::numeric_limits<std::uint16_t>::max())
-        throw codec_error("dns: codec pack option data size is overflow");
+        throw std::runtime_error("dns: codec pack option data size is overflow");
 
     auto tmp = static_cast<std::uint16_t>(off);
 
@@ -295,10 +295,10 @@ void chen::dns::edns0::Subnet::pack(dns::encoder &encoder) const
         {
             // IPv4
             if (this->source > 32)
-                throw codec_error("dns: codec pack edns0 subnet source prefix is greater than 32");
+                throw std::runtime_error("dns: codec pack edns0 subnet source prefix is greater than 32");
 
             if (!this->address.isIPv4())
-                throw codec_error("dns: codec pack edns0 subnet address is not ipv4");
+                throw std::runtime_error("dns: codec pack edns0 subnet address is not ipv4");
 
             auto bytes = this->address.network().bytes();
 
@@ -310,10 +310,10 @@ void chen::dns::edns0::Subnet::pack(dns::encoder &encoder) const
         case 2:
         {
             if (this->source > 128)
-                throw codec_error("dns: codec pack edns0 subnet source prefix is greater than 128");
+                throw std::runtime_error("dns: codec pack edns0 subnet source prefix is greater than 128");
 
             if (!this->address.isIPv6())
-                throw codec_error("dns: codec pack edns0 subnet address is not ipv6");
+                throw std::runtime_error("dns: codec pack edns0 subnet address is not ipv6");
 
             auto bytes = this->address.network().bytes();
 
@@ -323,7 +323,7 @@ void chen::dns::edns0::Subnet::pack(dns::encoder &encoder) const
             break;
 
         default:
-            throw codec_error("dns: codec pack edns0 subnet family not support");
+            throw std::runtime_error("dns: codec pack edns0 subnet family not support");
     }
 }
 
@@ -339,7 +339,7 @@ void chen::dns::edns0::Subnet::unpack(dns::decoder &decoder)
         {
             // IPv4
             if (this->source > 32)
-                throw codec_error("dns: codec unpack edns0 subnet source prefix is greater than 32");
+                throw std::runtime_error("dns: codec unpack edns0 subnet source prefix is greater than 32");
 
             std::uint8_t addr[4]{};
 
@@ -354,7 +354,7 @@ void chen::dns::edns0::Subnet::unpack(dns::decoder &decoder)
         {
             // IPv6
             if (this->source > 128)
-                throw codec_error("dns: codec unpack edns0 subnet source prefix is greater than 128");
+                throw std::runtime_error("dns: codec unpack edns0 subnet source prefix is greater than 128");
 
             std::uint8_t addr[16]{};
 
@@ -366,7 +366,7 @@ void chen::dns::edns0::Subnet::unpack(dns::decoder &decoder)
             break;
 
         default:
-            throw codec_error("dns: codec unpack edns0 subnet family not support");
+            throw std::runtime_error("dns: codec unpack edns0 subnet family not support");
     }
 }
 

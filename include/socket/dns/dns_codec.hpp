@@ -7,7 +7,6 @@
 #pragma once
 
 #include <socket/dns/dns_define.hpp>
-#include <socket/dns/dns_error.hpp>
 #include <chen/base/iterator.hpp>
 #include <chen/base/str.hpp>
 #include <vector>
@@ -148,7 +147,7 @@ namespace chen
             {
                 auto need = val.size();
                 if (static_cast<std::size_t>(std::distance(this->_cur, this->_end)) < need)
-                    throw codec_error(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
+                    throw std::runtime_error(str::format("dns: codec unpack array size is not enough, require %d bytes", need));
 
                 auto from = this->_cur;
 

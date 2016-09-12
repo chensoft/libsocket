@@ -154,7 +154,7 @@ void chen::dns::encoder::pack(const std::string &val, StringType type, bool comp
 void chen::dns::encoder::pack(const std::vector<std::uint8_t> &val, std::size_t need)
 {
     if (val.size() < need)
-        throw codec_error(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
+        throw std::runtime_error(str::format("dns: codec pack vector size is not enough, require %d bytes", need));
 
     this->_data.insert(this->_data.end(), val.begin(), val.begin() + need);
 }
@@ -166,7 +166,7 @@ void chen::dns::encoder::plain(const std::string &val)
     // value is plain text
     // one byte length + characters
     if (val.size() > SIZE_LIMIT_STRING)
-        throw codec_error(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
+        throw std::runtime_error(str::format("dns: codec pack string must be %d octets or less", SIZE_LIMIT_STRING));
 
     this->_data.emplace_back(static_cast<std::uint8_t>(val.size()));
     this->_data.insert(this->_data.end(), val.begin(), val.end());
@@ -176,14 +176,14 @@ void chen::dns::encoder::domain(const std::string &val, bool compress)
 {
     // check fqdn
     if (!codec::isFqdn(val))
-        throw fqdn_error("dns: codec pack domain is not fqdn");
+        throw std::runtime_error("dns: codec pack domain is not fqdn");
 
     // check total length
     // caution: this limit isn't name's length, it's the bytes after encoded
     // example: www.chensoft.com. will encoded as [3, w, w, w, 8, c, h, e, n, s, o, f, t, 3, c, o, m, 0]
     // the encoded bytes can't exceed than SIZE_LIMIT_DOMAIN
     if (val.size() + 1 > SIZE_LIMIT_DOMAIN)
-        throw codec_error(str::format("dns: codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
+        throw std::runtime_error(str::format("dns: codec pack domain must be %d octets or less", SIZE_LIMIT_DOMAIN - 1));
 
     // try to compress
     if (compress && this->compress(val))
@@ -217,7 +217,7 @@ void chen::dns::encoder::domain(const std::string &val, bool compress)
             ++length;
 
             if (length > SIZE_LIMIT_LABEL)
-                throw codec_error(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+                throw std::runtime_error(str::format("dns: codec pack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
             this->_data.emplace_back(static_cast<std::uint8_t>(c));
         }
@@ -306,7 +306,7 @@ void chen::dns::decoder::unpack(std::int64_t &val)
 void chen::dns::decoder::unpack(std::uint8_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 1)
-        throw codec_error("dns: codec unpack size is not enough, require 1 bytes");
+        throw std::runtime_error("dns: codec unpack size is not enough, require 1 bytes");
 
     val = *this->_cur++;
 }
@@ -314,7 +314,7 @@ void chen::dns::decoder::unpack(std::uint8_t &val)
 void chen::dns::decoder::unpack(std::uint16_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 2)
-        throw codec_error("dns: codec unpack size is not enough, require 2 bytes");
+        throw std::runtime_error("dns: codec unpack size is not enough, require 2 bytes");
 
     val = 0;
 
@@ -325,7 +325,7 @@ void chen::dns::decoder::unpack(std::uint16_t &val)
 void chen::dns::decoder::unpack(std::uint32_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 4)
-        throw codec_error("dns: codec unpack size is not enough, require 4 bytes");
+        throw std::runtime_error("dns: codec unpack size is not enough, require 4 bytes");
 
     val = 0;
 
@@ -336,7 +336,7 @@ void chen::dns::decoder::unpack(std::uint32_t &val)
 void chen::dns::decoder::unpack(std::uint64_t &val)
 {
     if (std::distance(this->_cur, this->_end) < 8)
-        throw codec_error("dns: codec unpack size is not enough, require 8 bytes");
+        throw std::runtime_error("dns: codec unpack size is not enough, require 8 bytes");
 
     val = 0;
 
@@ -364,7 +364,7 @@ void chen::dns::decoder::unpack(std::string &val, StringType type)
     val.clear();
 
     if (std::distance(this->_cur, this->_end) < 1)
-        throw codec_error("dns: codec unpack string size is zero");
+        throw std::runtime_error("dns: codec unpack string size is zero");
 
     switch (type)
     {
@@ -381,7 +381,7 @@ void chen::dns::decoder::unpack(std::string &val, StringType type)
 void chen::dns::decoder::unpack(std::vector<std::uint8_t> &val, std::size_t need)
 {
     if (static_cast<std::size_t>(std::distance(this->_cur, this->_end)) < need)
-        throw codec_error(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
+        throw std::runtime_error(str::format("dns: codec unpack vector size is not enough, require %d bytes", need));
 
     while (need--)
         val.emplace_back(*this->_cur++);
@@ -395,7 +395,7 @@ void chen::dns::decoder::plain(std::string &val)
     auto length = static_cast<std::size_t>(*this->_cur) + 1;
 
     if (static_cast<std::size_t>(std::distance(this->_cur, this->_end)) < length)
-        throw codec_error(str::format("dns: codec unpack string size is not enough, require %d bytes", length));
+        throw std::runtime_error(str::format("dns: codec unpack string size is not enough, require %d bytes", length));
 
     ++this->_cur;
 
@@ -421,7 +421,7 @@ void chen::dns::decoder::extract(std::string &val, iterator &cur)
         {
             auto byte = *cur++ & 0x3F;
             if (!*cur)
-                throw codec_error("dns: codec unpack string size is not enough, require 1 bytes");
+                throw std::runtime_error("dns: codec unpack string size is not enough, require 1 bytes");
 
             auto pos = static_cast<std::size_t>((byte << 8) | *cur++);
             auto tmp = this->_beg;
@@ -436,18 +436,18 @@ void chen::dns::decoder::extract(std::string &val, iterator &cur)
             // only bits 00 and 11 are defined in rfc1035
             // bits 01 and 10 are defined in rfc2671 and rfc2673
             // but they are not widely deployed and deprecated now
-            throw codec_error("dns: codec unpack string label type error");
+            throw std::runtime_error("dns: codec unpack string label type error");
         }
 
         // normal text
         auto length = *cur + 1;
 
         if (std::distance(cur, this->_end) < length)
-            throw codec_error(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
+            throw std::runtime_error(str::format("dns: codec unpack domain size is not enough, require %d bytes", length));
 
         // check limit
         if (static_cast<std::size_t>(length) > SIZE_LIMIT_LABEL)
-            throw codec_error(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
+            throw std::runtime_error(str::format("dns: codec unpack domain label must be %d octets or less", SIZE_LIMIT_LABEL));
 
         for (auto i = 1; i < length; ++i)
             val += *++cur;

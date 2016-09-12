@@ -52,7 +52,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/dns/dns_codec.hpp>
 #include <socket/dns/dns_define.hpp>
 #include <socket/dns/dns_edns.hpp>
-#include <socket/dns/dns_error.hpp>
 #include <socket/dns/dns_header.hpp>
 #include <socket/dns/dns_packet.hpp>
 #include <socket/dns/dns_record.hpp>

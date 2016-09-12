@@ -45,7 +45,7 @@ void chen::dns::RR::encode(dns::encoder &encoder) const
     auto off = len - before;
 
     if (off > std::numeric_limits<std::uint16_t>::max())
-        throw codec_error("dns: codec pack rdata size is overflow");
+        throw std::runtime_error("dns: codec pack rdata size is overflow");
 
     auto tmp = static_cast<std::uint16_t>(off);
 
@@ -117,7 +117,7 @@ std::string chen::dns::RR::str(const std::string &sep) const
 std::size_t chen::dns::RR::remain(std::size_t used) const
 {
     if (this->rdlength < used)
-        throw codec_error("dns: codec rdata is overflow");
+        throw std::runtime_error("dns: codec rdata is overflow");
 
     return static_cast<std::size_t>(this->rdlength - used);
 }
@@ -1970,7 +1970,7 @@ void chen::dns::OPT::unpack(dns::decoder &decoder)
 
 void chen::dns::OPT::unpack(const json::object &object)
 {
-    throw codec_error("dns: unpack opt record by json is invalid");
+    throw std::runtime_error("dns: unpack opt record by json is invalid");
 }
 
 
