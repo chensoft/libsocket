@@ -30,7 +30,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/base/base_notifier.hpp>
 
 #include <socket/ip/ip_address.hpp>
-#include <socket/ip/ip_error.hpp>
 #include <socket/ip/ip_interface.hpp>
 #include <socket/ip/ip_option.hpp>
 #include <socket/ip/ip_resolver.hpp>

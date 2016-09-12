@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/ip/ip_interface.hpp>
-#include <socket/ip/ip_error.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
@@ -77,7 +76,7 @@ void chen::ip::version4::assign(const std::string &addr, std::uint8_t cidr)
     this->_cidr = cidr;
 
     if (this->_cidr > 32)
-        throw syntax_error("ipv4: CIDR prefix must less than 32");
+        throw std::runtime_error("ipv4: CIDR prefix must less than 32");
 }
 
 void chen::ip::version4::assign(const std::string &addr, const std::string &mask)
@@ -98,7 +97,7 @@ void chen::ip::version4::assign(std::uint32_t addr, std::uint8_t cidr)
     this->_cidr = cidr;
 
     if (this->_cidr > 32)
-        throw syntax_error("ipv4: CIDR prefix must less than 32");
+        throw std::runtime_error("ipv4: CIDR prefix must less than 32");
 }
 
 void chen::ip::version4::assign(std::uint32_t addr, const std::string &mask)
@@ -387,7 +386,7 @@ std::uint32_t chen::ip::version4::toInteger(const std::string &addr, std::uint8_
     {
         // check character
         if (!std::isdigit(*cur))
-            throw syntax_error("ipv4: addr format is wrong");
+            throw std::runtime_error("ipv4: addr format is wrong");
 
         // collect digits
         do
@@ -400,7 +399,7 @@ std::uint32_t chen::ip::version4::toInteger(const std::string &addr, std::uint8_
 
         // check if valid
         if (num[i] > 0xFF)
-            throw syntax_error("ipv4: addr number must between 0 and 255");
+            throw std::runtime_error("ipv4: addr number must between 0 and 255");
     }
 
     // analyse the digits
@@ -445,7 +444,7 @@ std::uint32_t chen::ip::version4::toInteger(const std::string &addr, std::uint8_
                 tmp = tmp * 10 + (*cur - '0');
 
             if (tmp > 32)
-                throw syntax_error("ipv4: CIDR prefix must less than 32");
+                throw std::runtime_error("ipv4: CIDR prefix must less than 32");
 
             *cidr = static_cast<uint8_t>(tmp);
         }
@@ -536,7 +535,7 @@ void chen::ip::version6::assign(const std::string &addr, std::uint8_t cidr)
     this->_cidr = cidr;
 
     if (this->_cidr > 128)
-        throw syntax_error("ipv6: CIDR prefix must less than 128");
+        throw std::runtime_error("ipv6: CIDR prefix must less than 128");
 }
 
 void chen::ip::version6::assign(const std::string &addr, std::uint8_t cidr, std::uint32_t scope)
@@ -546,7 +545,7 @@ void chen::ip::version6::assign(const std::string &addr, std::uint8_t cidr, std:
     this->_scope = scope;
 
     if (this->_cidr > 128)
-        throw syntax_error("ipv6: CIDR prefix must less than 128");
+        throw std::runtime_error("ipv6: CIDR prefix must less than 128");
 }
 
 void chen::ip::version6::assign(const std::string &addr, const std::string &mask)
@@ -580,7 +579,7 @@ void chen::ip::version6::assign(const std::uint8_t addr[16], std::uint8_t cidr, 
     this->_scope = scope;
 
     if (this->_cidr > 128)
-        throw syntax_error("ipv6: CIDR prefix must less than 128");
+        throw std::runtime_error("ipv6: CIDR prefix must less than 128");
 }
 
 void chen::ip::version6::assign(const std::uint8_t addr[16], const std::string &mask)
@@ -1033,7 +1032,7 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
             }
             else
             {
-                throw syntax_error("ipv6: multiple '::' is not allowed");
+                throw std::runtime_error("ipv6: multiple '::' is not allowed");
             }
         }
 
@@ -1052,7 +1051,7 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
             else if (ch == ':')
             {
                 if (!hex)
-                    throw syntax_error("ipv6: require decimal integer in dotted format");
+                    throw std::runtime_error("ipv6: require decimal integer in dotted format");
 
                 ++cur;
                 break;
@@ -1067,7 +1066,7 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
             else if ((ch != '/') && (ch != '%'))
             {
                 // unrecognized char
-                throw syntax_error("ipv6: addr format is wrong");
+                throw std::runtime_error("ipv6: addr format is wrong");
             }
         }
 
@@ -1124,7 +1123,7 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
                 tmp = tmp * 10 + (*cur - '0');
 
             if (tmp > 128)
-                throw syntax_error("ipv6: CIDR prefix must less than 128");
+                throw std::runtime_error("ipv6: CIDR prefix must less than 128");
 
             *cidr = static_cast<uint8_t>(tmp);
         }
