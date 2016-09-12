@@ -15,6 +15,9 @@ namespace chen
         class address : public ::sockaddr_storage
         {
         public:
+            address();
+
+        public:
             bool operator==(const address &o) const;
             bool operator!=(const address &o) const;
 

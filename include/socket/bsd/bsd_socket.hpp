@@ -18,7 +18,17 @@ namespace chen
         class socket
         {
         public:
+            /**
+             * Construct by socket handle directly
+             */
             socket(socket_t fd);
+
+            /**
+             * Construct by socket type
+             * @param domain AF_INET, AF_INET6, AF_UNIX...
+             * @param type SOCK_STREAM, SOCK_DGRAM, SOCK_RAW...
+             * @param protocol IPPROTO_TCP, IPPROTO_UDP or use zero directly
+             */
             socket(int domain, int type, int protocol);
 
             socket(socket &&o);

@@ -15,56 +15,56 @@
 // socket
 chen::socket::socket(socket_t fd) : _fd(fd)
 {
-    if (this->_fd < 0)
-        throw socket_error("socket: " + sys::error().message());
+//    if (this->_fd < 0)
+//        throw socket_error("socket: " + sys::error().message());
 }
 
 chen::socket::socket(int family, int type, int protocol)
 {
-    this->_fd = ::socket(family, type, protocol);
-    if (this->_fd < 0)
-        throw socket_error("socket: " + sys::error().message());
+//    this->_fd = ::socket(family, type, protocol);
+//    if (this->_fd < 0)
+//        throw socket_error("socket: " + sys::error().message());
 }
 
 chen::socket::socket(ip::address::Type family, int type, int protocol)
 {
-    switch (family)
-    {
-        case ip::address::Type::IPv4:
-            this->_fd = ::socket(AF_INET, type, protocol);
-            break;
-
-        case ip::address::Type::IPv6:
-            this->_fd = ::socket(AF_INET6, type, protocol);
-            break;
-
-        default:
-            break;
-    }
-
-    if (this->_fd < 0)
-        throw socket_error("socket: " + sys::error().message());
+//    switch (family)
+//    {
+//        case ip::address::Type::IPv4:
+//            this->_fd = ::socket(AF_INET, type, protocol);
+//            break;
+//
+//        case ip::address::Type::IPv6:
+//            this->_fd = ::socket(AF_INET6, type, protocol);
+//            break;
+//
+//        default:
+//            break;
+//    }
+//
+//    if (this->_fd < 0)
+//        throw socket_error("socket: " + sys::error().message());
 }
 
 chen::socket::socket(socket &&o)
 {
-    *this = std::move(o);
+//    *this = std::move(o);
 }
 
 chen::socket& chen::socket::operator=(socket &&o)
 {
-    if (this == &o)
-        return *this;
-
-    this->_fd = o._fd;
-    o._fd     = 0;
-
+//    if (this == &o)
+//        return *this;
+//
+//    this->_fd = o._fd;
+//    o._fd     = 0;
+//
     return *this;
 }
 
 chen::socket::~socket()
 {
-    this->close();
+//    this->close();
 }
 
 // connection

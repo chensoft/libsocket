@@ -9,6 +9,10 @@
 
 // -----------------------------------------------------------------------------
 // address
+chen::bsd::address::address() : ::sockaddr_storage()  // init storage to zeros
+{
+}
+
 bool chen::bsd::address::operator==(const address &o) const
 {
     return ::memcmp(this, &o, sizeof(::sockaddr_storage)) == 0;
