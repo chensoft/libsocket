@@ -6,29 +6,20 @@
  */
 #pragma once
 
-// todo
-//#include <socket/base/base_option.hpp>
-//
-//namespace chen
-//{
-//    namespace tcp
-//    {
-//        namespace option
-//        {
-//            // -----------------------------------------------------------------
-//            // TCP_NODELAY(turn off the TCP Nagle algorithm)
-//            class nodelay : public chen::option::basic
-//            {
-//            public:
-//                explicit nodelay(const socket &sock);
-//                explicit nodelay(bool val);
-//
-//            public:
-//                bool apply(socket &sock);
-//
-//            public:
-//                bool enable = false;
-//            };
-//        }
-//    }
-//}
+#include <socket/ip/ip_option.hpp>
+
+namespace chen
+{
+    namespace tcp
+    {
+        class option : public ip::option
+        {
+        public:
+            /**
+             * TCP_NODELAY(turn off the TCP Nagle algorithm)
+             */
+            bool nodelay() const;
+            bool nodelay(bool val);
+        };
+    }
+}

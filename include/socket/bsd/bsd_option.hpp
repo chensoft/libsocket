@@ -100,13 +100,13 @@ namespace chen
              */
             int type() const;
 
-        private:
+        protected:
             /**
              * Helper
              */
             int intVal(int level, int name) const;
 
-        private:
+        protected:
             socket_t _fd;
         };
     }
