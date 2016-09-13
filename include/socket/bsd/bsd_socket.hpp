@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_address.hpp>
+#include <socket/bsd/bsd_endpoint.hpp>
 #include <socket/bsd/bsd_option.hpp>
 #include <socket/bsd/bsd_setup.hpp>
 #include <vector>
@@ -38,14 +38,14 @@ namespace chen
 
         public:
             /**
-             * Connect to remote address
+             * Connect to remote endpoint
              */
-            std::error_code connect(const bsd::address &addr) noexcept;
+            std::error_code connect(const bsd::endpoint &ep) noexcept;
 
             /**
-             * Bind on specific address
+             * Bind on specific endpoint
              */
-            std::error_code bind(const bsd::address &addr) noexcept;
+            std::error_code bind(const bsd::endpoint &ep) noexcept;
 
             /**
              * Listen for request
@@ -58,7 +58,7 @@ namespace chen
              * Accept new request and create a new socket
              * @notice check to see if the result is valid before use it
              */
-            std::error_code accept(socket_t &fd, bsd::address &addr) noexcept;
+            std::error_code accept(socket_t &fd, bsd::endpoint &ep) noexcept;
 
         public:
             /**
@@ -69,7 +69,7 @@ namespace chen
             /**
              * Send data to specific host, usually used in udp
              */
-            ssize_t send(const void *data, std::size_t size, const bsd::address &addr, int flags = 0) noexcept;
+            ssize_t send(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Receive data from connected host, usually used in tcp
@@ -79,7 +79,7 @@ namespace chen
             /**
              * Receive data from specific host, usually used in udp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, bsd::address &addr, int flags = 0) noexcept;
+            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, bsd::endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**
@@ -96,10 +96,10 @@ namespace chen
 
         public:
             /**
-             * Local and remote address
+             * Local and remote endpoint
              */
-            void local(bsd::address &addr) const noexcept;
-            void remote(bsd::address &addr) const noexcept;
+            void local(bsd::endpoint &ep) const noexcept;
+            void remote(bsd::endpoint &ep) const noexcept;
 
             /**
              * Non-blocking status

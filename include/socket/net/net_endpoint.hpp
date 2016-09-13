@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_address.hpp>
+#include <socket/bsd/bsd_endpoint.hpp>
 #include <socket/ip/ip_address.hpp>
 
 namespace chen
@@ -16,40 +16,40 @@ namespace chen
         /**
          * Endpoint for TCP & UDP
          */
-        class address : public bsd::address
+        class endpoint : public bsd::endpoint
         {
         public:
             /**
              * Construct an null address
              */
-            address(std::nullptr_t);
+            endpoint(std::nullptr_t);
 
             /**
              * Construct by ip address & port
              */
-            address(const ip::address &addr, std::uint16_t port);
+            endpoint(const ip::address &addr, std::uint16_t port);
 
             /**
              * Construct by "ip:port" string
              * service name will be converted to port number
              * For IPv4:
-             * :-) address(":80")
-             * :-) address("127.0.0.1")
-             * :-) address("127.0.0.1:80")
-             * :-) address("127.0.0.1:http")
+             * :-) endpoint(":80")
+             * :-) endpoint("127.0.0.1")
+             * :-) endpoint("127.0.0.1:80")
+             * :-) endpoint("127.0.0.1:http")
              * For IPv6
-             * :-) address("[::]:80")
-             * :-) address("[fe80::1]")
-             * :-) address("[fe80::1]:80")
-             * :-) address("[fe80::1]:http")
-             * :-) address("[fe80::1%lo0]")
-             * :-) address("[fe80::1%lo0]:80")
-             * :-) address("[fe80::1%lo0]:http")
+             * :-) endpoint("[::]:80")
+             * :-) endpoint("[fe80::1]")
+             * :-) endpoint("[fe80::1]:80")
+             * :-) endpoint("[fe80::1]:http")
+             * :-) endpoint("[fe80::1%lo0]")
+             * :-) endpoint("[fe80::1%lo0]:80")
+             * :-) endpoint("[fe80::1%lo0]:http")
              * todo allow domain here, use first entry
              * @notice don't use domain here, accept ip address only
              */
-            address(const std::string &mixed);
-            address(const char *mixed);
+            endpoint(const std::string &mixed);
+            endpoint(const char *mixed);
 
         public:
             /**
@@ -85,14 +85,14 @@ namespace chen
             /**
              * Comparison
              */
-            bool operator==(const address &o) const;
-            bool operator!=(const address &o) const;
+            bool operator==(const endpoint &o) const;
+            bool operator!=(const endpoint &o) const;
 
-            bool operator<(const address &o) const;
-            bool operator>(const address &o) const;
+            bool operator<(const endpoint &o) const;
+            bool operator>(const endpoint &o) const;
 
-            bool operator<=(const address &o) const;
-            bool operator>=(const address &o) const;
+            bool operator<=(const endpoint &o) const;
+            bool operator>=(const endpoint &o) const;
 
         public:
             /**
