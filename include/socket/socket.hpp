@@ -31,6 +31,8 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/ip/ip_option.hpp>
 #include <socket/ip/ip_version.hpp>
 
+#include <socket/net/net_address.hpp>
+
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_client.hpp>
 #include <socket/tcp/tcp_conn.hpp>

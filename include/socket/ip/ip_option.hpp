@@ -12,6 +12,7 @@ namespace chen
 {
     namespace ip
     {
+        // todo add more IPv6 and IPv4 options
         class option : public bsd::option
         {
         public:
