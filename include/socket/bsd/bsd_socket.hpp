@@ -65,21 +65,23 @@ namespace chen
              * Send data to connected host, usually used in tcp
              */
             ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0) noexcept;
 
             /**
              * Send data to specific host, usually used in udp
              */
             ssize_t send(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
+            ssize_t send(const std::vector<std::uint8_t> &data, const bsd::endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Receive data from connected host, usually used in tcp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, int flags = 0) noexcept;
+            ssize_t recv(std::vector<std::uint8_t> &out, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in udp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, std::size_t size, bsd::endpoint &ep, int flags = 0) noexcept;
+            ssize_t recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**

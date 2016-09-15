@@ -82,23 +82,33 @@ ssize_t chen::bsd::socket::send(const void *data, std::size_t size, int flags) n
     return ::send(this->_fd, data, size, flags);
 }
 
+ssize_t chen::bsd::socket::send(const std::vector<std::uint8_t> &data, int flags) noexcept
+{
+    return this->send(data.data(), data.size(), flags);
+}
+
 ssize_t chen::bsd::socket::send(const void *data, std::size_t size, const bsd::endpoint &ep, int flags) noexcept
 {
     auto tmp = ep.get();
     return ::sendto(this->_fd, data, size, flags, (struct ::sockaddr*)&tmp, ep.len());
 }
 
-ssize_t chen::bsd::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, int flags) noexcept
+ssize_t chen::bsd::socket::send(const std::vector<std::uint8_t> &data, const bsd::endpoint &ep, int flags) noexcept
 {
-    return ::recv(this->_fd, out.data(), size, flags);
+    return this->send(data.data(), data.size(), ep, flags);
 }
 
-ssize_t chen::bsd::socket::recv(std::vector<std::uint8_t> &out, std::size_t size, bsd::endpoint &ep, int flags) noexcept
+ssize_t chen::bsd::socket::recv(std::vector<std::uint8_t> &out, int flags) noexcept
+{
+    return ::recv(this->_fd, out.data(), out.size(), flags);
+}
+
+ssize_t chen::bsd::socket::recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags) noexcept
 {
     struct sockaddr_storage tmp{};
     socklen_t len = 0;
 
-    auto ret = ::recvfrom(this->_fd, out.data(), size, flags, (struct sockaddr*)&tmp, &len);
+    auto ret = ::recvfrom(this->_fd, out.data(), out.size(), flags, (struct sockaddr*)&tmp, &len);
     if (ret < 0)
         return ret;
 

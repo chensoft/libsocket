@@ -6,6 +6,7 @@
  */
 #include <socket/net/net_endpoint.hpp>
 #include <chen/base/num.hpp>
+#include <cstring>
 
 // -----------------------------------------------------------------------------
 // address
