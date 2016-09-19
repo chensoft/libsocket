@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/config.hpp>
+#include <socket/net/net_socket.hpp>
 #include <unordered_map>
 #include <system_error>
 #include <vector>
@@ -18,19 +18,19 @@ namespace chen
         class proactor
         {
         public:
-            proactor();
+            proactor() throw(std::system_error);
             ~proactor();
 
         public:
             /**
              * Send data to remote host, socket's callback will be called
              */
-            void send(socket_t fd, std::vector<std::uint8_t> &&data);
+            void send(net::socket *ptr, std::vector<std::uint8_t> &&data);
 
             /**
              * Receive data from remote, socket's callback will be called
              */
-            void recv(socket_t fd, std::size_t size);
+            void recv(net::socket *ptr, std::size_t size);
 
             /**
              * Wait events and dispatch
@@ -41,8 +41,8 @@ namespace chen
             /**
              * Helper methods
              */
-            void read(socket_t fd);
-            void write(socket_t fd);
+            void write(net::socket *ptr) throw(std::system_error);
+            void read(net::socket *ptr) throw(std::system_error);
 
         private:
             proactor(const proactor&) = delete;
@@ -53,8 +53,8 @@ namespace chen
 
             typedef std::vector<std::uint8_t> chunk;
 
-            std::unordered_map<socket_t, std::vector<chunk>> _send;  // send cache
-            std::unordered_map<socket_t, std::vector<chunk>> _recv;  // recv cache
+            std::unordered_map<net::socket*, std::vector<chunk>> _send;  // send cache
+            std::unordered_map<net::socket*, std::vector<chunk>> _recv;  // recv cache
         };
     }
 }
