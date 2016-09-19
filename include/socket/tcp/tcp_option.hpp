@@ -15,6 +15,9 @@ namespace chen
         class option : public ip::option
         {
         public:
+            option(socket_t fd);
+
+        public:
             /**
              * TCP_NODELAY(turn off the TCP Nagle algorithm)
              */

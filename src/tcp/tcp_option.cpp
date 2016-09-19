@@ -8,6 +8,9 @@
 
 // -----------------------------------------------------------------------------
 // option
+chen::tcp::option::option(socket_t fd) : ip::option(fd)
+{
+}
 
 // nodelay
 bool chen::tcp::option::nodelay() const

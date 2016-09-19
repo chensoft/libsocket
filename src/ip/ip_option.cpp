@@ -8,6 +8,9 @@
 
 // -----------------------------------------------------------------------------
 // option
+chen::ip::option::option(socket_t fd) : bsd::option(fd)
+{
+}
 
 // ttl
 int chen::ip::option::ttl() const
