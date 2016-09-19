@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <system_error>
 #include <vector>
+#include <queue>
 
 namespace chen
 {
@@ -53,8 +54,8 @@ namespace chen
 
             typedef std::vector<std::uint8_t> chunk;
 
-            std::unordered_map<net::socket*, std::vector<chunk>> _send;  // send cache
-            std::unordered_map<net::socket*, std::vector<chunk>> _recv;  // recv cache
+            std::unordered_map<net::socket*, std::queue<chunk>> _send;  // send cache
+            std::unordered_map<net::socket*, std::queue<chunk>> _recv;  // recv cache
         };
     }
 }

@@ -28,9 +28,9 @@ namespace chen
             /**
              * Event callbacks
              */
-            void onEventSend(std::size_t size);
-            void onEventRecv(std::vector<std::uint8_t> data);
-            void onEventEOF();  // connection refused, disconnect or other error
+            virtual void onEventSend(std::size_t size, std::error_code error) = 0;
+            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) = 0;
+            virtual void onEventEOF() = 0;  // connection refused, disconnect or other error
         };
     }
 }

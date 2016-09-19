@@ -25,13 +25,13 @@ chen::net::proactor::~proactor()
 
 void chen::net::proactor::send(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
-    this->_send[ptr].emplace_back(std::move(data));
+    this->_send[ptr].push(std::move(data));
     this->write(ptr);
 }
 
 void chen::net::proactor::recv(net::socket *ptr, std::size_t size)
 {
-    this->_recv[ptr].emplace_back(chunk(size));
+    this->_recv[ptr].push(chunk(size));
     this->read(ptr);
 }
 
@@ -52,27 +52,56 @@ void chen::net::proactor::loop() throw(std::system_error)
             if (event.flags & EV_EOF)
             {
                 // todo clear cache first?
+                // connection refused, disconnect or other error
                 ptr->onEventEOF();
             }
-            else if (event.filter & EVFILT_WRITE)
+            else
             {
-                // simulate proactor, send data to remote and notify socket
+                // simulate proactor, notify callback after send or receive data
                 auto &list = this->_send[ptr];
                 if (list.empty())
                     continue;
 
-                auto &chunk = list.front();
-                auto   size = ptr->handle().send(chunk.data(), chunk.size());
+                if (event.filter & EVFILT_WRITE)
+                {
+                    // todo record original size
+                    auto &chunk = list.front();
+                    auto length = ptr->handle().send(chunk.data(), chunk.size());
 
-//                ptr->onEventSend();
-            }
-            else if (event.filter & EVFILT_READ)
-            {
-//                ptr->onEventRecv();
-            }
-            else
-            {
-                throw std::system_error(sys::error(), "proactor: event happened but flags and filter are unknown");
+                    if (length >= 0)
+                    {
+                        chunk.resize(chunk.size() - length);
+
+                        if (!chunk.empty())
+                        {
+                            // all data have been sent
+                            list.pop();
+                            ptr->onEventSend(static_cast<std::size_t>(length), {});
+                        }
+                        else
+                        {
+                            // wait for next write time point
+                            this->write(ptr);
+                        }
+                    }
+                    else
+                    {
+                        ptr->onEventSend(0, sys::error());
+                    }
+                }
+                else if (event.filter & EVFILT_READ)
+                {
+                    auto chunk = std::move(list.front());
+                    auto error = ptr->handle().recv(chunk);
+
+                    list.pop();
+
+                    ptr->onEventRecv(std::move(chunk), error);
+                }
+                else
+                {
+                    throw std::system_error(sys::error(), "proactor: event happened but flags and filter are unknown");
+                }
             }
         }
         else
