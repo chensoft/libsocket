@@ -58,6 +58,11 @@ chen::ip::address::address(const char *addr) : address(std::string(addr))
 }
 
 // assignment
+void chen::ip::address::assign(std::nullptr_t)
+{
+    this->_type = Type::None;
+}
+
 void chen::ip::address::assign(Type type)
 {
     this->_type = type;
@@ -182,6 +187,12 @@ void chen::ip::address::assign(const std::string &addr, const std::string &mask,
         default:
             break;
     }
+}
+
+chen::ip::address& chen::ip::address::operator=(std::nullptr_t)
+{
+    this->assign(nullptr);
+    return *this;
 }
 
 chen::ip::address& chen::ip::address::operator=(Type type)

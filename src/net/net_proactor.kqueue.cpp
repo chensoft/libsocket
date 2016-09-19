@@ -46,67 +46,61 @@ void chen::net::proactor::loop() throw(std::system_error)
             throw std::system_error(sys::error(), "proactor: failed to wait event");
 
         auto ptr = static_cast<net::socket*>(event.udata);
+        if (!ptr)
+            throw std::system_error(sys::error(), "proactor: event happened but no related socket");
 
-        if (ptr)
+        // connection refused, disconnect or other error
+        if (event.flags & EV_EOF)
         {
-            if (event.flags & EV_EOF)
+            // todo clear cache first?
+            ptr->onEventEOF();
+            continue;
+        }
+
+        // simulate proactor, notify callback after send or receive data
+        auto &list = this->_send[ptr];
+        if (list.empty())
+            continue;
+
+        if (event.filter & EVFILT_WRITE)
+        {
+            // todo record original size
+            auto &chunk = list.front();
+            auto length = ptr->handle().send(chunk.data(), chunk.size());
+
+            if (length >= 0)
             {
-                // todo clear cache first?
-                // connection refused, disconnect or other error
-                ptr->onEventEOF();
-            }
-            else
-            {
-                // simulate proactor, notify callback after send or receive data
-                auto &list = this->_send[ptr];
-                if (list.empty())
-                    continue;
+                chunk.resize(chunk.size() - length);
 
-                if (event.filter & EVFILT_WRITE)
+                if (!chunk.empty())
                 {
-                    // todo record original size
-                    auto &chunk = list.front();
-                    auto length = ptr->handle().send(chunk.data(), chunk.size());
-
-                    if (length >= 0)
-                    {
-                        chunk.resize(chunk.size() - length);
-
-                        if (!chunk.empty())
-                        {
-                            // all data have been sent
-                            list.pop();
-                            ptr->onEventSend(static_cast<std::size_t>(length), {});
-                        }
-                        else
-                        {
-                            // wait for next write time point
-                            this->write(ptr);
-                        }
-                    }
-                    else
-                    {
-                        ptr->onEventSend(0, sys::error());
-                    }
-                }
-                else if (event.filter & EVFILT_READ)
-                {
-                    auto chunk = std::move(list.front());
-                    auto error = ptr->handle().recv(chunk);
-
+                    // all data have been sent
                     list.pop();
-
-                    ptr->onEventRecv(std::move(chunk), error);
+                    ptr->onEventSend(static_cast<std::size_t>(length), {});
                 }
                 else
                 {
-                    throw std::system_error(sys::error(), "proactor: event happened but flags and filter are unknown");
+                    // wait for next write time point
+                    this->write(ptr);
                 }
             }
+            else
+            {
+                ptr->onEventSend(0, sys::error());
+            }
+        }
+        else if (event.filter & EVFILT_READ)
+        {
+            auto chunk = std::move(list.front());
+            auto error = ptr->handle().recv(chunk);
+
+            list.pop();
+
+            ptr->onEventRecv(std::move(chunk), error);
         }
         else
         {
-            throw std::system_error(sys::error(), "proactor: event happened but no related socket");
+            throw std::system_error(sys::error(), "proactor: event happened but flags and filter are unknown");
         }
     }
 }

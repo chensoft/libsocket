@@ -8,6 +8,44 @@
 
 // -----------------------------------------------------------------------------
 // client
+chen::tcp::client::client(socket_t fd) : basic(fd)
+{
+}
+
+chen::tcp::client::client(ip::address::Type family) : basic(family)
+{
+}
+
+// handy
+chen::tcp::client chen::tcp::client::v4()
+{
+    return client(ip::address::Type::IPv4);
+}
+
+chen::tcp::client chen::tcp::client::v6()
+{
+    return client(ip::address::Type::IPv6);
+}
+
+// event
+void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
+{
+
+}
+
+void chen::tcp::client::onEventRecv(std::vector<std::uint8_t> data, std::error_code error)
+{
+
+}
+
+void chen::tcp::client::onEventEOF()
+{
+
+}
+
+
+
+
 //chen::tcp::client::client(ip::address::Type family) : basic(family)
 //{
 //}

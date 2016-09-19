@@ -22,6 +22,9 @@ chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _ad
 //chen::net::endpoint::endpoint(const std::string &mixed) : address(resolver::split(mixed))
 //{
 //}
+chen::net::endpoint::endpoint(const std::string &mixed)
+{
+}
 
 chen::net::endpoint::endpoint(const char *mixed) : endpoint(std::string(mixed))
 {
@@ -180,7 +183,8 @@ void chen::net::endpoint::set(const struct ::sockaddr_storage &val)
             break;
 
         default:
-            throw std::runtime_error("address: unknown sockaddr type");
+            this->_addr = nullptr;
+            this->_port = 0;
     }
 }
 

@@ -6,15 +6,34 @@
  */
 #pragma once
 
-//#include <socket/tcp/tcp_basic.hpp>
-//#include <socket/tcp/tcp_event.hpp>
-//
-//namespace chen
-//{
-//    namespace tcp
-//    {
-//        class client : public basic
-//        {
+#include <socket/tcp/tcp_basic.hpp>
+
+namespace chen
+{
+    namespace tcp
+    {
+        class client : public basic
+        {
+        public:
+            client(socket_t fd);
+            client(ip::address::Type family);
+
+        public:
+            /**
+             * Handy methods for creating socket
+             */
+            static client v4();
+            static client v6();
+
+        protected:
+            /**
+             * Event callbacks
+             */
+            virtual void onEventSend(std::size_t size, std::error_code error);
+            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error);
+            virtual void onEventEOF();
+
+
 //        public:
 //            enum class State {Disconnect = 0, Connecting, Connected};
 //
@@ -137,6 +156,6 @@
 //            std::uint16_t _port = 0;
 //
 //            callback_type _cb;
-//        };
-//    }
-//}
+        };
+    }
+}

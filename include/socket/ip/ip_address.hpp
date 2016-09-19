@@ -27,7 +27,7 @@ namespace chen
             /**
              * Construct an null address
              */
-            address(std::nullptr_t);
+            address(std::nullptr_t = nullptr);
 
             /**
              * Construct an empty address, v4 or v6
@@ -80,6 +80,7 @@ namespace chen
             /**
              * Assignment
              */
+            void assign(std::nullptr_t);
             void assign(Type type);
 
             void assign(version4 v4);
@@ -91,6 +92,7 @@ namespace chen
             void assign(const std::string &addr, const std::string &mask);
             void assign(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
+            address& operator=(std::nullptr_t);
             address& operator=(Type type);
             address& operator=(version4 v4);
             address& operator=(version6 v6);

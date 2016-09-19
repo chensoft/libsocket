@@ -6,28 +6,28 @@
  */
 #pragma once
 
-//#include <socket/base/base_socket.hpp>
-//
-//namespace chen
-//{
-//    namespace tcp
-//    {
-//        /**
-//         * A non-blocking event driven tcp base class
-//         */
-//        class basic : protected socket
-//        {
-//        public:
-//            basic(socket_t fd);
-//            basic(ip::address::Type family);
-//
-//        public:
-//            using socket::local;
-//            using socket::remote;
-//
-//            using socket::nonblocking;
-//
-//            using socket::native;
-//        };
-//    }
-//}
+#include <socket/net/net_socket.hpp>
+#include <socket/tcp/tcp_option.hpp>
+
+namespace chen
+{
+    namespace tcp
+    {
+        class basic : public net::socket
+        {
+        public:
+            basic(socket_t fd);
+            basic(ip::address::Type family);
+
+        public:
+            /**
+             * Get/Set socket option
+             * Usage:
+             * >> auto opt = socket.option();
+             * >> opt.reuseaddr(true);           // set option
+             * >> bool reuse = opt.reuseaddr();  // get option
+             */
+            tcp::option option();
+        };
+    }
+}

@@ -22,7 +22,7 @@ namespace chen
             /**
              * Construct an null address
              */
-            endpoint(std::nullptr_t);
+            endpoint(std::nullptr_t = nullptr);
 
             /**
              * Construct by ip address & port
