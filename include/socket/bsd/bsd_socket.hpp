@@ -15,7 +15,7 @@ namespace chen
 {
     namespace bsd
     {
-        class socket
+        class socket final
         {
         public:
             /**

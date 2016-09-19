@@ -55,7 +55,7 @@ std::size_t chen::dns::encoder::size() const
     return this->_data.size();
 }
 
-const std::map<std::string, std::uint16_t>& chen::dns::encoder::cache() const
+const std::unordered_map<std::string, std::uint16_t>& chen::dns::encoder::cache() const
 {
     return this->_cache;
 }

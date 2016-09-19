@@ -9,9 +9,9 @@
 #include <socket/dns/dns_define.hpp>
 #include <chen/base/iterator.hpp>
 #include <chen/base/str.hpp>
+#include <unordered_map>
 #include <vector>
 #include <array>
-#include <map>
 
 namespace chen
 {
@@ -53,7 +53,7 @@ namespace chen
             std::vector<std::uint8_t> move();
             std::size_t size() const;
 
-            const std::map<std::string, std::uint16_t>& cache() const;
+            const std::unordered_map<std::string, std::uint16_t>& cache() const;
 
             /**
              * Reset state
@@ -97,7 +97,7 @@ namespace chen
 
         protected:
             std::vector<std::uint8_t> _data;
-            std::map<std::string, std::uint16_t> _cache;  // compression cache
+            std::unordered_map<std::string, std::uint16_t> _cache;  // compression cache
         };
 
 
