@@ -74,12 +74,12 @@ namespace chen
             /**
              * Receive data from connected host, usually used in tcp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, int flags = 0) noexcept;
+            std::error_code recv(std::vector<std::uint8_t> &out, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in udp
              */
-            ssize_t recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags = 0) noexcept;
+            std::error_code recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**
