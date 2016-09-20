@@ -9,6 +9,7 @@
 #include <socket/tcp/tcp_event.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <unordered_map>
+#include <functional>
 
 namespace chen
 {
@@ -42,6 +43,42 @@ namespace chen
 
         public:
             /**
+             * Send data to remote host
+             * you can safely call this method even if the socket is not connected yet
+             * the data will be sent immediately after the connection is successful
+             */
+            void send(const char *data, std::size_t size);
+
+            /**
+             * Receive data from remote host
+             * the recv callback will be invoked if successful
+             * @param size the desired received length, actual size will be less or equal than this value
+             */
+            void recv(std::size_t size);
+
+            /**
+             * Receive all data until eof
+             */
+            void recvAll();
+
+            /**
+             * Receive a line until meet "\r\n", '\n', '\r' or eof
+             * @notice the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
+             */
+            void recvLine();
+
+            /**
+             * Receive until received a certain amount of data
+             */
+            void recvUntil(std::size_t size);
+
+            /**
+             * Receive until meet the text
+             */
+            void recvUntil(const std::string &text);
+
+        public:
+            /**
              * Check connection
              */
             bool isDisconnect() const;
@@ -68,11 +105,20 @@ namespace chen
 
         protected:
             /**
+             * Notify events
+             */
+            void notify(tcp::connecting_event ev);
+            void notify(tcp::connected_event ev);
+            void notify(tcp::disconnect_event ev);
+            void notify(tcp::send_event ev);
+            void notify(tcp::recv_event ev);
+
+            /**
              * Event callbacks
              */
-            virtual void onEventSend(std::size_t size, std::error_code error);
-            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error);
-            virtual void onEventEOF();
+            virtual void onEventSend(std::size_t size, std::error_code error) override;
+            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) override;
+            virtual void onEventEOF() override;
 
         public:
             /**
@@ -89,53 +135,6 @@ namespace chen
             std::uint16_t _port = 0;
 
             std::unordered_map<int, std::function<void (chen::tcp::client &c, chen::tcp::event &e)>> _event;
-
-//        public:
-//            /**
-//             * Write data to connected host
-//             * you can safely call this method even if the socket is not connected yet
-//             * the data will be sent immediately after the socket is connected successfully
-//             */
-//            void write(const char *data, std::size_t size);
-//
-//            /**
-//             * Read data from connected host
-//             * data will be sent to user via the read callback
-//             * @param size the desired received length, actual size will be less or equal than this value
-//             */
-//            void read(std::size_t size);
-//
-//            /**
-//             * Read all data until eof
-//             */
-//            void readAll();
-//
-//            /**
-//             * Read a line until meet "\r\n", '\n', '\r' or eof
-//             * @notice the delimiter will be removed, so no "\r\n", '\n', '\r' in the end
-//             */
-//            void readLine();
-//
-//            /**
-//             * Read until received a certain amount of data
-//             */
-//            void readUntil(std::size_t size);
-//
-//            /**
-//             * Read until meet the text
-//             */
-//            void readUntil(const std::string &text);
-//
-//        protected:
-//            /**
-//             * Notify
-//             * todo shorten the method name
-//             */
-//            void notifyConnecting(endpoint ep);
-//            void notifyConnected(endpoint ep, std::error_code err);
-//            void notifyDisconnect(std::error_code err);
-//            void notifyRead(std::vector<std::uint8_t> data);
-//            void notifyWrite(std::size_t size);
         };
     }
 }
