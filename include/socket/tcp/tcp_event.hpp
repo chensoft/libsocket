@@ -6,88 +6,74 @@
  */
 #pragma once
 
-//#include <socket/base/base_endpoint.hpp>
-//
-//namespace chen
-//{
-//    namespace tcp
-//    {
-//        namespace event
-//        {
-//            // -----------------------------------------------------------------
-//            // basic
-//            class basic
-//            {
-//            public:
-//                enum class Type {Connecting = 1, Connected, Disconnect, Read, Write};
-//
-//            public:
-//                explicit basic(Type t) : type(t) {}
-//
-//            public:
-//                Type type;
-//            };
-//
-//
-//            // -----------------------------------------------------------------
-//            // connecting(socket start connecting to remote)
-//            class connecting : public basic
-//            {
-//            public:
-//                connecting() : basic(Type::Connecting) {}
-//
-//            public:
-//                endpoint ep = nullptr;
-//            };
-//
-//
-//            // -----------------------------------------------------------------
-//            // connected(connect success or failure will call this callback)
-//            class connected : public basic
-//            {
-//            public:
-//                connected() : basic(Type::Connected) {}
-//
-//            public:
-//                endpoint ep = nullptr;
-//                std::error_code err;
-//            };
-//
-//
-//            // -----------------------------------------------------------------
-//            // disconnect(connection broken)
-//            class disconnect : public basic
-//            {
-//            public:
-//                disconnect() : basic(Type::Disconnect) {}
-//
-//            public:
-//                std::error_code err;
-//            };
-//
-//
-//            // -----------------------------------------------------------------
-//            // read(received data from remote host)
-//            class read : public basic
-//            {
-//            public:
-//                read() : basic(Type::Read) {}
-//
-//            public:
-//                std::vector<std::uint8_t> data;
-//            };
-//
-//
-//            // -----------------------------------------------------------------
-//            // write(send data to socket buffer)
-//            class write : public basic
-//            {
-//            public:
-//                write() : basic(Type::Write) {}
-//
-//            public:
-//                std::size_t size;
-//            };
-//        }
-//    }
-//}
+#include <socket/net/net_endpoint.hpp>
+#include <system_error>
+
+namespace chen
+{
+    namespace tcp
+    {
+        // ---------------------------------------------------------------------
+        // event
+        struct event
+        {
+            enum class Type {Connecting = 1, Connected, Disconnect, Send, Recv};
+
+            explicit event(Type t) : type(t) {}
+            virtual ~event() = default;
+
+            Type type;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // connecting_event
+        struct connecting_event : public event
+        {
+            connecting_event() : event(Type::Connecting) {}
+
+            net::endpoint ep;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // connected_event
+        struct connected_event : public event
+        {
+            connected_event() : event(Type::Connected) {}
+
+            net::endpoint ep;
+            std::error_code err;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // disconnect_event
+        struct disconnect_event : public event
+        {
+            disconnect_event() : event(Type::Disconnect) {}
+
+            std::error_code err;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // send_event
+        struct send_event : public event
+        {
+            send_event() : event(Type::Send) {}
+
+            std::size_t size;
+        };
+
+
+        // ---------------------------------------------------------------------
+        // recv_event
+        struct recv_event : public event
+        {
+            recv_event() : event(Type::Recv) {}
+
+            std::vector<std::uint8_t> data;
+        };
+    }
+}

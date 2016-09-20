@@ -16,15 +16,25 @@ chen::tcp::client::client(ip::address::Type family) : basic(family)
 {
 }
 
-// handy
-chen::tcp::client chen::tcp::client::v4()
+// connection
+void chen::tcp::client::connect(const net::endpoint &ep)
 {
-    return client(ip::address::Type::IPv4);
+
 }
 
-chen::tcp::client chen::tcp::client::v6()
+void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)
 {
-    return client(ip::address::Type::IPv6);
+
+}
+
+void chen::tcp::client::reconnect()
+{
+
+}
+
+void chen::tcp::client::disconnect()
+{
+
 }
 
 // event
@@ -41,6 +51,17 @@ void chen::tcp::client::onEventRecv(std::vector<std::uint8_t> data, std::error_c
 void chen::tcp::client::onEventEOF()
 {
 
+}
+
+// handy
+chen::tcp::client chen::tcp::client::v4()
+{
+    return client(ip::address::Type::IPv4);
+}
+
+chen::tcp::client chen::tcp::client::v6()
+{
+    return client(ip::address::Type::IPv6);
 }
 
 

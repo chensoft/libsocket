@@ -6,7 +6,9 @@
  */
 #pragma once
 
+#include <socket/tcp/tcp_event.hpp>
 #include <socket/tcp/tcp_basic.hpp>
+#include <unordered_map>
 
 namespace chen
 {
@@ -20,10 +22,49 @@ namespace chen
 
         public:
             /**
-             * Handy methods for creating socket
+             * Connect to remote host
+             * todo how to deal with domain resolve error
              */
-            static client v4();
-            static client v6();
+            void connect(const net::endpoint &ep);
+            void connect(const ip::address &addr, std::uint16_t port);
+
+            /**
+             * Disconnect and reconnect to last host
+             * @notice this method will not trigger the disconnect callback
+             */
+            void reconnect();
+
+            /**
+             * Close the connection and clear the buffer
+             * @notice this method will not trigger the disconnect callback
+             */
+            void disconnect();
+
+        public:
+            /**
+             * Check connection
+             */
+            bool isDisconnect() const;
+            bool isConnecting() const;
+            bool isConnected() const;
+
+            /**
+             * Stored host and port
+             */
+            std::string host() const;
+            std::uint16_t port() const;
+
+        public:
+            /**
+             * Attach & Detach event callbacks
+             * :-) connecting : void (client&, connecting_event&) -> when user issue the connect command
+             * :-) connected  : void (client&, connected_event&)  -> connect to remote success or failure
+             * :-) disconnect : void (client&, disconnect_event&) -> established connection is broken
+             * :-) send       : void (client&, send_event&)       -> send data to remote host
+             * :-) recv       : void (client&, recv_event&)       -> receive data from remote
+             */
+            void attach(tcp::event::Type type, std::function<void (chen::tcp::client &c, chen::tcp::event &e)> callback);
+            void detach(tcp::event::Type type);
 
         protected:
             /**
@@ -33,35 +74,22 @@ namespace chen
             virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error);
             virtual void onEventEOF();
 
+        public:
+            /**
+             * Handy methods for creating socket
+             */
+            static client v4();
+            static client v6();
 
-//        public:
-//            enum class State {Disconnect = 0, Connecting, Connected};
-//
-//            typedef std::function<void (chen::tcp::client &c, chen::tcp::event::basic *ev)> callback_type;
-//
-//        public:
-//            client(ip::address::Type family);
-//
-//        public:
-//            /**
-//             * Connect to remote host
-//             * todo how to deal with domain resolve error
-//             */
-//            void connect(const endpoint &ep);
-//            void connect(const ip::address &addr, std::uint16_t port);
-//
-//            /**
-//             * Disconnect and reconnect to last host
-//             * @notice this method will not trigger the disconnect callback
-//             */
-//            void reconnect();
-//
-//            /**
-//             * Close the connection and clear the buffer
-//             * @notice this method will not trigger the disconnect callback
-//             */
-//            void disconnect();
-//
+        private:
+            enum class State {Connecting = 1, Connected, Disconnect};
+            State _state = State::Disconnect;
+
+            std::string   _host;
+            std::uint16_t _port = 0;
+
+            std::unordered_map<int, std::function<void (chen::tcp::client &c, chen::tcp::event &e)>> _event;
+
 //        public:
 //            /**
 //             * Write data to connected host
@@ -98,41 +126,6 @@ namespace chen
 //             */
 //            void readUntil(const std::string &text);
 //
-//        public:
-//            /**
-//             * Set callback for client
-//             * many events will be triggered:
-//             * :-) connecting: when user issue the connect command
-//             * :-) connected: when connected to the host success or failure
-//             * :-) disconnect: connection is broken
-//             * :-) read: received some data
-//             * :-) write: write data to socket successfully
-//             * @notice if host has multiple addresses, client will try to connect each address until success
-//             * every time client will notify the status via connecting & connected callback
-//             */
-//            void attach(callback_type cb);
-//
-//            /**
-//             * Remove callback
-//             */
-//            void detach();
-//
-//        public:
-//            /**
-//             * Check connection
-//             */
-//            State state() const;
-//
-//            bool isDisconnect() const;
-//            bool isConnecting() const;
-//            bool isConnected() const;
-//
-//            /**
-//             * Stored host and port
-//             */
-//            std::string host() const;
-//            std::uint16_t port() const;
-//
 //        protected:
 //            /**
 //             * Notify
@@ -143,19 +136,6 @@ namespace chen
 //            void notifyDisconnect(std::error_code err);
 //            void notifyRead(std::vector<std::uint8_t> data);
 //            void notifyWrite(std::size_t size);
-//
-//            /**
-//             * Overwrite
-//             */
-//            virtual void onEvent(chen::notifier &n, chen::notifier::Event ev) override;
-//
-//        private:
-//            State _state = State::Disconnect;
-//
-//            std::string   _host;
-//            std::uint16_t _port = 0;
-//
-//            callback_type _cb;
         };
     }
 }

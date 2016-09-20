@@ -17,6 +17,8 @@ int main(int argc, char *argv[])
     PILogE("non-blocking: %d, valid: %d, native: %d", c.nonblocking(), c.valid(), c.native());
     PILogE("option: %d", c.option().nodelay());
 
+    c.connect("139.196.204.109:80");
+
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
