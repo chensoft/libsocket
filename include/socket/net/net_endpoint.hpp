@@ -99,7 +99,7 @@ namespace chen
              * Override
              */
             virtual struct ::sockaddr_storage get() const noexcept override;
-            virtual void set(const struct ::sockaddr_storage &val) noexcept override;
+            virtual void set(const struct ::sockaddr *ptr) noexcept override;
             virtual socklen_t len() const noexcept override;
 
         private:

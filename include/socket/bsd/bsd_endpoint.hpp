@@ -24,9 +24,17 @@ namespace chen
             virtual struct ::sockaddr_storage get() const noexcept = 0;
 
             /**
+             * Set specific endpoint via sockaddr pointer
+             */
+            virtual void set(const struct ::sockaddr *ptr) noexcept = 0;
+
+            /**
              * Set specific endpoint via sockaddr_storage
              */
-            virtual void set(const struct ::sockaddr_storage &val) noexcept = 0;
+            virtual void set(const struct ::sockaddr_storage &val) noexcept
+            {
+                this->set((struct ::sockaddr*)&val);
+            }
 
             /**
              * Current endpoint's sizeof length

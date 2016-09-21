@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/net/net_endpoint.hpp>
+#include <socket/net/net_resolver.hpp>
 #include <chen/base/num.hpp>
 #include <cstring>
 
@@ -18,12 +19,11 @@ chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _ad
 {
 }
 
-// todo
-//chen::net::endpoint::endpoint(const std::string &mixed) : address(resolver::split(mixed))
-//{
-//}
 chen::net::endpoint::endpoint(const std::string &mixed)
 {
+    auto ret = resolver::split(mixed);
+    this->_addr = ret.first;
+    this->_port = ret.second;
 }
 
 chen::net::endpoint::endpoint(const char *mixed) : endpoint(std::string(mixed))
@@ -162,13 +162,13 @@ struct ::sockaddr_storage chen::net::endpoint::get() const noexcept
     return out;
 }
 
-void chen::net::endpoint::set(const struct ::sockaddr_storage &val) noexcept
+void chen::net::endpoint::set(const struct ::sockaddr *ptr) noexcept
 {
-    switch (val.ss_family)
+    switch (ptr->sa_family)
     {
         case AF_INET:
         {
-            auto in = (struct ::sockaddr_in*)&val;
+            auto in = (struct ::sockaddr_in*)&ptr;
             this->_addr = num::swap(in->sin_addr.s_addr);
             this->_port = num::swap(in->sin_port);
         }
@@ -176,7 +176,7 @@ void chen::net::endpoint::set(const struct ::sockaddr_storage &val) noexcept
 
         case AF_INET6:
         {
-            auto in = (struct ::sockaddr_in6*)&val;
+            auto in = (struct ::sockaddr_in6*)&ptr;
             this->_addr = ip::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
             this->_port = num::swap(in->sin6_port);
         }
