@@ -18,6 +18,9 @@ namespace chen
         class socket final
         {
         public:
+            static const socket_t invalid_handle;  // -1 on Unix, INVALID_HANDLE on Windows
+
+        public:
             /**
              * Construct by socket handle directly
              */
@@ -118,6 +121,7 @@ namespace chen
 
             /**
              * Check socket is valid
+             * @notice zero is a valid file descriptor
              */
             bool valid() const noexcept;
             operator bool() const noexcept;
@@ -132,7 +136,7 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            socket_t _fd = socket_t(-1);  // socket descriptor
+            socket_t _fd = socket::invalid_handle;  // socket descriptor
         };
     }
 }

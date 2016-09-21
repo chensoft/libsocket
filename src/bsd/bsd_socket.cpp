@@ -9,6 +9,8 @@
 
 // -----------------------------------------------------------------------------
 // socket
+const chen::socket_t chen::bsd::socket::invalid_handle = (chen::socket_t)-1;
+
 chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
 {
 }
@@ -29,8 +31,10 @@ chen::bsd::socket& chen::bsd::socket::operator=(socket &&o) noexcept
     if (this == &o)
         return *this;
 
+    this->close();
+
     this->_fd = o._fd;
-    o._fd     = (socket_t)-1;
+    o._fd     = socket::invalid_handle;
 
     return *this;
 }
@@ -131,8 +135,11 @@ void chen::bsd::socket::shutdownWrite() noexcept
 
 void chen::bsd::socket::close() noexcept
 {
+    if (!this->valid())
+        return;
+
     ::close(this->_fd);
-    this->_fd = (socket_t)-1;
+    this->_fd = socket::invalid_handle;
 }
 
 // property

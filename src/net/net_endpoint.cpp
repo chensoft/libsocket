@@ -127,7 +127,7 @@ bool chen::net::endpoint::operator>=(const endpoint &o) const
 }
 
 // override
-struct ::sockaddr_storage chen::net::endpoint::get() const
+struct ::sockaddr_storage chen::net::endpoint::get() const noexcept
 {
     struct ::sockaddr_storage out{};
 
@@ -162,7 +162,7 @@ struct ::sockaddr_storage chen::net::endpoint::get() const
     return out;
 }
 
-void chen::net::endpoint::set(const struct ::sockaddr_storage &val)
+void chen::net::endpoint::set(const struct ::sockaddr_storage &val) noexcept
 {
     switch (val.ss_family)
     {
@@ -188,7 +188,7 @@ void chen::net::endpoint::set(const struct ::sockaddr_storage &val)
     }
 }
 
-socklen_t chen::net::endpoint::len() const
+socklen_t chen::net::endpoint::len() const noexcept
 {
     switch (this->_addr.type())
     {

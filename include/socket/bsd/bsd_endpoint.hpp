@@ -21,17 +21,17 @@ namespace chen
             /**
              * Convert specific endpoint to sockaddr_storage
              */
-            virtual struct ::sockaddr_storage get() const = 0;
+            virtual struct ::sockaddr_storage get() const noexcept = 0;
 
             /**
              * Set specific endpoint via sockaddr_storage
              */
-            virtual void set(const struct ::sockaddr_storage &val) = 0;
+            virtual void set(const struct ::sockaddr_storage &val) noexcept = 0;
 
             /**
              * Current endpoint's sizeof length
              */
-            virtual socklen_t len() const = 0;
+            virtual socklen_t len() const noexcept = 0;
         };
     }
 }

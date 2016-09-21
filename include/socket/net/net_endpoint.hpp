@@ -98,9 +98,9 @@ namespace chen
             /**
              * Override
              */
-            virtual struct ::sockaddr_storage get() const override;
-            virtual void set(const struct ::sockaddr_storage &val) override;
-            virtual socklen_t len() const override;
+            virtual struct ::sockaddr_storage get() const noexcept override;
+            virtual void set(const struct ::sockaddr_storage &val) noexcept override;
+            virtual socklen_t len() const noexcept override;
 
         private:
             ip::address _addr;
