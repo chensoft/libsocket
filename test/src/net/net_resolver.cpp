@@ -13,13 +13,13 @@ TEST(NetResolverTest, General)
     using chen::net::endpoint;
 
     // resolve domain
-    EXPECT_NO_THROW(resolver::resolve("chensoft.com"));
-    EXPECT_NO_THROW(resolver::resolve("chensoft.com:80"));
-    EXPECT_NO_THROW(resolver::resolve("chensoft.com:http"));
+    EXPECT_NO_THROW(resolver::resolve("example.com"));
+    EXPECT_NO_THROW(resolver::resolve("example.com:80"));
+    EXPECT_NO_THROW(resolver::resolve("example.com:http"));
 
-    EXPECT_NO_THROW(resolver::async("chensoft.com").get());
-    EXPECT_NO_THROW(resolver::async("chensoft.com:80").get());
-    EXPECT_NO_THROW(resolver::async("chensoft.com:http").get());
+    EXPECT_NO_THROW(resolver::async("example.com").get());
+    EXPECT_NO_THROW(resolver::async("example.com:80").get());
+    EXPECT_NO_THROW(resolver::async("example.com:http").get());
 
     // resolve ipv4
     EXPECT_EQ(std::vector<endpoint>{endpoint(":80")}, resolver::resolve(":80"));
