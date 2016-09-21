@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <socket/net/net_proactor.hpp>
 #include <socket/tcp/tcp_event.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <functional>
@@ -20,8 +21,8 @@ namespace chen
             enum class Event {Connecting = 1, Connected, Disconnect, Send, Recv};
 
         public:
-            client(socket_t fd);
-            client(ip::address::Type family);
+            // todo how to reset socket if disconnect
+            client(ip::address::Type family, net::proactor &proactor);
 
         public:
             /**
@@ -131,11 +132,12 @@ namespace chen
             /**
              * Handy methods for creating socket
              */
-            static client v4();
-            static client v6();
+            static client v4(net::proactor &proactor);
+            static client v6(net::proactor &proactor);
 
         private:
             enum class State {Connecting = 1, Connected, Disconnect};
+
             State _state = State::Disconnect;
 
             std::string   _host;
@@ -146,6 +148,8 @@ namespace chen
             std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
             std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)>       _cb_send;
             std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)>       _cb_recv;
+
+            net::proactor &_proactor;
         };
     }
 }

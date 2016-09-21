@@ -36,7 +36,13 @@ namespace chen
             /**
              * Wait events and dispatch
              */
-            void loop() throw(std::system_error);
+            void start() throw(std::system_error);
+
+            /**
+             * Stop proactor
+             * you can call this method in callback or other thread
+             */
+            void stop();
 
         private:
             /**

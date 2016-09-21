@@ -8,12 +8,9 @@
 
 // -----------------------------------------------------------------------------
 // client
-chen::tcp::client::client(socket_t fd) : basic(fd)
+chen::tcp::client::client(ip::address::Type family, net::proactor &proactor) : basic(family), _proactor(proactor)
 {
-}
-
-chen::tcp::client::client(ip::address::Type family) : basic(family)
-{
+    this->nonblocking(true);
 }
 
 // connection
@@ -24,12 +21,9 @@ void chen::tcp::client::connect(const net::endpoint &ep)
 
     this->notify(tcp::connecting_event(ep));
 
-//    auto status = basic::connect(ep);
-//
-//    // if the socket is in non-blocking mode, then pending method will be true
-//    // if the socket is in blocking mode, we check error and notify to user
-//    if (!status || (status != std::errc::resource_unavailable_try_again))
-//        this->notifyConnected(ep, status);
+    // connect to remote host, wait for the send event
+    this->_proactor.send(this, {});
+    this->_handle.connect(ep);
 }
 
 void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)
@@ -44,6 +38,7 @@ void chen::tcp::client::reconnect()
 
 void chen::tcp::client::disconnect()
 {
+    // todo reset handle
     this->_handle.close();
     this->_state = State::Disconnect;
 }
@@ -128,18 +123,24 @@ void chen::tcp::client::detach(Event type)
 
 void chen::tcp::client::notify(tcp::connecting_event &&ev)
 {
+    this->_state = State::Connecting;
+
     if (this->_cb_connecting)
         this->_cb_connecting(*this, ev);
 }
 
 void chen::tcp::client::notify(tcp::connected_event &&ev)
 {
+    this->_state = !ev.err ? State::Connected : State::Disconnect;
+
     if (this->_cb_connected)
         this->_cb_connected(*this, ev);
 }
 
 void chen::tcp::client::notify(tcp::disconnect_event &&ev)
 {
+    this->_state = State::Disconnect;
+
     if (this->_cb_disconnect)
         this->_cb_disconnect(*this, ev);
 }
@@ -158,51 +159,81 @@ void chen::tcp::client::notify(tcp::recv_event &&ev)
 
 void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
 {
+    if (this->isConnecting())
+    {
+        // socket can be written and error is nil means connected successful
+        if (error)
+            this->disconnect();
 
+        this->notify(connected_event(net::endpoint(this->_host, this->_port), error));  // todo return ep of host and port
+    }
+    else if (this->isConnected())
+    {
+        // disconnect if error occur, otherwise notify the send callback
+        if (!error)
+        {
+            this->notify(send_event(size));
+        }
+        else
+        {
+            this->disconnect();
+            this->notify(disconnect_event(error));
+        }
+    }
+    else
+    {
+        throw std::runtime_error("tcp: client in disconnect state but received send event");
+    }
 }
 
 void chen::tcp::client::onEventRecv(std::vector<std::uint8_t> data, std::error_code error)
 {
-
+    if (this->isConnected())
+    {
+        // disconnect if error occur, otherwise notify the recv callback
+        if (!error)
+        {
+            this->notify(recv_event(std::move(data)));
+        }
+        else
+        {
+            this->disconnect();
+            this->notify(disconnect_event(error));
+        }
+    }
+    else
+    {
+        throw std::runtime_error("tcp: client in disconnect state but received recv event");
+    }
 }
 
 void chen::tcp::client::onEventEOF()
 {
-
+    if (this->isConnecting())
+    {
+        // receive eof when connecting usually means connection refused
+        this->disconnect();
+        this->notify(connected_event(net::endpoint(this->_host, this->_port), std::make_error_code(std::errc::connection_refused)));
+    }
+    else if (this->isConnected())
+    {
+        // connection broken
+        this->disconnect();
+        this->notify(disconnect_event({}));
+    }
+    else
+    {
+        throw std::runtime_error("tcp: client in disconnect state but received eof event");
+    }
 }
 
 // handy
-chen::tcp::client chen::tcp::client::v4()
+chen::tcp::client chen::tcp::client::v4(net::proactor &proactor)
 {
-    return client(ip::address::Type::IPv4);
+    return client(ip::address::Type::IPv4, proactor);
 }
 
-chen::tcp::client chen::tcp::client::v6()
+chen::tcp::client chen::tcp::client::v6(net::proactor &proactor)
 {
-    return client(ip::address::Type::IPv6);
+    return client(ip::address::Type::IPv6, proactor);
 }
-
-//// connection
-//// notify
-//void chen::tcp::client::notifyConnecting(endpoint ep)
-//{
-//    this->_state = State::Connecting;
-//
-//    event::connecting ev;
-//    ev.ep = std::move(ep);
-//
-//    if (this->_cb)
-//        this->_cb(*this, &ev);
-//}
-//
-//void chen::tcp::client::notifyConnected(endpoint ep, std::error_code err)
-//{
-//    this->_state = err ? State::Connected : State::Disconnect;
-//
-//    event::connected ev;
-//    ev.ep  = std::move(ep);
-//    ev.err = err;
-//
-//    if (this->_cb)
-//        this->_cb(*this, &ev);
-//}
