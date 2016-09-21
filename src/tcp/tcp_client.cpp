@@ -19,22 +19,33 @@ chen::tcp::client::client(ip::address::Type family) : basic(family)
 // connection
 void chen::tcp::client::connect(const net::endpoint &ep)
 {
+    if (!this->isDisconnect())
+        this->disconnect();
 
+    this->notify(tcp::connecting_event(ep));
+
+//    auto status = basic::connect(ep);
+//
+//    // if the socket is in non-blocking mode, then pending method will be true
+//    // if the socket is in blocking mode, we check error and notify to user
+//    if (!status || (status != std::errc::resource_unavailable_try_again))
+//        this->notifyConnected(ep, status);
 }
 
 void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)
 {
-
+    this->connect(net::endpoint(addr, port));
 }
 
 void chen::tcp::client::reconnect()
 {
-
+    // todo
 }
 
 void chen::tcp::client::disconnect()
 {
-
+    this->_handle.close();
+    this->_state = State::Disconnect;
 }
 
 // property
@@ -64,39 +75,85 @@ std::uint16_t chen::tcp::client::port() const
 }
 
 // event
-void chen::tcp::client::attach(tcp::event::Type type, std::function<void (chen::tcp::client &c, chen::tcp::event &e)> callback)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> callback)
 {
-    this->_event[static_cast<int>(type)] = callback;
+    this->_cb_connecting = callback;
 }
 
-void chen::tcp::client::detach(tcp::event::Type type)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)> callback)
 {
-    this->_event.erase(static_cast<int>(type));
+    this->_cb_connected = callback;
 }
 
-void chen::tcp::client::notify(tcp::connecting_event ev)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> callback)
 {
-
+    this->_cb_disconnect = callback;
 }
 
-void chen::tcp::client::notify(tcp::connected_event ev)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)> callback)
 {
-
+    this->_cb_send = callback;
 }
 
-void chen::tcp::client::notify(tcp::disconnect_event ev)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)> callback)
 {
-
+    this->_cb_recv = callback;
 }
 
-void chen::tcp::client::notify(tcp::send_event ev)
+void chen::tcp::client::detach(Event type)
 {
+    switch (type)
+    {
+        case Event::Connecting:
+            this->_cb_connecting = nullptr;
+            break;
 
+        case Event::Connected:
+            this->_cb_connected = nullptr;
+            break;
+
+        case Event::Disconnect:
+            this->_cb_disconnect = nullptr;
+            break;
+
+        case Event::Send:
+            this->_cb_send = nullptr;
+            break;
+
+        case Event::Recv:
+            this->_cb_recv = nullptr;
+            break;
+    }
 }
 
-void chen::tcp::client::notify(tcp::recv_event ev)
+void chen::tcp::client::notify(tcp::connecting_event &&ev)
 {
+    if (this->_cb_connecting)
+        this->_cb_connecting(*this, ev);
+}
 
+void chen::tcp::client::notify(tcp::connected_event &&ev)
+{
+    if (this->_cb_connected)
+        this->_cb_connected(*this, ev);
+}
+
+void chen::tcp::client::notify(tcp::disconnect_event &&ev)
+{
+    if (this->_cb_disconnect)
+        this->_cb_disconnect(*this, ev);
+}
+
+void chen::tcp::client::notify(tcp::send_event &&ev)
+{
+    if (this->_cb_send)
+        this->_cb_send(*this, ev);
+}
+
+void chen::tcp::client::notify(tcp::recv_event &&ev)
+{
+    if (this->_cb_recv)
+        this->_cb_recv(*this, ev);
 }
 
 void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
@@ -125,36 +182,7 @@ chen::tcp::client chen::tcp::client::v6()
     return client(ip::address::Type::IPv6);
 }
 
-
-
-
 //// connection
-//void chen::tcp::client::connect(const endpoint &ep)
-//{
-//    if (!this->isDisconnect())
-//        this->disconnect();
-//
-//    this->notifyConnecting(ep);
-//
-//    auto status = basic::connect(ep);
-//
-//    // if the socket is in non-blocking mode, then pending method will be true
-//    // if the socket is in blocking mode, we check error and notify to user
-//    if (!status || (status != std::errc::resource_unavailable_try_again))
-//        this->notifyConnected(ep, status);
-//}
-//
-//void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)
-//{
-//    this->connect(endpoint(addr, port));
-//}
-//
-//void chen::tcp::client::disconnect()
-//{
-//    this->close();
-//    this->_state = State::Disconnect;
-//}
-//
 //// notify
 //void chen::tcp::client::notifyConnecting(endpoint ep)
 //{

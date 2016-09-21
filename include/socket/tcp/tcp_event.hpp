@@ -17,12 +17,6 @@ namespace chen
         // event
         struct event
         {
-            enum class Type {Connecting = 1, Connected, Disconnect, Send, Recv};
-
-            explicit event(Type t) : type(t) {}
-            virtual ~event() = default;
-
-            Type type;
         };
 
 
@@ -30,7 +24,7 @@ namespace chen
         // connecting_event
         struct connecting_event : public event
         {
-            connecting_event() : event(Type::Connecting) {}
+            connecting_event(net::endpoint ep) : ep(ep) {}
 
             net::endpoint ep;
         };
@@ -40,7 +34,7 @@ namespace chen
         // connected_event
         struct connected_event : public event
         {
-            connected_event() : event(Type::Connected) {}
+            connected_event(net::endpoint ep, std::error_code err) : ep(ep), err(err) {}
 
             net::endpoint ep;
             std::error_code err;
@@ -51,7 +45,7 @@ namespace chen
         // disconnect_event
         struct disconnect_event : public event
         {
-            disconnect_event() : event(Type::Disconnect) {}
+            disconnect_event(std::error_code err) : err(err) {}
 
             std::error_code err;
         };
@@ -61,7 +55,7 @@ namespace chen
         // send_event
         struct send_event : public event
         {
-            send_event() : event(Type::Send) {}
+            send_event(std::size_t size) : size(size) {}
 
             std::size_t size;
         };
@@ -71,7 +65,7 @@ namespace chen
         // recv_event
         struct recv_event : public event
         {
-            recv_event() : event(Type::Recv) {}
+            recv_event(std::vector<std::uint8_t> &&data) : data(std::move(data)) {}
 
             std::vector<std::uint8_t> data;
         };

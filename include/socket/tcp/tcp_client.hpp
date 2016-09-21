@@ -8,7 +8,6 @@
 
 #include <socket/tcp/tcp_event.hpp>
 #include <socket/tcp/tcp_basic.hpp>
-#include <unordered_map>
 #include <functional>
 
 namespace chen
@@ -17,6 +16,9 @@ namespace chen
     {
         class client : public basic
         {
+        public:
+            enum class Event {Connecting = 1, Connected, Disconnect, Send, Recv};
+
         public:
             client(socket_t fd);
             client(ip::address::Type family);
@@ -94,24 +96,29 @@ namespace chen
         public:
             /**
              * Attach & Detach event callbacks
-             * :-) connecting : void (client&, connecting_event&) -> when user issue the connect command
-             * :-) connected  : void (client&, connected_event&)  -> connect to remote success or failure
-             * :-) disconnect : void (client&, disconnect_event&) -> established connection is broken
-             * :-) send       : void (client&, send_event&)       -> send data to remote host
-             * :-) recv       : void (client&, recv_event&)       -> receive data from remote
+             * :-) connecting : void (client &c, connecting_event &e) -> when user issue the connect command
+             * :-) connected  : void (client &c, connected_event &e)  -> connect to remote success or failure
+             * :-) disconnect : void (client &c, disconnect_event &e) -> established connection is broken
+             * :-) send       : void (client &c, send_event &e)       -> send data to remote host
+             * :-) recv       : void (client &c, recv_event &e)       -> receive data from remote
              */
-            void attach(tcp::event::Type type, std::function<void (chen::tcp::client &c, chen::tcp::event &e)> callback);
-            void detach(tcp::event::Type type);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> callback);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)> callback);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> callback);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)> callback);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)> callback);
+
+            void detach(Event type);
 
         protected:
             /**
              * Notify events
              */
-            void notify(tcp::connecting_event ev);
-            void notify(tcp::connected_event ev);
-            void notify(tcp::disconnect_event ev);
-            void notify(tcp::send_event ev);
-            void notify(tcp::recv_event ev);
+            void notify(tcp::connecting_event &&ev);
+            void notify(tcp::connected_event &&ev);
+            void notify(tcp::disconnect_event &&ev);
+            void notify(tcp::send_event &&ev);
+            void notify(tcp::recv_event &&ev);
 
             /**
              * Event callbacks
@@ -134,7 +141,11 @@ namespace chen
             std::string   _host;
             std::uint16_t _port = 0;
 
-            std::unordered_map<int, std::function<void (chen::tcp::client &c, chen::tcp::event &e)>> _event;
+            std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> _cb_connecting;
+            std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)>  _cb_connected;
+            std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
+            std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)>       _cb_send;
+            std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)>       _cb_recv;
         };
     }
 }
