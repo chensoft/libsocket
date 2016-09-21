@@ -168,7 +168,7 @@ void chen::net::endpoint::set(const struct ::sockaddr *ptr) noexcept
     {
         case AF_INET:
         {
-            auto in = (struct ::sockaddr_in*)&ptr;
+            auto in = (struct ::sockaddr_in*)ptr;
             this->_addr = num::swap(in->sin_addr.s_addr);
             this->_port = num::swap(in->sin_port);
         }
@@ -176,7 +176,7 @@ void chen::net::endpoint::set(const struct ::sockaddr *ptr) noexcept
 
         case AF_INET6:
         {
-            auto in = (struct ::sockaddr_in6*)&ptr;
+            auto in = (struct ::sockaddr_in6*)ptr;
             this->_addr = ip::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
             this->_port = num::swap(in->sin6_port);
         }
