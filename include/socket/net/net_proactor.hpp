@@ -7,7 +7,9 @@
 #pragma once
 
 #include <socket/net/net_socket.hpp>
+#include <unordered_map>
 #include <vector>
+#include <queue>
 
 namespace chen
 {
@@ -47,12 +49,27 @@ namespace chen
             void stop();
 
         private:
+            /**
+             * Hepler methods
+             */
+            void write(net::socket *ptr);
+            void read(net::socket *ptr);
+
+        private:
             proactor(const proactor&) = delete;
             proactor& operator=(const proactor&) = delete;
 
         private:
-            class proactor_detail;
-            proactor_detail *_detail;
+#ifndef _WIN32
+            int _fd = -1;  // epoll on Linux, kqueue on Unix
+#else
+            // todo use IOCP
+#endif
+
+            typedef std::vector<std::uint8_t> chunk;
+
+            std::unordered_map<net::socket*, std::queue<chunk>> _send;  // send cache
+            std::unordered_map<net::socket*, std::queue<chunk>> _recv;  // recv cache
         };
     }
 }

@@ -6,41 +6,42 @@
  */
 #if !defined(__linux__) && !defined(_WIN32)
 
-#include "net_proactor.kqueue.hpp"
+#include <socket/net/net_proactor.hpp>
 #include <chen/sys/sys.hpp>
+#include <sys/event.h>
 
 // -----------------------------------------------------------------------------
-// proactor_detail
-chen::net::proactor::proactor_detail::proactor_detail()
+// proactor
+chen::net::proactor::proactor()
 {
     if ((this->_fd = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "proactor: failed to create kqueue");
 }
 
-chen::net::proactor::proactor_detail::~proactor_detail()
+chen::net::proactor::~proactor()
 {
     ::close(this->_fd);
 }
 
-void chen::net::proactor::proactor_detail::send(net::socket *ptr, std::vector<std::uint8_t> &&data)
+void chen::net::proactor::send(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
     this->_send[ptr].push(std::move(data));
     this->write(ptr);
 }
 
-void chen::net::proactor::proactor_detail::recv(net::socket *ptr, std::size_t size)
+void chen::net::proactor::recv(net::socket *ptr, std::size_t size)
 {
     this->_recv[ptr].push(chunk(size));
     this->read(ptr);
 }
 
-void chen::net::proactor::proactor_detail::remove(net::socket *ptr)
+void chen::net::proactor::remove(net::socket *ptr)
 {
     this->_send.erase(ptr);
     this->_recv.erase(ptr);
 }
 
-void chen::net::proactor::proactor_detail::start()
+void chen::net::proactor::start()
 {
     // todo add exit method
     struct kevent event{};
@@ -110,13 +111,13 @@ void chen::net::proactor::proactor_detail::start()
     }
 }
 
-void chen::net::proactor::proactor_detail::stop()
+void chen::net::proactor::stop()
 {
     // todo
 }
 
 // helper
-void chen::net::proactor::proactor_detail::write(net::socket *ptr)
+void chen::net::proactor::write(net::socket *ptr)
 {
     struct kevent event{};
     EV_SET(&event, ptr->handle().native(), EVFILT_WRITE, EV_ADD | EV_CLEAR, 0, 0, ptr);
@@ -125,7 +126,7 @@ void chen::net::proactor::proactor_detail::write(net::socket *ptr)
         throw std::system_error(sys::error(), "proactor: failed to add write event");
 }
 
-void chen::net::proactor::proactor_detail::read(net::socket *ptr)
+void chen::net::proactor::read(net::socket *ptr)
 {
     struct kevent event{};
     EV_SET(&event, ptr->handle().native(), EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, ptr);
