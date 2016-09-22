@@ -16,23 +16,28 @@ TEST(TCPClientTest, Test)
     using chen::tcp::disconnect_event;
     using chen::net::proactor;
 
-//    proactor p;
-//    client c = client::v4(p);
+    proactor p;
+    client c = client::v4(p);
 
-    PILogE("size: %zu, %zu", alignof(std::function<void ()>), sizeof(chen::bsd::socket));
+    PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(int));
 
-//    c.attach([] (client &c, connecting_event &e) {
-//        PILogE("connecting: %s", e.ep.str().c_str());
-//    });
-//
-//    c.attach([] (client &c, connected_event &e) {
-//        PILogE("connected: %s", e.ep.str().c_str());
-//        PILogE("local: %s, remote: %s", c.local().str().c_str(), c.remote().str().c_str());
-//        PILogE("non-blocking: %d, valid: %d, native: %d", c.nonblocking(), c.valid(), c.native());
-//        PILogE("option: %d", c.option().nodelay());
-//    });
-//
-//    c.connect("139.196.204.109:80");
-//
+    c.attach([] (client &x, connecting_event &e) {
+        PILogE("connecting: %s", e.ep.str().c_str());
+    });
+
+    c.attach([] (client &x, connected_event &e) {
+        PILogE("connected: %s, %s", e.ep.str().c_str(), e.err.message().c_str());
+
+        PILogE("local: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str());
+        x.disconnect();
+        PILogE("local: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str());
+
+        PILogE("non-blocking: %d, valid: %d, native: %d", x.nonblocking(), x.valid(), x.native());
+        PILogE("option: %d", x.option().nodelay());
+    });
+
+    c.connect("139.196.204.109:80");
+//    c.connect("127.0.0.1:80");
+
 //    p.start();
 }

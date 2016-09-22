@@ -155,7 +155,7 @@ void chen::bsd::socket::reset()
 }
 
 // property
-void chen::bsd::socket::local(bsd::endpoint &ep) const noexcept
+void chen::bsd::socket::sock(bsd::endpoint &ep) const noexcept
 {
     struct sockaddr_storage tmp{};
     socklen_t len = sizeof(tmp);
@@ -165,7 +165,7 @@ void chen::bsd::socket::local(bsd::endpoint &ep) const noexcept
     ep.set(tmp);
 }
 
-void chen::bsd::socket::remote(bsd::endpoint &ep) const noexcept
+void chen::bsd::socket::peer(bsd::endpoint &ep) const noexcept
 {
     struct sockaddr_storage tmp{};
     socklen_t len = sizeof(tmp);

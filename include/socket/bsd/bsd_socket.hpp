@@ -105,10 +105,10 @@ namespace chen
 
         public:
             /**
-             * Local and remote endpoint
+             * Sock & Peer endpoint
              */
-            void local(bsd::endpoint &ep) const noexcept;
-            void remote(bsd::endpoint &ep) const noexcept;
+            void sock(bsd::endpoint &ep) const noexcept;
+            void peer(bsd::endpoint &ep) const noexcept;
 
             /**
              * Non-blocking status

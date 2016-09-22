@@ -22,17 +22,17 @@ chen::bsd::socket& chen::net::socket::handle()
 }
 
 // property
-chen::net::endpoint chen::net::socket::local() const
+chen::net::endpoint chen::net::socket::sock() const
 {
     net::endpoint ep;
-    this->_handle.local(ep);
+    this->_handle.sock(ep);
     return ep;
 }
 
-chen::net::endpoint chen::net::socket::remote() const
+chen::net::endpoint chen::net::socket::peer() const
 {
     net::endpoint ep;
-    this->_handle.remote(ep);
+    this->_handle.peer(ep);
     return ep;
 }
 
