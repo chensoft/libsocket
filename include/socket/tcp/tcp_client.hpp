@@ -18,7 +18,7 @@ namespace chen
         class client : public basic
         {
         public:
-            enum class Event {Connecting = 1, Connected, Disconnect, Send, Recv};
+            enum class Event : std::uint8_t {Connecting = 1, Connected, Disconnect, Send, Recv};
 
         public:
             // todo how to reset socket if disconnect
@@ -136,7 +136,7 @@ namespace chen
             static client v6(net::proactor &proactor);
 
         private:
-            enum class State {Connecting = 1, Connected, Disconnect};
+            enum class State : std::uint8_t {Connecting = 1, Connected, Disconnect};
 
             State _state = State::Disconnect;
 

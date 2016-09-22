@@ -97,6 +97,12 @@ namespace chen
              */
             void close() noexcept;
 
+            /**
+             * Reset socket using stored domain, type and protocol
+             * @notice if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
+             */
+            void reset();
+
         public:
             /**
              * Local and remote endpoint
@@ -136,6 +142,10 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
+            int _domain   = 0;  // used for reset socket
+            int _type     = 0;
+            int _protocol = 0;
+
             socket_t _fd = socket::invalid_handle;  // socket descriptor
         };
     }

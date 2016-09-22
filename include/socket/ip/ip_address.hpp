@@ -16,7 +16,7 @@ namespace chen
         class address
         {
         public:
-            enum class Type
+            enum class Type : std::uint8_t
             {
                 None = AF_UNSPEC,
                 IPv4 = AF_INET,

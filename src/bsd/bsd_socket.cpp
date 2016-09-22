@@ -15,10 +15,9 @@ chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
 {
 }
 
-chen::bsd::socket::socket(int domain, int type, int protocol) : _fd(::socket(domain, type, protocol))
+chen::bsd::socket::socket(int domain, int type, int protocol) : _domain(domain), _type(type), _protocol(protocol)
 {
-    if (this->_fd < 0)
-        throw std::system_error(sys::error(), "socket: failed to create socket");
+    this->reset();
 }
 
 chen::bsd::socket::socket(socket &&o) noexcept
@@ -33,8 +32,12 @@ chen::bsd::socket& chen::bsd::socket::operator=(socket &&o) noexcept
 
     this->close();
 
-    this->_fd = o._fd;
-    o._fd     = socket::invalid_handle;
+    this->_fd       = o._fd;
+    this->_domain   = o._domain;
+    this->_type     = o._type;
+    this->_protocol = o._protocol;
+
+    o._fd = socket::invalid_handle;
 
     return *this;
 }
@@ -140,6 +143,15 @@ void chen::bsd::socket::close() noexcept
 
     ::close(this->_fd);
     this->_fd = socket::invalid_handle;
+}
+
+void chen::bsd::socket::reset()
+{
+    if (!this->_domain)
+        throw std::runtime_error("socket: reset failed because domain is unknown");
+
+    if ((this->_fd = ::socket(this->_domain, this->_type, this->_protocol)) < 0)
+        throw std::system_error(sys::error(), "socket: failed to create socket");
 }
 
 // property
