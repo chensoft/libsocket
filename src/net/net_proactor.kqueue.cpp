@@ -11,28 +11,63 @@
 #include <sys/event.h>
 
 // -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    void register_write(int k, int fd, void *data)
+    {
+        struct kevent event{};
+        EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_CLEAR, 0, 0, data);
+
+        if (::kevent(k, &event, 1, nullptr, 0, nullptr) < 0)
+            throw std::system_error(chen::sys::error(), "proactor: failed to add write event");
+    }
+
+    void register_read(int k, int fd, void *data)
+    {
+        struct kevent event{};
+        EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, data);
+
+        if (::kevent(k, &event, 1, nullptr, 0, nullptr) < 0)
+            throw std::system_error(chen::sys::error(), "proactor: failed to add read event");
+    }
+}
+
+
+// -----------------------------------------------------------------------------
 // proactor
 chen::net::proactor::proactor()
 {
     if ((this->_fd = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "proactor: failed to create kqueue");
+
+    if (::pipe(this->_pp) != 0)
+    {
+        ::close(this->_fd);
+        throw std::system_error(sys::error(), "proactor: failed to create pipe");
+    }
+
+    // register pipe to receive stop message
+    ::register_read(this->_fd, this->_pp[0], nullptr);
 }
 
 chen::net::proactor::~proactor()
 {
     ::close(this->_fd);
+    ::close(this->_pp[0]);
+    ::close(this->_pp[1]);
 }
 
 void chen::net::proactor::send(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
     this->_send[ptr].push(std::move(data));
-    this->write(ptr);
+    ::register_write(this->_fd, ptr->native(), ptr);
 }
 
 void chen::net::proactor::recv(net::socket *ptr, std::size_t size)
 {
     this->_recv[ptr].push(chunk(size));
-    this->read(ptr);
+    ::register_read(this->_fd, ptr->native(), ptr);
 }
 
 void chen::net::proactor::remove(net::socket *ptr)
@@ -43,7 +78,6 @@ void chen::net::proactor::remove(net::socket *ptr)
 
 void chen::net::proactor::start()
 {
-    // todo add exit method
     struct kevent event{};
 
     while (true)
@@ -51,6 +85,15 @@ void chen::net::proactor::start()
         if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
             throw std::system_error(sys::error(), "proactor: failed to wait event");
 
+        // check pipe to see if user want to stop the proactor
+        if (event.ident == static_cast<uintptr_t>(this->_pp[0]))
+        {
+            char dummy;
+            ::read(this->_pp[0], &dummy, 1);
+            break;
+        }
+
+        // retrieve the socket pointer associated with event
         auto ptr = static_cast<net::socket*>(event.udata);
         if (!ptr)
             throw std::system_error(sys::error(), "proactor: event happened but no related socket");
@@ -87,7 +130,7 @@ void chen::net::proactor::start()
                 else
                 {
                     // wait for next write time point
-                    this->write(ptr);
+                    ::register_write(this->_fd, ptr->native(), ptr);
                 }
             }
             else
@@ -113,26 +156,9 @@ void chen::net::proactor::start()
 
 void chen::net::proactor::stop()
 {
-    // todo
-}
-
-// helper
-void chen::net::proactor::write(net::socket *ptr)
-{
-    struct kevent event{};
-    EV_SET(&event, ptr->handle().native(), EVFILT_WRITE, EV_ADD | EV_CLEAR, 0, 0, ptr);
-
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        throw std::system_error(sys::error(), "proactor: failed to add write event");
-}
-
-void chen::net::proactor::read(net::socket *ptr)
-{
-    struct kevent event{};
-    EV_SET(&event, ptr->handle().native(), EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, ptr);
-
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        throw std::system_error(sys::error(), "proactor: failed to add read event");
+    // notify stop message via pipe
+    if (::write(this->_pp[1], "\n", 1) != 1)
+        throw std::system_error(sys::error(), "proactor: failed to stop the proactor");
 }
 
 #endif

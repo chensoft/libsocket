@@ -49,19 +49,13 @@ namespace chen
             void stop();
 
         private:
-            /**
-             * Hepler methods
-             */
-            void write(net::socket *ptr);
-            void read(net::socket *ptr);
-
-        private:
             proactor(const proactor&) = delete;
             proactor& operator=(const proactor&) = delete;
 
         private:
 #ifndef _WIN32
             int _fd = -1;  // epoll on Linux, kqueue on Unix
+            int _pp[2]{};  // use pipe to stop the event loop, 0 is read fd, 1 is write fd
 #else
             // todo use IOCP
 #endif

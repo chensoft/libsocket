@@ -18,26 +18,22 @@ TEST(TCPClientTest, Test)
 
     proactor p;
 
-    PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(int));
+    PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(proactor));
 
-    std::vector<std::unique_ptr<client>> list;
+    client c(chen::ip::address::Type::IPv4, p);
 
-    for (int i = 0, len = 10; i < len; ++i)
-    {
-        list.push_back(std::unique_ptr<client>(new client(chen::ip::address::Type::IPv4, p)));
+    c.attach([] (client &x, connecting_event &e) {
+        PILogE("connecting: %s", e.ep.str().c_str());
+    });
 
-        client &c = *list.back();
+    c.attach([&] (client &x, connected_event &e) {
+        PILogE("connected: %s, %s", e.ep.str().c_str(), e.err.message().c_str());
 
-        c.attach([i] (client &x, connecting_event &e) {
-            PILogE("[%d] connecting: %s", i, e.ep.str().c_str());
-        });
+        // exit loop
+        p.stop();
+    });
 
-        c.attach([i] (client &x, connected_event &e) {
-            PILogE("[%d] connected: %s, %s", i, e.ep.str().c_str(), e.err.message().c_str());
-        });
-
-        c.connect("223.202.26.4:80");
-    }
+    c.connect("223.202.26.4:80");
 
     p.start();
 }
