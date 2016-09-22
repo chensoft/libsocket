@@ -19,7 +19,6 @@
 
 namespace chen
 {
-    typedef int notifier_t;      // epoll/kqueue handle
     typedef int socket_t;        // socket handle type
     typedef socklen_t option_t;  // socket option size
 }

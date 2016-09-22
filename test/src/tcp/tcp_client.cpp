@@ -22,7 +22,7 @@ TEST(TCPClientTest, Test)
 
     std::vector<std::unique_ptr<client>> list;
 
-    for (int i = 0, len = 100; i < len; ++i)
+    for (int i = 0, len = 10; i < len; ++i)
     {
         list.push_back(std::unique_ptr<client>(new client(chen::ip::address::Type::IPv4, p)));
 
@@ -36,8 +36,8 @@ TEST(TCPClientTest, Test)
             PILogE("[%d] connected: %s, %s", i, e.ep.str().c_str(), e.err.message().c_str());
         });
 
-        c.connect("127.0.0.1:80");
+        c.connect("223.202.26.4:80");
     }
 
-//    p.start();
+    p.start();
 }

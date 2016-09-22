@@ -15,7 +15,7 @@ chen::tcp::client::client(ip::address::Type family, net::proactor &proactor) : b
 
 chen::tcp::client::~client()
 {
-    this->_proactor.del(this);
+    this->_proactor.remove(this);
 }
 
 // connection

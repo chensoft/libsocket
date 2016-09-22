@@ -7,10 +7,7 @@
 #pragma once
 
 #include <socket/net/net_socket.hpp>
-#include <unordered_map>
-#include <system_error>
 #include <vector>
-#include <queue>
 
 namespace chen
 {
@@ -19,7 +16,7 @@ namespace chen
         class proactor
         {
         public:
-            proactor() throw(std::system_error);
+            proactor();
             ~proactor();
 
         public:
@@ -34,14 +31,14 @@ namespace chen
             void recv(net::socket *ptr, std::size_t size);
 
             /**
-             * Delete all callbacks for specific socket
+             * Remove all callbacks for specific socket
              */
-            void del(net::socket *ptr);
+            void remove(net::socket *ptr);
 
             /**
              * Wait events and dispatch
              */
-            void start() throw(std::system_error);
+            void start();
 
             /**
              * Stop proactor
@@ -50,23 +47,12 @@ namespace chen
             void stop();
 
         private:
-            /**
-             * Helper methods
-             */
-            void write(net::socket *ptr) throw(std::system_error);
-            void read(net::socket *ptr) throw(std::system_error);
-
-        private:
             proactor(const proactor&) = delete;
             proactor& operator=(const proactor&) = delete;
 
         private:
-            notifier_t _fd = notifier_t();  // epoll on Linux, kqueue on Unix, IOCP on Windows
-
-            typedef std::vector<std::uint8_t> chunk;
-
-            std::unordered_map<net::socket*, std::queue<chunk>> _send;  // send cache
-            std::unordered_map<net::socket*, std::queue<chunk>> _recv;  // recv cache
+            class proactor_detail;
+            proactor_detail *_detail;
         };
     }
 }
