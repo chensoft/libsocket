@@ -89,10 +89,9 @@ namespace chen
             bool isConnected() const;
 
             /**
-             * Stored host and port
+             * Remote endpoint
              */
-            std::string host() const;
-            std::uint16_t port() const;
+            net::endpoint remote() const;
 
         public:
             /**
@@ -140,15 +139,13 @@ namespace chen
 
             State _state = State::Disconnect;
 
-            std::string   _host;
-            std::uint16_t _port = 0;
-
             std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> _cb_connecting;
             std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)>  _cb_connected;
             std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
             std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)>       _cb_send;
             std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)>       _cb_recv;
 
+            net::endpoint _remote;
             net::proactor &_proactor;
         };
     }

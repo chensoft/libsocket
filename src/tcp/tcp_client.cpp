@@ -59,14 +59,9 @@ bool chen::tcp::client::isDisconnect() const
     return this->_state == State::Disconnect;
 }
 
-std::string chen::tcp::client::host() const
+chen::net::endpoint chen::tcp::client::remote() const
 {
-    return this->_host;
-}
-
-std::uint16_t chen::tcp::client::port() const
-{
-    return this->_port;
+    return this->_remote;
 }
 
 // event
@@ -123,7 +118,8 @@ void chen::tcp::client::detach(Event type)
 
 void chen::tcp::client::notify(tcp::connecting_event &&ev)
 {
-    this->_state = State::Connecting;
+    this->_state  = State::Connecting;
+    this->_remote = ev.ep;
 
     if (this->_cb_connecting)
         this->_cb_connecting(*this, ev);
@@ -165,7 +161,7 @@ void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
         if (error)
             this->disconnect();
 
-        this->notify(connected_event(net::endpoint(this->_host, this->_port), error));  // todo return ep of host and port
+        this->notify(connected_event(this->_remote, error));
     }
     else if (this->isConnected())
     {
@@ -213,7 +209,7 @@ void chen::tcp::client::onEventEOF()
     {
         // receive eof when connecting usually means connection refused
         this->disconnect();
-        this->notify(connected_event(net::endpoint(this->_host, this->_port), std::make_error_code(std::errc::connection_refused)));
+        this->notify(connected_event(this->_remote, std::make_error_code(std::errc::connection_refused)));
     }
     else if (this->isConnected())
     {

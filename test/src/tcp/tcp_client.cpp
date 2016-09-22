@@ -28,9 +28,9 @@ TEST(TCPClientTest, Test)
     c.attach([] (client &x, connected_event &e) {
         PILogE("connected: %s, %s", e.ep.str().c_str(), e.err.message().c_str());
 
-        PILogE("local: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str());
+        PILogE("sock: %s, peer: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str(), x.remote().str().c_str());
         x.disconnect();
-        PILogE("local: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str());
+        PILogE("sock: %s, peer: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str(), x.remote().str().c_str());
 
         PILogE("non-blocking: %d, valid: %d, native: %d", x.nonblocking(), x.valid(), x.native());
         PILogE("option: %d", x.option().nodelay());
