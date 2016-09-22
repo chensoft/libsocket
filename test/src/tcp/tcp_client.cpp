@@ -17,27 +17,27 @@ TEST(TCPClientTest, Test)
     using chen::net::proactor;
 
     proactor p;
-    client c = client::v4(p);
 
     PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(int));
 
-    c.attach([] (client &x, connecting_event &e) {
-        PILogE("connecting: %s", e.ep.str().c_str());
-    });
+    std::vector<std::unique_ptr<client>> list;
 
-    c.attach([] (client &x, connected_event &e) {
-        PILogE("connected: %s, %s", e.ep.str().c_str(), e.err.message().c_str());
+    for (int i = 0, len = 100; i < len; ++i)
+    {
+        list.push_back(std::unique_ptr<client>(new client(chen::ip::address::Type::IPv4, p)));
 
-        PILogE("sock: %s, peer: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str(), x.remote().str().c_str());
-        x.disconnect();
-        PILogE("sock: %s, peer: %s, remote: %s", x.sock().str().c_str(), x.peer().str().c_str(), x.remote().str().c_str());
+        client &c = *list.back();
 
-        PILogE("non-blocking: %d, valid: %d, native: %d", x.nonblocking(), x.valid(), x.native());
-        PILogE("option: %d", x.option().nodelay());
-    });
+        c.attach([i] (client &x, connecting_event &e) {
+            PILogE("[%d] connecting: %s", i, e.ep.str().c_str());
+        });
 
-    c.connect("139.196.204.109:80");
-//    c.connect("127.0.0.1:80");
+        c.attach([i] (client &x, connected_event &e) {
+            PILogE("[%d] connected: %s, %s", i, e.ep.str().c_str(), e.err.message().c_str());
+        });
+
+        c.connect("127.0.0.1:80");
+    }
 
 //    p.start();
 }

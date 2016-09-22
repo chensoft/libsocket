@@ -19,9 +19,6 @@ namespace chen
             socket(socket_t fd);
             socket(ip::address::Type family, int type);
 
-            socket(socket &&o) = default;
-            socket& operator=(socket &&o) = default;
-
             virtual ~socket() = default;
 
         public:

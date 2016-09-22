@@ -13,6 +13,11 @@ chen::tcp::client::client(ip::address::Type family, net::proactor &proactor) : b
     this->nonblocking(true);
 }
 
+chen::tcp::client::~client()
+{
+    this->_proactor.del(this);
+}
+
 // connection
 void chen::tcp::client::connect(const net::endpoint &ep)
 {
@@ -221,15 +226,4 @@ void chen::tcp::client::onEventEOF()
     {
         throw std::runtime_error("tcp: client in disconnect state but received eof event");
     }
-}
-
-// handy
-chen::tcp::client chen::tcp::client::v4(net::proactor &proactor)
-{
-    return client(ip::address::Type::IPv4, proactor);
-}
-
-chen::tcp::client chen::tcp::client::v6(net::proactor &proactor)
-{
-    return client(ip::address::Type::IPv6, proactor);
 }

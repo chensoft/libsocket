@@ -35,6 +35,12 @@ void chen::net::proactor::recv(net::socket *ptr, std::size_t size)
     this->read(ptr);
 }
 
+void chen::net::proactor::del(net::socket *ptr)
+{
+    this->_send.erase(ptr);
+    this->_recv.erase(ptr);
+}
+
 void chen::net::proactor::start() throw(std::system_error)
 {
     // todo add exit method

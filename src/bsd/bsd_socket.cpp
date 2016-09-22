@@ -20,28 +20,6 @@ chen::bsd::socket::socket(int domain, int type, int protocol) : _domain(domain),
     this->reset();
 }
 
-chen::bsd::socket::socket(socket &&o) noexcept
-{
-    *this = std::move(o);
-}
-
-chen::bsd::socket& chen::bsd::socket::operator=(socket &&o) noexcept
-{
-    if (this == &o)
-        return *this;
-
-    this->close();
-
-    this->_fd       = o._fd;
-    this->_domain   = o._domain;
-    this->_type     = o._type;
-    this->_protocol = o._protocol;
-
-    o._fd = socket::invalid_handle;
-
-    return *this;
-}
-
 chen::bsd::socket::~socket() noexcept
 {
     this->close();

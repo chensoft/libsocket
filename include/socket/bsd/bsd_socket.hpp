@@ -34,9 +34,6 @@ namespace chen
              */
             socket(int domain, int type, int protocol);
 
-            socket(socket &&o) noexcept;
-            socket& operator=(socket &&o) noexcept;
-
             ~socket() noexcept;
 
         public:
@@ -138,6 +135,11 @@ namespace chen
             socket_t native() const noexcept;
 
         private:
+            /**
+             * Disable copy & move
+             * if you want to store socket in container
+             * use std::unique_ptr<bsd::socket> is a choice
+             */
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;
 

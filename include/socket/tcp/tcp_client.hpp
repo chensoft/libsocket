@@ -23,6 +23,7 @@ namespace chen
         public:
             // todo how to reset socket if disconnect
             client(ip::address::Type family, net::proactor &proactor);
+            ~client();
 
         public:
             /**
@@ -126,13 +127,6 @@ namespace chen
             virtual void onEventSend(std::size_t size, std::error_code error) override;
             virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) override;
             virtual void onEventEOF() override;
-
-        public:
-            /**
-             * Handy methods for creating socket
-             */
-            static client v4(net::proactor &proactor);
-            static client v6(net::proactor &proactor);
 
         private:
             enum class State : std::uint8_t {Connecting = 1, Connected, Disconnect};

@@ -34,6 +34,11 @@ namespace chen
             void recv(net::socket *ptr, std::size_t size);
 
             /**
+             * Delete all callbacks for specific socket
+             */
+            void del(net::socket *ptr);
+
+            /**
              * Wait events and dispatch
              */
             void start() throw(std::system_error);
