@@ -18,7 +18,6 @@
 //             * Start the server
 //             */
 //            void start(const endpoint &ep);
-//            void start(const ip::address &addr, std::uint16_t port);
 //
 //            /**
 //             * Stop the server

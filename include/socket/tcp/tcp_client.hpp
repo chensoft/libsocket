@@ -31,7 +31,6 @@ namespace chen
              * todo how to deal with domain resolve error
              */
             void connect(const net::endpoint &ep);
-            void connect(const ip::address &addr, std::uint16_t port);
 
             /**
              * Disconnect and reconnect to last host

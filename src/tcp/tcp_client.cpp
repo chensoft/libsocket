@@ -33,11 +33,6 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     this->_handle.connect(ep);
 }
 
-void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)
-{
-    this->connect(net::endpoint(addr, port));
-}
-
 void chen::tcp::client::reconnect()
 {
     // todo
