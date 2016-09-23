@@ -22,3 +22,14 @@ bool chen::ip::option::ttl(int val)
 {
     return !::setsockopt(this->_fd, IPPROTO_IP, IP_TTL, &val, sizeof(val));
 }
+
+// v6only
+bool chen::ip::option::v6only() const
+{
+    return bsd::option::intVal(IPPROTO_IPV6, IPV6_V6ONLY) != 0;
+}
+
+bool chen::ip::option::v6only(bool enable)
+{
+    return !::setsockopt(this->_fd, IPPROTO_IPV6, IPV6_V6ONLY, &enable, sizeof(enable));
+}

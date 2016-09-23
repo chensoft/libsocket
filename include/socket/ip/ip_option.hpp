@@ -12,7 +12,6 @@ namespace chen
 {
     namespace ip
     {
-        // todo add more IPv6 and IPv4 options
         class option : public bsd::option
         {
         public:
@@ -24,6 +23,13 @@ namespace chen
              */
             int ttl() const;
             bool ttl(int val);
+
+            /**
+             * IPV6_V6ONLY(Restricted to sending and receiving IPv6 packets only)
+             * normally you can send or recv from both IPv4 and IPv6 address if you use AF_INET6
+             */
+            bool v6only() const;
+            bool v6only(bool enable);
         };
     }
 }
