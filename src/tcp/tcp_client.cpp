@@ -28,7 +28,9 @@ void chen::tcp::client::connect(const net::endpoint &ep)
 
     // connect to remote host, wait for the send event
     this->_proactor.send(this, {});
-    this->_handle.connect(ep);
+
+    // todo must check methods' return code, if error then notify connected immediately
+    this->_handle.connect(ep.raw());
 }
 
 void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)

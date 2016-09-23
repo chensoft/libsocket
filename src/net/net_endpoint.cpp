@@ -15,6 +15,35 @@ chen::net::endpoint::endpoint(std::nullptr_t) : _addr(nullptr)
 {
 }
 
+chen::net::endpoint::endpoint(const bsd::endpoint &ep) : endpoint((struct ::sockaddr*)&ep.addr)
+{
+}
+
+chen::net::endpoint::endpoint(const struct ::sockaddr *ptr)
+{
+    switch (ptr->sa_family)
+    {
+        case AF_INET:
+        {
+            auto in = (struct ::sockaddr_in*)ptr;
+            this->_addr = num::swap(in->sin_addr.s_addr);
+            this->_port = num::swap(in->sin_port);
+        }
+            break;
+
+        case AF_INET6:
+        {
+            auto in = (struct ::sockaddr_in6*)ptr;
+            this->_addr = ip::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
+            this->_port = num::swap(in->sin6_port);
+        }
+            break;
+
+        default:
+            throw std::runtime_error("endpoint: unknown bsd endpoint provided");
+    }
+}
+
 chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
@@ -76,6 +105,45 @@ void chen::net::endpoint::port(std::uint16_t value)
     this->_port = value;
 }
 
+chen::bsd::endpoint chen::net::endpoint::raw() const
+{
+    bsd::endpoint out;
+
+    switch (this->_addr.type())
+    {
+        case ip::address::Type::IPv4:
+        {
+            auto in = (struct ::sockaddr_in*)&out.addr;
+
+            in->sin_family      = AF_INET;
+            in->sin_port        = chen::num::swap(this->_port);
+            in->sin_addr.s_addr = chen::num::swap(this->_addr.v4().addr());
+
+            out.size = sizeof(*in);
+        }
+            break;
+
+        case ip::address::Type::IPv6:
+        {
+            auto in = (struct ::sockaddr_in6*)&out.addr;
+
+            in->sin6_family   = AF_INET6;
+            in->sin6_port     = chen::num::swap(this->_port);
+            in->sin6_scope_id = this->_addr.v6().scope();
+
+            ::memcpy(in->sin6_addr.s6_addr, this->_addr.v6().addr().data(), 16);
+
+            out.size = sizeof(*in);
+        }
+            break;
+
+        default:
+            break;
+    }
+
+    return out;
+}
+
 // special
 bool chen::net::endpoint::isWellKnownPort() const
 {
@@ -124,81 +192,4 @@ bool chen::net::endpoint::operator<=(const endpoint &o) const
 bool chen::net::endpoint::operator>=(const endpoint &o) const
 {
     return o <= *this;
-}
-
-// override
-struct ::sockaddr_storage chen::net::endpoint::get() const noexcept
-{
-    struct ::sockaddr_storage out{};
-
-    switch (this->_addr.type())
-    {
-        case ip::address::Type::IPv4:
-        {
-            auto in = (struct ::sockaddr_in*)&out;
-
-            in->sin_family      = AF_INET;
-            in->sin_port        = chen::num::swap(this->_port);
-            in->sin_addr.s_addr = chen::num::swap(this->_addr.v4().addr());
-        }
-            break;
-
-        case ip::address::Type::IPv6:
-        {
-            auto in = (struct ::sockaddr_in6*)&out;
-
-            in->sin6_family   = AF_INET6;
-            in->sin6_port     = chen::num::swap(this->_port);
-            in->sin6_scope_id = this->_addr.v6().scope();
-
-            ::memcpy(in->sin6_addr.s6_addr, this->_addr.v6().addr().data(), 16);
-        }
-            break;
-
-        default:
-            break;
-    }
-
-    return out;
-}
-
-void chen::net::endpoint::set(const struct ::sockaddr *ptr) noexcept
-{
-    switch (ptr->sa_family)
-    {
-        case AF_INET:
-        {
-            auto in = (struct ::sockaddr_in*)ptr;
-            this->_addr = num::swap(in->sin_addr.s_addr);
-            this->_port = num::swap(in->sin_port);
-        }
-            break;
-
-        case AF_INET6:
-        {
-            auto in = (struct ::sockaddr_in6*)ptr;
-            this->_addr = ip::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
-            this->_port = num::swap(in->sin6_port);
-        }
-            break;
-
-        default:
-            this->_addr = nullptr;
-            this->_port = 0;
-    }
-}
-
-socklen_t chen::net::endpoint::len() const noexcept
-{
-    switch (this->_addr.type())
-    {
-        case ip::address::Type::IPv4:
-            return sizeof(struct ::sockaddr_in);
-
-        case ip::address::Type::IPv6:
-            return sizeof(struct ::sockaddr_in6);
-
-        default:
-            return 0;
-    }
 }

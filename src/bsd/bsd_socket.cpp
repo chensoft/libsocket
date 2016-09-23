@@ -28,14 +28,12 @@ chen::bsd::socket::~socket() noexcept
 // connection
 std::error_code chen::bsd::socket::connect(const bsd::endpoint &ep) noexcept
 {
-    auto tmp = ep.get();
-    return ::connect(this->_fd, (struct ::sockaddr*)&tmp, ep.len()) < 0 ? sys::error() : std::error_code();
+    return ::connect(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) < 0 ? sys::error() : std::error_code();
 }
 
 std::error_code chen::bsd::socket::bind(const bsd::endpoint &ep) noexcept
 {
-    auto tmp = ep.get();
-    return ::bind(this->_fd, (struct ::sockaddr*)&tmp, ep.len()) < 0 ? sys::error() : std::error_code();
+    return ::bind(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) < 0 ? sys::error() : std::error_code();
 }
 
 std::error_code chen::bsd::socket::listen() noexcept
@@ -50,13 +48,8 @@ std::error_code chen::bsd::socket::listen(int backlog) noexcept
 
 std::error_code chen::bsd::socket::accept(socket_t &fd, bsd::endpoint &ep) noexcept
 {
-    struct ::sockaddr_storage tmp{};
-    socklen_t len = 0;
-
-    if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&tmp, &len)) < 0)
+    if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size)) < 0)
         return sys::error();
-
-    ep.set(tmp);
 
     return {};
 }
@@ -69,8 +62,7 @@ ssize_t chen::bsd::socket::send(const void *data, std::size_t size, int flags) n
 
 ssize_t chen::bsd::socket::send(const void *data, std::size_t size, const bsd::endpoint &ep, int flags) noexcept
 {
-    auto tmp = ep.get();
-    return ::sendto(this->_fd, data, size, flags, (struct ::sockaddr*)&tmp, ep.len());
+    return ::sendto(this->_fd, data, size, flags, (struct ::sockaddr*)&ep.addr, ep.size);
 }
 
 std::error_code chen::bsd::socket::recv(std::vector<std::uint8_t> &out, int flags) noexcept
@@ -85,14 +77,10 @@ std::error_code chen::bsd::socket::recv(std::vector<std::uint8_t> &out, int flag
 
 std::error_code chen::bsd::socket::recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags) noexcept
 {
-    struct sockaddr_storage tmp{};
-    socklen_t len = 0;
-
-    auto size = ::recvfrom(this->_fd, out.data(), out.size(), flags, (struct sockaddr*)&tmp, &len);
+    auto size = ::recvfrom(this->_fd, out.data(), out.size(), flags, (struct ::sockaddr*)&ep.addr, &ep.size);
     if (size < 0)
         return sys::error();
 
-    ep.set(tmp);
     out.resize(static_cast<std::size_t>(size));
 
     return {};
@@ -133,24 +121,24 @@ void chen::bsd::socket::reset()
 }
 
 // property
-void chen::bsd::socket::sock(bsd::endpoint &ep) const noexcept
+chen::bsd::endpoint chen::bsd::socket::sock() const noexcept
 {
-    struct sockaddr_storage tmp{};
-    socklen_t len = sizeof(tmp);
+    bsd::endpoint ep;
+    ep.size = sizeof(ep.addr);
 
-    ::getsockname(this->_fd, (struct sockaddr*)&tmp, &len);
+    ::getsockname(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
 
-    ep.set(tmp);
+    return ep;
 }
 
-void chen::bsd::socket::peer(bsd::endpoint &ep) const noexcept
+chen::bsd::endpoint chen::bsd::socket::peer() const noexcept
 {
-    struct sockaddr_storage tmp{};
-    socklen_t len = sizeof(tmp);
+    bsd::endpoint ep;
+    ep.size = sizeof(ep.addr);
 
-    ::getpeername(this->_fd, (struct sockaddr*)&tmp, &len);
+    ::getpeername(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
 
-    ep.set(tmp);
+    return ep;
 }
 
 bool chen::bsd::socket::nonblocking() const noexcept

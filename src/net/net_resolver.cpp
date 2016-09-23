@@ -54,8 +54,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 
     for (struct addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
     {
-        endpoint ep;
-        ep.set(ptr->ai_addr);
+        net::endpoint ep(ptr->ai_addr);
         ep.port(port);
         ret.emplace_back(std::move(ep));
     }

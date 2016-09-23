@@ -53,7 +53,7 @@ namespace
         ::freeifaddrs(list);
     }
 
-    std::unique_ptr<chen::ip::address> create(struct sockaddr *ptr)
+    std::unique_ptr<chen::ip::address> create(struct ::sockaddr *ptr)
     {
         using chen::ip::address;
 
@@ -63,11 +63,11 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return std::unique_ptr<address>(new address(chen::num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr)));
+                return std::unique_ptr<address>(new address(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr)));
 
             case AF_INET6:
             {
-                auto tmp = (struct sockaddr_in6*)ptr;
+                auto tmp = (struct ::sockaddr_in6*)ptr;
                 auto ret = std::unique_ptr<address>(new address(tmp->sin6_addr.s6_addr));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
@@ -97,7 +97,7 @@ namespace
 
         // mac
 #ifdef __APPLE__
-        struct sockaddr_dl *sdl  = (struct sockaddr_dl*)ptr->ifa_addr;
+        struct ::sockaddr_dl *sdl  = (struct ::sockaddr_dl*)ptr->ifa_addr;
         const std::uint8_t *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
 #else
         const std::uint8_t *data = nullptr;
@@ -112,7 +112,7 @@ namespace
         ::close(fd);
     }
 
-    std::uint8_t netmask(struct sockaddr *ptr)
+    std::uint8_t netmask(struct ::sockaddr *ptr)
     {
         using chen::ip::version4;
         using chen::ip::version6;
@@ -123,10 +123,10 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return version4::toCIDR(chen::num::swap(((struct sockaddr_in*)ptr)->sin_addr.s_addr));
+                return version4::toCIDR(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return version6::toCIDR(((struct sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+                return version6::toCIDR(((struct ::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
 
             default:
                 return 0;
@@ -222,7 +222,7 @@ std::uint32_t chen::ip::interface::scope(const std::uint8_t addr[16], const std:
             return;
 
         // check address
-        auto tmp = (struct sockaddr_in6*)ptr->ifa_addr;
+        auto tmp = (struct ::sockaddr_in6*)ptr->ifa_addr;
 
         if (!::memcmp(addr, tmp->sin6_addr.s6_addr, 16))
         {
@@ -242,7 +242,7 @@ std::string chen::ip::interface::scope(std::uint32_t id)
         if (!ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 
-        auto tmp = (struct sockaddr_in6*)ptr->ifa_addr;
+        auto tmp = (struct ::sockaddr_in6*)ptr->ifa_addr;
 
         if (tmp->sin6_scope_id == id)
         {

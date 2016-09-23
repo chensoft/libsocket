@@ -16,7 +16,7 @@ namespace chen
         /**
          * Endpoint for TCP & UDP
          */
-        class endpoint : public bsd::endpoint
+        class endpoint
         {
         public:
             /**
@@ -25,7 +25,14 @@ namespace chen
             endpoint(std::nullptr_t = nullptr);
 
             /**
+             * Construct from raw bsd endpoint
+             */
+            endpoint(const bsd::endpoint &ep);
+            endpoint(const struct ::sockaddr *ptr);
+
+            /**
              * Construct by ip address & port
+             * todo move to below constructor
              */
             endpoint(const ip::address &addr, std::uint16_t port);
 
@@ -73,6 +80,8 @@ namespace chen
             std::uint16_t port() const;
             void port(std::uint16_t value);
 
+            bsd::endpoint raw() const;
+
             /**
              * Special ports
              * @link http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
@@ -93,14 +102,6 @@ namespace chen
 
             bool operator<=(const endpoint &o) const;
             bool operator>=(const endpoint &o) const;
-
-        public:
-            /**
-             * Override
-             */
-            virtual struct ::sockaddr_storage get() const noexcept override;
-            virtual void set(const struct ::sockaddr *ptr) noexcept override;
-            virtual socklen_t len() const noexcept override;
 
         private:
             ip::address _addr;

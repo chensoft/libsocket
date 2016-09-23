@@ -15,31 +15,8 @@ namespace chen
         class endpoint
         {
         public:
-            virtual ~endpoint() = default;
-
-        public:
-            /**
-             * Convert specific endpoint to sockaddr_storage
-             */
-            virtual struct ::sockaddr_storage get() const noexcept = 0;
-
-            /**
-             * Set specific endpoint via sockaddr pointer
-             */
-            virtual void set(const struct ::sockaddr *ptr) noexcept = 0;
-
-            /**
-             * Set specific endpoint via sockaddr_storage
-             */
-            virtual void set(const struct ::sockaddr_storage &val) noexcept
-            {
-                this->set((struct ::sockaddr*)&val);
-            }
-
-            /**
-             * Current endpoint's sizeof length
-             */
-            virtual socklen_t len() const noexcept = 0;
+            socklen_t size = 0;
+            struct ::sockaddr_storage addr{};
         };
     }
 }

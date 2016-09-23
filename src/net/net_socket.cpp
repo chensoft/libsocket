@@ -24,16 +24,12 @@ chen::bsd::socket& chen::net::socket::handle()
 // property
 chen::net::endpoint chen::net::socket::sock() const
 {
-    net::endpoint ep;
-    this->_handle.sock(ep);
-    return ep;
+    return this->_handle.sock();
 }
 
 chen::net::endpoint chen::net::socket::peer() const
 {
-    net::endpoint ep;
-    this->_handle.peer(ep);
-    return ep;
+    return this->_handle.peer();
 }
 
 bool chen::net::socket::nonblocking() const

@@ -15,7 +15,7 @@ namespace chen
 {
     namespace bsd
     {
-        class socket final
+        class socket
         {
         public:
             static const socket_t invalid_handle;  // -1 on Unix, INVALID_HANDLE on Windows
@@ -104,8 +104,8 @@ namespace chen
             /**
              * Sock & Peer endpoint
              */
-            void sock(bsd::endpoint &ep) const noexcept;
-            void peer(bsd::endpoint &ep) const noexcept;
+            bsd::endpoint sock() const noexcept;
+            bsd::endpoint peer() const noexcept;
 
             /**
              * Non-blocking status
