@@ -105,45 +105,6 @@ void chen::net::endpoint::port(std::uint16_t value)
     this->_port = value;
 }
 
-chen::bsd::endpoint chen::net::endpoint::raw() const
-{
-    bsd::endpoint out;
-
-    switch (this->_addr.type())
-    {
-        case ip::address::Type::IPv4:
-        {
-            auto in = (struct ::sockaddr_in*)&out.addr;
-
-            in->sin_family      = AF_INET;
-            in->sin_port        = chen::num::swap(this->_port);
-            in->sin_addr.s_addr = chen::num::swap(this->_addr.v4().addr());
-
-            out.size = sizeof(*in);
-        }
-            break;
-
-        case ip::address::Type::IPv6:
-        {
-            auto in = (struct ::sockaddr_in6*)&out.addr;
-
-            in->sin6_family   = AF_INET6;
-            in->sin6_port     = chen::num::swap(this->_port);
-            in->sin6_scope_id = this->_addr.v6().scope();
-
-            ::memcpy(in->sin6_addr.s6_addr, this->_addr.v6().addr().data(), 16);
-
-            out.size = sizeof(*in);
-        }
-            break;
-
-        default:
-            break;
-    }
-
-    return out;
-}
-
 // special
 bool chen::net::endpoint::isWellKnownPort() const
 {
@@ -161,6 +122,46 @@ bool chen::net::endpoint::isDynamicPort() const
 {
     // from 49152 through 65535
     return this->_port >= 49152;
+}
+
+// conversion
+chen::net::endpoint::operator bsd::endpoint() const
+{
+    bsd::endpoint ret;
+
+    switch (this->_addr.type())
+    {
+        case ip::address::Type::IPv4:
+        {
+            auto in = (struct ::sockaddr_in*)&ret.addr;
+
+            in->sin_family      = AF_INET;
+            in->sin_port        = chen::num::swap(this->_port);
+            in->sin_addr.s_addr = chen::num::swap(this->_addr.v4().addr());
+
+            ret.size = sizeof(*in);
+        }
+            break;
+
+        case ip::address::Type::IPv6:
+        {
+            auto in = (struct ::sockaddr_in6*)&ret.addr;
+
+            in->sin6_family   = AF_INET6;
+            in->sin6_port     = chen::num::swap(this->_port);
+            in->sin6_scope_id = this->_addr.v6().scope();
+
+            ::memcpy(in->sin6_addr.s6_addr, this->_addr.v6().addr().data(), 16);
+
+            ret.size = sizeof(*in);
+        }
+            break;
+
+        default:
+            break;
+    }
+
+    return ret;
 }
 
 // comparison

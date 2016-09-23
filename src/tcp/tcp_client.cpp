@@ -30,7 +30,7 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     this->_proactor.send(this, {});
 
     // todo must check methods' return code, if error then notify connected immediately
-    this->_handle.connect(ep.raw());
+    this->_handle.connect(ep);
 }
 
 void chen::tcp::client::connect(const ip::address &addr, std::uint16_t port)

@@ -39,10 +39,10 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
     if (host.empty())
-        return {endpoint(ip::address(ip::version4(0u)), port)};
+        return {net::endpoint(ip::address(ip::version4(0u)), port)};
 
     struct addrinfo *info = nullptr;
-    struct addrinfo hint{};
+    struct addrinfo  hint{};
 
     hint.ai_family   = static_cast<int>(type);
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
@@ -50,13 +50,21 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))
         return {};
 
-    std::vector<endpoint> ret;
+    std::vector<net::endpoint> ret;
 
-    for (struct addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
+    try
     {
-        net::endpoint ep(ptr->ai_addr);
-        ep.port(port);
-        ret.emplace_back(std::move(ep));
+        for (struct addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
+        {
+            net::endpoint ep(ptr->ai_addr);
+            ep.port(port);
+            ret.emplace_back(std::move(ep));
+        }
+    }
+    catch (...)
+    {
+        ::freeaddrinfo(info);
+        throw;
     }
 
     ::freeaddrinfo(info);
@@ -64,47 +72,61 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return ret;
 }
 
-// async
-std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &mixed)
+// first
+chen::net::endpoint chen::net::resolver::first(const std::string &mixed)
 {
-    return std::async([=] () {
-        return resolver::resolve(mixed);
-    });
+    return resolver::first(mixed, ip::address::Type::None);
 }
 
-std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &mixed, ip::address::Type type)
+chen::net::endpoint chen::net::resolver::first(const std::string &mixed, ip::address::Type type)
 {
-    return std::async([=] () {
-        return resolver::resolve(mixed);
-    });
+    auto split = resolver::split(mixed);
+    return resolver::first(split.first, split.second, type);
 }
 
-std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, const std::string &service)
+chen::net::endpoint chen::net::resolver::first(const std::string &host, const std::string &service)
 {
-    return std::async([=] () {
-        return resolver::resolve(host, service);
-    });
+    return resolver::first(host, service, ip::address::Type::None);
 }
 
-std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, const std::string &service, ip::address::Type type)
+chen::net::endpoint chen::net::resolver::first(const std::string &host, const std::string &service, ip::address::Type type)
 {
-    return std::async([=] () {
-        return resolver::resolve(host, service, type);
-    });
+    return resolver::first(host, resolver::service(service), type);
 }
 
-std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, std::uint16_t port)
+chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uint16_t port)
 {
-    return std::async([=] () {
-        return resolver::resolve(host, port);
-    });
+    return resolver::first(host, port, ip::address::Type::None);
 }
 
-std::future<std::vector<chen::net::endpoint>> chen::net::resolver::async(const std::string &host, std::uint16_t port, ip::address::Type type)
+chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
-    return std::async([=] () {
-        return resolver::resolve(host, port, type);
-    });
+    if (host.empty())
+        return net::endpoint(ip::address(ip::version4(0u)), port);
+
+    struct addrinfo *info = nullptr;
+    struct addrinfo  hint{};
+
+    hint.ai_family   = static_cast<int>(type);
+    hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
+
+    if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))
+        return nullptr;
+
+    try
+    {
+        net::endpoint ret(info ? info->ai_addr : nullptr);
+        ret.port(port);
+
+        ::freeaddrinfo(info);
+
+        return ret;
+    }
+    catch (...)
+    {
+        ::freeaddrinfo(info);
+        throw;
+    }
 }
 
 // service
@@ -113,7 +135,7 @@ std::uint16_t chen::net::resolver::service(const std::string &name, const std::s
     if (name.empty())
         return 0;
 
-    if (std::isdigit(static_cast<std::uint8_t>(name[0])))
+    if (std::isdigit(name[0]))
         return static_cast<std::uint16_t>(std::atoi(name.c_str()));
 
     if (protocol.empty())
@@ -153,11 +175,15 @@ std::pair<std::string, std::uint16_t> chen::net::resolver::split(const std::stri
 
     if (*it == '[')
     {
-        // IPv6:Port format
-        while (*++it && (*it != ']'))
-            first += *it;
+        ++it;
 
-        if (*it == ']')
+        // IPv6:Port format
+        while (*it && (*it != ']'))
+            first += *it++;
+
+        if (*it != ']')
+            throw std::runtime_error("resolver: IPv6 endpoint format error");
+        else
             ++it;
     }
     else

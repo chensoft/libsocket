@@ -298,7 +298,7 @@ void chen::dns::edns0::Subnet::pack(dns::encoder &encoder) const
                 throw std::runtime_error("dns: codec pack edns0 subnet source prefix is greater than 32");
 
             if (!this->address.isIPv4())
-                throw std::runtime_error("dns: codec pack edns0 subnet address is not ipv4");
+                throw std::runtime_error("dns: codec pack edns0 subnet address is not IPv4");
 
             auto bytes = this->address.network().bytes();
 
@@ -313,7 +313,7 @@ void chen::dns::edns0::Subnet::pack(dns::encoder &encoder) const
                 throw std::runtime_error("dns: codec pack edns0 subnet source prefix is greater than 128");
 
             if (!this->address.isIPv6())
-                throw std::runtime_error("dns: codec pack edns0 subnet address is not ipv6");
+                throw std::runtime_error("dns: codec pack edns0 subnet address is not IPv6");
 
             auto bytes = this->address.network().bytes();
 

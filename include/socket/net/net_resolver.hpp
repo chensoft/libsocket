@@ -36,40 +36,37 @@ namespace chen
              * :-) resolve("[fe80::1%lo0]:80")
              * :-) resolve("[fe80::1%lo0]:http")
              */
-            static std::vector<endpoint> resolve(const std::string &mixed);
-            static std::vector<endpoint> resolve(const std::string &mixed, ip::address::Type type);
+            static std::vector<net::endpoint> resolve(const std::string &mixed);
+            static std::vector<net::endpoint> resolve(const std::string &mixed, ip::address::Type type);
 
-            static std::vector<endpoint> resolve(const std::string &host, const std::string &service);
-            static std::vector<endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type);
+            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service);
+            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type);
 
-            static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port);
-            static std::vector<endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type);
+            static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port);
+            static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
-             * Resolve address asynchronously
-             * Usage:
-             * >> auto future = resolver::async("chensoft.com:80");
-             * >> // do something...
-             * >> auto ret = future.get();
+             * Resolve host and service, return the first resolved endpoint
+             * @notice if no records found, the returned endpoint is nullptr
              */
-            static std::future<std::vector<endpoint>> async(const std::string &mixed);
-            static std::future<std::vector<endpoint>> async(const std::string &mixed, ip::address::Type type);
+            static net::endpoint first(const std::string &mixed);
+            static net::endpoint first(const std::string &mixed, ip::address::Type type);
 
-            static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service);
-            static std::future<std::vector<endpoint>> async(const std::string &host, const std::string &service, ip::address::Type type);
+            static net::endpoint first(const std::string &host, const std::string &service);
+            static net::endpoint first(const std::string &host, const std::string &service, ip::address::Type type);
 
-            static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port);
-            static std::future<std::vector<endpoint>> async(const std::string &host, std::uint16_t port, ip::address::Type type);
+            static net::endpoint first(const std::string &host, std::uint16_t port);
+            static net::endpoint first(const std::string &host, std::uint16_t port, ip::address::Type type);
 
+        public:
             /**
              * Resolve service
              */
             static std::uint16_t service(const std::string &name, const std::string &protocol = "");
             static std::string service(std::uint16_t port, const std::string &protocol = "");
 
-        public:
             /**
-             * Split host and port into a pair
+             * Split "host:port"
              */
             static std::pair<std::string, std::uint16_t> split(const std::string &mixed);
         };

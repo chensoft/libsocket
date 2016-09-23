@@ -20,7 +20,7 @@ TEST(TCPClientTest, Test)
     proactor p;
 
     std::thread t([&] () {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
         p.stop();
     });
 

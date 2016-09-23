@@ -209,7 +209,7 @@ namespace chen
             void assign();
 
             /**
-             * Assign by ipv6 address, accept the following format:
+             * Assign by IPv6 address, accept the following format:
              * :-) version6("::")
              * :-) version6("::1")
              * :-) version6("0:0:0:0:0:0:0:1")

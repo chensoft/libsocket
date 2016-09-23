@@ -1136,7 +1136,7 @@ namespace chen
 
         public:
             std::uint8_t precedence   = 0;
-            std::uint8_t gateway_type = 0;  // 0: no type, gateway should be '.', 1: ipv4, 4 bytes, 2: ipv6, 16 bytes, 3: domain name
+            std::uint8_t gateway_type = 0;  // 0: no type, gateway should be '.', 1: IPv4, 4 bytes, 2: IPv6, 16 bytes, 3: domain name
             std::uint8_t algorithm    = 0;
             std::vector<std::uint8_t> gateway;
             std::string publickey;
