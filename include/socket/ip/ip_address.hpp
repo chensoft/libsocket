@@ -68,13 +68,13 @@ namespace chen
              * :-) version6("fe80::1%lo0", 64)
              * :-) version6("fe80::1%lo0", "ffff:ffff:ffff:ffff::")
              */
+            address(const char *addr);
+
             address(const std::string &addr);
             address(const std::string &addr, std::uint8_t cidr);
             address(const std::string &addr, std::uint8_t cidr, std::uint32_t scope);
             address(const std::string &addr, const std::string &mask);
             address(const std::string &addr, const std::string &mask, std::uint32_t scope);
-
-            address(const char *addr);
 
         public:
             /**

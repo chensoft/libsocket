@@ -28,6 +28,10 @@ chen::ip::address::address(version6 v6)
     this->assign(v6);
 }
 
+chen::ip::address::address(const char *addr) : address(std::string(addr))
+{
+}
+
 chen::ip::address::address(const std::string &addr)
 {
     this->assign(addr);
@@ -51,10 +55,6 @@ chen::ip::address::address(const std::string &addr, const std::string &mask)
 chen::ip::address::address(const std::string &addr, const std::string &mask, std::uint32_t scope)
 {
     this->assign(addr, mask, scope);
-}
-
-chen::ip::address::address(const char *addr) : address(std::string(addr))
-{
 }
 
 // assignment
@@ -221,8 +221,7 @@ chen::ip::address& chen::ip::address::operator=(const std::string &addr)
 
 chen::ip::address& chen::ip::address::operator=(const char *addr)
 {
-    this->assign(addr);
-    return *this;
+    return *this = std::string(addr);
 }
 
 // detect

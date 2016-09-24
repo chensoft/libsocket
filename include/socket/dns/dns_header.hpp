@@ -99,9 +99,7 @@ namespace chen
         {
         public:
             question() = default;
-            question(const std::string &qname,
-                     RRType qtype,
-                     RRClass qclass = RRClass::IN);
+            question(const std::string &qname, RRType qtype, RRClass qclass = RRClass::IN);
 
         public:
             /**
