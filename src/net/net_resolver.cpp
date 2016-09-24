@@ -39,7 +39,12 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
     if (host.empty())
-        return {net::endpoint(ip::address(ip::version4(0u)), port)};
+    {
+        net::endpoint ret;
+        ret.addr(ip::address(ip::version4(0u)));
+        ret.port(port);
+        return {ret};
+    }
 
     struct addrinfo *info = nullptr;
     struct addrinfo  hint{};
@@ -75,34 +80,80 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 // first
 chen::net::endpoint chen::net::resolver::first(const std::string &mixed)
 {
-    return resolver::first(mixed, ip::address::Type::None);
+    net::endpoint ep;
+    resolver::first(mixed, ep);
+    return ep;
 }
 
 chen::net::endpoint chen::net::resolver::first(const std::string &mixed, ip::address::Type type)
 {
-    auto split = resolver::split(mixed);
-    return resolver::first(split.first, split.second, type);
+    net::endpoint ep;
+    resolver::first(mixed, type, ep);
+    return ep;
 }
 
 chen::net::endpoint chen::net::resolver::first(const std::string &host, const std::string &service)
 {
-    return resolver::first(host, service, ip::address::Type::None);
+    net::endpoint ep;
+    resolver::first(host, service, ep);
+    return ep;
 }
 
 chen::net::endpoint chen::net::resolver::first(const std::string &host, const std::string &service, ip::address::Type type)
 {
-    return resolver::first(host, resolver::service(service), type);
+    net::endpoint ep;
+    resolver::first(host, service, type, ep);
+    return ep;
 }
 
 chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uint16_t port)
 {
-    return resolver::first(host, port, ip::address::Type::None);
+    net::endpoint ep;
+    resolver::first(host, port, ep);
+    return ep;
 }
 
 chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
+    net::endpoint ep;
+    resolver::first(host, port, type, ep);
+    return ep;
+}
+
+void chen::net::resolver::first(const std::string &mixed, net::endpoint &ep)
+{
+    resolver::first(mixed, ip::address::Type::None, ep);
+}
+
+void chen::net::resolver::first(const std::string &mixed, ip::address::Type type, net::endpoint &ep)
+{
+    auto split = resolver::split(mixed);
+    resolver::first(split.first, split.second, type, ep);
+}
+
+void chen::net::resolver::first(const std::string &host, const std::string &service, net::endpoint &ep)
+{
+    resolver::first(host, service, ip::address::Type::None, ep);
+}
+
+void chen::net::resolver::first(const std::string &host, const std::string &service, ip::address::Type type, net::endpoint &ep)
+{
+    resolver::first(host, resolver::service(service), type, ep);
+}
+
+void chen::net::resolver::first(const std::string &host, std::uint16_t port, net::endpoint &ep)
+{
+    resolver::first(host, port, ip::address::Type::None, ep);
+}
+
+void chen::net::resolver::first(const std::string &host, std::uint16_t port, ip::address::Type type, net::endpoint &ep)
+{
     if (host.empty())
-        return net::endpoint(ip::address(ip::version4(0u)), port);
+    {
+        ep.addr(ip::address(ip::version4(0u)));
+        ep.port(port);
+        return;
+    }
 
     struct addrinfo *info = nullptr;
     struct addrinfo  hint{};
@@ -111,16 +162,17 @@ chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uin
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
 
     if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))
-        return nullptr;
+    {
+        ep = nullptr;
+        return;
+    }
 
     try
     {
-        net::endpoint ret(info ? info->ai_addr : nullptr);
-        ret.port(port);
+        ep = info ? info->ai_addr : nullptr;
+        ep.port(port);
 
         ::freeaddrinfo(info);
-
-        return ret;
     }
     catch (...)
     {

@@ -57,6 +57,15 @@ namespace chen
             static net::endpoint first(const std::string &host, std::uint16_t port);
             static net::endpoint first(const std::string &host, std::uint16_t port, ip::address::Type type);
 
+            static void first(const std::string &mixed, net::endpoint &ep);
+            static void first(const std::string &mixed, ip::address::Type type, net::endpoint &ep);
+
+            static void first(const std::string &host, const std::string &service, net::endpoint &ep);
+            static void first(const std::string &host, const std::string &service, ip::address::Type type, net::endpoint &ep);
+
+            static void first(const std::string &host, std::uint16_t port, net::endpoint &ep);
+            static void first(const std::string &host, std::uint16_t port, ip::address::Type type, net::endpoint &ep);
+
         public:
             /**
              * Resolve service

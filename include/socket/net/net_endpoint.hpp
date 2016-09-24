@@ -20,19 +20,22 @@ namespace chen
         {
         public:
             /**
-             * Construct an null address
+             * Construct an null endpoint
              */
             endpoint(std::nullptr_t = nullptr);
 
             /**
-             * Construct by "ip:port" string
-             * service name will be converted to port number
+             * Construct by host and service, user first resolved record
+             * For Domain:
+             * :-) endpoint("chensoft.com")
+             * :-) endpoint("chensoft.com:80")
+             * :-) endpoint("chensoft.com:http")
              * For IPv4:
              * :-) endpoint(":80")
              * :-) endpoint("127.0.0.1")
              * :-) endpoint("127.0.0.1:80")
              * :-) endpoint("127.0.0.1:http")
-             * For IPv6
+             * For IPv6:
              * :-) endpoint("[::]:80")
              * :-) endpoint("[fe80::1]")
              * :-) endpoint("[fe80::1]:80")
@@ -40,23 +43,24 @@ namespace chen
              * :-) endpoint("[fe80::1%lo0]")
              * :-) endpoint("[fe80::1%lo0]:80")
              * :-) endpoint("[fe80::1%lo0]:http")
-             * todo allow domain here, use first entry
-             * @notice don't use domain here, accept ip address only
+             * @notice endpoint will be nullptr if no record found
              */
-            endpoint(const std::string &mixed);
             endpoint(const char *mixed);
 
-            /**
-             * Construct by ip address & port
-             * todo move to below constructor
-             */
-            endpoint(const ip::address &addr, std::uint16_t port);
+            endpoint(const std::string &mixed);
+            endpoint(const std::string &mixed, ip::address::Type type);
+
+            endpoint(const std::string &host, const std::string &service);
+            endpoint(const std::string &host, const std::string &service, ip::address::Type type);
+
+            endpoint(const std::string &host, std::uint16_t port);
+            endpoint(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
-             * Construct from raw bsd endpoint
+             * Construct by raw bsd endpoint
              */
             endpoint(const bsd::endpoint &ep);
-            endpoint(const struct ::sockaddr *ptr);
+            endpoint(const struct ::sockaddr *ep);
 
         public:
             /**
@@ -89,6 +93,15 @@ namespace chen
             bool isDynamicPort() const;
 
         public:
+            /**
+             * Assignment
+             */
+            endpoint& operator=(std::nullptr_t);
+            endpoint& operator=(const char *mixed);
+            endpoint& operator=(const std::string &mixed);
+            endpoint& operator=(const bsd::endpoint &ep);
+            endpoint& operator=(const struct ::sockaddr *ep);
+
             /**
              * Conversion
              */

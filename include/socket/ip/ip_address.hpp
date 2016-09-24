@@ -96,8 +96,8 @@ namespace chen
             address& operator=(Type type);
             address& operator=(version4 v4);
             address& operator=(version6 v6);
-            address& operator=(const std::string &addr);
             address& operator=(const char *addr);
+            address& operator=(const std::string &addr);
 
         public:
             /**

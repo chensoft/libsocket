@@ -57,7 +57,6 @@ namespace chen
             int _fd = -1;  // epoll on Linux, kqueue on Unix
             int _pp[2]{};  // use pipe to stop the event loop, 0 is read fd, 1 is write fd
 #else
-            // todo use IOCP
 #endif
 
             typedef std::vector<std::uint8_t> chunk;

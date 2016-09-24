@@ -213,15 +213,15 @@ chen::ip::address& chen::ip::address::operator=(version6 v6)
     return *this;
 }
 
+chen::ip::address& chen::ip::address::operator=(const char *addr)
+{
+    return *this = std::string(addr);
+}
+
 chen::ip::address& chen::ip::address::operator=(const std::string &addr)
 {
     this->assign(addr);
     return *this;
-}
-
-chen::ip::address& chen::ip::address::operator=(const char *addr)
-{
-    return *this = std::string(addr);
 }
 
 // detect
