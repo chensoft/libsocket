@@ -113,6 +113,8 @@ void chen::bsd::socket::close() noexcept
 
 void chen::bsd::socket::reset()
 {
+    this->close();
+
     if (!this->_domain)
         throw std::runtime_error("socket: reset failed because domain is unknown");
 
