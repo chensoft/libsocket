@@ -12,6 +12,17 @@ chen::bsd::option::option(socket_t fd) : _fd(fd)
 {
 }
 
+// debug
+bool chen::bsd::option::debug() const
+{
+    return option::intVal(SOL_SOCKET, SO_DEBUG) != 0;
+}
+
+bool chen::bsd::option::debug(bool val)
+{
+    return !::setsockopt(this->_fd, SOL_SOCKET, SO_DEBUG, &val, sizeof(val));
+}
+
 // acceptconn
 bool chen::bsd::option::acceptconn() const
 {
@@ -99,6 +110,17 @@ bool chen::bsd::option::linger(int onoff, int value)
     return !::setsockopt(this->_fd, SOL_SOCKET, SO_LINGER, &val, sizeof(val));
 }
 
+// oobinline
+bool chen::bsd::option::oobinline() const
+{
+    return option::intVal(SOL_SOCKET, SO_OOBINLINE) != 0;
+}
+
+bool chen::bsd::option::oobinline(bool val)
+{
+    return !::setsockopt(this->_fd, SOL_SOCKET, SO_OOBINLINE, &val, sizeof(val));
+}
+
 // sndbuf
 int chen::bsd::option::sndbuf() const
 {
@@ -121,6 +143,28 @@ bool chen::bsd::option::rcvbuf(int val)
     return !::setsockopt(this->_fd, SOL_SOCKET, SO_RCVBUF, &val, sizeof(val));
 }
 
+// sndlowat
+int chen::bsd::option::sndlowat() const
+{
+    return option::intVal(SOL_SOCKET, SO_SNDLOWAT);
+}
+
+bool chen::bsd::option::sndlowat(int val)
+{
+    return !::setsockopt(this->_fd, SOL_SOCKET, SO_SNDLOWAT, &val, sizeof(val));
+}
+
+// rcvlowat
+int chen::bsd::option::rcvlowat() const
+{
+    return option::intVal(SOL_SOCKET, SO_RCVLOWAT);
+}
+
+bool chen::bsd::option::rcvlowat(int val)
+{
+    return !::setsockopt(this->_fd, SOL_SOCKET, SO_RCVLOWAT, &val, sizeof(val));
+}
+
 // sndtimeo
 struct ::timeval chen::bsd::option::sndtimeo() const
 {
@@ -135,7 +179,12 @@ bool chen::bsd::option::sndtimeo(int sec, int usec)
             .tv_sec  = sec,
             .tv_usec = usec
     };
-    return !::setsockopt(this->_fd, SOL_SOCKET, SO_SNDTIMEO, &val, sizeof(val));
+    return this->sndtimeo(val);
+}
+
+bool chen::bsd::option::sndtimeo(const struct ::timeval &time)
+{
+    return !::setsockopt(this->_fd, SOL_SOCKET, SO_SNDTIMEO, &time, sizeof(time));
 }
 
 // rcvtimeo
@@ -152,7 +201,12 @@ bool chen::bsd::option::rcvtimeo(int sec, int usec)
             .tv_sec  = sec,
             .tv_usec = usec
     };
-    return !::setsockopt(this->_fd, SOL_SOCKET, SO_RCVTIMEO, &val, sizeof(val));
+    return this->rcvtimeo(val);
+}
+
+bool chen::bsd::option::rcvtimeo(const struct ::timeval &time)
+{
+    return !::setsockopt(this->_fd, SOL_SOCKET, SO_RCVTIMEO, &time, sizeof(time));
 }
 
 // error

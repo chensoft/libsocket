@@ -22,6 +22,12 @@ namespace chen
 
         public:
             /**
+             * SO_DEBUG(turn on debugging info recording)
+             */
+            bool debug() const;
+            bool debug(bool val);
+
+            /**
              * SO_ACCEPTCONN(read-only, determine whether the socket is a listening socket)
              */
             bool acceptconn() const;
@@ -67,6 +73,12 @@ namespace chen
             bool linger(int onoff, int value);
 
             /**
+             * SO_OOBINLINE(leave received OOB data in line)
+             */
+            bool oobinline() const;
+            bool oobinline(bool val);
+
+            /**
              * SO_SNDBUF(socket send buffer size)
              */
             int sndbuf() const;
@@ -79,16 +91,30 @@ namespace chen
             bool rcvbuf(int val);
 
             /**
+             * SO_SNDLOWAT(send low-water mark)
+             */
+            int sndlowat() const;
+            bool sndlowat(int val);
+
+            /**
+             * SO_RCVLOWAT(receive low-water mark)
+             */
+            int rcvlowat() const;
+            bool rcvlowat(int val);
+
+            /**
              * SO_SNDTIMEO(sending timeout)
              */
             struct ::timeval sndtimeo() const;
             bool sndtimeo(int sec, int usec);
+            bool sndtimeo(const struct ::timeval &time);
 
             /**
              * SO_RCVTIMEO(receiving timeout)
              */
             struct ::timeval rcvtimeo() const;
             bool rcvtimeo(int sec, int usec);
+            bool rcvtimeo(const struct ::timeval &time);
 
             /**
              * SO_ERROR(read-only, socket error)
