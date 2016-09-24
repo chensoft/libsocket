@@ -25,9 +25,6 @@ TEST(NetEndpointTest, General)
     EXPECT_EQ("[fe80::1]:0", endpoint("[fe80::1]").str());
     EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1]:80").str());
     EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1]:http").str());
-    EXPECT_EQ("[fe80::1]:0", endpoint("[fe80::1%lo0]").str());
-    EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1%lo0]:80").str());
-    EXPECT_EQ("[fe80::1]:80", endpoint("[fe80::1%lo0]:http").str());
 }
 
 TEST(NetEndpointTest, Property)
