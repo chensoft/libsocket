@@ -20,109 +20,107 @@ TEST(NetResolverTest, Domain)
 TEST(NetResolverTest, IPv4)
 {
     using chen::net::resolver;
-    using chen::net::endpoint;
     using chen::ip::address;
 
     // mixed, with address type
-    EXPECT_EQ(std::vector<endpoint>{endpoint(":80")}, resolver::resolve(":80"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1")}, resolver::resolve("127.0.0.1"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:80")}, resolver::resolve("127.0.0.1:80"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:http")}, resolver::resolve("127.0.0.1:http"));
+    EXPECT_EQ("0.0.0.0:80", resolver::resolve(":80")[0].str());
+    EXPECT_EQ("127.0.0.1:0", resolver::resolve("127.0.0.1")[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1:80")[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1:http")[0].str());
 
-    EXPECT_EQ(std::vector<endpoint>{endpoint(":80")}, resolver::resolve(":80", address::Type::IPv4));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1")}, resolver::resolve("127.0.0.1", address::Type::IPv4));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:80")}, resolver::resolve("127.0.0.1:80", address::Type::IPv4));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:http")}, resolver::resolve("127.0.0.1:http", address::Type::IPv4));
+    EXPECT_EQ("0.0.0.0:80", resolver::resolve(":80", address::Type::IPv4)[0].str());
+    EXPECT_EQ("127.0.0.1:0", resolver::resolve("127.0.0.1", address::Type::IPv4)[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1:80", address::Type::IPv4)[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1:http", address::Type::IPv4)[0].str());
 
     // host, service, with address type
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:80")}, resolver::resolve("127.0.0.1", "80"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:http")}, resolver::resolve("127.0.0.1", "http"));
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1", "80")[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1", "http")[0].str());
 
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:80")}, resolver::resolve("127.0.0.1", "80", address::Type::IPv4));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:http")}, resolver::resolve("127.0.0.1", "http", address::Type::IPv4));
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1", "80", address::Type::IPv4)[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1", "http", address::Type::IPv4)[0].str());
 
     // host, port, with address type
-    EXPECT_EQ(std::vector<endpoint>{endpoint(":80")}, resolver::resolve("", 80));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1")}, resolver::resolve("127.0.0.1", 0));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:80")}, resolver::resolve("127.0.0.1", 80));
+    EXPECT_EQ("0.0.0.0:80", resolver::resolve("", 80)[0].str());
+    EXPECT_EQ("127.0.0.1:0", resolver::resolve("127.0.0.1", 0)[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1", 80)[0].str());
 
-    EXPECT_EQ(std::vector<endpoint>{endpoint(":80")}, resolver::resolve("", 80, address::Type::IPv4));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1")}, resolver::resolve("127.0.0.1", 0, address::Type::IPv4));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("127.0.0.1:80")}, resolver::resolve("127.0.0.1", 80, address::Type::IPv4));
+    EXPECT_EQ("0.0.0.0:80", resolver::resolve("", 80, address::Type::IPv4)[0].str());
+    EXPECT_EQ("127.0.0.1:0", resolver::resolve("127.0.0.1", 0, address::Type::IPv4)[0].str());
+    EXPECT_EQ("127.0.0.1:80", resolver::resolve("127.0.0.1", 80, address::Type::IPv4)[0].str());
 }
 
 TEST(NetResolverTest, IPv6)
 {
     using chen::net::resolver;
-    using chen::net::endpoint;
     using chen::ip::address;
 
     // mixed, with address type
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[::]:80")}, resolver::resolve("[::]:80"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]")}, resolver::resolve("[fe80::1]"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:80")}, resolver::resolve("[fe80::1]:80"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:http")}, resolver::resolve("[fe80::1]:http"));
+    EXPECT_EQ("[::]:80", resolver::resolve("[::]:80")[0].str());
+    EXPECT_EQ("[fe80::1]:0", resolver::resolve("[fe80::1]")[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("[fe80::1]:80")[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("[fe80::1]:http")[0].str());
 
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[::]:80")}, resolver::resolve("[::]:80", address::Type::IPv6));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]")}, resolver::resolve("[fe80::1]", address::Type::IPv6));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:80")}, resolver::resolve("[fe80::1]:80", address::Type::IPv6));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:http")}, resolver::resolve("[fe80::1]:http", address::Type::IPv6));
+    EXPECT_EQ("[::]:80", resolver::resolve("[::]:80", address::Type::IPv6)[0].str());
+    EXPECT_EQ("[fe80::1]:0", resolver::resolve("[fe80::1]", address::Type::IPv6)[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("[fe80::1]:80", address::Type::IPv6)[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("[fe80::1]:http", address::Type::IPv6)[0].str());
 
     // host, service, with address type
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:80")}, resolver::resolve("fe80::1", "80"));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:http")}, resolver::resolve("fe80::1", "http"));
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", "80")[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", "http")[0].str());
 
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:80")}, resolver::resolve("fe80::1", "80", address::Type::IPv6));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:http")}, resolver::resolve("fe80::1", "http", address::Type::IPv6));
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", "80", address::Type::IPv6)[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", "http", address::Type::IPv6)[0].str());
 
     // host, port, with address type
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[::]:80")}, resolver::resolve("::", 80));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]")}, resolver::resolve("fe80::1", 0));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:80")}, resolver::resolve("fe80::1", 80));
+    EXPECT_EQ("[::]:80", resolver::resolve("::", 80)[0].str());
+    EXPECT_EQ("[fe80::1]:0", resolver::resolve("fe80::1", 0)[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", 80)[0].str());
 
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[::]:80")}, resolver::resolve("::", 80, address::Type::IPv6));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]")}, resolver::resolve("fe80::1", 0, address::Type::IPv6));
-    EXPECT_EQ(std::vector<endpoint>{endpoint("[fe80::1]:80")}, resolver::resolve("fe80::1", 80, address::Type::IPv6));
+    EXPECT_EQ("[::]:80", resolver::resolve("::", 80, address::Type::IPv6)[0].str());
+    EXPECT_EQ("[fe80::1]:0", resolver::resolve("fe80::1", 0, address::Type::IPv6)[0].str());
+    EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", 80, address::Type::IPv6)[0].str());
 }
 
 TEST(NetResolverTest, First)
 {
     using chen::net::resolver;
-    using chen::net::endpoint;
     using chen::ip::address;
 
     // mixed, with address type
-    EXPECT_EQ(endpoint(":80"), resolver::first(":80"));
-    EXPECT_EQ(endpoint("127.0.0.1"), resolver::first("127.0.0.1"));
-    EXPECT_EQ(endpoint("127.0.0.1:80"), resolver::first("127.0.0.1:80"));
-    EXPECT_EQ(endpoint("127.0.0.1:http"), resolver::first("127.0.0.1:http"));
+    EXPECT_EQ("0.0.0.0:80", resolver::first(":80").str());
+    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1").str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:80").str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:http").str());
 
-    EXPECT_EQ(endpoint(":80"), resolver::first(":80", address::Type::IPv4));
-    EXPECT_EQ(endpoint("127.0.0.1"), resolver::first("127.0.0.1", address::Type::IPv4));
-    EXPECT_EQ(endpoint("127.0.0.1:80"), resolver::first("127.0.0.1:80", address::Type::IPv4));
-    EXPECT_EQ(endpoint("127.0.0.1:http"), resolver::first("127.0.0.1:http", address::Type::IPv4));
+    EXPECT_EQ("0.0.0.0:80", resolver::first(":80", address::Type::IPv4).str());
+    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1", address::Type::IPv4).str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:80", address::Type::IPv4).str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:http", address::Type::IPv4).str());
 
     // host, service, with address type
-    EXPECT_EQ(endpoint("127.0.0.1:80"), resolver::first("127.0.0.1", "80"));
-    EXPECT_EQ(endpoint("127.0.0.1:http"), resolver::first("127.0.0.1", "http"));
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "80").str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "http").str());
 
-    EXPECT_EQ(endpoint("127.0.0.1:80"), resolver::first("127.0.0.1", "80", address::Type::IPv4));
-    EXPECT_EQ(endpoint("127.0.0.1:http"), resolver::first("127.0.0.1", "http", address::Type::IPv4));
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "80", address::Type::IPv4).str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "http", address::Type::IPv4).str());
 
     // host, port, with address type
-    EXPECT_EQ(endpoint(":80"), resolver::first("", 80));
-    EXPECT_EQ(endpoint("127.0.0.1"), resolver::first("127.0.0.1", 0));
-    EXPECT_EQ(endpoint("127.0.0.1:80"), resolver::first("127.0.0.1", 80));
+    EXPECT_EQ("0.0.0.0:80", resolver::first("", 80).str());
+    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1", 0).str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", 80).str());
 
-    EXPECT_EQ(endpoint(":80"), resolver::first("", 80, address::Type::IPv4));
-    EXPECT_EQ(endpoint("127.0.0.1"), resolver::first("127.0.0.1", 0, address::Type::IPv4));
-    EXPECT_EQ(endpoint("127.0.0.1:80"), resolver::first("127.0.0.1", 80, address::Type::IPv4));
+    EXPECT_EQ("0.0.0.0:80", resolver::first("", 80, address::Type::IPv4).str());
+    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1", 0, address::Type::IPv4).str());
+    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", 80, address::Type::IPv4).str());
 }
 
 TEST(NetResolverTest, Service)
 {
     using chen::net::resolver;
 
+    // service port and name
     EXPECT_EQ(0, resolver::service(""));
 
     EXPECT_EQ(80, resolver::service("80"));
