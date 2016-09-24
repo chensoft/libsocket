@@ -39,8 +39,6 @@ namespace chen
             version4() = default;  // trivial constructor, used by address only
 
         public:
-            version4(const char *addr);
-
             version4(const std::string &addr);
             version4(const std::string &addr, std::uint8_t cidr);
             version4(const std::string &addr, const std::string &mask);
@@ -192,8 +190,6 @@ namespace chen
             version6() = default;  // trivial constructor, used by address only
 
         public:
-            version6(const char *addr);
-
             version6(const std::string &addr);
             version6(const std::string &addr, std::uint8_t cidr);
             version6(const std::string &addr, std::uint8_t cidr, std::uint32_t scope);

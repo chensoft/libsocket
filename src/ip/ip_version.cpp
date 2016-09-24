@@ -28,11 +28,6 @@ void chen::ip::version::cidr(std::uint8_t value)
 
 // -----------------------------------------------------------------------------
 // version4
-chen::ip::version4::version4(const char *addr)
-{
-    this->assign(addr);
-}
-
 chen::ip::version4::version4(const std::string &addr)
 {
     this->assign(addr);
@@ -471,11 +466,6 @@ std::uint8_t chen::ip::version4::toCIDR(std::uint32_t mask)
 
 // -----------------------------------------------------------------------------
 // version6
-chen::ip::version6::version6(const char *addr)
-{
-    this->assign(addr);
-}
-
 chen::ip::version6::version6(const std::string &addr)
 {
     this->assign(addr);
