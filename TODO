@@ -6,6 +6,8 @@
 
 -) provide some common flags when use socket send, recv...
 
+-) use AF_INET instead of chen::ip::address::Type::IPv4 in tcp client, server
+
 
 -) dns IDN convert, rfc3490, punycode
 

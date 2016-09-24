@@ -46,6 +46,14 @@ std::error_code chen::bsd::socket::listen(int backlog) noexcept
     return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
 }
 
+std::error_code chen::bsd::socket::accept(socket_t &fd) noexcept
+{
+    if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
+        return sys::error();
+
+    return {};
+}
+
 std::error_code chen::bsd::socket::accept(socket_t &fd, bsd::endpoint &ep) noexcept
 {
     if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size)) < 0)
