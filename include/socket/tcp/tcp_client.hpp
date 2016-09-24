@@ -127,7 +127,7 @@ namespace chen
             virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) override;
             virtual void onEventEOF() override;
 
-        private:
+        protected:
             enum class State : std::uint8_t {Connecting = 1, Connected, Disconnect};
 
             State _state = State::Disconnect;

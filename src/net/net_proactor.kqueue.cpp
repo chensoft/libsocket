@@ -107,12 +107,12 @@ void chen::net::proactor::start()
         }
 
         // simulate proactor, notify callback after send or receive data
-        auto &list = this->_send[ptr];
-        if (list.empty())
-            continue;
-
-        if (event.filter & EVFILT_WRITE)
+        if (event.filter == EVFILT_WRITE)
         {
+            auto &list = this->_send[ptr];
+            if (list.empty())
+                continue;
+
             // todo record original size
             auto &chunk = list.front();
             auto length = ptr->handle().send(chunk.data(), chunk.size());
@@ -138,14 +138,24 @@ void chen::net::proactor::start()
                 ptr->onEventSend(0, sys::error());
             }
         }
-        else if (event.filter & EVFILT_READ)
+        else if (event.filter == EVFILT_READ)
         {
-            auto chunk = std::move(list.front());
-            auto error = ptr->handle().recv(chunk);
+            auto &list = this->_recv[ptr];
+            if (list.empty())
+                continue;
 
+            auto chunk = std::move(list.front());
             list.pop();
 
-            ptr->onEventRecv(std::move(chunk), error);
+            if (!chunk.empty())
+            {
+                auto error = ptr->handle().recv(chunk);
+                ptr->onEventRecv(std::move(chunk), error);
+            }
+            else
+            {
+                ptr->onEventRecv(std::move(chunk), {});
+            }
         }
         else
         {

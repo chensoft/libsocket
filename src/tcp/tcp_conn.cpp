@@ -8,10 +8,27 @@
 
 // -----------------------------------------------------------------------------
 // conn
-//chen::tcp::conn::conn(socket_t fd) : basic(fd)
-//{
-//}
-//
+chen::tcp::conn::conn(socket_t fd) : basic(fd)
+{
+}
+
+// event
+void chen::tcp::conn::onEventSend(std::size_t size, std::error_code error)
+{
+
+}
+
+void chen::tcp::conn::onEventRecv(std::vector<std::uint8_t> data, std::error_code error)
+{
+
+}
+
+void chen::tcp::conn::onEventEOF()
+{
+
+}
+
+
 //ssize_t chen::tcp::conn::send(const std::vector<std::uint8_t> &data, int flags)
 //{
 //    return this->send(data.data(), data.size(), flags);

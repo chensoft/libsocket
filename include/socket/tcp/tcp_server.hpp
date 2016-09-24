@@ -6,26 +6,71 @@
  */
 #pragma once
 
-//#include <socket/tcp/tcp_basic.hpp>
-//
-//namespace chen
-//{
-//    namespace tcp
-//    {
-//        class server : public basic
-//        {
-//        public:
-//            /**
-//             * Start the server
-//             * todo create notifier in server, spawn tcp::conn with notifier, shared_ptr<notifier>
-//             */
-//            std::error_code start(const endpoint &ep);
-//
-//            /**
-//             * Stop the server
-//             * todo how to exit, using pipe?
-//             */
-//            std::error_code stop();
-//        };
-//    }
-//}
+#include <socket/net/net_proactor.hpp>
+#include <socket/ip/ip_address.hpp>
+#include <socket/tcp/tcp_basic.hpp>
+#include <socket/tcp/tcp_conn.hpp>
+#include <functional>
+#include <memory>
+
+namespace chen
+{
+    namespace tcp
+    {
+        class server : public basic
+        {
+        public:
+            server(ip::address::Type family);
+
+        public:
+            /**
+             * Start the server
+             * todo return type change to std::error_code, transfer exit error code to user
+             */
+            void start(const net::endpoint &ep);
+
+            /**
+             * Stop the server
+             */
+            void stop();
+
+        public:
+            /**
+             * Attach accept callback
+             */
+            void attach(std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> callback);
+
+            /**
+             * Detach the callback
+             */
+            void detach();
+
+        protected:
+            /**
+             * Emit the callback
+             */
+            void notify(std::shared_ptr<chen::tcp::conn> &&conn);
+
+            /**
+             * Event callbacks(only onEventRecv is useful)
+             */
+            virtual void onEventSend(std::size_t size, std::error_code error) override;
+            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) override;
+            virtual void onEventEOF() override;
+
+        public:
+            /**
+             * Bind & Listen
+             * @notice usually you don't need to call these methods, use start() directly
+             */
+            std::error_code bind(const net::endpoint &ep);
+
+            std::error_code listen();
+            std::error_code listen(int backlog);
+
+        protected:
+            net::proactor _proactor;
+            std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> _callback;
+        };
+    }
+}

@@ -9,6 +9,16 @@
 
 int main(int argc, char *argv[])
 {
+//    try
+//    {
+//        chen::tcp::server s(chen::ip::address::Type::IPv4);
+//        s.start("127.0.0.1:8888");
+//    }
+//    catch (const std::system_error &e)
+//    {
+//        PILogE("haha: %s", e.what());
+//    }
+
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

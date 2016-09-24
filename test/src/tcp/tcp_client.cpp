@@ -9,6 +9,7 @@
 #include <gtest/gtest.h>
 #include <thread>
 
+// todo remove tcp_client test, add more general tcp test
 TEST(TCPClientTest, Test)
 {
     using chen::tcp::client;
@@ -36,7 +37,7 @@ TEST(TCPClientTest, Test)
         PILogE("connected: %s, %s", e.ep.str().c_str(), e.err.message().c_str());
     });
 
-    c.connect("223.202.26.4:80");
+    c.connect("example.com:80");
 
     p.start();
     t.join();

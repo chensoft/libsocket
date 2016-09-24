@@ -24,11 +24,13 @@ namespace chen
         public:
             /**
              * Send data to remote host, socket's callback will be called
+             * todo use oneshot instead of edge trigger?
              */
             void send(net::socket *ptr, std::vector<std::uint8_t> &&data);
 
             /**
              * Receive data from remote, socket's callback will be called
+             * todo use oneshot instead of edge trigger?
              */
             void recv(net::socket *ptr, std::size_t size);
 
@@ -44,7 +46,7 @@ namespace chen
 
             /**
              * Stop proactor
-             * you can call this method in callback or other thread
+             * @notice you can call this method in callback or other thread
              */
             void stop();
 

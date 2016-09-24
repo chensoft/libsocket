@@ -5,56 +5,89 @@
  * @link   http://chensoft.com
  */
 #include <socket/tcp/tcp_server.hpp>
+#include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // server
-//std::error_code chen::tcp::server::start(const endpoint &ep)
-//{
-//    this->_socket.reset(ep.addr(), SOCK_STREAM);
-//
-//    if (!this->_socket.bind(ep))
-//    {
-//        this->notify(this, sys::error());
-//        return false;
-//    }
-//
-//    if (!this->_socket.listen())
-//    {
-//        this->notify(this, sys::error());
-//        return false;
-//    }
-//
-//    this->_exit = false;
-//
-//    while (true)
-//    {
-//        // accept new request
-//        auto sock = this->_socket.accept();
-//
-//        // todo
-//        if (sock)
-//            this->notify(std::move(sock));
-//        else
-//            this->notify(this, sys::error());
-//
-//        // check exit flag
-//        // todo use poll instead of flag
-//        if (this->_exit)
-//            break;
-//    }
-//
-//    return {};
-//}
-//
-//std::error_code chen::tcp::server::start(const ip::address &addr, std::uint16_t port)
-//{
-//    return this->start(endpoint(addr, port));
-//}
-//
-//std::error_code chen::tcp::server::stop()
-//{
-////    // todo
-////    this->_exit = true;
-////    this->_socket.close();
-//    return {};
-//}
+chen::tcp::server::server(ip::address::Type family) : basic(family)
+{
+    this->nonblocking(true);
+}
+
+// control
+void chen::tcp::server::start(const net::endpoint &ep)
+{
+    // todo how to handle socket being bind and listen before start
+    // todo throw exception if already start
+    if (this->bind(ep))
+        throw std::system_error(sys::error(), "tcp: failed to bind address");
+
+    if (this->listen())
+        throw std::system_error(sys::error(), "tcp: failed to listen on address");
+
+    this->_proactor.recv(this, 0);
+    this->_proactor.start();
+}
+
+void chen::tcp::server::stop()
+{
+    this->_proactor.stop();
+}
+
+// callback
+void chen::tcp::server::attach(std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> callback)
+{
+    this->_callback = callback;
+}
+
+void chen::tcp::server::detach()
+{
+    this->_callback = nullptr;
+}
+
+void chen::tcp::server::notify(std::shared_ptr<chen::tcp::conn> &&conn)
+{
+    if (this->_callback)
+        this->_callback(*this, std::move(conn));
+}
+
+// event
+void chen::tcp::server::onEventSend(std::size_t size, std::error_code error)
+{
+    // unused
+}
+
+void chen::tcp::server::onEventRecv(std::vector<std::uint8_t> data, std::error_code error)
+{
+    if (error)
+        return this->stop();
+
+    socket_t fd;
+
+    if (this->_handle.accept(fd))
+        return this->stop();
+
+    this->notify(std::make_shared<tcp::conn>(fd));
+}
+
+void chen::tcp::server::onEventEOF()
+{
+    // stop if error occur
+    this->stop();
+}
+
+// bind
+std::error_code chen::tcp::server::bind(const net::endpoint &ep)
+{
+    return this->_handle.bind(ep);
+}
+
+std::error_code chen::tcp::server::listen()
+{
+    return this->_handle.listen();
+}
+
+std::error_code chen::tcp::server::listen(int backlog)
+{
+    return this->_handle.listen(backlog);
+}
