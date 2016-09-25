@@ -8,8 +8,13 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(socket_t fd) : basic(fd)
+chen::tcp::conn::conn(socket_t fd, net::proactor &proactor) : basic(fd), _proactor(proactor)
 {
+}
+
+chen::tcp::conn::~conn()
+{
+    this->_proactor.remove(this);
 }
 
 // event

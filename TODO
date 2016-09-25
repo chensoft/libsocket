@@ -34,3 +34,5 @@
 -) deadline is not same as timeout, add deadline support for socket
 
 -) support set max connections limit in tcp, udp server socket
+
+-) why use edge trigger, when user connect to server, only first read event received

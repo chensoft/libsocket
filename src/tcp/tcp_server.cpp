@@ -67,7 +67,10 @@ void chen::tcp::server::onEventRecv(std::vector<std::uint8_t> data, std::error_c
     if (this->_handle.accept(fd))
         return this->stop();
 
-    this->notify(std::make_shared<tcp::conn>(fd));
+    // todo use edge trigger not re-register events every time
+    this->_proactor.recv(this, 0);
+
+    this->notify(std::make_shared<tcp::conn>(fd, this->_proactor));
 }
 
 void chen::tcp::server::onEventEOF()

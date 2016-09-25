@@ -14,10 +14,11 @@
 // helper
 namespace
 {
+    // todo didn't EV_DELETE events
     void register_write(int k, int fd, void *data)
     {
         struct kevent event{};
-        EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_CLEAR, 0, 0, data);
+        EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, data);
 
         if (::kevent(k, &event, 1, nullptr, 0, nullptr) < 0)
             throw std::system_error(chen::sys::error(), "proactor: failed to add write event");
@@ -26,7 +27,7 @@ namespace
     void register_read(int k, int fd, void *data)
     {
         struct kevent event{};
-        EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR, 0, 0, data);
+        EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, data);
 
         if (::kevent(k, &event, 1, nullptr, 0, nullptr) < 0)
             throw std::system_error(chen::sys::error(), "proactor: failed to add read event");
