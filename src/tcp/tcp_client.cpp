@@ -40,6 +40,7 @@ void chen::tcp::client::reconnect()
 
 void chen::tcp::client::disconnect()
 {
+    // todo many calls for disconnect is wrong, fd is reset to -1, can't do connect again
     // todo reset handle
     this->_handle.close();
     this->_state = State::Disconnect;
