@@ -6,8 +6,9 @@
  */
 #ifndef _WIN32
 
-#include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
+#include <chen/sys/sys.hpp>
+#include <chen/sys/fs.hpp>
 #include <fstream>
 #include <cstdlib>
 #include <climits>
@@ -126,7 +127,7 @@ bool chen::fs::isExecutable(const std::string &path)
 }
 
 // create
-bool chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
+std::error_code chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t atime)
 {
     // using current time if it's zero
     if (!mtime)
@@ -142,7 +143,7 @@ bool chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t ati
     // create file if not exist
     FILE *fp = ::fopen(file.c_str(), "ab+");
     if (!fp)
-        return false;
+        return sys::error();
 
     ::fclose(fp);
 
@@ -156,15 +157,15 @@ bool chen::fs::touch(const std::string &file, std::time_t mtime, std::time_t ati
         time.modtime = mtime;
         time.actime  = atime;
 
-        return !::utime(file.c_str(), &time);
+        return !::utime(file.c_str(), &time) ? std::error_code() : sys::error();
     }
     else
     {
-        return false;
+        return sys::error();
     }
 }
 
-bool chen::fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
+std::error_code chen::fs::create(const std::string &dir, std::uint16_t mode, bool recursive)
 {
     if (!mode)
         mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
@@ -179,24 +180,24 @@ bool chen::fs::create(const std::string &dir, std::uint16_t mode, bool recursive
             if (!dirname.empty())
                 success = fs::create(dirname, mode, recursive) && success;
 
-            return !::mkdir(dir.c_str(), mode) && success;
+            return !::mkdir(dir.c_str(), mode) && success ? std::error_code() : sys::error();
         }
         else
         {
-            return !::mkdir(dir.c_str(), mode);
+            return !::mkdir(dir.c_str(), mode) ? std::error_code() : sys::error();
         }
     }
     else
     {
-        return true;
+        return {};
     }
 }
 
-bool chen::fs::remove(const std::string &path)
+std::error_code chen::fs::remove(const std::string &path)
 {
     if (fs::isFile(path))
     {
-        return !::remove(path.c_str());
+        return !::remove(path.c_str()) ? std::error_code() : sys::error();
     }
     else
     {
@@ -204,7 +205,7 @@ bool chen::fs::remove(const std::string &path)
         dirent *cur = nullptr;
 
         if (!dir)
-            return false;
+            return sys::error();
 
         auto ok  = true;
         auto sep = fs::separator();
@@ -231,14 +232,14 @@ bool chen::fs::remove(const std::string &path)
         if (ok)
             ok = !::rmdir(path.c_str());
 
-        return ok;
+        return ok ? std::error_code() : sys::error();
     }
 }
 
 // change
-bool chen::fs::change(const std::string &directory)
+std::error_code chen::fs::change(const std::string &directory)
 {
-    return !::chdir(directory.c_str());
+    return !::chdir(directory.c_str()) ? std::error_code() : sys::error();
 }
 
 // visit

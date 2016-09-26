@@ -39,7 +39,7 @@ namespace chen
 
             auto it = std::set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), v.begin());
 
-            v.resize(it - v.begin());
+            v.resize(static_cast<std::size_t>(it - v.begin()));
 
             return v;
         }
@@ -57,7 +57,7 @@ namespace chen
 
             auto it = std::set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(), v.begin());
 
-            v.resize(it - v.begin());
+            v.resize(static_cast<std::size_t>(it - v.begin()));
 
             return v;
         }
@@ -75,7 +75,7 @@ namespace chen
 
             auto it = std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), v.begin());
 
-            v.resize(it - v.begin());
+            v.resize(static_cast<std::size_t>(it - v.begin()));
 
             return v;
         }
