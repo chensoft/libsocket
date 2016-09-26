@@ -4,8 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/sys/fs.hpp>
 #include <chen/base/str.hpp>
+#include <chen/sys/sys.hpp>
+#include <chen/sys/fs.hpp>
 #include <sys/stat.h>
 #include <cctype>
 
@@ -271,48 +272,48 @@ off_t chen::fs::filesize(const std::string &file)
 }
 
 // rename
-bool chen::fs::rename(const std::string &path_old, const std::string &path_new)
+std::error_code chen::fs::rename(const std::string &path_old, const std::string &path_new)
 {
     // remove new path if it's already exist
     if (!fs::remove(path_new))
         fs::create(fs::dirname(path_new));  // create new directory
 
     // rename old path to new path
-    return !::rename(path_old.c_str(), path_new.c_str());
+    return !::rename(path_old.c_str(), path_new.c_str()) ? std::error_code() : sys::error();
 }
 
 // copy
-bool chen::fs::copy(const std::string &path_old, const std::string &path_new)
+std::error_code chen::fs::copy(const std::string &path_old, const std::string &path_new)
 {
     if (fs::isFile(path_old))
     {
         auto folder = fs::dirname(path_new);
         if (folder.empty())
-            return false;
+            return sys::error();
 
         if (!fs::create(folder))
-            return false;
+            return sys::error();
 
         std::ifstream in(path_old, std::ios_base::binary);
         if (!in)
-            return false;
+            return sys::error();
 
         std::ofstream out(path_new, std::ios_base::binary);
         if (!out)
-            return false;
+            return sys::error();
 
         out << in.rdbuf();
         out.close();
 
-        return true;
+        return {};
     }
     else if (fs::isDir(path_old, true))
     {
         if (!fs::create(path_new))
-            return false;
+            return sys::error();
 
         auto size = path_old.size();
-        auto ret  = true;
+        std::error_code ret;
 
         fs::visit(path_old, [size, &ret, path_new] (const std::string &name, bool &stop) {
             auto sub = name.substr(size, name.size() - size);
@@ -330,7 +331,7 @@ bool chen::fs::copy(const std::string &path_old, const std::string &path_new)
     }
     else
     {
-        return false;
+        return sys::error();
     }
 }
 
@@ -417,50 +418,50 @@ std::vector<std::string> chen::fs::read(const std::string &file, char delimiter)
 }
 
 // write
-bool chen::fs::write(const std::string &file, const std::string &data)
+std::error_code chen::fs::write(const std::string &file, const std::string &data)
 {
     if (!fs::create(fs::dirname(file)))
-        return false;
+        return sys::error();
 
     std::ofstream out(file, std::ios_base::binary);
     if (out)
         out.write(data.data(), data.size());
 
-    return out.good();
+    return out.good() ? std::error_code() : sys::error();
 }
 
-bool chen::fs::write(const std::string &file, const void *data, std::streamsize size)
+std::error_code chen::fs::write(const std::string &file, const void *data, std::streamsize size)
 {
     if (!fs::create(fs::dirname(file)))
-        return false;
+        return sys::error();
 
     std::ofstream out(file, std::ios_base::binary);
     if (out)
         out.write(static_cast<const char*>(data), size);
 
-    return out.good();
+    return out.good() ? std::error_code() : sys::error();
 }
 
-bool chen::fs::append(const std::string &file, const std::string &data)
+std::error_code chen::fs::append(const std::string &file, const std::string &data)
 {
     if (!fs::create(fs::dirname(file)))
-        return false;
+        return sys::error();
 
     std::ofstream out(file, std::ios_base::binary | std::ios_base::app);
     if (out)
         out.write(data.data(), data.size());
 
-    return out.good();
+    return out.good() ? std::error_code() : sys::error();
 }
 
-bool chen::fs::append(const std::string &file, const void *data, std::streamsize size)
+std::error_code chen::fs::append(const std::string &file, const void *data, std::streamsize size)
 {
     if (!fs::create(fs::dirname(file)))
-        return false;
+        return sys::error();
 
     std::ofstream out(file, std::ios_base::binary | std::ios_base::app);
     if (out)
         out.write(static_cast<const char*>(data), size);
 
-    return out.good();
+    return out.good() ? std::error_code() : sys::error();
 }

@@ -11,6 +11,7 @@
  */
 #pragma once
 
+#include <system_error>
 #include <functional>
 #include <fstream>
 #include <string>
@@ -229,35 +230,35 @@ namespace chen
          * @param mtime modification time, if zero then use current time
          * @param atime access time, if zero then use mtime
          */
-        static bool touch(const std::string &file, std::time_t mtime = 0, std::time_t atime = 0);
+        static std::error_code touch(const std::string &file, std::time_t mtime = 0, std::time_t atime = 0);
 
         /**
          * Create a directory
          * @param mode default mode is rwxr-xr-x
          * @param recursive recursively or not
          */
-        static bool create(const std::string &dir, std::uint16_t mode = 0, bool recursive = true);
+        static std::error_code create(const std::string &dir, std::uint16_t mode = 0, bool recursive = true);
 
         /**
          * Rename a file or directory
          */
-        static bool rename(const std::string &path_old, const std::string &path_new);
+        static std::error_code rename(const std::string &path_old, const std::string &path_new);
 
         /**
          * Remove a file or directory
          */
-        static bool remove(const std::string &path);
+        static std::error_code remove(const std::string &path);
 
         /**
          * Copy a file or directory
          */
-        static bool copy(const std::string &path_old, const std::string &path_new);
+        static std::error_code copy(const std::string &path_old, const std::string &path_new);
 
     public:
         /**
          * Change current working directory
          */
-        static bool change(const std::string &directory);
+        static std::error_code change(const std::string &directory);
 
         /**
          * Visit the directory items use depth-first traversal, exclude '.' and '..'
@@ -304,10 +305,10 @@ namespace chen
         /**
          * Write data to the file
          */
-        static bool write(const std::string &file, const std::string &data);
-        static bool write(const std::string &file, const void *data, std::streamsize size);
+        static std::error_code write(const std::string &file, const std::string &data);
+        static std::error_code write(const std::string &file, const void *data, std::streamsize size);
 
-        static bool append(const std::string &file, const std::string &data);
-        static bool append(const std::string &file, const void *data, std::streamsize size);
+        static std::error_code append(const std::string &file, const std::string &data);
+        static std::error_code append(const std::string &file, const void *data, std::streamsize size);
     };
 }
