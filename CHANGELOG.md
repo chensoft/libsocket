@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file(see http://k
 ### Changed
 - fs: accept two types of lambda callbacks.
 - sys: error method return std::error_code.
+- sys: error method accept your custom code.
 - plat: move platform dependent codes into its related folder.
 
 ### Fixed

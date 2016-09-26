@@ -10,9 +10,9 @@
 
 // -----------------------------------------------------------------------------
 // sys
-std::error_code chen::sys::error()
+std::error_code chen::sys::error(int code)
 {
-    return std::error_code(errno, std::system_category());
+    return std::error_code(code, std::system_category());
 }
 
 std::string chen::sys::uuid()

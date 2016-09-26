@@ -18,6 +18,7 @@ namespace chen
          * @thread-safe
          */
         static std::error_code error();
+        static std::error_code error(int code);
 
         /**
          * UUID string
