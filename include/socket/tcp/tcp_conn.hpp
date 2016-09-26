@@ -15,13 +15,21 @@ namespace chen
 {
     namespace tcp
     {
+        class server;
+
         class conn : public basic
         {
         public:
             enum class Event : std::uint8_t {Disconnect = 1, Send, Recv};
 
         public:
-            conn(socket_t fd, net::proactor &proactor);
+            /**
+             * Construct by socket fd and server pointer
+             * It's the server's responsibility to allocate the conn object
+             * server will add this object to its connection pool so you don't need to release this object manually
+             */
+            conn(socket_t fd, tcp::server *s);
+
             ~conn();
 
         public:
@@ -103,11 +111,11 @@ namespace chen
             virtual void onEventEOF() override;
 
         public:
+            tcp::server *_manager = nullptr;
+
             std::function<void (chen::tcp::conn &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
             std::function<void (chen::tcp::conn &c, chen::tcp::send_event &e)>       _cb_send;
             std::function<void (chen::tcp::conn &c, chen::tcp::recv_event &e)>       _cb_recv;
-
-            net::proactor &_proactor;
         };
     }
 }

@@ -47,6 +47,8 @@ void chen::tcp::server::detach()
 
 void chen::tcp::server::notify(std::shared_ptr<chen::tcp::conn> &&conn)
 {
+    this->_connections.insert(conn);
+
     if (this->_callback)
         this->_callback(*this, std::move(conn));
 }
@@ -70,7 +72,7 @@ void chen::tcp::server::onEventRecv(std::vector<std::uint8_t> data, std::error_c
     // todo use edge trigger not re-register events every time
     this->_proactor.recv(this, 0);
 
-    this->notify(std::make_shared<tcp::conn>(fd, this->_proactor));
+    this->notify(std::make_shared<tcp::conn>(fd, this));
 }
 
 void chen::tcp::server::onEventEOF()

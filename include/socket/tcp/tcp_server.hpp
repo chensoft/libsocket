@@ -12,6 +12,7 @@
 #include <socket/tcp/tcp_conn.hpp>
 #include <functional>
 #include <memory>
+#include <set>
 
 namespace chen
 {
@@ -70,6 +71,7 @@ namespace chen
 
         protected:
             net::proactor _proactor;
+            std::set<std::shared_ptr<chen::tcp::conn>> _connections;
             std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> _callback;
         };
     }
