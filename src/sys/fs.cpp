@@ -324,7 +324,7 @@ std::error_code chen::fs::copy(const std::string &path_old, const std::string &p
                 ret = fs::create(path_new + sub, 0, false);
 
             // exit if occur an error
-            stop = !ret;
+            stop = static_cast<bool>(ret);
         });
 
         return ret;
