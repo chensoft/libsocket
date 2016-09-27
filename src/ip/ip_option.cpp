@@ -15,21 +15,21 @@ chen::ip::option::option(socket_t fd) : bsd::option(fd)
 // ttl
 int chen::ip::option::ttl() const
 {
-    return bsd::option::intVal(IPPROTO_IP, IP_TTL);
+    return bsd::option::get(IPPROTO_IP, IP_TTL);
 }
 
 bool chen::ip::option::ttl(int val)
 {
-    return !::setsockopt(this->_fd, IPPROTO_IP, IP_TTL, &val, sizeof(val));
+    return bsd::option::set(IPPROTO_IP, IP_TTL, val);
 }
 
 // v6only
 bool chen::ip::option::v6only() const
 {
-    return bsd::option::intVal(IPPROTO_IPV6, IPV6_V6ONLY) != 0;
+    return bsd::option::get(IPPROTO_IPV6, IPV6_V6ONLY) != 0;
 }
 
 bool chen::ip::option::v6only(bool enable)
 {
-    return !::setsockopt(this->_fd, IPPROTO_IPV6, IPV6_V6ONLY, &enable, sizeof(enable));
+    return bsd::option::set(IPPROTO_IPV6, IPV6_V6ONLY, enable);
 }

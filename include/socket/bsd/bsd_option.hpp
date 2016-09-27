@@ -130,7 +130,8 @@ namespace chen
             /**
              * Helper
              */
-            int intVal(int level, int name) const;
+            int get(int level, int name) const;
+            bool set(int level, int name, int val);
 
         protected:
             socket_t _fd;

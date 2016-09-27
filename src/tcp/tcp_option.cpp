@@ -15,10 +15,10 @@ chen::tcp::option::option(socket_t fd) : ip::option(fd)
 // nodelay
 bool chen::tcp::option::nodelay() const
 {
-    return bsd::option::intVal(IPPROTO_TCP, TCP_NODELAY) != 0;
+    return bsd::option::get(IPPROTO_TCP, TCP_NODELAY) != 0;
 }
 
 bool chen::tcp::option::nodelay(bool val)
 {
-    return !::setsockopt(this->_fd, IPPROTO_TCP, TCP_NODELAY, &val, sizeof(val));
+    return option::set(IPPROTO_TCP, TCP_NODELAY, val);
 }
