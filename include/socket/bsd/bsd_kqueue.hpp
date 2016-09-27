@@ -45,10 +45,9 @@ namespace chen
             void add(int fd, Opcode opcode, std::uint16_t flag = 0);
 
             /**
-             * Delete all events or specific event
+             * Delete all events for fd
              */
             void del(int fd);
-            void del(int fd, Opcode opcode);
 
         public:
             /**

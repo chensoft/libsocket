@@ -8,6 +8,8 @@
 
 -) use AF_INET instead of chen::ip::address::Type::IPv4 in tcp client, server
 
+-) allow kqueue, epoll poll multiple events when call the poll method
+
 
 -) dns IDN convert, rfc3490, punycode
 

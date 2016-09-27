@@ -38,7 +38,7 @@ chen::bsd::kqueue::~kqueue()
 // modify
 void chen::bsd::kqueue::add(int fd, Opcode opcode, std::uint16_t flag)
 {
-    struct kevent event = {};
+    struct ::kevent event{};
     std::uint16_t codes = EV_ADD;
 
     if (flag & FlagOnce)
@@ -61,7 +61,7 @@ void chen::bsd::kqueue::del(int fd)
 
 void chen::bsd::kqueue::del(int fd, Opcode opcode)
 {
-    struct kevent event{};
+    struct ::kevent event{};
     EV_SET(&event, fd, this->opcode(opcode), EV_DELETE, 0, 0, nullptr);
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
@@ -71,7 +71,7 @@ void chen::bsd::kqueue::del(int fd, Opcode opcode)
 // poll
 chen::bsd::kqueue::Data chen::bsd::kqueue::poll()
 {
-    struct kevent event{};
+    struct ::kevent event{};
 
     // poll next event
     if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
@@ -130,7 +130,7 @@ chen::bsd::kqueue::Event chen::bsd::kqueue::event(std::int16_t opcode, std::uint
             return Event::Write;
 
         default:
-            return Event::None;
+            throw std::runtime_error("kqueue: unknown event detect");
     }
 }
 
