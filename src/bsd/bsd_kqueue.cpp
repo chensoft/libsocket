@@ -25,7 +25,7 @@ chen::bsd::kqueue::kqueue()
     }
 
     // register pipe to receive exit message
-    this->add(this->_pp[0], Filter::Read);
+    this->add(this->_pp[0], Opcode::Read);
 }
 
 chen::bsd::kqueue::~kqueue()
@@ -36,7 +36,7 @@ chen::bsd::kqueue::~kqueue()
 }
 
 // modify
-void chen::bsd::kqueue::add(int fd, Filter filter, std::uint16_t flag, void *data)
+void chen::bsd::kqueue::add(int fd, Opcode opcode, std::uint16_t flag)
 {
     struct kevent event = {};
     std::uint16_t codes = EV_ADD;
@@ -47,7 +47,7 @@ void chen::bsd::kqueue::add(int fd, Filter filter, std::uint16_t flag, void *dat
     if (flag & FlagEdge)
         codes |= EV_CLEAR;
 
-    EV_SET(&event, fd, this->filter(filter), codes, 0, 0, data);
+    EV_SET(&event, fd, this->opcode(opcode), codes, 0, 0, nullptr);
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
         throw std::system_error(chen::sys::error(), "kqueue: failed to add event");
@@ -55,14 +55,14 @@ void chen::bsd::kqueue::add(int fd, Filter filter, std::uint16_t flag, void *dat
 
 void chen::bsd::kqueue::del(int fd)
 {
-    this->del(fd, Filter::Read);
-    this->del(fd, Filter::Write);
+    this->del(fd, Opcode::Read);
+    this->del(fd, Opcode::Write);
 }
 
-void chen::bsd::kqueue::del(int fd, Filter filter)
+void chen::bsd::kqueue::del(int fd, Opcode opcode)
 {
     struct kevent event{};
-    EV_SET(&event, fd, this->filter(filter), EV_DELETE, 0, 0, nullptr);
+    EV_SET(&event, fd, this->opcode(opcode), EV_DELETE, 0, 0, nullptr);
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
@@ -90,7 +90,6 @@ chen::bsd::kqueue::Data chen::bsd::kqueue::poll()
 
     ret.fd = static_cast<int>(event.ident);
     ret.ev = this->event(event.filter, event.flags);
-    ret.dt = event.udata;
 
     return ret;
 }
@@ -103,26 +102,26 @@ void chen::bsd::kqueue::exit()
 }
 
 // misc
-std::int16_t chen::bsd::kqueue::filter(Filter filter)
+std::int16_t chen::bsd::kqueue::opcode(Opcode opcode)
 {
-    switch (filter)
+    switch (opcode)
     {
-        case Filter::Read:
+        case Opcode::Read:
             return EVFILT_READ;
 
-        case Filter::Write:
+        case Opcode::Write:
             return EVFILT_WRITE;
     }
 
     return 0;
 }
 
-chen::bsd::kqueue::Event chen::bsd::kqueue::event(std::int16_t filter, std::uint16_t flags)
+chen::bsd::kqueue::Event chen::bsd::kqueue::event(std::int16_t opcode, std::uint16_t flags)
 {
     if (flags & EV_EOF)
         return Event::End;
 
-    switch (filter)
+    switch (opcode)
     {
         case EVFILT_READ:
             return Event::Read;

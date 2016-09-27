@@ -21,7 +21,7 @@ namespace chen
         class kqueue
         {
         public:
-            enum class Filter {Read = 1, Write};
+            enum class Opcode {Read = 1, Write};
             enum class Event  {None = 0, Read, Write, End};  // End means disconnected or connection refused
 
             static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
@@ -31,7 +31,6 @@ namespace chen
             {
                 int   fd = -1;
                 Event ev = Event::None;
-                void *dt = nullptr;
             } Data;
 
         public:
@@ -42,15 +41,14 @@ namespace chen
             /**
              * Add specific event for fd
              * @param flag FlagOnce, FlagEdge or combination of them
-             * @param data user custom data
              */
-            void add(int fd, Filter filter, std::uint16_t flag = 0, void *data = nullptr);
+            void add(int fd, Opcode opcode, std::uint16_t flag = 0);
 
             /**
              * Delete all events or specific event
              */
             void del(int fd);
-            void del(int fd, Filter filter);
+            void del(int fd, Opcode opcode);
 
         public:
             /**
@@ -68,8 +66,8 @@ namespace chen
             /**
              * Conversion
              */
-            std::int16_t filter(Filter filter);
-            Event event(std::int16_t filter, std::uint16_t flags);
+            std::int16_t opcode(Opcode opcode);
+            Event event(std::int16_t opcode, std::uint16_t flags);
 
         private:
             kqueue(const kqueue&) = delete;
