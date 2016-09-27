@@ -15,6 +15,10 @@ namespace chen
 {
     namespace bsd
     {
+        /**
+         * bsd socket wrapper, usually you don't need to use it directly
+         * use tcp::client, tcp::server, udp::client, udp::server instead
+         */
         class socket
         {
         public:

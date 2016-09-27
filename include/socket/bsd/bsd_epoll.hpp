@@ -12,8 +12,13 @@ namespace chen
 {
     namespace bsd
     {
+        /**
+         * epoll for Linux
+         * you should not use this class directly unless you want to implement your own event-based model
+         */
         class epoll
         {
+            // todo
         };
     }
 }

@@ -39,8 +39,9 @@ namespace chen
              */
             void remove(net::socket *ptr);
 
+        public:
             /**
-             * Wait events and dispatch
+             * Poll events and dispatch
              */
             void start();
 

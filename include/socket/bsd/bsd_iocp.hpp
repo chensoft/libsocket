@@ -12,8 +12,13 @@ namespace chen
 {
     namespace bsd
     {
+        /**
+         * IOCP for Windows
+         * you should not use this class directly unless you want to implement your own event-based model
+         */
         class iocp
         {
+            // todo
         };
     }
 }

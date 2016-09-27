@@ -10,12 +10,12 @@ namespace chen
 {
     namespace bsd
     {
+        /**
+         * Global initialization
+         */
         class setup
         {
         public:
-            /**
-             * Global initialization goes here
-             */
             setup();
         };
 

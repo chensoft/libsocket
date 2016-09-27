@@ -12,6 +12,9 @@ namespace chen
 {
     namespace bsd
     {
+        /**
+         * bsd socket address wrapper, you don't need to use it directly
+         */
         class endpoint
         {
         public:
