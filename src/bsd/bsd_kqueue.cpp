@@ -55,14 +55,8 @@ void chen::bsd::kqueue::add(int fd, Opcode opcode, std::uint16_t flag)
 
 void chen::bsd::kqueue::del(int fd)
 {
-    this->del(fd, Opcode::Read);
-    this->del(fd, Opcode::Write);
-}
-
-void chen::bsd::kqueue::del(int fd, Opcode opcode)
-{
     struct ::kevent event{};
-    EV_SET(&event, fd, this->opcode(opcode), EV_DELETE, 0, 0, nullptr);
+    EV_SET(&event, fd, this->opcode(Opcode::Read) | this->opcode(Opcode::Write), EV_DELETE, 0, 0, nullptr);
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
