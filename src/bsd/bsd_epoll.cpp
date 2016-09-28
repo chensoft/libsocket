@@ -40,7 +40,7 @@ void chen::bsd::epoll::add(int fd, Opcode opcode, std::uint16_t flag)
 {
     struct ::epoll_event event{};
 
-    event.events  = this->opcode(opcode);
+    event.events  = this->opcode(opcode) | EPOLLRDHUP;
     event.data.fd = fd;
 
     if (flag & FlagOnce)
@@ -55,8 +55,7 @@ void chen::bsd::epoll::add(int fd, Opcode opcode, std::uint16_t flag)
 
 void chen::bsd::epoll::del(int fd)
 {
-    struct ::epoll_event event{};  // bug before kernel 2.6.9, del required a non-nil event
-    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, &event) < 0) && (errno != ENOENT))
+    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "epoll: failed to delete event");
 }
 
@@ -110,7 +109,7 @@ std::uint32_t chen::bsd::epoll::opcode(Opcode opcode)
 
 chen::bsd::epoll::Event chen::bsd::epoll::event(std::uint32_t events)
 {
-    if ((events & EPOLLERR) || (events & EPOLLHUP))
+    if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
         return Event::End;
 
     if (events & EPOLLIN)
