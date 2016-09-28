@@ -22,23 +22,25 @@ namespace chen
         {
         public:
             /**
-             * :-) None  means user request exit from poll
-             * :-) Read  means you can read data from socket
-             * :-) Write means you can write data to remote
-             * :-) End   means disconnected or connection refused
-             * Notice:
-             * even if you receive the End event, you can still read data from socket until an error occurs
-             * because server may send last message and then close the connection immediately
-             * kqueue may report Read & End event or only report the End event
-             */
-            enum class Event {None = 0, Read, Write, End};  // End means disconnected or connection refused
-
-            /**
              * Under the edge trigger mode, the write event will ALWAYS occur if the send buffer is not full filled
              * usually you should wait for write event only when the send method return EAGAIN error
              * @notice this behavior is different with epoll
              */
             enum class Opcode {Read = 1, Write};
+
+            /**
+             * :-) None  means user request exit from poll
+             * :-) Read  means you can read data from socket
+             * :-) Write means you can write data to remote
+             * :-) End   means disconnected or connection refused
+             * Notice:
+             * :-) If you don't listen Read event, then the End event will not reported by kqueue
+             *     this behavior is different with epoll
+             * :-) Even if you receive the End event, you can still read data from socket until an error occurs
+             *     because server may send last message and then close the connection immediately
+             *     kqueue may report Read & End event or only report the End event
+             */
+            enum class Event {None = 0, Read, Write, End};  // End means disconnected or connection refused
 
             static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
             static constexpr std::uint16_t FlagEdge = 1 << 1;  // edge trigger
