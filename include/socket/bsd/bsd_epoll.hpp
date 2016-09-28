@@ -21,8 +21,15 @@ namespace chen
         class epoll
         {
         public:
+            enum class Event {None = 0, Read, Write, End};  // End means disconnected or connection refused
+
+            /**
+             * Under the edge trigger mode, the write event will occur ONLY when the state changes from "cannot output" to "can output"
+             * if you send a small chunk of data and wait for next write event, epoll will not notify you
+             * usually you should wait for write event only when the send method return EAGAIN error
+             * @notice this behavior is different with kqueue
+             */
             enum class Opcode {Read = 1, Write};
-            enum class Event  {None = 0, Read, Write, End};  // End means disconnected or connection refused
 
             static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
             static constexpr std::uint16_t FlagEdge = 1 << 1;  // edge trigger

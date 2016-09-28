@@ -33,6 +33,11 @@ namespace chen
              */
             enum class Event {None = 0, Read, Write, End};  // End means disconnected or connection refused
 
+            /**
+             * Under the edge trigger mode, the write event will ALWAYS occur if the send buffer is not full filled
+             * usually you should wait for write event only when the send method return EAGAIN error
+             * @notice this behavior is different with epoll
+             */
             enum class Opcode {Read = 1, Write};
 
             static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
