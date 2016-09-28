@@ -106,7 +106,11 @@ bool chen::bsd::option::linger(int onoff, int value)
             .l_onoff  = onoff,
             .l_linger = value
     };
+    return this->linger(val);
+}
 
+bool chen::bsd::option::linger(const struct ::linger &val)
+{
     return !::setsockopt(this->_fd, SOL_SOCKET, SO_LINGER, &val, sizeof(val));
 }
 

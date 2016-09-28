@@ -71,6 +71,7 @@ namespace chen
              */
             struct ::linger linger() const;
             bool linger(int onoff, int value);
+            bool linger(const struct ::linger &val);
 
             /**
              * SO_OOBINLINE(leave received OOB data in line)
