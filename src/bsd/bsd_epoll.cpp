@@ -28,7 +28,7 @@ chen::bsd::epoll::epoll()
     }
 
     // register pipe to receive the exit message
-    this->add(this->_pp[0], OpcodeRead);
+    this->set(this->_pp[0], OpcodeRead);
 }
 
 chen::bsd::epoll::~epoll()
@@ -99,7 +99,7 @@ void chen::bsd::epoll::exit()
 }
 
 // misc
-chen::bsd::epoll::Event chen::bsd::epoll::event(std::uint32_t events)
+chen::bsd::epoll::Event chen::bsd::epoll::event(unsigned events)
 {
     if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
         return Event::End;
