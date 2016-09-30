@@ -127,12 +127,12 @@ void chen::bsd::kqueue::exit()
 }
 
 // misc
-chen::bsd::kqueue::Event chen::bsd::kqueue::event(int opcode, int flags)
+chen::bsd::kqueue::Event chen::bsd::kqueue::event(int filter, int flags)
 {
     if (flags & EV_EOF)
         return Event::End;
 
-    switch (opcode)
+    switch (filter)
     {
         case EVFILT_READ:
             return Event::Read;

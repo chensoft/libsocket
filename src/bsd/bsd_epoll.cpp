@@ -13,6 +13,9 @@
 
 // -----------------------------------------------------------------------------
 // epoll
+const int chen::bsd::epoll::FlagOnce = EPOLLONESHOT;
+const int chen::bsd::epoll::FlagEdge = EPOLLET;
+
 chen::bsd::epoll::epoll()
 {
     if ((this->_fd = ::epoll_create1(0)) < 0)
@@ -24,8 +27,8 @@ chen::bsd::epoll::epoll()
         throw std::system_error(sys::error(), "epoll: failed to create pipe");
     }
 
-    // register pipe to receive exit message
-    this->add(this->_pp[0], Opcode::Read);
+    // register pipe to receive the exit message
+    this->add(this->_pp[0], OpcodeRead);
 }
 
 chen::bsd::epoll::~epoll()
@@ -36,21 +39,24 @@ chen::bsd::epoll::~epoll()
 }
 
 // modify
-void chen::bsd::epoll::add(int fd, Opcode opcode, std::uint16_t flag)
+void chen::bsd::epoll::set(int fd, int opcode, int flag)
 {
     struct ::epoll_event event{};
 
-    event.events  = this->opcode(opcode) | EPOLLRDHUP;
+    if (opcode & OpcodeRead)
+        event.events |= EPOLLIN;
+
+    if (opcode & OpcodeWrite)
+        event.events |= EPOLLOUT;
+
+    event.events |= flag | EPOLLRDHUP;
     event.data.fd = fd;
 
-    if (flag & FlagOnce)
-        event.events |= EPOLLONESHOT;
-
-    if (flag & FlagEdge)
-        event.events |= EPOLLET;
-
-    if (::epoll_ctl(this->_fd, EPOLL_CTL_ADD, fd, &event) < 0)
-        throw std::system_error(sys::error(), "epoll: failed to add event");
+    if (::epoll_ctl(this->_fd, EPOLL_CTL_MOD, fd, &event) < 0)
+    {
+        if ((errno != ENOENT) || (::epoll_ctl(this->_fd, EPOLL_CTL_ADD, fd, &event) < 0))
+            throw std::system_error(sys::error(), "epoll: failed to set event");
+    }
 }
 
 void chen::bsd::epoll::del(int fd)
@@ -93,20 +99,6 @@ void chen::bsd::epoll::exit()
 }
 
 // misc
-std::uint32_t chen::bsd::epoll::opcode(Opcode opcode)
-{
-    switch (opcode)
-    {
-        case Opcode::Read:
-            return EPOLLIN;
-
-        case Opcode::Write:
-            return EPOLLOUT;
-    }
-
-    return 0;
-}
-
 chen::bsd::epoll::Event chen::bsd::epoll::event(std::uint32_t events)
 {
     if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))

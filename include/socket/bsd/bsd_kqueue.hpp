@@ -28,10 +28,9 @@ namespace chen
              * -----------------------------------------------------------------
              * Write(LT): event always occurs if the send buffer is not full
              * -----------------------------------------------------------------
-             * Write(ET): event occurs when the buffer is not full and then you call the send() method
+             * Write(ET): as long as the buffer is not full, the event always occurs after you call send()
              * this behavior is different than Linux's epoll
              * in epoll, the event occurs only when the state changes from "cannot output" to "can output"
-             * in kqueue, as long as the buffer is not full, the event always occurs after you call send()
              * -----------------------------------------------------------------
              * @notice since the socket has its own send buffer, you don't need to monitor the write event from the start
              * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
@@ -58,7 +57,6 @@ namespace chen
              * @notice you must monitor the read event if you want to know the end event
              * this behavior is different than Linux's epoll
              * in epoll, end event will always be monitored
-             * if kqueue, you must monitor the read event, otherwise the end event will not be reported
              * -----------------------------------------------------------------
              * @notice you should read the rest of the data even if you received the end event
              * because server may send last message and then close the connection immediately
@@ -110,7 +108,7 @@ namespace chen
             /**
              * Helper
              */
-            Event event(int opcode, int flags);
+            Event event(int filter, int flags);
 
         private:
             kqueue(const kqueue&) = delete;

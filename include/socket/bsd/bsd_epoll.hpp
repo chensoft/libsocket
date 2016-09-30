@@ -8,8 +8,6 @@
 
 #ifdef __linux__
 
-#include <cstdint>
-
 namespace chen
 {
     namespace bsd
@@ -17,34 +15,54 @@ namespace chen
         /**
          * epoll for Linux
          * you should not use this class directly unless you want to implement your own event-based model
+         * @notice in the following comments, LT means level-triggered, ET means edge-triggered
          */
         class epoll
         {
         public:
             /**
-             * Under the edge trigger mode, the write event will occur ONLY when the state changes from "cannot output" to "can output"
-             * if you send a small chunk of data and wait for next write event, epoll will not notify you
-             * usually you should wait for write event only when the send method return EAGAIN error
-             * @notice this behavior is different with kqueue
+             * Read(LT): event always occurs if the recv buffer has unread data
+             * -----------------------------------------------------------------
+             * Read(ET): event occurs only when new data arrives
+             * if you read part of the data, event will not occur again unless new data arrives
+             * -----------------------------------------------------------------
+             * Write(LT): event always occurs if the send buffer is not full
+             * -----------------------------------------------------------------
+             * Write(ET): event occurs only when the state changes from "cannot output" to "can output"
+             * this behavior is different than Unix's kqueue
+             * in kqueue, as long as the buffer is not full, the event always occurs after you call send()
+             * -----------------------------------------------------------------
+             * @notice since the socket has its own send buffer, you don't need to monitor the write event from the start
+             * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
              */
-            enum class Opcode {Read = 1, Write};
+            static constexpr int OpcodeRead  = 1 << 0;
+            static constexpr int OpcodeWrite = 1 << 1;
 
             /**
-             * :-) None  means user request exit from poll
-             * :-) Read  means you can read data from socket
-             * :-) Write means you can write data to remote
-             * :-) End   means disconnected or connection refused
-             * Notice:
-             * :-) The End event will always reported even if you didn't listen the Read event
-             *     this behavior is different with kqueue
-             * :-) Even if you receive the End event, you can still read data from socket until an error occurs
-             *     because server may send last message and then close the connection immediately
-             *     epoll may report Read & End event or only report the End event
+             * Once: event occurs only once
+             * Edge: enable edge triggered, default is level triggered
              */
-            enum class Event {None = 0, Read, Write, End};  // End means disconnected or connection refused
+            static const int FlagOnce;
+            static const int FlagEdge;
 
-            static constexpr std::uint16_t FlagOnce = 1 << 0;  // one shot
-            static constexpr std::uint16_t FlagEdge = 1 << 1;  // edge trigger
+            /**
+             * None: user request to exit from the poll
+             * -----------------------------------------------------------------
+             * Read: read event occurs, you can read data from socket
+             * -----------------------------------------------------------------
+             * Write: you can write data to remote host
+             * -----------------------------------------------------------------
+             * End: socket disconnected or connection refused
+             * -----------------------------------------------------------------
+             * @notice the end event is always be monitored automatically
+             * this behavior is different than Unix's kqueue
+             * if kqueue, you must monitor the read event, otherwise the end event will not be reported
+             * -----------------------------------------------------------------
+             * @notice you should read the rest of the data even if you received the end event
+             * because server may send last message and then close the connection immediately
+             * epoll may report Read & End event or only report the End event
+             */
+            enum class Event {None = 0, Read, Write, End};
 
             typedef struct
             {
@@ -58,10 +76,11 @@ namespace chen
 
         public:
             /**
-             * Add specific event for fd
+             * Set events for fd
+             * @param opcode OpcodeRead, OpcodeWrite or combination of them
              * @param flag FlagOnce, FlagEdge or combination of them
              */
-            void add(int fd, Opcode opcode, std::uint16_t flag = 0);
+            void set(int fd, int opcode, int flag = 0);
 
             /**
              * Delete all events for fd
@@ -82,10 +101,9 @@ namespace chen
 
         private:
             /**
-             * Conversion
+             * Helper
              */
-            std::uint32_t opcode(Opcode opcode);
-            Event event(std::uint32_t events);
+            Event event(unsigned events);
 
         private:
             epoll(const epoll&) = delete;
@@ -93,7 +111,7 @@ namespace chen
 
         private:
             int _fd = -1;  // epoll handle
-            int _pp[2]{};  // use pipe to exit the poll operation, 0 is read fd, 1 is write fd
+            int _pp[2]{};  // use pipe to exit the poll, 0 is read fd, 1 is write fd
         };
     }
 }
