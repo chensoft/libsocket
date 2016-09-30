@@ -50,13 +50,13 @@ void chen::bsd::epoll::add(int fd, Opcode opcode, std::uint16_t flag)
         event.events |= EPOLLET;
 
     if (::epoll_ctl(this->_fd, EPOLL_CTL_ADD, fd, &event) < 0)
-        throw std::system_error(chen::sys::error(), "epoll: failed to add event");
+        throw std::system_error(sys::error(), "epoll: failed to add event");
 }
 
 void chen::bsd::epoll::del(int fd)
 {
-    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) < 0) && (errno != ENOENT))
-        throw std::system_error(chen::sys::error(), "epoll: failed to delete event");
+    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) < 0) && (errno != ENOENT) && (errno != EBADF))
+        throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
 
 // poll
