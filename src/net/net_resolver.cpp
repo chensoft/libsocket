@@ -46,8 +46,8 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
         return {ret};
     }
 
-    struct addrinfo *info = nullptr;
-    struct addrinfo  hint{};
+    struct ::addrinfo *info = nullptr;
+    struct ::addrinfo  hint{};
 
     hint.ai_family   = static_cast<int>(type);
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
@@ -59,7 +59,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 
     try
     {
-        for (struct addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
+        for (struct ::addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
         {
             net::endpoint ep(ptr->ai_addr);
             ep.port(port);
@@ -155,8 +155,8 @@ void chen::net::resolver::first(const std::string &host, std::uint16_t port, ip:
         return;
     }
 
-    struct addrinfo *info = nullptr;
-    struct addrinfo  hint{};
+    struct ::addrinfo *info = nullptr;
+    struct ::addrinfo  hint{};
 
     hint.ai_family   = static_cast<int>(type);
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses

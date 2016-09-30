@@ -27,9 +27,9 @@
 // helper
 namespace
 {
-    void visit(std::function<void (struct ifaddrs *ptr, bool &stop)> cb)
+    void visit(std::function<void (struct ::ifaddrs *ptr, bool &stop)> cb)
     {
-        struct ifaddrs *list = nullptr;
+        struct ::ifaddrs *list = nullptr;
         if (::getifaddrs(&list) < 0)
             return;
 
@@ -78,7 +78,7 @@ namespace
         }
     }
 
-    void hardware(struct ifaddrs *ptr, std::string &mac, std::int32_t &mtu)
+    void hardware(struct ::ifaddrs *ptr, std::string &mac, std::int32_t &mtu)
     {
         if (ptr->ifa_addr->sa_family != AF_LINK)
             return;
@@ -88,7 +88,7 @@ namespace
         if (fd < 0)
             return;
 
-        struct ifreq ifr{};
+        struct ::ifreq ifr{};
         ifr.ifr_addr.sa_family = AF_INET6;
         ::memcpy(ifr.ifr_name, ptr->ifa_name, IFNAMSIZ);
 
@@ -174,7 +174,7 @@ std::map<std::string, chen::ip::interface> chen::ip::interface::enumerate()
 {
     std::map<std::string, interface> map;
 
-    ::visit([&] (struct ifaddrs *ptr, bool &stop) {
+    ::visit([&] (struct ::ifaddrs *ptr, bool &stop) {
         auto &item = map[ptr->ifa_name];
 
         // name and flag
@@ -217,7 +217,7 @@ std::uint32_t chen::ip::interface::scope(const std::uint8_t addr[16], const std:
     // if name is interface name
     std::uint32_t id = 0;
 
-    ::visit([&] (struct ifaddrs *ptr, bool &stop) {
+    ::visit([&] (struct ::ifaddrs *ptr, bool &stop) {
         if ((name != ptr->ifa_name) || !ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 
@@ -238,7 +238,7 @@ std::string chen::ip::interface::scope(std::uint32_t id)
 {
     std::string name;
 
-    ::visit([&] (struct ifaddrs *ptr, bool &stop) {
+    ::visit([&] (struct ::ifaddrs *ptr, bool &stop) {
         if (!ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 

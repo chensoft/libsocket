@@ -17,7 +17,7 @@ namespace
     // todo didn't EV_DELETE events
     void register_write(int k, int fd, void *data)
     {
-        struct kevent event{};
+        struct ::kevent event{};
         EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, data);
 
         if (::kevent(k, &event, 1, nullptr, 0, nullptr) < 0)
@@ -26,7 +26,7 @@ namespace
 
     void register_read(int k, int fd, void *data)
     {
-        struct kevent event{};
+        struct ::kevent event{};
         EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, data);
 
         if (::kevent(k, &event, 1, nullptr, 0, nullptr) < 0)
@@ -79,7 +79,7 @@ void chen::net::proactor::remove(net::socket *ptr)
 
 void chen::net::proactor::start()
 {
-    struct kevent event{};
+    struct ::kevent event{};
 
     while (true)
     {

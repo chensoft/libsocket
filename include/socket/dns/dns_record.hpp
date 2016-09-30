@@ -1033,8 +1033,8 @@ namespace chen
              * @see rfc6891, section 6.1.3 & 6.1.4
              */
             std::uint16_t rcode(RCODE code) const;  // upper 8 bits combine with 4 bits original rcode
-            std::uint8_t rcode() const;    // upper 8 bits of extended 12-bit RCODE
-            std::uint8_t version() const;  // edns version
+            std::uint8_t rcode() const;             // upper 8 bits of extended 12-bit RCODE
+            std::uint8_t version() const;           // edns version
 
             std::uint16_t flag() const;  // edns flags
             bool isDO() const;           // DNSSEC OK bit
