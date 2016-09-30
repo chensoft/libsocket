@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#if !defined(__linux__) && !defined(_WIN32)
+#ifndef _WIN32
 
 #include <socket/net/net_proactor.hpp>
 #include <chen/sys/sys.hpp>

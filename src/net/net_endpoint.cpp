@@ -51,6 +51,11 @@ chen::net::endpoint::endpoint(const std::string &host, std::uint16_t port, ip::a
     resolver::first(host, port, type, *this);
 }
 
+chen::net::endpoint::endpoint(std::uint16_t port)
+{
+    *this = port;
+}
+
 chen::net::endpoint::endpoint(const bsd::endpoint &ep)
 {
     *this = ep;
@@ -142,6 +147,13 @@ chen::net::endpoint& chen::net::endpoint::operator=(const char *mixed)
 chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
 {
     resolver::first(mixed, *this);
+    return *this;
+}
+
+chen::net::endpoint& chen::net::endpoint::operator=(std::uint16_t port)
+{
+    this->_addr = ip::address::Type::IPv4;
+    this->_port = port;
     return *this;
 }
 

@@ -57,6 +57,11 @@ namespace chen
             endpoint(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
+             * Construct by port number, using IPv4 address
+             */
+            endpoint(std::uint16_t port);
+
+            /**
              * Construct by raw bsd endpoint
              */
             endpoint(const bsd::endpoint &ep);
@@ -99,6 +104,7 @@ namespace chen
             endpoint& operator=(std::nullptr_t);
             endpoint& operator=(const char *mixed);
             endpoint& operator=(const std::string &mixed);
+            endpoint& operator=(std::uint16_t port);
             endpoint& operator=(const bsd::endpoint &ep);
             endpoint& operator=(const struct ::sockaddr *ep);
 
