@@ -13,6 +13,9 @@
 
 // -----------------------------------------------------------------------------
 // kqueue
+const int chen::bsd::kqueue::FlagOnce = EV_ONESHOT;
+const int chen::bsd::kqueue::FlagEdge = EV_CLEAR;
+
 chen::bsd::kqueue::kqueue()
 {
     if ((this->_fd = ::kqueue()) < 0)
@@ -24,8 +27,8 @@ chen::bsd::kqueue::kqueue()
         throw std::system_error(sys::error(), "kqueue: failed to create pipe");
     }
 
-    // register pipe to receive exit message
-    this->add(this->_pp[0], Opcode::Read);
+    // register pipe to receive the exit message
+    this->set(this->_pp[0], OpcodeRead);
 }
 
 chen::bsd::kqueue::~kqueue()
@@ -36,21 +39,41 @@ chen::bsd::kqueue::~kqueue()
 }
 
 // modify
-void chen::bsd::kqueue::add(int fd, Opcode opcode, std::uint16_t flag)
+void chen::bsd::kqueue::set(int fd, int opcode, int flag)
 {
     struct ::kevent event{};
-    std::uint16_t codes = EV_ADD;
 
-    if (flag & FlagOnce)
-        codes |= EV_ONESHOT;
+    // register read or delete
+    if (opcode & OpcodeRead)
+    {
+        EV_SET(&event, fd, EVFILT_READ, EV_ADD | flag, 0, 0, nullptr);
 
-    if (flag & FlagEdge)
-        codes |= EV_CLEAR;
+        if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
+            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+    }
+    else
+    {
+        EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
 
-    EV_SET(&event, fd, this->opcode(opcode), codes, 0, 0, nullptr);
+        if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+    }
 
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        throw std::system_error(chen::sys::error(), "kqueue: failed to add event");
+    // register write or delete
+    if (opcode & OpcodeWrite)
+    {
+        EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | flag, 0, 0, nullptr);
+
+        if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
+            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+    }
+    else
+    {
+        EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
+
+        if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+    }
 }
 
 void chen::bsd::kqueue::del(int fd)
@@ -58,13 +81,13 @@ void chen::bsd::kqueue::del(int fd)
     struct ::kevent event{};
 
     // delete read
-    EV_SET(&event, fd, this->opcode(Opcode::Read), EV_DELETE, 0, 0, nullptr);
+    EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
 
     if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 
     // delete write
-    EV_SET(&event, fd, this->opcode(Opcode::Write), EV_DELETE, 0, 0, nullptr);
+    EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
 
     if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
@@ -104,21 +127,7 @@ void chen::bsd::kqueue::exit()
 }
 
 // misc
-std::int16_t chen::bsd::kqueue::opcode(Opcode opcode)
-{
-    switch (opcode)
-    {
-        case Opcode::Read:
-            return EVFILT_READ;
-
-        case Opcode::Write:
-            return EVFILT_WRITE;
-    }
-
-    return 0;
-}
-
-chen::bsd::kqueue::Event chen::bsd::kqueue::event(std::int16_t opcode, std::uint16_t flags)
+chen::bsd::kqueue::Event chen::bsd::kqueue::event(int opcode, int flags)
 {
     if (flags & EV_EOF)
         return Event::End;
