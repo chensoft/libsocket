@@ -44,32 +44,32 @@ std::uint16_t chen::dns::header::arcount() const
 }
 
 // set filed value
-void chen::dns::header::setId(std::uint16_t value)
+void chen::dns::header::id(std::uint16_t value)
 {
     this->_id = value;
 }
 
-void chen::dns::header::setFlag(std::uint16_t value)
+void chen::dns::header::flag(std::uint16_t value)
 {
     this->_flag = value;
 }
 
-void chen::dns::header::setQdcount(std::uint16_t value)
+void chen::dns::header::qdcount(std::uint16_t value)
 {
     this->_qdcount = value;
 }
 
-void chen::dns::header::setAncount(std::uint16_t value)
+void chen::dns::header::ancount(std::uint16_t value)
 {
     this->_ancount = value;
 }
 
-void chen::dns::header::setNscount(std::uint16_t value)
+void chen::dns::header::nscount(std::uint16_t value)
 {
     this->_nscount = value;
 }
 
-void chen::dns::header::setArcount(std::uint16_t value)
+void chen::dns::header::arcount(std::uint16_t value)
 {
     this->_arcount = value;
 }
@@ -126,52 +126,52 @@ chen::dns::RCODE chen::dns::header::rcode() const
 }
 
 // set flag value
-void chen::dns::header::setQr(QR value)
+void chen::dns::header::qr(QR value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_QR) | ((static_cast<std::uint16_t>(value) << FLAG_POS_QR) & FLAG_MASK_QR);
 }
 
-void chen::dns::header::setOpcode(OPCODE value)
+void chen::dns::header::opcode(OPCODE value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_OPCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_OPCODE) & FLAG_MASK_OPCODE);
 }
 
-void chen::dns::header::setAuthoritative(bool value)
+void chen::dns::header::authoritative(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_AA) | ((static_cast<std::uint16_t>(value) << FLAG_POS_AA) & FLAG_MASK_AA);
 }
 
-void chen::dns::header::setTruncated(bool value)
+void chen::dns::header::truncated(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_TC) | ((static_cast<std::uint16_t>(value) << FLAG_POS_TC) & FLAG_MASK_TC);
 }
 
-void chen::dns::header::setRecursionDesired(bool value)
+void chen::dns::header::recursionDesired(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_RD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RD) & FLAG_MASK_RD);
 }
 
-void chen::dns::header::setRecursionAvailable(bool value)
+void chen::dns::header::recursionAvailable(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_RA) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RA) & FLAG_MASK_RA);
 }
 
-void chen::dns::header::setZero(bool value)
+void chen::dns::header::zero(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_Z) | ((static_cast<std::uint16_t>(value) << FLAG_POS_Z) & FLAG_MASK_Z);
 }
 
-void chen::dns::header::setAuthenticData(bool value)
+void chen::dns::header::authenticData(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_AD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_AD) & FLAG_MASK_AD);
 }
 
-void chen::dns::header::setCheckingDisabled(bool value)
+void chen::dns::header::checkingDisabled(bool value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_CD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_CD) & FLAG_MASK_CD);
 }
 
-void chen::dns::header::setRcode(RCODE value)
+void chen::dns::header::rcode(RCODE value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_RCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE);
 }
@@ -265,22 +265,22 @@ chen::dns::RRClass chen::dns::question::qclass() const
 }
 
 // set field value
-void chen::dns::question::setQname(const std::string &value)
+void chen::dns::question::qname(const std::string &value)
 {
     this->_qname = value;
 }
 
-void chen::dns::question::setQname(std::string &&value)
+void chen::dns::question::qname(std::string &&value)
 {
     this->_qname = std::move(value);
 }
 
-void chen::dns::question::setQtype(RRType value)
+void chen::dns::question::qtype(RRType value)
 {
     this->_qtype = value;
 }
 
-void chen::dns::question::setQclass(RRClass value)
+void chen::dns::question::qclass(RRClass value)
 {
     this->_qclass = value;
 }

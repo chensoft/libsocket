@@ -34,12 +34,12 @@ namespace chen
             /**
              * Set filed value
              */
-            void setId(std::uint16_t value);
-            void setFlag(std::uint16_t value);
-            void setQdcount(std::uint16_t value);
-            void setAncount(std::uint16_t value);
-            void setNscount(std::uint16_t value);
-            void setArcount(std::uint16_t value);
+            void id(std::uint16_t value);
+            void flag(std::uint16_t value);
+            void qdcount(std::uint16_t value);
+            void ancount(std::uint16_t value);
+            void nscount(std::uint16_t value);
+            void arcount(std::uint16_t value);
 
         public:
             /**
@@ -59,16 +59,16 @@ namespace chen
             /**
              * Set flag value
              */
-            void setQr(QR value);
-            void setOpcode(OPCODE value);
-            void setAuthoritative(bool value);
-            void setTruncated(bool value);
-            void setRecursionDesired(bool value);
-            void setRecursionAvailable(bool value);
-            void setZero(bool value);
-            void setAuthenticData(bool value);
-            void setCheckingDisabled(bool value);
-            void setRcode(RCODE value);
+            void qr(QR value);
+            void opcode(OPCODE value);
+            void authoritative(bool value);
+            void truncated(bool value);
+            void recursionDesired(bool value);
+            void recursionAvailable(bool value);
+            void zero(bool value);
+            void authenticData(bool value);
+            void checkingDisabled(bool value);
+            void rcode(RCODE value);
 
         public:
             /**
@@ -112,10 +112,10 @@ namespace chen
             /**
              * Set field value
              */
-            void setQname(const std::string &value);
-            void setQname(std::string &&value);
-            void setQtype(RRType value);
-            void setQclass(RRClass value);
+            void qname(const std::string &value);
+            void qname(std::string &&value);
+            void qtype(RRType value);
+            void qclass(RRClass value);
 
         public:
             /**

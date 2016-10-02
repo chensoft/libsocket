@@ -1037,22 +1037,22 @@ namespace chen
             std::uint8_t version() const;           // edns version
 
             std::uint16_t flag() const;  // edns flags
-            bool isDO() const;           // DNSSEC OK bit
+            bool dnssec() const;         // DNSSEC OK bit
             std::uint16_t z() const;     // reserved zero bits
 
         public:
             /**
              * Set property value
              */
-            void setPayload(std::uint16_t value);
+            void payload(std::uint16_t value);
 
-            void setRcode(std::uint16_t value);   // full 12 bits value
-            void setRcode(std::uint8_t value);    // upper 8 bits
-            void setVersion(std::uint8_t value);  // edns version
+            void rcode(std::uint16_t value);   // full 12 bits value
+            void rcode(std::uint8_t value);    // upper 8 bits
+            void version(std::uint8_t value);  // edns version
 
-            void setFlag(std::uint16_t value);  // edns flags
-            void setDO(bool value);             // DNSSEC OK bit
-            void setZ(std::uint16_t value);     // reserved zero bits
+            void flag(std::uint16_t value);  // edns flags
+            void dnssec(bool value);         // DNSSEC OK bit
+            void z(std::uint16_t value);     // reserved zero bits
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;

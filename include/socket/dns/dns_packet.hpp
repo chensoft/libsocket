@@ -105,17 +105,18 @@ namespace chen
             const question_type& query() const;
             question_type& query();
 
-            void setQuery(const std::string &qname, RRType qtype);
+            void query(const std::string &qname, RRType qtype);
 
         public:
             /**
              * Client
              */
-            std::string addr(bool subnet = false) const;
+            std::string addr() const;
+            std::string real() const;  // edns subnet or normal ip address
             std::uint16_t port() const;
 
-            void setAddr(const std::string &addr);
-            void setPort(std::uint16_t port);
+            void addr(const std::string &addr);
+            void port(std::uint16_t port);
 
         public:
             /**

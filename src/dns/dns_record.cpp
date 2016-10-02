@@ -1884,7 +1884,7 @@ std::uint16_t chen::dns::OPT::flag() const
     return static_cast<std::uint16_t>(this->ttl & 0xFFFF);
 }
 
-bool chen::dns::OPT::isDO() const
+bool chen::dns::OPT::dnssec() const
 {
     return (this->flag() & 0x8000) == 0x8000;
 }
@@ -1894,32 +1894,32 @@ std::uint16_t chen::dns::OPT::z() const
     return static_cast<std::uint16_t>(this->flag() & 0x7FFF);
 }
 
-void chen::dns::OPT::setPayload(std::uint16_t value)
+void chen::dns::OPT::payload(std::uint16_t value)
 {
     this->rrclass = static_cast<RRClass>(value);
 }
 
-void chen::dns::OPT::setRcode(std::uint16_t value)
+void chen::dns::OPT::rcode(std::uint16_t value)
 {
-    this->setRcode(static_cast<std::uint8_t>(value >> 4 & 0xFF));
+    this->rcode(static_cast<std::uint8_t>(value >> 4 & 0xFF));
 }
 
-void chen::dns::OPT::setRcode(std::uint8_t value)
+void chen::dns::OPT::rcode(std::uint8_t value)
 {
     this->ttl = (this->ttl & 0x00FFFFFF) | (static_cast<std::uint32_t>(value) << 24);
 }
 
-void chen::dns::OPT::setVersion(std::uint8_t value)
+void chen::dns::OPT::version(std::uint8_t value)
 {
     this->ttl = (this->ttl & 0xFF00FFFF) | (static_cast<std::uint32_t>(value) << 16);
 }
 
-void chen::dns::OPT::setFlag(std::uint16_t value)
+void chen::dns::OPT::flag(std::uint16_t value)
 {
     this->ttl = (this->ttl & 0xFFFF0000) | value;
 }
 
-void chen::dns::OPT::setDO(bool value)
+void chen::dns::OPT::dnssec(bool value)
 {
     this->ttl &= 0xFFFF7FFF;
 
@@ -1927,7 +1927,7 @@ void chen::dns::OPT::setDO(bool value)
         this->ttl |= 0x8000;
 }
 
-void chen::dns::OPT::setZ(std::uint16_t value)
+void chen::dns::OPT::z(std::uint16_t value)
 {
     this->ttl = (this->ttl & 0x8000) | value;
 }
