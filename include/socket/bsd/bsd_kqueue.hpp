@@ -13,7 +13,7 @@ namespace chen
     namespace bsd
     {
         /**
-         * kqueue for FreeBSD, OS X
+         * kqueue for FreeBSD, OS X(reactor model)
          * you should not use this class directly unless you want to implement your own event-based model
          * @notice in the following comments, LT means level-triggered, ET means edge-triggered
          */

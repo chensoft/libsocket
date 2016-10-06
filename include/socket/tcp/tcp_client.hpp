@@ -18,7 +18,7 @@ namespace chen
         class client : public basic
         {
         public:
-            enum class Event : std::uint8_t {Connecting = 1, Connected, Disconnect, Send, Recv};
+            enum class Event : std::uint8_t {Connecting = 1, Connected, Disconnect, Read, Write};
 
         public:
             // todo how to reset socket if disconnect
@@ -46,39 +46,39 @@ namespace chen
 
         public:
             /**
-             * Send data to remote host
+             * Read data from remote host
+             * the read callback will be invoked if successful
+             * @param size the desired read length, actual size will be less or equal than this value
+             */
+            void read(std::size_t size);
+
+            /**
+             * Read all data until eof
+             */
+            void readAll();
+
+            /**
+             * Read a line until meet "\r\n", '\n', '\r' or eof
+             * @notice the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
+             */
+            void readLine();
+
+            /**
+             * Read until read a certain amount of data
+             */
+            void readUntil(std::size_t size);
+
+            /**
+             * Read until meet the text
+             */
+            void readUntil(const std::string &text);
+
+            /**
+             * Write data to remote host
              * you can safely call this method even if the socket is not connected yet
              * the data will be sent immediately after the connection is successful
              */
-            void send(const char *data, std::size_t size);
-
-            /**
-             * Receive data from remote host
-             * the recv callback will be invoked if successful
-             * @param size the desired received length, actual size will be less or equal than this value
-             */
-            void recv(std::size_t size);
-
-            /**
-             * Receive all data until eof
-             */
-            void recvAll();
-
-            /**
-             * Receive a line until meet "\r\n", '\n', '\r' or eof
-             * @notice the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
-             */
-            void recvLine();
-
-            /**
-             * Receive until received a certain amount of data
-             */
-            void recvUntil(std::size_t size);
-
-            /**
-             * Receive until meet the text
-             */
-            void recvUntil(const std::string &text);
+            void write(const char *data, std::size_t size);
 
         public:
             /**
@@ -99,14 +99,14 @@ namespace chen
              * :-) connecting : void (client &c, connecting_event &e) -> when user issue the connect command
              * :-) connected  : void (client &c, connected_event &e)  -> connect to remote success or failure
              * :-) disconnect : void (client &c, disconnect_event &e) -> established connection is broken
-             * :-) send       : void (client &c, send_event &e)       -> send data to remote host
-             * :-) recv       : void (client &c, recv_event &e)       -> receive data from remote
+             * :-) read       : void (client &c, read_event &e)       -> read data from remote
+             * :-) write      : void (client &c, write_event &e)      -> write data to remote host
              */
             void attach(std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> callback);
             void attach(std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)> callback);
             void attach(std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> callback);
-            void attach(std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)> callback);
-            void attach(std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)> callback);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::read_event &e)> callback);
+            void attach(std::function<void (chen::tcp::client &c, chen::tcp::write_event &e)> callback);
 
             void detach(Event type);
 
@@ -117,14 +117,14 @@ namespace chen
             void notify(tcp::connecting_event &&ev);
             void notify(tcp::connected_event &&ev);
             void notify(tcp::disconnect_event &&ev);
-            void notify(tcp::send_event &&ev);
-            void notify(tcp::recv_event &&ev);
+            void notify(tcp::read_event &&ev);
+            void notify(tcp::write_event &&ev);
 
             /**
              * Event callbacks
              */
-            virtual void onEventSend(std::size_t size, std::error_code error) override;
-            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) override;
+            virtual void onEventRead(std::vector<std::uint8_t> data, std::error_code error) override;
+            virtual void onEventWrite(std::size_t size, std::error_code error) override;
             virtual void onEventEOF() override;
 
         protected:
@@ -135,8 +135,8 @@ namespace chen
             std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> _cb_connecting;
             std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)>  _cb_connected;
             std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
-            std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)>       _cb_send;
-            std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)>       _cb_recv;
+            std::function<void (chen::tcp::client &c, chen::tcp::write_event &e)>      _cb_write;
+            std::function<void (chen::tcp::client &c, chen::tcp::read_event &e)>       _cb_read;
 
             net::endpoint _remote;
             net::proactor &_proactor;

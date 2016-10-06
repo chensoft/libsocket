@@ -26,8 +26,8 @@ void chen::tcp::client::connect(const net::endpoint &ep)
 
     this->notify(tcp::connecting_event(ep));
 
-    // connect to remote host, wait for the send event
-    this->_proactor.send(this, {});
+    // connect to remote host, wait for the write event
+    this->_proactor.write(this, {});
 
     // todo must check methods' return code, if error then notify connected immediately
     this->_handle.connect(ep);
@@ -83,14 +83,14 @@ void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::t
     this->_cb_disconnect = callback;
 }
 
-void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::send_event &e)> callback)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::read_event &e)> callback)
 {
-    this->_cb_send = callback;
+    this->_cb_read = callback;
 }
 
-void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::recv_event &e)> callback)
+void chen::tcp::client::attach(std::function<void (chen::tcp::client &c, chen::tcp::write_event &e)> callback)
 {
-    this->_cb_recv = callback;
+    this->_cb_write = callback;
 }
 
 void chen::tcp::client::detach(Event type)
@@ -109,12 +109,12 @@ void chen::tcp::client::detach(Event type)
             this->_cb_disconnect = nullptr;
             break;
 
-        case Event::Send:
-            this->_cb_send = nullptr;
+        case Event::Read:
+            this->_cb_read = nullptr;
             break;
 
-        case Event::Recv:
-            this->_cb_recv = nullptr;
+        case Event::Write:
+            this->_cb_write = nullptr;
             break;
     }
 }
@@ -144,19 +144,40 @@ void chen::tcp::client::notify(tcp::disconnect_event &&ev)
         this->_cb_disconnect(*this, ev);
 }
 
-void chen::tcp::client::notify(tcp::send_event &&ev)
+void chen::tcp::client::notify(tcp::read_event &&ev)
 {
-    if (this->_cb_send)
-        this->_cb_send(*this, ev);
+    if (this->_cb_read)
+        this->_cb_read(*this, ev);
 }
 
-void chen::tcp::client::notify(tcp::recv_event &&ev)
+void chen::tcp::client::notify(tcp::write_event &&ev)
 {
-    if (this->_cb_recv)
-        this->_cb_recv(*this, ev);
+    if (this->_cb_write)
+        this->_cb_write(*this, ev);
 }
 
-void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
+void chen::tcp::client::onEventRead(std::vector<std::uint8_t> data, std::error_code error)
+{
+    if (this->isConnected())
+    {
+        // disconnect if error occur, otherwise notify the read callback
+        if (!error)
+        {
+            this->notify(read_event(std::move(data)));
+        }
+        else
+        {
+            this->disconnect();
+            this->notify(disconnect_event(error));
+        }
+    }
+    else
+    {
+        throw std::runtime_error("tcp: client in disconnect state but received read event");
+    }
+}
+
+void chen::tcp::client::onEventWrite(std::size_t size, std::error_code error)
 {
     if (this->isConnecting())
     {
@@ -168,10 +189,10 @@ void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
     }
     else if (this->isConnected())
     {
-        // disconnect if error occur, otherwise notify the send callback
+        // disconnect if error occur, otherwise notify the write callback
         if (!error)
         {
-            this->notify(send_event(size));
+            this->notify(write_event(size));
         }
         else
         {
@@ -181,28 +202,7 @@ void chen::tcp::client::onEventSend(std::size_t size, std::error_code error)
     }
     else
     {
-        throw std::runtime_error("tcp: client in disconnect state but received send event");
-    }
-}
-
-void chen::tcp::client::onEventRecv(std::vector<std::uint8_t> data, std::error_code error)
-{
-    if (this->isConnected())
-    {
-        // disconnect if error occur, otherwise notify the recv callback
-        if (!error)
-        {
-            this->notify(recv_event(std::move(data)));
-        }
-        else
-        {
-            this->disconnect();
-            this->notify(disconnect_event(error));
-        }
-    }
-    else
-    {
-        throw std::runtime_error("tcp: client in disconnect state but received recv event");
+        throw std::runtime_error("tcp: client in disconnect state but received write event");
     }
 }
 

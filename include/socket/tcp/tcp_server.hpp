@@ -53,10 +53,10 @@ namespace chen
             void notify(std::shared_ptr<chen::tcp::conn> &&conn);
 
             /**
-             * Event callbacks(only onEventRecv is useful)
+             * Event callbacks(only onEventRead is useful)
              */
-            virtual void onEventSend(std::size_t size, std::error_code error) override;
-            virtual void onEventRecv(std::vector<std::uint8_t> data, std::error_code error) override;
+            virtual void onEventRead(std::vector<std::uint8_t> data, std::error_code error) override;
+            virtual void onEventWrite(std::size_t size, std::error_code error) override;
             virtual void onEventEOF() override;
 
         public:

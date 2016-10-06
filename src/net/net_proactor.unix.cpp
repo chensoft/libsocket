@@ -59,22 +59,22 @@ chen::net::proactor::~proactor()
     ::close(this->_pp[1]);
 }
 
-void chen::net::proactor::send(net::socket *ptr, std::vector<std::uint8_t> &&data)
+void chen::net::proactor::read(net::socket *ptr, std::size_t size)
 {
-    this->_send[ptr].push(std::move(data));
-    ::register_write(this->_fd, ptr->native(), ptr);
+    this->_read[ptr].push(chunk(size));
+    ::register_read(this->_fd, ptr->native(), ptr);
 }
 
-void chen::net::proactor::recv(net::socket *ptr, std::size_t size)
+void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
-    this->_recv[ptr].push(chunk(size));
-    ::register_read(this->_fd, ptr->native(), ptr);
+    this->_write[ptr].push(std::move(data));
+    ::register_write(this->_fd, ptr->native(), ptr);
 }
 
 void chen::net::proactor::remove(net::socket *ptr)
 {
-    this->_send.erase(ptr);
-    this->_recv.erase(ptr);
+    this->_write.erase(ptr);
+    this->_read.erase(ptr);
 }
 
 void chen::net::proactor::start()
@@ -107,10 +107,10 @@ void chen::net::proactor::start()
             continue;
         }
 
-        // simulate proactor, notify callback after send or receive data
+        // simulate proactor, notify callback after read or write data
         if (event.filter == EVFILT_WRITE)
         {
-            auto &list = this->_send[ptr];
+            auto &list = this->_write[ptr];
             if (list.empty())
                 continue;
 
@@ -126,7 +126,7 @@ void chen::net::proactor::start()
                 {
                     // all data have been sent
                     list.pop();
-                    ptr->onEventSend(static_cast<std::size_t>(length), {});
+                    ptr->onEventWrite(static_cast<std::size_t>(length), {});
                 }
                 else
                 {
@@ -136,12 +136,12 @@ void chen::net::proactor::start()
             }
             else
             {
-                ptr->onEventSend(0, sys::error());
+                ptr->onEventWrite(0, sys::error());
             }
         }
         else if (event.filter == EVFILT_READ)
         {
-            auto &list = this->_recv[ptr];
+            auto &list = this->_read[ptr];
             if (list.empty())
                 continue;
 
@@ -151,11 +151,11 @@ void chen::net::proactor::start()
             if (!chunk.empty())
             {
                 auto error = ptr->handle().recv(chunk);
-                ptr->onEventRecv(std::move(chunk), error);
+                ptr->onEventRead(std::move(chunk), error);
             }
             else
             {
-                ptr->onEventRecv(std::move(chunk), {});
+                ptr->onEventRead(std::move(chunk), {});
             }
         }
         else

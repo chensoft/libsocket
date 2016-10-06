@@ -23,16 +23,16 @@ namespace chen
 
         public:
             /**
-             * Send data to remote host, socket's callback will be called
+             * Read data from remote, socket's callback will be called
              * todo use oneshot instead of edge trigger?
              */
-            void send(net::socket *ptr, std::vector<std::uint8_t> &&data);
+            void read(net::socket *ptr, std::size_t size);
 
             /**
-             * Receive data from remote, socket's callback will be called
+             * Write data to remote host, socket's callback will be called
              * todo use oneshot instead of edge trigger?
              */
-            void recv(net::socket *ptr, std::size_t size);
+            void write(net::socket *ptr, std::vector<std::uint8_t> &&data);
 
             /**
              * Remove all callbacks for specific socket
@@ -64,8 +64,9 @@ namespace chen
 
             typedef std::vector<std::uint8_t> chunk;
 
-            std::unordered_map<net::socket*, std::queue<chunk>> _send;  // send cache
-            std::unordered_map<net::socket*, std::queue<chunk>> _recv;  // recv cache
+            // todo remove rename to read, write
+            std::unordered_map<net::socket*, std::queue<chunk>> _read;   // read cache
+            std::unordered_map<net::socket*, std::queue<chunk>> _write;  // write cache
         };
     }
 }

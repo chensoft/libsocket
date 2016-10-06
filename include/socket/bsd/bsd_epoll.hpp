@@ -13,7 +13,7 @@ namespace chen
     namespace bsd
     {
         /**
-         * epoll for Linux
+         * epoll for Linux(reactor model)
          * you should not use this class directly unless you want to implement your own event-based model
          * @notice in the following comments, LT means level-triggered, ET means edge-triggered
          */

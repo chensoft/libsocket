@@ -17,12 +17,12 @@ chen::tcp::conn::~conn()
 }
 
 // event
-void chen::tcp::conn::onEventSend(std::size_t size, std::error_code error)
+void chen::tcp::conn::onEventRead(std::vector<std::uint8_t> data, std::error_code error)
 {
 
 }
 
-void chen::tcp::conn::onEventRecv(std::vector<std::uint8_t> data, std::error_code error)
+void chen::tcp::conn::onEventWrite(std::size_t size, std::error_code error)
 {
 
 }
@@ -33,12 +33,12 @@ void chen::tcp::conn::onEventEOF()
 }
 
 
-//ssize_t chen::tcp::conn::send(const std::vector<std::uint8_t> &data, int flags)
+//ssize_t chen::tcp::conn::write(const std::vector<std::uint8_t> &data, int flags)
 //{
 //    return this->send(data.data(), data.size(), flags);
 //}
 //
-//std::vector<std::uint8_t> chen::tcp::conn::recv(std::size_t size, int flags)
+//std::vector<std::uint8_t> chen::tcp::conn::read(std::size_t size, int flags)
 //{
 //    std::vector<std::uint8_t> ret(size);
 //

@@ -86,7 +86,7 @@ namespace chen
             bool sndbuf(int val);
 
             /**
-             * SO_RCVBUF(socket receive buffer size)
+             * SO_RCVBUF(socket recv buffer size)
              */
             int rcvbuf() const;
             bool rcvbuf(int val);

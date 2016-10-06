@@ -14,23 +14,6 @@
 //    {
 //        class conn : public basic
 //        {
-//        public:
-//            /**
-//             * Send data back to the host
-//             */
-//            using basic::send;
-//            ssize_t send(const std::vector<std::uint8_t> &data, int flags = 0);
-//
-//        public:
-//            /**
-//             * Remote's request data
-//             */
-//            std::vector<std::uint8_t> data() const;
-//
-//            /**
-//             * Remote endpoint
-//             */
-//            endpoint remote() const;
 //        };
 //    }
 //}

@@ -52,22 +52,22 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // send_event
-        struct send_event : public event
+        // read_event
+        struct read_event : public event
         {
-            send_event(std::size_t size) : size(size) {}
+            read_event(std::vector<std::uint8_t> &&data) : data(std::move(data)) {}
 
-            std::size_t size;
+            std::vector<std::uint8_t> data;
         };
 
 
         // ---------------------------------------------------------------------
-        // recv_event
-        struct recv_event : public event
+        // write_event
+        struct write_event : public event
         {
-            recv_event(std::vector<std::uint8_t> &&data) : data(std::move(data)) {}
+            write_event(std::size_t size) : size(size) {}
 
-            std::vector<std::uint8_t> data;
+            std::size_t size;
         };
     }
 }
