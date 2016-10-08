@@ -21,7 +21,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/config.hpp>
 
-#include <socket/bsd/bsd_buffer.hpp>
 #include <socket/bsd/bsd_endpoint.hpp>
 #include <socket/bsd/bsd_epoll.hpp>
 #include <socket/bsd/bsd_iocp.hpp>

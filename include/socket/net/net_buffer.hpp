@@ -6,12 +6,48 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_buffer.hpp>
+#include <cstdint>
+#include <vector>
 
 namespace chen
 {
     namespace net
     {
-        using buffer = bsd::buffer;
+        class buffer
+        {
+        public:
+            /**
+             * Init by desired size
+             */
+            buffer(std::size_t size);
+
+            /**
+             * Init by exist buffer
+             */
+            buffer(std::vector<std::uint8_t> &&data);
+            buffer(const std::vector<std::uint8_t> &data);
+
+        public:
+            /**
+             * Original buffer size before send or recv
+             */
+            std::size_t orig() const;
+            void orig(std::size_t size);
+
+            /**
+             * Final buffer size after send or recv
+             */
+            std::size_t size() const;
+
+            /**
+             * Buffer object
+             */
+            std::vector<std::uint8_t>& data();
+            const std::vector<std::uint8_t>& data() const;
+
+        private:
+            std::size_t _orig = 0;
+            std::vector<std::uint8_t> _data;
+        };
     }
 }

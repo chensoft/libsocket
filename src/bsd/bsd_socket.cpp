@@ -140,7 +140,7 @@ bool chen::bsd::socket::nonblocking() const noexcept
     if (flag < 0)
         return false;
 
-    return (flag & O_NONBLOCK) == O_NONBLOCK;
+    return (flag & O_NONBLOCK) != 0;
 }
 
 bool chen::bsd::socket::nonblocking(bool enable) noexcept
