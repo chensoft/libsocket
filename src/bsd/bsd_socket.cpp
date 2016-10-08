@@ -73,25 +73,14 @@ ssize_t chen::bsd::socket::send(const void *data, std::size_t size, const bsd::e
     return ::sendto(this->_fd, data, size, flags, (struct ::sockaddr*)&ep.addr, ep.size);
 }
 
-std::error_code chen::bsd::socket::recv(std::vector<std::uint8_t> &out, int flags) noexcept
+ssize_t chen::bsd::socket::recv(void *data, std::size_t size, int flags) noexcept
 {
-    auto size = ::recv(this->_fd, out.data(), out.size(), flags);
-    if (size < 0)
-        return sys::error();
-
-    out.resize(static_cast<std::size_t>(size));
-    return {};
+    return ::recv(this->_fd, data, size, flags);
 }
 
-std::error_code chen::bsd::socket::recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags) noexcept
+ssize_t chen::bsd::socket::recv(void *data, std::size_t size, bsd::endpoint &ep, int flags) noexcept
 {
-    auto size = ::recvfrom(this->_fd, out.data(), out.size(), flags, (struct ::sockaddr*)&ep.addr, &ep.size);
-    if (size < 0)
-        return sys::error();
-
-    out.resize(static_cast<std::size_t>(size));
-
-    return {};
+    return ::recvfrom(this->_fd, data, size, flags, (struct ::sockaddr*)&ep.addr, &ep.size);
 }
 
 // cleanup

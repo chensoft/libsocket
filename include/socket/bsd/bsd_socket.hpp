@@ -9,7 +9,6 @@
 #include <socket/bsd/bsd_endpoint.hpp>
 #include <socket/bsd/bsd_option.hpp>
 #include <socket/bsd/bsd_setup.hpp>
-#include <vector>
 
 namespace chen
 {
@@ -67,24 +66,24 @@ namespace chen
 
         public:
             /**
-             * Send data to connected host, usually used in tcp
+             * Send data to connected host, usually used in stream socket
              */
             ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
 
             /**
-             * Send data to specific host, usually used in udp
+             * Send data to specific host, usually used in datagram socket
              */
             ssize_t send(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
 
             /**
-             * Receive data from connected host, usually used in tcp
+             * Receive data from connected host, usually used in stream socket
              */
-            std::error_code recv(std::vector<std::uint8_t> &out, int flags = 0) noexcept;
+            ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
 
             /**
-             * Receive data from specific host, usually used in udp
+             * Receive data from specific host, usually used in datagram socket
              */
-            std::error_code recv(std::vector<std::uint8_t> &out, bsd::endpoint &ep, int flags = 0) noexcept;
+            ssize_t recv(void *data, std::size_t size, bsd::endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**

@@ -150,8 +150,8 @@ void chen::net::proactor::start()
 
             if (!chunk.empty())
             {
-                auto error = ptr->handle().recv(chunk);
-                ptr->onEventRead(std::move(chunk), error);
+                auto len = ptr->handle().recv(chunk.data(), chunk.size());
+                ptr->onEventRead(std::move(chunk), len < 0 ? sys::error() : std::error_code());
             }
             else
             {
