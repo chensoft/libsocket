@@ -133,6 +133,7 @@ namespace chen
              * Get raw value
              */
             bool empty() const;
+            operator bool() const;
 
             std::uint8_t cidr() const;
             void cidr(std::uint8_t value);
@@ -168,8 +169,6 @@ namespace chen
 
             bool operator<=(const address &o) const;
             bool operator>=(const address &o) const;
-
-            operator bool() const;
 
         public:
             /**

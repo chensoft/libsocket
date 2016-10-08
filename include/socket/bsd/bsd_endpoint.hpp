@@ -18,7 +18,7 @@ namespace chen
         class endpoint
         {
         public:
-            socklen_t size = 0;
+            socklen_t size = sizeof(addr);  // use sockaddr_storage's size as initialization value
             struct ::sockaddr_storage addr{};
         };
     }

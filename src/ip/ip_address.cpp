@@ -296,6 +296,11 @@ bool chen::ip::address::empty() const
     return this->_type == Type::None;
 }
 
+chen::ip::address::operator bool() const
+{
+    return !this->empty();
+}
+
 std::uint8_t chen::ip::address::cidr() const
 {
     switch (this->_type)
@@ -519,11 +524,6 @@ bool chen::ip::address::operator<=(const address &o) const
 bool chen::ip::address::operator>=(const address &o) const
 {
     return o <= *this;
-}
-
-chen::ip::address::operator bool() const
-{
-    return !this->empty();
 }
 
 // common

@@ -71,14 +71,14 @@ namespace chen
             ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
 
             /**
-             * Send data to specific host, usually used in datagram socket
-             */
-            ssize_t sendto(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
-
-            /**
              * Receive data from connected host, usually used in stream socket
              */
             ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
+
+            /**
+             * Send data to specific host, usually used in datagram socket
+             */
+            ssize_t sendto(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in datagram socket
