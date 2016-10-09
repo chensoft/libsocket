@@ -116,7 +116,6 @@ namespace chen
 
         private:
             int _fd = -1;  // kqueue handle
-            int _pp[2]{};  // use pipe to exit the poll, 0 is read fd, 1 is write fd
         };
     }
 }

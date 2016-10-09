@@ -19,7 +19,6 @@ namespace chen
         {
         public:
             proactor();
-            ~proactor();
 
         public:
             /**

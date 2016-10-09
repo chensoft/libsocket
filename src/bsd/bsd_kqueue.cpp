@@ -18,24 +18,26 @@ const int chen::bsd::kqueue::FlagEdge = EV_CLEAR;
 
 chen::bsd::kqueue::kqueue()
 {
+    // create kqueue file descriptor
     if ((this->_fd = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
 
-    if (::pipe(this->_pp) < 0)
+    struct ::kevent event{};
+
+    // register custom filter to receive the exit message
+    // ident's value is not important in this case, so use zero is enough
+    EV_SET(&event, 0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, nullptr);
+
+    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
     {
         ::close(this->_fd);
-        throw std::system_error(sys::error(), "kqueue: failed to create pipe");
+        throw std::system_error(chen::sys::error(), "kqueue: failed to create custom filter");
     }
-
-    // register pipe to receive the exit message
-    this->set(this->_pp[0], OpcodeRead);
 }
 
 chen::bsd::kqueue::~kqueue()
 {
     ::close(this->_fd);
-    ::close(this->_pp[0]);
-    ::close(this->_pp[1]);
 }
 
 // modify
@@ -103,12 +105,8 @@ chen::bsd::kqueue::Data chen::bsd::kqueue::poll()
         throw std::system_error(sys::error(), "kqueue: failed to poll event");
 
     // check exit status
-    if (event.ident == static_cast<uintptr_t>(this->_pp[0]))
-    {
-        char dummy;
-        ::read(this->_pp[0], &dummy, 1);
+    if (event.filter == EVFILT_USER)
         return {};
-    }
 
     // return the data
     Data ret;
@@ -121,8 +119,12 @@ chen::bsd::kqueue::Data chen::bsd::kqueue::poll()
 
 void chen::bsd::kqueue::exit()
 {
-    // notify exit message via pipe
-    if (::write(this->_pp[1], "\n", 1) != 1)
+    struct ::kevent event{};
+
+    // notify exit message via custom filter
+    EV_SET(&event, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, nullptr);
+
+    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to exit the kqueue");
 }
 
