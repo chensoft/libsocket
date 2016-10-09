@@ -103,7 +103,7 @@ void chen::net::proactor::start()
         if (event.flags & EV_EOF)
         {
             // todo clear cache first?
-            ptr->onEnd();
+            ptr->onEnd({});
             continue;
         }
 

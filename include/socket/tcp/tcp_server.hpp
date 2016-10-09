@@ -57,7 +57,7 @@ namespace chen
              */
             virtual void onRead(std::vector<std::uint8_t> data, std::error_code error) override;
             virtual void onWrite(std::size_t size, std::error_code error) override;
-            virtual void onEnd() override;
+            virtual void onEnd(std::error_code error) override;
 
         public:
             /**

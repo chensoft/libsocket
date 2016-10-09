@@ -27,7 +27,7 @@ void chen::tcp::conn::onWrite(std::size_t size, std::error_code error)
 
 }
 
-void chen::tcp::conn::onEnd()
+void chen::tcp::conn::onEnd(std::error_code error)
 {
 
 }

@@ -28,7 +28,7 @@ namespace chen
 
         public:
             /**
-             * Original buffer size before send or recv
+             * Original buffer size before read or write
              */
             std::size_t origin() const;
 

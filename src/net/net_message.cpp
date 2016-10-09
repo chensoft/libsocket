@@ -12,11 +12,11 @@ chen::net::message::message(std::size_t size) : _origin(size), _buffer(size)
 {
 }
 
-chen::net::message::message(std::vector<std::uint8_t> &&data) : _origin(data.size()), _buffer(std::move(data))
+chen::net::message::message(std::vector<std::uint8_t> &&buffer) : _origin(buffer.size()), _buffer(std::move(buffer))
 {
 }
 
-chen::net::message::message(const std::vector<std::uint8_t> &data) : _origin(data.size()), _buffer(data)
+chen::net::message::message(const std::vector<std::uint8_t> &buffer) : _origin(buffer.size()), _buffer(buffer)
 {
 }
 

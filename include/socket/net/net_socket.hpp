@@ -58,7 +58,7 @@ namespace chen
              */
             virtual void onRead(std::vector<std::uint8_t> data, std::error_code error) = 0;
             virtual void onWrite(std::size_t size, std::error_code error) = 0;
-            virtual void onEnd() = 0;  // connection refused, disconnect or other error
+            virtual void onEnd(std::error_code error) = 0;  // connection refused, disconnect or other error
 
         protected:
             bsd::socket _handle;
