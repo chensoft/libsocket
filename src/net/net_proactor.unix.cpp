@@ -43,7 +43,7 @@ void chen::net::proactor::start()
 
 void chen::net::proactor::stop()
 {
-    this->_model.exit();
+    this->_model.wake();
 }
 
 #endif

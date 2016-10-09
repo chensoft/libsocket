@@ -24,7 +24,7 @@ chen::bsd::kqueue::kqueue()
 
     struct ::kevent event{};
 
-    // register custom filter to receive exit message
+    // register custom filter to receive wake message
     // ident's value is not important in this case, so use zero is enough
     EV_SET(&event, 0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, nullptr);
 
@@ -117,15 +117,15 @@ chen::bsd::kqueue::Data chen::bsd::kqueue::poll()
     return ret;
 }
 
-void chen::bsd::kqueue::exit()
+void chen::bsd::kqueue::wake()
 {
     struct ::kevent event{};
 
-    // notify exit message via custom filter
+    // notify wake message via custom filter
     EV_SET(&event, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, nullptr);
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        throw std::system_error(sys::error(), "kqueue: failed to exit the kqueue");
+        throw std::system_error(sys::error(), "kqueue: failed to wake the kqueue");
 }
 
 // misc

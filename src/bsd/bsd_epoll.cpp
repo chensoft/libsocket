@@ -23,7 +23,7 @@ chen::bsd::epoll::epoll()
     if ((this->_fd = ::epoll_create1(0)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
-    // create eventfd to receive exit message
+    // create eventfd to receive wake message
     if ((this->_ef = ::eventfd(0, 0)) < 0)
     {
         ::close(this->_fd);
@@ -92,11 +92,11 @@ chen::bsd::epoll::Data chen::bsd::epoll::poll()
     return ret;
 }
 
-void chen::bsd::epoll::exit()
+void chen::bsd::epoll::wake()
 {
-    // notify exit message via eventfd
+    // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)
-        throw std::system_error(sys::error(), "epoll: failed to exit the epoll");
+        throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
 }
 
 // misc

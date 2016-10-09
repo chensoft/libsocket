@@ -100,9 +100,9 @@ namespace chen
             Data poll();
 
             /**
-             * Exit the poll
+             * Wake the poll
              */
-            void exit();
+            void wake();
 
         private:
             /**
