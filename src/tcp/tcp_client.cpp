@@ -206,7 +206,7 @@ void chen::tcp::client::onEventWrite(std::size_t size, std::error_code error)
     }
 }
 
-void chen::tcp::client::onEventEOF()
+void chen::tcp::client::onEventEnd()
 {
     if (this->isConnecting())
     {

@@ -31,11 +31,6 @@ void chen::net::buffer::orig(std::size_t size)
     this->_orig = size;
 }
 
-std::size_t chen::net::buffer::size() const
-{
-    return this->_data.size();
-}
-
 std::vector<std::uint8_t>& chen::net::buffer::data()
 {
     return this->_data;

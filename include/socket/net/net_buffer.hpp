@@ -35,11 +35,6 @@ namespace chen
             void orig(std::size_t size);
 
             /**
-             * Final buffer size after send or recv
-             */
-            std::size_t size() const;
-
-            /**
              * Buffer object
              */
             std::vector<std::uint8_t>& data();

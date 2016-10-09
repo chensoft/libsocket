@@ -75,7 +75,7 @@ void chen::tcp::server::onEventWrite(std::size_t size, std::error_code error)
     // unused
 }
 
-void chen::tcp::server::onEventEOF()
+void chen::tcp::server::onEventEnd()
 {
     // stop if error occur
     this->stop();

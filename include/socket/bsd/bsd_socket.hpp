@@ -142,7 +142,7 @@ namespace chen
             /**
              * Disable copy & move
              * if you want to store socket in container
-             * use std::unique_ptr<bsd::socket> is a choice
+             * use smart pointer like std::unique_ptr<bsd::socket>
              */
             socket(const socket&) = delete;
             socket& operator=(const socket&) = delete;

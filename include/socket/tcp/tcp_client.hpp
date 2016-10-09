@@ -125,7 +125,7 @@ namespace chen
              */
             virtual void onEventRead(std::vector<std::uint8_t> data, std::error_code error) override;
             virtual void onEventWrite(std::size_t size, std::error_code error) override;
-            virtual void onEventEOF() override;
+            virtual void onEventEnd() override;
 
         protected:
             enum class State : std::uint8_t {Connecting = 1, Connected, Disconnect};
