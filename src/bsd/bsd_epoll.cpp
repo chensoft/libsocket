@@ -8,6 +8,7 @@
 
 #include <socket/bsd/bsd_epoll.hpp>
 #include <chen/sys/sys.hpp>
+#include <sys/eventfd.h>
 #include <sys/epoll.h>
 #include <unistd.h>
 
@@ -18,24 +19,24 @@ const int chen::bsd::epoll::FlagEdge = EPOLLET;
 
 chen::bsd::epoll::epoll()
 {
+    // create epoll file descriptor
     if ((this->_fd = ::epoll_create1(0)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
-    if (::pipe(this->_pp) < 0)
+    // create eventfd to receive exit message
+    if ((this->_ef = ::eventfd(0, 0)) < 0)
     {
         ::close(this->_fd);
-        throw std::system_error(sys::error(), "epoll: failed to create pipe");
+        throw std::system_error(sys::error(), "epoll: failed to create eventfd");
     }
 
-    // register pipe to receive the exit message
-    this->set(this->_pp[0], OpcodeRead);
+    this->set(this->_ef, OpcodeRead, FlagEdge);
 }
 
 chen::bsd::epoll::~epoll()
 {
     ::close(this->_fd);
-    ::close(this->_pp[0]);
-    ::close(this->_pp[1]);
+    ::close(this->_ef);
 }
 
 // modify
@@ -75,10 +76,10 @@ chen::bsd::epoll::Data chen::bsd::epoll::poll()
         throw std::system_error(sys::error(), "epoll: failed to poll event");
 
     // check exit status
-    if (event.data.fd == this->_pp[0])
+    if (event.data.fd == this->_ef)
     {
-        char dummy;
-        ::read(this->_pp[0], &dummy, 1);
+        ::eventfd_t dummy;
+        ::eventfd_read(this->_ef, &dummy);
         return {};
     }
 
@@ -93,8 +94,8 @@ chen::bsd::epoll::Data chen::bsd::epoll::poll()
 
 void chen::bsd::epoll::exit()
 {
-    // notify exit message via pipe
-    if (::write(this->_pp[1], "\n", 1) != 1)
+    // notify exit message via eventfd
+    if (::eventfd_write(this->_ef, 1) != 0)
         throw std::system_error(sys::error(), "epoll: failed to exit the epoll");
 }
 

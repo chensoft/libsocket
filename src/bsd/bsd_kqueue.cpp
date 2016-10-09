@@ -24,7 +24,7 @@ chen::bsd::kqueue::kqueue()
 
     struct ::kevent event{};
 
-    // register custom filter to receive the exit message
+    // register custom filter to receive exit message
     // ident's value is not important in this case, so use zero is enough
     EV_SET(&event, 0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, nullptr);
 
