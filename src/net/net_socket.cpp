@@ -16,6 +16,10 @@ chen::net::socket::socket(ip::address::Type family, int type) : _handle(static_c
 {
 }
 
+chen::net::socket::~socket()
+{
+}
+
 chen::bsd::socket& chen::net::socket::handle()
 {
     return this->_handle;

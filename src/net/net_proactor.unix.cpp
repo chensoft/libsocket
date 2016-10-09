@@ -103,7 +103,7 @@ void chen::net::proactor::start()
         if (event.flags & EV_EOF)
         {
             // todo clear cache first?
-            ptr->onEventEnd();
+            ptr->onEnd();
             continue;
         }
 
@@ -126,7 +126,7 @@ void chen::net::proactor::start()
                 {
                     // all data have been sent
                     list.pop();
-                    ptr->onEventWrite(static_cast<std::size_t>(length), {});
+                    ptr->onWrite(static_cast<std::size_t>(length), {});
                 }
                 else
                 {
@@ -136,7 +136,7 @@ void chen::net::proactor::start()
             }
             else
             {
-                ptr->onEventWrite(0, sys::error());
+                ptr->onWrite(0, sys::error());
             }
         }
         else if (event.filter == EVFILT_READ)
@@ -151,11 +151,11 @@ void chen::net::proactor::start()
             if (!chunk.empty())
             {
                 auto len = ptr->handle().recv(chunk.data(), chunk.size());
-                ptr->onEventRead(std::move(chunk), len < 0 ? sys::error() : std::error_code());
+                ptr->onRead(std::move(chunk), len < 0 ? sys::error() : std::error_code());
             }
             else
             {
-                ptr->onEventRead(std::move(chunk), {});
+                ptr->onRead(std::move(chunk), {});
             }
         }
         else

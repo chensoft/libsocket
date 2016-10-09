@@ -17,17 +17,17 @@ chen::tcp::conn::~conn()
 }
 
 // event
-void chen::tcp::conn::onEventRead(std::vector<std::uint8_t> data, std::error_code error)
+void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, std::error_code error)
 {
 
 }
 
-void chen::tcp::conn::onEventWrite(std::size_t size, std::error_code error)
+void chen::tcp::conn::onWrite(std::size_t size, std::error_code error)
 {
 
 }
 
-void chen::tcp::conn::onEventEnd()
+void chen::tcp::conn::onEnd()
 {
 
 }

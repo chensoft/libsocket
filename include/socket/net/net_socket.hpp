@@ -19,7 +19,7 @@ namespace chen
             socket(socket_t fd);
             socket(ip::address::Type family, int type);
 
-            virtual ~socket() = default;
+            virtual ~socket() = 0;
 
         public:
             /**
@@ -56,9 +56,9 @@ namespace chen
             /**
              * Event callbacks
              */
-            virtual void onEventRead(std::vector<std::uint8_t> data, std::error_code error) = 0;
-            virtual void onEventWrite(std::size_t size, std::error_code error) = 0;
-            virtual void onEventEnd() = 0;  // connection refused, disconnect or other error
+            virtual void onRead(std::vector<std::uint8_t> data, std::error_code error) = 0;
+            virtual void onWrite(std::size_t size, std::error_code error) = 0;
+            virtual void onEnd() = 0;  // connection refused, disconnect or other error
 
         protected:
             bsd::socket _handle;
