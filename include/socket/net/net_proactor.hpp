@@ -6,7 +6,31 @@
  */
 #pragma once
 
+#include <socket/net/net_socket.hpp>
 
+namespace chen
+{
+    namespace net
+    {
+        class xxx
+        {
+        public:
+            xxx();
+            ~xxx();
+
+        public:
+            /**
+             * Read data from remote, will call socket's onRead method when completed
+             */
+            void read(net::socket *ptr, std::size_t size);
+
+            /**
+             * Write data to remote, will call socket's onWrite method after request data has been sent
+             */
+            void write(net::socket *ptr);
+        };
+    }
+}
 
 
 
