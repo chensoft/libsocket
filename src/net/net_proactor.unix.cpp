@@ -16,17 +16,77 @@
 // data
 void chen::net::proactor::read(net::socket *ptr, std::size_t size)
 {
-    // todo
+    auto &queue = this->_read[ptr];
+
+    if (!queue.empty())
+    {
+        // wait for read event
+        queue.emplace(net::message(size));
+    }
+    else
+    {
+        // todo
+    }
 }
 
 void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
-    // todo
+    auto &queue = this->_write[ptr];
+
+    if (!queue.empty())
+    {
+        // wait for write event
+        queue.emplace(net::message(std::move(data)));
+    }
+    else
+    {
+        // todo
+    }
 }
 
 void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t> &data)
 {
-    // todo
+    auto &queue = this->_write[ptr];
+
+    if (!queue.empty())
+    {
+        // wait for write event
+        queue.emplace(net::message(data));
+    }
+    else
+    {
+        // todo
+    }
+}
+
+void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data, const bsd::endpoint &ep)
+{
+    auto &queue = this->_write[ptr];
+
+    if (!queue.empty())
+    {
+        // wait for write event
+        queue.emplace(net::message(std::move(data), ep));
+    }
+    else
+    {
+        // todo
+    }
+}
+
+void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t> &data, const bsd::endpoint &ep)
+{
+    auto &queue = this->_write[ptr];
+
+    if (!queue.empty())
+    {
+        // wait for write event
+        queue.emplace(net::message(data, ep));
+    }
+    else
+    {
+        // todo
+    }
 }
 
 void chen::net::proactor::remove(net::socket *ptr)
@@ -119,7 +179,7 @@ void chen::net::proactor::start()
                 }
                 else
                 {
-                    // usually write buffer is full
+                    // write buffer is full
                     // just wait for next write event
                 }
             }
