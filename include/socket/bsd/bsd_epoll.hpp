@@ -15,7 +15,7 @@ namespace chen
         /**
          * epoll for Linux(reactor model)
          * you should not use this class directly unless you want to implement your own event-based model
-         * @notice in the following comments, LT means level-triggered, ET means edge-triggered
+         * @attention in the following comments, LT means level-triggered, ET means edge-triggered
          */
         class epoll
         {
@@ -32,7 +32,7 @@ namespace chen
              * this behavior is different than Unix's kqueue
              * in kqueue, as long as the buffer is not full, the event always occurs after you call send()
              * -----------------------------------------------------------------
-             * @notice since the socket has its own send buffer, you don't need to monitor the write event from the start
+             * @attention since the socket has its own send buffer, you don't need to monitor the write event from the start
              * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
              */
             static constexpr int OpcodeRead  = 1 << 0;
@@ -54,11 +54,11 @@ namespace chen
              * -----------------------------------------------------------------
              * End: socket disconnected or connection refused
              * -----------------------------------------------------------------
-             * @notice the end event is always be monitored automatically
+             * @attention the end event is always be monitored automatically
              * this behavior is different than Unix's kqueue
              * if kqueue, you must monitor the read event, otherwise the end event will not be reported
              * -----------------------------------------------------------------
-             * @notice you should read the rest of the data even if you received the end event
+             * @attention you should read the rest of the data even if you received the end event
              * because server may send last message and then close the connection immediately
              * epoll may report Read & End event or only report the End event
              */
@@ -90,7 +90,7 @@ namespace chen
         public:
             /**
              * Poll a event
-             * @result Data.ev is None if user request to exit the poll
+             * @return Data.ev is None if user request to exit the poll
              */
             Data poll();
 

@@ -46,7 +46,7 @@ namespace chen
 
             /**
              * Resolve host and service, return the first resolved endpoint
-             * @notice if no records found, the returned endpoint is nullptr
+             * @attention if no records found, the returned endpoint is nullptr
              */
             static net::endpoint first(const std::string &mixed);
             static net::endpoint first(const std::string &mixed, ip::address::Type type);

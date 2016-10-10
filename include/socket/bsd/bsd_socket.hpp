@@ -26,6 +26,7 @@ namespace chen
         public:
             /**
              * Construct by socket handle directly
+             * @attention you can't use reset() if you construct from fd, because we didn't know fd's family & protocol
              */
             socket(socket_t fd) noexcept;
 
@@ -59,7 +60,7 @@ namespace chen
 
             /**
              * Accept new request and create a new socket
-             * @notice check to see if the result is valid before use it
+             * @attention check to see if the result is valid before use it
              */
             std::error_code accept(socket_t &fd) noexcept;
             std::error_code accept(socket_t &fd, bsd::endpoint &ep) noexcept;
@@ -100,7 +101,7 @@ namespace chen
 
             /**
              * Reset socket using stored family, type and protocol
-             * @notice if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
+             * @attention if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
              */
             void reset();
 
@@ -128,7 +129,7 @@ namespace chen
 
             /**
              * Check socket is valid
-             * @notice zero is a valid file descriptor
+             * @attention zero is a valid file descriptor
              */
             bool valid() const noexcept;
             operator bool() const noexcept;
@@ -137,6 +138,13 @@ namespace chen
              * Native socket handle
              */
             socket_t native() const noexcept;
+
+            /**
+             * Native type info
+             */
+            int family() const noexcept;
+            int type() const noexcept;
+            int protocol() const noexcept;
 
         private:
             /**
@@ -148,11 +156,13 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            int _family   = 0;  // used for reset socket
+            socket_t _fd = socket::invalid_handle;  // socket descriptor
+
+            // used for reset socket
+            // only type is valid if you construct from a socket descriptor
+            int _family   = 0;
             int _type     = 0;
             int _protocol = 0;
-
-            socket_t _fd = socket::invalid_handle;  // socket descriptor
         };
     }
 }

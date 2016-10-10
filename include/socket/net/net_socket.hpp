@@ -45,6 +45,13 @@ namespace chen
              */
             socket_t native() const;
 
+            /**
+             * Native type info
+             */
+            int family() const;
+            int type() const;
+            int protocol() const;
+
         protected:
             friend class proactor;
 

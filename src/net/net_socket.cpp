@@ -60,3 +60,18 @@ chen::socket_t chen::net::socket::native() const
 {
     return this->_handle.native();
 }
+
+int chen::net::socket::family() const
+{
+    return this->_handle.family();
+}
+
+int chen::net::socket::type() const
+{
+    return this->_handle.type();
+}
+
+int chen::net::socket::protocol() const
+{
+    return this->_handle.protocol();
+}

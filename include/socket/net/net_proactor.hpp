@@ -36,7 +36,7 @@ namespace chen
 
             /**
              * Remove all pending operations for specific socket
-             * @notice socket need to remove itself when destruct
+             * @attention socket need to remove itself when destruct
              */
             void remove(net::socket *ptr);
 
@@ -48,7 +48,7 @@ namespace chen
 
             /**
              * Stop proactor
-             * @notice you can call this method in callback or other thread
+             * @attention you can call this method in callback or other thread
              */
             void stop();
 

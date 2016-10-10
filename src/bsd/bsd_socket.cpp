@@ -13,6 +13,7 @@ const chen::socket_t chen::bsd::socket::invalid_handle = (chen::socket_t)-1;
 
 chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
 {
+    this->_type = this->option().type();
 }
 
 chen::bsd::socket::socket(int family, int type, int protocol) : _family(family), _type(type), _protocol(protocol)
@@ -170,4 +171,19 @@ chen::bsd::socket::operator bool() const noexcept
 chen::socket_t chen::bsd::socket::native() const noexcept
 {
     return this->_fd;
+}
+
+int chen::bsd::socket::family() const noexcept
+{
+    return this->_family;
+}
+
+int chen::bsd::socket::type() const noexcept
+{
+    return this->_type;
+}
+
+int chen::bsd::socket::protocol() const noexcept
+{
+    return this->_protocol;
 }

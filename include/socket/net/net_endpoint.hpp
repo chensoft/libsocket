@@ -43,7 +43,7 @@ namespace chen
              * :-) endpoint("[fe80::1%lo0]")
              * :-) endpoint("[fe80::1%lo0]:80")
              * :-) endpoint("[fe80::1%lo0]:http")
-             * @notice endpoint will be nullptr if no record found
+             * @attention endpoint will be nullptr if no record found
              */
             endpoint(const char *mixed);
 

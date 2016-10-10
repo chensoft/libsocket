@@ -15,7 +15,7 @@ namespace chen
         /**
          * kqueue for FreeBSD, OS X(reactor model)
          * you should not use this class directly unless you want to implement your own event-based model
-         * @notice in the following comments, LT means level-triggered, ET means edge-triggered
+         * @attention in the following comments, LT means level-triggered, ET means edge-triggered
          */
         class kqueue
         {
@@ -32,7 +32,7 @@ namespace chen
              * this behavior is different than Linux's epoll
              * in epoll, the event occurs only when the state changes from "cannot output" to "can output"
              * -----------------------------------------------------------------
-             * @notice since the socket has its own send buffer, you don't need to monitor the write event from the start
+             * @attention since the socket has its own send buffer, you don't need to monitor the write event from the start
              * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
              */
             static constexpr int OpcodeRead  = 1 << 0;
@@ -54,11 +54,11 @@ namespace chen
              * -----------------------------------------------------------------
              * End: socket disconnected or connection refused
              * -----------------------------------------------------------------
-             * @notice you must monitor the read event if you want to know the end event
+             * @attention you must monitor the read event if you want to know the end event
              * this behavior is different than Linux's epoll
              * in epoll, end event will always be monitored
              * -----------------------------------------------------------------
-             * @notice you should read the rest of the data even if you received the end event
+             * @attention you should read the rest of the data even if you received the end event
              * because server may send last message and then close the connection immediately
              * kqueue may report Read & End event or only report the End event
              */
@@ -80,7 +80,7 @@ namespace chen
              * @param opcode OpcodeRead, OpcodeWrite or combination of them
              * @param flag FlagOnce, FlagEdge or combination of them
              * -----------------------------------------------------------------
-             * @notice although read & write events are separate in kqueue, but
+             * @attention although read & write events are separate in kqueue, but
              * epoll does not distinguish between them. since most of the servers
              * running Linux today, so I had to simulate the epoll's behaviour here.
              * Personally, I think kqueue's design is more flexible than epoll.
@@ -95,7 +95,7 @@ namespace chen
         public:
             /**
              * Poll a event
-             * @result Data.ev is None if user request to exit the poll
+             * @return Data.ev is None if user request to exit the poll
              */
             Data poll();
 

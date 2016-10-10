@@ -34,13 +34,13 @@ namespace chen
 
             /**
              * Disconnect and reconnect to last host
-             * @notice this method will not trigger the disconnect callback
+             * @attention this method will not trigger the disconnect callback
              */
             void reconnect();
 
             /**
              * Close the connection and clear the buffer
-             * @notice this method will not trigger the disconnect callback
+             * @attention this method will not trigger the disconnect callback
              */
             void disconnect();
 
@@ -59,7 +59,7 @@ namespace chen
 
             /**
              * Read a line until meet "\r\n", '\n', '\r' or eof
-             * @notice the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
+             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
              */
             void readLine();
 

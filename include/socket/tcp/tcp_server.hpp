@@ -62,7 +62,7 @@ namespace chen
         public:
             /**
              * Bind & Listen
-             * @notice usually you don't need to call these methods, use start() directly
+             * @attention usually you don't need to call these methods, use start() directly
              */
             std::error_code bind(const net::endpoint &ep);
 
