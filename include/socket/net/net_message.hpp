@@ -6,26 +6,31 @@
  */
 #pragma once
 
-#include <cstdint>
-#include <vector>
+#include <socket/net/net_endpoint.hpp>
 
 namespace chen
 {
     namespace net
     {
+        /**
+         * This class is mainly used for net::proactor
+         */
         class message
         {
         public:
             /**
              * Construct by desired size, usually used to read data
              */
-            message(std::size_t size);
+            explicit message(std::size_t size);
 
             /**
              * Construct by exist buffer, usually used to write data
              */
-            message(std::vector<std::uint8_t> &&buffer);
-            message(const std::vector<std::uint8_t> &buffer);
+            explicit message(std::vector<std::uint8_t> &&buffer);
+            explicit message(const std::vector<std::uint8_t> &buffer);
+
+            message(std::vector<std::uint8_t> &&buffer, const net::endpoint &remote);
+            message(const std::vector<std::uint8_t> &buffer, const net::endpoint &remote);
 
         public:
             /**
@@ -39,9 +44,16 @@ namespace chen
             std::vector<std::uint8_t>& buffer();
             const std::vector<std::uint8_t>& buffer() const;
 
+            /**
+             * Remote endpoint
+             */
+            net::endpoint& remote();
+            const net::endpoint& remote() const;
+
         private:
             std::size_t _origin = 0;
             std::vector<std::uint8_t> _buffer;
+            net::endpoint _remote;
         };
     }
 }

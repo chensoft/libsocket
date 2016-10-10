@@ -12,6 +12,7 @@
 #include <socket/bsd/bsd_epoll.hpp>
 #include <socket/bsd/bsd_iocp.hpp>
 #include <unordered_map>
+#include <queue>
 
 namespace chen
 {
@@ -29,10 +30,14 @@ namespace chen
             void read(net::socket *ptr, std::size_t size);
 
             /**
-             * Write data to remote, socket's onWrite method will be invoked when all data is sent
+             * Write data to remote in stream or datagram mode
+             * socket's onWrite method will be invoked when all data is sent
              */
             void write(net::socket *ptr, std::vector<std::uint8_t> &&data);
             void write(net::socket *ptr, const std::vector<std::uint8_t> &data);
+
+            void write(net::socket *ptr, std::vector<std::uint8_t> &&data, const bsd::endpoint &ep);
+            void write(net::socket *ptr, const std::vector<std::uint8_t> &data, const bsd::endpoint &ep);
 
             /**
              * Remove all pending operations for specific socket
@@ -65,8 +70,8 @@ namespace chen
             bsd::iocp _model;
 #endif
 
-            std::unordered_map<net::socket*, net::message> _read;
-            std::unordered_map<net::socket*, net::message> _write;
+            std::unordered_map<net::socket*, std::queue<net::message>> _read;
+            std::unordered_map<net::socket*, std::queue<net::message>> _write;
         };
     }
 }
