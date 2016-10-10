@@ -17,12 +17,12 @@ chen::tcp::conn::~conn()
 }
 
 // event
-void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, std::error_code error)
+void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
 {
 
 }
 
-void chen::tcp::conn::onWrite(std::size_t size, std::error_code error)
+void chen::tcp::conn::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
 {
 
 }

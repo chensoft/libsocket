@@ -106,8 +106,8 @@ namespace chen
             /**
              * Event callbacks
              */
-            virtual void onRead(std::vector<std::uint8_t> data, std::error_code error) override;
-            virtual void onWrite(std::size_t size, std::error_code error) override;
+            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
+            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
             virtual void onEnd() override;
 
         public:

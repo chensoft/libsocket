@@ -54,7 +54,7 @@ void chen::tcp::server::notify(std::shared_ptr<chen::tcp::conn> &&conn)
 }
 
 // event
-void chen::tcp::server::onRead(std::vector<std::uint8_t> data, std::error_code error)
+void chen::tcp::server::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
 {
     if (error)
         return this->stop();
@@ -70,7 +70,7 @@ void chen::tcp::server::onRead(std::vector<std::uint8_t> data, std::error_code e
     this->notify(std::make_shared<tcp::conn>(fd, this));
 }
 
-void chen::tcp::server::onWrite(std::size_t size, std::error_code error)
+void chen::tcp::server::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
 {
     // unused
 }

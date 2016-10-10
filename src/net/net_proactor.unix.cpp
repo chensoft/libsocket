@@ -63,7 +63,43 @@ void chen::net::proactor::start()
 
             // notify the final end event
             ptr->onEnd();
+
             continue;
+        }
+
+        // simulate proactor since kqueue & epoll are reactor model
+        if (data.ev == model::Event::Read)
+        {
+            // todo move to another method
+            auto &queue = this->_read[ptr];
+            if (queue.empty())
+                continue;
+
+            auto message = std::move(queue.front());
+            auto &buffer = message.buffer();
+
+            queue.pop();
+
+            // todo handle udp
+            if (message.origin())
+            {
+                // read data from remote
+                auto len = ptr->handle().recv(buffer.data(), buffer.size());
+                ptr->onRead(std::move(buffer), nullptr, len < 0 ? sys::error() : std::error_code());
+            }
+            else
+            {
+                // just notify read event
+                ptr->onRead({}, nullptr, {});
+            }
+        }
+        else if (data.ev == model::Event::Write)
+        {
+
+        }
+        else
+        {
+            throw std::runtime_error("proactor: event happened but type is unknown");
         }
     }
 }

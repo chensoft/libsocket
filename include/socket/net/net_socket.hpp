@@ -62,9 +62,10 @@ namespace chen
 
             /**
              * Event callbacks
+             * @attention ep is only valid when socket's type is udp
              */
-            virtual void onRead(std::vector<std::uint8_t> data, std::error_code error) = 0;
-            virtual void onWrite(std::size_t size, std::error_code error) = 0;
+            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) = 0;
+            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error) = 0;
             virtual void onEnd() = 0;  // connection refused, disconnect or other error
 
         protected:

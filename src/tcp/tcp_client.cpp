@@ -156,7 +156,7 @@ void chen::tcp::client::notify(tcp::write_event &&ev)
         this->_cb_write(*this, ev);
 }
 
-void chen::tcp::client::onRead(std::vector<std::uint8_t> data, std::error_code error)
+void chen::tcp::client::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
 {
     if (this->isConnected())
     {
@@ -177,7 +177,7 @@ void chen::tcp::client::onRead(std::vector<std::uint8_t> data, std::error_code e
     }
 }
 
-void chen::tcp::client::onWrite(std::size_t size, std::error_code error)
+void chen::tcp::client::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
 {
     if (this->isConnecting())
     {
