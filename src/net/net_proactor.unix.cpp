@@ -8,7 +8,6 @@
 
 #include <socket/net/net_proactor.hpp>
 #include <chen/sys/sys.hpp>
-#include <socket/bsd/bsd_kqueue.hpp>
 
 // -----------------------------------------------------------------------------
 // proactor
@@ -18,75 +17,143 @@ void chen::net::proactor::read(net::socket *ptr, std::size_t size)
 {
     auto &queue = this->_read[ptr];
 
-    if (!queue.empty())
+    // try to read data
+    if (queue.empty() && size)
     {
-        // wait for read event
-        queue.emplace(net::message(size));
+        std::vector<std::uint8_t> buffer(size);
+
+        if (ptr->type() == SOCK_STREAM)
+        {
+            if (ptr->handle().recv(buffer.data(), size) >= 0)
+                return ptr->onRead(std::move(buffer), nullptr, {});
+        }
+        else if (ptr->type() == SOCK_DGRAM)
+        {
+            bsd::endpoint ep;
+
+            if (ptr->handle().recvfrom(buffer.data(), size, ep) >= 0)
+                return ptr->onRead(std::move(buffer), net::endpoint(ep), {});
+        }
     }
-    else
-    {
-        // todo
-    }
+
+    // wait for read event
+    queue.emplace(net::message(size));
 }
 
 void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
     auto &queue = this->_write[ptr];
+    auto origin = data.size();
 
-    if (!queue.empty())
+    // try to write data
+    if (queue.empty())
     {
-        // wait for write event
-        queue.emplace(net::message(std::move(data)));
+        auto length = ptr->handle().send(data.data(), origin);
+
+        if (length > 0)
+        {
+            if (static_cast<std::size_t>(length) == origin)
+            {
+                // send all data
+                return ptr->onWrite(origin, nullptr, {});
+            }
+            else
+            {
+                // send partial data
+                data.erase(data.begin(), data.begin() + length);
+            }
+        }
     }
-    else
-    {
-        // todo
-    }
+
+    // wait for write event
+    queue.emplace(net::message(origin, std::move(data)));
 }
 
 void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t> &data)
 {
     auto &queue = this->_write[ptr];
+    auto origin = data.size();
+    auto length = (ssize_t)0;
 
-    if (!queue.empty())
+    // try to write data
+    if (queue.empty())
     {
-        // wait for write event
-        queue.emplace(net::message(data));
+        length = ptr->handle().send(data.data(), origin);
+
+        if (length > 0)
+        {
+            if (static_cast<std::size_t>(length) == origin)
+            {
+                // send all data
+                return ptr->onWrite(origin, nullptr, {});
+            }
+            else
+            {
+                // send partial data
+            }
+        }
     }
-    else
-    {
-        // todo
-    }
+
+    // wait for write event
+    queue.emplace(net::message(origin, std::vector<std::uint8_t>(data.begin() + length, data.end())));
 }
 
 void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data, const bsd::endpoint &ep)
 {
     auto &queue = this->_write[ptr];
+    auto origin = data.size();
 
-    if (!queue.empty())
+    // try to write data
+    if (queue.empty())
     {
-        // wait for write event
-        queue.emplace(net::message(std::move(data), ep));
+        auto length = ptr->handle().sendto(data.data(), origin, ep);
+
+        if (length > 0)
+        {
+            if (static_cast<std::size_t>(length) == origin)
+            {
+                // send all data
+                return ptr->onWrite(origin, ep, {});
+            }
+            else
+            {
+                // send partial data
+                data.erase(data.begin(), data.begin() + length);
+            }
+        }
     }
-    else
-    {
-        // todo
-    }
+
+    // wait for write event
+    queue.emplace(net::message(origin, std::move(data), ep));
 }
 
 void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t> &data, const bsd::endpoint &ep)
 {
     auto &queue = this->_write[ptr];
+    auto origin = data.size();
+    auto length = (ssize_t)0;
 
-    if (!queue.empty())
+    // try to write data
+    if (queue.empty())
     {
-        // wait for write event
-        queue.emplace(net::message(data, ep));
+        length = ptr->handle().sendto(data.data(), origin, ep);
+
+        if (length > 0)
+        {
+            if (static_cast<std::size_t>(length) == origin)
+            {
+                // send all data
+                return ptr->onWrite(origin, ep, {});
+            }
+            else
+            {
+                // send partial data
+            }
+        }
     }
-    else
-    {
-        // todo
-    }
+
+    // wait for write event
+    queue.emplace(net::message(origin, std::vector<std::uint8_t>(data.begin() + length, data.end()), ep));
 }
 
 void chen::net::proactor::remove(net::socket *ptr)
@@ -166,7 +233,7 @@ void chen::net::proactor::start()
 
             if (length >= 0)
             {
-                buffer.resize(buffer.size() - length);
+                buffer.erase(buffer.begin(), buffer.begin() + length);
 
                 if (buffer.empty())
                 {
@@ -175,7 +242,7 @@ void chen::net::proactor::start()
 
                     queue.pop();
 
-                    ptr->onWrite(origin, {}, {});
+                    ptr->onWrite(origin, nullptr, {});
                 }
                 else
                 {
@@ -185,7 +252,7 @@ void chen::net::proactor::start()
             }
             else
             {
-                ptr->onWrite(0, {}, sys::error());
+                ptr->onWrite(0, nullptr, sys::error());
             }
         }
         else

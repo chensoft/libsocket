@@ -26,11 +26,11 @@ namespace chen
             /**
              * Construct by exist buffer, usually used to write data
              */
-            explicit message(std::vector<std::uint8_t> &&buffer);
-            explicit message(const std::vector<std::uint8_t> &buffer);
+            message(std::size_t origin, std::vector<std::uint8_t> &&buffer);
+            message(std::size_t origin, const std::vector<std::uint8_t> &buffer);
 
-            message(std::vector<std::uint8_t> &&buffer, const net::endpoint &remote);
-            message(const std::vector<std::uint8_t> &buffer, const net::endpoint &remote);
+            message(std::size_t origin, std::vector<std::uint8_t> &&buffer, const net::endpoint &remote);
+            message(std::size_t origin, const std::vector<std::uint8_t> &buffer, const net::endpoint &remote);
 
         public:
             /**

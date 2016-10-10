@@ -58,6 +58,12 @@ namespace chen
             void stop();
 
         private:
+            /**
+             * Internal helper
+             */
+
+
+        private:
             proactor(const proactor&) = delete;
             proactor& operator=(const proactor&) = delete;
 

@@ -12,19 +12,19 @@ chen::net::message::message(std::size_t size) : _origin(size), _buffer(size)
 {
 }
 
-chen::net::message::message(std::vector<std::uint8_t> &&buffer) : _origin(buffer.size()), _buffer(std::move(buffer))
+chen::net::message::message(std::size_t origin, std::vector<std::uint8_t> &&buffer) : _origin(origin), _buffer(std::move(buffer))
 {
 }
 
-chen::net::message::message(const std::vector<std::uint8_t> &buffer) : _origin(buffer.size()), _buffer(buffer)
+chen::net::message::message(std::size_t origin, const std::vector<std::uint8_t> &buffer) : _origin(origin), _buffer(buffer)
 {
 }
 
-chen::net::message::message(std::vector<std::uint8_t> &&buffer, const net::endpoint &remote) : _origin(buffer.size()), _buffer(std::move(buffer)), _remote(remote)
+chen::net::message::message(std::size_t origin, std::vector<std::uint8_t> &&buffer, const net::endpoint &remote) : _origin(origin), _buffer(std::move(buffer)), _remote(remote)
 {
 }
 
-chen::net::message::message(const std::vector<std::uint8_t> &buffer, const net::endpoint &remote) : _origin(buffer.size()), _buffer(buffer), _remote(remote)
+chen::net::message::message(std::size_t origin, const std::vector<std::uint8_t> &buffer, const net::endpoint &remote) : _origin(origin), _buffer(buffer), _remote(remote)
 {
 }
 
