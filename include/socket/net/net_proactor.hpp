@@ -63,13 +63,16 @@ namespace chen
 
         private:
 #if !defined(__linux__) && !defined(_WIN32)
-            bsd::kqueue _model;
+            typedef bsd::kqueue model;
 #elif defined(__linux__)
-            bsd::epoll _model;
+            typedef bsd::epoll model;
 #else
-            bsd::iocp _model;
+            typedef bsd::iocp model;
 #endif
 
+            model _model;
+
+            std::unordered_map<socket_t, net::socket*> _map;
             std::unordered_map<net::socket*, std::queue<net::message>> _read;
             std::unordered_map<net::socket*, std::queue<net::message>> _write;
         };
