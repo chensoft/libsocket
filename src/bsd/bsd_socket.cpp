@@ -15,7 +15,7 @@ chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
 {
 }
 
-chen::bsd::socket::socket(int domain, int type, int protocol) : _domain(domain), _type(type), _protocol(protocol)
+chen::bsd::socket::socket(int family, int type, int protocol) : _family(family), _type(type), _protocol(protocol)
 {
     this->reset();
 }
@@ -112,10 +112,10 @@ void chen::bsd::socket::reset()
 {
     this->close();
 
-    if (!this->_domain)
-        throw std::runtime_error("socket: reset failed because domain is unknown");
+    if (!this->_family)
+        throw std::runtime_error("socket: reset failed because family is unknown");
 
-    if ((this->_fd = ::socket(this->_domain, this->_type, this->_protocol)) < 0)
+    if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) < 0)
         throw std::system_error(sys::error(), "socket: failed to create socket");
 }
 

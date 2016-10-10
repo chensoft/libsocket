@@ -31,11 +31,11 @@ namespace chen
 
             /**
              * Construct by socket type
-             * @param domain AF_INET, AF_INET6, AF_UNIX...
+             * @param family AF_INET, AF_INET6, AF_UNIX...
              * @param type SOCK_STREAM, SOCK_DGRAM, SOCK_RAW...
              * @param protocol IPPROTO_TCP, IPPROTO_UDP or use zero directly
              */
-            socket(int domain, int type, int protocol);
+            socket(int family, int type, int protocol);
 
             ~socket() noexcept;
 
@@ -99,7 +99,7 @@ namespace chen
             void close() noexcept;
 
             /**
-             * Reset socket using stored domain, type and protocol
+             * Reset socket using stored family, type and protocol
              * @notice if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
              */
             void reset();
@@ -148,7 +148,7 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            int _domain   = 0;  // used for reset socket
+            int _family   = 0;  // used for reset socket
             int _type     = 0;
             int _protocol = 0;
 

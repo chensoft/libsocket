@@ -10,9 +10,6 @@
 
 // -----------------------------------------------------------------------------
 // proactor
-chen::net::proactor::proactor()
-{
-}
 
 // data
 void chen::net::proactor::read(net::socket *ptr, std::size_t size)

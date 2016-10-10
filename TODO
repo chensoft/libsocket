@@ -8,6 +8,7 @@
 
 -) allow kqueue, epoll poll multiple events when call the poll method
 
+-) net socket's onXXX support pass void* as user's tag
 
 -) dns IDN convert, rfc3490, punycode
 

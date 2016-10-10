@@ -6,10 +6,12 @@
  */
 #pragma once
 
+#include <socket/net/net_message.hpp>
 #include <socket/net/net_socket.hpp>
 #include <socket/bsd/bsd_kqueue.hpp>
 #include <socket/bsd/bsd_epoll.hpp>
 #include <socket/bsd/bsd_iocp.hpp>
+#include <unordered_map>
 
 namespace chen
 {
@@ -18,16 +20,16 @@ namespace chen
         class proactor
         {
         public:
-            proactor();
+            proactor() = default;
 
         public:
             /**
-             * Read data from remote, socket's onRead will be invoked when completed
+             * Read data from remote, socket's onRead method will be invoked when completed
              */
             void read(net::socket *ptr, std::size_t size);
 
             /**
-             * Write data to remote, socket's onWrite will be invoked when all data is sent
+             * Write data to remote, socket's onWrite method will be invoked when all data is sent
              */
             void write(net::socket *ptr, std::vector<std::uint8_t> &&data);
             void write(net::socket *ptr, const std::vector<std::uint8_t> &data);
@@ -62,6 +64,9 @@ namespace chen
 #else
             bsd::iocp _model;
 #endif
+
+            std::unordered_map<net::socket*, net::message> _read;
+            std::unordered_map<net::socket*, net::message> _write;
         };
     }
 }
