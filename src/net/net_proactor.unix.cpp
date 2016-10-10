@@ -95,7 +95,38 @@ void chen::net::proactor::start()
         }
         else if (data.ev == model::Event::Write)
         {
+            auto &queue = this->_write[ptr];
+            if (queue.empty())
+                continue;
 
+            // todo handle udp
+            auto &message = queue.front();
+            auto &buffer  = message.buffer();
+            auto length   = ptr->handle().send(buffer.data(), buffer.size());
+
+            if (length >= 0)
+            {
+                buffer.resize(buffer.size() - length);
+
+                if (buffer.empty())
+                {
+                    // all data have been sent
+                    auto origin = message.origin();
+
+                    queue.pop();
+
+                    ptr->onWrite(origin, {}, {});
+                }
+                else
+                {
+                    // usually write buffer is full
+                    // just wait for next write event
+                }
+            }
+            else
+            {
+                ptr->onWrite(0, {}, sys::error());
+            }
         }
         else
         {
