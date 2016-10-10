@@ -117,6 +117,9 @@ namespace chen
         private:
             int _fd = -1;  // kqueue handle
         };
+
+        // system-independent typedef
+        typedef kqueue multiplexing;
     }
 }
 

@@ -20,6 +20,9 @@ namespace chen
         {
             // todo
         };
+
+        // system-independent typedef
+        typedef iocp multiplexing;
     }
 }
 

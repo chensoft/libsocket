@@ -62,15 +62,7 @@ namespace chen
             proactor& operator=(const proactor&) = delete;
 
         private:
-#if !defined(__linux__) && !defined(_WIN32)
-            typedef bsd::kqueue model;
-#elif defined(__linux__)
-            typedef bsd::epoll model;
-#else
-            typedef bsd::iocp model;
-#endif
-
-            model _model;
+            bsd::multiplexing _model;
 
             std::unordered_map<socket_t, net::socket*> _map;
             std::unordered_map<net::socket*, std::queue<net::message>> _read;

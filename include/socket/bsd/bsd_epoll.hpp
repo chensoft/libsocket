@@ -113,6 +113,9 @@ namespace chen
             int _fd = -1;  // epoll handle
             int _ef = -1;  // eventfd handle
         };
+
+        // system-independent typedef
+        typedef epoll multiplexing;
     }
 }
 
