@@ -16,7 +16,7 @@ namespace chen
         class socket
         {
         public:
-            socket(socket_t fd);
+            socket(bsd::socket &&s);
             socket(ip::address::Type family, int type);
 
             virtual ~socket() = 0;
@@ -63,7 +63,7 @@ namespace chen
              * :-) end    : connection refused, disconnect or other error
              * @attention ep is only valid when socket's type is udp, otherwise it's nullptr
              */
-            virtual void onAccept(chen::socket_t fd, net::endpoint ep);
+            virtual void onAccept(bsd::socket s, net::endpoint ep);
             virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error);
             virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error);
             virtual void onEnd();

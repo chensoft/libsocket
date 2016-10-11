@@ -28,7 +28,7 @@ namespace chen
              * It's the server's responsibility to allocate the conn object
              * server will add this object to its connection pool so you don't need to release this object manually
              */
-            conn(socket_t fd, tcp::server *s);
+            conn(bsd::socket &&s, tcp::server *m);
 
             ~conn();
 

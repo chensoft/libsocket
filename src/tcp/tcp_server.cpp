@@ -54,7 +54,7 @@ void chen::tcp::server::notify(std::shared_ptr<chen::tcp::conn> &&conn)
 }
 
 // event
-void chen::tcp::server::onAccept(chen::socket_t fd, net::endpoint ep)
+void chen::tcp::server::onAccept(bsd::socket s, net::endpoint ep)
 {
     // todo
 }

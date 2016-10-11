@@ -15,7 +15,7 @@
 //        class basic : protected socket
 //        {
 //        public:
-//            basic(socket_t fd);
+//            basic(bsd::socket &&s);
 //            basic(ip::address::Type family);
 //
 //        public:

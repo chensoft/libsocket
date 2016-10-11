@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // basic
-chen::tcp::basic::basic(socket_t fd) : socket(fd)
+chen::tcp::basic::basic(bsd::socket &&s) : socket(std::move(s))
 {
 }
 

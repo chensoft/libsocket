@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(socket_t fd, tcp::server *s) : basic(fd), _manager(s)
+chen::tcp::conn::conn(bsd::socket &&s, tcp::server *m) : basic(std::move(s)), _manager(m)
 {
 }
 
