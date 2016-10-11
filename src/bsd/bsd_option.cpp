@@ -23,12 +23,6 @@ bool chen::bsd::option::debug(bool val)
     return option::set(SOL_SOCKET, SO_DEBUG, val);
 }
 
-// acceptconn
-bool chen::bsd::option::acceptconn() const
-{
-    return option::get(SOL_SOCKET, SO_ACCEPTCONN) != 0;
-}
-
 // reuseaddr
 bool chen::bsd::option::reuseaddr() const
 {

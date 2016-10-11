@@ -28,11 +28,6 @@ namespace chen
             bool debug(bool val);
 
             /**
-             * SO_ACCEPTCONN(read-only, determine whether the socket is a listening socket)
-             */
-            bool acceptconn() const;
-
-            /**
              * SO_REUSEADDR(allow local address reuse)
              * @attention on Windows SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT
              */
