@@ -31,6 +31,11 @@ namespace chen
 
         public:
             /**
+             * Empty socket
+             */
+            socket(std::nullptr_t = nullptr) noexcept;
+
+            /**
              * Construct by socket handle directly
              * @attention you can't use reset() if you construct from fd, because we didn't know fd's family & protocol
              */
@@ -44,10 +49,23 @@ namespace chen
              */
             socket(int family, int type, int protocol = 0);
 
-            socket(socket &&o);
-            socket& operator=(socket &&o);
+            socket(socket &&o) noexcept;
+            socket& operator=(socket &&o) noexcept;
 
             ~socket() noexcept;
+
+        public:
+            /**
+             * Reset socket by stored family, type and protocol
+             * @attention if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
+             */
+            void reset();
+
+            /**
+             * Reset socket by fd or info
+             */
+            void reset(socket_t fd) noexcept;
+            void reset(int family, int type, int protocol = 0);
 
         public:
             /**
@@ -71,8 +89,8 @@ namespace chen
              * Accept new request and create a new socket
              * @attention check to see if the result is valid before use it
              */
-            std::error_code accept(socket_t &fd) noexcept;
-            std::error_code accept(socket_t &fd, bsd::endpoint &ep) noexcept;
+            std::error_code accept(socket &s) noexcept;
+            std::error_code accept(socket &s, bsd::endpoint &ep) noexcept;
 
         public:
             /**
@@ -105,12 +123,6 @@ namespace chen
              * Close the socket, the socket will disconnect immediately
              */
             void close() noexcept;
-
-            /**
-             * Reset socket using stored family, type and protocol
-             * @attention if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
-             */
-            void reset();
 
         public:
             /**

@@ -14,22 +14,26 @@ const int chen::bsd::socket::FlagPeek       = MSG_PEEK;
 const int chen::bsd::socket::FlagDoNotRoute = MSG_DONTROUTE;
 const int chen::bsd::socket::FlagWaitAll    = MSG_WAITALL;
 
-chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
+chen::bsd::socket::socket(std::nullptr_t) noexcept
 {
-    this->_type = this->option().type();
 }
 
-chen::bsd::socket::socket(int family, int type, int protocol) : _family(family), _type(type), _protocol(protocol)
+chen::bsd::socket::socket(socket_t fd) noexcept
 {
-    this->reset();
+    this->reset(fd);
 }
 
-chen::bsd::socket::socket(socket &&o)
+chen::bsd::socket::socket(int family, int type, int protocol)
+{
+    this->reset(family, type, protocol);
+}
+
+chen::bsd::socket::socket(socket &&o) noexcept
 {
     *this = std::move(o);
 }
 
-chen::bsd::socket& chen::bsd::socket::operator=(socket &&o)
+chen::bsd::socket& chen::bsd::socket::operator=(socket &&o) noexcept
 {
     if (this == &o)
         return *this;
@@ -54,6 +58,37 @@ chen::bsd::socket::~socket() noexcept
     this->close();
 }
 
+// reset
+void chen::bsd::socket::reset()
+{
+    this->close();
+
+    if (!this->_family)
+        throw std::runtime_error("socket: reset failed because family is unknown");
+
+    if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) < 0)
+        throw std::system_error(sys::error(), "socket: failed to create socket");
+}
+
+void chen::bsd::socket::reset(socket_t fd) noexcept
+{
+    this->close();
+
+    this->_fd       = fd;
+    this->_family   = 0;
+    this->_type     = this->option().type();
+    this->_protocol = 0;
+}
+
+void chen::bsd::socket::reset(int family, int type, int protocol)
+{
+    this->_family   = family;
+    this->_type     = type;
+    this->_protocol = protocol;
+
+    this->reset();
+}
+
 // connection
 std::error_code chen::bsd::socket::connect(const bsd::endpoint &ep) noexcept
 {
@@ -75,18 +110,26 @@ std::error_code chen::bsd::socket::listen(int backlog) noexcept
     return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
 }
 
-std::error_code chen::bsd::socket::accept(socket_t &fd) noexcept
+std::error_code chen::bsd::socket::accept(socket &s) noexcept
 {
+    socket_t fd = 0;
+
     if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
         return sys::error();
+
+    s.reset(fd);
 
     return {};
 }
 
-std::error_code chen::bsd::socket::accept(socket_t &fd, bsd::endpoint &ep) noexcept
+std::error_code chen::bsd::socket::accept(socket &s, bsd::endpoint &ep) noexcept
 {
+    socket_t fd = 0;
+
     if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size)) < 0)
         return sys::error();
+
+    s.reset(fd);
 
     return {};
 }
@@ -140,17 +183,6 @@ void chen::bsd::socket::close() noexcept
     this->_fd = invalid_handle;
 }
 
-void chen::bsd::socket::reset()
-{
-    this->close();
-
-    if (!this->_family)
-        throw std::runtime_error("socket: reset failed because family is unknown");
-
-    if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) < 0)
-        throw std::system_error(sys::error(), "socket: failed to create socket");
-}
-
 // property
 chen::bsd::endpoint chen::bsd::socket::sock() const noexcept
 {
@@ -189,9 +221,9 @@ chen::bsd::option chen::bsd::socket::option() noexcept
     return bsd::option(*this);
 }
 
-bool chen::bsd::socket::valid() const noexcept
+inline bool chen::bsd::socket::valid() const noexcept
 {
-    return this->_fd >= 0;
+    return this->_fd != invalid_handle;
 }
 
 chen::bsd::socket::operator bool() const noexcept
