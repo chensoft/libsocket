@@ -9,8 +9,6 @@
 
 // -----------------------------------------------------------------------------
 // socket
-const chen::socket_t chen::bsd::socket::invalid_handle = (chen::socket_t)-1;
-
 chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
 {
     this->_type = this->option().type();
@@ -85,9 +83,9 @@ ssize_t chen::bsd::socket::sendto(const void *data, std::size_t size, const bsd:
 }
 
 // cleanup
-void chen::bsd::socket::shutdown(Shutdown flag) noexcept
+void chen::bsd::socket::shutdown(Shutdown type) noexcept
 {
-    switch (flag)
+    switch (type)
     {
         case Shutdown::Read:
             ::shutdown(this->_fd, SHUT_RD);
@@ -109,7 +107,7 @@ void chen::bsd::socket::close() noexcept
         return;
 
     ::close(this->_fd);
-    this->_fd = socket::invalid_handle;
+    this->_fd = invalid_handle;
 }
 
 void chen::bsd::socket::reset()

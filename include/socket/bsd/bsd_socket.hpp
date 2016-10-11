@@ -21,8 +21,6 @@ namespace chen
         class socket
         {
         public:
-            static const socket_t invalid_handle;  // -1 on Unix, INVALID_HANDLE on Windows
-
             enum class Shutdown {Read = 1, Write, Both};
 
         public:
@@ -92,7 +90,7 @@ namespace chen
             /**
              * Stop send or receive, but socket is still connected
              */
-            void shutdown(Shutdown flag) noexcept;
+            void shutdown(Shutdown type) noexcept;
 
             /**
              * Close the socket, the socket will disconnect immediately
@@ -156,7 +154,7 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            socket_t _fd = socket::invalid_handle;  // socket descriptor
+            socket_t _fd = invalid_handle;  // socket descriptor
 
             // used for reset socket
             // only type is valid if you construct from a socket descriptor

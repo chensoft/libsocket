@@ -22,6 +22,8 @@ namespace chen
 {
     typedef int socket_t;        // socket handle type
     typedef socklen_t option_t;  // socket option size
+
+    static constexpr int invalid_handle = -1;  // invalid file descriptor
 }
 
 #else
@@ -35,6 +37,8 @@ namespace chen
 {
     typedef SOCKET socket_t;  // socket handle type
     typedef int option_t;     // socket option size
+
+    static constexpr int invalid_handle = INVALID_HANDLE_VALUE;  // invalid handle value
 }
 
 #endif
