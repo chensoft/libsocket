@@ -68,7 +68,11 @@ namespace chen
             notifier& operator=(const notifier&) = delete;
 
         private:
-            bsd::multiplexing _model;
+#ifndef _WIN32
+            bsd::reactor _model;
+#else
+            bsd::proactor _model;
+#endif
 
             std::unordered_map<socket_t, net::socket*> _map;
             std::unordered_map<net::socket*, std::queue<net::message>> _read;

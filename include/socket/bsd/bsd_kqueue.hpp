@@ -119,7 +119,7 @@ namespace chen
         };
 
         // system-independent typedef
-        typedef kqueue multiplexing;
+        typedef kqueue reactor;
     }
 }
 

@@ -22,7 +22,7 @@ namespace chen
         };
 
         // system-independent typedef
-        typedef iocp multiplexing;
+        typedef iocp proactor;
     }
 }
 

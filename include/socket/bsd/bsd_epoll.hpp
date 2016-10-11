@@ -115,7 +115,7 @@ namespace chen
         };
 
         // system-independent typedef
-        typedef epoll multiplexing;
+        typedef epoll reactor;
     }
 }
 

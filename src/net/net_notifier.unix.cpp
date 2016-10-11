@@ -170,7 +170,7 @@ void chen::net::notifier::start()
         auto data = this->_model.poll();
 
         // check whether the user is request to stop notifier
-        if (data.ev == bsd::multiplexing::Event::None)
+        if (data.ev == bsd::reactor::Event::None)
             break;
 
         // retrieve the socket pointer associated with event
@@ -180,7 +180,7 @@ void chen::net::notifier::start()
 
         // connection refused, disconnect or other error
         // socket may have unread data even if it has already been closed
-        if (data.ev == bsd::multiplexing::Event::End)
+        if (data.ev == bsd::reactor::Event::End)
         {
             // try to read rest of the data
             // todo
@@ -195,7 +195,7 @@ void chen::net::notifier::start()
         }
 
         // simulate notifier since kqueue & epoll are reactor model
-        if (data.ev == bsd::multiplexing::Event::Read)
+        if (data.ev == bsd::reactor::Event::Read)
         {
             // todo move to another method
             auto &queue = this->_read[ptr];
@@ -220,7 +220,7 @@ void chen::net::notifier::start()
                 ptr->onRead({}, nullptr, {});
             }
         }
-        else if (data.ev == bsd::multiplexing::Event::Write)
+        else if (data.ev == bsd::reactor::Event::Write)
         {
             auto &queue = this->_write[ptr];
             if (queue.empty())
