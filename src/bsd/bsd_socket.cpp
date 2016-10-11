@@ -9,6 +9,11 @@
 
 // -----------------------------------------------------------------------------
 // socket
+const int chen::bsd::socket::FlagOutOfBand  = MSG_OOB;
+const int chen::bsd::socket::FlagPeek       = MSG_PEEK;
+const int chen::bsd::socket::FlagDoNotRoute = MSG_DONTROUTE;
+const int chen::bsd::socket::FlagWaitAll    = MSG_WAITALL;
+
 chen::bsd::socket::socket(socket_t fd) noexcept : _fd(fd)
 {
     this->_type = this->option().type();
