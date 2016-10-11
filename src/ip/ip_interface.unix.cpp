@@ -17,10 +17,10 @@
 #include <ifaddrs.h>
 #include <net/if.h>
 
-#ifdef __APPLE__
-#include <net/if_dl.h>
-#elif !defined(AF_LINK)
+#ifdef __linux__
 #define AF_LINK AF_PACKET
+#else
+#include <net/if_dl.h>
 #endif
 
 // -----------------------------------------------------------------------------
@@ -96,13 +96,13 @@ namespace
             mtu = ifr.ifr_mtu;
 
         // mac
-#ifdef __APPLE__
-        struct ::sockaddr_dl *sdl  = (struct ::sockaddr_dl*)ptr->ifa_addr;
-        const std::uint8_t *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
-#else
+#ifdef __linux__
         const std::uint8_t *data = nullptr;
         if (::ioctl(fd, SIOCGIFHWADDR, &ifr) >= 0)
             data = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
+#else
+        struct ::sockaddr_dl *sdl  = (struct ::sockaddr_dl*)ptr->ifa_addr;
+        const std::uint8_t *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
 #endif
 
         if (data && std::any_of(data, data + 6, [] (std::uint8_t ch) { return ch > 0; }))

@@ -10,9 +10,10 @@
 
 // For Unix-like systems
 #include <netinet/tcp.h>  // TCP macros
+#include <netinet/in.h>   // IPv4 & IPv6
 #include <sys/socket.h>   // socket defines
 #include <sys/ioctl.h>    // ioctl
-#include <arpa/inet.h>    // IPv4 and IPv6
+#include <sys/types.h>    // types
 #include <unistd.h>       // socket close()
 #include <netdb.h>        // getaddrinfo
 #include <fcntl.h>        // non-blocking
