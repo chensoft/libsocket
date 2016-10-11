@@ -7,9 +7,9 @@
 #if !defined(__linux__) && !defined(_WIN32)
 
 #include <socket/bsd/bsd_kqueue.hpp>
+#include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/event.h>
-#include <unistd.h>
 
 // -----------------------------------------------------------------------------
 // kqueue

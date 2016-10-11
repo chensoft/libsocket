@@ -7,10 +7,10 @@
 #ifdef __linux__
 
 #include <socket/bsd/bsd_epoll.hpp>
+#include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
 #include <sys/epoll.h>
-#include <unistd.h>
 
 // -----------------------------------------------------------------------------
 // epoll
