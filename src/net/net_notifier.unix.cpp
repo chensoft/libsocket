@@ -17,27 +17,27 @@ void chen::net::notifier::read(net::socket *ptr, std::size_t size)
 {
     auto &queue = this->_read[ptr];
 
+    net::message message(size);
+
     // try to read data
     if (queue.empty() && size)
     {
-        std::vector<std::uint8_t> buffer(size);
-
         if (ptr->type() == SOCK_STREAM)
         {
-            if (ptr->handle().recv(buffer.data(), size) >= 0)
-                return ptr->onRead(std::move(buffer), nullptr, {});
+            if (ptr->handle().recv(message.buffer().data(), size) >= 0)
+                return ptr->onRead(std::move(message.buffer()), nullptr, {});
         }
         else if (ptr->type() == SOCK_DGRAM)
         {
             bsd::endpoint ep;
 
-            if (ptr->handle().recvfrom(buffer.data(), size, ep) >= 0)
-                return ptr->onRead(std::move(buffer), net::endpoint(ep), {});
+            if (ptr->handle().recvfrom(message.buffer().data(), size, ep) >= 0)
+                return ptr->onRead(std::move(message.buffer()), net::endpoint(ep), {});
         }
     }
 
     // wait for read event
-    queue.emplace(net::message(size));
+    queue.emplace(std::move(message));
 }
 
 void chen::net::notifier::write(net::socket *ptr, std::vector<std::uint8_t> &&data)
