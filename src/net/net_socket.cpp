@@ -51,11 +51,6 @@ chen::net::socket::operator bool() const
     return this->_handle;
 }
 
-chen::socket_t chen::net::socket::native() const
-{
-    return this->_handle.native();
-}
-
 int chen::net::socket::family() const
 {
     return this->_handle.family();

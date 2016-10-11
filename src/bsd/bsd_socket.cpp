@@ -161,7 +161,7 @@ bool chen::bsd::socket::nonblocking(bool enable) noexcept
 
 chen::bsd::option chen::bsd::socket::option() noexcept
 {
-    return bsd::option(this->_fd);
+    return bsd::option(*this);
 }
 
 bool chen::bsd::socket::valid() const noexcept

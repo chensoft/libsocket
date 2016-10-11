@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // option
-chen::tcp::option::option(socket_t fd) : ip::option(fd)
+chen::tcp::option::option(bsd::socket &s) : ip::option(s)
 {
 }
 

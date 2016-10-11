@@ -41,11 +41,6 @@ namespace chen
             operator bool() const;
 
             /**
-             * Native socket handle
-             */
-            socket_t native() const;
-
-            /**
              * Native type info
              */
             int family() const;

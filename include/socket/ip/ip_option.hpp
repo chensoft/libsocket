@@ -15,7 +15,7 @@ namespace chen
         class option : public bsd::option
         {
         public:
-            option(socket_t fd);
+            option(bsd::socket &s);
 
         public:
             /**

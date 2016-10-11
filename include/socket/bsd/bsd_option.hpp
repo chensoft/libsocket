@@ -18,7 +18,7 @@ namespace chen
         class option
         {
         public:
-            option(socket_t fd);
+            option(socket &s);
 
         public:
             /**
@@ -130,7 +130,7 @@ namespace chen
             bool set(int level, int name, int val);
 
         protected:
-            socket_t _fd;
+            socket &_socket;
         };
     }
 }

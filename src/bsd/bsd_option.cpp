@@ -5,10 +5,11 @@
  * @link   http://chensoft.com
  */
 #include <socket/bsd/bsd_option.hpp>
+#include <socket/bsd/bsd_socket.hpp>
 
 // -----------------------------------------------------------------------------
 // option
-chen::bsd::option::option(socket_t fd) : _fd(fd)
+chen::bsd::option::option(socket &s) : _socket(s)
 {
 }
 
@@ -91,7 +92,7 @@ struct ::linger chen::bsd::option::linger() const
 {
     struct ::linger val{};
     option_t len = sizeof(val);
-    return ::getsockopt(this->_fd, SOL_SOCKET, SO_LINGER, &val, &len), val;
+    return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_LINGER, &val, &len), val;
 }
 
 bool chen::bsd::option::linger(int onoff, int value)
@@ -105,7 +106,7 @@ bool chen::bsd::option::linger(int onoff, int value)
 
 bool chen::bsd::option::linger(const struct ::linger &val)
 {
-    return !::setsockopt(this->_fd, SOL_SOCKET, SO_LINGER, &val, sizeof(val));
+    return !::setsockopt(this->_socket.native(), SOL_SOCKET, SO_LINGER, &val, sizeof(val));
 }
 
 // oobinline
@@ -168,7 +169,7 @@ struct ::timeval chen::bsd::option::sndtimeo() const
 {
     struct ::timeval val{};
     option_t len = sizeof(val);
-    return ::getsockopt(this->_fd, SOL_SOCKET, SO_SNDTIMEO, &val, &len), val;
+    return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_SNDTIMEO, &val, &len), val;
 }
 
 bool chen::bsd::option::sndtimeo(int sec, int usec)
@@ -182,7 +183,7 @@ bool chen::bsd::option::sndtimeo(int sec, int usec)
 
 bool chen::bsd::option::sndtimeo(const struct ::timeval &time)
 {
-    return !::setsockopt(this->_fd, SOL_SOCKET, SO_SNDTIMEO, &time, sizeof(time));
+    return !::setsockopt(this->_socket.native(), SOL_SOCKET, SO_SNDTIMEO, &time, sizeof(time));
 }
 
 // rcvtimeo
@@ -190,7 +191,7 @@ struct ::timeval chen::bsd::option::rcvtimeo() const
 {
     struct ::timeval val{};
     option_t len = sizeof(val);
-    return ::getsockopt(this->_fd, SOL_SOCKET, SO_RCVTIMEO, &val, &len), val;
+    return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_RCVTIMEO, &val, &len), val;
 }
 
 bool chen::bsd::option::rcvtimeo(int sec, int usec)
@@ -204,7 +205,7 @@ bool chen::bsd::option::rcvtimeo(int sec, int usec)
 
 bool chen::bsd::option::rcvtimeo(const struct ::timeval &time)
 {
-    return !::setsockopt(this->_fd, SOL_SOCKET, SO_RCVTIMEO, &time, sizeof(time));
+    return !::setsockopt(this->_socket.native(), SOL_SOCKET, SO_RCVTIMEO, &time, sizeof(time));
 }
 
 // error
@@ -224,10 +225,10 @@ int chen::bsd::option::get(int level, int name) const
 {
     int val = 0;
     option_t len = sizeof(val);
-    return ::getsockopt(this->_fd, level, name, &val, &len), val;
+    return ::getsockopt(this->_socket.native(), level, name, &val, &len), val;
 }
 
 bool chen::bsd::option::set(int level, int name, int val)
 {
-    return !::setsockopt(this->_fd, level, name, &val, sizeof(val));
+    return !::setsockopt(this->_socket.native(), level, name, &val, sizeof(val));
 }

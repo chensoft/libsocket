@@ -13,6 +13,11 @@
 // notifier
 
 // data
+void chen::net::notifier::accept(net::socket *ptr)
+{
+
+}
+
 void chen::net::notifier::read(net::socket *ptr, std::size_t size)
 {
     auto &queue = this->_read[ptr];
@@ -158,6 +163,7 @@ void chen::net::notifier::write(net::socket *ptr, const std::vector<std::uint8_t
 
 void chen::net::notifier::remove(net::socket *ptr)
 {
+    this->_map.erase(ptr->handle().native());
     this->_accept.erase(ptr);
     this->_read.erase(ptr);
     this->_write.erase(ptr);
