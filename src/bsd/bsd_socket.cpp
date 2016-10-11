@@ -85,19 +85,22 @@ ssize_t chen::bsd::socket::sendto(const void *data, std::size_t size, const bsd:
 }
 
 // cleanup
-void chen::bsd::socket::shutdownBoth() noexcept
+void chen::bsd::socket::shutdown(Shutdown flag) noexcept
 {
-    ::shutdown(this->_fd, SHUT_RDWR);
-}
+    switch (flag)
+    {
+        case Shutdown::Read:
+            ::shutdown(this->_fd, SHUT_RD);
+            break;
 
-void chen::bsd::socket::shutdownRead() noexcept
-{
-    ::shutdown(this->_fd, SHUT_RD);
-}
+        case Shutdown::Write:
+            ::shutdown(this->_fd, SHUT_WR);
+            break;
 
-void chen::bsd::socket::shutdownWrite() noexcept
-{
-    ::shutdown(this->_fd, SHUT_WR);
+        case Shutdown::Both:
+            ::shutdown(this->_fd, SHUT_RDWR);
+            break;
+    }
 }
 
 void chen::bsd::socket::close() noexcept

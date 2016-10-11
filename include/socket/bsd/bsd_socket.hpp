@@ -23,6 +23,8 @@ namespace chen
         public:
             static const socket_t invalid_handle;  // -1 on Unix, INVALID_HANDLE on Windows
 
+            enum class Shutdown {Read = 1, Write, Both};
+
         public:
             /**
              * Construct by socket handle directly
@@ -90,9 +92,7 @@ namespace chen
             /**
              * Stop send or receive, but socket is still connected
              */
-            void shutdownBoth() noexcept;
-            void shutdownRead() noexcept;
-            void shutdownWrite() noexcept;
+            void shutdown(Shutdown flag) noexcept;
 
             /**
              * Close the socket, the socket will disconnect immediately
