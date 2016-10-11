@@ -18,10 +18,10 @@ namespace chen
 {
     namespace net
     {
-        class proactor
+        class notifier
         {
         public:
-            proactor() = default;
+            notifier() = default;
 
         public:
             /**
@@ -52,7 +52,7 @@ namespace chen
             void start();
 
             /**
-             * Stop proactor
+             * Stop notifier
              * @attention you can call this method in callback or other thread
              */
             void stop();
@@ -64,8 +64,8 @@ namespace chen
 
 
         private:
-            proactor(const proactor&) = delete;
-            proactor& operator=(const proactor&) = delete;
+            notifier(const notifier&) = delete;
+            notifier& operator=(const notifier&) = delete;
 
         private:
             bsd::multiplexing _model;

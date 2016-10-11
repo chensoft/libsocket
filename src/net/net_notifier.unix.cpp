@@ -6,14 +6,14 @@
  */
 #ifndef _WIN32
 
-#include <socket/net/net_proactor.hpp>
+#include <socket/net/net_notifier.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// proactor
+// notifier
 
 // data
-void chen::net::proactor::read(net::socket *ptr, std::size_t size)
+void chen::net::notifier::read(net::socket *ptr, std::size_t size)
 {
     auto &queue = this->_read[ptr];
 
@@ -40,7 +40,7 @@ void chen::net::proactor::read(net::socket *ptr, std::size_t size)
     queue.emplace(net::message(size));
 }
 
-void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data)
+void chen::net::notifier::write(net::socket *ptr, std::vector<std::uint8_t> &&data)
 {
     auto &queue = this->_write[ptr];
     auto origin = data.size();
@@ -69,7 +69,7 @@ void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&da
     queue.emplace(net::message(origin, std::move(data)));
 }
 
-void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t> &data)
+void chen::net::notifier::write(net::socket *ptr, const std::vector<std::uint8_t> &data)
 {
     auto &queue = this->_write[ptr];
     auto origin = data.size();
@@ -98,7 +98,7 @@ void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t
     queue.emplace(net::message(origin, std::vector<std::uint8_t>(data.begin() + length, data.end())));
 }
 
-void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&data, const bsd::endpoint &ep)
+void chen::net::notifier::write(net::socket *ptr, std::vector<std::uint8_t> &&data, const bsd::endpoint &ep)
 {
     auto &queue = this->_write[ptr];
     auto origin = data.size();
@@ -127,7 +127,7 @@ void chen::net::proactor::write(net::socket *ptr, std::vector<std::uint8_t> &&da
     queue.emplace(net::message(origin, std::move(data), ep));
 }
 
-void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t> &data, const bsd::endpoint &ep)
+void chen::net::notifier::write(net::socket *ptr, const std::vector<std::uint8_t> &data, const bsd::endpoint &ep)
 {
     auto &queue = this->_write[ptr];
     auto origin = data.size();
@@ -156,27 +156,27 @@ void chen::net::proactor::write(net::socket *ptr, const std::vector<std::uint8_t
     queue.emplace(net::message(origin, std::vector<std::uint8_t>(data.begin() + length, data.end()), ep));
 }
 
-void chen::net::proactor::remove(net::socket *ptr)
+void chen::net::notifier::remove(net::socket *ptr)
 {
     this->_read.erase(ptr);
     this->_write.erase(ptr);
 }
 
 // control
-void chen::net::proactor::start()
+void chen::net::notifier::start()
 {
     while (true)
     {
         auto data = this->_model.poll();
 
-        // check whether the user is request to stop proactor
+        // check whether the user is request to stop notifier
         if (data.ev == bsd::multiplexing::Event::None)
             break;
 
         // retrieve the socket pointer associated with event
         auto ptr = this->_map[data.fd];
         if (!ptr)
-            throw std::system_error(sys::error(), "proactor: event happened but no related socket");
+            throw std::system_error(sys::error(), "notifier: event happened but no related socket");
 
         // connection refused, disconnect or other error
         // socket may have unread data even if it has already been closed
@@ -194,7 +194,7 @@ void chen::net::proactor::start()
             continue;
         }
 
-        // simulate proactor since kqueue & epoll are reactor model
+        // simulate notifier since kqueue & epoll are reactor model
         if (data.ev == bsd::multiplexing::Event::Read)
         {
             // todo move to another method
@@ -257,12 +257,12 @@ void chen::net::proactor::start()
         }
         else
         {
-            throw std::runtime_error("proactor: event happened but type is unknown");
+            throw std::runtime_error("notifier: event happened but type is unknown");
         }
     }
 }
 
-void chen::net::proactor::stop()
+void chen::net::notifier::stop()
 {
     this->_model.wake();
 }

@@ -13,7 +13,7 @@ namespace chen
     namespace net
     {
         /**
-         * This class is mainly used for net::proactor
+         * This class is mainly used for net::notifier
          */
         class message
         {

@@ -6,9 +6,9 @@
  */
 #ifdef _WIN32
 
-#include <socket/net/net_proactor.hpp>
+#include <socket/net/net_notifier.hpp>
 
 // -----------------------------------------------------------------------------
-// proactor
+// notifier
 
 #endif

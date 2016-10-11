@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_proactor.hpp>
+#include <socket/net/net_notifier.hpp>
 #include <socket/tcp/tcp_event.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <functional>
@@ -22,7 +22,7 @@ namespace chen
 
         public:
             // todo how to reset socket if disconnect
-            client(ip::address::Type family, net::proactor &proactor);
+            client(ip::address::Type family, net::notifier &notifier);
             ~client();
 
         public:
@@ -139,7 +139,7 @@ namespace chen
             std::function<void (chen::tcp::client &c, chen::tcp::read_event &e)>       _cb_read;
 
             net::endpoint _remote;
-            net::proactor &_proactor;
+            net::notifier &_notifier;
         };
     }
 }

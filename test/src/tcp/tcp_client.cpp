@@ -16,16 +16,16 @@ TEST(TCPClientTest, Test)
 //    using chen::tcp::connecting_event;
 //    using chen::tcp::connected_event;
 //    using chen::tcp::disconnect_event;
-//    using chen::net::proactor;
+//    using chen::net::notifier;
 //
-//    proactor p;
+//    notifier n;
 //
 //    std::thread t([&] () {
 //        std::this_thread::sleep_for(std::chrono::seconds(3));
-//        p.stop();
+//        n.stop();
 //    });
 //
-//    PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(proactor));
+//    PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(notifier));
 //
 //    client c(chen::ip::address::Type::IPv4, p);
 //
@@ -39,6 +39,6 @@ TEST(TCPClientTest, Test)
 //
 //    c.connect("example.com:80");
 //
-//    p.start();
+//    n.start();
 //    t.join();
 }

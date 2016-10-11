@@ -25,13 +25,13 @@ void chen::tcp::server::start(const net::endpoint &ep)
     if (this->listen())
         throw std::system_error(sys::error(), "tcp: failed to listen on address");
 
-    this->_proactor.read(this, 0);
-    this->_proactor.start();
+    this->_notifier.read(this, 0);
+    this->_notifier.start();
 }
 
 void chen::tcp::server::stop()
 {
-    this->_proactor.stop();
+    this->_notifier.stop();
 }
 
 // callback
@@ -65,7 +65,7 @@ void chen::tcp::server::onRead(std::vector<std::uint8_t> data, net::endpoint ep,
         return this->stop();
 
     // todo use edge trigger not re-register events every time
-    this->_proactor.read(this, 0);
+    this->_notifier.read(this, 0);
 
     this->notify(std::make_shared<tcp::conn>(fd, this));
 }

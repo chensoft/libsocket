@@ -8,14 +8,14 @@
 
 // -----------------------------------------------------------------------------
 // client
-chen::tcp::client::client(ip::address::Type family, net::proactor &proactor) : basic(family), _proactor(proactor)
+chen::tcp::client::client(ip::address::Type family, net::notifier &notifier) : basic(family), _notifier(notifier)
 {
     this->nonblocking(true);
 }
 
 chen::tcp::client::~client()
 {
-    this->_proactor.remove(this);
+    this->_notifier.remove(this);
 }
 
 // connection
@@ -27,7 +27,7 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     this->notify(tcp::connecting_event(ep));
 
     // connect to remote host, wait for the write event
-    this->_proactor.write(this, {});
+    this->_notifier.write(this, {});
 
     // todo must check methods' return code, if error then notify connected immediately
     this->_handle.connect(ep);

@@ -53,7 +53,7 @@ namespace chen
             int protocol() const;
 
         protected:
-            friend class proactor;
+            friend class notifier;
 
             /**
              * Internal socket

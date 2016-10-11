@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_proactor.hpp>
+#include <socket/net/net_notifier.hpp>
 #include <socket/ip/ip_address.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_conn.hpp>
@@ -70,7 +70,7 @@ namespace chen
             std::error_code listen(int backlog);
 
         protected:
-            net::proactor _proactor;
+            net::notifier _notifier;
             std::set<std::shared_ptr<chen::tcp::conn>> _connections;
             std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> _callback;
         };

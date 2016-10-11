@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/net/net_proactor.hpp>
+#include <socket/net/net_notifier.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_event.hpp>
 #include <functional>
