@@ -24,6 +24,31 @@ chen::bsd::socket::socket(int family, int type, int protocol) : _family(family),
     this->reset();
 }
 
+chen::bsd::socket::socket(socket &&o)
+{
+    *this = std::move(o);
+}
+
+chen::bsd::socket& chen::bsd::socket::operator=(socket &&o)
+{
+    if (this == &o)
+        return *this;
+
+    this->close();
+
+    this->_fd       = o._fd;
+    this->_family   = o._family;
+    this->_type     = o._type;
+    this->_protocol = o._protocol;
+
+    o._fd       = invalid_handle;
+    o._family   = 0;
+    o._type     = 0;
+    o._protocol = 0;
+
+    return *this;
+}
+
 chen::bsd::socket::~socket() noexcept
 {
     this->close();

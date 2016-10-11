@@ -42,7 +42,10 @@ namespace chen
              * @param type SOCK_STREAM, SOCK_DGRAM, SOCK_RAW...
              * @param protocol IPPROTO_TCP, IPPROTO_UDP or use zero directly
              */
-            socket(int family, int type, int protocol);
+            socket(int family, int type, int protocol = 0);
+
+            socket(socket &&o);
+            socket& operator=(socket &&o);
 
             ~socket() noexcept;
 

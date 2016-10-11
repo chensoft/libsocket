@@ -12,7 +12,7 @@ chen::net::socket::socket(socket_t fd) : _handle(fd)
 {
 }
 
-chen::net::socket::socket(ip::address::Type family, int type) : _handle(static_cast<int>(family), type, 0)
+chen::net::socket::socket(ip::address::Type family, int type) : _handle(static_cast<int>(family), type)
 {
 }
 
