@@ -158,6 +158,7 @@ void chen::net::notifier::write(net::socket *ptr, const std::vector<std::uint8_t
 
 void chen::net::notifier::remove(net::socket *ptr)
 {
+    this->_accept.erase(ptr);
     this->_read.erase(ptr);
     this->_write.erase(ptr);
 }

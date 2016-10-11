@@ -12,6 +12,7 @@
 #include <socket/bsd/bsd_epoll.hpp>
 #include <socket/bsd/bsd_iocp.hpp>
 #include <unordered_map>
+#include <unordered_set>
 #include <queue>
 
 namespace chen
@@ -24,6 +25,12 @@ namespace chen
             notifier() = default;
 
         public:
+            /**
+             * Accept new connections, socket's onAccept method will be invoked when a new connection arrived
+             * @attention you only need to call this method once
+             */
+            void accept(net::socket *ptr);
+
             /**
              * Read data from remote, socket's onRead method will be invoked when completed
              */
@@ -75,6 +82,8 @@ namespace chen
 #endif
 
             std::unordered_map<socket_t, net::socket*> _map;
+
+            std::unordered_set<net::socket*> _accept;
             std::unordered_map<net::socket*, std::queue<net::message>> _read;
             std::unordered_map<net::socket*, std::queue<net::message>> _write;
         };
