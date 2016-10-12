@@ -163,7 +163,8 @@ std::error_code chen::fs::touch(const std::string &file, std::time_t mtime, std:
 	if (err)
 		return sys::error(err);
 
-    ::fclose(fp);
+	if (fp)
+	    ::fclose(fp);
 
     // modify mtime and atime
     struct stat st = { 0 };

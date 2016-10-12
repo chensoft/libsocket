@@ -34,14 +34,14 @@ namespace chen
             if (size <= 0)
                 return "";
 
-            std::size_t len = static_cast<std::size_t>(size + 1);
-            std::string ret(len, '\0');
+            std::string ret(++size, '\0');
 
-            ::snprintf(&ret[0], len, fmt, args...);
+			size = ::snprintf(&ret[0], size, fmt, args...);
+			if (size <= 0)  // re-check
+				return "";
 
-            ret.erase(ret.begin() + size);  // remove the redundant '\0'
-
-            return ret;
+			ret.resize(size);
+			return ret;
         }
 
         /**
