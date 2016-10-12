@@ -185,7 +185,7 @@ chen::bsd::option chen::bsd::socket::option() noexcept
     return bsd::option(*this);
 }
 
-inline bool chen::bsd::socket::valid() const noexcept
+bool chen::bsd::socket::valid() const noexcept
 {
     return this->_fd != invalid_socket;
 }
