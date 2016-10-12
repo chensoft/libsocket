@@ -137,22 +137,22 @@ std::error_code chen::bsd::socket::accept(socket &s, bsd::endpoint &ep) noexcept
 // transmission
 chen::ssize_t chen::bsd::socket::recv(void *data, std::size_t size, int flags) noexcept
 {
-    return ::recv(this->_fd, (char*)data, size, flags);
+    return ::recv(this->_fd, data, size, flags);
 }
 
 chen::ssize_t chen::bsd::socket::recvfrom(void *data, std::size_t size, bsd::endpoint &ep, int flags) noexcept
 {
-    return ::recvfrom(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&ep.addr, &ep.size);
+    return ::recvfrom(this->_fd, data, size, flags, (struct ::sockaddr*)&ep.addr, &ep.size);
 }
 
 chen::ssize_t chen::bsd::socket::send(const void *data, std::size_t size, int flags) noexcept
 {
-    return ::send(this->_fd, (char*)data, size, flags);
+    return ::send(this->_fd, data, size, flags);
 }
 
 chen::ssize_t chen::bsd::socket::sendto(const void *data, std::size_t size, const bsd::endpoint &ep, int flags) noexcept
 {
-    return ::sendto(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&ep.addr, ep.size);
+    return ::sendto(this->_fd, data, size, flags, (struct ::sockaddr*)&ep.addr, ep.size);
 }
 
 // cleanup
@@ -180,7 +180,7 @@ void chen::bsd::socket::close() noexcept
         return;
 
     ::close(this->_fd);
-    this->_fd = invalid_handle;
+    this->_fd = invalid_socket;
 }
 
 // property
@@ -223,7 +223,7 @@ chen::bsd::option chen::bsd::socket::option() noexcept
 
 inline bool chen::bsd::socket::valid() const noexcept
 {
-    return this->_fd != invalid_handle;
+    return this->_fd != invalid_socket;
 }
 
 chen::bsd::socket::operator bool() const noexcept
