@@ -278,7 +278,7 @@ std::string chen::dns::request::addr() const
 
 std::string chen::dns::request::real() const
 {
-    auto option = this->option<edns0::Subnet>();
+    auto option = this->option<edns0::opt_subnet>();
     return option ? option->address.str() : this->_addr;
 }
 

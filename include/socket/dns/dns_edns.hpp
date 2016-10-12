@@ -21,12 +21,12 @@ namespace chen
         namespace edns0
         {
             // -----------------------------------------------------------------
-            // Option(rfc6891, section 6.1.2)
-            class Option
+            // opt(rfc6891, section 6.1.2)
+            class opt
             {
             public:
-                explicit Option(OptCode code);
-                virtual ~Option() = default;
+                explicit opt(OptCode code);
+                virtual ~opt() = default;
 
             public:
                 /**
@@ -37,7 +37,7 @@ namespace chen
                 /**
                  * Clone current option
                  */
-                virtual std::shared_ptr<edns0::Option> clone() const = 0;
+                virtual std::shared_ptr<opt> clone() const = 0;
 
             public:
                 /**
@@ -46,7 +46,7 @@ namespace chen
                 void encode(dns::encoder &encoder) const;
                 void decode(dns::decoder &decoder);
 
-                static std::shared_ptr<edns0::Option> create(dns::decoder &decoder);
+                static std::shared_ptr<opt> create(dns::decoder &decoder);
 
             protected:
                 /**
@@ -59,8 +59,8 @@ namespace chen
                 /**
                  * Allow copy in derived class
                  */
-                Option(const Option&) = default;
-                Option& operator=(const Option&) = default;
+                opt(const opt&) = default;
+                opt& operator=(const opt&) = default;
 
             public:
                 OptCode code = OptNone;
@@ -72,14 +72,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // LLQ(http://files.dns-sd.org/draft-sekar-dns-llq.txt, section 3.2)
-            class LLQ : public Option
+            class opt_llq : public opt
             {
             public:
-                LLQ();
+                opt_llq();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -96,14 +96,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // UL(http://files.dns-sd.org/draft-sekar-dns-ul.txt, section 5)
-            class UL : public Option
+            class opt_ul : public opt
             {
             public:
-                UL();
+                opt_ul();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -116,14 +116,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // NSID(rfc5001, section 2.3)
-            class NSID : public Option
+            class opt_nsid : public opt
             {
             public:
-                NSID();
+                opt_nsid();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -136,14 +136,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // DAU(rfc6975, section 3)
-            class DAU : public Option
+            class opt_dau : public opt
             {
             public:
-                DAU();
+                opt_dau();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -156,14 +156,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // DHU(rfc6975, section 3)
-            class DHU : public Option
+            class opt_dhu : public opt
             {
             public:
-                DHU();
+                opt_dhu();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -176,14 +176,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // N3U(rfc6975, section 3)
-            class N3U : public Option
+            class opt_n3u : public opt
             {
             public:
-                N3U();
+                opt_n3u();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -196,14 +196,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // Client Subnet(rfc7871, section 6)
-            class Subnet : public Option
+            class opt_subnet : public opt
             {
             public:
-                Subnet();
+                opt_subnet();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -219,14 +219,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // EXPIRE(rfc7314, section 3.1)
-            class EXPIRE : public Option
+            class opt_expire : public opt
             {
             public:
-                EXPIRE();
+                opt_expire();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -239,14 +239,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // COOKIE(rfc7873, section 4)
-            class COOKIE : public Option
+            class opt_cookie : public opt
             {
             public:
-                COOKIE();
+                opt_cookie();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -260,14 +260,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // Keepalive(rfc7828, section 3.1)
-            class Keepalive : public Option
+            class opt_keepalive : public opt
             {
             public:
-                Keepalive();
+                opt_keepalive();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -280,14 +280,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // Padding(rfc7830, section 3)
-            class Padding : public Option
+            class opt_padding : public opt
             {
             public:
-                Padding();
+                opt_padding();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;
@@ -300,14 +300,14 @@ namespace chen
 
             // -----------------------------------------------------------------
             // CHAIN(rfc7901, section 4)
-            class CHAIN : public Option
+            class opt_chain : public opt
             {
             public:
-                CHAIN();
+                opt_chain();
 
             public:
                 virtual std::string str(const std::string &sep = " ") const override;
-                virtual std::shared_ptr<edns0::Option> clone() const override;
+                virtual std::shared_ptr<opt> clone() const override;
 
             protected:
                 virtual void pack(dns::encoder &encoder) const override;

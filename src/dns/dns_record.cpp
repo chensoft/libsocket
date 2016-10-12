@@ -1965,7 +1965,7 @@ void chen::dns::OPT::unpack(dns::decoder &decoder)
     this->options.clear();
 
     while (decoder.cur() != decoder.end())
-        this->options.emplace_back(edns0::Option::create(decoder));
+        this->options.emplace_back(edns0::opt::create(decoder));
 }
 
 void chen::dns::OPT::unpack(const json::object &object)

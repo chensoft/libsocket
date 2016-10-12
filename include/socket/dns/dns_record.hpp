@@ -1016,7 +1016,7 @@ namespace chen
         class OPT : public RR
         {
         public:
-            typedef std::shared_ptr<edns0::Option> opt_pointer;
+            typedef std::shared_ptr<edns0::opt> opt_pointer;
 
         public:
             OPT();

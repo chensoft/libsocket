@@ -19,7 +19,7 @@ namespace chen
             typedef std::shared_ptr<RR> rr_pointer;
             typedef rr_pointer (*rr_build_type)();
 
-            typedef std::shared_ptr<edns0::Option> opt_pointer;
+            typedef std::shared_ptr<edns0::opt> opt_pointer;
             typedef opt_pointer (*opt_build_type)();
 
         public:

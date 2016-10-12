@@ -101,18 +101,18 @@ namespace
     };
 
     std::map<OptCode, chen::dns::table::opt_build_type> g_opt_build {
-            {OptLLQ, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::LLQ>(); }},
-            {OptUL, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::UL>(); }},
-            {OptNSID, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::NSID>(); }},
-            {OptDAU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DAU>(); }},
-            {OptDHU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DHU>(); }},
-            {OptN3U, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::N3U>(); }},
-            {OptSubnet, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Subnet>(); }},
-            {OptEXPIRE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::EXPIRE>(); }},
-            {OptCOOKIE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::COOKIE>(); }},
-            {OptKeepalive, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Keepalive>(); }},
-            {OptPadding, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Padding>(); }},
-            {OptCHAIN, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::CHAIN>(); }}
+            {OptLLQ, [] () -> opt_pointer { return std::make_shared<opt_llq>(); }},
+            {OptUL, [] () -> opt_pointer { return std::make_shared<opt_ul>(); }},
+            {OptNSID, [] () -> opt_pointer { return std::make_shared<opt_nsid>(); }},
+            {OptDAU, [] () -> opt_pointer { return std::make_shared<opt_dau>(); }},
+            {OptDHU, [] () -> opt_pointer { return std::make_shared<opt_dhu>(); }},
+            {OptN3U, [] () -> opt_pointer { return std::make_shared<opt_n3u>(); }},
+            {OptSubnet, [] () -> opt_pointer { return std::make_shared<opt_subnet>(); }},
+            {OptEXPIRE, [] () -> opt_pointer { return std::make_shared<opt_expire>(); }},
+            {OptCOOKIE, [] () -> opt_pointer { return std::make_shared<opt_cookie>(); }},
+            {OptKeepalive, [] () -> opt_pointer { return std::make_shared<opt_keepalive>(); }},
+            {OptPadding, [] () -> opt_pointer { return std::make_shared<opt_padding>(); }},
+            {OptCHAIN, [] () -> opt_pointer { return std::make_shared<opt_chain>(); }}
     };
 
     std::map<RRType, std::string> g_rr_type_text = {
