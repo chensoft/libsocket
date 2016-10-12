@@ -80,7 +80,7 @@ namespace chen
             void pack(std::uint64_t val);
             void pack(RRType val);
             void pack(RRClass val);
-            void pack(edns0::OptionCode val);
+            void pack(edns0::OptCode val);
             void pack(const std::string &val, StringType type, bool compress);
             void pack(const std::vector<std::uint8_t> &val, std::size_t need);
 
@@ -138,7 +138,7 @@ namespace chen
             void unpack(std::uint64_t &val);
             void unpack(RRType &val);
             void unpack(RRClass &val);
-            void unpack(edns0::OptionCode &val);
+            void unpack(edns0::OptCode &val);
             void unpack(std::string &val, StringType type);
             void unpack(std::vector<std::uint8_t> &val, std::size_t need);
 

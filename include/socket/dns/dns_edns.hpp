@@ -25,7 +25,7 @@ namespace chen
             class Option
             {
             public:
-                explicit Option(OptionCode code);
+                explicit Option(OptCode code);
                 virtual ~Option() = default;
 
             public:
@@ -63,7 +63,7 @@ namespace chen
                 Option& operator=(const Option&) = default;
 
             public:
-                OptionCode code = OptionCode::None;
+                OptCode code = OptNone;
 
             protected:
                 std::uint16_t length = 0;  // only valid in decoding

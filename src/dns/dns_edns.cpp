@@ -12,7 +12,7 @@
 
 // -----------------------------------------------------------------------------
 // edns0 - Option
-chen::dns::edns0::Option::Option(OptionCode code) : code(code)
+chen::dns::edns0::Option::Option(OptCode code) : code(code)
 {
 }
 
@@ -58,7 +58,7 @@ std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::Option::create(dns::
     dns::decoder detect(decoder);
 
     // detect type
-    OptionCode code = OptionCode::None;
+    OptCode code = OptNone;
     detect.unpack(code);
 
     // build opt
@@ -75,7 +75,7 @@ std::shared_ptr<chen::dns::edns0::Option> chen::dns::edns0::Option::create(dns::
 
 // -----------------------------------------------------------------------------
 // edns0 - LLQ
-chen::dns::edns0::LLQ::LLQ() : Option(OptionCode::LLQ)
+chen::dns::edns0::LLQ::LLQ() : Option(OptLLQ)
 {
 }
 
@@ -118,7 +118,7 @@ void chen::dns::edns0::LLQ::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - UL
-chen::dns::edns0::UL::UL() : Option(OptionCode::UL)
+chen::dns::edns0::UL::UL() : Option(OptUL)
 {
 }
 
@@ -147,7 +147,7 @@ void chen::dns::edns0::UL::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - NSID
-chen::dns::edns0::NSID::NSID() : Option(OptionCode::NSID)
+chen::dns::edns0::NSID::NSID() : Option(OptNSID)
 {
 }
 
@@ -176,7 +176,7 @@ void chen::dns::edns0::NSID::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - DAU
-chen::dns::edns0::DAU::DAU() : Option(OptionCode::DAU)
+chen::dns::edns0::DAU::DAU() : Option(OptDAU)
 {
 }
 
@@ -205,7 +205,7 @@ void chen::dns::edns0::DAU::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - DHU
-chen::dns::edns0::DHU::DHU() : Option(OptionCode::DHU)
+chen::dns::edns0::DHU::DHU() : Option(OptDHU)
 {
 }
 
@@ -234,7 +234,7 @@ void chen::dns::edns0::DHU::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - N3U
-chen::dns::edns0::N3U::N3U() : Option(OptionCode::N3U)
+chen::dns::edns0::N3U::N3U() : Option(OptN3U)
 {
 }
 
@@ -263,7 +263,7 @@ void chen::dns::edns0::N3U::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Subnet
-chen::dns::edns0::Subnet::Subnet() : Option(OptionCode::Subnet), address(chen::ip::address::Type::IPv4)
+chen::dns::edns0::Subnet::Subnet() : Option(OptSubnet), address(chen::ip::address::Type::IPv4)
 {
 }
 
@@ -373,7 +373,7 @@ void chen::dns::edns0::Subnet::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - EXPIRE
-chen::dns::edns0::EXPIRE::EXPIRE() : Option(OptionCode::EXPIRE)
+chen::dns::edns0::EXPIRE::EXPIRE() : Option(OptEXPIRE)
 {
 }
 
@@ -402,7 +402,7 @@ void chen::dns::edns0::EXPIRE::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - COOKIE
-chen::dns::edns0::COOKIE::COOKIE() : Option(OptionCode::COOKIE)
+chen::dns::edns0::COOKIE::COOKIE() : Option(OptCOOKIE)
 {
 }
 
@@ -443,7 +443,7 @@ void chen::dns::edns0::COOKIE::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Keepalive
-chen::dns::edns0::Keepalive::Keepalive() : Option(OptionCode::Keepalive)
+chen::dns::edns0::Keepalive::Keepalive() : Option(OptKeepalive)
 {
 }
 
@@ -472,7 +472,7 @@ void chen::dns::edns0::Keepalive::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Padding
-chen::dns::edns0::Padding::Padding() : Option(OptionCode::Padding)
+chen::dns::edns0::Padding::Padding() : Option(OptPadding)
 {
 }
 
@@ -501,7 +501,7 @@ void chen::dns::edns0::Padding::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - CHAIN
-chen::dns::edns0::CHAIN::CHAIN() : Option(OptionCode::CHAIN)
+chen::dns::edns0::CHAIN::CHAIN() : Option(OptCHAIN)
 {
 }
 

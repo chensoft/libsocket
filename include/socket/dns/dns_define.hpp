@@ -226,21 +226,21 @@ namespace chen
             // 65001 ~ 65534: Reserved for Local/Experimental Use
             // 65535: Reserved for future expansion
             // @link http://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml
-            enum class OptionCode : std::uint16_t
+            enum OptCode : std::uint16_t
             {
-                None      = 0,   // none
-                LLQ       = 1,   // http://files.dns-sd.org/draft-sekar-dns-llq.txt, DNS Long-Lived Queries
-                UL        = 2,   // http://files.dns-sd.org/draft-sekar-dns-ul.txt, Dynamic DNS Update Leases
-                NSID      = 3,   // rfc5001, DNS Name Server Identifier (NSID) Option
-                DAU       = 5,   // rfc6975, Signaling DNSSEC Algorithm Understood
-                DHU       = 6,   // rfc6975, DS Hash Understood
-                N3U       = 7,   // rfc6975, NSEC3 Hash Understood
-                Subnet    = 8,   // rfc7871, Client Subnet in DNS Queries
-                EXPIRE    = 9,   // rfc7314, Extension Mechanisms for DNS (EDNS) EXPIRE Option
-                COOKIE    = 10,  // rfc7873, Domain Name System (DNS) Cookies
-                Keepalive = 11,  // rfc7828, The edns-tcp-keepalive EDNS0 Option
-                Padding   = 12,  // rfc7830, The EDNS(0) Padding Option
-                CHAIN     = 13,  // rfc7901, CHAIN Query Requests in DNS
+                OptNone      = 0,   // none
+                OptLLQ       = 1,   // http://files.dns-sd.org/draft-sekar-dns-llq.txt, DNS Long-Lived Queries
+                OptUL        = 2,   // http://files.dns-sd.org/draft-sekar-dns-ul.txt, Dynamic DNS Update Leases
+                OptNSID      = 3,   // rfc5001, DNS Name Server Identifier (NSID) Option
+                OptDAU       = 5,   // rfc6975, Signaling DNSSEC Algorithm Understood
+                OptDHU       = 6,   // rfc6975, DS Hash Understood
+                OptN3U       = 7,   // rfc6975, NSEC3 Hash Understood
+                OptSubnet    = 8,   // rfc7871, Client Subnet in DNS Queries
+                OptEXPIRE    = 9,   // rfc7314, Extension Mechanisms for DNS (EDNS) EXPIRE Option
+                OptCOOKIE    = 10,  // rfc7873, Domain Name System (DNS) Cookies
+                OptKeepalive = 11,  // rfc7828, The edns-tcp-keepalive EDNS0 Option
+                OptPadding   = 12,  // rfc7830, The EDNS(0) Padding Option
+                OptCHAIN     = 13,  // rfc7901, CHAIN Query Requests in DNS
             };
         }
     }

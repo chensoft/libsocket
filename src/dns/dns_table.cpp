@@ -100,19 +100,19 @@ namespace
             {TypeDLV, [] () -> rr_pointer { return std::make_shared<chen::dns::DLV>(); }}
     };
 
-    std::map<OptionCode, chen::dns::table::opt_build_type> g_opt_build {
-            {OptionCode::LLQ, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::LLQ>(); }},
-            {OptionCode::UL, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::UL>(); }},
-            {OptionCode::NSID, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::NSID>(); }},
-            {OptionCode::DAU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DAU>(); }},
-            {OptionCode::DHU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DHU>(); }},
-            {OptionCode::N3U, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::N3U>(); }},
-            {OptionCode::Subnet, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Subnet>(); }},
-            {OptionCode::EXPIRE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::EXPIRE>(); }},
-            {OptionCode::COOKIE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::COOKIE>(); }},
-            {OptionCode::Keepalive, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Keepalive>(); }},
-            {OptionCode::Padding, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Padding>(); }},
-            {OptionCode::CHAIN, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::CHAIN>(); }}
+    std::map<OptCode, chen::dns::table::opt_build_type> g_opt_build {
+            {OptLLQ, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::LLQ>(); }},
+            {OptUL, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::UL>(); }},
+            {OptNSID, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::NSID>(); }},
+            {OptDAU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DAU>(); }},
+            {OptDHU, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::DHU>(); }},
+            {OptN3U, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::N3U>(); }},
+            {OptSubnet, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Subnet>(); }},
+            {OptEXPIRE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::EXPIRE>(); }},
+            {OptCOOKIE, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::COOKIE>(); }},
+            {OptKeepalive, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Keepalive>(); }},
+            {OptPadding, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::Padding>(); }},
+            {OptCHAIN, [] () -> opt_pointer { return std::make_shared<chen::dns::edns0::CHAIN>(); }}
     };
 
     std::map<RRType, std::string> g_rr_type_text = {
@@ -257,22 +257,22 @@ namespace
 
     std::unordered_map<std::string, RCode> g_rr_text_rcode;
 
-    std::map<OptionCode, std::string> g_rr_edns0_text = {
-            {OptionCode::LLQ, "LLQ"},
-            {OptionCode::UL, "UL"},
-            {OptionCode::NSID, "NSID"},
-            {OptionCode::DAU, "DAU"},
-            {OptionCode::DHU, "DHU"},
-            {OptionCode::N3U, "N3U"},
-            {OptionCode::Subnet, "Subnet"},
-            {OptionCode::EXPIRE, "EXPIRE"},
-            {OptionCode::COOKIE, "COOKIE"},
-            {OptionCode::Keepalive, "Keepalive"},
-            {OptionCode::Padding, "Padding"},
-            {OptionCode::CHAIN, "CHAIN"},
+    std::map<OptCode, std::string> g_rr_edns0_text = {
+            {OptLLQ, "LLQ"},
+            {OptUL, "UL"},
+            {OptNSID, "NSID"},
+            {OptDAU, "DAU"},
+            {OptDHU, "DHU"},
+            {OptN3U, "N3U"},
+            {OptSubnet, "Subnet"},
+            {OptEXPIRE, "EXPIRE"},
+            {OptCOOKIE, "COOKIE"},
+            {OptKeepalive, "Keepalive"},
+            {OptPadding, "Padding"},
+            {OptCHAIN, "CHAIN"},
     };
 
-    std::unordered_map<std::string, OptionCode> g_rr_text_edns0;
+    std::unordered_map<std::string, OptCode> g_rr_text_edns0;
 
     // helper
     class helper
@@ -314,7 +314,7 @@ chen::dns::table::rr_pointer chen::dns::table::build(RRType key)
     return it != g_rr_build.end() ? it->second() : nullptr;
 }
 
-chen::dns::table::opt_pointer chen::dns::table::build(edns0::OptionCode key)
+chen::dns::table::opt_pointer chen::dns::table::build(edns0::OptCode key)
 {
     auto it = g_opt_build.find(key);
     return it != g_opt_build.end() ? it->second() : nullptr;
@@ -386,16 +386,16 @@ RCode chen::dns::table::textToRcode(const std::string &key)
 }
 
 // edns0 option code
-std::string chen::dns::table::edns0ToText(edns0::OptionCode key)
+std::string chen::dns::table::edns0ToText(edns0::OptCode key)
 {
     auto it = g_rr_edns0_text.find(key);
     return it != g_rr_edns0_text.end() ? it->second : "";
 }
 
-chen::dns::edns0::OptionCode chen::dns::table::textToEDNS0(const std::string &key)
+chen::dns::edns0::OptCode chen::dns::table::textToEDNS0(const std::string &key)
 {
     auto it = g_rr_text_edns0.find(key);
-    return it != g_rr_text_edns0.end() ? it->second : edns0::OptionCode::None;
+    return it != g_rr_text_edns0.end() ? it->second : edns0::OptNone;
 }
 
 // set
@@ -404,7 +404,7 @@ void chen::dns::table::set(RRType key, rr_build_type val)
     g_rr_build[key] = val;
 }
 
-void chen::dns::table::set(edns0::OptionCode key, opt_build_type val)
+void chen::dns::table::set(edns0::OptCode key, opt_build_type val)
 {
     g_opt_build[key] = val;
 }
@@ -439,7 +439,7 @@ void chen::dns::table::set(RCode key, const std::string &val)
     g_rr_text_rcode[val] = key;
 }
 
-void chen::dns::table::set(edns0::OptionCode key, const std::string &val)
+void chen::dns::table::set(edns0::OptCode key, const std::string &val)
 {
     g_rr_edns0_text[key] = val;
     g_rr_text_edns0[val] = key;

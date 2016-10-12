@@ -127,9 +127,9 @@ void chen::dns::encoder::pack(RRClass val)
     encoder::pack(static_cast<std::underlying_type<RRClass>::type>(val));
 }
 
-void chen::dns::encoder::pack(edns0::OptionCode val)
+void chen::dns::encoder::pack(edns0::OptCode val)
 {
-    encoder::pack(static_cast<std::underlying_type<edns0::OptionCode>::type>(val));
+    encoder::pack(static_cast<std::underlying_type<edns0::OptCode>::type>(val));
 }
 
 void chen::dns::encoder::pack(const std::string &val, StringType type, bool compress)
@@ -354,9 +354,9 @@ void chen::dns::decoder::unpack(RRClass &val)
     decoder::unpack(reinterpret_cast<std::underlying_type<RRClass>::type&>(val));
 }
 
-void chen::dns::decoder::unpack(edns0::OptionCode &val)
+void chen::dns::decoder::unpack(edns0::OptCode &val)
 {
-    decoder::unpack(reinterpret_cast<std::underlying_type<edns0::OptionCode>::type&>(val));
+    decoder::unpack(reinterpret_cast<std::underlying_type<edns0::OptCode>::type&>(val));
 }
 
 void chen::dns::decoder::unpack(std::string &val, StringType type)

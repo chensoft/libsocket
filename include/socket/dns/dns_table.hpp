@@ -27,7 +27,7 @@ namespace chen
              * Build object
              */
             static rr_pointer build(RRType key);
-            static opt_pointer build(edns0::OptionCode key);
+            static opt_pointer build(edns0::OptCode key);
 
         public:
             /**
@@ -63,21 +63,21 @@ namespace chen
             /**
              * EDNS0 OptionCode & Text
              */
-            static std::string edns0ToText(edns0::OptionCode key);
-            static edns0::OptionCode textToEDNS0(const std::string &key);
+            static std::string edns0ToText(edns0::OptCode key);
+            static edns0::OptCode textToEDNS0(const std::string &key);
 
         public:
             /**
              * Set custom rr type and related value
              */
             static void set(RRType key, rr_build_type val);
-            static void set(edns0::OptionCode key, opt_build_type val);
+            static void set(edns0::OptCode key, opt_build_type val);
             static void set(RRType key, const std::string &val);
             static void set(RRClass key, const std::string &val);
             static void set(QrCode key, const std::string &val);
             static void set(OpCode key, const std::string &val);
             static void set(RCode key, const std::string &val);
-            static void set(edns0::OptionCode key, const std::string &val);
+            static void set(edns0::OptCode key, const std::string &val);
         };
     }
 }
