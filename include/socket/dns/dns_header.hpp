@@ -46,7 +46,7 @@ namespace chen
              * Get flag value
              */
             QrCode qr()               const;  // query or response
-            OPCODE opcode()           const;  // operation code
+            OpCode opcode()           const;  // operation code
             bool authoritative()      const;  // authoritative answer
             bool truncated()          const;  // truncated response
             bool recursionDesired()   const;  // recursion desired
@@ -60,7 +60,7 @@ namespace chen
              * Set flag value
              */
             void qr(QrCode value);
-            void opcode(OPCODE value);
+            void opcode(OpCode value);
             void authoritative(bool value);
             void truncated(bool value);
             void recursionDesired(bool value);

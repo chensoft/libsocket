@@ -80,9 +80,9 @@ chen::dns::QrCode chen::dns::header::qr() const
     return static_cast<QrCode>(this->_flag & FLAG_MASK_QR);
 }
 
-chen::dns::OPCODE chen::dns::header::opcode() const
+chen::dns::OpCode chen::dns::header::opcode() const
 {
-    return static_cast<OPCODE>(this->_flag & FLAG_MASK_OPCODE);
+    return static_cast<OpCode>(this->_flag & FLAG_MASK_OPCODE);
 }
 
 bool chen::dns::header::authoritative() const
@@ -131,7 +131,7 @@ void chen::dns::header::qr(QrCode value)
     this->_flag = (this->_flag & ~FLAG_MASK_QR) | ((static_cast<std::uint16_t>(value) << FLAG_POS_QR) & FLAG_MASK_QR);
 }
 
-void chen::dns::header::opcode(OPCODE value)
+void chen::dns::header::opcode(OpCode value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_OPCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_OPCODE) & FLAG_MASK_OPCODE);
 }

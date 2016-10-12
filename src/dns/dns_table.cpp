@@ -222,15 +222,15 @@ namespace
 
     std::unordered_map<std::string, QrCode> g_rr_text_qr;
 
-    std::map<OPCODE, std::string> g_rr_opcode_text = {
-            {OPCODE::Query, "QUERY"},
-            {OPCODE::IQuery, "IQUERY"},
-            {OPCODE::Status, "STATUS"},
-            {OPCODE::Notify, "NOTIFY"},
-            {OPCODE::Update, "UPDATE"}
+    std::map<OpCode, std::string> g_rr_opcode_text = {
+            {OpQuery, "QUERY"},
+            {OpIQuery, "IQUERY"},
+            {OpStatus, "STATUS"},
+            {OpNotify, "NOTIFY"},
+            {OpUpdate, "UPDATE"}
     };
 
-    std::unordered_map<std::string, OPCODE> g_rr_text_opcode;
+    std::unordered_map<std::string, OpCode> g_rr_text_opcode;
 
     std::map<RCODE, std::string> g_rr_rcode_text = {
             {RCODE::NoError, "NOERROR"},
@@ -360,16 +360,16 @@ QrCode chen::dns::table::textToQr(const std::string &key)
 }
 
 // opcode & text
-std::string chen::dns::table::opcodeToText(OPCODE key)
+std::string chen::dns::table::opcodeToText(OpCode key)
 {
     auto it = g_rr_opcode_text.find(key);
     return it != g_rr_opcode_text.end() ? it->second : "";
 }
 
-OPCODE chen::dns::table::textToOpcode(const std::string &key)
+OpCode chen::dns::table::textToOpcode(const std::string &key)
 {
     auto it = g_rr_text_opcode.find(key);
-    return it != g_rr_text_opcode.end() ? it->second : OPCODE::Query;
+    return it != g_rr_text_opcode.end() ? it->second : OpQuery;
 }
 
 // rcode & text
@@ -427,7 +427,7 @@ void chen::dns::table::set(QrCode key, const std::string &val)
     g_rr_text_qr[val] = key;
 }
 
-void chen::dns::table::set(OPCODE key, const std::string &val)
+void chen::dns::table::set(OpCode key, const std::string &val)
 {
     g_rr_opcode_text[key] = val;
     g_rr_text_opcode[val] = key;

@@ -17,7 +17,7 @@ namespace chen
     namespace dns
     {
         // ---------------------------------------------------------------------
-        // QR Code, 1 bit(Query or Response)
+        // QR, 1 bit(Query or Response)
         enum QrCode : std::uint8_t
         {
             QrQuery    = 0,  // query message
@@ -27,13 +27,13 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPCODE, 4 bit, kind of query in the message(Operation Code)
-        enum class OPCODE : std::uint8_t
+        enum OpCode : std::uint8_t
         {
-            Query  = 0,  // rfc1035, a standard query
-            IQuery = 1,  // rfc3425, an inverse query(OBSOLETE)
-            Status = 2,  // rfc1035, a server status request
-            Notify = 4,  // rfc1996, notification of zone changes
-            Update = 5,  // rfc2136, dynamic updates
+            OpQuery  = 0,  // rfc1035, a standard query
+            OpIQuery = 1,  // rfc3425, an inverse query(OBSOLETE)
+            OpStatus = 2,  // rfc1035, a server status request
+            OpNotify = 4,  // rfc1996, notification of zone changes
+            OpUpdate = 5,  // rfc2136, dynamic updates
         };
 
 

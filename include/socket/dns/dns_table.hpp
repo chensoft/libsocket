@@ -51,8 +51,8 @@ namespace chen
             /**
              * OPCODE & Text
              */
-            static std::string opcodeToText(OPCODE key);
-            static OPCODE textToOpcode(const std::string &key);
+            static std::string opcodeToText(OpCode key);
+            static OpCode textToOpcode(const std::string &key);
 
             /**
              * RCODE & Text
@@ -75,7 +75,7 @@ namespace chen
             static void set(RRType key, const std::string &val);
             static void set(RRClass key, const std::string &val);
             static void set(QrCode key, const std::string &val);
-            static void set(OPCODE key, const std::string &val);
+            static void set(OpCode key, const std::string &val);
             static void set(RCODE key, const std::string &val);
             static void set(edns0::OptionCode key, const std::string &val);
         };
