@@ -20,10 +20,11 @@
 
 namespace chen
 {
+    typedef ::ssize_t ssize_t;   // ssize_t type
     typedef int socket_t;        // socket handle type
     typedef socklen_t option_t;  // socket option size
 
-    static constexpr int invalid_handle = -1;  // invalid file descriptor
+    static constexpr int invalid_socket = -1;  // invalid file descriptor
 }
 
 #else
@@ -35,10 +36,11 @@ namespace chen
 
 namespace chen
 {
+    typedef SSIZE_T ssize_t;  // ssize_t type
     typedef SOCKET socket_t;  // socket handle type
     typedef int option_t;     // socket option size
 
-    static constexpr int invalid_handle = INVALID_HANDLE_VALUE;  // invalid handle value
+    static constexpr SOCKET invalid_socket = INVALID_SOCKET;  // invalid socket value
 }
 
 #endif

@@ -26,7 +26,7 @@ namespace chen
         /**
          * reactor typedef
          */
-        typedef kqueue reactor;
+        typedef poller reactor;
     }
 }
 

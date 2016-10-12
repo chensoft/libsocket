@@ -96,22 +96,22 @@ namespace chen
             /**
              * Receive data from connected host, usually used in stream socket
              */
-            ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
+            chen::ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
 
             /**
              * Receive data from specific host, usually used in datagram socket
              */
-            ssize_t recvfrom(void *data, std::size_t size, bsd::endpoint &ep, int flags = 0) noexcept;
+            chen::ssize_t recvfrom(void *data, std::size_t size, bsd::endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Send data to connected host, usually used in stream socket
              */
-            ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
+            chen::ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
 
             /**
              * Send data to specific host, usually used in datagram socket
              */
-            ssize_t sendto(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
+            chen::ssize_t sendto(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**
@@ -175,7 +175,7 @@ namespace chen
             socket& operator=(const socket&) = delete;
 
         private:
-            socket_t _fd = invalid_handle;  // socket descriptor
+            socket_t _fd = invalid_socket;  // socket descriptor
 
             // used for reset socket
             // only type is valid if you construct from a socket descriptor

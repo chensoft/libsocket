@@ -44,7 +44,7 @@ void chen::dns::RR::encode(dns::encoder &encoder) const
     auto len = encoder.size();
     auto off = len - before;
 
-    if (off > std::numeric_limits<std::uint16_t>::max())
+    if (off > (std::numeric_limits<std::uint16_t>::max)())
         throw std::runtime_error("dns: codec pack rdata size is overflow");
 
     auto tmp = static_cast<std::uint16_t>(off);

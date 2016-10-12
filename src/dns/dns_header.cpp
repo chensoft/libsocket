@@ -87,37 +87,37 @@ chen::dns::OPCODE chen::dns::header::opcode() const
 
 bool chen::dns::header::authoritative() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_AA);
+    return (this->_flag & FLAG_MASK_AA) != 0;
 }
 
 bool chen::dns::header::truncated() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_TC);
+    return (this->_flag & FLAG_MASK_TC) != 0;
 }
 
 bool chen::dns::header::recursionDesired() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_RD);
+    return (this->_flag & FLAG_MASK_RD) != 0;
 }
 
 bool chen::dns::header::recursionAvailable() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_RA);
+    return (this->_flag & FLAG_MASK_RA) != 0;
 }
 
 bool chen::dns::header::zero() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_Z);
+    return (this->_flag & FLAG_MASK_Z) != 0;
 }
 
 bool chen::dns::header::authenticData() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_AD);
+    return (this->_flag & FLAG_MASK_AD) != 0;
 }
 
 bool chen::dns::header::checkingDisabled() const
 {
-    return static_cast<bool>(this->_flag & FLAG_MASK_CD);
+    return (this->_flag & FLAG_MASK_CD) != 0;
 }
 
 chen::dns::RCODE chen::dns::header::rcode() const
