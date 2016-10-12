@@ -7,6 +7,7 @@
 #include <socket/net/net_resolver.hpp>
 #include <chen/base/num.hpp>
 #include <cstdlib>
+#include <cctype>
 
 // -----------------------------------------------------------------------------
 // resolver

@@ -169,7 +169,7 @@ chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
         case AF_INET:
         {
             auto in = (struct ::sockaddr_in*)ep;
-            this->_addr = num::swap(in->sin_addr.s_addr);
+            this->_addr = num::swap(static_cast<std::uint32_t>(in->sin_addr.s_addr));
             this->_port = num::swap(in->sin_port);
         }
             break;
@@ -190,7 +190,7 @@ chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
 }
 
 // conversion
-chen::net::endpoint::operator bsd::endpoint() const
+chen::net::endpoint::operator chen::bsd::endpoint() const
 {
     bsd::endpoint ret;
 
