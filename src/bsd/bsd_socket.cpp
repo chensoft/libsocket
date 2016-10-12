@@ -156,24 +156,6 @@ chen::ssize_t chen::bsd::socket::sendto(const void *data, std::size_t size, cons
 }
 
 // cleanup
-void chen::bsd::socket::shutdown(Shutdown type) noexcept
-{
-    switch (type)
-    {
-        case Shutdown::Read:
-            ::shutdown(this->_fd, SHUT_RD);
-            break;
-
-        case Shutdown::Write:
-            ::shutdown(this->_fd, SHUT_WR);
-            break;
-
-        case Shutdown::Both:
-            ::shutdown(this->_fd, SHUT_RDWR);
-            break;
-    }
-}
-
 void chen::bsd::socket::close() noexcept
 {
     if (!this->valid())
@@ -196,24 +178,6 @@ chen::bsd::endpoint chen::bsd::socket::peer() const noexcept
     bsd::endpoint ep;
     ::getpeername(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
     return ep;
-}
-
-bool chen::bsd::socket::nonblocking() const noexcept
-{
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
-    if (flag < 0)
-        return false;
-
-    return (flag & O_NONBLOCK) != 0;
-}
-
-bool chen::bsd::socket::nonblocking(bool enable) noexcept
-{
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
-    if (flag < 0)
-        return false;
-
-    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
 }
 
 chen::bsd::option chen::bsd::socket::option() noexcept

@@ -174,7 +174,7 @@ struct ::timeval chen::bsd::option::sndtimeo() const
 
 bool chen::bsd::option::sndtimeo(int sec, int usec)
 {
-    struct ::timeval val {};
+    struct ::timeval val{};
     val.tv_sec  = sec;
     val.tv_usec = usec;
 
@@ -196,7 +196,7 @@ struct ::timeval chen::bsd::option::rcvtimeo() const
 
 bool chen::bsd::option::rcvtimeo(int sec, int usec)
 {
-    struct ::timeval val {};
+    struct ::timeval val{};
     val.tv_sec  = sec;
     val.tv_usec = usec;
 
