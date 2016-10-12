@@ -92,12 +92,12 @@ void chen::bsd::socket::reset(int family, int type, int protocol)
 // connection
 std::error_code chen::bsd::socket::connect(const bsd::endpoint &ep) noexcept
 {
-    return ::connect(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) < 0 ? sys::error() : std::error_code();
+    return !::connect(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::bsd::socket::bind(const bsd::endpoint &ep) noexcept
 {
-    return ::bind(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) < 0 ? sys::error() : std::error_code();
+    return !::bind(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::bsd::socket::listen() noexcept
@@ -107,7 +107,7 @@ std::error_code chen::bsd::socket::listen() noexcept
 
 std::error_code chen::bsd::socket::listen(int backlog) noexcept
 {
-    return ::listen(this->_fd, backlog) < 0 ? sys::error() : std::error_code();
+    return !::listen(this->_fd, backlog) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::bsd::socket::accept(socket &s) noexcept

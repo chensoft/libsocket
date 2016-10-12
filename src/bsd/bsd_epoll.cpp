@@ -53,16 +53,16 @@ void chen::bsd::epoll::set(int fd, int opcode, int flag)
     event.events |= flag | EPOLLRDHUP;
     event.data.fd = fd;
 
-    if (::epoll_ctl(this->_fd, EPOLL_CTL_MOD, fd, &event) < 0)
+    if (::epoll_ctl(this->_fd, EPOLL_CTL_MOD, fd, &event) != 0)
     {
-        if ((errno != ENOENT) || (::epoll_ctl(this->_fd, EPOLL_CTL_ADD, fd, &event) < 0))
+        if ((errno != ENOENT) || (::epoll_ctl(this->_fd, EPOLL_CTL_ADD, fd, &event) != 0))
             throw std::system_error(sys::error(), "epoll: failed to set event");
     }
 }
 
 void chen::bsd::epoll::del(int fd)
 {
-    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) < 0) && (errno != ENOENT) && (errno != EBADF))
+    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
 

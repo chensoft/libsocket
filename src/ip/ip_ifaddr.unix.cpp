@@ -30,7 +30,7 @@ namespace
     void visit(std::function<void (struct ::ifaddrs *ptr, bool &stop)> cb)
     {
         struct ::ifaddrs *list = nullptr;
-        if (::getifaddrs(&list) < 0)
+        if (::getifaddrs(&list) != 0)
             return;
 
         try
