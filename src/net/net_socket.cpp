@@ -31,12 +31,7 @@ chen::net::endpoint chen::net::socket::peer() const
     return this->_handle.peer();
 }
 
-bool chen::net::socket::nonblocking() const
-{
-    return this->_handle.nonblocking();
-}
-
-bool chen::net::socket::nonblocking(bool enable)
+std::error_code chen::net::socket::nonblocking(bool enable)
 {
     return this->_handle.nonblocking(enable);
 }

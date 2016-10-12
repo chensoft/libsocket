@@ -29,10 +29,9 @@ namespace chen
             net::endpoint peer() const;
 
             /**
-             * Non-blocking status
+             * Non-blocking mode
              */
-            bool nonblocking() const;
-            bool nonblocking(bool enable);
+            std::error_code nonblocking(bool enable);
 
             /**
              * Check socket is valid

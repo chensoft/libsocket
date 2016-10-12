@@ -7,6 +7,7 @@
 #ifndef _WIN32
 
 #include <socket/bsd/bsd_socket.hpp>
+#include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // socket
@@ -40,22 +41,13 @@ void chen::bsd::socket::close() noexcept
 }
 
 // property
-bool chen::bsd::socket::nonblocking() const noexcept
+std::error_code chen::bsd::socket::nonblocking(bool enable) noexcept
 {
     auto flag = ::fcntl(this->_fd, F_GETFL, 0);
     if (flag < 0)
-        return false;
+        return sys::error();
 
-    return (flag & O_NONBLOCK) != 0;
-}
-
-bool chen::bsd::socket::nonblocking(bool enable) noexcept
-{
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
-    if (flag < 0)
-        return false;
-
-    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
+    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK)) ? std::error_code() : sys::error();
 }
 
 #endif
