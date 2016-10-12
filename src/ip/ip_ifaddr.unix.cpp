@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/ip/ip_interface.hpp>
+#include <socket/ip/ip_ifaddr.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <functional>
@@ -136,43 +136,43 @@ namespace
 
 
 // -----------------------------------------------------------------------------
-// interface
+// ifaddr
 
 // flags
-bool chen::ip::interface::isUp() const
+bool chen::ip::ifaddr::isUp() const
 {
     return (this->flag & IFF_UP) != 0;
 }
 
-bool chen::ip::interface::isBroadcast() const
+bool chen::ip::ifaddr::isBroadcast() const
 {
     return (this->flag & IFF_BROADCAST) != 0;
 }
 
-bool chen::ip::interface::isLoopback() const
+bool chen::ip::ifaddr::isLoopback() const
 {
     return (this->flag & IFF_LOOPBACK) != 0;
 }
 
-bool chen::ip::interface::isRunning() const
+bool chen::ip::ifaddr::isRunning() const
 {
     return (this->flag & IFF_RUNNING) != 0;
 }
 
-bool chen::ip::interface::isPromiscuous() const
+bool chen::ip::ifaddr::isPromiscuous() const
 {
     return (this->flag & IFF_PROMISC) != 0;
 }
 
-bool chen::ip::interface::isMulticast() const
+bool chen::ip::ifaddr::isMulticast() const
 {
     return (this->flag & IFF_MULTICAST) != 0;
 }
 
 // enumerate
-std::map<std::string, chen::ip::interface> chen::ip::interface::enumerate()
+std::map<std::string, chen::ip::ifaddr> chen::ip::ifaddr::enumerate()
 {
-    std::map<std::string, interface> map;
+    std::map<std::string, ifaddr> map;
 
     ::visit([&] (struct ::ifaddrs *ptr, bool &stop) {
         auto &item = map[ptr->ifa_name];
@@ -204,7 +204,7 @@ std::map<std::string, chen::ip::interface> chen::ip::interface::enumerate()
 }
 
 // scope
-std::uint32_t chen::ip::interface::scope(const std::uint8_t addr[16], const std::string &name)
+std::uint32_t chen::ip::ifaddr::scope(const std::uint8_t addr[16], const std::string &name)
 {
     // if name is integer
     bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
@@ -234,7 +234,7 @@ std::uint32_t chen::ip::interface::scope(const std::uint8_t addr[16], const std:
     return id;
 }
 
-std::string chen::ip::interface::scope(std::uint32_t id)
+std::string chen::ip::ifaddr::scope(std::uint32_t id)
 {
     std::string name;
 

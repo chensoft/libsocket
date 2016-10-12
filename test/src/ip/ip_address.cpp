@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_interface.hpp>
+#include <socket/ip/ip_ifaddr.hpp>
 #include <gtest/gtest.h>
 
 TEST(IPAddressTest, Base)
@@ -20,8 +20,8 @@ TEST(IPAddressTest, Base)
 
 TEST(IPAddressTest, IPv4)
 {
-    using chen::ip::address;
     using chen::ip::version4;
+    using chen::ip::address;
 
     // assign
     EXPECT_EQ(address(address::Type::IPv4), address("0.0.0.0"));
@@ -193,9 +193,9 @@ TEST(IPAddressTest, IPv4)
 
 TEST(IPAddressTest, IPv6)
 {
-    using chen::ip::address;
     using chen::ip::version6;
-    using chen::ip::interface;
+    using chen::ip::address;
+    using chen::ip::ifaddr;
 
     // assign
     EXPECT_EQ(address(address::Type::IPv6), address("::"));
@@ -254,7 +254,7 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817::200e", address("2404:6800:4004:817:0000:0000:0000:200e").v6().compressed());
     EXPECT_EQ("::ffff:192.0.2.128", address("::ffff:c000:280").v6().mixed());
 
-    auto scope = interface::scope(1);
+    auto scope = ifaddr::scope(1);
 
     EXPECT_EQ("fe80::1%" + scope, address("fe80::1%1").v6().str(false, true));
     EXPECT_EQ("fe80::1%" + scope + "/128", address("fe80::1%1").v6().str(true, true));

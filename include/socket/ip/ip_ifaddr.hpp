@@ -13,7 +13,7 @@ namespace chen
 {
     namespace ip
     {
-        class interface
+        class ifaddr
         {
         public:
             /**
@@ -31,7 +31,7 @@ namespace chen
              * Enumerate all network interfaces
              * @attention only enumerate interfaces with IPv4 or IPv6 address
              */
-            static std::map<std::string, interface> enumerate();
+            static std::map<std::string, ifaddr> enumerate();
 
             /**
              * Get IPv6 scope id by address and interface name

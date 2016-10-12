@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_interface.hpp>
+#include <socket/ip/ip_ifaddr.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
@@ -940,12 +940,12 @@ std::string chen::ip::version6::toString(const std::uint8_t addr[16], std::uint8
 
 std::string chen::ip::version6::toScope(const std::uint8_t addr[16], std::uint32_t scope)
 {
-    return version6::toCompressed(addr) + "%" + interface::scope(scope);
+    return version6::toCompressed(addr) + "%" + ifaddr::scope(scope);
 }
 
 std::string chen::ip::version6::toScope(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope)
 {
-    return version6::toCompressed(addr) + "%" + interface::scope(scope) + "/" + num::str(cidr);
+    return version6::toCompressed(addr) + "%" + ifaddr::scope(scope) + "/" + num::str(cidr);
 }
 
 std::string chen::ip::version6::toExpanded(const std::uint8_t addr[16])
@@ -1103,7 +1103,7 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
             tmp += *cur;
 
         if (scope)
-            *scope = interface::scope(ret.data(), tmp);
+            *scope = ifaddr::scope(ret.data(), tmp);
     }
     else if (scope)
     {
