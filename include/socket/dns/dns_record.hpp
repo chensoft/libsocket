@@ -80,7 +80,7 @@ namespace chen
         public:
             std::string name;
             RRType rrtype    = RRType::None;
-            RRClass rrclass  = RRClass::IN;
+            RRClass rrclass  = ClassIN;
             std::int32_t ttl = 0;  // rfc1035 says it's a 32 bit signed integer
 
         protected:

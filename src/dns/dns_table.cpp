@@ -205,12 +205,12 @@ namespace
     std::unordered_map<std::string, RRType> g_rr_text_type;
 
     std::map<RRClass, std::string> g_rr_class_text = {
-            {RRClass::IN, "IN"},
-            {RRClass::CS, "CS"},
-            {RRClass::CH, "CH"},
-            {RRClass::HS, "HS"},
-            {RRClass::NONE, "NONE"},
-            {RRClass::ANY, "ANY"}
+            {ClassIN, "IN"},
+            {ClassCS, "CS"},
+            {ClassCH, "CH"},
+            {ClassHS, "HS"},
+            {ClassNONE, "NONE"},
+            {ClassANY, "ANY"}
     };
 
     std::unordered_map<std::string, chen::dns::RRClass> g_rr_text_class;
@@ -343,7 +343,7 @@ std::string chen::dns::table::classToText(RRClass key)
 RRClass chen::dns::table::textToClass(const std::string &key)
 {
     auto it = g_rr_text_class.find(key);
-    return it != g_rr_text_class.end() ? it->second : RRClass::IN;
+    return it != g_rr_text_class.end() ? it->second : ClassIN;
 }
 
 // qr & text

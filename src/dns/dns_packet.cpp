@@ -267,7 +267,7 @@ void chen::dns::request::query(const std::string &qname, RRType qtype)
     question_type &question = this->_question[0];
     question.qname(qname);
     question.qtype(qtype);
-    question.qclass(RRClass::IN);
+    question.qclass(ClassIN);
 }
 
 // client

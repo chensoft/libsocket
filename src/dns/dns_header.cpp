@@ -309,7 +309,7 @@ void chen::dns::question::decode(dns::decoder &decoder)
     decoder.unpack(qtype);
 
     // qclass
-    RRClass qclass = RRClass::IN;
+    RRClass qclass = ClassIN;
     decoder.unpack(qclass);
 
     // set

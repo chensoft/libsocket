@@ -196,15 +196,15 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RRClass(common rr class and question class)
-        enum class RRClass : std::uint16_t
+        enum RRClass : std::uint16_t
         {
-            IN = 1,  // rfc1035, the Internet
-            CS = 2,  // rfc1035, the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
-            CH = 3,  // rfc1035, the CHAOS class
-            HS = 4,  // rfc1035, Hesiod [Dyer 87]
+            ClassIN = 1,  // rfc1035, the Internet
+            ClassCS = 2,  // rfc1035, the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
+            ClassCH = 3,  // rfc1035, the CHAOS class
+            ClassHS = 4,  // rfc1035, Hesiod [Dyer 87]
 
-            NONE = 254,  // rfc2136, name is not in use or rrset does not exist
-            ANY  = 255   // rfc1035, any class
+            ClassNONE = 254,  // rfc2136, name is not in use or rrset does not exist
+            ClassANY  = 255   // rfc1035, any class
         };
 
 

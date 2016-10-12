@@ -99,7 +99,7 @@ namespace chen
         {
         public:
             question() = default;
-            question(const std::string &qname, RRType qtype, RRClass qclass = RRClass::IN);
+            question(const std::string &qname, RRType qtype, RRClass qclass = ClassIN);
 
         public:
             /**
@@ -133,7 +133,7 @@ namespace chen
         private:
             std::string _qname;
             RRType  _qtype  = RRType::None;
-            RRClass _qclass = RRClass::IN;
+            RRClass _qclass = ClassIN;
         };
     }
 }
