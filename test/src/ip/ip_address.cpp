@@ -20,8 +20,8 @@ TEST(IPAddressTest, Base)
 
 TEST(IPAddressTest, IPv4)
 {
-    using chen::ip::version4;
     using chen::ip::address;
+    using chen::ip::version4;
 
     // assign
     EXPECT_EQ(address(address::Type::IPv4), address("0.0.0.0"));
@@ -193,9 +193,9 @@ TEST(IPAddressTest, IPv4)
 
 TEST(IPAddressTest, IPv6)
 {
-    using chen::ip::version6;
-    using chen::ip::address;
     using chen::ip::ifaddr;
+    using chen::ip::address;
+    using chen::ip::version6;
 
     // assign
     EXPECT_EQ(address(address::Type::IPv6), address("::"));

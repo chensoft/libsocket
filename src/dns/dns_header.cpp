@@ -75,9 +75,9 @@ void chen::dns::header::arcount(std::uint16_t value)
 }
 
 // flag value
-chen::dns::QR chen::dns::header::qr() const
+chen::dns::QrCode chen::dns::header::qr() const
 {
-    return static_cast<QR>(this->_flag & FLAG_MASK_QR);
+    return static_cast<QrCode>(this->_flag & FLAG_MASK_QR);
 }
 
 chen::dns::OPCODE chen::dns::header::opcode() const
@@ -126,7 +126,7 @@ chen::dns::RCODE chen::dns::header::rcode() const
 }
 
 // set flag value
-void chen::dns::header::qr(QR value)
+void chen::dns::header::qr(QrCode value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_QR) | ((static_cast<std::uint16_t>(value) << FLAG_POS_QR) & FLAG_MASK_QR);
 }

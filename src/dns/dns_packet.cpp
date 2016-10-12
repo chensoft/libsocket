@@ -253,7 +253,7 @@ void chen::dns::request::query(const std::string &qname, RRType qtype)
     this->_header.id(header::random());
 
     // set qr
-    this->_header.qr(QR::Query);
+    this->_header.qr(QrQuery);
 
     // set opcode
     this->_header.opcode(OPCODE::Query);
@@ -320,7 +320,7 @@ void chen::dns::request::decode(codec::iterator beg, codec::iterator end,
 // response
 chen::dns::response::response(bool authoritative)
 {
-    this->_header.qr(QR::Response);
+    this->_header.qr(QrResponse);
     this->_header.opcode(OPCODE::Query);
     this->_header.authoritative(authoritative);
     this->_header.rcode(RCODE::NoError);

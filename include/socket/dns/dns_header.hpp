@@ -45,7 +45,7 @@ namespace chen
             /**
              * Get flag value
              */
-            QR qr()                   const;  // query or response
+            QrCode qr()               const;  // query or response
             OPCODE opcode()           const;  // operation code
             bool authoritative()      const;  // authoritative answer
             bool truncated()          const;  // truncated response
@@ -59,7 +59,7 @@ namespace chen
             /**
              * Set flag value
              */
-            void qr(QR value);
+            void qr(QrCode value);
             void opcode(OPCODE value);
             void authoritative(bool value);
             void truncated(bool value);

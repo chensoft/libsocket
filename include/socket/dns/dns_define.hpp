@@ -18,10 +18,10 @@ namespace chen
     {
         // ---------------------------------------------------------------------
         // QR Code, 1 bit(Query or Response)
-        enum class QR : std::uint8_t
+        enum QrCode : std::uint8_t
         {
-            Query    = 0,  // query message
-            Response = 1   // response message
+            QrQuery    = 0,  // query message
+            QrResponse = 1   // response message
         };
 
 

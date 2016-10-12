@@ -13,12 +13,8 @@
 // helper
 namespace
 {
-    using chen::dns::RRType;
-    using chen::dns::RRClass;
-    using chen::dns::QR;
-    using chen::dns::OPCODE;
-    using chen::dns::RCODE;
-    using chen::dns::edns0::OptionCode;
+    using namespace chen::dns;
+    using namespace chen::dns::edns0;
 
     using rr_pointer = chen::dns::table::rr_pointer;
     using opt_pointer = chen::dns::table::opt_pointer;
@@ -219,12 +215,12 @@ namespace
 
     std::unordered_map<std::string, chen::dns::RRClass> g_rr_text_class;
 
-    std::map<QR, std::string> g_rr_qr_text = {
-            {QR::Query, "QUERY"},
-            {QR::Response, "RESPONSE"}
+    std::map<QrCode, std::string> g_rr_qr_text = {
+            {QrQuery, "QUERY"},
+            {QrResponse, "RESPONSE"}
     };
 
-    std::unordered_map<std::string, QR> g_rr_text_qr;
+    std::unordered_map<std::string, QrCode> g_rr_text_qr;
 
     std::map<OPCODE, std::string> g_rr_opcode_text = {
             {OPCODE::Query, "QUERY"},
@@ -351,16 +347,16 @@ RRClass chen::dns::table::textToClass(const std::string &key)
 }
 
 // qr & text
-std::string chen::dns::table::qrToText(QR key)
+std::string chen::dns::table::qrToText(QrCode key)
 {
     auto it = g_rr_qr_text.find(key);
     return it != g_rr_qr_text.end() ? it->second : "";
 }
 
-QR chen::dns::table::textToQr(const std::string &key)
+QrCode chen::dns::table::textToQr(const std::string &key)
 {
     auto it = g_rr_text_qr.find(key);
-    return it != g_rr_text_qr.end() ? it->second : QR::Query;
+    return it != g_rr_text_qr.end() ? it->second : QrQuery;
 }
 
 // opcode & text
@@ -425,7 +421,7 @@ void chen::dns::table::set(RRClass key, const std::string &val)
     g_rr_text_class[val] = key;
 }
 
-void chen::dns::table::set(QR key, const std::string &val)
+void chen::dns::table::set(QrCode key, const std::string &val)
 {
     g_rr_qr_text[key] = val;
     g_rr_text_qr[val] = key;
