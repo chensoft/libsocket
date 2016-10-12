@@ -111,7 +111,7 @@ namespace chen
             /**
              * Conversion
              */
-            operator bsd::endpoint() const;
+            operator chen::bsd::endpoint() const;
 
             /**
              * Comparison

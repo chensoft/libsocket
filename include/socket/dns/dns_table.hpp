@@ -16,7 +16,7 @@ namespace chen
         class table
         {
         public:
-            typedef std::shared_ptr<RR> rr_pointer;
+            typedef std::shared_ptr<rr> rr_pointer;
             typedef rr_pointer (*rr_build_type)();
 
             typedef std::shared_ptr<edns0::opt> opt_pointer;

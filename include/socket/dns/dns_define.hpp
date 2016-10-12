@@ -115,7 +115,7 @@ namespace chen
             TypeMB         = 7,    // rfc1035, section 3.3.3, a mailbox domain name (EXPERIMENTAL)
             TypeMG         = 8,    // rfc1035, section 3.3.6, a mail group member (EXPERIMENTAL)
             TypeMR         = 9,    // rfc1035, section 3.3.8, a mail rename domain name (EXPERIMENTAL)
-            TypeNULL       = 10,   // rfc1035, section 3.3.10, a null RR (EXPERIMENTAL)
+            TypeNULL       = 10,   // rfc1035, section 3.3.10, a null rr (EXPERIMENTAL)
             TypeWKS        = 11,   // rfc1035, section 3.4.2, a well known service description
             TypePTR        = 12,   // rfc1035, section 3.3.12, a domain name pointer
             TypeHINFO      = 13,   // rfc1035, section 3.3.2, host information
@@ -183,7 +183,7 @@ namespace chen
             TypeIXFR       = 251,  // rfc1995, A request for incremental zone transfer
             TypeAXFR       = 252,  // rfc1035, A request for a transfer of an entire zone
             TypeMAILB      = 253,  // rfc1035, A request for mailbox-related records (MB, MG or MR)
-            TypeMAILA      = 254,  // rfc1035, A request for mail agent RRs (Obsolete - see MX)
+            TypeMAILA      = 254,  // rfc1035, A request for mail agent rrs (Obsolete - see MX)
             TypeANY        = 255,  // rfc1035, A request for all records
 
             TypeURI        = 256,    // rfc7553, section 4.5, uri

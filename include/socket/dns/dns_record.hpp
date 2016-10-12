@@ -19,11 +19,11 @@ namespace chen
     {
         // ---------------------------------------------------------------------
         // Resource Record(rfc1035, section 3.2.1)
-        class RR
+        class rr
         {
         public:
-            explicit RR(RRType type);
-            virtual ~RR() = default;
+            explicit rr(RRType type);
+            virtual ~rr() = default;
 
         public:
             /**
@@ -34,9 +34,9 @@ namespace chen
             void decode(const json::object &object);
 
             /**
-             * Create RR and detect its type automatically
+             * Create rr and detect its type automatically
              */
-            static std::shared_ptr<RR> create(dns::decoder &decoder);
+            static std::shared_ptr<rr> create(dns::decoder &decoder);
 
         public:
             /**
@@ -47,7 +47,7 @@ namespace chen
             /**
              * Clone current record
              */
-            virtual std::shared_ptr<RR> clone() const = 0;
+            virtual std::shared_ptr<rr> clone() const = 0;
 
         protected:
             /**
@@ -74,8 +74,8 @@ namespace chen
             /**
              * Allow copy in derived class
              */
-            RR(const RR&) = default;
-            RR& operator=(const RR&) = default;
+            rr(const rr&) = default;
+            rr& operator=(const rr&) = default;
 
         public:
             std::string name;
@@ -90,18 +90,18 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // Custom RR
+        // Custom rr
         // ---------------------------------------------------------------------
-        // Raw(raw resource record, with rdata)
-        class Raw : public RR
+        // raw(raw resource record, with rdata)
+        class raw : public rr
         {
         public:
-            Raw();
-            explicit Raw(RRType type);
+            raw();
+            explicit raw(RRType type);
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -114,17 +114,17 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // Standard RR
+        // Standard rr
         // ---------------------------------------------------------------------
         // A(rfc1035, section 3.4.1)
-        class A : public RR
+        class rr_a : public rr
         {
         public:
-            A();
+            rr_a();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -138,14 +138,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NS(rfc1035, section 3.3.11)
-        class NS : public RR
+        class rr_ns : public rr
         {
         public:
-            NS();
+            rr_ns();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -159,14 +159,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MD(rfc1035, section 3.3.4)
-        class MD : public RR
+        class rr_md : public rr
         {
         public:
-            MD();
+            rr_md();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -180,14 +180,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MF(rfc1035, section 3.3.5)
-        class MF : public RR
+        class rr_mf : public rr
         {
         public:
-            MF();
+            rr_mf();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -201,14 +201,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CNAME(rfc1035, section 3.3.1)
-        class CNAME : public RR
+        class rr_cname : public rr
         {
         public:
-            CNAME();
+            rr_cname();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -222,14 +222,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SOA(rfc1035, section 3.3.13)
-        class SOA : public RR
+        class rr_soa : public rr
         {
         public:
-            SOA();
+            rr_soa();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -249,14 +249,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MB(rfc1035, section 3.3.3)
-        class MB : public RR
+        class rr_mb : public rr
         {
         public:
-            MB();
+            rr_mb();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -270,14 +270,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MG(rfc1035, section 3.3.6)
-        class MG : public RR
+        class rr_mg : public rr
         {
         public:
-            MG();
+            rr_mg();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -291,14 +291,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MR(rfc1035, section 3.3.8)
-        class MR : public RR
+        class rr_mr : public rr
         {
         public:
-            MR();
+            rr_mr();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -312,15 +312,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NULL(rfc1035, section 3.3.10, can store anything)
-        // rename to Null to avoid confusion with the macro NULL in stddef.h
-        class Null : public Raw
+        class rr_null : public raw
         {
         public:
-            Null();
+            rr_null();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -334,14 +333,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // WKS(rfc1035, section 3.4.2)
-        class WKS : public RR
+        class rr_wks : public rr
         {
         public:
-            WKS();
+            rr_wks();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -357,14 +356,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // PTR(rfc1035, section 3.3.12)
-        class PTR : public RR
+        class rr_ptr : public rr
         {
         public:
-            PTR();
+            rr_ptr();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -378,14 +377,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // HINFO(rfc1035, section 3.3.2)
-        class HINFO : public RR
+        class rr_hinfo : public rr
         {
         public:
-            HINFO();
+            rr_hinfo();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -400,14 +399,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MINFO(rfc1035, section 3.3.7)
-        class MINFO : public RR
+        class rr_minfo : public rr
         {
         public:
-            MINFO();
+            rr_minfo();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -422,14 +421,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // MX(rfc1035, section 3.3.9)
-        class MX : public RR
+        class rr_mx : public rr
         {
         public:
-            MX();
+            rr_mx();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -444,14 +443,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TXT(rfc1035, section 3.3.14)
-        class TXT : public RR
+        class rr_txt : public rr
         {
         public:
-            TXT();
+            rr_txt();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -465,14 +464,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RP(rfc1183, section 2.2)
-        class RP : public RR
+        class rr_rp : public rr
         {
         public:
-            RP();
+            rr_rp();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -487,14 +486,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // AFSDB(rfc1183, section 1)
-        class AFSDB : public RR
+        class rr_afsdb : public rr
         {
         public:
-            AFSDB();
+            rr_afsdb();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -509,14 +508,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // X25(rfc1183, section 3.1)
-        class X25 : public RR
+        class rr_x25 : public rr
         {
         public:
-            X25();
+            rr_x25();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -530,14 +529,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // ISDN(rfc1183, section 3.2)
-        class ISDN : public RR
+        class rr_isdn : public rr
         {
         public:
-            ISDN();
+            rr_isdn();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -552,14 +551,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RT(rfc1183, section 3.3)
-        class RT : public RR
+        class rr_rt : public rr
         {
         public:
-            RT();
+            rr_rt();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -574,14 +573,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSAP(rfc1706, section 5)
-        class NSAP : public RR
+        class rr_nsap : public rr
         {
         public:
-            NSAP();
+            rr_nsap();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -595,14 +594,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSAPPTR(rfc1348)
-        class NSAPPTR : public RR
+        class rr_nsapptr : public rr
         {
         public:
-            NSAPPTR();
+            rr_nsapptr();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -616,14 +615,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SIG(rfc2535, section 4.1)
-        class SIG : public RR
+        class rr_sig : public rr
         {
         public:
-            SIG();
+            rr_sig();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -645,14 +644,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // KEY(rfc2535, section 3.1)
-        class KEY : public RR
+        class rr_key : public rr
         {
         public:
-            KEY();
+            rr_key();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -669,14 +668,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // PX(rfc2163, section 4)
-        class PX : public RR
+        class rr_px : public rr
         {
         public:
-            PX();
+            rr_px();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -692,14 +691,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // GPOS(rfc1712, section 3)
-        class GPOS : public RR
+        class rr_gpos : public rr
         {
         public:
-            GPOS();
+            rr_gpos();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -715,14 +714,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // AAAA(rfc3596, section 2.2)
-        class AAAA : public RR
+        class rr_aaaa : public rr
         {
         public:
-            AAAA();
+            rr_aaaa();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -736,14 +735,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // LOC(rfc1876, section 2)
-        class LOC : public RR
+        class rr_loc : public rr
         {
         public:
-            LOC();
+            rr_loc();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -764,14 +763,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NXT(rfc2535, section 5.2)
-        class NXT : public RR
+        class rr_nxt : public rr
         {
         public:
-            NXT();
+            rr_nxt();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -786,14 +785,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // EID(draft-lewis-dns-undocumented-types-01)
-        class EID : public RR
+        class rr_eid : public rr
         {
         public:
-            EID();
+            rr_eid();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -807,14 +806,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NIMLOC(draft-lewis-dns-undocumented-types-01)
-        class NIMLOC : public RR
+        class rr_nimloc : public rr
         {
         public:
-            NIMLOC();
+            rr_nimloc();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -828,14 +827,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SRV(rfc2782)
-        class SRV : public RR
+        class rr_srv : public rr
         {
         public:
-            SRV();
+            rr_srv();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -852,14 +851,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // ATMA(ATM Name System Specification Version 1.0)
-        class ATMA : public RR
+        class rr_atma : public rr
         {
         public:
-            ATMA();
+            rr_atma();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -874,14 +873,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NAPTR(rfc3403, section 4.1)
-        class NAPTR : public RR
+        class rr_naptr : public rr
         {
         public:
-            NAPTR();
+            rr_naptr();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -900,14 +899,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // KX(rfc2230, section 3.1)
-        class KX : public RR
+        class rr_kx : public rr
         {
         public:
-            KX();
+            rr_kx();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -922,14 +921,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CERT(rfc4398, section 2)
-        class CERT : public RR
+        class rr_cert : public rr
         {
         public:
-            CERT();
+            rr_cert();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -946,14 +945,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // A6(rfc2874, section 3.1, OBSOLETE - use AAAA instead)
-        class A6 : public RR
+        class rr_a6 : public rr
         {
         public:
-            A6();
+            rr_a6();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -969,14 +968,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DNAME(rfc2672, section 3)
-        class DNAME : public RR
+        class rr_dname : public rr
         {
         public:
-            DNAME();
+            rr_dname();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -990,14 +989,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SINK(draft-eastlake-kitchen-sink-02)
-        class SINK : public RR
+        class rr_sink : public rr
         {
         public:
-            SINK();
+            rr_sink();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1013,13 +1012,13 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPT(rfc6891, section 6.1.2)
-        class OPT : public RR
+        class rr_opt : public rr
         {
         public:
             typedef std::shared_ptr<edns0::opt> opt_pointer;
 
         public:
-            OPT();
+            rr_opt();
 
         public:
             /**
@@ -1056,7 +1055,7 @@ namespace chen
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1070,14 +1069,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DS(rfc4034, section 5.1)
-        class DS : public RR
+        class rr_ds : public rr
         {
         public:
-            DS();
+            rr_ds();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1094,14 +1093,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SSHFP(rfc4255, section 3.1)
-        class SSHFP : public RR
+        class rr_sshfp : public rr
         {
         public:
-            SSHFP();
+            rr_sshfp();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1117,17 +1116,17 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // IPSECKEY(rfc4025, section 2.1)
-        class IPSECKEY : public RR
+        class rr_ipseckey : public rr
         {
         public:
             enum class GatewayType {None, IPv4, IPv6, Domain};
 
         public:
-            IPSECKEY();
+            rr_ipseckey();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1145,14 +1144,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RRSIG(rfc4034, section 3.1)
-        class RRSIG : public RR
+        class rr_rrsig : public rr
         {
         public:
-            RRSIG();
+            rr_rrsig();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1174,14 +1173,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSEC(rfc4034, section 4.1)
-        class NSEC : public RR
+        class rr_nsec : public rr
         {
         public:
-            NSEC();
+            rr_nsec();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1196,14 +1195,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DNSKEY(rfc4034, section 2.1)
-        class DNSKEY : public RR
+        class rr_dnskey : public rr
         {
         public:
-            DNSKEY();
+            rr_dnskey();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1220,14 +1219,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DHCID(rfc4701, section 3.1)
-        class DHCID : public RR
+        class rr_dhcid : public rr
         {
         public:
-            DHCID();
+            rr_dhcid();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1241,14 +1240,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSEC3(rfc5155, section 3.2)
-        class NSEC3 : public RR
+        class rr_nsec3 : public rr
         {
         public:
-            NSEC3();
+            rr_nsec3();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1269,14 +1268,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NSEC3PARAM(rfc5155, section 4.2)
-        class NSEC3PARAM : public RR
+        class rr_nsec3param : public rr
         {
         public:
-            NSEC3PARAM();
+            rr_nsec3param();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1294,14 +1293,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TLSA(rfc6698, section 2.1)
-        class TLSA : public RR
+        class rr_tlsa : public rr
         {
         public:
-            TLSA();
+            rr_tlsa();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1318,14 +1317,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SMIMEA(draft-ietf-dane-smime, section 2)
-        class SMIMEA : public RR
+        class rr_smimea : public rr
         {
         public:
-            SMIMEA();
+            rr_smimea();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1342,14 +1341,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // HIP(rfc5205, section 5)
-        class HIP : public RR
+        class rr_hip : public rr
         {
         public:
-            HIP();
+            rr_hip();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1368,14 +1367,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // NINFO(draft-lewis-dns-undocumented-types-01)
-        class NINFO : public RR
+        class rr_ninfo : public rr
         {
         public:
-            NINFO();
+            rr_ninfo();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1389,14 +1388,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RKEY(draft-lewis-dns-undocumented-types-01)
-        class RKEY : public RR
+        class rr_rkey : public rr
         {
         public:
-            RKEY();
+            rr_rkey();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1413,14 +1412,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TALINK(draft-lewis-dns-undocumented-types-01)
-        class TALINK : public RR
+        class rr_talink : public rr
         {
         public:
-            TALINK();
+            rr_talink();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1435,14 +1434,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CDS(rfc7344, section 3.1)
-        class CDS : public RR
+        class rr_cds : public rr
         {
         public:
-            CDS();
+            rr_cds();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1459,14 +1458,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CDNSKEY(rfc7344, section 3.2)
-        class CDNSKEY : public RR
+        class rr_cdnskey : public rr
         {
         public:
-            CDNSKEY();
+            rr_cdnskey();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1483,14 +1482,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // OPENPGPKEY(draft-ietf-dane-openpgpkey, section 2.1)
-        class OPENPGPKEY : public RR
+        class rr_openpgpkey : public rr
         {
         public:
-            OPENPGPKEY();
+            rr_openpgpkey();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1504,14 +1503,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CSYNC(rfc7477, section 2.1.1)
-        class CSYNC : public RR
+        class rr_csync : public rr
         {
         public:
-            CSYNC();
+            rr_csync();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1527,14 +1526,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // SPF(rfc4408, section 3)
-        class SPF : public RR
+        class rr_spf : public rr
         {
         public:
-            SPF();
+            rr_spf();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1548,62 +1547,62 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // UINFO(IANA reserved, no RFC documented)
-        class UINFO : public Raw
+        class rr_uinfo : public raw
         {
         public:
-            UINFO();
+            rr_uinfo();
 
         public:
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
         };
 
 
         // ---------------------------------------------------------------------
         // UID(IANA reserved, no RFC documented)
-        class UID : public Raw
+        class rr_uid : public raw
         {
         public:
-            UID();
+            rr_uid();
 
         public:
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
         };
 
 
         // ---------------------------------------------------------------------
         // GID(IANA reserved, no RFC documented)
-        class GID : public Raw
+        class rr_gid : public raw
         {
         public:
-            GID();
+            rr_gid();
 
         public:
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
         };
 
 
         // ---------------------------------------------------------------------
         // UNSPEC(IANA reserved, no RFC documented)
-        class UNSPEC : public Raw
+        class rr_unspec : public raw
         {
         public:
-            UNSPEC();
+            rr_unspec();
 
         public:
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
         };
 
 
         // ---------------------------------------------------------------------
         // NID(rfc6742, section 2.1.1)
-        class NID : public RR
+        class rr_nid : public rr
         {
         public:
-            NID();
+            rr_nid();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1618,14 +1617,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // L32(rfc6742, section 2.2.1)
-        class L32 : public RR
+        class rr_l32 : public rr
         {
         public:
-            L32();
+            rr_l32();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1640,14 +1639,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // L64(rfc6742, section 2.3.1)
-        class L64 : public RR
+        class rr_l64 : public rr
         {
         public:
-            L64();
+            rr_l64();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1662,14 +1661,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // LP(rfc6742, section 2.4.1)
-        class LP : public RR
+        class rr_lp : public rr
         {
         public:
-            LP();
+            rr_lp();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1684,14 +1683,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // EUI48(rfc7043, section 3.1)
-        class EUI48 : public RR
+        class rr_eui48 : public rr
         {
         public:
-            EUI48();
+            rr_eui48();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1705,14 +1704,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // EUI64(rfc7043, section 4.1)
-        class EUI64 : public RR
+        class rr_eui64 : public rr
         {
         public:
-            EUI64();
+            rr_eui64();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1726,14 +1725,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TKEY(rfc2930, section 2)
-        class TKEY : public RR
+        class rr_tkey : public rr
         {
         public:
-            TKEY();
+            rr_tkey();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1755,14 +1754,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TSIG(rfc2845, section 2.3)
-        class TSIG : public RR
+        class rr_tsig : public rr
         {
         public:
-            TSIG();
+            rr_tsig();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1784,14 +1783,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // URI(rfc7553, section 4.5)
-        class URI : public RR
+        class rr_uri : public rr
         {
         public:
-            URI();
+            rr_uri();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1807,14 +1806,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // CAA(rfc6844, section 5.1.1)
-        class CAA : public RR
+        class rr_caa : public rr
         {
         public:
-            CAA();
+            rr_caa();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1830,14 +1829,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // TA(Deploying DNSSEC Without a Signed Root)
-        class TA : public RR
+        class rr_ta : public rr
         {
         public:
-            TA();
+            rr_ta();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;
@@ -1854,14 +1853,14 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // DLV(rfc4431, section 2)
-        class DLV : public RR
+        class rr_dlv : public rr
         {
         public:
-            DLV();
+            rr_dlv();
 
         public:
             virtual std::string str(const std::string &sep = " ") const override;
-            virtual std::shared_ptr<RR> clone() const override;
+            virtual std::shared_ptr<rr> clone() const override;
 
         protected:
             virtual void pack(dns::encoder &encoder) const override;

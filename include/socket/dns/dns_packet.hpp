@@ -21,7 +21,7 @@ namespace chen
         public:
             typedef dns::header header_type;
             typedef dns::question question_type;
-            typedef std::shared_ptr<RR> record_type;
+            typedef std::shared_ptr<rr> record_type;
 
         public:
             /**
@@ -53,7 +53,7 @@ namespace chen
             /**
              * EDNS
              */
-            std::shared_ptr<OPT> edns0() const;
+            std::shared_ptr<rr_opt> edns0() const;
 
             template <typename T>
             std::shared_ptr<T> option() const

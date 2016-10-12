@@ -119,14 +119,14 @@ void chen::dns::message::setAdditional(std::vector<record_type> value)
 }
 
 // edns
-std::shared_ptr<chen::dns::OPT> chen::dns::message::edns0() const
+std::shared_ptr<chen::dns::rr_opt> chen::dns::message::edns0() const
 {
     for (auto &rr : this->_additional)
     {
         if (rr->rrtype == TypeOPT)
         {
             // check edns version
-            auto ret = std::dynamic_pointer_cast<OPT>(rr->clone());
+            auto ret = std::dynamic_pointer_cast<rr_opt>(rr->clone());
             if (ret->version() == 0)
                 return ret;
         }
@@ -179,7 +179,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
 
     for (std::uint16_t i = 0, len = this->_header.ancount(); i < len; ++i)
     {
-        auto record = RR::create(decoder);
+        auto record = rr::create(decoder);
 
         if (record)
             this->_answer.emplace_back(std::move(record));
@@ -192,7 +192,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
 
     for (std::uint16_t i = 0, len = this->_header.nscount(); i < len; ++i)
     {
-        auto record = RR::create(decoder);
+        auto record = rr::create(decoder);
 
         if (record)
             this->_authority.emplace_back(std::move(record));
@@ -205,7 +205,7 @@ void chen::dns::message::decode(dns::decoder &decoder)
 
     for (std::uint16_t i = 0, len = this->_header.arcount(); i < len; ++i)
     {
-        auto record = RR::create(decoder);
+        auto record = rr::create(decoder);
 
         if (record)
             this->_additional.emplace_back(std::move(record));

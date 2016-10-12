@@ -154,7 +154,7 @@ chen::dns::edns0::opt_nsid::opt_nsid() : opt(OptNSID)
 std::string chen::dns::edns0::opt_nsid::str(const std::string &sep) const
 {
     std::string ret("NSID");
-    ret += sep + RR::escape(this->data);
+    ret += sep + rr::escape(this->data);
     return ret;
 }
 
@@ -183,7 +183,7 @@ chen::dns::edns0::opt_dau::opt_dau() : opt(OptDAU)
 std::string chen::dns::edns0::opt_dau::str(const std::string &sep) const
 {
     std::string ret("DAU");
-    ret += sep + RR::escape(this->alg_code.size());
+    ret += sep + rr::escape(this->alg_code.size());
     return ret;
 }
 
@@ -212,7 +212,7 @@ chen::dns::edns0::opt_dhu::opt_dhu() : opt(OptDHU)
 std::string chen::dns::edns0::opt_dhu::str(const std::string &sep) const
 {
     std::string ret("DHU");
-    ret += sep + RR::escape(this->alg_code.size());
+    ret += sep + rr::escape(this->alg_code.size());
     return ret;
 }
 
@@ -241,7 +241,7 @@ chen::dns::edns0::opt_n3u::opt_n3u() : opt(OptN3U)
 std::string chen::dns::edns0::opt_n3u::str(const std::string &sep) const
 {
     std::string ret("N3U");
-    ret += sep + RR::escape(this->alg_code.size());
+    ret += sep + rr::escape(this->alg_code.size());
     return ret;
 }
 
@@ -412,12 +412,12 @@ std::string chen::dns::edns0::opt_cookie::str(const std::string &sep) const
 
     if (this->server_cookie.empty())
     {
-        ret += sep + RR::escape(this->client_cookie.size());
+        ret += sep + rr::escape(this->client_cookie.size());
     }
     else
     {
-        ret += sep + RR::escape(this->client_cookie.size());
-        ret += sep + RR::escape(this->server_cookie.size());
+        ret += sep + rr::escape(this->client_cookie.size());
+        ret += sep + rr::escape(this->server_cookie.size());
     }
 
     return ret;
@@ -479,7 +479,7 @@ chen::dns::edns0::opt_padding::opt_padding() : opt(OptPadding)
 std::string chen::dns::edns0::opt_padding::str(const std::string &sep) const
 {
     std::string ret("Padding");
-    ret += sep + RR::escape(this->padding.size());
+    ret += sep + rr::escape(this->padding.size());
     return ret;
 }
 
