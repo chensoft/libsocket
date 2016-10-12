@@ -13,16 +13,20 @@ namespace chen
     namespace bsd
     {
         /**
-         * IOCP for Windows(proactor model)
+         * WSAPoll for Windows(reactor model)
+         * Windows's most efficient model is IOCP, but IOCP is a proactor model, so we use WSAPoll here
          * you should not use this class directly unless you want to implement your own event-based model
          */
-        class iocp
+        class poller
         {
             // todo
         };
 
-        // system-independent typedef
-        typedef iocp proactor;
+
+        /**
+         * reactor typedef
+         */
+        typedef kqueue reactor;
     }
 }
 

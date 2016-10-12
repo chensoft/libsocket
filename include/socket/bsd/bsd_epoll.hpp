@@ -114,7 +114,10 @@ namespace chen
             int _ef = -1;  // eventfd handle
         };
 
-        // system-independent typedef
+
+        /**
+         * reactor typedef
+         */
         typedef epoll reactor;
     }
 }

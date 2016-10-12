@@ -118,7 +118,10 @@ namespace chen
             int _fd = -1;  // kqueue handle
         };
 
-        // system-independent typedef
+
+        /**
+         * reactor typedef
+         */
         typedef kqueue reactor;
     }
 }
