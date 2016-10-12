@@ -86,7 +86,7 @@ std::shared_ptr<chen::dns::RR> chen::dns::RR::create(dns::decoder &decoder)
     std::string unused;
     detect.unpack(unused, codec::StringType::Domain);
 
-    RRType rrtype = RRType::None;
+    RRType rrtype = TypeNone;
     detect.unpack(rrtype);
 
     // build record
@@ -158,7 +158,7 @@ std::string chen::dns::RR::escape(std::size_t bits)
 
 // -----------------------------------------------------------------------------
 // Raw
-chen::dns::Raw::Raw() : Raw(RRType::None)
+chen::dns::Raw::Raw() : Raw(TypeNone)
 {
 }
 
@@ -199,7 +199,7 @@ void chen::dns::Raw::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // A
-chen::dns::A::A() : RR(RRType::A)
+chen::dns::A::A() : RR(TypeA)
 {
 }
 
@@ -239,7 +239,7 @@ void chen::dns::A::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NS
-chen::dns::NS::NS() : RR(RRType::NS)
+chen::dns::NS::NS() : RR(TypeNS)
 {
 }
 
@@ -273,7 +273,7 @@ void chen::dns::NS::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MD
-chen::dns::MD::MD() : RR(RRType::MD)
+chen::dns::MD::MD() : RR(TypeMD)
 {
 }
 
@@ -307,7 +307,7 @@ void chen::dns::MD::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MF
-chen::dns::MF::MF() : RR(RRType::MF)
+chen::dns::MF::MF() : RR(TypeMF)
 {
 }
 
@@ -341,7 +341,7 @@ void chen::dns::MF::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // CNAME
-chen::dns::CNAME::CNAME() : RR(RRType::CNAME)
+chen::dns::CNAME::CNAME() : RR(TypeCNAME)
 {
 }
 
@@ -375,7 +375,7 @@ void chen::dns::CNAME::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SOA
-chen::dns::SOA::SOA() : RR(RRType::SOA)
+chen::dns::SOA::SOA() : RR(TypeSOA)
 {
 }
 
@@ -435,7 +435,7 @@ void chen::dns::SOA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MB
-chen::dns::MB::MB() : RR(RRType::MB)
+chen::dns::MB::MB() : RR(TypeMB)
 {
 }
 
@@ -469,7 +469,7 @@ void chen::dns::MB::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MG
-chen::dns::MG::MG() : RR(RRType::MG)
+chen::dns::MG::MG() : RR(TypeMG)
 {
 }
 
@@ -503,7 +503,7 @@ void chen::dns::MG::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MR
-chen::dns::MR::MR() : RR(RRType::MR)
+chen::dns::MR::MR() : RR(TypeMR)
 {
 }
 
@@ -537,7 +537,7 @@ void chen::dns::MR::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // Null
-chen::dns::Null::Null() : Raw(RRType::Null)
+chen::dns::Null::Null() : Raw(TypeNULL)
 {
 }
 
@@ -580,7 +580,7 @@ void chen::dns::Null::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // WKS
-chen::dns::WKS::WKS() : RR(RRType::WKS)
+chen::dns::WKS::WKS() : RR(TypeWKS)
 {
 }
 
@@ -632,7 +632,7 @@ void chen::dns::WKS::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // PTR
-chen::dns::PTR::PTR() : RR(RRType::PTR)
+chen::dns::PTR::PTR() : RR(TypePTR)
 {
 }
 
@@ -666,7 +666,7 @@ void chen::dns::PTR::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // HINFO
-chen::dns::HINFO::HINFO() : RR(RRType::HINFO)
+chen::dns::HINFO::HINFO() : RR(TypeHINFO)
 {
 }
 
@@ -704,7 +704,7 @@ void chen::dns::HINFO::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MINFO
-chen::dns::MINFO::MINFO() : RR(RRType::MINFO)
+chen::dns::MINFO::MINFO() : RR(TypeMINFO)
 {
 }
 
@@ -742,7 +742,7 @@ void chen::dns::MINFO::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // MX
-chen::dns::MX::MX() : RR(RRType::MX)
+chen::dns::MX::MX() : RR(TypeMX)
 {
 }
 
@@ -780,7 +780,7 @@ void chen::dns::MX::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // TXT
-chen::dns::TXT::TXT() : RR(RRType::TXT)
+chen::dns::TXT::TXT() : RR(TypeTXT)
 {
 }
 
@@ -814,7 +814,7 @@ void chen::dns::TXT::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // RP
-chen::dns::RP::RP() : RR(RRType::RP)
+chen::dns::RP::RP() : RR(TypeRP)
 {
 }
 
@@ -852,7 +852,7 @@ void chen::dns::RP::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // AFSDB
-chen::dns::AFSDB::AFSDB() : RR(RRType::AFSDB)
+chen::dns::AFSDB::AFSDB() : RR(TypeAFSDB)
 {
 }
 
@@ -890,7 +890,7 @@ void chen::dns::AFSDB::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // X25
-chen::dns::X25::X25() : RR(RRType::X25)
+chen::dns::X25::X25() : RR(TypeX25)
 {
 }
 
@@ -924,7 +924,7 @@ void chen::dns::X25::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // ISDN
-chen::dns::ISDN::ISDN() : RR(RRType::ISDN)
+chen::dns::ISDN::ISDN() : RR(TypeISDN)
 {
 }
 
@@ -962,7 +962,7 @@ void chen::dns::ISDN::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // RT
-chen::dns::RT::RT() : RR(RRType::RT)
+chen::dns::RT::RT() : RR(TypeRT)
 {
 }
 
@@ -1000,7 +1000,7 @@ void chen::dns::RT::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSAP
-chen::dns::NSAP::NSAP() : RR(RRType::NSAP)
+chen::dns::NSAP::NSAP() : RR(TypeNSAP)
 {
 }
 
@@ -1034,7 +1034,7 @@ void chen::dns::NSAP::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSAPPTR
-chen::dns::NSAPPTR::NSAPPTR() : RR(RRType::NSAPPTR)
+chen::dns::NSAPPTR::NSAPPTR() : RR(TypeNSAPPTR)
 {
 }
 
@@ -1068,7 +1068,7 @@ void chen::dns::NSAPPTR::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SIG
-chen::dns::SIG::SIG() : RR(RRType::SIG)
+chen::dns::SIG::SIG() : RR(TypeSIG)
 {
 }
 
@@ -1136,7 +1136,7 @@ void chen::dns::SIG::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // KEY
-chen::dns::KEY::KEY() : RR(RRType::KEY)
+chen::dns::KEY::KEY() : RR(TypeKEY)
 {
 }
 
@@ -1184,7 +1184,7 @@ void chen::dns::KEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // PX
-chen::dns::PX::PX() : RR(RRType::PX)
+chen::dns::PX::PX() : RR(TypePX)
 {
 }
 
@@ -1228,7 +1228,7 @@ void chen::dns::PX::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // GPOS
-chen::dns::GPOS::GPOS() : RR(RRType::GPOS)
+chen::dns::GPOS::GPOS() : RR(TypeGPOS)
 {
 }
 
@@ -1272,7 +1272,7 @@ void chen::dns::GPOS::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // AAAA
-chen::dns::AAAA::AAAA() : RR(RRType::AAAA)
+chen::dns::AAAA::AAAA() : RR(TypeAAAA)
 {
 }
 
@@ -1307,7 +1307,7 @@ void chen::dns::AAAA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // LOC
-chen::dns::LOC::LOC() : RR(RRType::LOC)
+chen::dns::LOC::LOC() : RR(TypeLOC)
 {
 }
 
@@ -1367,7 +1367,7 @@ void chen::dns::LOC::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NXT
-chen::dns::NXT::NXT() : RR(RRType::NXT)
+chen::dns::NXT::NXT() : RR(TypeNXT)
 {
 }
 
@@ -1413,7 +1413,7 @@ void chen::dns::NXT::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // EID
-chen::dns::EID::EID() : RR(RRType::EID)
+chen::dns::EID::EID() : RR(TypeEID)
 {
 }
 
@@ -1447,7 +1447,7 @@ void chen::dns::EID::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NIMLOC
-chen::dns::NIMLOC::NIMLOC() : RR(RRType::NIMLOC)
+chen::dns::NIMLOC::NIMLOC() : RR(TypeNIMLOC)
 {
 }
 
@@ -1481,7 +1481,7 @@ void chen::dns::NIMLOC::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SRV
-chen::dns::SRV::SRV() : RR(RRType::SRV)
+chen::dns::SRV::SRV() : RR(TypeSRV)
 {
 }
 
@@ -1529,7 +1529,7 @@ void chen::dns::SRV::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // ATMA
-chen::dns::ATMA::ATMA() : RR(RRType::ATMA)
+chen::dns::ATMA::ATMA() : RR(TypeATMA)
 {
 }
 
@@ -1569,7 +1569,7 @@ void chen::dns::ATMA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NAPTR
-chen::dns::NAPTR::NAPTR() : RR(RRType::NAPTR)
+chen::dns::NAPTR::NAPTR() : RR(TypeNAPTR)
 {
 }
 
@@ -1625,7 +1625,7 @@ void chen::dns::NAPTR::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // KX
-chen::dns::KX::KX() : RR(RRType::KX)
+chen::dns::KX::KX() : RR(TypeKX)
 {
 }
 
@@ -1665,7 +1665,7 @@ void chen::dns::KX::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // CERT
-chen::dns::CERT::CERT() : RR(RRType::CERT)
+chen::dns::CERT::CERT() : RR(TypeCERT)
 {
 }
 
@@ -1713,7 +1713,7 @@ void chen::dns::CERT::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // A6
-chen::dns::A6::A6() : RR(RRType::A6)
+chen::dns::A6::A6() : RR(TypeA6)
 {
 }
 
@@ -1765,7 +1765,7 @@ void chen::dns::A6::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // DNAME
-chen::dns::DNAME::DNAME() : RR(RRType::DNAME)
+chen::dns::DNAME::DNAME() : RR(TypeDNAME)
 {
 }
 
@@ -1799,7 +1799,7 @@ void chen::dns::DNAME::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SINK
-chen::dns::SINK::SINK() : RR(RRType::SINK)
+chen::dns::SINK::SINK() : RR(TypeSINK)
 {
 }
 
@@ -1851,7 +1851,7 @@ void chen::dns::SINK::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // OPT
-chen::dns::OPT::OPT() : RR(RRType::OPT)
+chen::dns::OPT::OPT() : RR(TypeOPT)
 {
     // opt name is always '.'
     this->name = ".";
@@ -1976,7 +1976,7 @@ void chen::dns::OPT::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // DS
-chen::dns::DS::DS() : RR(RRType::DS)
+chen::dns::DS::DS() : RR(TypeDS)
 {
 }
 
@@ -2024,7 +2024,7 @@ void chen::dns::DS::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SSHFP
-chen::dns::SSHFP::SSHFP() : RR(RRType::SSHFP)
+chen::dns::SSHFP::SSHFP() : RR(TypeSSHFP)
 {
 }
 
@@ -2068,7 +2068,7 @@ void chen::dns::SSHFP::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // IPSECKEY
-chen::dns::IPSECKEY::IPSECKEY() : RR(RRType::IPSECKEY)
+chen::dns::IPSECKEY::IPSECKEY() : RR(TypeIPSECKEY)
 {
 }
 
@@ -2173,7 +2173,7 @@ void chen::dns::IPSECKEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // RRSIG
-chen::dns::RRSIG::RRSIG() : RR(RRType::RRSIG)
+chen::dns::RRSIG::RRSIG() : RR(TypeRRSIG)
 {
 }
 
@@ -2241,7 +2241,7 @@ void chen::dns::RRSIG::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSEC
-chen::dns::NSEC::NSEC() : RR(RRType::NSEC)
+chen::dns::NSEC::NSEC() : RR(TypeNSEC)
 {
 }
 
@@ -2287,7 +2287,7 @@ void chen::dns::NSEC::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // DNSKEY
-chen::dns::DNSKEY::DNSKEY() : RR(RRType::DNSKEY)
+chen::dns::DNSKEY::DNSKEY() : RR(TypeDNSKEY)
 {
 }
 
@@ -2335,7 +2335,7 @@ void chen::dns::DNSKEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // DHCID
-chen::dns::DHCID::DHCID() : RR(RRType::DHCID)
+chen::dns::DHCID::DHCID() : RR(TypeDHCID)
 {
 }
 
@@ -2369,7 +2369,7 @@ void chen::dns::DHCID::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSEC3
-chen::dns::NSEC3::NSEC3() : RR(RRType::NSEC3)
+chen::dns::NSEC3::NSEC3() : RR(TypeNSEC3)
 {
 }
 
@@ -2446,7 +2446,7 @@ void chen::dns::NSEC3::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NSEC3PARAM
-chen::dns::NSEC3PARAM::NSEC3PARAM() : RR(RRType::NSEC3PARAM)
+chen::dns::NSEC3PARAM::NSEC3PARAM() : RR(TypeNSEC3PARAM)
 {
 }
 
@@ -2502,7 +2502,7 @@ void chen::dns::NSEC3PARAM::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // TLSA
-chen::dns::TLSA::TLSA() : RR(RRType::TLSA)
+chen::dns::TLSA::TLSA() : RR(TypeTLSA)
 {
 }
 
@@ -2550,7 +2550,7 @@ void chen::dns::TLSA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SMIMEA
-chen::dns::SMIMEA::SMIMEA() : RR(RRType::SMIMEA)
+chen::dns::SMIMEA::SMIMEA() : RR(TypeSMIMEA)
 {
 }
 
@@ -2598,7 +2598,7 @@ void chen::dns::SMIMEA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // HIP
-chen::dns::HIP::HIP() : RR(RRType::HIP)
+chen::dns::HIP::HIP() : RR(TypeHIP)
 {
 }
 
@@ -2654,7 +2654,7 @@ void chen::dns::HIP::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // NINFO
-chen::dns::NINFO::NINFO() : RR(RRType::NINFO)
+chen::dns::NINFO::NINFO() : RR(TypeNINFO)
 {
 }
 
@@ -2688,7 +2688,7 @@ void chen::dns::NINFO::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // RKEY
-chen::dns::RKEY::RKEY() : RR(RRType::RKEY)
+chen::dns::RKEY::RKEY() : RR(TypeRKEY)
 {
 }
 
@@ -2736,7 +2736,7 @@ void chen::dns::RKEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // TALINK
-chen::dns::TALINK::TALINK() : RR(RRType::TALINK)
+chen::dns::TALINK::TALINK() : RR(TypeTALINK)
 {
 }
 
@@ -2776,7 +2776,7 @@ void chen::dns::TALINK::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // CDS
-chen::dns::CDS::CDS() : RR(RRType::CDS)
+chen::dns::CDS::CDS() : RR(TypeCDS)
 {
 }
 
@@ -2824,7 +2824,7 @@ void chen::dns::CDS::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // CDNSKEY
-chen::dns::CDNSKEY::CDNSKEY() : RR(RRType::CDNSKEY)
+chen::dns::CDNSKEY::CDNSKEY() : RR(TypeCDNSKEY)
 {
 }
 
@@ -2872,7 +2872,7 @@ void chen::dns::CDNSKEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // OPENPGPKEY
-chen::dns::OPENPGPKEY::OPENPGPKEY() : RR(RRType::OPENPGPKEY)
+chen::dns::OPENPGPKEY::OPENPGPKEY() : RR(TypeOPENPGPKEY)
 {
 }
 
@@ -2906,7 +2906,7 @@ void chen::dns::OPENPGPKEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // CSYNC
-chen::dns::CSYNC::CSYNC() : RR(RRType::CSYNC)
+chen::dns::CSYNC::CSYNC() : RR(TypeCSYNC)
 {
 }
 
@@ -2958,7 +2958,7 @@ void chen::dns::CSYNC::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // SPF
-chen::dns::SPF::SPF() : RR(RRType::SPF)
+chen::dns::SPF::SPF() : RR(TypeSPF)
 {
 }
 
@@ -2992,7 +2992,7 @@ void chen::dns::SPF::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // UINFO
-chen::dns::UINFO::UINFO() : Raw(RRType::UINFO)
+chen::dns::UINFO::UINFO() : Raw(TypeUINFO)
 {
 }
 
@@ -3004,7 +3004,7 @@ std::shared_ptr<chen::dns::RR> chen::dns::UINFO::clone() const
 
 // -----------------------------------------------------------------------------
 // UID
-chen::dns::UID::UID() : Raw(RRType::UID)
+chen::dns::UID::UID() : Raw(TypeUID)
 {
 }
 
@@ -3016,7 +3016,7 @@ std::shared_ptr<chen::dns::RR> chen::dns::UID::clone() const
 
 // -----------------------------------------------------------------------------
 // GID
-chen::dns::GID::GID() : Raw(RRType::GID)
+chen::dns::GID::GID() : Raw(TypeGID)
 {
 }
 
@@ -3028,7 +3028,7 @@ std::shared_ptr<chen::dns::RR> chen::dns::GID::clone() const
 
 // -----------------------------------------------------------------------------
 // UNSPEC
-chen::dns::UNSPEC::UNSPEC() : Raw(RRType::UNSPEC)
+chen::dns::UNSPEC::UNSPEC() : Raw(TypeUNSPEC)
 {
 }
 
@@ -3040,7 +3040,7 @@ std::shared_ptr<chen::dns::RR> chen::dns::UNSPEC::clone() const
 
 // -----------------------------------------------------------------------------
 // NID
-chen::dns::NID::NID() : RR(RRType::NID)
+chen::dns::NID::NID() : RR(TypeNID)
 {
 }
 
@@ -3080,7 +3080,7 @@ void chen::dns::NID::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // L32
-chen::dns::L32::L32() : RR(RRType::L32)
+chen::dns::L32::L32() : RR(TypeL32)
 {
 }
 
@@ -3120,7 +3120,7 @@ void chen::dns::L32::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // L64
-chen::dns::L64::L64() : RR(RRType::L64)
+chen::dns::L64::L64() : RR(TypeL64)
 {
 }
 
@@ -3160,7 +3160,7 @@ void chen::dns::L64::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // LP
-chen::dns::LP::LP() : RR(RRType::LP)
+chen::dns::LP::LP() : RR(TypeLP)
 {
 }
 
@@ -3200,7 +3200,7 @@ void chen::dns::LP::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // EUI48
-chen::dns::EUI48::EUI48() : RR(RRType::EUI48)
+chen::dns::EUI48::EUI48() : RR(TypeEUI48)
 {
 }
 
@@ -3235,7 +3235,7 @@ void chen::dns::EUI48::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // EUI64
-chen::dns::EUI64::EUI64() : RR(RRType::EUI64)
+chen::dns::EUI64::EUI64() : RR(TypeEUI64)
 {
 }
 
@@ -3269,7 +3269,7 @@ void chen::dns::EUI64::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // TKEY
-chen::dns::TKEY::TKEY() : RR(RRType::TKEY)
+chen::dns::TKEY::TKEY() : RR(TypeTKEY)
 {
 }
 
@@ -3346,7 +3346,7 @@ void chen::dns::TKEY::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // TSIG
-chen::dns::TSIG::TSIG() : RR(RRType::TSIG)
+chen::dns::TSIG::TSIG() : RR(TypeTSIG)
 {
 }
 
@@ -3426,7 +3426,7 @@ void chen::dns::TSIG::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // URI
-chen::dns::URI::URI() : RR(RRType::URI)
+chen::dns::URI::URI() : RR(TypeURI)
 {
 }
 
@@ -3470,7 +3470,7 @@ void chen::dns::URI::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // CAA
-chen::dns::CAA::CAA() : RR(RRType::CAA)
+chen::dns::CAA::CAA() : RR(TypeCAA)
 {
 }
 
@@ -3514,7 +3514,7 @@ void chen::dns::CAA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // TA
-chen::dns::TA::TA() : RR(RRType::TA)
+chen::dns::TA::TA() : RR(TypeTA)
 {
 }
 
@@ -3562,7 +3562,7 @@ void chen::dns::TA::unpack(const json::object &object)
 
 // -----------------------------------------------------------------------------
 // DLV
-chen::dns::DLV::DLV() : RR(RRType::DLV)
+chen::dns::DLV::DLV() : RR(TypeDLV)
 {
 }
 

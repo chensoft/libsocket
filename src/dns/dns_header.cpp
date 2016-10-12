@@ -305,7 +305,7 @@ void chen::dns::question::decode(dns::decoder &decoder)
     decoder.unpack(qname, codec::StringType::Domain);
 
     // qtype
-    RRType qtype = RRType::None;
+    RRType qtype = TypeNone;
     decoder.unpack(qtype);
 
     // qclass

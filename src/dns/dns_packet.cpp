@@ -123,7 +123,7 @@ std::shared_ptr<chen::dns::OPT> chen::dns::message::edns0() const
 {
     for (auto &rr : this->_additional)
     {
-        if (rr->rrtype == RRType::OPT)
+        if (rr->rrtype == TypeOPT)
         {
             // check edns version
             auto ret = std::dynamic_pointer_cast<OPT>(rr->clone());

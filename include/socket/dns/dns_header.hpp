@@ -132,7 +132,7 @@ namespace chen
 
         private:
             std::string _qname;
-            RRType  _qtype  = RRType::None;
+            RRType  _qtype  = TypeNone;
             RRClass _qclass = ClassIN;
         };
     }
