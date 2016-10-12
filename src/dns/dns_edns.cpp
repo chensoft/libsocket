@@ -34,7 +34,7 @@ void chen::dns::edns0::opt::encode(dns::encoder &encoder) const
     auto len = encoder.size();
     auto off = len - before;
 
-    if (off > std::numeric_limits<std::uint16_t>::max())
+    if (off > (std::numeric_limits<std::uint16_t>::max)())
         throw std::runtime_error("dns: codec pack option data size is overflow");
 
     auto tmp = static_cast<std::uint16_t>(off);
