@@ -7,6 +7,7 @@
 #ifdef _WIN32
 
 #include <socket/bsd/bsd_setup.hpp>
+#include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
@@ -28,7 +29,7 @@ chen::bsd::setup::setup()
 
             auto ret = ::WSAStartup(version, &data);
             if (!ret)
-                throw std::system_error(sys::error(), "setup: failed to call WSAStartup");
+                throw std::system_error(sys::error(ret), "setup: failed to start winsock");
 
             if ((LOBYTE(data.wVersion) != 2) || (HIBYTE(data.wVersion) != 2))
                 throw std::runtime_error("setup: request winsock version is wrong");

@@ -132,10 +132,9 @@ namespace chen
             bsd::endpoint peer() const noexcept;
 
             /**
-             * Non-blocking status
+             * Non-blocking mode
              */
-            bool nonblocking() const noexcept;
-            bool nonblocking(bool enable) noexcept;
+            std::error_code nonblocking(bool enable) noexcept;
 
             /**
              * Get/Set socket option

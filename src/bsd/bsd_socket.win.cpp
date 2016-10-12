@@ -18,36 +18,33 @@ void chen::bsd::socket::shutdown(Shutdown type) noexcept
     switch (type)
     {
         case Shutdown::Read:
-            ::shutdown(this->_fd, SHUT_RD);
+            ::shutdown(this->_fd, SD_RECEIVE);
             break;
 
         case Shutdown::Write:
-            ::shutdown(this->_fd, SHUT_WR);
+            ::shutdown(this->_fd, SD_SEND);
             break;
 
         case Shutdown::Both:
-            ::shutdown(this->_fd, SHUT_RDWR);
+            ::shutdown(this->_fd, SD_BOTH);
             break;
     }
 }
 
-// property
-bool chen::bsd::socket::nonblocking() const noexcept
+void chen::bsd::socket::close() noexcept
 {
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
-    if (flag < 0)
-        return false;
+    if (!this->valid())
+        return;
 
-    return (flag & O_NONBLOCK) != 0;
+    ::closesocket(this->_fd);
+    this->_fd = invalid_socket;
 }
 
-bool chen::bsd::socket::nonblocking(bool enable) noexcept
+// property
+std::error_code chen::bsd::socket::nonblocking(bool enable) noexcept
 {
-    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
-    if (flag < 0)
-        return false;
-
-    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK));
+    u_long mode = enable ? 1 : 0;
+    return ::ioctlsocket(this->_fd, FIONBIO, &mode) ? sys::error() : std::error_code();
 }
 
 #endif
