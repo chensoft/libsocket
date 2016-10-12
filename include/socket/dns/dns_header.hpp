@@ -54,7 +54,7 @@ namespace chen
             bool zero()               const;  // reserved
             bool authenticData()      const;  // authentic data
             bool checkingDisabled()   const;  // checking disabled
-            RCODE rcode()             const;  // response code
+            RCode rcode()             const;  // response code
 
             /**
              * Set flag value
@@ -68,7 +68,7 @@ namespace chen
             void zero(bool value);
             void authenticData(bool value);
             void checkingDisabled(bool value);
-            void rcode(RCODE value);
+            void rcode(RCode value);
 
         public:
             /**

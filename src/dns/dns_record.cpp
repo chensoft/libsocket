@@ -1863,7 +1863,7 @@ std::uint16_t chen::dns::OPT::payload() const
     return static_cast<std::uint16_t>(this->rrclass);
 }
 
-std::uint16_t chen::dns::OPT::rcode(RCODE code) const
+std::uint16_t chen::dns::OPT::rcode(RCode code) const
 {
     std::uint16_t ret = this->rcode();
     return ret << 4 | static_cast<std::uint8_t>(code);

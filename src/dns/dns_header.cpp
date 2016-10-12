@@ -120,9 +120,9 @@ bool chen::dns::header::checkingDisabled() const
     return (this->_flag & FLAG_MASK_CD) != 0;
 }
 
-chen::dns::RCODE chen::dns::header::rcode() const
+chen::dns::RCode chen::dns::header::rcode() const
 {
-    return static_cast<RCODE>(this->_flag & FLAG_MASK_RCODE);
+    return static_cast<RCode>(this->_flag & FLAG_MASK_RCODE);
 }
 
 // set flag value
@@ -171,7 +171,7 @@ void chen::dns::header::checkingDisabled(bool value)
     this->_flag = (this->_flag & ~FLAG_MASK_CD) | ((static_cast<std::uint16_t>(value) << FLAG_POS_CD) & FLAG_MASK_CD);
 }
 
-void chen::dns::header::rcode(RCODE value)
+void chen::dns::header::rcode(RCode value)
 {
     this->_flag = (this->_flag & ~FLAG_MASK_RCODE) | ((static_cast<std::uint16_t>(value) << FLAG_POS_RCODE) & FLAG_MASK_RCODE);
 }

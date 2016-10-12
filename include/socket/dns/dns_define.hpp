@@ -50,29 +50,29 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // RCODE, 4 bits response code(rfc1035), 12 bits extended code(rfc6891)
-        enum class RCODE : std::uint8_t
+        enum RCode : std::uint8_t
         {
-            NoError   = 0,   // rfc1035, no error
-            FormErr   = 1,   // rfc1035, unable to interpret the query
-            ServFail  = 2,   // rfc1035, unable to process this query due to a problem with the name server
-            NXDomain  = 3,   // rfc1035, domain name referenced in the query does not exist
-            NotImp    = 4,   // rfc1035, does not support the requested kind of query
-            Refused   = 5,   // rfc1035, refuses to perform the specified operation for policy reasons
-            YXDomain  = 6,   // rfc2136, some name that ought not to exist, does exist
-            YXRrSet   = 7,   // rfc2136, some RRset that ought not to exist, does exist
-            NXRrSet   = 8,   // rfc2136, some RRset that ought to exist, does not exist
-            NotAuth   = 9,   // rfc2136, the server is not authoritative for the zone named in the Zone Section
-            NotZone   = 10,  // rfc2136, a name used in the Prerequisite or Update Section is not within the zone denoted by the Zone Section
+            RCodeNoError   = 0,   // rfc1035, no error
+            RCodeFormErr   = 1,   // rfc1035, unable to interpret the query
+            RCodeServFail  = 2,   // rfc1035, unable to process this query due to a problem with the name server
+            RCodeNXDomain  = 3,   // rfc1035, domain name referenced in the query does not exist
+            RCodeNotImp    = 4,   // rfc1035, does not support the requested kind of query
+            RCodeRefused   = 5,   // rfc1035, refuses to perform the specified operation for policy reasons
+            RCodeYXDomain  = 6,   // rfc2136, some name that ought not to exist, does exist
+            RCodeYXRrSet   = 7,   // rfc2136, some RRset that ought not to exist, does exist
+            RCodeNXRrSet   = 8,   // rfc2136, some RRset that ought to exist, does not exist
+            RCodeNotAuth   = 9,   // rfc2136, the server is not authoritative for the zone named in the Zone Section
+            RCodeNotZone   = 10,  // rfc2136, a name used in the Prerequisite or Update Section is not within the zone denoted by the Zone Section
 
-            BadVers   = 16,  // rfc6891, bad OPT version
-            BadSig    = 16,  // rfc2845, TSIG signature failure, same value as BadVers
-            BadKey    = 17,  // rfc2845, key not recognized
-            BadTime   = 18,  // rfc2845, signature out of time window
-            BadMode   = 19,  // rfc2930, bad TKEY mode
-            BadName   = 20,  // rfc2930, duplicate key name
-            BadAlg    = 21,  // rfc2930, algorithm not supported
-            BadTrunc  = 22,  // rfc4635, bad truncation
-            BadCookie = 23   // draft-ietf-dnsop-cookies, bad/missing server cookie
+            RCodeBadVers   = 16,  // rfc6891, bad OPT version
+            RCodeBadSig    = 16,  // rfc2845, TSIG signature failure, value is the same as BadVers
+            RCodeBadKey    = 17,  // rfc2845, key not recognized
+            RCodeBadTime   = 18,  // rfc2845, signature out of time window
+            RCodeBadMode   = 19,  // rfc2930, bad TKEY mode
+            RCodeBadName   = 20,  // rfc2930, duplicate key name
+            RCodeBadAlg    = 21,  // rfc2930, algorithm not supported
+            RCodeBadTrunc  = 22,  // rfc4635, bad truncation
+            RCodeBadCookie = 23   // draft-ietf-dnsop-cookies, bad/missing server cookie
         };
 
 

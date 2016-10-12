@@ -323,7 +323,7 @@ chen::dns::response::response(bool authoritative)
     this->_header.qr(QrResponse);
     this->_header.opcode(OpQuery);
     this->_header.authoritative(authoritative);
-    this->_header.rcode(RCODE::NoError);
+    this->_header.rcode(RCodeNoError);
 }
 
 chen::dns::response::response(bool authoritative, const dns::request &request) : response(authoritative)

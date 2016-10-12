@@ -232,30 +232,30 @@ namespace
 
     std::unordered_map<std::string, OpCode> g_rr_text_opcode;
 
-    std::map<RCODE, std::string> g_rr_rcode_text = {
-            {RCODE::NoError, "NOERROR"},
-            {RCODE::FormErr, "FORMERR"},
-            {RCODE::ServFail, "SERVFAIL"},
-            {RCODE::NXDomain, "NXDOMAIN"},
-            {RCODE::NotImp, "NOTIMPL"},
-            {RCODE::Refused, "REFUSED"},
-            {RCODE::YXDomain, "YXDOMAIN"},
-            {RCODE::YXRrSet, "YXRRSET"},
-            {RCODE::NXRrSet, "NXRRSET"},
-            {RCODE::NotAuth, "NOTAUTH"},
-            {RCODE::NotZone, "NOTZONE"},
-            {RCODE::BadVers, "BADVERS"},  // BadVers & BadSig has the same value
-//        {RCODE::BadSig, "BADSIG"},
-            {RCODE::BadKey, "BADKEY"},
-            {RCODE::BadTime, "BADTIME"},
-            {RCODE::BadMode, "BADMODE"},
-            {RCODE::BadName, "BADNAME"},
-            {RCODE::BadAlg, "BADALG"},
-            {RCODE::BadTrunc, "BADTRUNC"},
-            {RCODE::BadCookie, "BADCOOKIE"},
+    std::map<RCode, std::string> g_rr_rcode_text = {
+            {RCodeNoError, "NOERROR"},
+            {RCodeFormErr, "FORMERR"},
+            {RCodeServFail, "SERVFAIL"},
+            {RCodeNXDomain, "NXDOMAIN"},
+            {RCodeNotImp, "NOTIMPL"},
+            {RCodeRefused, "REFUSED"},
+            {RCodeYXDomain, "YXDOMAIN"},
+            {RCodeYXRrSet, "YXRRSET"},
+            {RCodeNXRrSet, "NXRRSET"},
+            {RCodeNotAuth, "NOTAUTH"},
+            {RCodeNotZone, "NOTZONE"},
+            {RCodeBadVers, "BADVERS"},  // BadVers & BadSig has the same value
+//        {RCodeBadSig, "BADSIG"},
+            {RCodeBadKey, "BADKEY"},
+            {RCodeBadTime, "BADTIME"},
+            {RCodeBadMode, "BADMODE"},
+            {RCodeBadName, "BADNAME"},
+            {RCodeBadAlg, "BADALG"},
+            {RCodeBadTrunc, "BADTRUNC"},
+            {RCodeBadCookie, "BADCOOKIE"},
     };
 
-    std::unordered_map<std::string, RCODE> g_rr_text_rcode;
+    std::unordered_map<std::string, RCode> g_rr_text_rcode;
 
     std::map<OptionCode, std::string> g_rr_edns0_text = {
             {OptionCode::LLQ, "LLQ"},
@@ -373,16 +373,16 @@ OpCode chen::dns::table::textToOpcode(const std::string &key)
 }
 
 // rcode & text
-std::string chen::dns::table::rcodeToText(RCODE key)
+std::string chen::dns::table::rcodeToText(RCode key)
 {
     auto it = g_rr_rcode_text.find(key);
     return it != g_rr_rcode_text.end() ? it->second : "";
 }
 
-RCODE chen::dns::table::textToRcode(const std::string &key)
+RCode chen::dns::table::textToRcode(const std::string &key)
 {
     auto it = g_rr_text_rcode.find(key);
-    return it != g_rr_text_rcode.end() ? it->second : RCODE::NoError;
+    return it != g_rr_text_rcode.end() ? it->second : RCodeNoError;
 }
 
 // edns0 option code
@@ -433,7 +433,7 @@ void chen::dns::table::set(OpCode key, const std::string &val)
     g_rr_text_opcode[val] = key;
 }
 
-void chen::dns::table::set(RCODE key, const std::string &val)
+void chen::dns::table::set(RCode key, const std::string &val)
 {
     g_rr_rcode_text[key] = val;
     g_rr_text_rcode[val] = key;
