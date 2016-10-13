@@ -36,7 +36,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 
 #include <socket/net/net_endpoint.hpp>
 #include <socket/net/net_message.hpp>
-#include <socket/net/net_notifier.hpp>
 #include <socket/net/net_resolver.hpp>
 #include <socket/net/net_socket.hpp>
 
@@ -52,11 +51,11 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 //#include <socket/udp/udp_conn.hpp>
 //#include <socket/udp/udp_define.hpp>
 //#include <socket/udp/udp_server.hpp>
-//
-//#include <socket/dns/dns_codec.hpp>
-//#include <socket/dns/dns_define.hpp>
-//#include <socket/dns/dns_edns.hpp>
-//#include <socket/dns/dns_header.hpp>
-//#include <socket/dns/dns_packet.hpp>
-//#include <socket/dns/dns_record.hpp>
-//#include <socket/dns/dns_table.hpp>
+
+#include <socket/dns/dns_codec.hpp>
+#include <socket/dns/dns_define.hpp>
+#include <socket/dns/dns_edns.hpp>
+#include <socket/dns/dns_header.hpp>
+#include <socket/dns/dns_packet.hpp>
+#include <socket/dns/dns_record.hpp>
+#include <socket/dns/dns_table.hpp>
