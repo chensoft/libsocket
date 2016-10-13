@@ -67,13 +67,13 @@ void chen::bsd::epoll::del(int fd)
 }
 
 // poll
-chen::bsd::epoll::Data chen::bsd::epoll::poll()
+chen::bsd::epoll::Data chen::bsd::epoll::poll(double timeout)
 {
     auto ret = this->fetch(1, timeout);
     return !ret.empty() ? ret.front() : Data();
 }
 
-std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double timeout)
+std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double timeout)
 {
     if (count <= 0)
         return {};
