@@ -69,25 +69,41 @@ void chen::bsd::epoll::del(int fd)
 // poll
 chen::bsd::epoll::Data chen::bsd::epoll::poll()
 {
-    struct ::epoll_event event{};
+    auto ret = this->fetch(1, timeout);
+    return !ret.empty() ? ret.front() : Data();
+}
 
-    // poll next event
-    if (::epoll_wait(this->_fd, &event, 1, -1) <= 0)
+std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double timeout)
+{
+    if (count <= 0)
+        return {};
+
+    struct ::epoll_event events[count];
+    int result = 0;
+
+    // poll next events
+    if ((result = ::epoll_wait(this->_fd, events, count, timeout < 0 ? -1 : static_cast<int>(timeout * 1000))) < 0)
         throw std::system_error(sys::error(), "epoll: failed to poll event");
 
-    // check exit status
-    if (event.data.fd == this->_ef)
+    // check return data
+    std::vector<Data> ret;
+
+    for (int i = 0; i < result; ++i)
     {
-        ::eventfd_t dummy;
-        ::eventfd_read(this->_ef, &dummy);
-        return {};
+        auto &event = events[i];
+
+        if (event.data.fd == this->_ef)
+        {
+            // user request to exit
+            ::eventfd_t dummy;
+            ::eventfd_read(this->_ef, &dummy);
+            return {};
+        }
+        else
+        {
+            ret.emplace_back(Data(event.data.fd, this->event(event.events)));
+        }
     }
-
-    // return the data
-    Data ret;
-
-    ret.fd = event.data.fd;
-    ret.ev = this->event(event.events);
 
     return ret;
 }

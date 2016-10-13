@@ -46,36 +46,16 @@ void chen::bsd::kqueue::set(int fd, int opcode, int flag)
     struct ::kevent event{};
 
     // register read or delete
-    if (opcode & OpcodeRead)
-    {
-        EV_SET(&event, fd, EVFILT_READ, EV_ADD | flag, 0, 0, nullptr);
+    EV_SET(&event, fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0, 0, nullptr);
 
-        if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
-    }
-    else
-    {
-        EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
-
-        if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
-            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
-    }
+    if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 
     // register write or delete
-    if (opcode & OpcodeWrite)
-    {
-        EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | flag, 0, 0, nullptr);
+    EV_SET(&event, fd, EVFILT_WRITE, (opcode & OpcodeWrite) ? EV_ADD | flag : EV_DELETE, 0, 0, nullptr);
 
-        if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
-    }
-    else
-    {
-        EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
-
-        if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
-            throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
-    }
+    if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
 void chen::bsd::kqueue::del(int fd)
@@ -96,23 +76,53 @@ void chen::bsd::kqueue::del(int fd)
 }
 
 // poll
-chen::bsd::kqueue::Data chen::bsd::kqueue::poll()
+chen::bsd::kqueue::Data chen::bsd::kqueue::poll(double timeout)
 {
-    struct ::kevent event{};
+    auto ret = this->fetch(1, timeout);
+    return !ret.empty() ? ret.front() : Data();
+}
 
-    // poll next event
-    if (::kevent(this->_fd, nullptr, 0, &event, 1, nullptr) != 1)
-        throw std::system_error(sys::error(), "kqueue: failed to poll event");
-
-    // check exit status
-    if (event.filter == EVFILT_USER)
+std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double timeout)
+{
+    if (count <= 0)
         return {};
 
-    // return the data
-    Data ret;
+    struct ::kevent events[count];
+    int result = 0;
 
-    ret.fd = static_cast<int>(event.ident);
-    ret.ev = this->event(event.filter, event.flags);
+    // poll next events
+    if (timeout < 0.0)
+    {
+        if ((result = ::kevent(this->_fd, nullptr, 0, events, count, nullptr)) <= 0)
+            throw std::system_error(sys::error(), "kqueue: failed to poll event");
+    }
+    else
+    {
+        struct timespec val{};
+        val.tv_sec  = static_cast<long>(timeout);
+        val.tv_nsec = static_cast<long>((timeout - val.tv_sec) * 1000000000);
+
+        if ((result = ::kevent(this->_fd, nullptr, 0, events, count, &val)) < 0)
+            throw std::system_error(sys::error(), "kqueue: failed to poll event");
+    }
+
+    // check return data
+    std::vector<Data> ret;
+
+    for (int i = 0; i < result; ++i)
+    {
+        auto &event = events[i];
+
+        if (event.filter == EVFILT_USER)
+        {
+            // user request to exit
+            return {};
+        }
+        else
+        {
+            ret.emplace_back(Data(static_cast<int>(event.ident), this->event(event.filter, event.flags)));
+        }
+    }
 
     return ret;
 }
