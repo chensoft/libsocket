@@ -392,9 +392,9 @@ std::uint32_t chen::ip::version4::toInteger(const std::string &addr, std::uint8_
         do
         {
             num[i] = num[i] * 10 + (*cur++ - '0');
-        } while (std::isdigit(*cur));
+        } while ((cur != end) && std::isdigit(*cur));
 
-        if (*cur == '.')
+        if ((cur != end) && (*cur == '.'))
             ++cur;
 
         // check if valid
@@ -436,11 +436,11 @@ std::uint32_t chen::ip::version4::toInteger(const std::string &addr, std::uint8_
     {
         *cidr = 32;
 
-        if (*cur == '/')
+        if ((cur != end) && (*cur == '/'))
         {
             std::uint32_t tmp = 0;
 
-            while ((cur != end) && std::isdigit(*++cur))
+            while ((++cur != end) && std::isdigit(*cur))
                 tmp = tmp * 10 + (*cur - '0');
 
             if (tmp > 32)
@@ -1095,11 +1095,11 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
     }
 
     // scope id
-    if (*cur == '%')
+    if ((cur != end) && (*cur == '%'))
     {
         std::string tmp;
 
-        while ((cur != end) && (*++cur != '/') && *cur)
+        while ((++cur != end) && (*cur != '/') && *cur)
             tmp += *cur;
 
         if (scope)
@@ -1115,11 +1115,11 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
     {
         *cidr = 128;
 
-        if (*cur == '/')
+        if ((cur != end) && (*cur == '/'))
         {
             std::uint32_t tmp = 0;
 
-            while ((cur != end) && std::isdigit(*++cur))
+            while ((++cur != end) && std::isdigit(*cur))
                 tmp = tmp * 10 + (*cur - '0');
 
             if (tmp > 128)

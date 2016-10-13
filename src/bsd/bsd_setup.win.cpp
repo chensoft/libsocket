@@ -28,7 +28,7 @@ chen::bsd::setup::setup()
             WSADATA data;
 
             auto ret = ::WSAStartup(version, &data);
-            if (!ret)
+            if (ret)
                 throw std::system_error(sys::error(ret), "setup: failed to start winsock");
 
             if ((LOBYTE(data.wVersion) != 2) || (HIBYTE(data.wVersion) != 2))

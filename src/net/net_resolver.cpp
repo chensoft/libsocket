@@ -221,36 +221,37 @@ std::pair<std::string, std::uint16_t> chen::net::resolver::split(const std::stri
     if (mixed.empty())
         return {};
 
-    auto it = mixed.begin();
+    auto cur = mixed.begin();
+	auto end = mixed.end();
 
     std::string first;
     std::string second;
 
-    if (*it == '[')
+    if (*cur == '[')
     {
-        ++it;
+        ++cur;
 
         // IPv6:Port format
-        while (*it && (*it != ']'))
-            first += *it++;
+        while (*cur && (*cur != ']'))
+            first += *cur++;
 
-        if (*it != ']')
+        if (*cur != ']')
             throw std::runtime_error("resolver: IPv6 endpoint format error");
         else
-            ++it;
+            ++cur;
     }
     else
     {
         // IPv4:Port or Domain:Port
-        while (*it && (*it != ':'))
-            first += *it++;
+        while ((cur != end) && *cur && (*cur != ':'))
+            first += *cur++;
     }
 
     // port
-    if (*it == ':')
+    if ((cur != end) && (*cur == ':'))
     {
-        while (*++it)
-            second += *it;
+        while ((++cur != end) && *cur)
+            second += *cur;
     }
 
     return std::make_pair(std::move(first), resolver::service(second));
