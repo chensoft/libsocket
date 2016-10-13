@@ -31,7 +31,7 @@ chen::bsd::setup::setup()
             if (ret)
                 throw std::system_error(sys::error(ret), "setup: failed to start winsock");
 
-            if ((LOBYTE(data.wVersion) != 2) || (HIBYTE(data.wVersion) != 2))
+            if (data.wVersion != version)
                 throw std::runtime_error("setup: request winsock version is wrong");
         }
 

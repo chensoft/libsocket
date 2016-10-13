@@ -341,7 +341,7 @@ void chen::dns::decoder::unpack(std::uint64_t &val)
     val = 0;
 
     for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
-        val |= *this->_cur++ << (len - i - 1) * 8;
+        val |= static_cast<std::uint64_t>(*this->_cur++) << (len - i - 1) * 8;
 }
 
 void chen::dns::decoder::unpack(RRType &val)
