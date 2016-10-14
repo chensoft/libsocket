@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <cstdint>
+#include <algorithm>
 #include <limits>
 #include <string>
 
@@ -25,13 +25,12 @@ namespace chen
         /**
          * Swap integer
          */
-        static std::int16_t swap(std::int16_t value);
-        static std::int32_t swap(std::int32_t value);
-        static std::int64_t swap(std::int64_t value);
-
-        static std::uint16_t swap(std::uint16_t value);
-        static std::uint32_t swap(std::uint32_t value);
-        static std::uint64_t swap(std::uint64_t value);
+        template <typename IntType>
+        static IntType swap(IntType value)
+        {
+            std::reverse(reinterpret_cast<std::uint8_t*>(&value), reinterpret_cast<std::uint8_t*>(&value) + sizeof(value));
+            return value;
+        }
 
         /**
          * To string(just for compatibility, some platforms don't support std::to_string yet)

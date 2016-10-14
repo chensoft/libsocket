@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file(see http://k
 - fs: return std::error_code in some methods.
 - sys: error method return std::error_code.
 - sys: error method accept your custom code.
+- num: using template to implement swap for any integer.
 - plat: move platform dependent codes into its related folder.
 
 ### Fixed

@@ -15,6 +15,7 @@ namespace chen
     namespace bsd
     {
         /**
+         * todo use WSAEventSelect & WaitForSingleObject & WSAEnumEvents ?
          * WSAPoll for Windows(reactor model)
          * Windows's most efficient model is IOCP, but IOCP is a proactor model, so we use WSAPoll here
          * you should not use this class directly unless you want to implement your own event-based model
