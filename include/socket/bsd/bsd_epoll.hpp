@@ -48,7 +48,9 @@ namespace chen
             static const int FlagEdge;
 
             /**
-             * None: user request to exit from the poll or timeout
+             * None: user request to exit the poll
+             * -----------------------------------------------------------------
+             * Timeout: wait for events but timeout
              * -----------------------------------------------------------------
              * Read: read event occurs, you can read data from socket
              * -----------------------------------------------------------------
@@ -64,7 +66,7 @@ namespace chen
              * because server may send last message and then close the connection immediately
              * epoll may report Read & End event or only report the End event
              */
-            enum class Event {None = 0, Read, Write, End};
+            enum class Event {None = 0, Timeout, Read, Write, End};
 
             typedef struct Data
             {
@@ -98,7 +100,7 @@ namespace chen
              * when timeout is negative, it means wait forever, usually you can pass -1 to it
              * when timeout is zero, the poll method will return immediately, an event may or may not return
              * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
-             * @return Data.ev is None if user request to exit the poll or timeout
+             * @return Data.ev is None if user request to exit the poll or Timeout if timeout occurs
              */
             Data poll(double timeout = - 1);
 

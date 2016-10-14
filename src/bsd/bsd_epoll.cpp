@@ -85,9 +85,16 @@ std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double ti
     if ((result = ::epoll_wait(this->_fd, events, count, timeout < 0 ? -1 : static_cast<int>(timeout * 1000))) < 0)
         throw std::system_error(sys::error(), "epoll: failed to poll event");
 
-    // check return data
+    // check if timeout
     std::vector<Data> ret;
 
+    if ((result == 0) && (timeout >= 0))
+    {
+        ret.emplace_back(Data(-1, Event::Timeout));
+        return ret;
+    }
+
+    // check return data
     for (int i = 0; i < result; ++i)
     {
         auto &event = events[i];

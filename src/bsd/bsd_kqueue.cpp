@@ -106,9 +106,16 @@ std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double 
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
     }
 
-    // check return data
+    // check if timeout
     std::vector<Data> ret;
 
+    if (result == 0)
+    {
+        ret.emplace_back(Data(-1, Event::Timeout));
+        return ret;
+    }
+
+    // check return data
     for (int i = 0; i < result; ++i)
     {
         auto &event = events[i];
