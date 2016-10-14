@@ -108,7 +108,7 @@ std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double ti
     return ret;
 }
 
-void chen::bsd::epoll::wake()
+void chen::bsd::epoll::exit()
 {
     // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)

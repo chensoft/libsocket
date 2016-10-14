@@ -127,7 +127,7 @@ std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double 
     return ret;
 }
 
-void chen::bsd::kqueue::wake()
+void chen::bsd::kqueue::exit()
 {
     struct ::kevent event{};
 

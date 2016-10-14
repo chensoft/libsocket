@@ -20,6 +20,7 @@ namespace chen
 //        class server : public basic
 //        {
 //        public:
+//            // todo provide constructor to accept endpoint
 //            server(ip::address::Type family);
 //
 //        public:

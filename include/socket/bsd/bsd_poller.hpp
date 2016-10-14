@@ -109,9 +109,9 @@ namespace chen
             std::vector<Data> fetch(int count, double timeout = -1);
 
             /**
-             * Wake the poll
+             * Exit the poll if poller is waiting for events
              */
-            void wake();
+            void exit();
 
         private:
             /**
