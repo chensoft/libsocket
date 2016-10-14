@@ -48,7 +48,7 @@ namespace chen
             static const int FlagEdge;
 
             /**
-             * None: user request to exit from the poll
+             * None: user request to exit from the poll or timeout
              * -----------------------------------------------------------------
              * Read: read event occurs, you can read data from socket
              * -----------------------------------------------------------------
