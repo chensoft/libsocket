@@ -101,7 +101,7 @@ std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double ti
 
         if (event.data.fd == this->_ef)
         {
-            // user request to exit
+            // user request to stop
             ::eventfd_t dummy;
             ::eventfd_read(this->_ef, &dummy);
             return {};
@@ -115,7 +115,7 @@ std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double ti
     return ret;
 }
 
-void chen::bsd::epoll::exit()
+void chen::bsd::epoll::stop()
 {
     // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)

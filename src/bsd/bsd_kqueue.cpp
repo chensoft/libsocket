@@ -122,7 +122,7 @@ std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double 
 
         if (event.filter == EVFILT_USER)
         {
-            // user request to exit
+            // user request to stop
             return {};
         }
         else
@@ -134,7 +134,7 @@ std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(int count, double 
     return ret;
 }
 
-void chen::bsd::kqueue::exit()
+void chen::bsd::kqueue::stop()
 {
     struct ::kevent event{};
 
@@ -142,7 +142,7 @@ void chen::bsd::kqueue::exit()
     EV_SET(&event, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, nullptr);
 
     if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
-        throw std::system_error(sys::error(), "kqueue: failed to wake the kqueue");
+        throw std::system_error(sys::error(), "kqueue: failed to stop the kqueue");
 }
 
 // misc
