@@ -18,6 +18,7 @@ TEST(BaseNumTest, General)
     EXPECT_TRUE(num::equal(0.1L, 0.1000000000000000000011151231257001365183510300715002586L));
 
     // swap
+    EXPECT_EQ(15, num::swap(static_cast<std::int8_t>(15)));
     EXPECT_EQ(4660, num::swap(static_cast<std::int16_t>(13330)));
     EXPECT_EQ(305419896, num::swap(static_cast<std::int32_t>(2018915346)));
     EXPECT_EQ(601138196360724480, num::swap(static_cast<std::int64_t>(201891534600)));
