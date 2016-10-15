@@ -44,7 +44,7 @@ namespace chen
             static const int FlagEdge;  // just a placeholder, in order to keep ABI compatible with kqueue & epoll
 
             /**
-             * None: user request to exit from the poll or timeout
+             * None: user request to stop from the poll or timeout
              * -----------------------------------------------------------------
              * Read: read event occurs, you can read data from socket
              * -----------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace chen
              * when timeout is negative, it means wait forever, usually you can pass -1 to it
              * when timeout is zero, the poll method will return immediately, an event may or may not return
              * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
-             * @return Data.ev is None if user request to exit the poll or timeout
+             * @return Data.ev is None if user request to stop the poll or timeout
              */
             Data poll(double timeout = - 1);
 
@@ -104,14 +104,14 @@ namespace chen
              * Fetch multiple events, with an optional timeout
              * @param count how many events you want to monitor for
              * @param timeout the same as the poll method's timeout param
-             * @return empty vector if user request to exit the poll or timeout
+             * @return empty vector if user request to stop the poll or timeout
              */
             std::vector<Data> fetch(int count, double timeout = -1);
 
             /**
-             * Exit the poll if poller is waiting for events
+             * Stop the poll if poller is waiting for events
              */
-            void exit();
+            void stop();
 
         private:
             /**
