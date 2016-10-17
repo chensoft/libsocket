@@ -47,7 +47,7 @@ namespace chen
             int protocol() const;
 
         protected:
-            friend class notifier;
+            friend class runloop;
 
             /**
              * Internal socket
