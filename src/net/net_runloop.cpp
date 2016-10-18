@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/net/net_runloop.hpp>
-#include <chen/time/time.hpp>
 
 // -----------------------------------------------------------------------------
 // runloop
@@ -33,38 +32,28 @@ void chen::net::runloop::del(socket_t fd)
 // control
 void chen::net::runloop::start(std::size_t count, double timeout)
 {
-    // todo allocate events' memory as member data
     // todo fix if user call del() method in callback, cause multiple events handle maybe error
     this->_caching.resize(count);
 
     while (true)
     {
-        chen::time t(true);
+        auto num = this->_reactor.poll(this->_caching, count, timeout);
+        if (!num)
+            break;  // user request to stop or timeout
 
-        for (int i = 0; i < 10000000; ++i)
+        for (std::size_t idx = 0; idx < num; ++idx)
         {
-            auto num = this->_reactor.poll(this->_caching, count, timeout);
-            if (!num)
-                break;  // user request to stop or timeout
+            auto &event = this->_caching[idx];
 
-            for (std::size_t idx = 0; idx < num; ++idx)
-            {
-                auto &event = this->_caching[idx];
+            if (event.ev == bsd::reactor::Event::None)
+                throw std::runtime_error("runloop: unknown event type detect");
 
-                if (event.ev == bsd::reactor::Event::None)
-                    throw std::runtime_error("runloop: unknown event type detect");
+            auto find = this->_mapping.find(event.fd);
+            if (find == this->_mapping.end())
+                throw std::runtime_error("runloop: event detect but no callback");
 
-                auto find = this->_mapping.find(event.fd);
-                if (find == this->_mapping.end())
-                    throw std::runtime_error("runloop: event detect but no callback");
-
-//            find->second(event.ev);
-            }
+            find->second(event.ev);
         }
-
-        t.stop();
-        printf("xxx: %f\n", t.elapsed());
-        return;
     }
 }
 

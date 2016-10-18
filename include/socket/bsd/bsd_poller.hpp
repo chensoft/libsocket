@@ -91,23 +91,22 @@ namespace chen
             void del(int fd);
 
         public:
-            // todo remove fetch
             /**
-             * Poll a event, with an optional timeout
+             * Poll events, with an optional timeout
              * when timeout is negative, it means wait forever, usually you can pass -1 to it
              * when timeout is zero, the poll method will return immediately, an event may or may not return
              * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
-             * @return Data.ev is None if user request to stop the poll or timeout
+             * @param cache pre allocated cache, if size < count then push result to it if needed
+             * @param count how many events you want to monitor for
+             * @return zero if user request to stop or timeout
              */
-            Data poll(double timeout = - 1);
+            std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
 
             /**
-             * Fetch multiple events, with an optional timeout
-             * @param count how many events you want to monitor for
-             * @param timeout the same as the poll method's timeout param
-             * @return empty vector if user request to stop the poll or timeout
+             * Poll events, return vector directly
+             * @return empty if user request to stop or timeout
              */
-            std::vector<Data> fetch(std::size_t count, double timeout = -1);
+            std::vector<Data> poll(std::size_t count, double timeout = -1);
 
             /**
              * Stop the poll if poller is waiting for events
@@ -131,7 +130,6 @@ namespace chen
 
 
         /**
-         * todo
          * reactor typedef
          */
         typedef poller reactor;
