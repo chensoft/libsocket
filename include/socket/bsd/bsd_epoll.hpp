@@ -94,6 +94,7 @@ namespace chen
             void del(int fd);
 
         public:
+            // todo remove fetch
             /**
              * Poll a event, with an optional timeout
              * when timeout is negative, it means wait forever, usually you can pass -1 to it
@@ -103,7 +104,6 @@ namespace chen
              */
             Data poll(double timeout = - 1);
 
-            // todo add caching support
             /**
              * Fetch multiple events, with an optional timeout
              * @param count how many events you want to monitor for

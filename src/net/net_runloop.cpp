@@ -35,7 +35,7 @@ void chen::net::runloop::start(std::size_t count, double timeout)
 {
     // todo allocate events' memory as member data
     // todo fix if user call del() method in callback, cause multiple events handle maybe error
-    this->_caching.resize(static_cast<std::size_t>(count));
+    this->_caching.resize(count);
 
     while (true)
     {
@@ -43,11 +43,11 @@ void chen::net::runloop::start(std::size_t count, double timeout)
 
         for (int i = 0; i < 10000000; ++i)
         {
-            auto num = this->_reactor.fetch(this->_caching, timeout);
+            auto num = this->_reactor.poll(this->_caching, count, timeout);
             if (!num)
                 break;  // user request to stop or timeout
 
-            for (int idx = 0; idx < num; ++idx)
+            for (std::size_t idx = 0; idx < num; ++idx)
             {
                 auto &event = this->_caching[idx];
 

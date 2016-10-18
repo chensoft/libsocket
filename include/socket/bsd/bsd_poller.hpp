@@ -91,6 +91,7 @@ namespace chen
             void del(int fd);
 
         public:
+            // todo remove fetch
             /**
              * Poll a event, with an optional timeout
              * when timeout is negative, it means wait forever, usually you can pass -1 to it

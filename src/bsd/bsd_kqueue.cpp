@@ -76,38 +76,18 @@ void chen::bsd::kqueue::del(int fd)
 }
 
 // poll
-chen::bsd::kqueue::Data chen::bsd::kqueue::poll(double timeout)
+std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
-    auto ret = this->fetch(1, timeout);
-    return !ret.empty() ? ret.front() : Data();
-}
-
-std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::fetch(std::size_t count, double timeout)
-{
-    if (count <= 0)
-        return {};
-
-    // todo need redesign
-    std::vector<Data> cache(count);
-
-    auto ret = this->fetch(cache, timeout);
-    cache.resize(ret);
-
-    return cache;
-}
-
-std::size_t chen::bsd::kqueue::fetch(std::vector<Data> &cache, double timeout)
-{
-    if (cache.empty())
+    if (!count)
         return 0;
 
-    struct ::kevent events[cache.size()];
+    struct ::kevent events[count];
     int result = 0;
 
     // poll next events
     if (timeout < 0.0)
     {
-        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(cache.size()), nullptr)) <= 0)
+        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), nullptr)) <= 0)
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
     }
     else
@@ -116,31 +96,41 @@ std::size_t chen::bsd::kqueue::fetch(std::vector<Data> &cache, double timeout)
         val.tv_sec  = static_cast<long>(timeout);
         val.tv_nsec = static_cast<long>((timeout - val.tv_sec) * 1000000000);
 
-        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(cache.size()), &val)) < 0)
+        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val)) < 0)
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
+        else if (!result)
+            return 0;  // timeout
     }
 
-    // check if timeout
-    if (result == 0)
-        return 0;
-
     // check return data
-    for (int i = 0; i < result; ++i)
+    auto length = cache.size();
+
+    for (std::size_t i = 0; i < static_cast<std::size_t>(result); ++i)
     {
         auto &event = events[i];
 
         if (event.filter == EVFILT_USER)
         {
             // user request to stop
-            return {};
+            return 0;
         }
         else
         {
-            cache[i] = Data(static_cast<int>(event.ident), this->event(event.filter, event.flags));
+            if (i < length)
+                cache[i] = Data(static_cast<int>(event.ident), this->event(event.filter, event.flags));
+            else
+                cache.emplace_back(Data(static_cast<int>(event.ident), this->event(event.filter, event.flags)));
         }
     }
 
     return static_cast<std::size_t>(result);
+}
+
+std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::poll(std::size_t count, double timeout)
+{
+    std::vector<chen::bsd::kqueue::Data> ret;
+    this->poll(ret, count, timeout);
+    return ret;
 }
 
 void chen::bsd::kqueue::stop()
