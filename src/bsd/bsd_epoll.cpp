@@ -67,35 +67,24 @@ void chen::bsd::epoll::del(int fd)
 }
 
 // poll
-chen::bsd::epoll::Data chen::bsd::epoll::poll(double timeout)
+std::size_t chen::bsd::epoll::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
-    auto ret = this->fetch(1, timeout);
-    return !ret.empty() ? ret.front() : Data();
-}
-
-std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double timeout)
-{
-    if (count <= 0)
-        return {};
+    if (!count)
+        return 0;
 
     struct ::epoll_event events[count];
     int result = 0;
 
     // poll next events
-    if ((result = ::epoll_wait(this->_fd, events, count, timeout < 0 ? -1 : static_cast<int>(timeout * 1000))) < 0)
+    if ((result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000))) < 0)
         throw std::system_error(sys::error(), "epoll: failed to poll event");
-
-    // check if timeout
-    std::vector<Data> ret;
-
-    if ((result == 0) && (timeout >= 0))
-    {
-        ret.emplace_back(Data(-1, Event::Timeout));
-        return ret;
-    }
+    else if (!result)
+        return 0;  // timeout
 
     // check return data
-    for (int i = 0; i < result; ++i)
+    auto length = cache.size();
+
+    for (std::size_t i = 0; i < static_cast<std::size_t>(result); ++i)
     {
         auto &event = events[i];
 
@@ -108,10 +97,20 @@ std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::fetch(int count, double ti
         }
         else
         {
-            ret.emplace_back(Data(event.data.fd, this->event(event.events)));
+            if (i < length)
+                cache[i] = Data(event.data.fd, this->event(event.events));
+            else
+                cache.emplace_back(Data(event.data.fd, this->event(event.events)));
         }
     }
 
+    return static_cast<std::size_t>(result);
+}
+
+std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::poll(std::size_t count, double timeout)
+{
+    std::vector<chen::bsd::epoll::Data> ret;
+    this->poll(ret, count, timeout);
     return ret;
 }
 
