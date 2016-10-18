@@ -46,6 +46,13 @@ namespace chen
              * @attention endpoint will be nullptr if no record found
              */
             endpoint(const char *mixed);
+            endpoint(const char *mixed, ip::address::Type type);
+
+            endpoint(const char *host, const std::string &service);
+            endpoint(const char *host, const std::string &service, ip::address::Type type);
+
+            endpoint(const char *host, std::uint16_t port);
+            endpoint(const char *host, std::uint16_t port, ip::address::Type type);
 
             endpoint(const std::string &mixed);
             endpoint(const std::string &mixed, ip::address::Type type);
@@ -57,9 +64,19 @@ namespace chen
             endpoint(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
-             * Construct by port number, using IPv4 address
+             * Construct by 0.0.0.0:port, using IPv4
              */
             endpoint(std::uint16_t port);
+
+            /**
+             * Construct by ip address object
+             */
+            endpoint(const ip::address &addr);
+
+            /**
+             * Construct by ip address object and port
+             */
+            endpoint(const ip::address &addr, std::uint16_t port);
 
             /**
              * Construct by raw bsd endpoint
@@ -105,6 +122,7 @@ namespace chen
             endpoint& operator=(const char *mixed);
             endpoint& operator=(const std::string &mixed);
             endpoint& operator=(std::uint16_t port);
+            endpoint& operator=(const ip::address &addr);
             endpoint& operator=(const bsd::endpoint &ep);
             endpoint& operator=(const struct ::sockaddr *ep);
 
