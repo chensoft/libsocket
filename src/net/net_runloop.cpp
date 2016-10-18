@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/net/net_runloop.hpp>
+#include <chen/time/time.hpp>
 
 // -----------------------------------------------------------------------------
 // runloop
@@ -30,27 +31,40 @@ void chen::net::runloop::del(socket_t fd)
 }
 
 // control
-void chen::net::runloop::start(int count, double timeout)
+void chen::net::runloop::start(std::size_t count, double timeout)
 {
     // todo allocate events' memory as member data
     // todo fix if user call del() method in callback, cause multiple events handle maybe error
+    this->_caching.resize(static_cast<std::size_t>(count));
+
     while (true)
     {
-        auto events = this->_reactor.fetch(count, timeout);
-        if (events.empty())
-            break;  // user request to stop
+        chen::time t(true);
 
-        for (auto &event : events)
+        for (int i = 0; i < 10000000; ++i)
         {
-            if (event.ev == bsd::reactor::Event::None)
-                throw std::runtime_error("runloop: unknown event type detect");
+            auto num = this->_reactor.fetch(this->_caching, timeout);
+            if (!num)
+                break;  // user request to stop or timeout
 
-            auto find = this->_mapping.find(event.fd);
-            if (find == this->_mapping.end())
-                throw std::runtime_error("runloop: event detect but no callback");
+            for (int idx = 0; idx < num; ++idx)
+            {
+                auto &event = this->_caching[idx];
 
-            find->second(event.ev);
+                if (event.ev == bsd::reactor::Event::None)
+                    throw std::runtime_error("runloop: unknown event type detect");
+
+                auto find = this->_mapping.find(event.fd);
+                if (find == this->_mapping.end())
+                    throw std::runtime_error("runloop: event detect but no callback");
+
+//            find->second(event.ev);
+            }
         }
+
+        t.stop();
+        printf("xxx: %f\n", t.elapsed());
+        return;
     }
 }
 

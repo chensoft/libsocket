@@ -50,8 +50,6 @@ namespace chen
             /**
              * None: user request to stop the poll
              * -----------------------------------------------------------------
-             * Timeout: wait for events but timeout
-             * -----------------------------------------------------------------
              * Read: read event occurs, you can read data from socket
              * -----------------------------------------------------------------
              * Write: you can write data to remote host
@@ -66,7 +64,8 @@ namespace chen
              * because server may send last message and then close the connection immediately
              * epoll may report Read & End event or only report the End event
              */
-            enum class Event {None = 0, Timeout, Read, Write, End};
+            // todo remove Timeout
+            enum class Event {None = 0, Read, Write, End};
 
             typedef struct Data
             {
@@ -104,13 +103,14 @@ namespace chen
              */
             Data poll(double timeout = - 1);
 
+            // todo add caching support
             /**
              * Fetch multiple events, with an optional timeout
              * @param count how many events you want to monitor for
              * @param timeout the same as the poll method's timeout param
              * @return empty vector if user request to stop the poll or timeout
              */
-            std::vector<Data> fetch(int count, double timeout = -1);
+            std::vector<Data> fetch(std::size_t count, double timeout = -1);
 
             /**
              * Stop the poll if epoll is waiting for events

@@ -67,7 +67,7 @@ namespace chen
              * @param count max events count when use rector::fetch, default is 1
              * @attention this method will not return unless user request to stop
              */
-            void start(int count = 1, double timeout = -1);
+            void start(std::size_t count = 1, double timeout = -1);
 
             /**
              * Stop the loop
@@ -81,6 +81,8 @@ namespace chen
 
         private:
             bsd::reactor _reactor;
+
+            std::vector<bsd::reactor::Data> _caching;
             std::unordered_map<socket_t, callback_type> _mapping;
         };
     }

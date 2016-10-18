@@ -106,7 +106,7 @@ namespace chen
              * @param timeout the same as the poll method's timeout param
              * @return empty vector if user request to stop the poll or timeout
              */
-            std::vector<Data> fetch(int count, double timeout = -1);
+            std::vector<Data> fetch(std::size_t count, double timeout = -1);
 
             /**
              * Stop the poll if poller is waiting for events
