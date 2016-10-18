@@ -25,25 +25,36 @@ void chen::net::runloop::set(socket_t fd, int opcode, int flag, callback_type ca
 
 void chen::net::runloop::del(socket_t fd)
 {
+    // unregister event and callback
     this->_reactor.del(fd);
     this->_mapping.erase(fd);
+
+    // deactivate current fd's event
+    for (std::size_t i = 0; i < this->_count; ++i)
+    {
+        auto &event = this->_caching[i];
+        if (event.fd == fd)
+            event.fd = invalid_socket;
+    }
 }
 
 // control
 void chen::net::runloop::start(std::size_t count, double timeout)
 {
-    // todo fix if user call del() method in callback, cause multiple events handle maybe error
     this->_caching.resize(count);
 
     while (true)
     {
-        auto num = this->_reactor.poll(this->_caching, count, timeout);
-        if (!num)
+        this->_count = this->_reactor.poll(this->_caching, count, timeout);
+        if (!this->_count)
             break;  // user request to stop or timeout
 
-        for (std::size_t idx = 0; idx < num; ++idx)
+        for (std::size_t idx = 0; idx < this->_count; ++idx)
         {
             auto &event = this->_caching[idx];
+
+            if (event.fd == invalid_socket)
+                continue;  // someone has removed the socket in previous callback
 
             if (event.ev == bsd::reactor::Event::None)
                 throw std::runtime_error("runloop: unknown event type detect");
@@ -54,6 +65,8 @@ void chen::net::runloop::start(std::size_t count, double timeout)
 
             find->second(event.ev);
         }
+
+        this->_count = 0;
     }
 }
 

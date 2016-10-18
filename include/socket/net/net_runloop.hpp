@@ -82,6 +82,7 @@ namespace chen
         private:
             bsd::reactor _reactor;
 
+            std::size_t _count = 0;
             std::vector<bsd::reactor::Data> _caching;
             std::unordered_map<socket_t, callback_type> _mapping;
         };
