@@ -16,23 +16,23 @@ chen::tcp::conn::~conn()
 {
 }
 
-// event
-void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
-{
-
-}
-
-void chen::tcp::conn::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
-{
-
-}
-
-void chen::tcp::conn::onEnd()
-{
-
-}
-
-
+//// event
+//void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
+//{
+//
+//}
+//
+//void chen::tcp::conn::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
+//{
+//
+//}
+//
+//void chen::tcp::conn::onEnd()
+//{
+//
+//}
+//
+//
 //ssize_t chen::tcp::conn::write(const std::vector<std::uint8_t> &data, int flags)
 //{
 //    return this->send(data.data(), data.size(), flags);

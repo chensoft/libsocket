@@ -46,26 +46,20 @@ namespace chen
             int type() const;
             int protocol() const;
 
-        protected:
-            friend class runloop;
-
-            /**
-             * Internal socket
-             */
-            bsd::socket& handle();
-
-            /**
-             * Event callbacks
-             * :-) accept : used by server socket to accepting new connection
-             * :-) read   : the data has arrived
-             * :-) write  : data has been sent out
-             * :-) end    : connection refused, disconnect or other error
-             * @attention ep is only valid when socket's type is udp, otherwise it's nullptr
-             */
-            virtual void onAccept(bsd::socket s, net::endpoint ep);
-            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error);
-            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error);
-            virtual void onEnd();
+            // todo remove virtual and these methods
+//        protected:
+//            /**
+//             * Event callbacks
+//             * :-) accept : used by server socket to accepting new connection
+//             * :-) read   : the data has arrived
+//             * :-) write  : data has been sent out
+//             * :-) end    : connection refused, disconnect or other error
+//             * @attention ep is only valid when socket's type is udp, otherwise it's nullptr
+//             */
+//            virtual void onAccept(bsd::socket s, net::endpoint ep);
+//            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error);
+//            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error);
+//            virtual void onEnd();
 
         protected:
             bsd::socket _handle;

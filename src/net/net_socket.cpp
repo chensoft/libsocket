@@ -61,28 +61,24 @@ int chen::net::socket::protocol() const
     return this->_handle.protocol();
 }
 
+// todo remove
 // notify
-chen::bsd::socket& chen::net::socket::handle()
-{
-    return this->_handle;
-}
-
-void chen::net::socket::onAccept(bsd::socket s, net::endpoint ep)
-{
-    // override this method when you implement a server
-}
-
-void chen::net::socket::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
-{
-    // override this method when you want to read data from remote
-}
-
-void chen::net::socket::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
-{
-    // override this method when you want to know the write status
-}
-
-void chen::net::socket::onEnd()
-{
-    // override this method when you want to deal with connection refused, disconnect or other error
-}
+//void chen::net::socket::onAccept(bsd::socket s, net::endpoint ep)
+//{
+//    // override this method when you implement a server
+//}
+//
+//void chen::net::socket::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
+//{
+//    // override this method when you want to read data from remote
+//}
+//
+//void chen::net::socket::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
+//{
+//    // override this method when you want to know the write status
+//}
+//
+//void chen::net::socket::onEnd()
+//{
+//    // override this method when you want to deal with connection refused, disconnect or other error
+//}

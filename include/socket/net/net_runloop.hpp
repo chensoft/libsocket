@@ -6,10 +6,10 @@
  */
 #pragma once
 
-#include <socket/net/net_socket.hpp>
 #include <socket/bsd/bsd_poller.hpp>
 #include <socket/bsd/bsd_kqueue.hpp>
 #include <socket/bsd/bsd_epoll.hpp>
+#include <socket/config.hpp>
 #include <unordered_map>
 #include <functional>
 
@@ -52,14 +52,14 @@ namespace chen
             /**
              * Set events and callback
              */
-            void set(net::socket *ptr, int opcode, callback_type callback);
-            void set(net::socket *ptr, int opcode, int flag, callback_type callback);
+            void set(socket_t fd, int opcode, callback_type callback);
+            void set(socket_t fd, int opcode, int flag, callback_type callback);
 
             /**
              * Remove events & callbacks
              * @attention socket should call this method when it is destroyed
              */
-            void del(net::socket *ptr);
+            void del(socket_t fd);
 
         public:
             /**
@@ -80,7 +80,7 @@ namespace chen
 
         private:
             bsd::reactor _reactor;
-            std::unordered_map<net::socket*, callback_type> _callbacks;
+            std::unordered_map<socket_t, callback_type> _callbacks;
         };
     }
 }

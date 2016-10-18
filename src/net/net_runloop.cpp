@@ -12,21 +12,21 @@ const int chen::net::runloop::FlagOnce = chen::bsd::reactor::FlagOnce;
 const int chen::net::runloop::FlagEdge = chen::bsd::reactor::FlagEdge;
 
 // modify
-void chen::net::runloop::set(net::socket *ptr, int opcode, callback_type callback)
+void chen::net::runloop::set(socket_t fd, int opcode, callback_type callback)
 {
-    this->set(ptr, opcode, 0, callback);
+    this->set(fd, opcode, 0, callback);
 }
 
-void chen::net::runloop::set(net::socket *ptr, int opcode, int flag, callback_type callback)
+void chen::net::runloop::set(socket_t fd, int opcode, int flag, callback_type callback)
 {
-    this->_reactor.set(ptr->handle().native(), opcode, flag);
-    this->_callbacks[ptr] = callback;
+    this->_reactor.set(fd, opcode, flag);
+    this->_callbacks[fd] = callback;
 }
 
-void chen::net::runloop::del(net::socket *ptr)
+void chen::net::runloop::del(socket_t fd)
 {
-    this->_reactor.del(ptr->handle().native());
-    this->_callbacks.erase(ptr);
+    this->_reactor.del(fd);
+    this->_callbacks.erase(fd);
 }
 
 // control

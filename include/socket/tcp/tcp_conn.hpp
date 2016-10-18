@@ -95,19 +95,19 @@ namespace chen
             void detach(Event type);
 
         protected:
-            /**
-             * Notify events
-             */
-            void notify(tcp::disconnect_event &&ev);
-            void notify(tcp::read_event &&ev);
-            void notify(tcp::write_event &&ev);
-
-            /**
-             * Event callbacks
-             */
-            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
-            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
-            virtual void onEnd() override;
+//            /**
+//             * Notify events
+//             */
+//            void notify(tcp::disconnect_event &&ev);
+//            void notify(tcp::read_event &&ev);
+//            void notify(tcp::write_event &&ev);
+//
+//            /**
+//             * Event callbacks
+//             */
+//            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
+//            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
+//            virtual void onEnd() override;
 
         public:
             tcp::server *_manager = nullptr;
