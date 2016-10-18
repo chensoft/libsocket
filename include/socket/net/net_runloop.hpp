@@ -41,7 +41,7 @@ namespace chen
              * Reactor event type
              * @attention specific meaning can refer to bsd::reactor
              */
-            enum class Event {Timeout = 1, Read, Write, End};
+            using Event = bsd::reactor::Event;  // Event::None is not used
 
             typedef std::function<void (Event type)> callback_type;
 
@@ -64,9 +64,10 @@ namespace chen
         public:
             /**
              * Start the loop
+             * @param count max events count when use rector::fetch, default is 1
              * @attention this method will not return unless user request to stop
              */
-            void start();
+            void start(int count = 1, double timeout = -1);
 
             /**
              * Stop the loop
@@ -80,7 +81,7 @@ namespace chen
 
         private:
             bsd::reactor _reactor;
-            std::unordered_map<socket_t, callback_type> _callbacks;
+            std::unordered_map<socket_t, callback_type> _mapping;
         };
     }
 }
