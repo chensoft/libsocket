@@ -70,14 +70,13 @@ namespace chen
             /**
              * Pack data
              */
-            void pack(std::int8_t val);
-            void pack(std::int16_t val);
-            void pack(std::int32_t val);
-            void pack(std::int64_t val);
-            void pack(std::uint8_t val);
-            void pack(std::uint16_t val);
-            void pack(std::uint32_t val);
-            void pack(std::uint64_t val);
+            template <typename IntType>
+            void pack(IntType val)
+            {
+                for (int i = sizeof(val); i >= 0; i -= 8)
+                    this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
+            }
+
             void pack(RRType val);
             void pack(RRClass val);
             void pack(edns0::OptCode val);
@@ -128,14 +127,20 @@ namespace chen
             /**
              * Unpack data
              */
-            void unpack(std::int8_t &val);
-            void unpack(std::int16_t &val);
-            void unpack(std::int32_t &val);
-            void unpack(std::int64_t &val);
-            void unpack(std::uint8_t &val);
-            void unpack(std::uint16_t &val);
-            void unpack(std::uint32_t &val);
-            void unpack(std::uint64_t &val);
+            template <typename IntType>
+            void unpack(IntType &val)
+            {
+                int len = sizeof(val);
+
+                if (std::distance(this->_cur, this->_end) < len)
+                    throw std::runtime_error(chen::str::format("dns: codec unpack size is not enough, require %d bytes", len));
+
+                val = 0;
+
+                for (int i = 0; i < len; ++i)
+                    val |= static_cast<IntType>(*this->_cur++) << (len - i - 1) * 8;
+            }
+
             void unpack(RRType &val);
             void unpack(RRClass &val);
             void unpack(edns0::OptCode &val);

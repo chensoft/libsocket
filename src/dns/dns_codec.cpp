@@ -74,49 +74,6 @@ void chen::dns::encoder::change(std::size_t pos, std::uint8_t byte)
 }
 
 // pack
-void chen::dns::encoder::pack(std::int8_t val)
-{
-    encoder::pack(static_cast<std::uint8_t>(val));
-}
-
-void chen::dns::encoder::pack(std::int16_t val)
-{
-    encoder::pack(static_cast<std::uint16_t>(val));
-}
-
-void chen::dns::encoder::pack(std::int32_t val)
-{
-    encoder::pack(static_cast<std::uint32_t>(val));
-}
-
-void chen::dns::encoder::pack(std::int64_t val)
-{
-    encoder::pack(static_cast<std::uint64_t>(val));
-}
-
-void chen::dns::encoder::pack(std::uint8_t val)
-{
-    this->_data.emplace_back(val);
-}
-
-void chen::dns::encoder::pack(std::uint16_t val)
-{
-    for (int i = 8; i >= 0; i -= 8)
-        this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
-}
-
-void chen::dns::encoder::pack(std::uint32_t val)
-{
-    for (int i = 24; i >= 0; i -= 8)
-        this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
-}
-
-void chen::dns::encoder::pack(std::uint64_t val)
-{
-    for (int i = 56; i >= 0; i -= 8)
-        this->_data.emplace_back(static_cast<std::uint8_t>(val >> i & 0xFF));
-}
-
 void chen::dns::encoder::pack(RRType val)
 {
     encoder::pack(static_cast<std::underlying_type<RRType>::type>(val));
@@ -283,67 +240,6 @@ void chen::dns::decoder::reset()
 }
 
 // unpack
-void chen::dns::decoder::unpack(std::int8_t &val)
-{
-    decoder::unpack(reinterpret_cast<std::uint8_t&>(val));
-}
-
-void chen::dns::decoder::unpack(std::int16_t &val)
-{
-    decoder::unpack(reinterpret_cast<std::uint16_t&>(val));
-}
-
-void chen::dns::decoder::unpack(std::int32_t &val)
-{
-    decoder::unpack(reinterpret_cast<std::uint32_t&>(val));
-}
-
-void chen::dns::decoder::unpack(std::int64_t &val)
-{
-    decoder::unpack(reinterpret_cast<std::uint64_t&>(val));
-}
-
-void chen::dns::decoder::unpack(std::uint8_t &val)
-{
-    if (std::distance(this->_cur, this->_end) < 1)
-        throw std::runtime_error("dns: codec unpack size is not enough, require 1 bytes");
-
-    val = *this->_cur++;
-}
-
-void chen::dns::decoder::unpack(std::uint16_t &val)
-{
-    if (std::distance(this->_cur, this->_end) < 2)
-        throw std::runtime_error("dns: codec unpack size is not enough, require 2 bytes");
-
-    val = 0;
-
-    for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
-        val |= *this->_cur++ << (len - i - 1) * 8;
-}
-
-void chen::dns::decoder::unpack(std::uint32_t &val)
-{
-    if (std::distance(this->_cur, this->_end) < 4)
-        throw std::runtime_error("dns: codec unpack size is not enough, require 4 bytes");
-
-    val = 0;
-
-    for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
-        val |= *this->_cur++ << (len - i - 1) * 8;
-}
-
-void chen::dns::decoder::unpack(std::uint64_t &val)
-{
-    if (std::distance(this->_cur, this->_end) < 8)
-        throw std::runtime_error("dns: codec unpack size is not enough, require 8 bytes");
-
-    val = 0;
-
-    for (std::size_t i = 0, len = sizeof(val); i < len; ++i)
-        val |= static_cast<std::uint64_t>(*this->_cur++) << (len - i - 1) * 8;
-}
-
 void chen::dns::decoder::unpack(RRType &val)
 {
     decoder::unpack(reinterpret_cast<std::underlying_type<RRType>::type&>(val));
