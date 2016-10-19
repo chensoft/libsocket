@@ -48,8 +48,6 @@ namespace chen
             static const int FlagEdge;
 
             /**
-             * None: user request to stop the poll
-             * -----------------------------------------------------------------
              * Read: read event occurs, you can read data from socket
              * -----------------------------------------------------------------
              * Write: you can write data to remote host
@@ -64,7 +62,7 @@ namespace chen
              * because server may send last message and then close the connection immediately
              * kqueue may report Read & End event or only report the End event
              */
-            enum class Event {None = 0, Read, Write, End};
+            enum class Event {Read = 1, Write, End};
 
             typedef struct Data
             {
@@ -72,7 +70,7 @@ namespace chen
                 Data(int fd, Event ev) : fd(fd), ev(ev) {}
 
                 int   fd = -1;
-                Event ev = Event::None;
+                Event ev;
             } Data;
 
         public:

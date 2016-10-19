@@ -56,9 +56,6 @@ void chen::net::runloop::start(std::size_t count, double timeout)
             if (event.fd == invalid_socket)
                 continue;  // someone has removed the socket in previous callback
 
-            if (event.ev == bsd::reactor::Event::None)
-                throw std::runtime_error("runloop: unknown event type detect");
-
             auto find = this->_mapping.find(event.fd);
             if (find == this->_mapping.end())
                 throw std::runtime_error("runloop: event detect but no callback");

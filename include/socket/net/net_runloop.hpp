@@ -41,7 +41,7 @@ namespace chen
              * Reactor event type
              * @attention specific meaning can refer to bsd::reactor
              */
-            using Event = bsd::reactor::Event;  // Event::None is not used
+            using Event = bsd::reactor::Event;
 
             typedef std::function<void (Event type)> callback_type;
 
