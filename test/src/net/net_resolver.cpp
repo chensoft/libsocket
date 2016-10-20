@@ -83,39 +83,6 @@ TEST(NetResolverTest, IPv6)
     EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", 80, address::Type::IPv6)[0].str());
 }
 
-TEST(NetResolverTest, First)
-{
-    using chen::net::resolver;
-    using chen::ip::address;
-
-    // mixed, with address type
-    EXPECT_EQ("0.0.0.0:80", resolver::first(":80").str());
-    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1").str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:80").str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:http").str());
-
-    EXPECT_EQ("0.0.0.0:80", resolver::first(":80", address::Type::IPv4).str());
-    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1", address::Type::IPv4).str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:80", address::Type::IPv4).str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1:http", address::Type::IPv4).str());
-
-    // host, service, with address type
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "80").str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "http").str());
-
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "80", address::Type::IPv4).str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", "http", address::Type::IPv4).str());
-
-    // host, port, with address type
-    EXPECT_EQ("0.0.0.0:80", resolver::first("", 80).str());
-    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1", 0).str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", 80).str());
-
-    EXPECT_EQ("0.0.0.0:80", resolver::first("", 80, address::Type::IPv4).str());
-    EXPECT_EQ("127.0.0.1:0", resolver::first("127.0.0.1", 0, address::Type::IPv4).str());
-    EXPECT_EQ("127.0.0.1:80", resolver::first("127.0.0.1", 80, address::Type::IPv4).str());
-}
-
 TEST(NetResolverTest, Service)
 {
     using chen::net::resolver;

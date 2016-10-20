@@ -18,7 +18,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &mixed, ip::address::Type type)
 {
-    auto split = resolver::split(mixed);
+    auto split = resolver::extract(mixed);
     return resolver::resolve(split.first, split.second, type);
 }
 
@@ -78,110 +78,6 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return ret;
 }
 
-// first
-chen::net::endpoint chen::net::resolver::first(const std::string &mixed)
-{
-    net::endpoint ep;
-    resolver::first(mixed, ep);
-    return ep;
-}
-
-chen::net::endpoint chen::net::resolver::first(const std::string &mixed, ip::address::Type type)
-{
-    net::endpoint ep;
-    resolver::first(mixed, type, ep);
-    return ep;
-}
-
-chen::net::endpoint chen::net::resolver::first(const std::string &host, const std::string &service)
-{
-    net::endpoint ep;
-    resolver::first(host, service, ep);
-    return ep;
-}
-
-chen::net::endpoint chen::net::resolver::first(const std::string &host, const std::string &service, ip::address::Type type)
-{
-    net::endpoint ep;
-    resolver::first(host, service, type, ep);
-    return ep;
-}
-
-chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uint16_t port)
-{
-    net::endpoint ep;
-    resolver::first(host, port, ep);
-    return ep;
-}
-
-chen::net::endpoint chen::net::resolver::first(const std::string &host, std::uint16_t port, ip::address::Type type)
-{
-    net::endpoint ep;
-    resolver::first(host, port, type, ep);
-    return ep;
-}
-
-void chen::net::resolver::first(const std::string &mixed, net::endpoint &ep)
-{
-    resolver::first(mixed, ip::address::Type::None, ep);
-}
-
-void chen::net::resolver::first(const std::string &mixed, ip::address::Type type, net::endpoint &ep)
-{
-    auto split = resolver::split(mixed);
-    resolver::first(split.first, split.second, type, ep);
-}
-
-void chen::net::resolver::first(const std::string &host, const std::string &service, net::endpoint &ep)
-{
-    resolver::first(host, service, ip::address::Type::None, ep);
-}
-
-void chen::net::resolver::first(const std::string &host, const std::string &service, ip::address::Type type, net::endpoint &ep)
-{
-    resolver::first(host, resolver::service(service), type, ep);
-}
-
-void chen::net::resolver::first(const std::string &host, std::uint16_t port, net::endpoint &ep)
-{
-    resolver::first(host, port, ip::address::Type::None, ep);
-}
-
-void chen::net::resolver::first(const std::string &host, std::uint16_t port, ip::address::Type type, net::endpoint &ep)
-{
-    if (host.empty())
-    {
-        ep.addr(ip::address(ip::version4(0u)));
-        ep.port(port);
-        return;
-    }
-
-    struct ::addrinfo *info = nullptr;
-    struct ::addrinfo  hint{};
-
-    hint.ai_family   = static_cast<int>(type);
-    hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
-
-    if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))
-    {
-        ep = nullptr;
-        return;
-    }
-
-    try
-    {
-        ep = info ? info->ai_addr : nullptr;
-        ep.port(port);
-
-        ::freeaddrinfo(info);
-    }
-    catch (...)
-    {
-        ::freeaddrinfo(info);
-        throw;
-    }
-}
-
 // service
 std::uint16_t chen::net::resolver::service(const std::string &name, const std::string &protocol)
 {
@@ -216,7 +112,7 @@ std::string chen::net::resolver::service(std::uint16_t port, const std::string &
 }
 
 // split
-std::pair<std::string, std::uint16_t> chen::net::resolver::split(const std::string &mixed)
+std::pair<std::string, std::uint16_t> chen::net::resolver::extract(const std::string &mixed)
 {
     if (mixed.empty())
         return {};
@@ -229,13 +125,11 @@ std::pair<std::string, std::uint16_t> chen::net::resolver::split(const std::stri
 
     if (*cur == '[')
     {
-        ++cur;
+        // IPv6:Port
+        while ((++cur != end) && (*cur != ']'))
+            first += *cur;
 
-        // IPv6:Port format
-        while (*cur && (*cur != ']'))
-            first += *cur++;
-
-        if (*cur != ']')
+        if ((cur == end) || (*cur != ']'))
             throw std::runtime_error("resolver: IPv6 endpoint format error");
         else
             ++cur;
@@ -243,14 +137,14 @@ std::pair<std::string, std::uint16_t> chen::net::resolver::split(const std::stri
     else
     {
         // IPv4:Port or Domain:Port
-        while ((cur != end) && *cur && (*cur != ':'))
+        while ((cur != end) && (*cur != ':'))
             first += *cur++;
     }
 
     // port
     if ((cur != end) && (*cur == ':'))
     {
-        while ((++cur != end) && *cur)
+        while (++cur != end)
             second += *cur;
     }
 

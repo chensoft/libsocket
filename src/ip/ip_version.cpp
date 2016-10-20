@@ -1099,7 +1099,7 @@ std::array<std::uint8_t, 16> chen::ip::version6::toBytes(const std::string &addr
     {
         std::string tmp;
 
-        while ((++cur != end) && (*cur != '/') && *cur)
+        while ((++cur != end) && (*cur != '/'))
             tmp += *cur;
 
         if (scope)

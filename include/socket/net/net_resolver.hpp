@@ -16,7 +16,7 @@ namespace chen
         {
         public:
             /**
-             * Resolve host and service, return endpoints
+             * Resolve host and service to endpoints
              * For Domain:
              * :-) resolve("chensoft.com")
              * :-) resolve("chensoft.com:80")
@@ -45,39 +45,15 @@ namespace chen
             static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type);
 
             /**
-             * Resolve host and service, return the first resolved endpoint
-             * @attention if no records found, the returned endpoint is nullptr
-             */
-            static net::endpoint first(const std::string &mixed);
-            static net::endpoint first(const std::string &mixed, ip::address::Type type);
-
-            static net::endpoint first(const std::string &host, const std::string &service);
-            static net::endpoint first(const std::string &host, const std::string &service, ip::address::Type type);
-
-            static net::endpoint first(const std::string &host, std::uint16_t port);
-            static net::endpoint first(const std::string &host, std::uint16_t port, ip::address::Type type);
-
-            static void first(const std::string &mixed, net::endpoint &ep);
-            static void first(const std::string &mixed, ip::address::Type type, net::endpoint &ep);
-
-            static void first(const std::string &host, const std::string &service, net::endpoint &ep);
-            static void first(const std::string &host, const std::string &service, ip::address::Type type, net::endpoint &ep);
-
-            static void first(const std::string &host, std::uint16_t port, net::endpoint &ep);
-            static void first(const std::string &host, std::uint16_t port, ip::address::Type type, net::endpoint &ep);
-
-        public:
-            /**
              * Resolve service
              */
             static std::uint16_t service(const std::string &name, const std::string &protocol = "");
             static std::string service(std::uint16_t port, const std::string &protocol = "");
 
             /**
-             * todo remove
-             * Split "host:port"
+             * Extract host & port
              */
-            static std::pair<std::string, std::uint16_t> split(const std::string &mixed);
+            static std::pair<std::string, std::uint16_t> extract(const std::string &mixed);
         };
     }
 }

@@ -113,7 +113,7 @@ chen::net::endpoint& chen::net::endpoint::operator=(std::nullptr_t)
 
 chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
 {
-    auto pair = resolver::split(mixed);
+    auto pair = resolver::extract(mixed);
     this->_addr = pair.first;
     this->_port = pair.second;
     return *this;
