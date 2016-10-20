@@ -74,6 +74,7 @@ namespace chen
             static std::string service(std::uint16_t port, const std::string &protocol = "");
 
             /**
+             * todo remove
              * Split "host:port"
              */
             static std::pair<std::string, std::uint16_t> split(const std::string &mixed);

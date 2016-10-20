@@ -39,3 +39,5 @@
 -) support set max connections limit in tcp, udp server socket
 
 -) why use edge trigger, when user connect to server, only first read event received
+
+-) add sendfile, TransmitFile, use method name: transmit

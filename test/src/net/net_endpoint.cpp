@@ -16,7 +16,6 @@ TEST(NetEndpointTest, General)
     EXPECT_FALSE(endpoint(nullptr));
 
     EXPECT_EQ("0.0.0.0:80", endpoint(":80").str());
-    EXPECT_EQ("0.0.0.0:80", endpoint(80).str());
     EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1", 80).str());
     EXPECT_EQ("127.0.0.1:0", endpoint("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1:80", endpoint("127.0.0.1:80").str());

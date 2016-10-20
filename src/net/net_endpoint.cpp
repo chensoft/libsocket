@@ -13,31 +13,6 @@
 // address
 chen::net::endpoint::endpoint(std::nullptr_t)
 {
-    *this = nullptr;
-}
-
-chen::net::endpoint::endpoint(const char *mixed) : endpoint(std::string(mixed))
-{
-}
-
-chen::net::endpoint::endpoint(const char *mixed, ip::address::Type type) : endpoint(std::string(mixed), type)
-{
-}
-
-chen::net::endpoint::endpoint(const char *host, const std::string &service) : endpoint(std::string(host), service)
-{
-}
-
-chen::net::endpoint::endpoint(const char *host, const std::string &service, ip::address::Type type) : endpoint(std::string(host), service, type)
-{
-}
-
-chen::net::endpoint::endpoint(const char *host, std::uint16_t port) : endpoint(std::string(host), port)
-{
-}
-
-chen::net::endpoint::endpoint(const char *host, std::uint16_t port, ip::address::Type type) : endpoint(std::string(host), port, type)
-{
 }
 
 chen::net::endpoint::endpoint(const std::string &mixed)
@@ -45,41 +20,11 @@ chen::net::endpoint::endpoint(const std::string &mixed)
     *this = mixed;
 }
 
-chen::net::endpoint::endpoint(const std::string &mixed, ip::address::Type type)
-{
-    resolver::first(mixed, type, *this);
-}
-
-chen::net::endpoint::endpoint(const std::string &host, const std::string &service)
-{
-    resolver::first(host, service, *this);
-}
-
-chen::net::endpoint::endpoint(const std::string &host, const std::string &service, ip::address::Type type)
-{
-    resolver::first(host, service, type, *this);
-}
-
-chen::net::endpoint::endpoint(const std::string &host, std::uint16_t port)
-{
-    resolver::first(host, port, *this);
-}
-
-chen::net::endpoint::endpoint(const std::string &host, std::uint16_t port, ip::address::Type type)
-{
-    resolver::first(host, port, type, *this);
-}
-
-chen::net::endpoint::endpoint(std::uint16_t port)
-{
-    *this = port;
-}
-
-chen::net::endpoint::endpoint(const ip::address &addr) : _addr(addr)
-{
-}
-
 chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
+{
+}
+
+chen::net::endpoint::endpoint(const ip::address &addr, const std::string &service) : _addr(addr), _port(resolver::service(service))
 {
 }
 
@@ -166,28 +111,11 @@ chen::net::endpoint& chen::net::endpoint::operator=(std::nullptr_t)
     return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const char *mixed)
-{
-    return *this = std::string(mixed);
-}
-
 chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
 {
-    resolver::first(mixed, *this);
-    return *this;
-}
-
-chen::net::endpoint& chen::net::endpoint::operator=(std::uint16_t port)
-{
-    this->_addr = ip::address::Type::IPv4;
-    this->_port = port;
-    return *this;
-}
-
-chen::net::endpoint& chen::net::endpoint::operator=(const ip::address &addr)
-{
-    this->_addr = addr;
-    this->_port = 0;
+    auto pair = resolver::split(mixed);
+    this->_addr = pair.first;
+    this->_port = pair.second;
     return *this;
 }
 
