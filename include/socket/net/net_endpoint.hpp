@@ -52,7 +52,12 @@ namespace chen
              * Construct by raw bsd endpoint
              */
             endpoint(const bsd::endpoint &ep);
+            endpoint(const bsd::endpoint &ep, std::uint16_t port);
+            endpoint(const bsd::endpoint &ep, const std::string &service);
+
             endpoint(const struct ::sockaddr *ep);
+            endpoint(const struct ::sockaddr *ep, std::uint16_t port);
+            endpoint(const struct ::sockaddr *ep, const std::string &service);
 
         public:
             /**
@@ -88,6 +93,21 @@ namespace chen
             /**
              * Assignment
              */
+            void assign(std::nullptr_t);
+            void assign(const std::string &mixed);
+
+            void assign(const ip::address &addr, std::uint16_t port);
+            void assign(const ip::address &addr, const std::string &service);
+
+            void assign(const bsd::endpoint &ep);
+            void assign(const bsd::endpoint &ep, std::uint16_t port);
+            void assign(const bsd::endpoint &ep, const std::string &service);
+
+            void assign(const struct ::sockaddr *ep);
+            void assign(const struct ::sockaddr *ep, std::uint16_t port);
+            void assign(const struct ::sockaddr *ep, const std::string &service);
+
+            // todo remove?
             endpoint& operator=(std::nullptr_t);
             endpoint& operator=(const std::string &mixed);
             endpoint& operator=(const bsd::endpoint &ep);

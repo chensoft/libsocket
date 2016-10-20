@@ -40,12 +40,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
     if (host.empty())
-    {
-        net::endpoint ret;
-        ret.addr(ip::address(ip::version4(0u)));
-        ret.port(port);
-        return {ret};
-    }
+        return {net::endpoint(ip::version4(0u), port)};
 
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};
@@ -60,20 +55,16 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 
     try
     {
-        for (struct ::addrinfo *ptr = info; ptr != nullptr; ptr = ptr->ai_next)
-        {
-            net::endpoint ep(ptr->ai_addr);
-            ep.port(port);
-            ret.emplace_back(std::move(ep));
-        }
+        for (auto ptr = info; ptr != nullptr; ptr = ptr->ai_next)
+            ret.emplace_back(net::endpoint(ptr->ai_addr, port));
+
+        ::freeaddrinfo(info);
     }
     catch (...)
     {
         ::freeaddrinfo(info);
         throw;
     }
-
-    ::freeaddrinfo(info);
 
     return ret;
 }
@@ -118,7 +109,7 @@ std::pair<std::string, std::uint16_t> chen::net::resolver::extract(const std::st
         return {};
 
     auto cur = mixed.begin();
-	auto end = mixed.end();
+    auto end = mixed.end();
 
     std::string first;
     std::string second;

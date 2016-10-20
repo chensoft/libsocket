@@ -17,7 +17,7 @@ chen::net::endpoint::endpoint(std::nullptr_t)
 
 chen::net::endpoint::endpoint(const std::string &mixed)
 {
-    *this = mixed;
+    this->assign(mixed);
 }
 
 chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
@@ -30,12 +30,32 @@ chen::net::endpoint::endpoint(const ip::address &addr, const std::string &servic
 
 chen::net::endpoint::endpoint(const bsd::endpoint &ep)
 {
-    *this = ep;
+    this->assign(ep);
+}
+
+chen::net::endpoint::endpoint(const bsd::endpoint &ep, std::uint16_t port)
+{
+    this->assign(ep, port);
+}
+
+chen::net::endpoint::endpoint(const bsd::endpoint &ep, const std::string &service)
+{
+    this->assign(ep, service);
 }
 
 chen::net::endpoint::endpoint(const struct ::sockaddr *ep)
 {
-    *this = ep;
+    this->assign(ep);
+}
+
+chen::net::endpoint::endpoint(const struct ::sockaddr *ep, std::uint16_t port)
+{
+    this->assign(ep, port);
+}
+
+chen::net::endpoint::endpoint(const struct ::sockaddr *ep, const std::string &service)
+{
+    this->assign(ep, service);
 }
 
 // property
@@ -104,27 +124,47 @@ bool chen::net::endpoint::isDynamicPort() const
 }
 
 // assignment
-chen::net::endpoint& chen::net::endpoint::operator=(std::nullptr_t)
+void chen::net::endpoint::assign(std::nullptr_t)
 {
     this->_addr = nullptr;
     this->_port = 0;
-    return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
+void chen::net::endpoint::assign(const std::string &mixed)
 {
     auto pair = resolver::extract(mixed);
     this->_addr = pair.first;
     this->_port = pair.second;
-    return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const bsd::endpoint &ep)
+void chen::net::endpoint::assign(const ip::address &addr, std::uint16_t port)
 {
-    return *this = (struct ::sockaddr*)&ep.addr;
+    this->_addr = addr;
+    this->_port = port;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
+void chen::net::endpoint::assign(const ip::address &addr, const std::string &service)
+{
+    this->_addr = addr;
+    this->_port = resolver::service(service);
+}
+
+void chen::net::endpoint::assign(const bsd::endpoint &ep)
+{
+    this->assign((struct ::sockaddr*)&ep.addr);
+}
+
+void chen::net::endpoint::assign(const bsd::endpoint &ep, std::uint16_t port)
+{
+    this->assign((struct ::sockaddr*)&ep.addr, port);
+}
+
+void chen::net::endpoint::assign(const bsd::endpoint &ep, const std::string &service)
+{
+    this->assign((struct ::sockaddr*)&ep.addr, service);
+}
+
+void chen::net::endpoint::assign(const struct ::sockaddr *ep)
 {
     switch (ep->sa_family)
     {
@@ -147,7 +187,41 @@ chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
         default:
             throw std::runtime_error("endpoint: unknown bsd endpoint provided");
     }
+}
 
+void chen::net::endpoint::assign(const struct ::sockaddr *ep, std::uint16_t port)
+{
+    this->assign(ep);
+    this->_port = port;
+}
+
+void chen::net::endpoint::assign(const struct ::sockaddr *ep, const std::string &service)
+{
+    this->assign(ep);
+    this->_port = resolver::service(service);
+}
+
+chen::net::endpoint& chen::net::endpoint::operator=(std::nullptr_t)
+{
+    this->assign(nullptr);
+    return *this;
+}
+
+chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
+{
+    this->assign(mixed);
+    return *this;
+}
+
+chen::net::endpoint& chen::net::endpoint::operator=(const bsd::endpoint &ep)
+{
+    this->assign(ep);
+    return *this;
+}
+
+chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
+{
+    this->assign(ep);
     return *this;
 }
 

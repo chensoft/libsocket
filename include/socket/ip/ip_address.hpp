@@ -37,8 +37,8 @@ namespace chen
             /**
              * Construct by version directly
              */
-            explicit address(version4 v4);
-            explicit address(version6 v6);
+            address(const version4 &v4);
+            address(const version6 &v6);
 
             /**
              * Construct by ip address, accept the following format:
@@ -83,8 +83,8 @@ namespace chen
             void assign(std::nullptr_t);
             void assign(Type type);
 
-            void assign(version4 v4);
-            void assign(version6 v6);
+            void assign(const version4 &v4);
+            void assign(const version6 &v6);
 
             void assign(const std::string &addr);
             void assign(const std::string &addr, std::uint8_t cidr);
@@ -92,10 +92,11 @@ namespace chen
             void assign(const std::string &addr, const std::string &mask);
             void assign(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
+            // todo remove?
             address& operator=(std::nullptr_t);
             address& operator=(Type type);
-            address& operator=(version4 v4);
-            address& operator=(version6 v6);
+            address& operator=(const version4 &v4);
+            address& operator=(const version6 &v6);
             address& operator=(const char *addr);
             address& operator=(const std::string &addr);
 

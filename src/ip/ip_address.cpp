@@ -18,12 +18,12 @@ chen::ip::address::address(Type type)
     this->assign(type);
 }
 
-chen::ip::address::address(version4 v4)
+chen::ip::address::address(const version4 &v4)
 {
     this->assign(v4);
 }
 
-chen::ip::address::address(version6 v6)
+chen::ip::address::address(const version6 &v6)
 {
     this->assign(v6);
 }
@@ -82,13 +82,13 @@ void chen::ip::address::assign(Type type)
     }
 }
 
-void chen::ip::address::assign(version4 v4)
+void chen::ip::address::assign(const version4 &v4)
 {
     this->_type    = Type::IPv4;
     this->_impl.v4 = v4;
 }
 
-void chen::ip::address::assign(version6 v6)
+void chen::ip::address::assign(const version6 &v6)
 {
     this->_type    = Type::IPv6;
     this->_impl.v6 = v6;
@@ -201,13 +201,13 @@ chen::ip::address& chen::ip::address::operator=(Type type)
     return *this;
 }
 
-chen::ip::address& chen::ip::address::operator=(version4 v4)
+chen::ip::address& chen::ip::address::operator=(const version4 &v4)
 {
     this->assign(v4);
     return *this;
 }
 
-chen::ip::address& chen::ip::address::operator=(version6 v6)
+chen::ip::address& chen::ip::address::operator=(const version6 &v6)
 {
     this->assign(v6);
     return *this;
