@@ -38,11 +38,11 @@ namespace chen
             static std::vector<net::endpoint> resolve(const std::string &mixed);
             static std::vector<net::endpoint> resolve(const std::string &mixed, ip::address::Type type);
 
-            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service);
-            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type);
-
             static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port);
             static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type);
+
+            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service);
+            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type);
 
             /**
              * Resolve service
@@ -51,9 +51,9 @@ namespace chen
             static std::string service(std::uint16_t port, const std::string &protocol = "");
 
             /**
-             * Extract host & port
+             * Extract host & service
              */
-            static std::pair<std::string, std::uint16_t> extract(const std::string &mixed);
+            static std::pair<std::string, std::string> extract(const std::string &mixed);
         };
     }
 }

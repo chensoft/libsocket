@@ -134,7 +134,7 @@ void chen::net::endpoint::assign(const std::string &mixed)
 {
     auto pair = resolver::extract(mixed);
     this->_addr = pair.first;
-    this->_port = pair.second;
+    this->_port = resolver::service(pair.second);
 }
 
 void chen::net::endpoint::assign(const ip::address &addr, std::uint16_t port)

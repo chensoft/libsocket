@@ -22,16 +22,6 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return resolver::resolve(split.first, split.second, type);
 }
 
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service)
-{
-    return resolver::resolve(host, service, ip::address::Type::None);
-}
-
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
-{
-    return resolver::resolve(host, resolver::service(service), type);
-}
-
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port)
 {
     return resolver::resolve(host, port, ip::address::Type::None);
@@ -69,6 +59,16 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return ret;
 }
 
+std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service)
+{
+    return resolver::resolve(host, service, ip::address::Type::None);
+}
+
+std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
+{
+    return resolver::resolve(host, resolver::service(service), type);
+}
+
 // service
 std::uint16_t chen::net::resolver::service(const std::string &name, const std::string &protocol)
 {
@@ -103,7 +103,7 @@ std::string chen::net::resolver::service(std::uint16_t port, const std::string &
 }
 
 // split
-std::pair<std::string, std::uint16_t> chen::net::resolver::extract(const std::string &mixed)
+std::pair<std::string, std::string> chen::net::resolver::extract(const std::string &mixed)
 {
     if (mixed.empty())
         return {};
@@ -139,5 +139,5 @@ std::pair<std::string, std::uint16_t> chen::net::resolver::extract(const std::st
             second += *cur;
     }
 
-    return std::make_pair(std::move(first), resolver::service(second));
+    return std::make_pair(std::move(first), std::move(second));
 }
