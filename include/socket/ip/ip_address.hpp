@@ -92,7 +92,6 @@ namespace chen
             void assign(const std::string &addr, const std::string &mask);
             void assign(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
-            // todo remove?
             address& operator=(std::nullptr_t);
             address& operator=(Type type);
             address& operator=(const version4 &v4);

@@ -40,6 +40,7 @@ namespace chen
              * :-) endpoint("[fe80::1%lo0]:80")
              * :-) endpoint("[fe80::1%lo0]:http")
              */
+            endpoint(const char *mixed);
             endpoint(const std::string &mixed);
 
             /**
@@ -107,8 +108,8 @@ namespace chen
             void assign(const struct ::sockaddr *ep, std::uint16_t port);
             void assign(const struct ::sockaddr *ep, const std::string &service);
 
-            // todo remove?
             endpoint& operator=(std::nullptr_t);
+            endpoint& operator=(const char *mixed);
             endpoint& operator=(const std::string &mixed);
             endpoint& operator=(const bsd::endpoint &ep);
             endpoint& operator=(const struct ::sockaddr *ep);

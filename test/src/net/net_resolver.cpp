@@ -83,6 +83,15 @@ TEST(NetResolverTest, IPv6)
     EXPECT_EQ("[fe80::1]:80", resolver::resolve("fe80::1", 80, address::Type::IPv6)[0].str());
 }
 
+TEST(NetResolverTest, Reverse)
+{
+    using chen::net::resolver;
+
+    // reverse resolve
+    EXPECT_EQ(std::make_pair(std::string("localhost"), std::string("http")), resolver::reverse("127.0.0.1:80"));
+    EXPECT_EQ(std::make_pair(std::string("localhost"), std::string("https")), resolver::reverse("127.0.0.1:443"));
+}
+
 TEST(NetResolverTest, Service)
 {
     using chen::net::resolver;

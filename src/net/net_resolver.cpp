@@ -59,6 +59,20 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return ret;
 }
 
+// reverse
+std::pair<std::string, std::string> chen::net::resolver::reverse(const net::endpoint &ep)
+{
+    char host[NI_MAXHOST]{};
+    char serv[NI_MAXSERV]{};
+
+    chen::bsd::endpoint tmp = static_cast<chen::bsd::endpoint>(ep);
+
+    if (!::getnameinfo((const struct sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
+        return std::make_pair(host, serv);
+    else
+        return {};
+}
+
 // service
 std::uint16_t chen::net::resolver::service(const std::string &name, const std::string &protocol)
 {

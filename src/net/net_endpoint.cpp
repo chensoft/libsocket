@@ -15,6 +15,11 @@ chen::net::endpoint::endpoint(std::nullptr_t)
 {
 }
 
+chen::net::endpoint::endpoint(const char *mixed)
+{
+    this->assign(mixed);
+}
+
 chen::net::endpoint::endpoint(const std::string &mixed)
 {
     this->assign(mixed);
@@ -204,6 +209,12 @@ void chen::net::endpoint::assign(const struct ::sockaddr *ep, const std::string 
 chen::net::endpoint& chen::net::endpoint::operator=(std::nullptr_t)
 {
     this->assign(nullptr);
+    return *this;
+}
+
+chen::net::endpoint& chen::net::endpoint::operator=(const char *mixed)
+{
+    this->assign(mixed);
     return *this;
 }
 

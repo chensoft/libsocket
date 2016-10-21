@@ -40,6 +40,13 @@ namespace chen
             static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
 
             /**
+             * Reverse resolve endpoint to host and service
+             * make sure your ip address has PTR dns record
+             * e.g: resolve 216.58.197.238 will search the PTR record of 238.197.58.216.in-addr.arpa
+             */
+            static std::pair<std::string, std::string> reverse(const net::endpoint &ep);
+
+            /**
              * Resolve service
              */
             static std::uint16_t service(const std::string &name, const std::string &protocol = "");
