@@ -11,26 +11,26 @@
 
 // -----------------------------------------------------------------------------
 // resolver
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &mixed)
-{
-    return resolver::resolve(mixed, ip::address::Type::None);
-}
-
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &mixed, ip::address::Type type)
 {
     auto split = resolver::extract(mixed);
     return resolver::resolve(split.first, split.second, type);
 }
 
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port)
-{
-    return resolver::resolve(host, port, ip::address::Type::None);
-}
-
 std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
+    auto ret = resolver::resolve(host, "", type);
+
+    for (auto &ep : ret)
+        ep.port(port);
+
+    return ret;
+}
+
+std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
+{
     if (host.empty())
-        return {net::endpoint(ip::version4(0u), port)};
+        return {net::endpoint(ip::version4(0u), resolver::service(service))};
 
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};
@@ -38,7 +38,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     hint.ai_family   = static_cast<int>(type);
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
 
-    if (::getaddrinfo(host.c_str(), nullptr, &hint, &info))
+    if (::getaddrinfo(host.c_str(), !service.empty() ? service.c_str() : nullptr, &hint, &info))
         return {};
 
     std::vector<net::endpoint> ret;
@@ -46,7 +46,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     try
     {
         for (auto ptr = info; ptr != nullptr; ptr = ptr->ai_next)
-            ret.emplace_back(net::endpoint(ptr->ai_addr, port));
+            ret.emplace_back(net::endpoint(ptr->ai_addr));
 
         ::freeaddrinfo(info);
     }
@@ -57,16 +57,6 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     }
 
     return ret;
-}
-
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service)
-{
-    return resolver::resolve(host, service, ip::address::Type::None);
-}
-
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
-{
-    return resolver::resolve(host, resolver::service(service), type);
 }
 
 // service

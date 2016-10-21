@@ -35,14 +35,9 @@ namespace chen
              * :-) resolve("[fe80::1%lo0]:80")
              * :-) resolve("[fe80::1%lo0]:http")
              */
-            static std::vector<net::endpoint> resolve(const std::string &mixed);
-            static std::vector<net::endpoint> resolve(const std::string &mixed, ip::address::Type type);
-
-            static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port);
-            static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type);
-
-            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service);
-            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type);
+            static std::vector<net::endpoint> resolve(const std::string &mixed, ip::address::Type type = ip::address::Type::None);
+            static std::vector<net::endpoint> resolve(const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
+            static std::vector<net::endpoint> resolve(const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
 
             /**
              * Resolve service
