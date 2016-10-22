@@ -16,10 +16,6 @@ chen::net::socket::socket(ip::address::Type family, int type) : _handle(static_c
 {
 }
 
-chen::net::socket::~socket()
-{
-}
-
 // property
 chen::net::endpoint chen::net::socket::sock() const
 {
@@ -45,40 +41,3 @@ chen::net::socket::operator bool() const
 {
     return this->_handle;
 }
-
-int chen::net::socket::family() const
-{
-    return this->_handle.family();
-}
-
-int chen::net::socket::type() const
-{
-    return this->_handle.type();
-}
-
-int chen::net::socket::protocol() const
-{
-    return this->_handle.protocol();
-}
-
-// todo remove
-// notify
-//void chen::net::socket::onAccept(bsd::socket s, net::endpoint ep)
-//{
-//    // override this method when you implement a server
-//}
-//
-//void chen::net::socket::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
-//{
-//    // override this method when you want to read data from remote
-//}
-//
-//void chen::net::socket::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
-//{
-//    // override this method when you want to know the write status
-//}
-//
-//void chen::net::socket::onEnd()
-//{
-//    // override this method when you want to deal with connection refused, disconnect or other error
-//}

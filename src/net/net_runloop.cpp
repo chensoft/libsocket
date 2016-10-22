@@ -52,7 +52,6 @@ void chen::net::runloop::start(std::size_t count, double timeout)
         for (std::size_t idx = 0; idx < this->_count; ++idx)
         {
             auto &event = this->_caching[idx];
-
             if (event.fd == invalid_socket)
                 continue;  // someone has removed the socket in previous callback
 

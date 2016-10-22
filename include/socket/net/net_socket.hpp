@@ -19,8 +19,6 @@ namespace chen
             socket(bsd::socket &&s);
             socket(ip::address::Type family, int type);
 
-            virtual ~socket() = 0;
-
         public:
             /**
              * Sock & Peer endpoint
@@ -38,28 +36,6 @@ namespace chen
              */
             bool valid() const;
             operator bool() const;
-
-            /**
-             * Native type info
-             */
-            int family() const;
-            int type() const;
-            int protocol() const;
-
-            // todo remove virtual and these methods
-//        protected:
-//            /**
-//             * Event callbacks
-//             * :-) accept : used by server socket to accepting new connection
-//             * :-) read   : the data has arrived
-//             * :-) write  : data has been sent out
-//             * :-) end    : connection refused, disconnect or other error
-//             * @attention ep is only valid when socket's type is udp, otherwise it's nullptr
-//             */
-//            virtual void onAccept(bsd::socket s, net::endpoint ep);
-//            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error);
-//            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error);
-//            virtual void onEnd();
 
         protected:
             bsd::socket _handle;
