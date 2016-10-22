@@ -71,12 +71,9 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     // connect to remote host
     this->_remote = ep;
     this->_state  = State::Connecting;
-    auto error    = this->_handle.connect(ep);
 
-    // todo test socket will error on connect other than EAGAIN, such as not enough port use to connect?
-    // since modern system define EAGAIN & EWOULDBLOCK as the same value
-    // we only check the EAGAIN macro, just ignore the EWOULDBLOCK macro
-    if (error && (error != std::errc::resource_unavailable_try_again))
+    auto error = this->_handle.connect(ep);
+    if (error != std::errc::operation_in_progress)
         throw std::system_error(error, "tcp: client connect error");
 }
 
@@ -191,37 +188,6 @@ void chen::tcp::client::notify(tcp::write_event &&event)
 // event
 void chen::tcp::client::onReadable()
 {
-
-}
-
-void chen::tcp::client::onWritable()
-{
-
-}
-
-void chen::tcp::client::onEnded()
-{
-
-}
-
-void chen::tcp::client::onEvent(net::runloop::Event type)
-{
-    switch (type)
-    {
-        case net::runloop::Event::Read:
-            return this->onReadable();
-
-        case net::runloop::Event::Write:
-            return this->onWritable();
-
-        case net::runloop::Event::End:
-            return this->onEnded();
-    }
-}
-
-
-//void chen::tcp::client::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
-//{
 //    if (this->isConnected())
 //    {
 //        // disconnect if error occur, otherwise notify the read callback
@@ -239,18 +205,14 @@ void chen::tcp::client::onEvent(net::runloop::Event type)
 //    {
 //        throw std::runtime_error("tcp: client in disconnect state but received read event");
 //    }
-//}
-//
-//void chen::tcp::client::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
-//{
-//    if (this->isConnecting())
-//    {
-//        // socket can be written and error is nil means connected successful
-//        if (error)
-//            this->disconnect();
-//
-//        this->notify(connected_event(this->_remote, error));
-//    }
+}
+
+void chen::tcp::client::onWritable()
+{
+    if (this->isConnecting())
+    {
+        this->notify(connected_event(this->_remote, {}));
+    }
 //    else if (this->isConnected())
 //    {
 //        // disconnect if error occur, otherwise notify the write callback
@@ -268,16 +230,19 @@ void chen::tcp::client::onEvent(net::runloop::Event type)
 //    {
 //        throw std::runtime_error("tcp: client in disconnect state but received write event");
 //    }
-//}
-//
-//void chen::tcp::client::onEnd()
-//{
-//    if (this->isConnecting())
-//    {
-//        // receive eof when connecting usually means connection refused
-//        this->disconnect();
-//        this->notify(connected_event(this->_remote, std::make_error_code(std::errc::connection_refused)));
-//    }
+}
+
+void chen::tcp::client::onEnded()
+{
+    if (this->isConnecting())
+    {
+        // connection refused or reset by peer
+        // @see http://man7.org/linux/man-pages/man2/connect.2.html about EINPROGRESS
+        auto error = this->option().error();
+
+        this->disconnect();
+        this->notify(connected_event(this->_remote, error));
+    }
 //    else if (this->isConnected())
 //    {
 //        // connection broken
@@ -288,4 +253,19 @@ void chen::tcp::client::onEvent(net::runloop::Event type)
 //    {
 //        throw std::runtime_error("tcp: client in disconnect state but received eof event");
 //    }
-//}
+}
+
+void chen::tcp::client::onEvent(net::runloop::Event type)
+{
+    switch (type)
+    {
+        case net::runloop::Event::Read:
+            return this->onReadable();
+
+        case net::runloop::Event::Write:
+            return this->onWritable();
+
+        case net::runloop::Event::End:
+            return this->onEnded();
+    }
+}
