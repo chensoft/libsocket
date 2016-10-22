@@ -73,8 +73,12 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     this->_state  = State::Connecting;
 
     auto error = this->_handle.connect(ep);
+
     if (error != std::errc::operation_in_progress)
-        throw std::system_error(error, "tcp: client connect error");
+    {
+        this->disconnect();
+        this->notify(connected_event(this->_remote, error));
+    }
 }
 
 void chen::tcp::client::reconnect()

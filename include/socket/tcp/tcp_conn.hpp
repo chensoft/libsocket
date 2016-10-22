@@ -70,9 +70,9 @@ namespace chen
             /**
              * Write data to remote host
              * you can safely call this method even if the socket is not connected yet
-             * the data will be sent immediately after the connection is successful
+             * the data will be sent immediately after the connection is established
              */
-            void write(const char *data, std::size_t size);
+            void write(const void *data, std::size_t size);
 
         public:
             /**

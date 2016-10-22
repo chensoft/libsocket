@@ -51,7 +51,7 @@ namespace chen
              */
             void disconnect();
 
-//        public:
+        public:
 //            /**
 //             * Read data from remote host
 //             * the read callback will be invoked if successful
@@ -79,14 +79,14 @@ namespace chen
 //             * Read until meet the text
 //             */
 //            void readUntil(const std::string &text);
-//
-//            /**
-//             * Write data to remote host
-//             * you can safely call this method even if the socket is not connected yet
-//             * the data will be sent immediately after the connection is successful
-//             */
-//            void write(const char *data, std::size_t size);
-//
+
+            /**
+             * Write data to remote host
+             * you can safely call this method even if the socket is not connected yet
+             * the data will be sent immediately after the connection is established
+             */
+            void write(const void *data, std::size_t size);
+
         public:
             /**
              * Check connection
