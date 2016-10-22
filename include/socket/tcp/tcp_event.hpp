@@ -15,25 +15,16 @@ namespace chen
     {
         // ---------------------------------------------------------------------
         // event
-        struct event
+        class event
         {
-        };
-
-
-        // ---------------------------------------------------------------------
-        // connecting_event
-        struct connecting_event : public event
-        {
-            connecting_event(net::endpoint ep) : ep(ep) {}
-
-            net::endpoint ep;
         };
 
 
         // ---------------------------------------------------------------------
         // connected_event
-        struct connected_event : public event
+        class connected_event : public event
         {
+        public:
             connected_event(net::endpoint ep, std::error_code err) : ep(ep), err(err) {}
 
             net::endpoint ep;
@@ -43,8 +34,9 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // disconnect_event
-        struct disconnect_event : public event
+        class disconnect_event : public event
         {
+        public:
             disconnect_event(std::error_code err) : err(err) {}
 
             std::error_code err;
@@ -53,8 +45,9 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // read_event
-        struct read_event : public event
+        class read_event : public event
         {
+        public:
             read_event(std::vector<std::uint8_t> &&data) : data(std::move(data)) {}
 
             std::vector<std::uint8_t> data;
@@ -63,8 +56,9 @@ namespace chen
 
         // ---------------------------------------------------------------------
         // write_event
-        struct write_event : public event
+        class write_event : public event
         {
+        public:
             write_event(std::size_t size) : size(size) {}
 
             std::size_t size;

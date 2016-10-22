@@ -16,10 +16,6 @@ namespace chen
         class socket
         {
         public:
-            socket(bsd::socket &&s);
-            socket(ip::address::Type family, int type);
-
-        public:
             /**
              * Sock & Peer endpoint
              */
@@ -36,6 +32,14 @@ namespace chen
              */
             bool valid() const;
             operator bool() const;
+
+        protected:
+            /**
+             * Reset socket
+             */
+            void reset();
+            void reset(bsd::socket &&s);
+            void reset(ip::address::Type family, int type);
 
         protected:
             bsd::socket _handle;

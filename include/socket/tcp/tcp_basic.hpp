@@ -16,10 +16,6 @@ namespace chen
         class basic : public net::socket
         {
         public:
-            basic(bsd::socket &&s);
-            basic(ip::address::Type family);
-
-        public:
             /**
              * Get/Set socket option
              * Usage:
@@ -28,6 +24,14 @@ namespace chen
              * >> bool reuse = opt.reuseaddr();  // get option
              */
             tcp::option option();
+
+        protected:
+            /**
+             * Reset socket
+             */
+            using net::socket::reset;
+
+            void reset(ip::address::Type family);
         };
     }
 }

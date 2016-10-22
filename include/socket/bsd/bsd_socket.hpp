@@ -117,7 +117,7 @@ namespace chen
             /**
              * Stop send or receive, but socket is still connected
              */
-            void shutdown(Shutdown type) noexcept;
+            void shutdown(Shutdown type = Shutdown::Both) noexcept;
 
             /**
              * Close the socket, the socket will disconnect immediately

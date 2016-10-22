@@ -8,15 +8,13 @@
 
 // -----------------------------------------------------------------------------
 // basic
-chen::tcp::basic::basic(bsd::socket &&s) : socket(std::move(s))
-{
-}
-
-chen::tcp::basic::basic(ip::address::Type family) : socket(family, SOCK_STREAM)
-{
-}
-
 chen::tcp::option chen::tcp::basic::option()
 {
     return tcp::option(this->_handle);
+}
+
+// reset
+void chen::tcp::basic::reset(ip::address::Type family)
+{
+    net::socket::reset(family, SOCK_STREAM);
 }

@@ -33,9 +33,6 @@ void chen::bsd::socket::shutdown(Shutdown type) noexcept
 
 void chen::bsd::socket::close() noexcept
 {
-    if (!this->valid())
-        return;
-
     ::closesocket(this->_fd);
     this->_fd = invalid_socket;
 }

@@ -8,13 +8,6 @@
 
 // -----------------------------------------------------------------------------
 // socket
-chen::net::socket::socket(bsd::socket &&s) : _handle(std::move(s))
-{
-}
-
-chen::net::socket::socket(ip::address::Type family, int type) : _handle(static_cast<int>(family), type)
-{
-}
 
 // property
 chen::net::endpoint chen::net::socket::sock() const
@@ -40,4 +33,20 @@ bool chen::net::socket::valid() const
 chen::net::socket::operator bool() const
 {
     return this->_handle;
+}
+
+// reset
+void chen::net::socket::reset()
+{
+    this->_handle.reset();
+}
+
+void chen::net::socket::reset(bsd::socket &&s)
+{
+    this->_handle = std::move(s);
+}
+
+void chen::net::socket::reset(ip::address::Type family, int type)
+{
+    this->_handle.reset(static_cast<int>(family), type);
 }

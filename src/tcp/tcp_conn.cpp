@@ -8,14 +8,14 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(bsd::socket &&s, tcp::server *m) : basic(std::move(s)), _manager(m)
-{
-}
-
-chen::tcp::conn::~conn()
-{
-}
-
+//chen::tcp::conn::conn(bsd::socket &&s, tcp::server *m) : basic(std::move(s)), _manager(m)
+//{
+//}
+//
+//chen::tcp::conn::~conn()
+//{
+//}
+//
 //// event
 //void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
 //{

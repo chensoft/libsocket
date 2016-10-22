@@ -6,43 +6,51 @@
  */
 #pragma once
 
-#include <socket/tcp/tcp_event.hpp>
+#include <socket/net/net_runloop.hpp>
 #include <socket/tcp/tcp_basic.hpp>
-#include <functional>
+#include <socket/tcp/tcp_event.hpp>
 
 namespace chen
 {
     namespace tcp
     {
-//        class client : public basic
-//        {
-//        public:
-//            enum class Event : std::uint8_t {Connecting = 1, Connected, Disconnect, Read, Write};
-//
-//        public:
-//            // todo how to reset socket if disconnect
-//            client(ip::address::Type family, net::notifier &notifier);
-//            ~client();
-//
-//        public:
-//            /**
-//             * Connect to remote host
-//             * todo how to deal with domain resolve error
-//             */
-//            void connect(const net::endpoint &ep);
-//
-//            /**
-//             * Disconnect and reconnect to last host
-//             * @attention this method will not trigger the disconnect callback
-//             */
-//            void reconnect();
-//
-//            /**
-//             * Close the connection and clear the buffer
-//             * @attention this method will not trigger the disconnect callback
-//             */
-//            void disconnect();
-//
+        class client : public basic
+        {
+        public:
+            enum class State : std::uint8_t {Connecting = 1, Connected, Disconnect};
+            enum class Event : std::uint8_t {Connected = 1, Disconnect, Read, Write};
+
+        public:
+            client(net::runloop &runloop);
+            ~client();
+
+        public:
+            /**
+             * Connect to first resolved endpoint
+             * @attention throw exception if no dns record found or dns error
+             */
+            void connect(const char *mixed);
+            void connect(const std::string &mixed, ip::address::Type type = ip::address::Type::None);
+            void connect(const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
+            void connect(const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
+
+            /**
+             * Connect to remote endpoint
+             */
+            void connect(const net::endpoint &ep);
+
+            /**
+             * Disconnect and reconnect to remote
+             * @attention this method will not trigger the disconnect callback
+             */
+            void reconnect();
+
+            /**
+             * Close the connection and clear the buffer
+             * @attention this method will not trigger the disconnect callback
+             */
+            void disconnect();
+
 //        public:
 //            /**
 //             * Read data from remote host
@@ -79,66 +87,61 @@ namespace chen
 //             */
 //            void write(const char *data, std::size_t size);
 //
-//        public:
-//            /**
-//             * Check connection
-//             */
-//            bool isDisconnect() const;
-//            bool isConnecting() const;
-//            bool isConnected() const;
-//
-//            /**
-//             * Remote endpoint
-//             */
-//            net::endpoint remote() const;
-//
-//        public:
-//            /**
-//             * Attach & Detach event callbacks
-//             * :-) connecting : void (client &c, connecting_event &e) -> when user issue the connect command
-//             * :-) connected  : void (client &c, connected_event &e)  -> connect to remote success or failure
-//             * :-) disconnect : void (client &c, disconnect_event &e) -> established connection is broken
-//             * :-) read       : void (client &c, read_event &e)       -> read data from remote
-//             * :-) write      : void (client &c, write_event &e)      -> write data to remote host
-//             */
-//            void attach(std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> callback);
-//            void attach(std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)> callback);
-//            void attach(std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> callback);
-//            void attach(std::function<void (chen::tcp::client &c, chen::tcp::read_event &e)> callback);
-//            void attach(std::function<void (chen::tcp::client &c, chen::tcp::write_event &e)> callback);
-//
-//            void detach(Event type);
-//
-//        protected:
-//            /**
-//             * Notify events
-//             */
-//            void notify(tcp::connecting_event &&ev);
-//            void notify(tcp::connected_event &&ev);
-//            void notify(tcp::disconnect_event &&ev);
-//            void notify(tcp::read_event &&ev);
-//            void notify(tcp::write_event &&ev);
-//
-//            /**
-//             * Event callbacks
-//             */
-//            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
-//            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
-//            virtual void onEnd() override;
-//
-//        protected:
-//            enum class State : std::uint8_t {Connecting = 1, Connected, Disconnect};
-//
-//            State _state = State::Disconnect;
-//
-//            std::function<void (chen::tcp::client &c, chen::tcp::connecting_event &e)> _cb_connecting;
-//            std::function<void (chen::tcp::client &c, chen::tcp::connected_event &e)>  _cb_connected;
-//            std::function<void (chen::tcp::client &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
-//            std::function<void (chen::tcp::client &c, chen::tcp::write_event &e)>      _cb_write;
-//            std::function<void (chen::tcp::client &c, chen::tcp::read_event &e)>       _cb_read;
-//
-//            net::endpoint _remote;
-//            net::notifier &_notifier;
-//        };
+        public:
+            /**
+             * Check connection
+             */
+            bool isConnecting() const;
+            bool isConnected() const;
+            bool isDisconnect() const;
+
+            /**
+             * Remote endpoint
+             */
+            net::endpoint remote() const;
+
+        public:
+            /**
+             * Attach & Detach event callbacks
+             * :-) connected  : void (connected_event event)  -> connect to remote SUCCESS or FAILURE
+             * :-) disconnect : void (disconnect_event event) -> established connection is broken
+             * :-) read       : void (read_event event)       -> read data from remote
+             * :-) write      : void (write_event event)      -> write data to remote host
+             */
+            void attach(std::function<void (tcp::connected_event event)> callback);
+            void attach(std::function<void (tcp::disconnect_event event)> callback);
+            void attach(std::function<void (tcp::read_event event)> callback);
+            void attach(std::function<void (tcp::write_event event)> callback);
+
+            void detach(Event type);
+
+        protected:
+            /**
+             * Notify events
+             */
+            void notify(tcp::connected_event &&event);
+            void notify(tcp::disconnect_event &&event);
+            void notify(tcp::read_event &&event);
+            void notify(tcp::write_event &&event);
+
+            /**
+             * Event handler
+             */
+            void onReadable();
+            void onWritable();
+            void onEnded();
+            void onEvent(net::runloop::Event type);
+
+        protected:
+            State _state = State::Disconnect;
+
+            net::endpoint _remote;
+            net::runloop &_runloop;
+
+            std::function<void (tcp::connected_event event)>  _cb_connected;
+            std::function<void (tcp::disconnect_event event)> _cb_disconnect;
+            std::function<void (tcp::read_event event)>       _cb_read;
+            std::function<void (tcp::write_event event)>      _cb_write;
+        };
     }
 }
