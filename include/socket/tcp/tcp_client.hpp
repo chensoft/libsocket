@@ -85,6 +85,8 @@ namespace chen
              * you can safely call this method even if the socket is not connected yet
              * the data will be sent immediately after the connection is established
              */
+            void write(const char *text);
+            void write(const std::string &text);
             void write(const void *data, std::size_t size);
 
         public:
@@ -137,6 +139,9 @@ namespace chen
 
             net::endpoint _remote;
             net::runloop &_runloop;
+
+            std::vector<std::uint8_t> _buf_read;
+            std::vector<std::uint8_t> _buf_write;
 
             std::function<void (tcp::connected_event event)>  _cb_connected;
             std::function<void (tcp::disconnect_event event)> _cb_disconnect;

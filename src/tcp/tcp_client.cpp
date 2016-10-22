@@ -94,6 +94,54 @@ void chen::tcp::client::disconnect()
     this->_handle.close();
 
     this->_state = State::Disconnect;
+
+    this->_buf_read.clear();
+    this->_buf_write.clear();
+}
+
+// read
+
+// write
+void chen::tcp::client::write(const char *text)
+{
+    this->write(text, ::strlen(text));
+}
+
+void chen::tcp::client::write(const std::string &text)
+{
+    this->write(text.data(), text.size());
+}
+
+void chen::tcp::client::write(const void *data, std::size_t size)
+{
+    auto ptr = static_cast<const std::uint8_t*>(data);
+
+    // if pending data exist, it means we are waiting for writable event
+    // if socket is in connecting state, we wait for the connection to be established
+    if (!this->_buf_write.empty() || this->isConnecting())
+    {
+        this->_buf_write.insert(this->_buf_write.end(), ptr, ptr + size);
+        return;
+    }
+
+    // try to use send directly first
+    auto ret = this->_handle.send(data, size);
+    auto len = static_cast<std::size_t>(ret >= 0 ? ret : 0);
+
+    if (len == size)
+    {
+        // all data has been sent out
+        this->notify(write_event(len));
+    }
+    else
+    {
+        // partial data has been sent
+        if (len)
+            this->notify(write_event(len));
+
+        // store remaining data into buf
+        this->_buf_write.insert(this->_buf_write.end(), ptr + len, ptr + size);
+    }
 }
 
 // property
@@ -205,19 +253,21 @@ void chen::tcp::client::onReadable()
 
 void chen::tcp::client::onWritable()
 {
+    // notify connected event
     if (this->isConnecting())
-    {
         this->notify(connected_event(this->_remote, {}));
-    }
-    else if (this->isConnected())
-    {
-        // todo define various policy
-//      this->notify(write_event(size));
-    }
-    else
-    {
-        throw std::runtime_error("tcp: client in disconnect state but received write event");
-    }
+
+    // try to send all data
+    if (this->_buf_write.empty())
+        return;
+
+    auto ret = this->_handle.send(this->_buf_write.data(), this->_buf_write.size());
+    if (ret <= 0)
+        return;
+
+    // notify write callback
+    this->_buf_write.erase(this->_buf_write.begin(), this->_buf_write.begin() + ret);
+    this->notify(write_event(static_cast<std::size_t>(ret)));
 }
 
 void chen::tcp::client::onEnded()
