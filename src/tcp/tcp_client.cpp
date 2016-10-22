@@ -188,23 +188,15 @@ void chen::tcp::client::notify(tcp::write_event &&event)
 // event
 void chen::tcp::client::onReadable()
 {
-//    if (this->isConnected())
-//    {
-//        // disconnect if error occur, otherwise notify the read callback
-//        if (!error)
-//        {
-//            this->notify(read_event(std::move(data)));
-//        }
-//        else
-//        {
-//            this->disconnect();
-//            this->notify(disconnect_event(error));
-//        }
-//    }
-//    else
-//    {
-//        throw std::runtime_error("tcp: client in disconnect state but received read event");
-//    }
+    if (this->isConnected())
+    {
+//     this->notify(read_event(std::move(data)));
+    }
+    else
+    {
+        // todo test not received connected, but remote send a data to me
+        throw std::runtime_error("tcp: client in disconnect state but received read event");
+    }
 }
 
 void chen::tcp::client::onWritable()
@@ -213,46 +205,40 @@ void chen::tcp::client::onWritable()
     {
         this->notify(connected_event(this->_remote, {}));
     }
-//    else if (this->isConnected())
-//    {
-//        // disconnect if error occur, otherwise notify the write callback
-//        if (!error)
-//        {
-//            this->notify(write_event(size));
-//        }
-//        else
-//        {
-//            this->disconnect();
-//            this->notify(disconnect_event(error));
-//        }
-//    }
-//    else
-//    {
-//        throw std::runtime_error("tcp: client in disconnect state but received write event");
-//    }
+    else if (this->isConnected())
+    {
+        // todo define various policy
+//      this->notify(write_event(size));
+    }
+    else
+    {
+        throw std::runtime_error("tcp: client in disconnect state but received write event");
+    }
 }
 
 void chen::tcp::client::onEnded()
 {
+    auto error = this->option().error();
+
     if (this->isConnecting())
     {
         // connection refused or reset by peer
         // @see http://man7.org/linux/man-pages/man2/connect.2.html about EINPROGRESS
-        auto error = this->option().error();
-
         this->disconnect();
         this->notify(connected_event(this->_remote, error));
     }
-//    else if (this->isConnected())
-//    {
-//        // connection broken
-//        this->disconnect();
-//        this->notify(disconnect_event({}));
-//    }
-//    else
-//    {
-//        throw std::runtime_error("tcp: client in disconnect state but received eof event");
-//    }
+    else if (this->isConnected())
+    {
+        // todo still read the rest of the data until read return error
+
+        // connection broken
+        this->disconnect();
+        this->notify(disconnect_event(error));
+    }
+    else
+    {
+        throw std::runtime_error("tcp: client in disconnect state but received end event");
+    }
 }
 
 void chen::tcp::client::onEvent(net::runloop::Event type)
