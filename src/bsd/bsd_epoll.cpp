@@ -73,13 +73,17 @@ std::size_t chen::bsd::epoll::poll(std::vector<Data> &cache, std::size_t count, 
         return 0;
 
     struct ::epoll_event events[count];
-    int result = 0;
+    int result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
     // poll next events
-    if ((result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000))) < 0)
-        throw std::system_error(sys::error(), "epoll: failed to poll event");
-    else if (!result)
-        return 0;  // timeout
+    if (result <= 0)
+    {
+        // EINTR maybe triggered by debugger, treat it as user request to stop
+        if ((errno == EINTR) || !result)
+            return 0;
+        else
+            throw std::system_error(sys::error(), "epoll: failed to poll event");
+    }
 
     // check return data
     auto length = cache.size();
