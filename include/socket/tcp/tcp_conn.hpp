@@ -105,9 +105,9 @@ namespace chen
 //            /**
 //             * Event callbacks
 //             */
-//            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
-//            virtual void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
-//            virtual void onEnd() override;
+//            void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
+//            void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
+//            void onEnd() override;
 
         public:
             tcp::server *_manager = nullptr;

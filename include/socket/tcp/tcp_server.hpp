@@ -55,9 +55,9 @@ namespace chen
 //            /**
 //             * Event callbacks
 //             */
-//            virtual void onAccept(bsd::socket s, net::endpoint ep) override;
-//            virtual void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
-//            virtual void onEnd() override;
+//            void onAccept(bsd::socket s, net::endpoint ep) override;
+//            void onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error) override;
+//            void onEnd() override;
 //
 //        public:
 //            /**

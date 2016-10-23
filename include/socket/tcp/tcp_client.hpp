@@ -7,8 +7,10 @@
 #pragma once
 
 #include <socket/net/net_runloop.hpp>
+#include <socket/tcp/tcp_policy.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_event.hpp>
+#include <memory>
 
 namespace chen
 {
@@ -52,33 +54,35 @@ namespace chen
             void disconnect();
 
         public:
-//            /**
-//             * Read data from remote host
-//             * the read callback will be invoked if successful
-//             * @param size the desired read length, actual size will be less or equal than this value
-//             */
-//            void read(std::size_t size);
-//
-//            /**
-//             * Read all data until eof
-//             */
-//            void readAll();
-//
-//            /**
-//             * Read a line until meet "\r\n", '\n', '\r' or eof
-//             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
-//             */
-//            void readLine();
-//
-//            /**
-//             * Read until read a certain amount of data
-//             */
-//            void readUntil(std::size_t size);
-//
-//            /**
-//             * Read until meet the text
-//             */
-//            void readUntil(const std::string &text);
+            /**
+             * Read data from remote host
+             * the read callback will be invoked if successful
+             * @param size the desired read length, actual size will be less or equal than this value
+             */
+            void read(std::size_t size);
+
+            /**
+             * Read all data until eof
+             * every chunk of data will be passed via read callback
+             */
+            void readAll();
+
+            /**
+             * Read a line until meet "\r\n", '\n', '\r', ignore empty line
+             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
+             */
+            void readLine();
+
+            /**
+             * Read until read a certain amount of data
+             */
+            void readUntil(std::size_t size);
+
+            /**
+             * Read until meet the text
+             * @attention the text will be removed in buffer when returned
+             */
+            void readUntil(const std::string &text);
 
             /**
              * Write data to remote host
@@ -127,6 +131,16 @@ namespace chen
             void notify(tcp::write_event &&event);
 
             /**
+             * Receive data
+             */
+            void receive();
+            void receive(read_some_policy &policy);
+            void receive(read_all_policy &policy);
+            void receive(read_line_policy &policy);
+            void receive(read_amount_policy &policy);
+            void receive(read_delimiter_policy &policy);
+
+            /**
              * Event handler
              */
             void onReadable();
@@ -139,6 +153,8 @@ namespace chen
 
             net::endpoint _remote;
             net::runloop &_runloop;
+
+            std::unique_ptr<policy> _policy;
 
             std::vector<std::uint8_t> _buf_read;
             std::vector<std::uint8_t> _buf_write;

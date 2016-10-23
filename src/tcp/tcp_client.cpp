@@ -78,13 +78,13 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     if (error != std::errc::operation_in_progress)
     {
         this->disconnect();
-        this->notify(connected_event(this->_remote, error));
+        this->notify(connected_event(this->_remote, error));  // notify connected error
     }
 }
 
 void chen::tcp::client::reconnect()
 {
-    // todo
+    this->connect(this->_remote);
 }
 
 void chen::tcp::client::disconnect()
@@ -95,12 +95,42 @@ void chen::tcp::client::disconnect()
     this->_handle.close();
 
     this->_state = State::Disconnect;
+    this->_policy.reset();
 
     this->_buf_read.clear();
     this->_buf_write.clear();
 }
 
 // read
+void chen::tcp::client::read(std::size_t size)
+{
+    this->_policy.reset(new read_some_policy(size));
+    this->receive();
+}
+
+void chen::tcp::client::readAll()
+{
+    this->_policy.reset(new read_all_policy);
+    this->receive();
+}
+
+void chen::tcp::client::readLine()
+{
+    this->_policy.reset(new read_line_policy);
+    this->receive();
+}
+
+void chen::tcp::client::readUntil(std::size_t size)
+{
+    this->_policy.reset(new read_amount_policy(size));
+    this->receive();
+}
+
+void chen::tcp::client::readUntil(const std::string &text)
+{
+    this->_policy.reset(new read_delimiter_policy(text));
+    this->receive();
+}
 
 // write
 void chen::tcp::client::write(const char *text)
@@ -118,8 +148,8 @@ void chen::tcp::client::write(const void *data, std::size_t size)
     auto ptr = static_cast<const std::uint8_t*>(data);
 
     // if pending data exist, it means we are waiting for writable event
-    // if socket is in connecting state, we wait for the connection to be established
-    if (!this->_buf_write.empty() || this->isConnecting())
+    // if socket is not established, we wait for the connection to be established
+    if (!this->_buf_write.empty() || !this->isConnected())
     {
         this->_buf_write.insert(this->_buf_write.end(), ptr, ptr + size);
         return;
@@ -136,12 +166,12 @@ void chen::tcp::client::write(const void *data, std::size_t size)
     }
     else
     {
+        // store remaining data into buf
+        this->_buf_write.insert(this->_buf_write.end(), ptr + len, ptr + size);
+
         // partial data has been sent
         if (len)
             this->notify(write_event(len));
-
-        // store remaining data into buf
-        this->_buf_write.insert(this->_buf_write.end(), ptr + len, ptr + size);
     }
 }
 
@@ -228,6 +258,9 @@ void chen::tcp::client::notify(tcp::disconnect_event &&event)
 
 void chen::tcp::client::notify(tcp::read_event &&event)
 {
+    if (this->_policy->once)
+        this->_policy.reset();  // remove it since it's a one time policy
+
     if (this->_cb_read)
         this->_cb_read(std::move(event));
 }
@@ -238,18 +271,185 @@ void chen::tcp::client::notify(tcp::write_event &&event)
         this->_cb_write(std::move(event));
 }
 
-// event
-void chen::tcp::client::onReadable()
+// receive
+void chen::tcp::client::receive()
 {
-    if (this->isConnected())
+    if (!this->_policy || !this->isConnected())
+        return;
+
+    // read all available data to buf
+    std::uint8_t buf[4096];  // 4096 is just a magic number, no specific meaning
+
+    while (true)
     {
-//     this->notify(read_event(std::move(data)));
+        auto len = this->_handle.recv(buf, 4096);
+        if (len <= 0)
+            break;
+
+        this->_buf_read.insert(this->_buf_read.end(), buf, buf + len);
+    }
+
+    if (this->_buf_read.empty())
+        return;
+
+    // check and dispatch read event
+    auto ptr = this->_policy.get();
+
+    switch (ptr->type)
+    {
+        case policy::Type::Some:
+            this->receive(*static_cast<read_some_policy*>(ptr));
+            break;
+
+        case policy::Type::All:
+            this->receive(*static_cast<read_all_policy*>(ptr));
+            break;
+
+        case policy::Type::Line:
+            this->receive(*static_cast<read_line_policy*>(ptr));
+            break;
+
+        case policy::Type::Amount:
+            this->receive(*static_cast<read_amount_policy*>(ptr));
+            break;
+
+        case policy::Type::Delimiter:
+            this->receive(*static_cast<read_delimiter_policy*>(ptr));
+            break;
+    }
+}
+
+void chen::tcp::client::receive(read_some_policy &policy)
+{
+    if (this->_buf_read.size() <= policy.size)
+    {
+        // for performance, directly move buf if size <= policy.size
+        this->notify(read_event(std::move(this->_buf_read)));
     }
     else
     {
-        // todo test not received connected, but remote send a data to me
-        throw std::runtime_error("tcp: client in disconnect state but received read event");
+        // copy and move buffer data
+        std::vector<std::uint8_t> data(this->_buf_read.begin(), this->_buf_read.begin() + policy.size);
+        this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + policy.size);
+
+        this->notify(read_event(std::move(data)));
     }
+}
+
+void chen::tcp::client::receive(read_all_policy &policy)
+{
+    this->notify(read_event(std::move(this->_buf_read)));
+}
+
+void chen::tcp::client::receive(read_line_policy &policy)
+{
+    auto beg = (const char*)this->_buf_read.data();
+    auto len = this->_buf_read.size();
+    auto ptr = beg;
+    auto num = 0;
+
+    for (std::size_t i = policy.pos; i < len; ++i)
+    {
+        auto ch = beg[i];
+
+        if (ch == '\n')
+        {
+            num = 1;
+        }
+        else if (ch == '\r')
+        {
+            num = 1;
+
+            // further checking "\r\n" line delimiter
+            if ((i < len + 1) && (beg[i + 1] == '\n'))
+                num = 2;
+        }
+
+        if (num)
+        {
+            // notice, don't include the delimiter in returned data
+            std::vector<std::uint8_t> data(ptr, ptr + i);
+            this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + i + num);
+
+            // it's not a problem if received "some data\r" first and then "\n other data"
+            // because we ignore the empty line, so the second '\n' is just be ignored
+            if (!data.empty())
+                return this->notify(read_event(std::move(data)));
+            else
+                ptr += i + num;
+        }
+    }
+
+    // caching last search position
+    policy.pos = len;
+}
+
+void chen::tcp::client::receive(read_amount_policy &policy)
+{
+    auto size = this->_buf_read.size();
+
+    if (size == policy.size)
+    {
+        // for performance, directly move buf if size == policy.size
+        this->notify(read_event(std::move(this->_buf_read)));
+    }
+    else if (size > policy.size)
+    {
+        // copy and move buffer data
+        std::vector<std::uint8_t> data(this->_buf_read.begin(), this->_buf_read.begin() + policy.size);
+        this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + policy.size);
+
+        this->notify(read_event(std::move(data)));
+    }
+}
+
+void chen::tcp::client::receive(read_delimiter_policy &policy)
+{
+    auto len_a = this->_buf_read.size();
+    auto len_b = policy.text.size();
+
+    if (len_a < len_b)
+        return;
+
+    auto data_buffer = (const char*)this->_buf_read.data();
+    auto data_policy = policy.text.data();
+
+    std::size_t i = policy.pos;
+
+    while (i < len_a)
+    {
+        std::size_t j = 0;
+
+        for (; j < len_b; ++j)
+        {
+            if (data_policy[j] != data_buffer[i])
+            {
+                i += j + 1;
+                break;
+            }
+        }
+
+        if (j == len_b - 1)
+        {
+            // notice, don't include the delimiter in returned data
+            std::vector<std::uint8_t> data(data_buffer, data_buffer + i);
+            this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + i + len_b);
+
+            return this->notify(read_event(std::move(data)));
+        }
+    }
+
+    policy.pos = i;
+}
+
+// event
+void chen::tcp::client::onReadable()
+{
+    // todo test not received connected, but remote send a data to me
+    if (this->isConnected())
+        this->receive();
+    else
+        throw std::runtime_error("tcp: client in disconnect state but received read event");
 }
 
 void chen::tcp::client::onWritable()
@@ -284,7 +484,8 @@ void chen::tcp::client::onEnded()
     }
     else if (this->isConnected())
     {
-        // todo still read the rest of the data until read return error
+        // read rest of the data
+        this->receive();
 
         // connection broken
         this->disconnect();
