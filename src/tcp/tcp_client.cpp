@@ -404,35 +404,39 @@ void chen::tcp::client::receive(read_amount_policy &policy)
 
 void chen::tcp::client::receive(read_delimiter_policy &policy)
 {
-    auto len_a = this->_buf_read.size();
-    auto len_b = policy.text.size();
+    auto len_buffer = this->_buf_read.size();
+    auto len_policy = policy.text.size();
 
-    if (len_a < len_b)
+    if (len_buffer < len_policy)
         return;
 
-    auto data_buffer = (const char*)this->_buf_read.data();
-    auto data_policy = policy.text.data();
+    auto ptr_buffer = (const char*)this->_buf_read.data();
+    auto ptr_policy = policy.text.data();
 
     std::size_t i = policy.pos;
 
-    while (i < len_a)
+    while (i < len_buffer)
     {
         std::size_t j = 0;
 
-        for (; j < len_b; ++j)
+        for (; j < len_policy; ++j)
         {
-            if (data_policy[j] != data_buffer[i])
+            if (ptr_policy[j] != ptr_buffer[i])
             {
                 i += j + 1;
                 break;
             }
+            else
+            {
+                ++i;
+            }
         }
 
-        if (j == len_b - 1)
+        if (j == len_policy)
         {
             // notice, don't include the delimiter in returned data
-            std::vector<std::uint8_t> data(data_buffer, data_buffer + i);
-            this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + i + len_b);
+            std::vector<std::uint8_t> data(ptr_buffer, ptr_buffer + i - len_policy);
+            this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + i);
 
             return this->notify(read_event(std::move(data)));
         }
