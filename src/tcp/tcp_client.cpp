@@ -7,6 +7,7 @@
 #include <socket/net/net_resolver.hpp>
 #include <socket/tcp/tcp_client.hpp>
 #include <chen/base/str.hpp>
+#include <cstring>
 
 // -----------------------------------------------------------------------------
 // client

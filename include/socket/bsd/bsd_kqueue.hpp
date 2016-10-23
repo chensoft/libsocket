@@ -103,13 +103,13 @@ namespace chen
              * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
              * @param cache pre allocated cache, if size < count then push result to it if needed
              * @param count how many events you want to monitor for
-             * @return zero if user request to stop or timeout
+             * @return zero if user request to stop, timeout or interrupted
              */
             std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
 
             /**
              * Poll events, return vector directly
-             * @return empty if user request to stop or timeout
+             * @return empty if user request to stop, timeout or interrupted
              */
             std::vector<Data> poll(std::size_t count, double timeout = -1);
 

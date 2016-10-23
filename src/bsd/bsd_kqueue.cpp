@@ -87,8 +87,14 @@ std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count,
     // poll next events
     if (timeout < 0.0)
     {
+        // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), nullptr)) <= 0)
-            throw std::system_error(sys::error(), "kqueue: failed to poll event");
+        {
+            if (errno == EINTR)
+                return 0;
+            else
+                throw std::system_error(sys::error(), "kqueue: failed to poll event");
+        }
     }
     else
     {
@@ -96,10 +102,13 @@ std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count,
         val.tv_sec  = static_cast<long>(timeout);
         val.tv_nsec = static_cast<long>((timeout - val.tv_sec) * 1000000000);
 
-        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val)) < 0)
-            throw std::system_error(sys::error(), "kqueue: failed to poll event");
-        else if (!result)
-            return 0;  // timeout
+        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val)) <= 0)
+        {
+            if ((errno == EINTR) || !result)
+                return 0;
+            else
+                throw std::system_error(sys::error(), "kqueue: failed to poll event");
+        }
     }
 
     // check return data
