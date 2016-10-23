@@ -211,7 +211,7 @@ bool chen::bsd::option::rcvtimeo(const struct ::timeval &time)
 // error
 std::error_code chen::bsd::option::error() const
 {
-    return std::error_code(option::get(SOL_SOCKET, SO_ERROR), std::system_category());
+    return std::error_code(option::get(SOL_SOCKET, SO_ERROR), std::generic_category());
 }
 
 // type
