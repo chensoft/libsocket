@@ -47,13 +47,13 @@ namespace chen
             void read(std::size_t size);
 
             /**
-             * Read all data until eof
+             * Read all data until end
              */
             void readAll();
 
             /**
-             * Read a line until meet "\r\n", '\n', '\r' or eof
-             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
+             * Read a line until meet "\r\n", '\n' or eof
+             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n' in the end
              */
             void readLine();
 

@@ -102,7 +102,12 @@ void chen::tcp::client::disconnect()
 }
 
 // read
-void chen::tcp::client::read(std::size_t size)
+void chen::tcp::client::readSome()
+{
+    this->readSome(4096);  // 4096 is just a magic number
+}
+
+void chen::tcp::client::readSome(std::size_t size)
 {
     this->_policy.reset(new read_some_policy(size));
     this->receive();
@@ -274,7 +279,7 @@ void chen::tcp::client::notify(tcp::write_event &&event)
 // receive
 void chen::tcp::client::receive()
 {
-    if (!this->_policy || !this->isConnected())
+    if (!this->_policy || this->isConnecting())
         return;
 
     // read all available data to buf
@@ -343,42 +348,36 @@ void chen::tcp::client::receive(read_all_policy &policy)
 
 void chen::tcp::client::receive(read_line_policy &policy)
 {
-    auto beg = (const char*)this->_buf_read.data();
+    auto ptr = (const char*)this->_buf_read.data();
     auto len = this->_buf_read.size();
-    auto ptr = beg;
     auto num = 0;
 
     for (std::size_t i = policy.pos; i < len; ++i)
     {
-        auto ch = beg[i];
+        auto ch = ptr[i];
 
         if (ch == '\n')
         {
             num = 1;
-        }
-        else if (ch == '\r')
-        {
-            num = 1;
 
-            // further checking "\r\n" line delimiter
-            if ((i < len + 1) && (beg[i + 1] == '\n'))
+            // further checking the "\r\n" line delimiter
+            if ((i > policy.pos) && (ptr[i - 1] == '\r'))
                 num = 2;
         }
 
         if (num)
         {
             // notice, don't include the delimiter in returned data
-            std::vector<std::uint8_t> data(ptr, ptr + i);
-            this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + i + num);
+            std::vector<std::uint8_t> data(ptr, ptr + i + 1 - num);
+            this->_buf_read.erase(this->_buf_read.begin(), this->_buf_read.begin() + i + 1);
 
-            // it's not a problem if received "some data\r" first and then "\n other data"
-            // because we ignore the empty line, so the second '\n' is just be ignored
-            if (!data.empty())
-                return this->notify(read_event(std::move(data)));
-            else
-                ptr += i + num;
+            return this->notify(read_event(std::move(data)));
         }
     }
+
+    // pass rest of the data if eof
+    if (this->isDisconnect())
+        return this->notify(read_event(std::move(this->_buf_read)));
 
     // caching last search position
     policy.pos = len;
@@ -449,7 +448,7 @@ void chen::tcp::client::onReadable()
     if (this->isConnected())
         this->receive();
     else
-        throw std::runtime_error("tcp: client in disconnect state but received read event");
+        throw std::runtime_error("tcp: client not connected but received read event");
 }
 
 void chen::tcp::client::onWritable()
@@ -485,6 +484,7 @@ void chen::tcp::client::onEnded()
     else if (this->isConnected())
     {
         // read rest of the data
+        this->_state = State::Disconnect;  // some receive methods need to know if eof occurs
         this->receive();
 
         // connection broken

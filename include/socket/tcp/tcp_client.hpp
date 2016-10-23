@@ -59,17 +59,18 @@ namespace chen
              * the read callback will be invoked if successful
              * @param size the desired read length, actual size will be less or equal than this value
              */
-            void read(std::size_t size);
+            void readSome();
+            void readSome(std::size_t size);
 
             /**
-             * Read all data until eof
+             * Read all data until end
              * every chunk of data will be passed via read callback
              */
             void readAll();
 
             /**
-             * Read a line until meet "\r\n", '\n', '\r', ignore empty line
-             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n', '\r' in the end
+             * Read a line until meet "\r\n", '\n' or eof
+             * @attention the delimiter will be removed in buffer, so no "\r\n", '\n' in the end
              */
             void readLine();
 
