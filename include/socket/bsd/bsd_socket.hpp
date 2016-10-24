@@ -8,7 +8,6 @@
 
 #include <socket/bsd/bsd_endpoint.hpp>
 #include <socket/bsd/bsd_option.hpp>
-#include <socket/bsd/bsd_setup.hpp>
 
 namespace chen
 {

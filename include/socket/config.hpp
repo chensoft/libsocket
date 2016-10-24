@@ -44,3 +44,6 @@ namespace chen
 }
 
 #endif
+
+// Global initialization
+#include <socket/bsd/bsd_setup.hpp>
