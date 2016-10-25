@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.8)
 project(libsocket)
 
 # environment
-include(lib/libchen/CMakeEnv.cmake)
+include(lib/libchen/cmake/Environment.cmake)
 
 # build type
 option(LIBSOCKET_BUILD_STATIC "Build libsocket as a static library." ON)
