@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.8)
 project(libchen)
 
 # environment
-include(CMakeEnv.cmake)
+include(cmake/Environment.cmake)
 
 # build type
 option(LIBCHEN_BUILD_STATIC "Build libchen as a static library." ON)
