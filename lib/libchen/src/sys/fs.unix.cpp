@@ -178,7 +178,7 @@ std::error_code chen::fs::create(const std::string &dir, std::uint16_t mode, boo
             auto dirname = fs::dirname(dir);
 
             if (!dirname.empty())
-                success = fs::create(dirname, mode, recursive) && success;
+                success = !fs::create(dirname, mode, recursive) && success;
 
             return !::mkdir(dir.c_str(), mode) && success ? std::error_code() : sys::error();
         }
@@ -205,7 +205,7 @@ std::error_code chen::fs::remove(const std::string &path)
         dirent *cur = nullptr;
 
         if (!dir)
-            return sys::error();
+            return {};  // treat file not found as success
 
         auto ok  = true;
         auto sep = fs::separator();
@@ -221,7 +221,7 @@ std::error_code chen::fs::remove(const std::string &path)
             std::string full(*(path.end() - 1) == sep ? path + name : path + sep + name);
 
             if (fs::isDir(full))
-                ok = fs::remove(full) && ok;
+                ok = !fs::remove(full) && ok;
             else
                 ok = !::remove(full.c_str()) && ok;
         }

@@ -275,8 +275,12 @@ off_t chen::fs::filesize(const std::string &file)
 std::error_code chen::fs::rename(const std::string &path_old, const std::string &path_new)
 {
     // remove new path if it's already exist
-    if (!fs::remove(path_new))
-        fs::create(fs::dirname(path_new));  // create new directory
+    if (fs::remove(path_new))
+        return sys::error();
+
+    // create new directory
+    if (fs::create(fs::dirname(path_new)))
+        return sys::error();
 
     // rename old path to new path
     return !::rename(path_old.c_str(), path_new.c_str()) ? std::error_code() : sys::error();
@@ -289,9 +293,9 @@ std::error_code chen::fs::copy(const std::string &path_old, const std::string &p
     {
         auto folder = fs::dirname(path_new);
         if (folder.empty())
-            return sys::error();
+            return sys::error(EINVAL);
 
-        if (!fs::create(folder))
+        if (fs::create(folder))
             return sys::error();
 
         std::ifstream in(path_old, std::ios_base::binary);
@@ -309,25 +313,25 @@ std::error_code chen::fs::copy(const std::string &path_old, const std::string &p
     }
     else if (fs::isDir(path_old, true))
     {
-        if (!fs::create(path_new))
+        if (fs::create(path_new))
             return sys::error();
 
         auto size = path_old.size();
-        std::error_code ret;
+        std::error_code err;
 
-        fs::visit(path_old, [size, &ret, path_new] (const std::string &name, bool &stop) {
+        fs::visit(path_old, [size, &err, path_new] (const std::string &name, bool &stop) {
             auto sub = name.substr(size, name.size() - size);
 
             if (fs::isFile(name))
-                ret = fs::copy(name, path_new + sub);
+                err = fs::copy(name, path_new + sub);
             else
-                ret = fs::create(path_new + sub, 0, false);
+                err = fs::create(path_new + sub, 0, false);
 
             // exit if occur an error
-            stop = static_cast<bool>(ret);
+            stop = !!err;
         });
 
-        return ret;
+        return err;
     }
     else
     {
@@ -420,7 +424,7 @@ std::vector<std::string> chen::fs::read(const std::string &file, char delimiter)
 // write
 std::error_code chen::fs::write(const std::string &file, const std::string &data)
 {
-    if (!fs::create(fs::dirname(file)))
+    if (fs::create(fs::dirname(file)))
         return sys::error();
 
     std::ofstream out(file, std::ios_base::binary);
@@ -432,7 +436,7 @@ std::error_code chen::fs::write(const std::string &file, const std::string &data
 
 std::error_code chen::fs::write(const std::string &file, const void *data, std::streamsize size)
 {
-    if (!fs::create(fs::dirname(file)))
+    if (fs::create(fs::dirname(file)))
         return sys::error();
 
     std::ofstream out(file, std::ios_base::binary);
@@ -444,7 +448,7 @@ std::error_code chen::fs::write(const std::string &file, const void *data, std::
 
 std::error_code chen::fs::append(const std::string &file, const std::string &data)
 {
-    if (!fs::create(fs::dirname(file)))
+    if (fs::create(fs::dirname(file)))
         return sys::error();
 
     std::ofstream out(file, std::ios_base::binary | std::ios_base::app);
@@ -456,7 +460,7 @@ std::error_code chen::fs::append(const std::string &file, const std::string &dat
 
 std::error_code chen::fs::append(const std::string &file, const void *data, std::streamsize size)
 {
-    if (!fs::create(fs::dirname(file)))
+    if (fs::create(fs::dirname(file)))
         return sys::error();
 
     std::ofstream out(file, std::ios_base::binary | std::ios_base::app);

@@ -195,7 +195,7 @@ std::error_code chen::fs::create(const std::string &dir, std::uint16_t mode, boo
             auto dirname = fs::dirname(dir);
 
             if (!dirname.empty())
-                success = fs::create(dirname, mode, recursive) && success;
+                success = !fs::create(dirname, mode, recursive) && success;
 
             return (::CreateDirectory(dir.c_str(), NULL) == TRUE) && success ? std::error_code() : sys::error();
         }
@@ -222,7 +222,7 @@ std::error_code chen::fs::remove(const std::string &path)
         HANDLE find = ::FindFirstFile((path + "\\*").c_str(), &data);
 
         if (find == INVALID_HANDLE_VALUE)
-            return sys::error();
+            return {};  // treat file not found as success
 
         auto ok = true;
         auto sep = fs::separator();
@@ -238,7 +238,7 @@ std::error_code chen::fs::remove(const std::string &path)
             std::string full(*(path.end() - 1) == sep ? path + name : path + sep + name);
 
             if (fs::isDir(full))
-                ok = fs::remove(full) && ok;
+                ok = !fs::remove(full) && ok;
             else
                 ok = (::DeleteFile(full.c_str()) == TRUE) && ok;
         } while (::FindNextFile(find, &data));
