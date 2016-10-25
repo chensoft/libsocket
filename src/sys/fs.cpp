@@ -293,7 +293,7 @@ std::error_code chen::fs::copy(const std::string &path_old, const std::string &p
     {
         auto folder = fs::dirname(path_new);
         if (folder.empty())
-            return sys::error();
+            return sys::error(EINVAL);
 
         if (fs::create(folder))
             return sys::error();
