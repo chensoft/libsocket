@@ -72,8 +72,12 @@ std::size_t chen::bsd::epoll::poll(std::vector<Data> &cache, std::size_t count, 
     if (!count)
         return 0;
 
+    this->_wk = true;
+
     struct ::epoll_event events[count];
     int result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+
+    this->_wk = false;
 
     // poll next events
     if (result <= 0)
@@ -120,6 +124,9 @@ std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::poll(std::size_t count, do
 
 void chen::bsd::epoll::stop()
 {
+    if (!this->_wk)
+        return;
+
     // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)
         throw std::system_error(sys::error(), "epoll: failed to wake the epoll");

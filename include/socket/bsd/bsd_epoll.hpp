@@ -124,8 +124,9 @@ namespace chen
             epoll& operator=(const epoll&) = delete;
 
         private:
-            int _fd = -1;  // epoll handle
-            int _ef = -1;  // eventfd handle
+            int  _fd = -1;     // epoll handle
+            int  _ef = -1;     // eventfd handle
+            bool _wk = false;  // is working
         };
 
 

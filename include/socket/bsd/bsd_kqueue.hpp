@@ -129,7 +129,8 @@ namespace chen
             kqueue& operator=(const kqueue&) = delete;
 
         private:
-            int _fd = -1;  // kqueue handle
+            int  _fd = -1;     // kqueue handle
+            bool _wk = false;  // is working
         };
 
 

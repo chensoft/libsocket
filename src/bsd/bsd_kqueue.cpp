@@ -85,11 +85,15 @@ std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count,
     int result = 0;
 
     // poll next events
+    this->_wk = true;
+
     if (timeout < 0.0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), nullptr)) <= 0)
         {
+            this->_wk = false;
+
             if (errno == EINTR)
                 return 0;
             else
@@ -104,12 +108,16 @@ std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count,
 
         if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val)) <= 0)
         {
+            this->_wk = false;
+
             if ((errno == EINTR) || !result)
                 return 0;
             else
                 throw std::system_error(sys::error(), "kqueue: failed to poll event");
         }
     }
+
+    this->_wk = false;
 
     // check return data
     auto length = cache.size();
@@ -144,6 +152,9 @@ std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::poll(std::size_t count, 
 
 void chen::bsd::kqueue::stop()
 {
+    if (!this->_wk)
+        return;
+
     struct ::kevent event{};
 
     // notify wake message via custom filter

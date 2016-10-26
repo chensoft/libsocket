@@ -122,8 +122,9 @@ namespace chen
             poller& operator=(const poller&) = delete;
 
         private:
-            int _fd = -1;  // epoll handle
-            int _ef = -1;  // todo eventfd handle
+            int  _fd = -1;     // epoll handle
+            int  _ef = -1;     // todo eventfd handle
+            bool _wk = false;  // is working
         };
 
 
