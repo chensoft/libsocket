@@ -11,7 +11,7 @@
 
 // -----------------------------------------------------------------------------
 // client
-chen::tcp::client::client(net::runloop &runloop) : _runloop(runloop)
+chen::tcp::client::client(net::runloop &runloop) : basic(runloop)
 {
 }
 

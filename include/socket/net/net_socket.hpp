@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/net/net_endpoint.hpp>
+#include <socket/net/net_runloop.hpp>
 #include <socket/bsd/bsd_socket.hpp>
 
 namespace chen
@@ -15,6 +16,9 @@ namespace chen
     {
         class socket
         {
+        public:
+            socket(net::runloop &runloop);
+
         public:
             /**
              * Sock & Peer endpoint
@@ -43,6 +47,7 @@ namespace chen
 
         protected:
             bsd::socket _handle;
+            net::runloop &_runloop;
         };
     }
 }

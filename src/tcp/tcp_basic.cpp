@@ -8,6 +8,11 @@
 
 // -----------------------------------------------------------------------------
 // basic
+chen::tcp::basic::basic(net::runloop &runloop) : socket(runloop)
+{
+}
+
+// option
 chen::tcp::option chen::tcp::basic::option()
 {
     return tcp::option(this->_handle);

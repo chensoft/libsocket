@@ -6,7 +6,6 @@
  */
 #pragma once
 
-#include <socket/net/net_runloop.hpp>
 #include <socket/tcp/tcp_policy.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_event.hpp>
@@ -153,7 +152,6 @@ namespace chen
             State _state = State::Disconnect;
 
             net::endpoint _remote;
-            net::runloop &_runloop;
 
             std::unique_ptr<policy> _policy;
 

@@ -8,6 +8,9 @@
 
 // -----------------------------------------------------------------------------
 // socket
+chen::net::socket::socket(net::runloop &runloop) : _runloop(runloop)
+{
+}
 
 // property
 chen::net::endpoint chen::net::socket::sock() const
