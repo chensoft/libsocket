@@ -68,15 +68,15 @@ namespace chen
             void readAll();
 
             /**
-             * Read a line until meet "\r\n", '\n' or eof
+             * Read a line of data until meet "\r\n", '\n' or eof
              * @attention the delimiter will be removed in buffer, so no "\r\n", '\n' in the end
              */
             void readLine();
 
             /**
-             * Read until read a certain amount of data
+             * Read the exact amount of data
              */
-            void readUntil(std::size_t size);
+            void readExact(std::size_t size);
 
             /**
              * Read until meet the text
@@ -137,8 +137,8 @@ namespace chen
             void receive(read_some_policy &policy);
             void receive(read_all_policy &policy);
             void receive(read_line_policy &policy);
-            void receive(read_amount_policy &policy);
-            void receive(read_delimiter_policy &policy);
+            void receive(read_exact_policy &policy);
+            void receive(read_until_policy &policy);
 
             /**
              * Event handler

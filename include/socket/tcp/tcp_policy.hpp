@@ -18,7 +18,7 @@ namespace chen
         class policy
         {
         public:
-            enum class Type {Some, All, Line, Amount, Delimiter};
+            enum class Type {Some, All, Line, Exact, Until};
 
         protected:
             policy(Type type, bool once = true) : type(type), once(once) {}
@@ -61,22 +61,22 @@ namespace chen
 
 
         // ---------------------------------------------------------------------
-        // read_amount_policy
-        class read_amount_policy : public policy
+        // read_exact_policy
+        class read_exact_policy : public policy
         {
         public:
-            read_amount_policy(std::size_t size) : policy(Type::Amount), size(size) {}
+            read_exact_policy(std::size_t size) : policy(Type::Exact), size(size) {}
 
             std::size_t size;
         };
 
 
         // ---------------------------------------------------------------------
-        // read_delimiter_policy
-        class read_delimiter_policy : public policy
+        // read_until_policy
+        class read_until_policy : public policy
         {
         public:
-            read_delimiter_policy(const std::string &text) : policy(Type::Delimiter), text(text) {}
+            read_until_policy(const std::string &text) : policy(Type::Until), text(text) {}
 
             std::string text;
             std::size_t pos = 0;

@@ -125,15 +125,15 @@ void chen::tcp::client::readLine()
     this->receive();
 }
 
-void chen::tcp::client::readUntil(std::size_t size)
+void chen::tcp::client::readExact(std::size_t size)
 {
-    this->_policy.reset(new read_amount_policy(size));
+    this->_policy.reset(new read_exact_policy(size));
     this->receive();
 }
 
 void chen::tcp::client::readUntil(const std::string &text)
 {
-    this->_policy.reset(new read_delimiter_policy(text));
+    this->_policy.reset(new read_until_policy(text));
     this->receive();
 }
 
@@ -314,12 +314,12 @@ void chen::tcp::client::receive()
             this->receive(*static_cast<read_line_policy*>(ptr));
             break;
 
-        case policy::Type::Amount:
-            this->receive(*static_cast<read_amount_policy*>(ptr));
+        case policy::Type::Exact:
+            this->receive(*static_cast<read_exact_policy*>(ptr));
             break;
 
-        case policy::Type::Delimiter:
-            this->receive(*static_cast<read_delimiter_policy*>(ptr));
+        case policy::Type::Until:
+            this->receive(*static_cast<read_until_policy*>(ptr));
             break;
     }
 }
@@ -383,7 +383,7 @@ void chen::tcp::client::receive(read_line_policy &policy)
     policy.pos = len;
 }
 
-void chen::tcp::client::receive(read_amount_policy &policy)
+void chen::tcp::client::receive(read_exact_policy &policy)
 {
     auto size = this->_buf_read.size();
 
@@ -402,7 +402,7 @@ void chen::tcp::client::receive(read_amount_policy &policy)
     }
 }
 
-void chen::tcp::client::receive(read_delimiter_policy &policy)
+void chen::tcp::client::receive(read_until_policy &policy)
 {
     auto len_buffer = this->_buf_read.size();
     auto len_policy = policy.text.size();
