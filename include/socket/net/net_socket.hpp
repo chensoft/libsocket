@@ -21,10 +21,10 @@ namespace chen
 
         public:
             /**
-             * Sock & Peer endpoint
+             * Peer & Local endpoint
              */
-            net::endpoint sock() const;
             net::endpoint peer() const;
+            net::endpoint local() const;
 
             /**
              * Non-blocking mode

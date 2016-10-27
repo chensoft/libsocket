@@ -13,14 +13,14 @@ chen::net::socket::socket(net::runloop &runloop) : _runloop(runloop)
 }
 
 // property
-chen::net::endpoint chen::net::socket::sock() const
-{
-    return this->_handle.sock();
-}
-
 chen::net::endpoint chen::net::socket::peer() const
 {
     return this->_handle.peer();
+}
+
+chen::net::endpoint chen::net::socket::local() const
+{
+    return this->_handle.local();
 }
 
 std::error_code chen::net::socket::nonblocking(bool enable)

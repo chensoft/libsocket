@@ -125,10 +125,10 @@ namespace chen
 
         public:
             /**
-             * Sock & Peer endpoint
+             * Peer & Local endpoint
              */
-            bsd::endpoint sock() const noexcept;
             bsd::endpoint peer() const noexcept;
+            bsd::endpoint local() const noexcept;
 
             /**
              * Non-blocking mode

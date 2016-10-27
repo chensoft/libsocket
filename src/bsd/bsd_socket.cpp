@@ -156,17 +156,17 @@ chen::ssize_t chen::bsd::socket::sendto(const void *data, std::size_t size, cons
 }
 
 // property
-chen::bsd::endpoint chen::bsd::socket::sock() const noexcept
-{
-    bsd::endpoint ep;
-    ::getsockname(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
-    return ep;
-}
-
 chen::bsd::endpoint chen::bsd::socket::peer() const noexcept
 {
     bsd::endpoint ep;
     ::getpeername(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
+    return ep;
+}
+
+chen::bsd::endpoint chen::bsd::socket::local() const noexcept
+{
+    bsd::endpoint ep;
+    ::getsockname(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
     return ep;
 }
 
