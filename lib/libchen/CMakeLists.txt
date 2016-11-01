@@ -9,10 +9,6 @@ project(libchen)
 # environment
 include(cmake/Environment.cmake)
 
-# build type
-option(LIBCHEN_BUILD_STATIC "Build libchen as a static library." ON)
-option(LIBCHEN_BUILD_SHARED "Build libchen as a shared library." ON)
-
 # include path
 include_directories(include)
 
@@ -32,21 +28,14 @@ aux_source_directory(src/sys  SRC_SYS)
 aux_source_directory(src/time SRC_TIME)
 aux_source_directory(src/tool SRC_TOOL)
 
-# generate lib(both static and shared)
-# rename library to libchen.a & libchen.so or libchen.dylib
+# generate lib, default is a static library
+# use -DBUILD_SHARED_LIBS=ON if you want to build a shared library
 set(ALL_FILES
         ${INC_BASE} ${INC_DATA} ${INC_MT} ${INC_SYS} ${INC_TIME} ${INC_TOOL} ${INC_ROOT}
         ${SRC_BASE} ${SRC_DATA} ${SRC_MT} ${SRC_SYS} ${SRC_TIME} ${SRC_TOOL})
 
-if(LIBCHEN_BUILD_STATIC)
-    add_library(libchen_static STATIC ${ALL_FILES})
-    set_target_properties(libchen_static PROPERTIES OUTPUT_NAME libchen PREFIX "")
-endif()
-
-if(LIBCHEN_BUILD_SHARED)
-    add_library(libchen_shared SHARED ${ALL_FILES})
-    set_target_properties(libchen_shared PROPERTIES OUTPUT_NAME libchen PREFIX "")
-endif()
+add_library(libchen ${ALL_FILES})
+set_target_properties(libchen PROPERTIES OUTPUT_NAME libchen PREFIX "")
 
 # group files in IDEs like Xcode and Visual Studio
 source_group("include\\chen"       FILES ${INC_ROOT})

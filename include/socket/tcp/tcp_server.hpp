@@ -6,12 +6,8 @@
  */
 #pragma once
 
-#include <socket/ip/ip_address.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_conn.hpp>
-#include <functional>
-#include <memory>
-#include <set>
 
 namespace chen
 {

@@ -10,9 +10,10 @@ project(test_libchen)
 include(../cmake/Environment.cmake)
 
 if(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
 endif()
 
+# code coverage
 option(LIBCHEN_TEST_CODE_COVERAGE "Enable libchen code coverage." OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND LIBCHEN_TEST_CODE_COVERAGE)
@@ -21,7 +22,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND LIBCHEN_TEST_CODE_COVERAGE)
 endif()
 
 # libraries
-option(LIBCHEN_BUILD_SHARED OFF)
+set(gtest_force_shared_crt ON CACHE BOOL "Use /MD in googletest")
 
 add_subdirectory(.. libchen)
 add_subdirectory(lib/googletest/googletest)
@@ -44,7 +45,7 @@ aux_source_directory(src/tool SRC_TOOL)
 add_executable(test_libchen ${INC_ROOT} ${SRC_ROOT} ${SRC_BASE} ${SRC_DATA} ${SRC_MT} ${SRC_SYS} ${SRC_TOOL})
 
 # link library
-target_link_libraries(test_libchen libchen_static gtest)
+target_link_libraries(test_libchen libchen gtest)
 
 # group files in IDEs like Xcode and Visual Studio
 source_group("" FILES ${INC_ROOT})
