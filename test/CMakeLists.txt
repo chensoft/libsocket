@@ -21,7 +21,8 @@ if(CMAKE_COMPILER_IS_GNUCXX AND LIBCHEN_TEST_CODE_COVERAGE)
 endif()
 
 # libraries
-option(LIBCHEN_BUILD_SHARED OFF)
+set(LIBCHEN_BUILD_SHARED OFF CACHE BOOL "Disable shared libchen")
+set(gtest_force_shared_crt ON CACHE BOOL "Use /MD in googletest")
 
 add_subdirectory(.. libchen)
 add_subdirectory(lib/googletest/googletest)
