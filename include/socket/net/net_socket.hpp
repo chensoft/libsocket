@@ -17,7 +17,7 @@ namespace chen
         class socket
         {
         public:
-            socket(net::runloop &runloop);
+            explicit socket(net::runloop &runloop);
 
         public:
             /**

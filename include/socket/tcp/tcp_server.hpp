@@ -13,24 +13,40 @@ namespace chen
 {
     namespace tcp
     {
-//        class server : public basic
-//        {
-//        public:
-//            // todo provide constructor to accept endpoint
-//            server(ip::address::Type family);
-//
-//        public:
-//            /**
-//             * Start the server
-//             * todo return type change to std::error_code, transfer exit error code to user
-//             */
-//            void start(const net::endpoint &ep);
-//
-//            /**
-//             * Stop the server
-//             */
-//            void stop();
-//
+        class server : public basic
+        {
+        public:
+            // todo add param to accept init option
+            explicit server(net::runloop &runloop);
+            ~server();
+
+        public:
+            /**
+             * Start by port, use IPv6 by default
+             * @attention modern os support both v4 & v6 traffic if you bind socket by AF_INET6
+             */
+            void start(std::uint16_t port, ip::address::Type type = ip::address::Type::IPv6);
+
+            /**
+             * Start by first resolved endpoint
+             * @attention throw exception if no dns record found or dns error
+             */
+            void start(const char *mixed);
+            void start(const std::string &mixed, ip::address::Type type = ip::address::Type::None);
+            void start(const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
+            void start(const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
+
+            /**
+             * Start by endpoint
+             * @attention server will be nonblocking and SO_REUSEADDR is true
+             */
+            void start(const net::endpoint &ep);
+
+            /**
+             * Stop the server
+             */
+            void stop();
+
 //        public:
 //            /**
 //             * Attach accept callback
@@ -65,10 +81,9 @@ namespace chen
 //            std::error_code listen();
 //            std::error_code listen(int backlog);
 //
-//        protected:
-//            net::notifier _notifier;
+        protected:
 //            std::set<std::shared_ptr<chen::tcp::conn>> _connections;
 //            std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> _callback;
-//        };
+        };
     }
 }

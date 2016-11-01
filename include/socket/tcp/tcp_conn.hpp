@@ -17,7 +17,7 @@ namespace chen
         class conn : public basic
         {
         public:
-            conn(net::runloop &runloop);
+            explicit conn(net::runloop &runloop);
 
 
 //        public:

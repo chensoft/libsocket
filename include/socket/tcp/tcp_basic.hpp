@@ -16,7 +16,7 @@ namespace chen
         class basic : public net::socket
         {
         public:
-            basic(net::runloop &runloop);
+            explicit basic(net::runloop &runloop);
 
         public:
             /**

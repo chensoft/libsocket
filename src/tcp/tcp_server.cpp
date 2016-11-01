@@ -9,6 +9,17 @@
 
 // -----------------------------------------------------------------------------
 // server
+chen::tcp::server::server(net::runloop &runloop) : basic(runloop)
+{
+}
+
+chen::tcp::server::~server()
+{
+}
+
+// control
+
+
 //chen::tcp::server::server(ip::address::Type family) : basic(family)
 //{
 //    this->nonblocking(true);

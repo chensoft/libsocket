@@ -2,8 +2,6 @@
 
 -) if multiple ip addresses exist when query dns, socket can polling to connect to a valid address
 
--) listen on AF_INET6 support both v6 and v4, modern os support it
-
 -) use AF_INET instead of chen::ip::address::Type::IPv4 in tcp client, server
 
 -) allow kqueue, epoll poll multiple events when call the poll method

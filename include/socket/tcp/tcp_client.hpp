@@ -22,7 +22,8 @@ namespace chen
             enum class Event : std::uint8_t {Connected = 1, Disconnect, Read, Write};
 
         public:
-            client(net::runloop &runloop);
+            // todo add param to accept init option
+            explicit client(net::runloop &runloop);
             ~client();
 
         public:
