@@ -10,9 +10,10 @@ project(test_libsocket)
 include(../lib/libchen/cmake/Environment.cmake)
 
 if(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
 endif()
 
+# code coverage
 option(LIBSOCKET_TEST_CODE_COVERAGE "Enable libsocket code coverage." OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX AND LIBSOCKET_TEST_CODE_COVERAGE)
@@ -21,8 +22,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND LIBSOCKET_TEST_CODE_COVERAGE)
 endif()
 
 # libraries
-option(LIBCHEN_BUILD_SHARED OFF)
-option(LIBSOCKET_BUILD_SHARED OFF)
+set(gtest_force_shared_crt ON CACHE BOOL "Use /MD in googletest")
 
 add_subdirectory(.. libsocket)
 add_subdirectory(../lib/libchen/test/lib/googletest/googletest googletest)
@@ -45,7 +45,7 @@ aux_source_directory(src/dns SRC_DNS)
 add_executable(test_libsocket ${SRC_ROOT} ${SRC_BSD} ${SRC_IP} ${SRC_NET} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS})
 
 # link library
-target_link_libraries(test_libsocket libsocket_static gtest)
+target_link_libraries(test_libsocket libsocket gtest)
 
 # group files in IDEs like Xcode and Visual Studio
 source_group("" FILES ${SRC_ROOT})

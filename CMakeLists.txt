@@ -9,10 +9,6 @@ project(libsocket)
 # environment
 include(lib/libchen/cmake/Environment.cmake)
 
-# build type
-option(LIBSOCKET_BUILD_STATIC "Build libsocket as a static library." ON)
-option(LIBSOCKET_BUILD_SHARED "Build libsocket as a shared library." ON)
-
 # libraries
 add_subdirectory(lib/libchen)
 
@@ -36,23 +32,15 @@ aux_source_directory(src/tcp  SRC_TCP)
 aux_source_directory(src/udp  SRC_UDP)
 aux_source_directory(src/dns  SRC_DNS)
 
-# generate lib(both static and shared)
-# rename library to libsocket.a & libsocket.so or libsocket.dylib
+# generate lib, default is a static library
+# use -DBUILD_SHARED_LIBS=ON if you want to build a shared library
 set(ALL_FILES
         ${INC_BSD} ${INC_IP} ${INC_NET} ${INC_TCP} ${INC_UDP} ${INC_DNS} ${INC_ROOT}
         ${SRC_BSD} ${SRC_IP} ${SRC_NET} ${SRC_TCP} ${SRC_UDP} ${SRC_DNS})
 
-if(LIBSOCKET_BUILD_STATIC)
-    add_library(libsocket_static STATIC ${ALL_FILES})
-    target_link_libraries(libsocket_static libchen_static)
-    set_target_properties(libsocket_static PROPERTIES OUTPUT_NAME libsocket PREFIX "")
-endif()
-
-if(LIBSOCKET_BUILD_SHARED)
-    add_library(libsocket_shared SHARED ${ALL_FILES})
-    target_link_libraries(libsocket_shared libchen_shared)
-    set_target_properties(libsocket_shared PROPERTIES OUTPUT_NAME libsocket PREFIX "")
-endif()
+add_library(libsocket ${ALL_FILES})
+target_link_libraries(libsocket libchen)
+set_target_properties(libsocket PROPERTIES OUTPUT_NAME libsocket PREFIX "")
 
 # group files in IDEs like Xcode and Visual Studio
 source_group("include\\socket"       FILES ${INC_ROOT})
