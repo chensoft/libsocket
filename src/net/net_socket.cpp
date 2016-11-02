@@ -18,9 +18,9 @@ chen::net::endpoint chen::net::socket::peer() const
     return this->_handle.peer();
 }
 
-chen::net::endpoint chen::net::socket::local() const
+chen::net::endpoint chen::net::socket::sock() const
 {
-    return this->_handle.local();
+    return this->_handle.sock();
 }
 
 std::error_code chen::net::socket::nonblocking(bool enable)

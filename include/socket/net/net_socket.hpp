@@ -24,7 +24,7 @@ namespace chen
              * Peer & Local endpoint
              */
             net::endpoint peer() const;
-            net::endpoint local() const;
+            net::endpoint sock() const;
 
             /**
              * Non-blocking mode

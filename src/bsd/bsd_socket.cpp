@@ -163,7 +163,7 @@ chen::bsd::endpoint chen::bsd::socket::peer() const noexcept
     return ep;
 }
 
-chen::bsd::endpoint chen::bsd::socket::local() const noexcept
+chen::bsd::endpoint chen::bsd::socket::sock() const noexcept
 {
     bsd::endpoint ep;
     ::getsockname(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
