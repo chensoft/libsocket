@@ -89,7 +89,8 @@ void chen::tcp::client::reconnect()
 
 void chen::tcp::client::disconnect()
 {
-    this->_runloop.del(this->_handle.native());
+    if (this->_handle)
+        this->_runloop.del(this->_handle.native());
 
     this->_handle.shutdown();
     this->_handle.close();
