@@ -100,13 +100,11 @@ std::error_code chen::bsd::socket::bind(const bsd::endpoint &ep) noexcept
     return !::bind(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) ? std::error_code() : sys::error();
 }
 
-std::error_code chen::bsd::socket::listen() noexcept
-{
-    return this->listen(SOMAXCONN);
-}
-
 std::error_code chen::bsd::socket::listen(int backlog) noexcept
 {
+    if (backlog <= 0)
+        backlog = SOMAXCONN;
+
     return !::listen(this->_fd, backlog) ? std::error_code() : sys::error();
 }
 
