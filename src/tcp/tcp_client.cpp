@@ -11,7 +11,7 @@
 
 // -----------------------------------------------------------------------------
 // client
-chen::tcp::client::client(net::runloop &runloop) : basic(runloop)
+chen::tcp::client::client(net::runloop &runloop) : _runloop(runloop)
 {
 }
 
@@ -203,22 +203,22 @@ chen::net::endpoint chen::tcp::client::remote() const
 }
 
 // event
-void chen::tcp::client::attach(std::function<void (tcp::connected_event event)> callback)
+void chen::tcp::client::attach(std::function<void (connected_event event)> callback)
 {
     this->_cb_connected = callback;
 }
 
-void chen::tcp::client::attach(std::function<void (tcp::disconnect_event event)> callback)
+void chen::tcp::client::attach(std::function<void (disconnect_event event)> callback)
 {
     this->_cb_disconnect = callback;
 }
 
-void chen::tcp::client::attach(std::function<void (tcp::read_event event)> callback)
+void chen::tcp::client::attach(std::function<void (read_event event)> callback)
 {
     this->_cb_read = callback;
 }
 
-void chen::tcp::client::attach(std::function<void (tcp::write_event event)> callback)
+void chen::tcp::client::attach(std::function<void (write_event event)> callback)
 {
     this->_cb_write = callback;
 }

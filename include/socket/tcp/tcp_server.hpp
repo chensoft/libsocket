@@ -8,6 +8,7 @@
 
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_conn.hpp>
+#include <memory>
 
 namespace chen
 {
@@ -16,34 +17,46 @@ namespace chen
         class server : public basic
         {
         public:
-            // todo add param to accept init option
-            explicit server(net::runloop &runloop);
+            /**
+             * Construct by the port, use IPv6 by default
+             * @attention modern os support both v4 & v6 traffic if you use AF_INET6 to bind socket
+             */
+            server(net::runloop &runloop, std::uint16_t port, ip::address::Type type = ip::address::Type::IPv6);
+
+            /**
+             * Construct by the first resolved endpoint
+             * @attention throw exception if no dns record found or dns error
+             */
+            server(net::runloop &runloop, const char *mixed);
+            server(net::runloop &runloop, const std::string &mixed, ip::address::Type type = ip::address::Type::None);
+            server(net::runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
+            server(net::runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
+
+            /**
+             * Construct by the endpoint
+             */
+            server(net::runloop &runloop, const net::endpoint &ep);
+
             ~server();
 
         public:
             /**
-             * Listening on the port, use IPv6 address type by default
-             * @attention modern os support both v4 & v6 traffic if you bind socket by AF_INET6
+             * Run the server
+             * :-) change the socket to nonblocking mode
+             * :-) set reuse addr option for the socket
+             * :-) bind the socket to specific endpoint
+             * :-) listen and accept new connections
+             * @attention the Handler must be a subclass of tcp::conn
              */
-            void listen(std::uint16_t port, ip::address::Type type = ip::address::Type::IPv6);
+            template <typename Handler>
+            void run(int backlog = 0)
+            {
+                this->_factory = [] (bsd::socket &&s) {
+                    return std::unique_ptr<conn>(new Handler(std::move(s)));
+                };
+                this->listen(backlog);
+            }
 
-            /**
-             * Listening on the first resolved endpoint
-             * @attention throw exception if no dns record found or dns error
-             */
-            void listen(const char *mixed);
-            void listen(const std::string &mixed, ip::address::Type type = ip::address::Type::None);
-            void listen(const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
-            void listen(const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
-
-            /**
-             * Listening on the endpoint
-             * @attention server will be nonblocking and SO_REUSEADDR is true
-             */
-            void listen(const net::endpoint &ep);
-            void listen(const net::endpoint &ep, int backlog);
-
-        public:
             /**
              * Stop this server and disconnect all connections
              */
@@ -66,7 +79,7 @@ namespace chen
              * Check state
              */
             bool isClosed();
-            bool isListening();
+            bool isRunning();
 
             /**
              * Local endpoint
@@ -74,6 +87,11 @@ namespace chen
             net::endpoint local() const;
 
         protected:
+            /**
+             * Listen and serve
+             */
+            void listen(int backlog);
+
             /**
              * Event handler
              */
@@ -83,6 +101,10 @@ namespace chen
             void onEvent(net::runloop::Event type);
 
         protected:
+            net::endpoint _local;
+            net::runloop &_runloop;
+
+            std::function<std::unique_ptr<conn> (bsd::socket &&s)> _factory;
         };
     }
 }

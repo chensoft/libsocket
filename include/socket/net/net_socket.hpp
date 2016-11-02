@@ -17,9 +17,6 @@ namespace chen
         class socket
         {
         public:
-            explicit socket(net::runloop &runloop);
-
-        public:
             /**
              * Peer & Local endpoint
              */
@@ -47,7 +44,6 @@ namespace chen
 
         protected:
             bsd::socket _handle;
-            net::runloop &_runloop;
         };
     }
 }

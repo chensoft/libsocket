@@ -12,13 +12,11 @@ namespace chen
 {
     namespace tcp
     {
-        class server;
-
         class conn : public basic
         {
         public:
-            explicit conn(net::runloop &runloop);
-
+            conn(bsd::socket &&s);
+            virtual ~conn() = default;
 
 //        public:
 //            enum class Event : std::uint8_t {Disconnect = 1, Read, Write};

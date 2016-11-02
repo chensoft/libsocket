@@ -9,9 +9,9 @@
 
 // -----------------------------------------------------------------------------
 // server
-chen::tcp::server::server(net::runloop &runloop) : basic(runloop)
-{
-}
+//chen::tcp::server::server(net::runloop &runloop) : _runloop(runloop)
+//{
+//}
 
 chen::tcp::server::~server()
 {

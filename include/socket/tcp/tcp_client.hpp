@@ -115,10 +115,10 @@ namespace chen
              * :-) read       : void (read_event event)       -> read data from remote
              * :-) write      : void (write_event event)      -> write data to remote host
              */
-            void attach(std::function<void (tcp::connected_event event)> callback);
-            void attach(std::function<void (tcp::disconnect_event event)> callback);
-            void attach(std::function<void (tcp::read_event event)> callback);
-            void attach(std::function<void (tcp::write_event event)> callback);
+            void attach(std::function<void (connected_event event)> callback);
+            void attach(std::function<void (disconnect_event event)> callback);
+            void attach(std::function<void (read_event event)> callback);
+            void attach(std::function<void (write_event event)> callback);
 
             void detach(Event type);
 
@@ -153,16 +153,17 @@ namespace chen
             State _state = State::Disconnect;
 
             net::endpoint _remote;
+            net::runloop &_runloop;
 
             std::unique_ptr<policy> _policy;
 
             std::vector<std::uint8_t> _buf_read;
             std::vector<std::uint8_t> _buf_write;
 
-            std::function<void (tcp::connected_event event)>  _cb_connected;
-            std::function<void (tcp::disconnect_event event)> _cb_disconnect;
-            std::function<void (tcp::read_event event)>       _cb_read;
-            std::function<void (tcp::write_event event)>      _cb_write;
+            std::function<void (connected_event event)>  _cb_connected;
+            std::function<void (disconnect_event event)> _cb_disconnect;
+            std::function<void (read_event event)>       _cb_read;
+            std::function<void (write_event event)>      _cb_write;
         };
     }
 }
