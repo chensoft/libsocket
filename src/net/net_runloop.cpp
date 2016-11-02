@@ -39,7 +39,7 @@ void chen::net::runloop::del(socket_t fd)
 }
 
 // control
-void chen::net::runloop::start(std::size_t count, double timeout)
+void chen::net::runloop::run(std::size_t count, double timeout)
 {
     this->_caching.resize(count);
 

@@ -63,11 +63,11 @@ namespace chen
 
         public:
             /**
-             * Start the loop
+             * Run the loop
              * @param count max events count when use rector::fetch, default is 1
              * @attention this method will not return unless user request to stop, timeout or interrupted
              */
-            void start(std::size_t count = 1, double timeout = -1);
+            void run(std::size_t count = 1, double timeout = -1);
 
             /**
              * Stop the loop
