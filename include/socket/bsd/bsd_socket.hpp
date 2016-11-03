@@ -87,8 +87,8 @@ namespace chen
              * Accept new request and create a new socket
              * @attention check to see if the result is valid before use it
              */
-            std::error_code accept(socket &s) noexcept;
-            std::error_code accept(socket &s, bsd::endpoint &ep) noexcept;
+            socket accept() noexcept;
+            socket accept(bsd::endpoint &ep) noexcept;
 
         public:
             /**

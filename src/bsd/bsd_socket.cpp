@@ -108,28 +108,24 @@ std::error_code chen::bsd::socket::listen(int backlog) noexcept
     return !::listen(this->_fd, backlog) ? std::error_code() : sys::error();
 }
 
-std::error_code chen::bsd::socket::accept(socket &s) noexcept
+chen::bsd::socket chen::bsd::socket::accept() noexcept
 {
     socket_t fd = 0;
 
     if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
-        return sys::error();
+        return nullptr;
 
-    s.reset(fd);
-
-    return {};
+    return socket(fd);
 }
 
-std::error_code chen::bsd::socket::accept(socket &s, bsd::endpoint &ep) noexcept
+chen::bsd::socket chen::bsd::socket::accept(bsd::endpoint &ep) noexcept
 {
     socket_t fd = 0;
 
     if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size)) < 0)
-        return sys::error();
+        return nullptr;
 
-    s.reset(fd);
-
-    return {};
+    return socket(fd);
 }
 
 // transmission
