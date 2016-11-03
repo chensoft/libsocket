@@ -63,18 +63,6 @@ namespace chen
              */
             void stop();
 
-            /**
-             * Pause the server
-             * new connections will be rejected
-             * exist connections will continue to be served
-             */
-            void pause();
-
-            /**
-             * Resume the server
-             */
-            void resume();
-
         public:
             /**
              * Check state

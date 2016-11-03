@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/tcp/tcp_conn.hpp>
+#include <vector>
 
 namespace chen
 {
@@ -20,8 +21,8 @@ namespace chen
         public:
             virtual void onAccepted(chen::tcp::conn &c) {}
             virtual void onDisconnect(chen::tcp::conn &c) {}
-            virtual void onRead(chen::tcp::conn &c) {}
-            virtual void onWrite(chen::tcp::conn &c) {}
+            virtual void onRead(chen::tcp::conn &c, std::vector<std::uint8_t> data) {}
+            virtual void onWrite(chen::tcp::conn &c, std::size_t size) {}
         };
     }
 }

@@ -7,6 +7,7 @@
 #include <socket/net/net_resolver.hpp>
 #include <socket/tcp/tcp_server.hpp>
 #include <chen/base/str.hpp>
+#include <algorithm>
 
 // -----------------------------------------------------------------------------
 // server
@@ -77,16 +78,6 @@ void chen::tcp::server::stop()
     }
 
     this->_running = false;
-}
-
-void chen::tcp::server::pause()
-{
-    // todo
-}
-
-void chen::tcp::server::resume()
-{
-    // todo
 }
 
 // property
