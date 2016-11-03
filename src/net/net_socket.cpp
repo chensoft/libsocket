@@ -20,11 +20,6 @@ chen::net::endpoint chen::net::socket::sock() const
     return this->_socket.sock();
 }
 
-std::error_code chen::net::socket::nonblocking(bool enable)
-{
-    return this->_socket.nonblocking(enable);
-}
-
 bool chen::net::socket::valid() const
 {
     return this->_socket.valid();
@@ -33,6 +28,11 @@ bool chen::net::socket::valid() const
 chen::net::socket::operator bool() const
 {
     return this->_socket;
+}
+
+std::error_code chen::net::socket::nonblocking(bool enable)
+{
+    return this->_socket.nonblocking(enable);
 }
 
 // reset

@@ -24,17 +24,17 @@ namespace chen
             net::endpoint sock() const;
 
             /**
-             * Non-blocking mode
-             */
-            std::error_code nonblocking(bool enable);
-
-            /**
              * Check socket is valid
              */
             bool valid() const;
             operator bool() const;
 
         protected:
+            /**
+             * Non-blocking mode
+             */
+            std::error_code nonblocking(bool enable);
+
             /**
              * Reset socket
              */
