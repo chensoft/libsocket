@@ -16,44 +16,37 @@ chen::tcp::conn::conn(bsd::socket &&s, std::unique_ptr<handler> &&h) : _handler(
 
 chen::tcp::conn::~conn()
 {
-    this->disconnect();
+    if (this->_socket)
+    {
+        this->_socket.close();
+        this->disconnect();
+    }
 }
 
-//// event
-//void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
-//{
-//
-//}
-//
-//void chen::tcp::conn::onWrite(std::size_t size, net::endpoint ep, std::error_code error)
-//{
-//
-//}
-//
-//void chen::tcp::conn::onEnd()
-//{
-//
-//}
-//
-//
-//ssize_t chen::tcp::conn::write(const std::vector<std::uint8_t> &data, int flags)
-//{
-//    return this->send(data.data(), data.size(), flags);
-//}
-//
-//std::vector<std::uint8_t> chen::tcp::conn::read(std::size_t size, int flags)
-//{
-//    std::vector<std::uint8_t> ret(size);
-//
-//    auto count = this->recv(ret, size, flags);
-//    ret.resize(static_cast<std::size_t>(count >= 0 ? count : 0));
-//
-//    return ret;
-//}
-//
 void chen::tcp::conn::disconnect()
 {
-    // todo
+    // we shutdown the socket here, server will
+    // receive the ended event and destroy object
+    if (this->_socket)
+        this->_socket.shutdown();
+
+    this->_connected = false;
+}
+
+// property
+bool chen::tcp::conn::isConnected() const
+{
+    return this->_connected;
+}
+
+bool chen::tcp::conn::isDisconnect() const
+{
+    return !this->_connected;
+}
+
+chen::socket_t chen::tcp::conn::native() const
+{
+    return this->_socket.native();
 }
 
 // event
@@ -74,5 +67,5 @@ void chen::tcp::conn::onWritable()
 
 void chen::tcp::conn::onEnded()
 {
-
+    this->_handler->onDisconnect(*this);
 }

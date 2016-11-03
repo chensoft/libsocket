@@ -90,10 +90,12 @@ void chen::tcp::client::reconnect()
 void chen::tcp::client::disconnect()
 {
     if (this->_socket)
+    {
         this->_runloop.del(this->_socket.native());
 
-    this->_socket.shutdown();
-    this->_socket.close();
+        this->_socket.shutdown();
+        this->_socket.close();
+    }
 
     this->_state = State::Disconnect;
     this->_policy.reset();

@@ -69,10 +69,12 @@ chen::tcp::server::~server()
 void chen::tcp::server::stop()
 {
     if (this->_socket)
+    {
         this->_runloop.del(this->_socket.native());
 
-    this->_socket.shutdown();
-    this->_socket.close();
+        this->_socket.shutdown();
+        this->_socket.close();
+    }
 
     this->_running = false;
 }
@@ -125,41 +127,86 @@ void chen::tcp::server::listen(int backlog)
     this->_runloop.set(this->_socket.native(),
                        net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
                        net::runloop::FlagEdge,
-                       std::bind(&server::onEvent, this, std::placeholders::_1));
+                       std::bind(&server::onServerEvent, this, std::placeholders::_1));
 
     this->_running = true;
 }
 
 // server
-void chen::tcp::server::onReadable()
+void chen::tcp::server::onServerReadable()
 {
     bsd::socket s = this->_socket.accept();
     if (!s)
         return;
 
-    this->_store.emplace_back(std::unique_ptr<conn>(new conn(std::move(s), this->_factory())));
-    this->_store.back()->onAccepted();
+    auto &ptr = *this->_store.insert(this->_store.end(), std::unique_ptr<conn>(new conn(std::move(s), this->_factory())));
+    this->_runloop.set(ptr->native(),
+                       net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
+                       net::runloop::FlagEdge,
+                       std::bind(&server::onConnEvent, this, std::ref(ptr), std::placeholders::_1));
+
+    ptr->onAccepted();
 }
 
-void chen::tcp::server::onWritable()
+void chen::tcp::server::onServerWritable()
 {
 }
 
-void chen::tcp::server::onEnded()
+void chen::tcp::server::onServerEnded()
 {
 }
 
-void chen::tcp::server::onEvent(net::runloop::Event type)
+void chen::tcp::server::onServerEvent(net::runloop::Event type)
 {
     switch (type)
     {
         case net::runloop::Event::Read:
-            return this->onReadable();
+            return this->onServerReadable();
 
         case net::runloop::Event::Write:
-            return this->onWritable();
+            return this->onServerWritable();
 
         case net::runloop::Event::End:
-            return this->onEnded();
+            return this->onServerEnded();
+    }
+}
+
+// connection
+void chen::tcp::server::onConnReadable(std::unique_ptr<conn> &c)
+{
+    c->onReadable();
+}
+
+void chen::tcp::server::onConnWritable(std::unique_ptr<conn> &c)
+{
+    c->onWritable();
+}
+
+void chen::tcp::server::onConnEnded(std::unique_ptr<conn> &c)
+{
+    // check if the connection is disconnected passively
+    if (!c->isDisconnect())
+        c->onEnded();
+
+    // delete connection from runloop
+    this->_runloop.del(c->native());
+
+    // delete connection from connection pool
+    auto it = std::find(this->_store.begin(), this->_store.end(), c);
+    this->_store.erase(it);
+}
+
+void chen::tcp::server::onConnEvent(std::unique_ptr<conn> &c, net::runloop::Event type)
+{
+    switch (type)
+    {
+        case net::runloop::Event::Read:
+            return this->onConnReadable(c);
+
+        case net::runloop::Event::Write:
+            return this->onConnWritable(c);
+
+        case net::runloop::Event::End:
+            return this->onConnEnded(c);
     }
 }

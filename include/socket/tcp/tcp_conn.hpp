@@ -45,6 +45,11 @@ namespace chen
             friend class server;
 
             /**
+             * Native socket handle
+             */
+            socket_t native() const;
+
+            /**
              * Event handler
              */
             void onAccepted();
@@ -53,6 +58,7 @@ namespace chen
             void onEnded();
 
         protected:
+            bool _connected = true;
             std::unique_ptr<handler> _handler;
         };
     }

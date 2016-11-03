@@ -38,7 +38,8 @@ chen::bsd::socket& chen::bsd::socket::operator=(socket &&o) noexcept
     if (this == &o)
         return *this;
 
-    this->close();
+    if (this->_fd != invalid_socket)
+        this->close();
 
     this->_fd       = o._fd;
     this->_family   = o._family;
@@ -55,13 +56,15 @@ chen::bsd::socket& chen::bsd::socket::operator=(socket &&o) noexcept
 
 chen::bsd::socket::~socket() noexcept
 {
-    this->close();
+    if (this->_fd != invalid_socket)
+        this->close();
 }
 
 // reset
 void chen::bsd::socket::reset()
 {
-    this->close();
+    if (this->_fd != invalid_socket)
+        this->close();
 
     if (!this->_family)
         throw std::runtime_error("socket: reset failed because family is unknown");
@@ -72,7 +75,8 @@ void chen::bsd::socket::reset()
 
 void chen::bsd::socket::reset(socket_t fd) noexcept
 {
-    this->close();
+    if (this->_fd != invalid_socket)
+        this->close();
 
     this->_fd       = fd;
     this->_family   = 0;

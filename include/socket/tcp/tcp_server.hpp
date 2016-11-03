@@ -93,12 +93,20 @@ namespace chen
             void listen(int backlog);
 
             /**
-             * Event handler
+             * Server event
              */
-            void onReadable();
-            void onWritable();
-            void onEnded();
-            void onEvent(net::runloop::Event type);
+            void onServerReadable();
+            void onServerWritable();
+            void onServerEnded();
+            void onServerEvent(net::runloop::Event type);
+
+            /**
+             * Connection event
+             */
+            void onConnReadable(std::unique_ptr<conn> &c);
+            void onConnWritable(std::unique_ptr<conn> &c);
+            void onConnEnded(std::unique_ptr<conn> &c);
+            void onConnEvent(std::unique_ptr<conn> &c, net::runloop::Event type);
 
         protected:
             bool _running = false;
