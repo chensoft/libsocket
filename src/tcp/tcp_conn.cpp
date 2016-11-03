@@ -12,6 +12,7 @@
 chen::tcp::conn::conn(bsd::socket &&s, std::unique_ptr<handler> &&h) : _handler(std::move(h))
 {
     this->reset(std::move(s));
+    this->nonblocking(true);
 }
 
 chen::tcp::conn::~conn()
