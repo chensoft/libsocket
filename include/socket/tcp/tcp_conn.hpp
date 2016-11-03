@@ -7,16 +7,19 @@
 #pragma once
 
 #include <socket/tcp/tcp_basic.hpp>
+#include <memory>
 
 namespace chen
 {
     namespace tcp
     {
+        class handler;
+
         class conn : public basic
         {
         public:
-            conn(net::runloop &runloop, bsd::socket &&s);
-            virtual ~conn() = 0;
+            conn(net::runloop &r, bsd::socket &&s, std::unique_ptr<handler> &&h);
+            virtual ~conn();
 
 //        public:
 //            enum class Event : std::uint8_t {Disconnect = 1, Read, Write};
@@ -111,6 +114,7 @@ namespace chen
 //
         protected:
             net::runloop &_runloop;
+            std::unique_ptr<handler> _handler;
 
 
 //            tcp::server *_manager = nullptr;

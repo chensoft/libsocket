@@ -130,14 +130,14 @@ void chen::tcp::server::listen(int backlog)
     this->_running = true;
 }
 
-// event
+// server
 void chen::tcp::server::onReadable()
 {
     bsd::socket s = this->_handle.accept();
     if (!s)
         return;
 
-    this->_store.emplace_back(this->_factory(std::move(s)));
+    this->_store.emplace_back(std::unique_ptr<conn>(new conn(this->_runloop, std::move(s), this->_factory())));
 }
 
 void chen::tcp::server::onWritable()

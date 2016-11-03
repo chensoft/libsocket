@@ -4,11 +4,12 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#include <socket/tcp/tcp_handler.hpp>
 #include <socket/tcp/tcp_conn.hpp>
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(net::runloop &runloop, bsd::socket &&s) : _runloop(runloop)
+chen::tcp::conn::conn(net::runloop &r, bsd::socket &&s, std::unique_ptr<handler> &&h) : _runloop(r), _handler(std::move(h))
 {
     printf("conn: %p\n", this);
     this->reset(std::move(s));

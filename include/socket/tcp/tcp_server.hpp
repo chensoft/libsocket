@@ -6,9 +6,9 @@
  */
 #pragma once
 
+#include <socket/tcp/tcp_handler.hpp>
 #include <socket/tcp/tcp_basic.hpp>
 #include <socket/tcp/tcp_conn.hpp>
-#include <memory>
 
 namespace chen
 {
@@ -52,8 +52,8 @@ namespace chen
             template <typename Handler>
             void run(int backlog = 0)
             {
-                this->_factory = [&] (bsd::socket &&s) {
-                    return std::unique_ptr<conn>(new Handler(this->_runloop, std::move(s)));
+                this->_factory = [&] () {
+                    return std::unique_ptr<handler>(new Handler);
                 };
                 this->listen(backlog);
             }
@@ -107,7 +107,7 @@ namespace chen
             net::runloop &_runloop;
 
             std::vector<std::unique_ptr<conn>> _store;
-            std::function<std::unique_ptr<conn> (bsd::socket &&s)> _factory;
+            std::function<std::unique_ptr<handler> ()> _factory;
         };
     }
 }
