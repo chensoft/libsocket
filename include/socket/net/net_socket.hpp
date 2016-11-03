@@ -43,7 +43,7 @@ namespace chen
             void reset(ip::address::Type family, int type);
 
         protected:
-            bsd::socket _handle;
+            bsd::socket _socket;
         };
     }
 }

@@ -68,11 +68,11 @@ chen::tcp::server::~server()
 // control
 void chen::tcp::server::stop()
 {
-    if (this->_handle)
-        this->_runloop.del(this->_handle.native());
+    if (this->_socket)
+        this->_runloop.del(this->_socket.native());
 
-    this->_handle.shutdown();
-    this->_handle.close();
+    this->_socket.shutdown();
+    this->_socket.close();
 
     this->_running = false;
 }
@@ -106,23 +106,23 @@ void chen::tcp::server::listen(int backlog)
         this->stop();
 
     // reset socket
-    if (!this->_handle)
+    if (!this->_socket)
         this->reset(this->_local.addr().type());
 
     this->nonblocking(true);
     this->option().reuseaddr(true);
 
     // bind and listen
-    auto err = this->_handle.bind(this->_local);
+    auto err = this->_socket.bind(this->_local);
     if (err)
         throw std::system_error(err, "tcp: server bind error");
 
-    err = this->_handle.listen(backlog);
+    err = this->_socket.listen(backlog);
     if (err)
         throw std::system_error(err, "tcp: server listen error");
 
     // listen events using runloop
-    this->_runloop.set(this->_handle.native(),
+    this->_runloop.set(this->_socket.native(),
                        net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
                        net::runloop::FlagEdge,
                        std::bind(&server::onEvent, this, std::placeholders::_1));
@@ -133,11 +133,12 @@ void chen::tcp::server::listen(int backlog)
 // server
 void chen::tcp::server::onReadable()
 {
-    bsd::socket s = this->_handle.accept();
+    bsd::socket s = this->_socket.accept();
     if (!s)
         return;
 
-    this->_store.emplace_back(std::unique_ptr<conn>(new conn(this->_runloop, std::move(s), this->_factory())));
+    this->_store.emplace_back(std::unique_ptr<conn>(new conn(std::move(s), this->_factory())));
+    this->_store.back()->onAccepted();
 }
 
 void chen::tcp::server::onWritable()

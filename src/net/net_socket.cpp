@@ -12,41 +12,41 @@
 // property
 chen::net::endpoint chen::net::socket::peer() const
 {
-    return this->_handle.peer();
+    return this->_socket.peer();
 }
 
 chen::net::endpoint chen::net::socket::sock() const
 {
-    return this->_handle.sock();
+    return this->_socket.sock();
 }
 
 std::error_code chen::net::socket::nonblocking(bool enable)
 {
-    return this->_handle.nonblocking(enable);
+    return this->_socket.nonblocking(enable);
 }
 
 bool chen::net::socket::valid() const
 {
-    return this->_handle.valid();
+    return this->_socket.valid();
 }
 
 chen::net::socket::operator bool() const
 {
-    return this->_handle;
+    return this->_socket;
 }
 
 // reset
 void chen::net::socket::reset()
 {
-    this->_handle.reset();
+    this->_socket.reset();
 }
 
 void chen::net::socket::reset(bsd::socket &&s)
 {
-    this->_handle = std::move(s);
+    this->_socket = std::move(s);
 }
 
 void chen::net::socket::reset(ip::address::Type family, int type)
 {
-    this->_handle.reset(static_cast<int>(family), type);
+    this->_socket.reset(static_cast<int>(family), type);
 }

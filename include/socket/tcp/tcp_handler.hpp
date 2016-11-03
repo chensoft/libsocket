@@ -18,7 +18,10 @@ namespace chen
             virtual ~handler() = default;
 
         public:
-            virtual void onAccept(chen::tcp::conn &c) {};
+            virtual void onAccepted(chen::tcp::conn &c) {}
+            virtual void onDisconnect(chen::tcp::conn &c) {}
+            virtual void onRead(chen::tcp::conn &c) {}
+            virtual void onWrite(chen::tcp::conn &c) {}
         };
     }
 }

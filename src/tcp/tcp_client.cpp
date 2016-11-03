@@ -64,7 +64,7 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     this->nonblocking(true);
 
     // listen events using runloop
-    this->_runloop.set(this->_handle.native(),
+    this->_runloop.set(this->_socket.native(),
                        net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
                        net::runloop::FlagEdge,
                        std::bind(&client::onEvent, this, std::placeholders::_1));
@@ -73,7 +73,7 @@ void chen::tcp::client::connect(const net::endpoint &ep)
     this->_remote = ep;
     this->_state  = State::Connecting;
 
-    auto error = this->_handle.connect(ep);
+    auto error = this->_socket.connect(ep);
 
     if (error != std::errc::operation_in_progress)
     {
@@ -89,11 +89,11 @@ void chen::tcp::client::reconnect()
 
 void chen::tcp::client::disconnect()
 {
-    if (this->_handle)
-        this->_runloop.del(this->_handle.native());
+    if (this->_socket)
+        this->_runloop.del(this->_socket.native());
 
-    this->_handle.shutdown();
-    this->_handle.close();
+    this->_socket.shutdown();
+    this->_socket.close();
 
     this->_state = State::Disconnect;
     this->_policy.reset();
@@ -162,7 +162,7 @@ void chen::tcp::client::write(const void *data, std::size_t size)
     }
 
     // try to use send directly first
-    auto ret = this->_handle.send(data, size);
+    auto ret = this->_socket.send(data, size);
     auto len = static_cast<std::size_t>(ret >= 0 ? ret : 0);
 
     if (len == size)
@@ -288,7 +288,7 @@ void chen::tcp::client::receive()
 
     while (true)
     {
-        auto len = this->_handle.recv(buf, 4096);
+        auto len = this->_socket.recv(buf, 4096);
         if (len <= 0)
             break;
 
@@ -466,7 +466,7 @@ void chen::tcp::client::onWritable()
     if (this->_buf_write.empty())
         return;
 
-    auto ret = this->_handle.send(this->_buf_write.data(), this->_buf_write.size());
+    auto ret = this->_socket.send(this->_buf_write.data(), this->_buf_write.size());
     if (ret <= 0)
         return;
 

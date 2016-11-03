@@ -9,9 +9,8 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(net::runloop &r, bsd::socket &&s, std::unique_ptr<handler> &&h) : _runloop(r), _handler(std::move(h))
+chen::tcp::conn::conn(bsd::socket &&s, std::unique_ptr<handler> &&h) : _handler(std::move(h))
 {
-    printf("conn: %p\n", this);
     this->reset(std::move(s));
 }
 
@@ -55,4 +54,25 @@ chen::tcp::conn::~conn()
 void chen::tcp::conn::disconnect()
 {
     // todo
+}
+
+// event
+void chen::tcp::conn::onAccepted()
+{
+    this->_handler->onAccepted(*this);
+}
+
+void chen::tcp::conn::onReadable()
+{
+
+}
+
+void chen::tcp::conn::onWritable()
+{
+
+}
+
+void chen::tcp::conn::onEnded()
+{
+
 }

@@ -12,7 +12,7 @@
 // option
 chen::tcp::option chen::tcp::basic::option()
 {
-    return tcp::option(this->_handle);
+    return tcp::option(this->_socket);
 }
 
 // reset
