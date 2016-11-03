@@ -8,14 +8,17 @@
 
 // -----------------------------------------------------------------------------
 // conn
-//chen::tcp::conn::conn(bsd::socket &&s, tcp::server *m) : basic(std::move(s)), _manager(m)
-//{
-//}
-//
-//chen::tcp::conn::~conn()
-//{
-//}
-//
+chen::tcp::conn::conn(net::runloop &runloop, bsd::socket &&s) : _runloop(runloop)
+{
+    printf("conn: %p\n", this);
+    this->reset(std::move(s));
+}
+
+chen::tcp::conn::~conn()
+{
+    this->disconnect();
+}
+
 //// event
 //void chen::tcp::conn::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
 //{
@@ -48,7 +51,7 @@
 //    return ret;
 //}
 //
-//void chen::tcp::conn::disconnect()
-//{
-//    this->close();
-//}
+void chen::tcp::conn::disconnect()
+{
+    // todo
+}

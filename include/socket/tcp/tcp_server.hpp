@@ -52,8 +52,8 @@ namespace chen
             template <typename Handler>
             void run(int backlog = 0)
             {
-                this->_factory = [] (bsd::socket &&s) {
-                    return std::unique_ptr<conn>(new Handler(std::move(s)));
+                this->_factory = [&] (bsd::socket &&s) {
+                    return std::unique_ptr<conn>(new Handler(this->_runloop, std::move(s)));
                 };
                 this->listen(backlog);
             }
@@ -106,6 +106,7 @@ namespace chen
             net::endpoint _local;
             net::runloop &_runloop;
 
+            std::vector<std::unique_ptr<conn>> _store;
             std::function<std::unique_ptr<conn> (bsd::socket &&s)> _factory;
         };
     }

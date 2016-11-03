@@ -15,8 +15,8 @@ namespace chen
         class conn : public basic
         {
         public:
-            conn(bsd::socket &&s){}
-            virtual ~conn() = default;
+            conn(net::runloop &runloop, bsd::socket &&s);
+            virtual ~conn() = 0;
 
 //        public:
 //            enum class Event : std::uint8_t {Disconnect = 1, Read, Write};
@@ -31,12 +31,12 @@ namespace chen
 //
 //            ~conn();
 //
-//        public:
+        public:
 //            /**
 //             * Close the connection and clear the buffer
 //             * @attention this method will not trigger the disconnect callback
 //             */
-//            void disconnect();
+            void disconnect();
 //
 //        public:
 //            /**
@@ -109,7 +109,10 @@ namespace chen
 ////            void onWrite(std::size_t size, net::endpoint ep, std::error_code error) override;
 ////            void onEnd() override;
 //
-//        public:
+        protected:
+            net::runloop &_runloop;
+
+
 //            tcp::server *_manager = nullptr;
 //
 //            std::function<void (chen::tcp::conn &c, chen::tcp::disconnect_event &e)> _cb_disconnect;
