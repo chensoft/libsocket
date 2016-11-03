@@ -15,7 +15,7 @@ namespace chen
         class conn : public basic
         {
         public:
-            conn(bsd::socket &&s);
+            conn(bsd::socket &&s){}
             virtual ~conn() = default;
 
 //        public:

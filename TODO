@@ -39,3 +39,5 @@
 -) why use edge trigger, when user connect to server, only first read event received
 
 -) add sendfile, TransmitFile, use method name: transmit
+
+-) notify user when accept error

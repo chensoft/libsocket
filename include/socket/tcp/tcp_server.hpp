@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * @since  2016.08.21
+ * @since  2016.11.02
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
@@ -25,6 +25,7 @@ namespace chen
 
             /**
              * Construct by the first resolved endpoint
+             * the final endpoint type is determined by resolver
              * @attention throw exception if no dns record found or dns error
              */
             server(net::runloop &runloop, const char *mixed);
@@ -78,7 +79,6 @@ namespace chen
             /**
              * Check state
              */
-            bool isClosed();
             bool isRunning();
 
             /**
@@ -101,6 +101,8 @@ namespace chen
             void onEvent(net::runloop::Event type);
 
         protected:
+            bool _running = false;
+
             net::endpoint _local;
             net::runloop &_runloop;
 

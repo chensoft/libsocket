@@ -1,110 +1,165 @@
 /**
  * Created by Jian Chen
- * @since  2016.08.21
+ * @since  2016.11.02
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
+#include <socket/net/net_resolver.hpp>
 #include <socket/tcp/tcp_server.hpp>
-#include <chen/sys/sys.hpp>
+#include <chen/base/str.hpp>
 
 // -----------------------------------------------------------------------------
 // server
-//chen::tcp::server::server(net::runloop &runloop) : _runloop(runloop)
-//{
-//}
+chen::tcp::server::server(net::runloop &runloop, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
+{
+    this->_local.port(port);
+    this->_local.addr(ip::address(type));
 
-chen::tcp::server::~server()
+    this->reset(this->_local.addr().type());
+}
+
+chen::tcp::server::server(net::runloop &runloop, const char *mixed) : server(runloop, mixed, ip::address::Type::None)
 {
 }
 
+chen::tcp::server::server(net::runloop &runloop, const std::string &mixed, ip::address::Type type) : _runloop(runloop)
+{
+    auto ret = net::resolver::resolve(mixed, type);
+    if (ret.empty())
+        throw std::runtime_error(str::format("tcp: server resolve address '%s' fail", mixed.c_str()));
+
+    this->_local = ret.front();
+
+    this->reset(this->_local.addr().type());
+}
+
+chen::tcp::server::server(net::runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
+{
+    auto ret = net::resolver::resolve(host, port, type);
+    if (ret.empty())
+        throw std::runtime_error(str::format("tcp: server resolve address '%s' fail", host.c_str()));
+
+    this->_local = ret.front();
+
+    this->reset(this->_local.addr().type());
+}
+
+chen::tcp::server::server(net::runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type) : _runloop(runloop)
+{
+    auto ret = net::resolver::resolve(host, service, type);
+    if (ret.empty())
+        throw std::runtime_error(str::format("tcp: server resolve address '%s' or service '%s' fail", host.c_str(), service.c_str()));
+
+    this->_local = ret.front();
+
+    this->reset(this->_local.addr().type());
+}
+
+chen::tcp::server::server(net::runloop &runloop, const net::endpoint &ep) : _local(ep), _runloop(runloop)
+{
+    this->reset(this->_local.addr().type());
+}
+
+chen::tcp::server::~server()
+{
+    this->stop();
+}
+
 // control
+void chen::tcp::server::stop()
+{
+    if (this->_handle)
+        this->_runloop.del(this->_handle.native());
 
+    this->_handle.shutdown();
+    this->_handle.close();
 
-//chen::tcp::server::server(ip::address::Type family) : basic(family)
-//{
-//    this->nonblocking(true);
-//}
-//
-//// control
-//void chen::tcp::server::start(const net::endpoint &ep)
-//{
-//    // todo how to handle socket being bind and listen before start
-//    // todo throw exception if already start
-//    if (this->bind(ep))
-//        throw std::system_error(sys::error(), "tcp: failed to bind address");
-//
-//    if (this->listen())
-//        throw std::system_error(sys::error(), "tcp: failed to listen on address");
-//
-//    this->_notifier.accept(this);
-//    this->_notifier.start();
-//}
-//
-//void chen::tcp::server::stop()
-//{
-//    this->_notifier.stop();
-//}
-//
-//// callback
-//void chen::tcp::server::attach(std::function<void (chen::tcp::server &s, std::shared_ptr<chen::tcp::conn> conn)> callback)
-//{
-//    this->_callback = callback;
-//}
-//
-//void chen::tcp::server::detach()
-//{
-//    this->_callback = nullptr;
-//}
-//
-//void chen::tcp::server::notify(std::shared_ptr<chen::tcp::conn> &&conn)
-//{
-//    this->_connections.insert(conn);
-//
-//    if (this->_callback)
-//        this->_callback(*this, std::move(conn));
-//}
-//
-//// event
-//void chen::tcp::server::onAccept(bsd::socket s, net::endpoint ep)
-//{
-//    // todo
-//}
-//
-//void chen::tcp::server::onRead(std::vector<std::uint8_t> data, net::endpoint ep, std::error_code error)
-//{
-//    // accept move to onAccept
-////    if (error)
-////        return this->stop();
-////
-////    socket_t fd;
-////
-////    if (this->_handle.accept(fd))
-////        return this->stop();
-////
-////    // todo use edge trigger not re-register events every time
-////    this->_notifier.read(this, 0);
-////
-////    this->notify(std::make_shared<tcp::conn>(fd, this));
-//}
-//
-//void chen::tcp::server::onEnd()
-//{
-//    // stop if error occur
-//    this->stop();
-//}
-//
-//// bind
-//std::error_code chen::tcp::server::bind(const net::endpoint &ep)
-//{
-//    return this->_handle.bind(ep);
-//}
-//
-//std::error_code chen::tcp::server::listen()
-//{
-//    return this->_handle.listen();
-//}
-//
-//std::error_code chen::tcp::server::listen(int backlog)
-//{
-//    return this->_handle.listen(backlog);
-//}
+    this->_running = false;
+}
+
+void chen::tcp::server::pause()
+{
+    // todo
+}
+
+void chen::tcp::server::resume()
+{
+    // todo
+}
+
+// property
+bool chen::tcp::server::isRunning()
+{
+    return this->_running;
+}
+
+chen::net::endpoint chen::tcp::server::local() const
+{
+    return this->_local;
+}
+
+// serve
+void chen::tcp::server::listen(int backlog)
+{
+    // stop if running
+    if (this->isRunning())
+        this->stop();
+
+    // reset socket
+    if (!this->_handle)
+        this->reset(this->_local.addr().type());
+
+    this->nonblocking(true);
+    this->option().reuseaddr(true);
+
+    // bind and listen
+    auto err = this->_handle.bind(this->_local);
+    if (err)
+        throw std::system_error(err, "tcp: server bind error");
+
+    err = this->_handle.listen(backlog);
+    if (err)
+        throw std::system_error(err, "tcp: server listen error");
+
+    // listen events using runloop
+    this->_runloop.set(this->_handle.native(),
+                       net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
+                       net::runloop::FlagEdge,
+                       std::bind(&server::onEvent, this, std::placeholders::_1));
+
+    this->_running = true;
+}
+
+// event
+void chen::tcp::server::onReadable()
+{
+    bsd::socket s;
+
+    if (this->_handle.accept(s))
+        return;
+
+    auto ptr = this->_factory(std::move(s));
+}
+
+void chen::tcp::server::onWritable()
+{
+}
+
+void chen::tcp::server::onEnded()
+{
+}
+
+void chen::tcp::server::onEvent(net::runloop::Event type)
+{
+    switch (type)
+    {
+        case net::runloop::Event::Read:
+            return this->onReadable();
+
+        case net::runloop::Event::Write:
+            return this->onWritable();
+
+        case net::runloop::Event::End:
+            return this->onEnded();
+    }
+}
