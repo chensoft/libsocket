@@ -6,18 +6,16 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_endpoint.hpp>
-#include <socket/bsd/bsd_option.hpp>
+#include <socket/bsd/basic_endpoint.hpp>
+#include <socket/bsd/basic_option.hpp>
 
 namespace chen
 {
-    namespace bsd
-    {
         /**
          * bsd socket wrapper, usually you don't need to use it directly
          * use tcp::client, tcp::server, udp::client, udp::server instead
          */
-        class socket
+        class basic_socket
         {
         public:
             enum class Shutdown {Read = 1, Write, Both};
@@ -32,13 +30,13 @@ namespace chen
             /**
              * Empty socket
              */
-            socket(std::nullptr_t = nullptr) noexcept;
+            basic_socket(std::nullptr_t = nullptr) noexcept;
 
             /**
              * Construct by socket handle directly
              * @attention you can't use reset() if you construct from fd, because we didn't know fd's family & protocol
              */
-            socket(socket_t fd) noexcept;
+            basic_socket(socket_t fd) noexcept;
 
             /**
              * Construct by socket type
@@ -46,12 +44,12 @@ namespace chen
              * @param type SOCK_STREAM, SOCK_DGRAM, SOCK_RAW...
              * @param protocol IPPROTO_TCP, IPPROTO_UDP or use zero directly
              */
-            socket(int family, int type, int protocol = 0);
+            basic_socket(int family, int type, int protocol = 0);
 
-            socket(socket &&o) noexcept;
-            socket& operator=(socket &&o) noexcept;
+            basic_socket(basic_socket &&o) noexcept;
+            basic_socket& operator=(basic_socket &&o) noexcept;
 
-            ~socket() noexcept;
+            ~basic_socket() noexcept;
 
         public:
             /**
@@ -70,12 +68,12 @@ namespace chen
             /**
              * Connect to remote endpoint
              */
-            std::error_code connect(const bsd::endpoint &ep) noexcept;
+            std::error_code connect(const basic_endpoint &ep) noexcept;
 
             /**
              * Bind on specific endpoint
              */
-            std::error_code bind(const bsd::endpoint &ep) noexcept;
+            std::error_code bind(const basic_endpoint &ep) noexcept;
 
             /**
              * Listen for request
@@ -87,8 +85,8 @@ namespace chen
              * Accept new request and create a new socket
              * @attention check to see if the result is valid before use it
              */
-            socket accept() noexcept;
-            socket accept(bsd::endpoint &ep) noexcept;
+            basic_socket accept() noexcept;
+            basic_socket accept(basic_endpoint &ep) noexcept;
 
         public:
             /**
@@ -99,7 +97,7 @@ namespace chen
             /**
              * Receive data from specific host, usually used in datagram socket
              */
-            chen::ssize_t recvfrom(void *data, std::size_t size, bsd::endpoint &ep, int flags = 0) noexcept;
+            chen::ssize_t recvfrom(void *data, std::size_t size, basic_endpoint &ep, int flags = 0) noexcept;
 
             /**
              * Send data to connected host, usually used in stream socket
@@ -109,7 +107,7 @@ namespace chen
             /**
              * Send data to specific host, usually used in datagram socket
              */
-            chen::ssize_t sendto(const void *data, std::size_t size, const bsd::endpoint &ep, int flags = 0) noexcept;
+            chen::ssize_t sendto(const void *data, std::size_t size, const basic_endpoint &ep, int flags = 0) noexcept;
 
         public:
             /**
@@ -126,8 +124,8 @@ namespace chen
             /**
              * Peer & Local endpoint
              */
-            bsd::endpoint peer() const noexcept;
-            bsd::endpoint sock() const noexcept;
+            basic_endpoint peer() const noexcept;
+            basic_endpoint sock() const noexcept;
 
             /**
              * Non-blocking mode
@@ -141,7 +139,7 @@ namespace chen
              * >> opt.reuseaddr(true);           // set option
              * >> bool reuse = opt.reuseaddr();  // get option
              */
-            bsd::option option() noexcept;
+            basic_option option() noexcept;
 
             /**
              * Check socket is valid
@@ -166,10 +164,10 @@ namespace chen
             /**
              * Disable copy & move
              * if you want to store socket in container
-             * use smart pointer like std::unique_ptr<bsd::socket>
+             * use smart pointer like std::unique_ptr<basic_socket>
              */
-            socket(const socket&) = delete;
-            socket& operator=(const socket&) = delete;
+            basic_socket(const basic_socket&) = delete;
+            basic_socket& operator=(const basic_socket&) = delete;
 
         private:
             socket_t _fd = invalid_socket;  // socket descriptor
@@ -180,5 +178,4 @@ namespace chen
             int _type     = 0;
             int _protocol = 0;
         };
-    }
 }

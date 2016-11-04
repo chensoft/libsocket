@@ -65,7 +65,7 @@ std::pair<std::string, std::string> chen::net::resolver::reverse(const net::endp
     char host[NI_MAXHOST]{};
     char serv[NI_MAXSERV]{};
 
-    chen::bsd::endpoint tmp = static_cast<chen::bsd::endpoint>(ep);
+    chen::basic_endpoint tmp = static_cast<chen::basic_endpoint>(ep);
 
     if (!::getnameinfo((const struct sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
         return std::make_pair(host, serv);

@@ -8,17 +8,14 @@
 
 namespace chen
 {
-    namespace bsd
+    /**
+     * Global initialization
+     */
+    class startup
     {
-        /**
-         * Global initialization
-         */
-        class startup
-        {
-        public:
-            startup();
-        };
+    public:
+        startup();
+    };
 
-        static const startup setup_dummy;  // force linking the setup code
-    }
+    static const startup setup_dummy;  // force linking the setup code
 }

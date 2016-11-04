@@ -8,14 +8,14 @@
 
 // -----------------------------------------------------------------------------
 // option
-chen::tcp::option::option(bsd::socket &s) : ip::option(s)
+chen::tcp::option::option(basic_socket &s) : ip::option(s)
 {
 }
 
 // nodelay
 bool chen::tcp::option::nodelay() const
 {
-    return bsd::option::get(IPPROTO_TCP, TCP_NODELAY) != 0;
+    return basic_option::get(IPPROTO_TCP, TCP_NODELAY) != 0;
 }
 
 bool chen::tcp::option::nodelay(bool val)

@@ -6,14 +6,14 @@
  */
 #ifndef _WIN32
 
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/bsd/basic_socket.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // socket
 
 // cleanup
-void chen::bsd::socket::shutdown(Shutdown type) noexcept
+void chen::basic_socket::shutdown(Shutdown type) noexcept
 {
     switch (type)
     {
@@ -31,14 +31,14 @@ void chen::bsd::socket::shutdown(Shutdown type) noexcept
     }
 }
 
-void chen::bsd::socket::close() noexcept
+void chen::basic_socket::close() noexcept
 {
     ::close(this->_fd);
     this->_fd = invalid_socket;
 }
 
 // property
-std::error_code chen::bsd::socket::nonblocking(bool enable) noexcept
+std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {
     auto flag = ::fcntl(this->_fd, F_GETFL, 0);
     if (flag < 0)

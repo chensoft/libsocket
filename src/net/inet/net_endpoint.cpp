@@ -33,17 +33,17 @@ chen::net::endpoint::endpoint(const ip::address &addr, const std::string &servic
 {
 }
 
-chen::net::endpoint::endpoint(const bsd::endpoint &ep)
+chen::net::endpoint::endpoint(const basic_endpoint &ep)
 {
     this->assign(ep);
 }
 
-chen::net::endpoint::endpoint(const bsd::endpoint &ep, std::uint16_t port)
+chen::net::endpoint::endpoint(const basic_endpoint &ep, std::uint16_t port)
 {
     this->assign(ep, port);
 }
 
-chen::net::endpoint::endpoint(const bsd::endpoint &ep, const std::string &service)
+chen::net::endpoint::endpoint(const basic_endpoint &ep, const std::string &service)
 {
     this->assign(ep, service);
 }
@@ -154,17 +154,17 @@ void chen::net::endpoint::assign(const ip::address &addr, const std::string &ser
     this->_port = resolver::service(service);
 }
 
-void chen::net::endpoint::assign(const bsd::endpoint &ep)
+void chen::net::endpoint::assign(const basic_endpoint &ep)
 {
     this->assign((struct ::sockaddr*)&ep.addr);
 }
 
-void chen::net::endpoint::assign(const bsd::endpoint &ep, std::uint16_t port)
+void chen::net::endpoint::assign(const basic_endpoint &ep, std::uint16_t port)
 {
     this->assign((struct ::sockaddr*)&ep.addr, port);
 }
 
-void chen::net::endpoint::assign(const bsd::endpoint &ep, const std::string &service)
+void chen::net::endpoint::assign(const basic_endpoint &ep, const std::string &service)
 {
     this->assign((struct ::sockaddr*)&ep.addr, service);
 }
@@ -224,7 +224,7 @@ chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
     return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const bsd::endpoint &ep)
+chen::net::endpoint& chen::net::endpoint::operator=(const basic_endpoint &ep)
 {
     this->assign(ep);
     return *this;
@@ -237,9 +237,9 @@ chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
 }
 
 // conversion
-chen::net::endpoint::operator chen::bsd::endpoint() const
+chen::net::endpoint::operator chen::basic_endpoint() const
 {
-    bsd::endpoint ret;
+    basic_endpoint ret;
 
     switch (this->_addr.type())
     {

@@ -13,7 +13,7 @@
 // socket
 
 // cleanup
-void chen::bsd::socket::shutdown(Shutdown type) noexcept
+void chen::basic_socket::shutdown(Shutdown type) noexcept
 {
     switch (type)
     {
@@ -31,14 +31,14 @@ void chen::bsd::socket::shutdown(Shutdown type) noexcept
     }
 }
 
-void chen::bsd::socket::close() noexcept
+void chen::basic_socket::close() noexcept
 {
     ::closesocket(this->_fd);
     this->_fd = invalid_socket;
 }
 
 // property
-std::error_code chen::bsd::socket::nonblocking(bool enable) noexcept
+std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {
     u_long mode = enable ? 1 : 0;
     return ::ioctlsocket(this->_fd, FIONBIO, &mode) ? sys::error() : std::error_code();

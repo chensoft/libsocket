@@ -8,28 +8,28 @@
 
 // -----------------------------------------------------------------------------
 // option
-chen::ip::option::option(bsd::socket &s) : bsd::option(s)
+chen::ip::option::option(basic_socket &s) : basic_option(s)
 {
 }
 
 // ttl
 int chen::ip::option::ttl() const
 {
-    return bsd::option::get(IPPROTO_IP, IP_TTL);
+    return basic_option::get(IPPROTO_IP, IP_TTL);
 }
 
 bool chen::ip::option::ttl(int val)
 {
-    return bsd::option::set(IPPROTO_IP, IP_TTL, val);
+    return basic_option::set(IPPROTO_IP, IP_TTL, val);
 }
 
 // v6only
 bool chen::ip::option::v6only() const
 {
-    return bsd::option::get(IPPROTO_IPV6, IPV6_V6ONLY) != 0;
+    return basic_option::get(IPPROTO_IPV6, IPV6_V6ONLY) != 0;
 }
 
 bool chen::ip::option::v6only(bool enable)
 {
-    return bsd::option::set(IPPROTO_IPV6, IPV6_V6ONLY, enable);
+    return basic_option::set(IPPROTO_IPV6, IPV6_V6ONLY, enable);
 }

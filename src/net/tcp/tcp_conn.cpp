@@ -9,7 +9,7 @@
 
 // -----------------------------------------------------------------------------
 // conn
-chen::tcp::conn::conn(bsd::socket &&s, std::unique_ptr<handler> &&h) : _handler(std::move(h))
+chen::tcp::conn::conn(basic_socket &&s, std::unique_ptr<handler> &&h) : _handler(std::move(h))
 {
     this->reset(std::move(s));
     this->nonblocking(true);

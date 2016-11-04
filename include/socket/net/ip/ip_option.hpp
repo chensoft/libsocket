@@ -6,16 +6,16 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_option.hpp>
+#include <socket/bsd/basic_option.hpp>
 
 namespace chen
 {
     namespace ip
     {
-        class option : public bsd::option
+        class option : public basic_option
         {
         public:
-            option(bsd::socket &s);
+            option(basic_socket &s);
 
         public:
             /**

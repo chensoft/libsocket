@@ -7,7 +7,7 @@
 #pragma once
 
 #include <socket/net/inet/net_endpoint.hpp>
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/bsd/basic_socket.hpp>
 #include <socket/sys/runloop.hpp>
 
 namespace chen
@@ -39,11 +39,11 @@ namespace chen
              * Reset socket
              */
             void reset();
-            void reset(bsd::socket &&s);
+            void reset(basic_socket &&s);
             void reset(ip::address::Type family, int type);
 
         protected:
-            bsd::socket _socket;
+            basic_socket _socket;
         };
     }
 }

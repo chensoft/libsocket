@@ -11,7 +11,7 @@
 
 // -----------------------------------------------------------------------------
 // setup
-chen::bsd::startup::startup()
+chen::startup::startup()
 {
     class helper
     {

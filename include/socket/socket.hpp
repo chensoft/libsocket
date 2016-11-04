@@ -28,9 +28,9 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/sys/startup.hpp>
 
 // todo change
-#include <socket/bsd/bsd_endpoint.hpp>
-#include <socket/bsd/bsd_option.hpp>
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/bsd/basic_endpoint.hpp>
+#include <socket/bsd/basic_option.hpp>
+#include <socket/bsd/basic_socket.hpp>
 
 #include <socket/net/ip/ip_address.hpp>
 #include <socket/net/ip/ip_ifaddr.hpp>

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_endpoint.hpp>
+#include <socket/bsd/basic_endpoint.hpp>
 #include <socket/net/ip/ip_address.hpp>
 
 namespace chen
@@ -52,9 +52,9 @@ namespace chen
             /**
              * Construct by raw bsd endpoint
              */
-            endpoint(const bsd::endpoint &ep);
-            endpoint(const bsd::endpoint &ep, std::uint16_t port);
-            endpoint(const bsd::endpoint &ep, const std::string &service);
+            endpoint(const basic_endpoint &ep);
+            endpoint(const basic_endpoint &ep, std::uint16_t port);
+            endpoint(const basic_endpoint &ep, const std::string &service);
 
             endpoint(const struct ::sockaddr *ep);
             endpoint(const struct ::sockaddr *ep, std::uint16_t port);
@@ -100,9 +100,9 @@ namespace chen
             void assign(const ip::address &addr, std::uint16_t port);
             void assign(const ip::address &addr, const std::string &service);
 
-            void assign(const bsd::endpoint &ep);
-            void assign(const bsd::endpoint &ep, std::uint16_t port);
-            void assign(const bsd::endpoint &ep, const std::string &service);
+            void assign(const basic_endpoint &ep);
+            void assign(const basic_endpoint &ep, std::uint16_t port);
+            void assign(const basic_endpoint &ep, const std::string &service);
 
             void assign(const struct ::sockaddr *ep);
             void assign(const struct ::sockaddr *ep, std::uint16_t port);
@@ -111,13 +111,13 @@ namespace chen
             endpoint& operator=(std::nullptr_t);
             endpoint& operator=(const char *mixed);
             endpoint& operator=(const std::string &mixed);
-            endpoint& operator=(const bsd::endpoint &ep);
+            endpoint& operator=(const basic_endpoint &ep);
             endpoint& operator=(const struct ::sockaddr *ep);
 
             /**
              * Conversion
              */
-            operator chen::bsd::endpoint() const;
+            operator chen::basic_endpoint() const;
 
             /**
              * Comparison

@@ -41,7 +41,7 @@ void chen::net::socket::reset()
     this->_socket.reset();
 }
 
-void chen::net::socket::reset(bsd::socket &&s)
+void chen::net::socket::reset(basic_socket &&s)
 {
     this->_socket = std::move(s);
 }
