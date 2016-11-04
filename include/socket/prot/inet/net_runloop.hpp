@@ -6,9 +6,9 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_poller.hpp>
-#include <socket/bsd/bsd_kqueue.hpp>
-#include <socket/bsd/bsd_epoll.hpp>
+#include <socket/core/bsd_poller.hpp>
+#include <socket/core/bsd_kqueue.hpp>
+#include <socket/core/bsd_epoll.hpp>
 #include <socket/config.hpp>
 #include <unordered_map>
 #include <functional>

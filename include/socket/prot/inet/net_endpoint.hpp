@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_endpoint.hpp>
+#include <socket/base/bsd_endpoint.hpp>
 #include <socket/prot/ip/ip_address.hpp>
 
 namespace chen

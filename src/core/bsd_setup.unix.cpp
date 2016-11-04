@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/bsd/bsd_setup.hpp>
+#include <socket/core/bsd_setup.hpp>
 #include <csignal>
 
 // -----------------------------------------------------------------------------

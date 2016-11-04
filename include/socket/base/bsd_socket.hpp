@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#include <socket/bsd/bsd_endpoint.hpp>
-#include <socket/bsd/bsd_option.hpp>
+#include <socket/base/bsd_endpoint.hpp>
+#include <socket/base/bsd_option.hpp>
 
 namespace chen
 {

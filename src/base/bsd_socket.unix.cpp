@@ -4,9 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifdef _WIN32
+#ifndef _WIN32
 
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/base/bsd_socket.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
@@ -18,30 +18,33 @@ void chen::bsd::socket::shutdown(Shutdown type) noexcept
     switch (type)
     {
         case Shutdown::Read:
-            ::shutdown(this->_fd, SD_RECEIVE);
+            ::shutdown(this->_fd, SHUT_RD);
             break;
 
         case Shutdown::Write:
-            ::shutdown(this->_fd, SD_SEND);
+            ::shutdown(this->_fd, SHUT_WR);
             break;
 
         case Shutdown::Both:
-            ::shutdown(this->_fd, SD_BOTH);
+            ::shutdown(this->_fd, SHUT_RDWR);
             break;
     }
 }
 
 void chen::bsd::socket::close() noexcept
 {
-    ::closesocket(this->_fd);
+    ::close(this->_fd);
     this->_fd = invalid_socket;
 }
 
 // property
 std::error_code chen::bsd::socket::nonblocking(bool enable) noexcept
 {
-    u_long mode = enable ? 1 : 0;
-    return ::ioctlsocket(this->_fd, FIONBIO, &mode) ? sys::error() : std::error_code();
+    auto flag = ::fcntl(this->_fd, F_GETFL, 0);
+    if (flag < 0)
+        return sys::error();
+
+    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK)) ? std::error_code() : sys::error();
 }
 
 #endif

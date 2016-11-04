@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/bsd/bsd_option.hpp>
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/base/bsd_option.hpp>
+#include <socket/base/bsd_socket.hpp>
 
 // -----------------------------------------------------------------------------
 // option

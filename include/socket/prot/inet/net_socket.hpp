@@ -8,7 +8,7 @@
 
 #include <socket/prot/inet/net_endpoint.hpp>
 #include <socket/prot/inet/net_runloop.hpp>
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/base/bsd_socket.hpp>
 
 namespace chen
 {

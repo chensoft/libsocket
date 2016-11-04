@@ -21,13 +21,13 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/config.hpp>
 
-#include <socket/bsd/bsd_endpoint.hpp>
-#include <socket/bsd/bsd_epoll.hpp>
-#include <socket/bsd/bsd_kqueue.hpp>
-#include <socket/bsd/bsd_option.hpp>
-#include <socket/bsd/bsd_poller.hpp>
-#include <socket/bsd/bsd_setup.hpp>
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/base/bsd_endpoint.hpp>
+#include <socket/core/bsd_epoll.hpp>
+#include <socket/core/bsd_kqueue.hpp>
+#include <socket/base/bsd_option.hpp>
+#include <socket/core/bsd_poller.hpp>
+#include <socket/core/bsd_setup.hpp>
+#include <socket/base/bsd_socket.hpp>
 
 #include <socket/prot/ip/ip_address.hpp>
 #include <socket/prot/ip/ip_ifaddr.hpp>
