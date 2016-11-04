@@ -32,9 +32,9 @@ namespace chen
              * @attention throw exception if no dns record found or dns error
              */
             void connect(const char *mixed);
-            void connect(const std::string &mixed, ip::address::Type type = ip::address::Type::None);
-            void connect(const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
-            void connect(const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
+            void connect(const std::string &mixed, ip_address::Type type = ip_address::Type::None);
+            void connect(const std::string &host, std::uint16_t port, ip_address::Type type = ip_address::Type::None);
+            void connect(const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
 
             /**
              * Connect to remote endpoint

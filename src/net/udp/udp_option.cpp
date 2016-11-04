@@ -8,6 +8,6 @@
 
 // -----------------------------------------------------------------------------
 // option
-chen::udp::option::option(basic_socket &s) : ip::option(s)
+chen::udp::option::option(basic_socket &s) : ip_option(s)
 {
 }

@@ -30,7 +30,7 @@ TEST(NetEndpointTest, General)
 TEST(NetEndpointTest, Property)
 {
     using chen::inet_endpoint;
-    using chen::ip::address;
+    using chen::ip_address;
 
     // modify port and address
     inet_endpoint ep("127.0.0.1", 80);
@@ -39,7 +39,7 @@ TEST(NetEndpointTest, Property)
     EXPECT_EQ("127.0.0.1", ep.addr().str());
 
     ep.port(443);
-    ep.addr(address("192.168.1.1"));
+    ep.addr(ip_address("192.168.1.1"));
 
     EXPECT_EQ(443, ep.port());
     EXPECT_EQ("192.168.1.1", ep.addr().str());

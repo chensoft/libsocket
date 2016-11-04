@@ -27,7 +27,7 @@ TEST(TCPClientTest, Test)
 //
 //    PILogE("size: %zu, %zu, %zu", alignof(std::function<void ()>), sizeof(std::function<void ()>), sizeof(notifier));
 //
-//    client c(chen::ip::address::Type::IPv4, p);
+//    client c(chen::ip_address::Type::IPv4, p);
 //
 //    c.attach([] (client &x, connecting_event &e) {
 //        PILogE("connecting: %s", e.ep.str().c_str());

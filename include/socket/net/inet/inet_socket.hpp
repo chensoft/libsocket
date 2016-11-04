@@ -38,7 +38,7 @@ namespace chen
          */
         void reset();
         void reset(basic_socket &&s);
-        void reset(ip::address::Type family, int type);
+        void reset(ip_address::Type family, int type);
 
     protected:
         basic_socket _socket;

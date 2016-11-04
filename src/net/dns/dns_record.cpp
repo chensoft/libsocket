@@ -206,7 +206,7 @@ chen::dns::rr_a::rr_a() : rr(TypeA)
 std::string chen::dns::rr_a::str(const std::string &sep) const
 {
     auto ret = rr::str(sep);
-    ret += sep + ip::version4::toString(this->address);
+    ret += sep + ip_version4::toString(this->address);
     return ret;
 }
 
@@ -231,7 +231,7 @@ void chen::dns::rr_a::unpack(const json::object &object)
     auto address = map::find(object, "address");
 
     if (address.isString())
-        this->address = ip::version4::toInteger(address);
+        this->address = ip_version4::toInteger(address);
     else
         this->address = address.toUnsigned();
 }
@@ -1279,7 +1279,7 @@ chen::dns::rr_aaaa::rr_aaaa() : rr(TypeAAAA)
 std::string chen::dns::rr_aaaa::str(const std::string &sep) const
 {
     auto ret = rr::str(sep);
-    ret += sep + ip::version6::toString(this->address.data());
+    ret += sep + ip_version6::toString(this->address.data());
     return ret;
 }
 
@@ -1301,7 +1301,7 @@ void chen::dns::rr_aaaa::unpack(dns::decoder &decoder)
 void chen::dns::rr_aaaa::unpack(const json::object &object)
 {
     auto address = map::find(object, "address");
-    this->address = ip::version6::toBytes(address);
+    this->address = ip_version6::toBytes(address);
 }
 
 

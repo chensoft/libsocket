@@ -44,8 +44,8 @@ namespace chen
         /**
          * Construct by ip address and port or service
          */
-        inet_endpoint(const ip::address &addr, std::uint16_t port);
-        inet_endpoint(const ip::address &addr, const std::string &service);
+        inet_endpoint(const ip_address &addr, std::uint16_t port);
+        inet_endpoint(const ip_address &addr, const std::string &service);
 
         /**
          * Construct by raw bsd endpoint
@@ -74,8 +74,8 @@ namespace chen
         bool empty() const;
         operator bool() const;
 
-        const ip::address& addr() const;
-        void addr(const ip::address &value);
+        const ip_address& addr() const;
+        void addr(const ip_address &value);
 
         std::uint16_t port() const;
         void port(std::uint16_t value);
@@ -95,8 +95,8 @@ namespace chen
         void assign(std::nullptr_t);
         void assign(const std::string &mixed);
 
-        void assign(const ip::address &addr, std::uint16_t port);
-        void assign(const ip::address &addr, const std::string &service);
+        void assign(const ip_address &addr, std::uint16_t port);
+        void assign(const ip_address &addr, const std::string &service);
 
         void assign(const basic_endpoint &ep);
         void assign(const basic_endpoint &ep, std::uint16_t port);
@@ -130,7 +130,7 @@ namespace chen
         bool operator>=(const inet_endpoint &o) const;
 
     private:
-        ip::address _addr;
+        ip_address _addr;
         std::uint16_t _port = 0;
     };
 }

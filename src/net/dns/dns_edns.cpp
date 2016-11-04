@@ -263,7 +263,7 @@ void chen::dns::edns0::opt_n3u::unpack(dns::decoder &decoder)
 
 // -----------------------------------------------------------------------------
 // edns0 - Subnet
-chen::dns::edns0::opt_subnet::opt_subnet() : opt(OptSubnet), address(chen::ip::address::Type::IPv4)
+chen::dns::edns0::opt_subnet::opt_subnet() : opt(OptSubnet), address(chen::ip_address::Type::IPv4)
 {
 }
 
@@ -346,7 +346,7 @@ void chen::dns::edns0::opt_subnet::unpack(dns::decoder &decoder)
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[3 - i]);
 
-            this->address = ip::version4(*reinterpret_cast<std::uint32_t*>(addr), this->source);
+            this->address = ip_version4(*reinterpret_cast<std::uint32_t*>(addr), this->source);
         }
             break;
 
@@ -361,7 +361,7 @@ void chen::dns::edns0::opt_subnet::unpack(dns::decoder &decoder)
             for (int i = 0, len = static_cast<int>(std::ceil(this->source / 8)); i < len; ++i)
                 decoder.unpack(addr[15 - i]);
 
-            this->address = ip::version6(addr, this->source);
+            this->address = ip_version6(addr, this->source);
         }
             break;
 

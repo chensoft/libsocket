@@ -23,10 +23,10 @@ chen::tcp::client::~client()
 // connection
 void chen::tcp::client::connect(const char *mixed)
 {
-    this->connect(mixed, ip::address::Type::None);
+    this->connect(mixed, ip_address::Type::None);
 }
 
-void chen::tcp::client::connect(const std::string &mixed, ip::address::Type type)
+void chen::tcp::client::connect(const std::string &mixed, ip_address::Type type)
 {
     auto ret = inet_resolver::resolve(mixed, type);
     if (ret.empty())
@@ -35,7 +35,7 @@ void chen::tcp::client::connect(const std::string &mixed, ip::address::Type type
     this->connect(ret.front());
 }
 
-void chen::tcp::client::connect(const std::string &host, std::uint16_t port, ip::address::Type type)
+void chen::tcp::client::connect(const std::string &host, std::uint16_t port, ip_address::Type type)
 {
     auto ret = inet_resolver::resolve(host, port, type);
     if (ret.empty())
@@ -44,7 +44,7 @@ void chen::tcp::client::connect(const std::string &host, std::uint16_t port, ip:
     this->connect(ret.front());
 }
 
-void chen::tcp::client::connect(const std::string &host, const std::string &service, ip::address::Type type)
+void chen::tcp::client::connect(const std::string &host, const std::string &service, ip_address::Type type)
 {
     auto ret = inet_resolver::resolve(host, service, type);
     if (ret.empty())

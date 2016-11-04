@@ -46,7 +46,7 @@ void chen::inet_socket::reset(basic_socket &&s)
     this->_socket = std::move(s);
 }
 
-void chen::inet_socket::reset(ip::address::Type family, int type)
+void chen::inet_socket::reset(ip_address::Type family, int type)
 {
     this->_socket.reset(static_cast<int>(family), type);
 }

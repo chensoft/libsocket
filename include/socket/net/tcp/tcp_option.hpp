@@ -12,7 +12,7 @@ namespace chen
 {
     namespace tcp
     {
-        class option : public ip::option
+        class option : public ip_option
         {
         public:
             option(basic_socket &s);

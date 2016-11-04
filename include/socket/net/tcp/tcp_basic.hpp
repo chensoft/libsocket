@@ -31,7 +31,7 @@ namespace chen
              */
             using inet_socket::reset;
 
-            void reset(ip::address::Type family);
+            void reset(ip_address::Type family);
         };
     }
 }

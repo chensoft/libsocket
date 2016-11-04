@@ -22,7 +22,7 @@ namespace chen
              * Construct by the port, use IPv6 by default
              * @attention modern os support both v4 & v6 traffic if you use AF_INET6 to bind socket
              */
-            server(runloop &runloop, std::uint16_t port, ip::address::Type type = ip::address::Type::IPv6);
+            server(runloop &runloop, std::uint16_t port, ip_address::Type type = ip_address::Type::IPv6);
 
             /**
              * Construct by the first resolved endpoint
@@ -30,9 +30,9 @@ namespace chen
              * @attention throw exception if no dns record found or dns error
              */
             server(runloop &runloop, const char *mixed);
-            server(runloop &runloop, const std::string &mixed, ip::address::Type type = ip::address::Type::None);
-            server(runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type = ip::address::Type::None);
-            server(runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type = ip::address::Type::None);
+            server(runloop &runloop, const std::string &mixed, ip_address::Type type = ip_address::Type::None);
+            server(runloop &runloop, const std::string &host, std::uint16_t port, ip_address::Type type = ip_address::Type::None);
+            server(runloop &runloop, const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
 
             /**
              * Construct by the endpoint

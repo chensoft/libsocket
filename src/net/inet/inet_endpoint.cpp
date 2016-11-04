@@ -25,11 +25,11 @@ chen::inet_endpoint::inet_endpoint(const std::string &mixed)
     this->assign(mixed);
 }
 
-chen::inet_endpoint::inet_endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
+chen::inet_endpoint::inet_endpoint(const ip_address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
-chen::inet_endpoint::inet_endpoint(const ip::address &addr, const std::string &service) : _addr(addr), _port(inet_resolver::service(service))
+chen::inet_endpoint::inet_endpoint(const ip_address &addr, const std::string &service) : _addr(addr), _port(inet_resolver::service(service))
 {
 }
 
@@ -68,10 +68,10 @@ std::string chen::inet_endpoint::str(bool cidr, bool scope) const
 {
     switch (this->_addr.type())
     {
-        case ip::address::Type::IPv4:
+        case ip_address::Type::IPv4:
             return this->_addr.v4().str(cidr) + ":" + num::str(this->_port);
 
-        case ip::address::Type::IPv6:
+        case ip_address::Type::IPv6:
             return "[" + this->_addr.v6().str(cidr, scope) + "]:" + num::str(this->_port);
 
         default:
@@ -89,12 +89,12 @@ chen::inet_endpoint::operator bool() const
     return !this->empty();
 }
 
-const chen::ip::address& chen::inet_endpoint::addr() const
+const chen::ip_address& chen::inet_endpoint::addr() const
 {
     return this->_addr;
 }
 
-void chen::inet_endpoint::addr(const ip::address &value)
+void chen::inet_endpoint::addr(const ip_address &value)
 {
     this->_addr = value;
 }
@@ -142,13 +142,13 @@ void chen::inet_endpoint::assign(const std::string &mixed)
     this->_port = inet_resolver::service(pair.second);
 }
 
-void chen::inet_endpoint::assign(const ip::address &addr, std::uint16_t port)
+void chen::inet_endpoint::assign(const ip_address &addr, std::uint16_t port)
 {
     this->_addr = addr;
     this->_port = port;
 }
 
-void chen::inet_endpoint::assign(const ip::address &addr, const std::string &service)
+void chen::inet_endpoint::assign(const ip_address &addr, const std::string &service)
 {
     this->_addr = addr;
     this->_port = inet_resolver::service(service);
@@ -184,7 +184,7 @@ void chen::inet_endpoint::assign(const struct ::sockaddr *ep)
         case AF_INET6:
         {
             auto in = (struct ::sockaddr_in6*)ep;
-            this->_addr = ip::version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
+            this->_addr = ip_version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
             this->_port = num::swap(in->sin6_port);
         }
             break;
@@ -243,7 +243,7 @@ chen::inet_endpoint::operator chen::basic_endpoint() const
 
     switch (this->_addr.type())
     {
-        case ip::address::Type::IPv4:
+        case ip_address::Type::IPv4:
         {
             auto in = (struct ::sockaddr_in*)&ret.addr;
 
@@ -255,7 +255,7 @@ chen::inet_endpoint::operator chen::basic_endpoint() const
         }
             break;
 
-        case ip::address::Type::IPv6:
+        case ip_address::Type::IPv6:
         {
             auto in = (struct ::sockaddr_in6*)&ret.addr;
 

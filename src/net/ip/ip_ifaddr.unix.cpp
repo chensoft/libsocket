@@ -53,9 +53,9 @@ namespace
         ::freeifaddrs(list);
     }
 
-    std::unique_ptr<chen::ip::address> create(struct ::sockaddr *ptr)
+    std::unique_ptr<chen::ip_address> create(struct ::sockaddr *ptr)
     {
-        using chen::ip::address;
+        using chen::ip_address;
 
         if (!ptr)
             return nullptr;
@@ -63,12 +63,12 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return std::unique_ptr<address>(new address(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr)));
+                return std::unique_ptr<ip_address>(new ip_address(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr)));
 
             case AF_INET6:
             {
                 auto tmp = (struct ::sockaddr_in6*)ptr;
-                auto ret = std::unique_ptr<address>(new address(tmp->sin6_addr.s6_addr));
+                auto ret = std::unique_ptr<ip_address>(new ip_address(tmp->sin6_addr.s6_addr));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
             }
@@ -114,8 +114,8 @@ namespace
 
     std::uint8_t netmask(struct ::sockaddr *ptr)
     {
-        using chen::ip::version4;
-        using chen::ip::version6;
+        using chen::ip_version4;
+        using chen::ip_version6;
 
         if (!ptr)
             return 0;
@@ -123,10 +123,10 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return version4::toCIDR(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr));
+                return ip_version4::toCIDR(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return version6::toCIDR(((struct ::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+                return ip_version6::toCIDR(((struct ::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
 
             default:
                 return 0;
@@ -139,40 +139,40 @@ namespace
 // ifaddr
 
 // flags
-bool chen::ip::ifaddr::isUp() const
+bool chen::ip_ifaddr::isUp() const
 {
     return (this->flag & IFF_UP) != 0;
 }
 
-bool chen::ip::ifaddr::isBroadcast() const
+bool chen::ip_ifaddr::isBroadcast() const
 {
     return (this->flag & IFF_BROADCAST) != 0;
 }
 
-bool chen::ip::ifaddr::isLoopback() const
+bool chen::ip_ifaddr::isLoopback() const
 {
     return (this->flag & IFF_LOOPBACK) != 0;
 }
 
-bool chen::ip::ifaddr::isRunning() const
+bool chen::ip_ifaddr::isRunning() const
 {
     return (this->flag & IFF_RUNNING) != 0;
 }
 
-bool chen::ip::ifaddr::isPromiscuous() const
+bool chen::ip_ifaddr::isPromiscuous() const
 {
     return (this->flag & IFF_PROMISC) != 0;
 }
 
-bool chen::ip::ifaddr::isMulticast() const
+bool chen::ip_ifaddr::isMulticast() const
 {
     return (this->flag & IFF_MULTICAST) != 0;
 }
 
 // enumerate
-std::map<std::string, chen::ip::ifaddr> chen::ip::ifaddr::enumerate()
+std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
 {
-    std::map<std::string, ifaddr> map;
+    std::map<std::string, ip_ifaddr> map;
 
     ::visit([&] (struct ::ifaddrs *ptr, bool &stop) {
         auto &item = map[ptr->ifa_name];
@@ -204,7 +204,7 @@ std::map<std::string, chen::ip::ifaddr> chen::ip::ifaddr::enumerate()
 }
 
 // scope
-std::uint32_t chen::ip::ifaddr::scope(const std::uint8_t addr[16], const std::string &name)
+std::uint32_t chen::ip_ifaddr::scope(const std::uint8_t addr[16], const std::string &name)
 {
     // if name is integer
     bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
@@ -234,7 +234,7 @@ std::uint32_t chen::ip::ifaddr::scope(const std::uint8_t addr[16], const std::st
     return id;
 }
 
-std::string chen::ip::ifaddr::scope(std::uint32_t id)
+std::string chen::ip_ifaddr::scope(std::uint32_t id)
 {
     std::string name;
 

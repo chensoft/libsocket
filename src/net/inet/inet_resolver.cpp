@@ -11,13 +11,13 @@
 
 // -----------------------------------------------------------------------------
 // resolver
-std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &mixed, ip::address::Type type)
+std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &mixed, ip_address::Type type)
 {
     auto split = inet_resolver::extract(mixed);
     return inet_resolver::resolve(split.first, split.second, type);
 }
 
-std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
+std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, std::uint16_t port, ip_address::Type type)
 {
     auto ret = inet_resolver::resolve(host, "", type);
 
@@ -27,10 +27,10 @@ std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string 
     return ret;
 }
 
-std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
+std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, const std::string &service, ip_address::Type type)
 {
     if (host.empty())
-        return {inet_endpoint(ip::version4(0u), inet_resolver::service(service))};
+        return {inet_endpoint(ip_version4(0u), inet_resolver::service(service))};
 
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};

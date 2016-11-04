@@ -11,19 +11,19 @@
 
 // -----------------------------------------------------------------------------
 // server
-chen::tcp::server::server(runloop &runloop, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, std::uint16_t port, ip_address::Type type) : _runloop(runloop)
 {
     this->_local.port(port);
-    this->_local.addr(ip::address(type));
+    this->_local.addr(ip_address(type));
 
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(runloop &runloop, const char *mixed) : server(runloop, mixed, ip::address::Type::None)
+chen::tcp::server::server(runloop &runloop, const char *mixed) : server(runloop, mixed, ip_address::Type::None)
 {
 }
 
-chen::tcp::server::server(runloop &runloop, const std::string &mixed, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const std::string &mixed, ip_address::Type type) : _runloop(runloop)
 {
     auto ret = inet_resolver::resolve(mixed, type);
     if (ret.empty())
@@ -34,7 +34,7 @@ chen::tcp::server::server(runloop &runloop, const std::string &mixed, ip::addres
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const std::string &host, std::uint16_t port, ip_address::Type type) : _runloop(runloop)
 {
     auto ret = inet_resolver::resolve(host, port, type);
     if (ret.empty())
@@ -45,7 +45,7 @@ chen::tcp::server::server(runloop &runloop, const std::string &host, std::uint16
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const std::string &host, const std::string &service, ip_address::Type type) : _runloop(runloop)
 {
     auto ret = inet_resolver::resolve(host, service, type);
     if (ret.empty())

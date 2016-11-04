@@ -213,7 +213,7 @@ namespace chen
                 std::uint16_t family = 0;  // address family
                 std::uint8_t  source = 0;  // source prefix length
                 std::uint8_t   scope = 0;  // scope prefix length
-                ip::address address;       // IPv4 or IPv6 subnet
+                ip_address       address;  // IPv4 or IPv6 subnet
             };
 
 
