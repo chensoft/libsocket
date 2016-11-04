@@ -4,26 +4,26 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/net_runloop.hpp>
+#include <socket/sys/runloop.hpp>
 
 // -----------------------------------------------------------------------------
 // runloop
-const int chen::net::runloop::FlagOnce = chen::bsd::reactor::FlagOnce;
-const int chen::net::runloop::FlagEdge = chen::bsd::reactor::FlagEdge;
+const int chen::runloop::FlagOnce = chen::reactor::FlagOnce;
+const int chen::runloop::FlagEdge = chen::reactor::FlagEdge;
 
 // modify
-void chen::net::runloop::set(socket_t fd, int opcode, callback_type callback)
+void chen::runloop::set(socket_t fd, int opcode, callback_type callback)
 {
     this->set(fd, opcode, 0, callback);
 }
 
-void chen::net::runloop::set(socket_t fd, int opcode, int flag, callback_type callback)
+void chen::runloop::set(socket_t fd, int opcode, int flag, callback_type callback)
 {
     this->_reactor.set(fd, opcode, flag);
     this->_mapping[fd] = callback;
 }
 
-void chen::net::runloop::del(socket_t fd)
+void chen::runloop::del(socket_t fd)
 {
     // unregister event and callback
     this->_reactor.del(fd);
@@ -39,7 +39,7 @@ void chen::net::runloop::del(socket_t fd)
 }
 
 // control
-void chen::net::runloop::run(std::size_t count, double timeout)
+void chen::runloop::run(std::size_t count, double timeout)
 {
     this->_caching.resize(count);
 
@@ -66,7 +66,7 @@ void chen::net::runloop::run(std::size_t count, double timeout)
     }
 }
 
-void chen::net::runloop::stop()
+void chen::runloop::stop()
 {
     this->_reactor.stop();
 }

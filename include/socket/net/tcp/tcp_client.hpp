@@ -23,7 +23,7 @@ namespace chen
 
         public:
             // todo add param to accept init option
-            explicit client(net::runloop &runloop);
+            explicit client(runloop &runloop);
             ~client();
 
         public:
@@ -147,13 +147,13 @@ namespace chen
             void onReadable();
             void onWritable();
             void onEnded();
-            void onEvent(net::runloop::Event type);
+            void onEvent(runloop::Event type);
 
         protected:
             State _state = State::Disconnect;
 
             net::endpoint _remote;
-            net::runloop &_runloop;
+            runloop &_runloop;
 
             std::unique_ptr<policy> _policy;
 

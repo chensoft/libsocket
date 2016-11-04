@@ -21,12 +21,15 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/config.hpp>
 
+#include <socket/sys/epoll.hpp>
+#include <socket/sys/kqueue.hpp>
+#include <socket/sys/poller.hpp>
+#include <socket/sys/runloop.hpp>
+#include <socket/sys/startup.hpp>
+
+// todo change
 #include <socket/bsd/bsd_endpoint.hpp>
-#include <socket/sys/bsd_epoll.hpp>
-#include <socket/sys/bsd_kqueue.hpp>
 #include <socket/bsd/bsd_option.hpp>
-#include <socket/sys/bsd_poller.hpp>
-#include <socket/sys/bsd_setup.hpp>
 #include <socket/bsd/bsd_socket.hpp>
 
 #include <socket/net/ip/ip_address.hpp>
@@ -36,7 +39,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 
 #include <socket/net/inet/net_endpoint.hpp>
 #include <socket/net/inet/net_resolver.hpp>
-#include <socket/net/inet/net_runloop.hpp>
 #include <socket/net/inet/net_socket.hpp>
 
 #include <socket/net/tcp/tcp_basic.hpp>

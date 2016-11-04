@@ -11,7 +11,7 @@
 
 // -----------------------------------------------------------------------------
 // server
-chen::tcp::server::server(net::runloop &runloop, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
 {
     this->_local.port(port);
     this->_local.addr(ip::address(type));
@@ -19,11 +19,11 @@ chen::tcp::server::server(net::runloop &runloop, std::uint16_t port, ip::address
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(net::runloop &runloop, const char *mixed) : server(runloop, mixed, ip::address::Type::None)
+chen::tcp::server::server(runloop &runloop, const char *mixed) : server(runloop, mixed, ip::address::Type::None)
 {
 }
 
-chen::tcp::server::server(net::runloop &runloop, const std::string &mixed, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const std::string &mixed, ip::address::Type type) : _runloop(runloop)
 {
     auto ret = net::resolver::resolve(mixed, type);
     if (ret.empty())
@@ -34,7 +34,7 @@ chen::tcp::server::server(net::runloop &runloop, const std::string &mixed, ip::a
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(net::runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
 {
     auto ret = net::resolver::resolve(host, port, type);
     if (ret.empty())
@@ -45,7 +45,7 @@ chen::tcp::server::server(net::runloop &runloop, const std::string &host, std::u
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(net::runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type) : _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type) : _runloop(runloop)
 {
     auto ret = net::resolver::resolve(host, service, type);
     if (ret.empty())
@@ -56,7 +56,7 @@ chen::tcp::server::server(net::runloop &runloop, const std::string &host, const 
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(net::runloop &runloop, const net::endpoint &ep) : _local(ep), _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const net::endpoint &ep) : _local(ep), _runloop(runloop)
 {
     this->reset(this->_local.addr().type());
 }
@@ -116,8 +116,8 @@ void chen::tcp::server::listen(int backlog)
 
     // listen events using runloop
     this->_runloop.set(this->_socket.native(),
-                       net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
-                       net::runloop::FlagEdge,
+                       runloop::OpcodeRead | runloop::OpcodeWrite,
+                       runloop::FlagEdge,
                        std::bind(&server::onServerEvent, this, std::placeholders::_1));
 
     this->_running = true;
@@ -132,8 +132,8 @@ void chen::tcp::server::onServerReadable()
 
     auto &ptr = *this->_store.insert(this->_store.end(), std::unique_ptr<conn>(new conn(std::move(s), this->_factory())));
     this->_runloop.set(ptr->native(),
-                       net::runloop::OpcodeRead | net::runloop::OpcodeWrite,
-                       net::runloop::FlagEdge,
+                       runloop::OpcodeRead | runloop::OpcodeWrite,
+                       runloop::FlagEdge,
                        std::bind(&server::onConnEvent, this, std::ref(ptr), std::placeholders::_1));
 
     ptr->onAccepted();
@@ -147,17 +147,17 @@ void chen::tcp::server::onServerEnded()
 {
 }
 
-void chen::tcp::server::onServerEvent(net::runloop::Event type)
+void chen::tcp::server::onServerEvent(runloop::Event type)
 {
     switch (type)
     {
-        case net::runloop::Event::Read:
+        case runloop::Event::Read:
             return this->onServerReadable();
 
-        case net::runloop::Event::Write:
+        case runloop::Event::Write:
             return this->onServerWritable();
 
-        case net::runloop::Event::End:
+        case runloop::Event::End:
             return this->onServerEnded();
     }
 }
@@ -187,17 +187,17 @@ void chen::tcp::server::onConnEnded(std::unique_ptr<conn> &c)
     this->_store.erase(it);
 }
 
-void chen::tcp::server::onConnEvent(std::unique_ptr<conn> &c, net::runloop::Event type)
+void chen::tcp::server::onConnEvent(std::unique_ptr<conn> &c, runloop::Event type)
 {
     switch (type)
     {
-        case net::runloop::Event::Read:
+        case runloop::Event::Read:
             return this->onConnReadable(c);
 
-        case net::runloop::Event::Write:
+        case runloop::Event::Write:
             return this->onConnWritable(c);
 
-        case net::runloop::Event::End:
+        case runloop::Event::End:
             return this->onConnEnded(c);
     }
 }

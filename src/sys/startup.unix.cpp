@@ -6,12 +6,12 @@
  */
 #ifndef _WIN32
 
-#include <socket/sys/bsd_setup.hpp>
+#include <socket/sys/startup.hpp>
 #include <csignal>
 
 // -----------------------------------------------------------------------------
 // setup
-chen::bsd::setup::setup()
+chen::bsd::startup::startup()
 {
     class helper
     {

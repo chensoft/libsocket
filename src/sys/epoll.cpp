@@ -6,7 +6,7 @@
  */
 #ifdef __linux__
 
-#include <socket/sys/bsd_epoll.hpp>
+#include <socket/sys/epoll.hpp>
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
@@ -14,10 +14,10 @@
 
 // -----------------------------------------------------------------------------
 // epoll
-const int chen::bsd::epoll::FlagOnce = EPOLLONESHOT;
-const int chen::bsd::epoll::FlagEdge = EPOLLET;
+const int chen::epoll::FlagOnce = EPOLLONESHOT;
+const int chen::epoll::FlagEdge = EPOLLET;
 
-chen::bsd::epoll::epoll()
+chen::epoll::epoll()
 {
     // create epoll file descriptor
     if ((this->_fd = ::epoll_create1(0)) < 0)
@@ -33,14 +33,14 @@ chen::bsd::epoll::epoll()
     this->set(this->_ef, OpcodeRead, FlagEdge);
 }
 
-chen::bsd::epoll::~epoll()
+chen::epoll::~epoll()
 {
     ::close(this->_fd);
     ::close(this->_ef);
 }
 
 // modify
-void chen::bsd::epoll::set(int fd, int opcode, int flag)
+void chen::epoll::set(int fd, int opcode, int flag)
 {
     struct ::epoll_event event{};
 
@@ -60,14 +60,14 @@ void chen::bsd::epoll::set(int fd, int opcode, int flag)
     }
 }
 
-void chen::bsd::epoll::del(int fd)
+void chen::epoll::del(int fd)
 {
     if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
 
 // poll
-std::size_t chen::bsd::epoll::poll(std::vector<Data> &cache, std::size_t count, double timeout)
+std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
     if (!count)
         return 0;
@@ -115,14 +115,14 @@ std::size_t chen::bsd::epoll::poll(std::vector<Data> &cache, std::size_t count, 
     return static_cast<std::size_t>(result);
 }
 
-std::vector<chen::bsd::epoll::Data> chen::bsd::epoll::poll(std::size_t count, double timeout)
+std::vector<chen::epoll::Data> chen::epoll::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::bsd::epoll::Data> ret;
+    std::vector<chen::epoll::Data> ret;
     this->poll(ret, count, timeout);
     return ret;
 }
 
-void chen::bsd::epoll::stop()
+void chen::epoll::stop()
 {
     if (!this->_wk)
         return;
@@ -133,7 +133,7 @@ void chen::bsd::epoll::stop()
 }
 
 // misc
-chen::bsd::epoll::Event chen::bsd::epoll::event(unsigned events)
+chen::epoll::Event chen::epoll::event(unsigned events)
 {
     if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
         return Event::End;

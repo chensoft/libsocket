@@ -13,12 +13,12 @@ namespace chen
         /**
          * Global initialization
          */
-        class setup
+        class startup
         {
         public:
-            setup();
+            startup();
         };
 
-        static const setup setup_dummy;  // force linking the setup code
+        static const startup setup_dummy;  // force linking the setup code
     }
 }

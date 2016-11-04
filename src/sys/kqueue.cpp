@@ -6,17 +6,17 @@
  */
 #if !defined(__linux__) && !defined(_WIN32)
 
-#include <socket/sys/bsd_kqueue.hpp>
+#include <socket/sys/kqueue.hpp>
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/event.h>
 
 // -----------------------------------------------------------------------------
 // kqueue
-const int chen::bsd::kqueue::FlagOnce = EV_ONESHOT;
-const int chen::bsd::kqueue::FlagEdge = EV_CLEAR;
+const int chen::kqueue::FlagOnce = EV_ONESHOT;
+const int chen::kqueue::FlagEdge = EV_CLEAR;
 
-chen::bsd::kqueue::kqueue()
+chen::kqueue::kqueue()
 {
     // create kqueue file descriptor
     if ((this->_fd = ::kqueue()) < 0)
@@ -35,13 +35,13 @@ chen::bsd::kqueue::kqueue()
     }
 }
 
-chen::bsd::kqueue::~kqueue()
+chen::kqueue::~kqueue()
 {
     ::close(this->_fd);
 }
 
 // modify
-void chen::bsd::kqueue::set(int fd, int opcode, int flag)
+void chen::kqueue::set(int fd, int opcode, int flag)
 {
     struct ::kevent event{};
 
@@ -58,7 +58,7 @@ void chen::bsd::kqueue::set(int fd, int opcode, int flag)
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
-void chen::bsd::kqueue::del(int fd)
+void chen::kqueue::del(int fd)
 {
     struct ::kevent event{};
 
@@ -76,7 +76,7 @@ void chen::bsd::kqueue::del(int fd)
 }
 
 // poll
-std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count, double timeout)
+std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
     if (!count)
         return 0;
@@ -143,14 +143,14 @@ std::size_t chen::bsd::kqueue::poll(std::vector<Data> &cache, std::size_t count,
     return static_cast<std::size_t>(result);
 }
 
-std::vector<chen::bsd::kqueue::Data> chen::bsd::kqueue::poll(std::size_t count, double timeout)
+std::vector<chen::kqueue::Data> chen::kqueue::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::bsd::kqueue::Data> ret;
+    std::vector<chen::kqueue::Data> ret;
     this->poll(ret, count, timeout);
     return ret;
 }
 
-void chen::bsd::kqueue::stop()
+void chen::kqueue::stop()
 {
     if (!this->_wk)
         return;
@@ -165,7 +165,7 @@ void chen::bsd::kqueue::stop()
 }
 
 // misc
-chen::bsd::kqueue::Event chen::bsd::kqueue::event(int filter, int flags)
+chen::kqueue::Event chen::kqueue::event(int filter, int flags)
 {
     if (flags & EV_EOF)
         return Event::End;
