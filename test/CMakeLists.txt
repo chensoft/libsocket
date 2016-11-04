@@ -34,7 +34,7 @@ include_directories(lib/googletest/googletest/include)
 
 # source codes
 file(GLOB INC_ROOT *.hpp)
-file(GLOB SRC_ROOT *.CPP)
+file(GLOB SRC_ROOT *.cpp)
 file(GLOB_RECURSE SRC_TEST src/*.cpp)
 
 set(INC_TEST ${INC_ROOT})
