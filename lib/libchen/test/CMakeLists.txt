@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 2.8)
 project(test_libchen)
 
 # environment
-include(../cmake/Environment.cmake)
+include(../cmake/ChenInit.cmake)
+include(../cmake/ChenUtil.cmake)
 
 if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
@@ -33,26 +34,18 @@ include_directories(lib/googletest/googletest/include)
 
 # source codes
 file(GLOB INC_ROOT *.hpp)
+file(GLOB SRC_ROOT *.cpp)
+file(GLOB_RECURSE SRC_TEST src/*.cpp)
 
-aux_source_directory(.        SRC_ROOT)
-aux_source_directory(src/base SRC_BASE)
-aux_source_directory(src/data SRC_DATA)
-aux_source_directory(src/mt   SRC_MT)
-aux_source_directory(src/sys  SRC_SYS)
-aux_source_directory(src/tool SRC_TOOL)
+set(INC_TEST ${INC_ROOT})
+set(SRC_TEST ${SRC_ROOT} ${SRC_TEST})
 
 # generate app
-add_executable(test_libchen ${INC_ROOT} ${SRC_ROOT} ${SRC_BASE} ${SRC_DATA} ${SRC_MT} ${SRC_SYS} ${SRC_TOOL})
+add_executable(test_libchen ${INC_TEST} ${SRC_TEST})
 
 # link library
 target_link_libraries(test_libchen libchen gtest)
 
-# group files in IDEs like Xcode and Visual Studio
-source_group("" FILES ${INC_ROOT})
-source_group("" FILES ${SRC_ROOT})
-
-source_group("src\\base" FILES ${SRC_BASE})
-source_group("src\\data" FILES ${SRC_DATA})
-source_group("src\\mt"   FILES ${SRC_MT})
-source_group("src\\sys"  FILES ${SRC_SYS})
-source_group("src\\tool" FILES ${SRC_TOOL})
+# group files in the IDE(e.g: Xcode and Visual Studio)
+chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${INC_TEST}")
+chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${SRC_TEST}")
