@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/net_resolver.hpp>
+#include <socket/prot/inet/net_resolver.hpp>
 #include <gtest/gtest.h>
 
 TEST(NetResolverTest, Domain)

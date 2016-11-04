@@ -29,34 +29,34 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/bsd/bsd_setup.hpp>
 #include <socket/bsd/bsd_socket.hpp>
 
-#include <socket/ip/ip_address.hpp>
-#include <socket/ip/ip_ifaddr.hpp>
-#include <socket/ip/ip_option.hpp>
-#include <socket/ip/ip_version.hpp>
+#include <socket/prot/ip/ip_address.hpp>
+#include <socket/prot/ip/ip_ifaddr.hpp>
+#include <socket/prot/ip/ip_option.hpp>
+#include <socket/prot/ip/ip_version.hpp>
 
-#include <socket/net/net_endpoint.hpp>
-#include <socket/net/net_resolver.hpp>
-#include <socket/net/net_runloop.hpp>
-#include <socket/net/net_socket.hpp>
+#include <socket/prot/inet/net_endpoint.hpp>
+#include <socket/prot/inet/net_resolver.hpp>
+#include <socket/prot/inet/net_runloop.hpp>
+#include <socket/prot/inet/net_socket.hpp>
 
-#include <socket/tcp/tcp_basic.hpp>
-#include <socket/tcp/tcp_client.hpp>
-#include <socket/tcp/tcp_conn.hpp>
-#include <socket/tcp/tcp_event.hpp>
-#include <socket/tcp/tcp_handler.hpp>
-#include <socket/tcp/tcp_option.hpp>
-#include <socket/tcp/tcp_policy.hpp>
-#include <socket/tcp/tcp_server.hpp>
+#include <socket/prot/tcp/tcp_basic.hpp>
+#include <socket/prot/tcp/tcp_client.hpp>
+#include <socket/prot/tcp/tcp_conn.hpp>
+#include <socket/prot/tcp/tcp_event.hpp>
+#include <socket/prot/tcp/tcp_handler.hpp>
+#include <socket/prot/tcp/tcp_option.hpp>
+#include <socket/prot/tcp/tcp_policy.hpp>
+#include <socket/prot/tcp/tcp_server.hpp>
 
-#include <socket/udp/udp_basic.hpp>
-#include <socket/udp/udp_client.hpp>
-#include <socket/udp/udp_define.hpp>
-#include <socket/udp/udp_server.hpp>
+#include <socket/prot/udp/udp_basic.hpp>
+#include <socket/prot/udp/udp_client.hpp>
+#include <socket/prot/udp/udp_define.hpp>
+#include <socket/prot/udp/udp_server.hpp>
 
-#include <socket/dns/dns_codec.hpp>
-#include <socket/dns/dns_define.hpp>
-#include <socket/dns/dns_edns.hpp>
-#include <socket/dns/dns_header.hpp>
-#include <socket/dns/dns_packet.hpp>
-#include <socket/dns/dns_record.hpp>
-#include <socket/dns/dns_table.hpp>
+#include <socket/prot/dns/dns_codec.hpp>
+#include <socket/prot/dns/dns_define.hpp>
+#include <socket/prot/dns/dns_edns.hpp>
+#include <socket/prot/dns/dns_header.hpp>
+#include <socket/prot/dns/dns_packet.hpp>
+#include <socket/prot/dns/dns_record.hpp>
+#include <socket/prot/dns/dns_table.hpp>

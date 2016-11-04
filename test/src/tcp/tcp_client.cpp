@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/tcp/tcp_client.hpp>
+#include <socket/prot/tcp/tcp_client.hpp>
 #include <chen/tool/log.hpp>
 #include <gtest/gtest.h>
 #include <thread>
