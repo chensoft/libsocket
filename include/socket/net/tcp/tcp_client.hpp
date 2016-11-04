@@ -39,7 +39,7 @@ namespace chen
             /**
              * Connect to remote endpoint
              */
-            void connect(const net::endpoint &ep);
+            void connect(const inet_endpoint &ep);
 
             /**
              * Disconnect and reconnect to remote
@@ -105,7 +105,7 @@ namespace chen
             /**
              * Remote endpoint
              */
-            net::endpoint remote() const;
+            inet_endpoint remote() const;
 
         public:
             /**
@@ -152,7 +152,7 @@ namespace chen
         protected:
             State _state = State::Disconnect;
 
-            net::endpoint _remote;
+            inet_endpoint _remote;
             runloop &_runloop;
 
             std::unique_ptr<policy> _policy;

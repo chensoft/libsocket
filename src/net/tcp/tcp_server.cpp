@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/net_resolver.hpp>
+#include <socket/net/inet/inet_resolver.hpp>
 #include <socket/net/tcp/tcp_server.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
@@ -25,7 +25,7 @@ chen::tcp::server::server(runloop &runloop, const char *mixed) : server(runloop,
 
 chen::tcp::server::server(runloop &runloop, const std::string &mixed, ip::address::Type type) : _runloop(runloop)
 {
-    auto ret = net::resolver::resolve(mixed, type);
+    auto ret = inet_resolver::resolve(mixed, type);
     if (ret.empty())
         throw std::runtime_error(str::format("tcp: server resolve address '%s' fail", mixed.c_str()));
 
@@ -36,7 +36,7 @@ chen::tcp::server::server(runloop &runloop, const std::string &mixed, ip::addres
 
 chen::tcp::server::server(runloop &runloop, const std::string &host, std::uint16_t port, ip::address::Type type) : _runloop(runloop)
 {
-    auto ret = net::resolver::resolve(host, port, type);
+    auto ret = inet_resolver::resolve(host, port, type);
     if (ret.empty())
         throw std::runtime_error(str::format("tcp: server resolve address '%s' fail", host.c_str()));
 
@@ -47,7 +47,7 @@ chen::tcp::server::server(runloop &runloop, const std::string &host, std::uint16
 
 chen::tcp::server::server(runloop &runloop, const std::string &host, const std::string &service, ip::address::Type type) : _runloop(runloop)
 {
-    auto ret = net::resolver::resolve(host, service, type);
+    auto ret = inet_resolver::resolve(host, service, type);
     if (ret.empty())
         throw std::runtime_error(str::format("tcp: server resolve address '%s' or service '%s' fail", host.c_str(), service.c_str()));
 
@@ -56,7 +56,7 @@ chen::tcp::server::server(runloop &runloop, const std::string &host, const std::
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(runloop &runloop, const net::endpoint &ep) : _local(ep), _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const inet_endpoint &ep) : _local(ep), _runloop(runloop)
 {
     this->reset(this->_local.addr().type());
 }
@@ -86,7 +86,7 @@ bool chen::tcp::server::isRunning()
     return this->_running;
 }
 
-chen::net::endpoint chen::tcp::server::local() const
+chen::inet_endpoint chen::tcp::server::local() const
 {
     return this->_local;
 }

@@ -6,14 +6,14 @@
  */
 #pragma once
 
-#include <socket/net/inet/net_socket.hpp>
+#include <socket/net/inet/inet_socket.hpp>
 #include <socket/net/tcp/tcp_option.hpp>
 
 namespace chen
 {
     namespace tcp
     {
-        class basic : public net::socket
+        class basic : public inet_socket
         {
         public:
             /**
@@ -29,7 +29,7 @@ namespace chen
             /**
              * Reset socket
              */
-            using net::socket::reset;
+            using inet_socket::reset;
 
             void reset(ip::address::Type family);
         };

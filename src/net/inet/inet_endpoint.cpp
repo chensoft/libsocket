@@ -4,67 +4,67 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/net_endpoint.hpp>
-#include <socket/net/inet/net_resolver.hpp>
+#include <socket/net/inet/inet_endpoint.hpp>
+#include <socket/net/inet/inet_resolver.hpp>
 #include <chen/base/num.hpp>
 #include <cstring>
 
 // -----------------------------------------------------------------------------
 // address
-chen::net::endpoint::endpoint(std::nullptr_t)
+chen::inet_endpoint::inet_endpoint(std::nullptr_t)
 {
 }
 
-chen::net::endpoint::endpoint(const char *mixed)
-{
-    this->assign(mixed);
-}
-
-chen::net::endpoint::endpoint(const std::string &mixed)
+chen::inet_endpoint::inet_endpoint(const char *mixed)
 {
     this->assign(mixed);
 }
 
-chen::net::endpoint::endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
+chen::inet_endpoint::inet_endpoint(const std::string &mixed)
+{
+    this->assign(mixed);
+}
+
+chen::inet_endpoint::inet_endpoint(const ip::address &addr, std::uint16_t port) : _addr(addr), _port(port)
 {
 }
 
-chen::net::endpoint::endpoint(const ip::address &addr, const std::string &service) : _addr(addr), _port(resolver::service(service))
+chen::inet_endpoint::inet_endpoint(const ip::address &addr, const std::string &service) : _addr(addr), _port(inet_resolver::service(service))
 {
 }
 
-chen::net::endpoint::endpoint(const basic_endpoint &ep)
+chen::inet_endpoint::inet_endpoint(const basic_endpoint &ep)
 {
     this->assign(ep);
 }
 
-chen::net::endpoint::endpoint(const basic_endpoint &ep, std::uint16_t port)
+chen::inet_endpoint::inet_endpoint(const basic_endpoint &ep, std::uint16_t port)
 {
     this->assign(ep, port);
 }
 
-chen::net::endpoint::endpoint(const basic_endpoint &ep, const std::string &service)
+chen::inet_endpoint::inet_endpoint(const basic_endpoint &ep, const std::string &service)
 {
     this->assign(ep, service);
 }
 
-chen::net::endpoint::endpoint(const struct ::sockaddr *ep)
+chen::inet_endpoint::inet_endpoint(const struct ::sockaddr *ep)
 {
     this->assign(ep);
 }
 
-chen::net::endpoint::endpoint(const struct ::sockaddr *ep, std::uint16_t port)
+chen::inet_endpoint::inet_endpoint(const struct ::sockaddr *ep, std::uint16_t port)
 {
     this->assign(ep, port);
 }
 
-chen::net::endpoint::endpoint(const struct ::sockaddr *ep, const std::string &service)
+chen::inet_endpoint::inet_endpoint(const struct ::sockaddr *ep, const std::string &service)
 {
     this->assign(ep, service);
 }
 
 // property
-std::string chen::net::endpoint::str(bool cidr, bool scope) const
+std::string chen::inet_endpoint::str(bool cidr, bool scope) const
 {
     switch (this->_addr.type())
     {
@@ -79,97 +79,97 @@ std::string chen::net::endpoint::str(bool cidr, bool scope) const
     }
 }
 
-bool chen::net::endpoint::empty() const
+bool chen::inet_endpoint::empty() const
 {
     return this->_addr.empty();
 }
 
-chen::net::endpoint::operator bool() const
+chen::inet_endpoint::operator bool() const
 {
     return !this->empty();
 }
 
-const chen::ip::address& chen::net::endpoint::addr() const
+const chen::ip::address& chen::inet_endpoint::addr() const
 {
     return this->_addr;
 }
 
-void chen::net::endpoint::addr(const ip::address &value)
+void chen::inet_endpoint::addr(const ip::address &value)
 {
     this->_addr = value;
 }
 
-std::uint16_t chen::net::endpoint::port() const
+std::uint16_t chen::inet_endpoint::port() const
 {
     return this->_port;
 }
 
-void chen::net::endpoint::port(std::uint16_t value)
+void chen::inet_endpoint::port(std::uint16_t value)
 {
     this->_port = value;
 }
 
 // special
-bool chen::net::endpoint::isWellKnownPort() const
+bool chen::inet_endpoint::isWellKnownPort() const
 {
     // from 0 through 1023
     return this->_port <= 1023;
 }
 
-bool chen::net::endpoint::isRegisteredPort() const
+bool chen::inet_endpoint::isRegisteredPort() const
 {
     // from 1024 through 49151
     return (this->_port >= 1024) && (this->_port <= 49151);
 }
 
-bool chen::net::endpoint::isDynamicPort() const
+bool chen::inet_endpoint::isDynamicPort() const
 {
     // from 49152 through 65535
     return this->_port >= 49152;
 }
 
 // assignment
-void chen::net::endpoint::assign(std::nullptr_t)
+void chen::inet_endpoint::assign(std::nullptr_t)
 {
     this->_addr = nullptr;
     this->_port = 0;
 }
 
-void chen::net::endpoint::assign(const std::string &mixed)
+void chen::inet_endpoint::assign(const std::string &mixed)
 {
-    auto pair = resolver::extract(mixed);
+    auto pair = inet_resolver::extract(mixed);
     this->_addr = pair.first;
-    this->_port = resolver::service(pair.second);
+    this->_port = inet_resolver::service(pair.second);
 }
 
-void chen::net::endpoint::assign(const ip::address &addr, std::uint16_t port)
+void chen::inet_endpoint::assign(const ip::address &addr, std::uint16_t port)
 {
     this->_addr = addr;
     this->_port = port;
 }
 
-void chen::net::endpoint::assign(const ip::address &addr, const std::string &service)
+void chen::inet_endpoint::assign(const ip::address &addr, const std::string &service)
 {
     this->_addr = addr;
-    this->_port = resolver::service(service);
+    this->_port = inet_resolver::service(service);
 }
 
-void chen::net::endpoint::assign(const basic_endpoint &ep)
+void chen::inet_endpoint::assign(const basic_endpoint &ep)
 {
     this->assign((struct ::sockaddr*)&ep.addr);
 }
 
-void chen::net::endpoint::assign(const basic_endpoint &ep, std::uint16_t port)
+void chen::inet_endpoint::assign(const basic_endpoint &ep, std::uint16_t port)
 {
     this->assign((struct ::sockaddr*)&ep.addr, port);
 }
 
-void chen::net::endpoint::assign(const basic_endpoint &ep, const std::string &service)
+void chen::inet_endpoint::assign(const basic_endpoint &ep, const std::string &service)
 {
     this->assign((struct ::sockaddr*)&ep.addr, service);
 }
 
-void chen::net::endpoint::assign(const struct ::sockaddr *ep)
+void chen::inet_endpoint::assign(const struct ::sockaddr *ep)
 {
     switch (ep->sa_family)
     {
@@ -194,50 +194,50 @@ void chen::net::endpoint::assign(const struct ::sockaddr *ep)
     }
 }
 
-void chen::net::endpoint::assign(const struct ::sockaddr *ep, std::uint16_t port)
+void chen::inet_endpoint::assign(const struct ::sockaddr *ep, std::uint16_t port)
 {
     this->assign(ep);
     this->_port = port;
 }
 
-void chen::net::endpoint::assign(const struct ::sockaddr *ep, const std::string &service)
+void chen::inet_endpoint::assign(const struct ::sockaddr *ep, const std::string &service)
 {
     this->assign(ep);
-    this->_port = resolver::service(service);
+    this->_port = inet_resolver::service(service);
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(std::nullptr_t)
+chen::inet_endpoint& chen::inet_endpoint::operator=(std::nullptr_t)
 {
     this->assign(nullptr);
     return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const char *mixed)
+chen::inet_endpoint& chen::inet_endpoint::operator=(const char *mixed)
 {
     this->assign(mixed);
     return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const std::string &mixed)
+chen::inet_endpoint& chen::inet_endpoint::operator=(const std::string &mixed)
 {
     this->assign(mixed);
     return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const basic_endpoint &ep)
+chen::inet_endpoint& chen::inet_endpoint::operator=(const basic_endpoint &ep)
 {
     this->assign(ep);
     return *this;
 }
 
-chen::net::endpoint& chen::net::endpoint::operator=(const struct ::sockaddr *ep)
+chen::inet_endpoint& chen::inet_endpoint::operator=(const struct ::sockaddr *ep)
 {
     this->assign(ep);
     return *this;
 }
 
 // conversion
-chen::net::endpoint::operator chen::basic_endpoint() const
+chen::inet_endpoint::operator chen::basic_endpoint() const
 {
     basic_endpoint ret;
 
@@ -277,32 +277,32 @@ chen::net::endpoint::operator chen::basic_endpoint() const
 }
 
 // comparison
-bool chen::net::endpoint::operator==(const endpoint &o) const
+bool chen::inet_endpoint::operator==(const inet_endpoint &o) const
 {
     return (this->_addr == o._addr) && (this->_port == o._port);
 }
 
-bool chen::net::endpoint::operator!=(const endpoint &o) const
+bool chen::inet_endpoint::operator!=(const inet_endpoint &o) const
 {
     return !(*this == o);
 }
 
-bool chen::net::endpoint::operator<(const endpoint &o) const
+bool chen::inet_endpoint::operator<(const inet_endpoint &o) const
 {
     return (this->_addr == o._addr) ? this->_port < o._port : this->_addr < o._addr;
 }
 
-bool chen::net::endpoint::operator>(const endpoint &o) const
+bool chen::inet_endpoint::operator>(const inet_endpoint &o) const
 {
     return o < *this;
 }
 
-bool chen::net::endpoint::operator<=(const endpoint &o) const
+bool chen::inet_endpoint::operator<=(const inet_endpoint &o) const
 {
     return (this->_addr == o._addr) ? this->_port <= o._port : this->_addr <= o._addr;
 }
 
-bool chen::net::endpoint::operator>=(const endpoint &o) const
+bool chen::inet_endpoint::operator>=(const inet_endpoint &o) const
 {
     return o <= *this;
 }

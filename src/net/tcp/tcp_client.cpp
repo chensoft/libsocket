@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/net_resolver.hpp>
+#include <socket/net/inet/inet_resolver.hpp>
 #include <socket/net/tcp/tcp_client.hpp>
 #include <chen/base/str.hpp>
 #include <cstring>
@@ -28,7 +28,7 @@ void chen::tcp::client::connect(const char *mixed)
 
 void chen::tcp::client::connect(const std::string &mixed, ip::address::Type type)
 {
-    auto ret = net::resolver::resolve(mixed, type);
+    auto ret = inet_resolver::resolve(mixed, type);
     if (ret.empty())
         throw std::runtime_error(str::format("tcp: client resolve address '%s' fail", mixed.c_str()));
 
@@ -37,7 +37,7 @@ void chen::tcp::client::connect(const std::string &mixed, ip::address::Type type
 
 void chen::tcp::client::connect(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
-    auto ret = net::resolver::resolve(host, port, type);
+    auto ret = inet_resolver::resolve(host, port, type);
     if (ret.empty())
         throw std::runtime_error(str::format("tcp: client resolve address '%s' fail", host.c_str()));
 
@@ -46,14 +46,14 @@ void chen::tcp::client::connect(const std::string &host, std::uint16_t port, ip:
 
 void chen::tcp::client::connect(const std::string &host, const std::string &service, ip::address::Type type)
 {
-    auto ret = net::resolver::resolve(host, service, type);
+    auto ret = inet_resolver::resolve(host, service, type);
     if (ret.empty())
         throw std::runtime_error(str::format("tcp: client resolve address '%s' or service '%s' fail", host.c_str(), service.c_str()));
 
     this->connect(ret.front());
 }
 
-void chen::tcp::client::connect(const net::endpoint &ep)
+void chen::tcp::client::connect(const inet_endpoint &ep)
 {
     // disconnect is if connected
     if (!this->isDisconnect())
@@ -199,7 +199,7 @@ bool chen::tcp::client::isDisconnect() const
     return this->_state == State::Disconnect;
 }
 
-chen::net::endpoint chen::tcp::client::remote() const
+chen::inet_endpoint chen::tcp::client::remote() const
 {
     return this->_remote;
 }

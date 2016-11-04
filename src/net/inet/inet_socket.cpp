@@ -4,49 +4,49 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/net_socket.hpp>
+#include <socket/net/inet/inet_socket.hpp>
 
 // -----------------------------------------------------------------------------
 // socket
 
 // property
-chen::net::endpoint chen::net::socket::peer() const
+chen::inet_endpoint chen::inet_socket::peer() const
 {
     return this->_socket.peer();
 }
 
-chen::net::endpoint chen::net::socket::sock() const
+chen::inet_endpoint chen::inet_socket::sock() const
 {
     return this->_socket.sock();
 }
 
-bool chen::net::socket::valid() const
+bool chen::inet_socket::valid() const
 {
     return this->_socket.valid();
 }
 
-chen::net::socket::operator bool() const
+chen::inet_socket::operator bool() const
 {
     return this->_socket;
 }
 
-std::error_code chen::net::socket::nonblocking(bool enable)
+std::error_code chen::inet_socket::nonblocking(bool enable)
 {
     return this->_socket.nonblocking(enable);
 }
 
 // reset
-void chen::net::socket::reset()
+void chen::inet_socket::reset()
 {
     this->_socket.reset();
 }
 
-void chen::net::socket::reset(basic_socket &&s)
+void chen::inet_socket::reset(basic_socket &&s)
 {
     this->_socket = std::move(s);
 }
 
-void chen::net::socket::reset(ip::address::Type family, int type)
+void chen::inet_socket::reset(ip::address::Type family, int type)
 {
     this->_socket.reset(static_cast<int>(family), type);
 }

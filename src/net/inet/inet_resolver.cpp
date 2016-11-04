@@ -4,22 +4,22 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/net_resolver.hpp>
+#include <socket/net/inet/inet_resolver.hpp>
 #include <chen/base/num.hpp>
 #include <cstdlib>
 #include <cctype>
 
 // -----------------------------------------------------------------------------
 // resolver
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &mixed, ip::address::Type type)
+std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &mixed, ip::address::Type type)
 {
-    auto split = resolver::extract(mixed);
-    return resolver::resolve(split.first, split.second, type);
+    auto split = inet_resolver::extract(mixed);
+    return inet_resolver::resolve(split.first, split.second, type);
 }
 
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
+std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, std::uint16_t port, ip::address::Type type)
 {
-    auto ret = resolver::resolve(host, "", type);
+    auto ret = inet_resolver::resolve(host, "", type);
 
     for (auto &ep : ret)
         ep.port(port);
@@ -27,10 +27,10 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     return ret;
 }
 
-std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
+std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, const std::string &service, ip::address::Type type)
 {
     if (host.empty())
-        return {net::endpoint(ip::version4(0u), resolver::service(service))};
+        return {inet_endpoint(ip::version4(0u), inet_resolver::service(service))};
 
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};
@@ -41,12 +41,12 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
     if (::getaddrinfo(host.c_str(), !service.empty() ? service.c_str() : nullptr, &hint, &info))
         return {};
 
-    std::vector<net::endpoint> ret;
+    std::vector<inet_endpoint> ret;
 
     try
     {
         for (auto ptr = info; ptr != nullptr; ptr = ptr->ai_next)
-            ret.emplace_back(net::endpoint(ptr->ai_addr));
+            ret.emplace_back(inet_endpoint(ptr->ai_addr));
 
         ::freeaddrinfo(info);
     }
@@ -60,7 +60,7 @@ std::vector<chen::net::endpoint> chen::net::resolver::resolve(const std::string 
 }
 
 // reverse
-std::pair<std::string, std::string> chen::net::resolver::reverse(const net::endpoint &ep)
+std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_endpoint &ep)
 {
     char host[NI_MAXHOST]{};
     char serv[NI_MAXSERV]{};
@@ -74,7 +74,7 @@ std::pair<std::string, std::string> chen::net::resolver::reverse(const net::endp
 }
 
 // service
-std::uint16_t chen::net::resolver::service(const std::string &name, const std::string &protocol)
+std::uint16_t chen::inet_resolver::service(const std::string &name, const std::string &protocol)
 {
     if (name.empty())
         return 0;
@@ -100,14 +100,14 @@ std::uint16_t chen::net::resolver::service(const std::string &name, const std::s
     }
 }
 
-std::string chen::net::resolver::service(std::uint16_t port, const std::string &protocol)
+std::string chen::inet_resolver::service(std::uint16_t port, const std::string &protocol)
 {
     auto ent = ::getservbyport(num::swap(port), !protocol.empty() ? protocol.c_str() : nullptr);
     return ent ? ent->s_name : "";
 }
 
 // split
-std::pair<std::string, std::string> chen::net::resolver::extract(const std::string &mixed)
+std::pair<std::string, std::string> chen::inet_resolver::extract(const std::string &mixed)
 {
     if (mixed.empty())
         return {};

@@ -36,7 +36,7 @@ namespace chen
             /**
              * Construct by the endpoint
              */
-            server(runloop &runloop, const net::endpoint &ep);
+            server(runloop &runloop, const inet_endpoint &ep);
 
             ~server();
 
@@ -72,7 +72,7 @@ namespace chen
             /**
              * Local endpoint
              */
-            net::endpoint local() const;
+            inet_endpoint local() const;
 
         protected:
             /**
@@ -99,7 +99,7 @@ namespace chen
         protected:
             bool _running = false;
 
-            net::endpoint _local;
+            inet_endpoint _local;
             runloop &_runloop;
 
             std::vector<std::unique_ptr<conn>> _store;

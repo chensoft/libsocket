@@ -18,5 +18,5 @@ chen::tcp::option chen::tcp::basic::option()
 // reset
 void chen::tcp::basic::reset(ip::address::Type family)
 {
-    net::socket::reset(family, SOCK_STREAM);
+    inet_socket::reset(family, SOCK_STREAM);
 }
