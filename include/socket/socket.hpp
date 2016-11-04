@@ -21,42 +21,42 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/config.hpp>
 
-#include <socket/base/bsd_endpoint.hpp>
-#include <socket/core/bsd_epoll.hpp>
-#include <socket/core/bsd_kqueue.hpp>
-#include <socket/base/bsd_option.hpp>
-#include <socket/core/bsd_poller.hpp>
-#include <socket/core/bsd_setup.hpp>
-#include <socket/base/bsd_socket.hpp>
+#include <socket/bsd/bsd_endpoint.hpp>
+#include <socket/sys/bsd_epoll.hpp>
+#include <socket/sys/bsd_kqueue.hpp>
+#include <socket/bsd/bsd_option.hpp>
+#include <socket/sys/bsd_poller.hpp>
+#include <socket/sys/bsd_setup.hpp>
+#include <socket/bsd/bsd_socket.hpp>
 
-#include <socket/prot/ip/ip_address.hpp>
-#include <socket/prot/ip/ip_ifaddr.hpp>
-#include <socket/prot/ip/ip_option.hpp>
-#include <socket/prot/ip/ip_version.hpp>
+#include <socket/net/ip/ip_address.hpp>
+#include <socket/net/ip/ip_ifaddr.hpp>
+#include <socket/net/ip/ip_option.hpp>
+#include <socket/net/ip/ip_version.hpp>
 
-#include <socket/prot/inet/net_endpoint.hpp>
-#include <socket/prot/inet/net_resolver.hpp>
-#include <socket/prot/inet/net_runloop.hpp>
-#include <socket/prot/inet/net_socket.hpp>
+#include <socket/net/inet/net_endpoint.hpp>
+#include <socket/net/inet/net_resolver.hpp>
+#include <socket/net/inet/net_runloop.hpp>
+#include <socket/net/inet/net_socket.hpp>
 
-#include <socket/prot/tcp/tcp_basic.hpp>
-#include <socket/prot/tcp/tcp_client.hpp>
-#include <socket/prot/tcp/tcp_conn.hpp>
-#include <socket/prot/tcp/tcp_event.hpp>
-#include <socket/prot/tcp/tcp_handler.hpp>
-#include <socket/prot/tcp/tcp_option.hpp>
-#include <socket/prot/tcp/tcp_policy.hpp>
-#include <socket/prot/tcp/tcp_server.hpp>
+#include <socket/net/tcp/tcp_basic.hpp>
+#include <socket/net/tcp/tcp_client.hpp>
+#include <socket/net/tcp/tcp_conn.hpp>
+#include <socket/net/tcp/tcp_event.hpp>
+#include <socket/net/tcp/tcp_handler.hpp>
+#include <socket/net/tcp/tcp_option.hpp>
+#include <socket/net/tcp/tcp_policy.hpp>
+#include <socket/net/tcp/tcp_server.hpp>
 
-#include <socket/prot/udp/udp_basic.hpp>
-#include <socket/prot/udp/udp_client.hpp>
-#include <socket/prot/udp/udp_define.hpp>
-#include <socket/prot/udp/udp_server.hpp>
+#include <socket/net/udp/udp_basic.hpp>
+#include <socket/net/udp/udp_client.hpp>
+#include <socket/net/udp/udp_define.hpp>
+#include <socket/net/udp/udp_server.hpp>
 
-#include <socket/prot/dns/dns_codec.hpp>
-#include <socket/prot/dns/dns_define.hpp>
-#include <socket/prot/dns/dns_edns.hpp>
-#include <socket/prot/dns/dns_header.hpp>
-#include <socket/prot/dns/dns_packet.hpp>
-#include <socket/prot/dns/dns_record.hpp>
-#include <socket/prot/dns/dns_table.hpp>
+#include <socket/net/dns/dns_codec.hpp>
+#include <socket/net/dns/dns_define.hpp>
+#include <socket/net/dns/dns_edns.hpp>
+#include <socket/net/dns/dns_header.hpp>
+#include <socket/net/dns/dns_packet.hpp>
+#include <socket/net/dns/dns_record.hpp>
+#include <socket/net/dns/dns_table.hpp>
