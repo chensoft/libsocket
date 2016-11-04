@@ -1,4 +1,3 @@
-# This file contains some useful macros and functions
 # Jian Chen <admin@chensoft.com>
 # http://chensoft.com
 # Licensed under MIT license
