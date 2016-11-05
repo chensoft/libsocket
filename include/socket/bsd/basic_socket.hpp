@@ -92,22 +92,22 @@ namespace chen
         /**
          * Receive data from connected host, used in stream socket
          */
-        chen::ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
+        ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
 
         /**
          * Receive data from specific host, used in datagram socket
          */
-        chen::ssize_t recvfrom(void *data, std::size_t size, basic_endpoint &ep, int flags = 0) noexcept;
+        ssize_t recvfrom(void *data, std::size_t size, basic_endpoint &ep, int flags = 0) noexcept;
 
         /**
          * Send data to connected host, used in stream socket
          */
-        chen::ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
+        ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
 
         /**
          * Send data to specific host, used in datagram socket
          */
-        chen::ssize_t sendto(const void *data, std::size_t size, const basic_endpoint &ep, int flags = 0) noexcept;
+        ssize_t sendto(const void *data, std::size_t size, const basic_endpoint &ep, int flags = 0) noexcept;
 
     public:
         /**

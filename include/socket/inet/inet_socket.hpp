@@ -12,6 +12,9 @@
 
 namespace chen
 {
+    /**
+     * Base class for TCP & UDP socket
+     */
     class inet_socket
     {
     public:
@@ -23,6 +26,7 @@ namespace chen
 
         /**
          * Check socket is valid
+         * @attention zero is a valid file descriptor
          */
         bool valid() const;
         operator bool() const;

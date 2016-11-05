@@ -44,14 +44,14 @@ namespace
                 if (stop)
                     break;
             }
+
+            ::freeifaddrs(list);
         }
         catch (...)
         {
             ::freeifaddrs(list);
             throw;
         }
-
-        ::freeifaddrs(list);
     }
 
     std::unique_ptr<chen::ip_address> create(struct ::sockaddr *ptr)

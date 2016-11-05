@@ -16,22 +16,22 @@ namespace chen
         /**
          * Resolve host and service to endpoints
          * For Domain:
-         * :-) resolve("chensoft.com")
-         * :-) resolve("chensoft.com:80")
-         * :-) resolve("chensoft.com:http")
+         * :-) inet_resolve("chensoft.com")
+         * :-) inet_resolve("chensoft.com:80")
+         * :-) inet_resolve("chensoft.com:http")
          * For IPv4:
-         * :-) resolve(":80")
-         * :-) resolve("127.0.0.1")
-         * :-) resolve("127.0.0.1:80")
-         * :-) resolve("127.0.0.1:http")
+         * :-) inet_resolve(":80")
+         * :-) inet_resolve("127.0.0.1")
+         * :-) inet_resolve("127.0.0.1:80")
+         * :-) inet_resolve("127.0.0.1:http")
          * For IPv6:
-         * :-) resolve("[::]:80")
-         * :-) resolve("[fe80::1]")
-         * :-) resolve("[fe80::1]:80")
-         * :-) resolve("[fe80::1]:http")
-         * :-) resolve("[fe80::1%lo0]")
-         * :-) resolve("[fe80::1%lo0]:80")
-         * :-) resolve("[fe80::1%lo0]:http")
+         * :-) inet_resolve("[::]:80")
+         * :-) inet_resolve("[fe80::1]")
+         * :-) inet_resolve("[fe80::1]:80")
+         * :-) inet_resolve("[fe80::1]:http")
+         * :-) inet_resolve("[fe80::1%lo0]")
+         * :-) inet_resolve("[fe80::1%lo0]:80")
+         * :-) inet_resolve("[fe80::1%lo0]:http")
          */
         static std::vector<inet_endpoint> resolve(const std::string &mixed, ip_address::Type type = ip_address::Type::None);
         static std::vector<inet_endpoint> resolve(const std::string &host, std::uint16_t port, ip_address::Type type = ip_address::Type::None);
