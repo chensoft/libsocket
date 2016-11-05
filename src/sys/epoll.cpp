@@ -10,13 +10,9 @@
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
-#include <sys/epoll.h>
 
 // -----------------------------------------------------------------------------
 // epoll
-const int chen::epoll::FlagOnce = EPOLLONESHOT;
-const int chen::epoll::FlagEdge = EPOLLET;
-
 chen::epoll::epoll()
 {
     // create epoll file descriptor
@@ -136,12 +132,12 @@ void chen::epoll::stop()
 chen::epoll::Event chen::epoll::event(unsigned events)
 {
     if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
-        return Event::End;
+        return Event::Ended;
 
     if (events & EPOLLIN)
-        return Event::Read;
+        return Event::Readable;
     else if (events & EPOLLOUT)
-        return Event::Write;
+        return Event::Writable;
     else
         throw std::runtime_error("epoll: unknown event detect");
 }

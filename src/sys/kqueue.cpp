@@ -9,13 +9,9 @@
 #include <socket/sys/kqueue.hpp>
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
-#include <sys/event.h>
 
 // -----------------------------------------------------------------------------
 // kqueue
-const int chen::kqueue::FlagOnce = EV_ONESHOT;
-const int chen::kqueue::FlagEdge = EV_CLEAR;
-
 chen::kqueue::kqueue()
 {
     // create kqueue file descriptor
@@ -168,15 +164,15 @@ void chen::kqueue::stop()
 chen::kqueue::Event chen::kqueue::event(int filter, int flags)
 {
     if (flags & EV_EOF)
-        return Event::End;
+        return Event::Ended;
 
     switch (filter)
     {
         case EVFILT_READ:
-            return Event::Read;
+            return Event::Readable;
 
         case EVFILT_WRITE:
-            return Event::Write;
+            return Event::Writable;
 
         default:
             throw std::runtime_error("kqueue: unknown event detect");

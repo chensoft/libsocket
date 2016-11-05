@@ -38,15 +38,15 @@ namespace chen
          * Edge: JUST A PLACEHOLDER HERE, NO EFFECT
          * @attention since WSAPoll doesn't support edge-triggered, FlagEdge is just a placeholder here
          */
-        static const int FlagOnce;
-        static const int FlagEdge;  // just a placeholder, in order to keep ABI compatible with kqueue & epoll
+        static constexpr int FlagOnce = 0;
+        static constexpr int FlagEdge = 0;  // just a placeholder, in order to keep ABI compatible with kqueue & epoll
 
         /**
-         * Read: read event occurs, you can read data from socket
+         * Readable: read event occurs, you can read data from socket
          * -----------------------------------------------------------------
-         * Write: you can write data to remote host
+         * Writable: you can write data to remote host
          * -----------------------------------------------------------------
-         * End: socket disconnected or connection refused
+         * Ended: socket disconnected or connection refused
          * -----------------------------------------------------------------
          * todo verify
          * @attention you must monitor the read event if you want to know the end event
@@ -56,9 +56,9 @@ namespace chen
          * todo verify
          * @attention you should read the rest of the data even if you received the end event
          * because server may send last message and then close the connection immediately
-         * kqueue may report Read & End event or only report the End event
+         * kqueue may report Readable & Ended event or only report the Ended event
          */
-        enum class Event {Read = 1, Write, End};
+        enum class Event {Readable = 1, Writable, Ended};
 
         typedef struct Data
         {
@@ -127,7 +127,7 @@ namespace chen
 
 
     /**
-     * reactor typedef
+     * Reactor typedef
      */
     typedef poller reactor;
 }

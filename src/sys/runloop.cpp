@@ -8,8 +8,6 @@
 
 // -----------------------------------------------------------------------------
 // runloop
-const int chen::runloop::FlagOnce = chen::reactor::FlagOnce;
-const int chen::runloop::FlagEdge = chen::reactor::FlagEdge;
 
 // modify
 void chen::runloop::set(socket_t fd, int opcode, callback_type callback)
@@ -29,7 +27,9 @@ void chen::runloop::del(socket_t fd)
     this->_reactor.del(fd);
     this->_mapping.erase(fd);
 
-    // deactivate current fd's event
+    // deactivate fd's unhandled events, if user delete
+    // socket in previous callback, then the next for
+    // loop will access a invalid socket's event
     for (std::size_t i = 0; i < this->_count; ++i)
     {
         auto &event = this->_caching[i];

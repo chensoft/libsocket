@@ -8,6 +8,7 @@
 
 #if !defined(__linux__) && !defined(_WIN32)
 
+#include <sys/event.h>
 #include <vector>
 
 namespace chen
@@ -42,25 +43,25 @@ namespace chen
          * Once: event occurs only once
          * Edge: enable edge triggered, default is level triggered
          */
-        static const int FlagOnce;
-        static const int FlagEdge;
+        static constexpr int FlagOnce = EV_ONESHOT;
+        static constexpr int FlagEdge = EV_CLEAR;
 
         /**
-         * Read: read event occurs, you can read data from socket
+         * Readable: read event occurs, you can read data from socket
          * -----------------------------------------------------------------
-         * Write: you can write data to remote host
+         * Writable: you can write data to remote host
          * -----------------------------------------------------------------
-         * End: socket disconnected or connection refused
+         * Ended: socket disconnected or connection refused
          * -----------------------------------------------------------------
          * @attention you must monitor the read event if you want to know the end event
          * this behavior is different than Linux's epoll
-         * in epoll, end event will always be monitored
+         * in epoll, the end event will always be monitored
          * -----------------------------------------------------------------
          * @attention you should read the rest of the data even if you received the end event
          * because server may send last message and then close the connection immediately
-         * kqueue may report Read & End event or only report the End event
+         * kqueue may report Readable & Ended event or only report the Ended event
          */
-        enum class Event {Read = 1, Write, End};
+        enum class Event {Readable = 1, Writable, Ended};
 
         typedef struct Data
         {
@@ -133,7 +134,7 @@ namespace chen
 
 
     /**
-     * reactor typedef
+     * Reactor typedef
      */
     typedef kqueue reactor;
 }

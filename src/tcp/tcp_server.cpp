@@ -115,9 +115,7 @@ void chen::tcp::server::listen(int backlog)
         throw std::system_error(err, "tcp: server listen error");
 
     // listen events using runloop
-    this->_runloop.set(this->_socket.native(),
-                       runloop::OpcodeRead | runloop::OpcodeWrite,
-                       runloop::FlagEdge,
+    this->_runloop.set(this->_socket.native(), runloop::OpcodeRW, runloop::FlagEdge,
                        std::bind(&server::onServerEvent, this, std::placeholders::_1));
 
     this->_running = true;
@@ -131,9 +129,7 @@ void chen::tcp::server::onServerReadable()
         return;
 
     auto &ptr = *this->_store.insert(this->_store.end(), std::unique_ptr<conn>(new conn(std::move(s), this->_factory())));
-    this->_runloop.set(ptr->native(),
-                       runloop::OpcodeRead | runloop::OpcodeWrite,
-                       runloop::FlagEdge,
+    this->_runloop.set(ptr->native(), runloop::OpcodeRW, runloop::FlagEdge,
                        std::bind(&server::onConnEvent, this, std::ref(ptr), std::placeholders::_1));
 
     ptr->onAccepted();
@@ -151,13 +147,13 @@ void chen::tcp::server::onServerEvent(runloop::Event type)
 {
     switch (type)
     {
-        case runloop::Event::Read:
+        case runloop::Event::Readable:
             return this->onServerReadable();
 
-        case runloop::Event::Write:
+        case runloop::Event::Writable:
             return this->onServerWritable();
 
-        case runloop::Event::End:
+        case runloop::Event::Ended:
             return this->onServerEnded();
     }
 }
@@ -191,13 +187,13 @@ void chen::tcp::server::onConnEvent(std::unique_ptr<conn> &c, runloop::Event typ
 {
     switch (type)
     {
-        case runloop::Event::Read:
+        case runloop::Event::Readable:
             return this->onConnReadable(c);
 
-        case runloop::Event::Write:
+        case runloop::Event::Writable:
             return this->onConnWritable(c);
 
-        case runloop::Event::End:
+        case runloop::Event::Ended:
             return this->onConnEnded(c);
     }
 }

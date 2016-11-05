@@ -10,7 +10,7 @@
 #include <csignal>
 
 // -----------------------------------------------------------------------------
-// setup
+// startup
 chen::startup::startup()
 {
     class helper
@@ -25,7 +25,7 @@ chen::startup::startup()
         }
     };
 
-    static helper inst;
+    static helper dummy;
 }
 
 #endif

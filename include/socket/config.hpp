@@ -38,12 +38,12 @@ namespace chen
 {
     typedef SSIZE_T ssize_t;  // ssize_t type
     typedef SOCKET socket_t;  // socket handle type
-    typedef int option_t;     // socket option size
+    typedef int    option_t;  // socket option size
 
     constexpr SOCKET invalid_socket = INVALID_SOCKET;  // invalid socket value
 }
 
 #endif
 
-// Global initialization
+// Global Initialization
 #include <socket/sys/startup.hpp>

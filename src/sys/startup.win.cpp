@@ -6,7 +6,7 @@
  */
 #ifdef _WIN32
 
-#include <socket/bsd/setup.hpp>
+#include <socket/bsd/startup.hpp>
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 
@@ -16,8 +16,8 @@
 
 
 // -----------------------------------------------------------------------------
-// setup
-chen::setup::setup()
+// startup
+chen::startup::startup()
 {
     class helper
     {
@@ -29,10 +29,10 @@ chen::setup::setup()
 
             auto ret = ::WSAStartup(version, &data);
             if (ret)
-                throw std::system_error(sys::error(ret), "setup: failed to start winsock");
+                throw std::system_error(sys::error(ret), "startup: failed to start winsock");
 
             if (data.wVersion != version)
-                throw std::runtime_error("setup: request winsock version is wrong");
+                throw std::runtime_error("startup: request winsock version is incorrect");
         }
 
         ~helper()
@@ -41,7 +41,7 @@ chen::setup::setup()
         }
     };
 
-    static helper inst;
+    static helper dummy;
 }
 
 #endif

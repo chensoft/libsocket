@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#include <socket/sys/poller.hpp>
 #include <socket/sys/kqueue.hpp>
+#include <socket/sys/poller.hpp>
 #include <socket/sys/epoll.hpp>
 #include <socket/config.hpp>
 #include <unordered_map>
@@ -16,7 +16,7 @@
 namespace chen
 {
     /**
-     * An event runloop implement using reactor
+     * Event loop of libsocket, using reactor model
      */
     class runloop
     {
@@ -27,13 +27,14 @@ namespace chen
          */
         static constexpr int OpcodeRead  = reactor::OpcodeRead;
         static constexpr int OpcodeWrite = reactor::OpcodeWrite;
+        static constexpr int OpcodeRW    = OpcodeRead | OpcodeWrite;
 
         /**
          * Specific flag type
          * @attention specific meaning can refer to reactor
          */
-        static const int FlagOnce;
-        static const int FlagEdge;
+        static constexpr int FlagOnce = reactor::FlagOnce;
+        static constexpr int FlagEdge = reactor::FlagEdge;
 
         /**
          * Reactor event type

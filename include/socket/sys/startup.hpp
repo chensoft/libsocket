@@ -17,5 +17,5 @@ namespace chen
         startup();
     };
 
-    static const startup setup_dummy;  // force linking the setup code
+    static const startup startup_dummy;  // force linking the startup code
 }

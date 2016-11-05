@@ -64,9 +64,7 @@ void chen::tcp::client::connect(const inet_endpoint &ep)
     this->nonblocking(true);
 
     // listen events using runloop
-    this->_runloop.set(this->_socket.native(),
-                       runloop::OpcodeRead | runloop::OpcodeWrite,
-                       runloop::FlagEdge,
+    this->_runloop.set(this->_socket.native(), runloop::OpcodeRW, runloop::FlagEdge,
                        std::bind(&client::onEvent, this, std::placeholders::_1));
 
     // connect to remote host
@@ -508,13 +506,13 @@ void chen::tcp::client::onEvent(runloop::Event type)
 {
     switch (type)
     {
-        case runloop::Event::Read:
+        case runloop::Event::Readable:
             return this->onReadable();
 
-        case runloop::Event::Write:
+        case runloop::Event::Writable:
             return this->onWritable();
 
-        case runloop::Event::End:
+        case runloop::Event::Ended:
             return this->onEnded();
     }
 }
