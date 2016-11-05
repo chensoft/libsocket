@@ -11,7 +11,7 @@
 namespace chen
 {
     /**
-     * bsd socket address wrapper, you don't need to use it directly
+     * basic socket address wrapper, you don't need to use it directly
      */
     class basic_endpoint
     {

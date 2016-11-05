@@ -9,11 +9,6 @@
 
 // -----------------------------------------------------------------------------
 // socket
-const int chen::basic_socket::FlagOutOfBand  = MSG_OOB;
-const int chen::basic_socket::FlagPeek       = MSG_PEEK;
-const int chen::basic_socket::FlagDoNotRoute = MSG_DONTROUTE;
-const int chen::basic_socket::FlagWaitAll    = MSG_WAITALL;
-
 chen::basic_socket::basic_socket(std::nullptr_t) noexcept
 {
 }
@@ -114,7 +109,7 @@ std::error_code chen::basic_socket::listen(int backlog) noexcept
 
 chen::basic_socket chen::basic_socket::accept() noexcept
 {
-    socket_t fd = 0;
+    socket_t fd = invalid_socket;
 
     if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
         return nullptr;
@@ -124,7 +119,7 @@ chen::basic_socket chen::basic_socket::accept() noexcept
 
 chen::basic_socket chen::basic_socket::accept(basic_endpoint &ep) noexcept
 {
-    socket_t fd = 0;
+    socket_t fd = invalid_socket;
 
     if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size)) < 0)
         return nullptr;

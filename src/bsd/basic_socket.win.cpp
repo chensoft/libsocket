@@ -6,7 +6,7 @@
  */
 #ifdef _WIN32
 
-#include <socket/bsd/bsd_socket.hpp>
+#include <socket/bsd/basic_socket.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
