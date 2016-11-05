@@ -2,8 +2,6 @@
 
 -) server, client support usage stat, like received packets, bytes, current connections
 
--) dns IDN convert, rfc3490, punycode
-
 -) the capability of sending raw packet
 
 -) implement unix domain socket only under Unix
