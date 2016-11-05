@@ -7,6 +7,7 @@
 #include <socket/inet/inet_resolver.hpp>
 #include <chen/base/num.hpp>
 #include <cstdlib>
+#include <cstring>
 #include <cctype>
 
 // -----------------------------------------------------------------------------
@@ -112,36 +113,47 @@ std::pair<std::string, std::string> chen::inet_resolver::extract(const std::stri
     if (mixed.empty())
         return {};
 
-    auto cur = mixed.begin();
-    auto end = mixed.end();
+    auto beg = mixed.data();
+    auto len = mixed.size();
+    auto end = beg + len;
+    auto ptr = beg;
 
-    std::string first;
-    std::string second;
+    std::pair<std::string, std::string> ret;
 
-    if (*cur == '[')
+    if (*ptr == '[')
     {
         // IPv6:Port
-        while ((++cur != end) && (*cur != ']'))
-            first += *cur;
-
-        if ((cur == end) || (*cur != ']'))
+        auto sep = mixed.rfind(']');
+        if (sep == std::string::npos)
             throw std::runtime_error("resolver: IPv6 endpoint format error");
-        else
-            ++cur;
+
+        ret.first.resize(sep - 1);
+        ::memcpy((void*)ret.first.data(), beg + 1, sep - 1);
+
+        ptr += sep + 1;
     }
     else
     {
         // IPv4:Port or Domain:Port
-        while ((cur != end) && (*cur != ':'))
-            first += *cur++;
+        auto sep = std::min(len, mixed.rfind(':'));
+
+        if (sep)
+        {
+            ret.first.resize(sep);
+            ::memcpy((void*)ret.first.data(), beg, sep);
+
+            ptr += sep;
+        }
     }
 
     // port
-    if ((cur != end) && (*cur == ':'))
+    if ((ptr != end) && (*ptr == ':'))
     {
-        while (++cur != end)
-            second += *cur;
+        auto off = static_cast<std::size_t>(end - ++ptr);  // >= 0
+
+        ret.second.resize(off);
+        ::memcpy((void*)ret.second.data(), ptr, off);
     }
 
-    return std::make_pair(std::move(first), std::move(second));
+    return ret;
 }

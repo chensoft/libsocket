@@ -97,7 +97,7 @@ namespace
         // mac
 #ifdef __linux__
         const std::uint8_t *data = nullptr;
-        if (::ioctl(fd, SIOCGIFHWADDR, &ifr) >= 0)
+        if (::ioctl(tmp.native(), SIOCGIFHWADDR, &ifr) >= 0)
             data = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
 #else
         struct ::sockaddr_dl *sdl = (struct ::sockaddr_dl*)ptr->ifa_addr;

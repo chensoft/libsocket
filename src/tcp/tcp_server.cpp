@@ -128,7 +128,8 @@ void chen::tcp::server::onServerReadable()
     if (!s)
         return;
 
-    auto &ptr = *this->_store.insert(this->_store.end(), std::unique_ptr<conn>(new conn(std::move(s), this->_factory())));
+    auto func = this->_factory();
+    auto &ptr = *this->_store.insert(this->_store.end(), std::unique_ptr<conn>(new conn(std::move(s), std::move(func))));
     this->_runloop.set(ptr->native(), runloop::OpcodeRW, runloop::FlagEdge,
                        std::bind(&server::onConnEvent, this, std::ref(ptr), std::placeholders::_1));
 
