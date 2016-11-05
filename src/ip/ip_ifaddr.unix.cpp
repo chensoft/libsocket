@@ -6,16 +6,17 @@
  */
 #ifndef _WIN32
 
+#include <socket/bsd/basic_socket.hpp>
 #include <socket/ip/ip_ifaddr.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <functional>
 #include <algorithm>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
-#include <ifaddrs.h>
-#include <net/if.h>
 
 #ifdef __linux__
 #define AF_LINK AF_PACKET
@@ -84,15 +85,13 @@ namespace
             return;
 
         // mtu
-        int fd = ::socket(AF_INET6, SOCK_DGRAM, 0);
-        if (fd < 0)
-            return;
+        chen::basic_socket tmp(AF_INET6, SOCK_DGRAM);
 
         struct ::ifreq ifr{};
         ifr.ifr_addr.sa_family = AF_INET6;
         ::memcpy(ifr.ifr_name, ptr->ifa_name, IFNAMSIZ);
 
-        if (::ioctl(fd, SIOCGIFMTU, &ifr) >= 0)
+        if (::ioctl(tmp.native(), SIOCGIFMTU, &ifr) >= 0)
             mtu = ifr.ifr_mtu;
 
         // mac
@@ -101,32 +100,26 @@ namespace
         if (::ioctl(fd, SIOCGIFHWADDR, &ifr) >= 0)
             data = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
 #else
-        struct ::sockaddr_dl *sdl  = (struct ::sockaddr_dl*)ptr->ifa_addr;
-        const std::uint8_t *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
+        struct ::sockaddr_dl *sdl = (struct ::sockaddr_dl*)ptr->ifa_addr;
+        const std::uint8_t  *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
 #endif
 
         if (data && std::any_of(data, data + 6, [] (std::uint8_t ch) { return ch > 0; }))
             mac = chen::str::format("%02x:%02x:%02x:%02x:%02x:%02x", data[0], data[1], data[2], data[3], data[4], data[5]);
-
-        // clean
-        ::close(fd);
     }
 
     std::uint8_t netmask(struct ::sockaddr *ptr)
     {
-        using chen::ip_version4;
-        using chen::ip_version6;
-
         if (!ptr)
             return 0;
 
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return ip_version4::toCIDR(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr));
+                return chen::ip_version4::toCIDR(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return ip_version6::toCIDR(((struct ::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+                return chen::ip_version6::toCIDR(((struct ::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
 
             default:
                 return 0;
