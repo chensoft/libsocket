@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [1.1.1] - 2016-11-05
 ### Added
 - fs: expand '~' to home directory when use realpath and absolute.
 - num: check bits count of a integer.

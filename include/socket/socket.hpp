@@ -1,6 +1,5 @@
 /**
  * libsocket: A Modern C++ Network Library
- * @version   0.1.0
  * @author    Jian Chen <admin@chensoft.com>
  * @link      http://chensoft.com
  * @license   Licensed under MIT license
