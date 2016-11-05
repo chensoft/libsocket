@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/inet/inet_endpoint.hpp>
+#include <socket/inet/inet_endpoint.hpp>
 #include <gtest/gtest.h>
 
 TEST(NetEndpointTest, General)

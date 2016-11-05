@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/net/ip/ip_ifaddr.hpp>
+#include <socket/ip/ip_ifaddr.hpp>
 #include <gtest/gtest.h>
 
 TEST(IPAddressTest, Base)
