@@ -25,8 +25,8 @@ namespace chen
             server(runloop &runloop, std::uint16_t port, ip_address::Type type = ip_address::Type::IPv6);
 
             /**
-             * Construct by the first resolved endpoint
-             * the final endpoint type is determined by resolver
+             * Construct by the first resolved address
+             * the final address type is determined by resolver
              * @attention throw exception if no dns record found or dns error
              */
             server(runloop &runloop, const char *mixed);
@@ -35,9 +35,9 @@ namespace chen
             server(runloop &runloop, const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
 
             /**
-             * Construct by the endpoint
+             * Construct by the address
              */
-            server(runloop &runloop, const inet_endpoint &ep);
+            server(runloop &runloop, const inet_address &addr);
 
             ~server();
 
@@ -46,7 +46,7 @@ namespace chen
              * Run the server
              * :-) change the socket to nonblocking mode
              * :-) set reuse addr option for the socket
-             * :-) bind the socket to specific endpoint
+             * :-) bind the socket to specific address
              * :-) listen and receive packet from remote
              */
             void run(callback_type callback);
@@ -64,9 +64,9 @@ namespace chen
             bool isRunning();
 
             /**
-             * Local endpoint
+             * Local address
              */
-            inet_endpoint local() const;
+            inet_address local() const;
 
         protected:
             /**
@@ -85,7 +85,7 @@ namespace chen
         protected:
             bool _running = false;
 
-            inet_endpoint _local;
+            inet_address _local;
             runloop &_runloop;
 
             callback_type _callback;

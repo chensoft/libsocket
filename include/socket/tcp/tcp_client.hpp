@@ -28,7 +28,7 @@ namespace chen
 
         public:
             /**
-             * Connect to first resolved endpoint
+             * Connect to first resolved address
              * @attention throw exception if no dns record found or dns error
              */
             void connect(const char *mixed);
@@ -37,9 +37,9 @@ namespace chen
             void connect(const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
 
             /**
-             * Connect to remote endpoint
+             * Connect to remote address
              */
-            void connect(const inet_endpoint &ep);
+            void connect(const inet_address &addr);
 
             /**
              * Disconnect and reconnect to remote
@@ -103,9 +103,9 @@ namespace chen
             bool isDisconnect() const;
 
             /**
-             * Remote endpoint
+             * Remote address
              */
-            inet_endpoint remote() const;
+            inet_address remote() const;
 
         public:
             /**
@@ -152,7 +152,7 @@ namespace chen
         protected:
             State _state = State::Disconnect;
 
-            inet_endpoint _remote;
+            inet_address _remote;
             runloop &_runloop;
 
             std::unique_ptr<policy> _policy;

@@ -6,6 +6,7 @@
  */
 #include <socket/inet/inet_resolver.hpp>
 #include <socket/tcp/tcp_server.hpp>
+#include <socket/sys/runloop.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
 
@@ -56,7 +57,7 @@ chen::tcp::server::server(runloop &runloop, const std::string &host, const std::
     this->reset(this->_local.addr().type());
 }
 
-chen::tcp::server::server(runloop &runloop, const inet_endpoint &ep) : _local(ep), _runloop(runloop)
+chen::tcp::server::server(runloop &runloop, const inet_address &addr) : _local(addr), _runloop(runloop)
 {
     this->reset(this->_local.addr().type());
 }
@@ -86,7 +87,7 @@ bool chen::tcp::server::isRunning()
     return this->_running;
 }
 
-chen::inet_endpoint chen::tcp::server::local() const
+chen::inet_address chen::tcp::server::local() const
 {
     return this->_local;
 }

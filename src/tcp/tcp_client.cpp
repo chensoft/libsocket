@@ -53,14 +53,14 @@ void chen::tcp::client::connect(const std::string &host, const std::string &serv
     this->connect(ret.front());
 }
 
-void chen::tcp::client::connect(const inet_endpoint &ep)
+void chen::tcp::client::connect(const inet_address &addr)
 {
     // disconnect is if connected
     if (!this->isDisconnect())
         this->disconnect();
 
     // recreate socket and use nb mode
-    this->reset(ep.addr().type());
+    this->reset(addr.addr().type());
     this->nonblocking(true);
 
     // listen events using runloop
@@ -68,10 +68,10 @@ void chen::tcp::client::connect(const inet_endpoint &ep)
                        std::bind(&client::onEvent, this, std::placeholders::_1));
 
     // connect to remote host
-    this->_remote = ep;
+    this->_remote = addr;
     this->_state  = State::Connecting;
 
-    auto error = this->_socket.connect(ep);
+    auto error = this->_socket.connect(addr);
 
     if (error != std::errc::operation_in_progress)
     {
@@ -197,7 +197,7 @@ bool chen::tcp::client::isDisconnect() const
     return this->_state == State::Disconnect;
 }
 
-chen::inet_endpoint chen::tcp::client::remote() const
+chen::inet_address chen::tcp::client::remote() const
 {
     return this->_remote;
 }

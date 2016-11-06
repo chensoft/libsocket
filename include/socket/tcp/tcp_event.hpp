@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/inet/inet_endpoint.hpp>
+#include <socket/inet/inet_address.hpp>
 #include <system_error>
 
 namespace chen
@@ -25,9 +25,9 @@ namespace chen
         class connected_event : public event
         {
         public:
-            connected_event(inet_endpoint ep, std::error_code err) : ep(ep), err(err) {}
+            connected_event(inet_address addr, std::error_code err) : addr(addr), err(err) {}
 
-            inet_endpoint ep;
+            inet_address addr;
             std::error_code err;
         };
 

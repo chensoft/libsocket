@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/inet/inet_endpoint.hpp>
+#include <socket/inet/inet_address.hpp>
 
 namespace chen
 {
@@ -14,7 +14,7 @@ namespace chen
     {
     public:
         /**
-         * Resolve host and service to endpoints
+         * Resolve host and service to addresses
          * For Domain:
          * :-) inet_resolve("chensoft.com")
          * :-) inet_resolve("chensoft.com:80")
@@ -33,16 +33,16 @@ namespace chen
          * :-) inet_resolve("[fe80::1%lo0]:80")
          * :-) inet_resolve("[fe80::1%lo0]:http")
          */
-        static std::vector<inet_endpoint> resolve(const std::string &mixed, ip_address::Type type = ip_address::Type::None);
-        static std::vector<inet_endpoint> resolve(const std::string &host, std::uint16_t port, ip_address::Type type = ip_address::Type::None);
-        static std::vector<inet_endpoint> resolve(const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
+        static std::vector<inet_address> resolve(const std::string &mixed, ip_address::Type type = ip_address::Type::None);
+        static std::vector<inet_address> resolve(const std::string &host, std::uint16_t port, ip_address::Type type = ip_address::Type::None);
+        static std::vector<inet_address> resolve(const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
 
         /**
-         * Reverse resolve endpoint to host and service
+         * Reverse resolve address to host and service
          * make sure your ip address has PTR dns record
          * e.g: resolve 216.58.197.238 will search the PTR record of 238.197.58.216.in-addr.arpa
          */
-        static std::pair<std::string, std::string> reverse(const inet_endpoint &ep);
+        static std::pair<std::string, std::string> reverse(const inet_address &addr);
 
         /**
          * Resolve service

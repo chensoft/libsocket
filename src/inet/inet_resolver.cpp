@@ -12,26 +12,26 @@
 
 // -----------------------------------------------------------------------------
 // resolver
-std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &mixed, ip_address::Type type)
+std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &mixed, ip_address::Type type)
 {
     auto split = inet_resolver::extract(mixed);
     return inet_resolver::resolve(split.first, split.second, type);
 }
 
-std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, std::uint16_t port, ip_address::Type type)
+std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &host, std::uint16_t port, ip_address::Type type)
 {
     auto ret = inet_resolver::resolve(host, "", type);
 
-    for (auto &ep : ret)
-        ep.port(port);
+    for (auto &addr : ret)
+        addr.port(port);
 
     return ret;
 }
 
-std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string &host, const std::string &service, ip_address::Type type)
+std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &host, const std::string &service, ip_address::Type type)
 {
     if (host.empty())
-        return {inet_endpoint(ip_version4(0u), inet_resolver::service(service))};
+        return {inet_address(ip_version4(0u), inet_resolver::service(service))};
 
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};
@@ -42,12 +42,12 @@ std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string 
     if (::getaddrinfo(host.c_str(), !service.empty() ? service.c_str() : nullptr, &hint, &info))
         return {};
 
-    std::vector<inet_endpoint> ret;
+    std::vector<inet_address> ret;
 
     try
     {
         for (auto ptr = info; ptr != nullptr; ptr = ptr->ai_next)
-            ret.emplace_back(inet_endpoint(ptr->ai_addr));
+            ret.emplace_back(inet_address(ptr->ai_addr));
 
         ::freeaddrinfo(info);
     }
@@ -61,12 +61,12 @@ std::vector<chen::inet_endpoint> chen::inet_resolver::resolve(const std::string 
 }
 
 // reverse
-std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_endpoint &ep)
+std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_address &addr)
 {
     char host[NI_MAXHOST]{};
     char serv[NI_MAXSERV]{};
 
-    chen::basic_endpoint tmp = static_cast<chen::basic_endpoint>(ep);
+    chen::basic_address tmp = static_cast<chen::basic_address>(addr);
 
     if (!::getnameinfo((const struct sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
         return std::make_pair(host, serv);
@@ -125,7 +125,7 @@ std::pair<std::string, std::string> chen::inet_resolver::extract(const std::stri
         // IPv6:Port
         auto sep = mixed.rfind(']');
         if (sep == std::string::npos)
-            throw std::runtime_error("resolver: IPv6 endpoint format error");
+            throw std::runtime_error("resolver: IPv6 address format error");
 
         ret.first.resize(sep - 1);
         ::memcpy((void*)ret.first.data(), beg + 1, sep - 1);

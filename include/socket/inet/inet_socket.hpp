@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/inet/inet_endpoint.hpp>
+#include <socket/inet/inet_address.hpp>
 #include <socket/bsd/basic_socket.hpp>
 #include <socket/sys/runloop.hpp>
 
@@ -19,10 +19,10 @@ namespace chen
     {
     public:
         /**
-         * Peer & Local endpoint
+         * Peer & Local address
          */
-        inet_endpoint peer() const;
-        inet_endpoint sock() const;
+        inet_address peer() const;
+        inet_address sock() const;
 
         /**
          * Check socket is valid

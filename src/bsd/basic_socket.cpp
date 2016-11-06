@@ -89,14 +89,14 @@ void chen::basic_socket::reset(int family, int type, int protocol)
 }
 
 // connection
-std::error_code chen::basic_socket::connect(const basic_endpoint &ep) noexcept
+std::error_code chen::basic_socket::connect(const basic_address &addr) noexcept
 {
-    return !::connect(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) ? std::error_code() : sys::error();
+    return !::connect(this->_fd, (struct ::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
-std::error_code chen::basic_socket::bind(const basic_endpoint &ep) noexcept
+std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
 {
-    return !::bind(this->_fd, (struct ::sockaddr*)&ep.addr, ep.size) ? std::error_code() : sys::error();
+    return !::bind(this->_fd, (struct ::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::listen(int backlog) noexcept
@@ -117,11 +117,11 @@ chen::basic_socket chen::basic_socket::accept() noexcept
     return basic_socket(fd);
 }
 
-chen::basic_socket chen::basic_socket::accept(basic_endpoint &ep) noexcept
+chen::basic_socket chen::basic_socket::accept(basic_address &addr) noexcept
 {
     socket_t fd = invalid_socket;
 
-    if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size)) < 0)
+    if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size)) < 0)
         return nullptr;
 
     return basic_socket(fd);
@@ -133,9 +133,9 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
     return ::recv(this->_fd, (char*)data, size, flags);
 }
 
-chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_endpoint &ep, int flags) noexcept
+chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr, int flags) noexcept
 {
-    return ::recvfrom(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&ep.addr, &ep.size);
+    return ::recvfrom(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&addr.addr, &addr.size);
 }
 
 chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int flags) noexcept
@@ -143,24 +143,24 @@ chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int f
     return ::send(this->_fd, (char*)data, size, flags);
 }
 
-chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_endpoint &ep, int flags) noexcept
+chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr, int flags) noexcept
 {
-    return ::sendto(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&ep.addr, ep.size);
+    return ::sendto(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&addr.addr, addr.size);
 }
 
 // property
-chen::basic_endpoint chen::basic_socket::peer() const noexcept
+chen::basic_address chen::basic_socket::peer() const noexcept
 {
-    basic_endpoint ep;
-    ::getpeername(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
-    return ep;
+    basic_address addr;
+    ::getpeername(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size);
+    return addr;
 }
 
-chen::basic_endpoint chen::basic_socket::sock() const noexcept
+chen::basic_address chen::basic_socket::sock() const noexcept
 {
-    basic_endpoint ep;
-    ::getsockname(this->_fd, (struct ::sockaddr*)&ep.addr, &ep.size);
-    return ep;
+    basic_address addr;
+    ::getsockname(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size);
+    return addr;
 }
 
 chen::basic_option chen::basic_socket::option() noexcept

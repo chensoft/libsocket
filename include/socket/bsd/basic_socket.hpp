@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/bsd/basic_endpoint.hpp>
+#include <socket/bsd/basic_address.hpp>
 #include <socket/bsd/basic_option.hpp>
 
 namespace chen
@@ -66,14 +66,14 @@ namespace chen
 
     public:
         /**
-         * Connect to remote endpoint
+         * Connect to remote address
          */
-        std::error_code connect(const basic_endpoint &ep) noexcept;
+        std::error_code connect(const basic_address &addr) noexcept;
 
         /**
-         * Bind on specific endpoint
+         * Bind on specific address
          */
-        std::error_code bind(const basic_endpoint &ep) noexcept;
+        std::error_code bind(const basic_address &addr) noexcept;
 
         /**
          * Listen for request
@@ -86,7 +86,7 @@ namespace chen
          * @attention check to see if the result is valid before use it
          */
         basic_socket accept() noexcept;
-        basic_socket accept(basic_endpoint &ep) noexcept;
+        basic_socket accept(basic_address &addr) noexcept;
 
     public:
         /**
@@ -97,7 +97,7 @@ namespace chen
         /**
          * Receive data from specific host, used in datagram socket
          */
-        ssize_t recvfrom(void *data, std::size_t size, basic_endpoint &ep, int flags = 0) noexcept;
+        ssize_t recvfrom(void *data, std::size_t size, basic_address &addr, int flags = 0) noexcept;
 
         /**
          * Send data to connected host, used in stream socket
@@ -107,7 +107,7 @@ namespace chen
         /**
          * Send data to specific host, used in datagram socket
          */
-        ssize_t sendto(const void *data, std::size_t size, const basic_endpoint &ep, int flags = 0) noexcept;
+        ssize_t sendto(const void *data, std::size_t size, const basic_address &addr, int flags = 0) noexcept;
 
     public:
         /**
@@ -122,10 +122,10 @@ namespace chen
 
     public:
         /**
-         * Peer & Local endpoint
+         * Peer & Local address
          */
-        basic_endpoint peer() const noexcept;
-        basic_endpoint sock() const noexcept;
+        basic_address peer() const noexcept;
+        basic_address sock() const noexcept;
 
         /**
          * Non-blocking mode

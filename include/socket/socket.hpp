@@ -26,7 +26,7 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/sys/runloop.hpp>
 #include <socket/sys/startup.hpp>
 
-#include <socket/bsd/basic_endpoint.hpp>
+#include <socket/bsd/basic_address.hpp>
 #include <socket/bsd/basic_option.hpp>
 #include <socket/bsd/basic_socket.hpp>
 
@@ -35,7 +35,7 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/ip/ip_option.hpp>
 #include <socket/ip/ip_version.hpp>
 
-#include <socket/inet/inet_endpoint.hpp>
+#include <socket/inet/inet_address.hpp>
 #include <socket/inet/inet_resolver.hpp>
 #include <socket/inet/inet_socket.hpp>
 

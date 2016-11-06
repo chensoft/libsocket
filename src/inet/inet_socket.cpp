@@ -10,12 +10,12 @@
 // socket
 
 // property
-chen::inet_endpoint chen::inet_socket::peer() const
+chen::inet_address chen::inet_socket::peer() const
 {
     return this->_socket.peer();
 }
 
-chen::inet_endpoint chen::inet_socket::sock() const
+chen::inet_address chen::inet_socket::sock() const
 {
     return this->_socket.sock();
 }
