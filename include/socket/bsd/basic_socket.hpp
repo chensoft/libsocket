@@ -34,9 +34,10 @@ namespace chen
 
         /**
          * Construct by socket handle directly
-         * @attention you can't use reset() if you construct from fd, because we didn't know fd's family & protocol
+         * @attention you can't use reset() if you construct only from fd, because we didn't know fd's family & protocol
          */
         basic_socket(socket_t fd) noexcept;
+        basic_socket(socket_t fd, int family, int type, int protocol) noexcept;
 
         /**
          * Construct by socket type

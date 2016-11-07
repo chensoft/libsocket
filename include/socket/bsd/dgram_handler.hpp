@@ -17,6 +17,8 @@ namespace chen
 
     public:
         virtual void onRead(chen::dgram_client &c, std::vector<std::uint8_t> data, chen::basic_address addr) {}
+
+        // todo pass original data to write
         virtual void onWrite(chen::dgram_client &c, std::size_t size, const chen::basic_address &addr) {}
     };
 }

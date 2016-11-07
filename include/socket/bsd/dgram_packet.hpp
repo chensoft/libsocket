@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/bsd/basic_address.hpp>
+#include <cstdint>
 #include <vector>
 
 namespace chen

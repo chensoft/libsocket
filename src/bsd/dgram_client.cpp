@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/bsd/dgram_handler.hpp>
+#include <cstring>
 
 // -----------------------------------------------------------------------------
 // dgram_client

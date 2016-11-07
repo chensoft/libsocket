@@ -18,6 +18,15 @@ chen::basic_socket::basic_socket(socket_t fd) noexcept
     this->reset(fd);
 }
 
+chen::basic_socket::basic_socket(socket_t fd, int family, int type, int protocol) noexcept
+{
+    this->reset(fd);
+
+    this->_family   = family;
+    this->_type     = type;
+    this->_protocol = protocol;
+}
+
 chen::basic_socket::basic_socket(int family, int type, int protocol)
 {
     this->reset(family, type, protocol);
