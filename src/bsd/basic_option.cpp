@@ -8,7 +8,7 @@
 #include <socket/bsd/basic_socket.hpp>
 
 // -----------------------------------------------------------------------------
-// option
+// basic_option
 chen::basic_option::basic_option(basic_socket &s) : _socket(s)
 {
 }

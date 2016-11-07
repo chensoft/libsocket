@@ -10,7 +10,7 @@
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// socket
+// basic_socket
 
 // cleanup
 void chen::basic_socket::shutdown(Shutdown type) noexcept

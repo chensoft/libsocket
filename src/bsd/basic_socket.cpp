@@ -8,7 +8,7 @@
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// socket
+// basic_socket
 chen::basic_socket::basic_socket(std::nullptr_t) noexcept
 {
 }
