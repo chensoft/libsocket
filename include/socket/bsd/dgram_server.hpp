@@ -21,10 +21,32 @@ namespace chen
         ~dgram_server();
 
     public:
+        /**
+         * Listen on the port
+         */
         void listen(int backlog = 0);
+
+        /**
+         * Close the server
+         */
         void close();
+
+    public:
+        /**
+         * Local address
+         */
+        basic_address local() const;
+
+    protected:
+        /**
+         * Event handler
+         */
+        void onReadable();
+        void onWritable();
+        void onEvent(runloop::Event type);
 
     protected:
         runloop &_runloop;
+        basic_address _local;
     };
 }
