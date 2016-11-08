@@ -28,9 +28,13 @@ namespace chen
     class dgram_write_event
     {
     public:
-        dgram_write_event(dgram_packet &packet);
+        dgram_write_event(const dgram_packet &packet);
+        dgram_write_event(const std::uint8_t *data, std::size_t size, const basic_address &addr);
 
     public:
-        dgram_packet &packet;
+        const std::uint8_t *data;
+        std::size_t size;
+
+        const basic_address &addr;
     };
 }

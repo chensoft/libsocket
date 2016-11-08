@@ -9,9 +9,6 @@
 
 // -----------------------------------------------------------------------------
 // dgram_socket
-chen::dgram_socket::dgram_socket()
-{
-}
 
 // read
 void chen::dgram_socket::read(std::size_t size)
@@ -41,9 +38,32 @@ void chen::dgram_socket::write(const void *data, std::size_t size, const basic_a
 
     // try to use send directly first
     if (this->send(data, size, addr))
-        ;  // notify
+        this->notify(dgram_write_event(ptr, size, addr));
     else
         this->_pending.emplace_back(dgram_packet(std::vector<std::uint8_t>(ptr, ptr + size), addr));
+}
+
+// event
+void chen::dgram_socket::attach(std::function<void (dgram_read_event event)> callback)
+{
+    this->_cb_read = callback;
+}
+
+void chen::dgram_socket::attach(std::function<void (dgram_write_event event)> callback)
+{
+    this->_cb_write = callback;
+}
+
+void chen::dgram_socket::notify(dgram_read_event &&event)
+{
+    if (this->_cb_read)
+        this->_cb_read(std::move(event));
+}
+
+void chen::dgram_socket::notify(dgram_write_event &&event)
+{
+    if (this->_cb_write)
+        this->_cb_write(std::move(event));
 }
 
 // recv
@@ -59,8 +79,7 @@ void chen::dgram_socket::recv()
         return;
 
     this->_receive.resize(static_cast<std::size_t>(len));
-
-//    this->notify(std::move(buf), addr);
+    this->notify(dgram_read_event(std::move(this->_receive), addr));
 }
 
 // send
@@ -72,10 +91,10 @@ void chen::dgram_socket::send()
         if (!this->send(front.data.data(), front.data.size(), front.addr))
             break;
 
-        auto addr = front.addr;
+        auto move = std::move(front);
 
         this->_pending.erase(this->_pending.begin());
-//        this->notify(static_cast<std::size_t>(ret), addr);
+        this->notify(dgram_write_event(std::move(move)));
     }
 }
 

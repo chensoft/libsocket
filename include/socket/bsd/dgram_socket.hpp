@@ -7,16 +7,14 @@
 #pragma once
 
 #include <socket/bsd/basic_socket.hpp>
-#include <socket/bsd/dgram_packet.hpp>
+#include <socket/bsd/dgram_events.hpp>
+#include <functional>
 #include <string>
 
 namespace chen
 {
     class dgram_socket
     {
-    public:
-        dgram_socket();
-
     public:
         /**
          * Read a packet from remote
@@ -33,7 +31,22 @@ namespace chen
         void write(const std::string &text, const basic_address &addr);
         void write(const void *data, std::size_t size, const basic_address &addr);
 
+    public:
+        /**
+         * Attach event callbacks
+         * :-) read  : void (dgram_read_event event)  -> read data from remote
+         * :-) write : void (dgram_write_event event) -> write data to remote host
+         */
+        void attach(std::function<void (dgram_read_event event)> callback);
+        void attach(std::function<void (dgram_write_event event)> callback);
+
     protected:
+        /**
+         * Notify events
+         */
+        void notify(dgram_read_event &&event);
+        void notify(dgram_write_event &&event);
+
         /**
          * Internal helper for read & write
          */
@@ -46,5 +59,8 @@ namespace chen
 
         std::vector<std::uint8_t> _receive;  // receive buffer, avoid recreated every time
         std::vector<dgram_packet> _pending;  // pending packet, will be sent out when writable
+
+        std::function<void (dgram_read_event event)>  _cb_read;
+        std::function<void (dgram_write_event event)> _cb_write;
     };
 }
