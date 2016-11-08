@@ -9,7 +9,6 @@
 #include <socket/bsd/basic_socket.hpp>
 #include <socket/bsd/dgram_events.hpp>
 #include <functional>
-#include <string>
 
 namespace chen
 {
@@ -27,8 +26,6 @@ namespace chen
          * Write a packet to remote
          * the write callback will be invoked if successful
          */
-        void write(const char *text, const basic_address &addr);
-        void write(const std::string &text, const basic_address &addr);
         void write(const void *data, std::size_t size, const basic_address &addr);
 
     public:

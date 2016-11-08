@@ -29,8 +29,11 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/bsd/basic_address.hpp>
 #include <socket/bsd/basic_option.hpp>
 #include <socket/bsd/basic_socket.hpp>
+
 #include <socket/bsd/dgram_client.hpp>
+#include <socket/bsd/dgram_events.hpp>
 #include <socket/bsd/dgram_packet.hpp>
+#include <socket/bsd/dgram_server.hpp>
 #include <socket/bsd/dgram_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>

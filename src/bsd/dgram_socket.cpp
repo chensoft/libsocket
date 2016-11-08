@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/bsd/dgram_socket.hpp>
-#include <cstring>
 
 // -----------------------------------------------------------------------------
 // dgram_socket
@@ -18,16 +17,6 @@ void chen::dgram_socket::read(std::size_t size)
 }
 
 // write
-void chen::dgram_socket::write(const char *text, const basic_address &addr)
-{
-    this->write(text, ::strlen(text), addr);
-}
-
-void chen::dgram_socket::write(const std::string &text, const basic_address &addr)
-{
-    this->write(text.data(), text.size(), addr);
-}
-
 void chen::dgram_socket::write(const void *data, std::size_t size, const basic_address &addr)
 {
     auto ptr = static_cast<const std::uint8_t*>(data);

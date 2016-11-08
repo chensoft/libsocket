@@ -8,7 +8,6 @@
 
 #include <socket/bsd/dgram_socket.hpp>
 #include <socket/sys/runloop.hpp>
-#include <string>
 
 namespace chen
 {
