@@ -155,6 +155,11 @@ namespace chen
         socket_t native() const noexcept;
 
         /**
+         * Available bytes to read without blocking
+         */
+        std::size_t available() const noexcept;
+
+        /**
          * Native type info
          */
         int family() const noexcept;
