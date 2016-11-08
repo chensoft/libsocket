@@ -49,6 +49,7 @@ namespace chen
              * :-) listen and accept new connections
              * @attention the Handler must be a subclass of tcp::conn
              */
+            // todo rename to listen & close
             template <typename Handler>
             void run(int backlog = 0)
             {

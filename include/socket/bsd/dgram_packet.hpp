@@ -16,7 +16,7 @@ namespace chen
     {
     public:
         dgram_packet() = default;
-        dgram_packet(std::vector<std::uint8_t> data, const basic_address &addr);
+        dgram_packet(std::vector<std::uint8_t> &&data, const basic_address &addr);
 
     public:
         std::vector<std::uint8_t> data;

@@ -4,10 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/bsd/dgram_packet.hpp>
+#include <socket/bsd/dgram_server.hpp>
 
 // -----------------------------------------------------------------------------
-// dgram_packet
-chen::dgram_packet::dgram_packet(std::vector<std::uint8_t> &&data, const basic_address &addr) : data(std::move(data)), addr(addr)
-{
-}
+// dgram_server
