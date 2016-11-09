@@ -6,7 +6,7 @@
  */
 #include <socket/inet/inet_resolver.hpp>
 #include <socket/tcp/tcp_server.hpp>
-#include <socket/sys/runloop.hpp>
+#include <socket/core/runloop.hpp>
 #include <chen/base/str.hpp>
 #include <algorithm>
 
@@ -125,7 +125,7 @@ void chen::tcp::server::listen(int backlog)
 // server
 void chen::tcp::server::onServerReadable()
 {
-    basic_socket s = this->_socket.accept();
+    bsd_socket s = this->_socket.accept();
     if (!s)
         return;
 

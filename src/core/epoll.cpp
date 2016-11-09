@@ -6,7 +6,7 @@
  */
 #ifdef __linux__
 
-#include <socket/sys/epoll.hpp>
+#include <socket/core/epoll.hpp>
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>

@@ -6,7 +6,7 @@
  */
 #if !defined(__linux__) && !defined(_WIN32)
 
-#include <socket/sys/kqueue.hpp>
+#include <socket/core/kqueue.hpp>
 #include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 

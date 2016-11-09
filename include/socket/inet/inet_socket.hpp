@@ -7,8 +7,8 @@
 #pragma once
 
 #include <socket/inet/inet_address.hpp>
-#include <socket/bsd/basic_socket.hpp>
-#include <socket/sys/runloop.hpp>
+#include <socket/base/bsd_socket.hpp>
+#include <socket/core/runloop.hpp>
 
 namespace chen
 {
@@ -41,10 +41,10 @@ namespace chen
          * Reset socket
          */
         void reset();
-        void reset(basic_socket &&s);
+        void reset(bsd_socket &&s);
         void reset(ip_address::Type family, int type);
 
     protected:
-        basic_socket _socket;
+        bsd_socket _socket;
     };
 }

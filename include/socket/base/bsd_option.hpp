@@ -11,12 +11,12 @@
 
 namespace chen
 {
-    class basic_socket;
+    class bsd_socket;
 
-    class basic_option
+    class bsd_option
     {
     public:
-        basic_option(basic_socket &s);
+        bsd_option(bsd_socket &s);
 
     public:
         /**
@@ -128,6 +128,6 @@ namespace chen
         bool set(int level, int name, int val);
 
     protected:
-        basic_socket &_socket;
+        bsd_socket &_socket;
     };
 }

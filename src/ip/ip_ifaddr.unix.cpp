@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/bsd/basic_socket.hpp>
+#include <socket/base/bsd_socket.hpp>
 #include <socket/ip/ip_ifaddr.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
@@ -85,7 +85,7 @@ namespace
             return;
 
         // mtu
-        chen::basic_socket tmp(AF_INET6, SOCK_DGRAM);
+        chen::bsd_socket tmp(AF_INET6, SOCK_DGRAM);
 
         struct ::ifreq ifr{};
         ifr.ifr_addr.sa_family = AF_INET6;

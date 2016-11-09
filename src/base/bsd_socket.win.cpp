@@ -6,14 +6,14 @@
  */
 #ifdef _WIN32
 
-#include <socket/bsd/basic_socket.hpp>
+#include <socket/base/bsd_socket.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// basic_socket
+// bsd_socket
 
 // cleanup
-void chen::basic_socket::shutdown(Shutdown type) noexcept
+void chen::bsd_socket::shutdown(Shutdown type) noexcept
 {
     switch (type)
     {
@@ -31,20 +31,20 @@ void chen::basic_socket::shutdown(Shutdown type) noexcept
     }
 }
 
-void chen::basic_socket::close() noexcept
+void chen::bsd_socket::close() noexcept
 {
     ::closesocket(this->_fd);
     this->_fd = invalid_socket;
 }
 
 // property
-std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
+std::error_code chen::bsd_socket::nonblocking(bool enable) noexcept
 {
     u_long mode = enable ? 1 : 0;
     return ::ioctlsocket(this->_fd, FIONBIO, &mode) ? sys::error() : std::error_code();
 }
 
-std::size_t chen::basic_socket::available() const noexcept
+std::size_t chen::bsd_socket::available() const noexcept
 {
     std::size_t bytes = 0;
     return ::ioctlsocket(this->_fd, FIONREAD, &bytes) < 0 ? 0 : bytes;

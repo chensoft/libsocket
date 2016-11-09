@@ -6,9 +6,9 @@
  */
 #pragma once
 
-#include <socket/sys/kqueue.hpp>
-#include <socket/sys/poller.hpp>
-#include <socket/sys/epoll.hpp>
+#include <socket/core/kqueue.hpp>
+#include <socket/core/poller.hpp>
+#include <socket/core/epoll.hpp>
 #include <socket/config.hpp>
 #include <unordered_map>
 #include <functional>

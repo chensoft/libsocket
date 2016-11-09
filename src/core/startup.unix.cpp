@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <socket/sys/startup.hpp>
+#include <socket/core/startup.hpp>
 #include <csignal>
 
 // -----------------------------------------------------------------------------

@@ -20,21 +20,17 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/config.hpp>
 
-#include <socket/sys/epoll.hpp>
-#include <socket/sys/kqueue.hpp>
-#include <socket/sys/poller.hpp>
-#include <socket/sys/runloop.hpp>
-#include <socket/sys/startup.hpp>
+#include <socket/core/epoll.hpp>
+#include <socket/core/kqueue.hpp>
+#include <socket/core/poller.hpp>
+#include <socket/core/runloop.hpp>
+#include <socket/core/startup.hpp>
 
-#include <socket/bsd/basic_address.hpp>
-#include <socket/bsd/basic_option.hpp>
-#include <socket/bsd/basic_socket.hpp>
+#include <socket/base/bsd_address.hpp>
+#include <socket/base/bsd_option.hpp>
+#include <socket/base/bsd_socket.hpp>
 
-#include <socket/bsd/dgram_client.hpp>
-#include <socket/bsd/dgram_events.hpp>
-#include <socket/bsd/dgram_packet.hpp>
-#include <socket/bsd/dgram_server.hpp>
-#include <socket/bsd/dgram_socket.hpp>
+#include <socket/base/dgram_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>
 #include <socket/ip/ip_ifaddr.hpp>

@@ -15,7 +15,7 @@ namespace chen
         class option : public ip_option
         {
         public:
-            option(basic_socket &s);
+            option(bsd_socket &s);
 
         public:
             /**

@@ -25,7 +25,7 @@ namespace chen
              * server will add this object to its connection pool
              * so you don't need to release this object manually
              */
-            conn(basic_socket &&s, std::unique_ptr<handler> &&h);
+            conn(bsd_socket &&s, std::unique_ptr<handler> &&h);
             ~conn();
 
         public:
