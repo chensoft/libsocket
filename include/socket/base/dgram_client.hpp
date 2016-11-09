@@ -14,10 +14,21 @@ namespace chen
     class dgram_client : public dgram_socket<Address, Option>
     {
     public:
+        dgram_client() = default;
+
         /**
          * Datagram client is connectionless, so we init socket here
          */
         dgram_client(int family, int protocol = 0)
+        {
+            this->reset(family, protocol);
+        }
+
+    public:
+        /**
+         * Reset socket
+         */
+        void reset(int family, int protocol = 0)
         {
             this->_socket.reset(family, SOCK_DGRAM, protocol);
         }

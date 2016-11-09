@@ -14,13 +14,24 @@ namespace chen
     class dgram_server : public dgram_socket<Address, Option>
     {
     public:
+        dgram_server() = default;
+
         /**
          * Construct according to address family
          */
         dgram_server(const Address &addr, int protocol = 0)
         {
+            this->reset(addr, protocol);
+        }
+
+    public:
+        /**
+         * Reset socket
+         */
+        void reset(const Address &addr, int protocol = 0)
+        {
             this->_local = addr;
-            this->_socket.reset(this->_local.addr.ss_family, SOCK_DGRAM, protocol);
+            this->_socket.reset(static_cast<bsd_address>(this->_local).addr.ss_family, SOCK_DGRAM, protocol);
         }
 
     public:
@@ -37,6 +48,6 @@ namespace chen
         }
 
     protected:
-        bsd_address _local;
+        Address _local;
     };
 }
