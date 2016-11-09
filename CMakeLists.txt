@@ -19,12 +19,11 @@ include_directories(lib/libchen/include)
 
 # source codes
 file(GLOB_RECURSE INC_SOCKET include/socket/*.hpp)
-file(GLOB_RECURSE IPP_SOCKET include/socket/*.ipp)
 file(GLOB_RECURSE SRC_SOCKET src/*.cpp)
 
 # generate lib, build static library by default
 # use -DBUILD_SHARED_LIBS=ON if you want to build a shared library
-add_library(libsocket ${INC_SOCKET} ${IPP_SOCKET} ${SRC_SOCKET})
+add_library(libsocket ${INC_SOCKET} ${SRC_SOCKET})
 target_link_libraries(libsocket libchen)
 set_target_properties(libsocket PROPERTIES OUTPUT_NAME libsocket PREFIX "")
 
