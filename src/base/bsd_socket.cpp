@@ -110,10 +110,7 @@ std::error_code chen::bsd_socket::bind(const bsd_address &addr) noexcept
 
 std::error_code chen::bsd_socket::listen(int backlog) noexcept
 {
-    if (backlog <= 0)
-        backlog = SOMAXCONN;
-
-    return !::listen(this->_fd, backlog) ? std::error_code() : sys::error();
+    return !::listen(this->_fd, backlog <= 0 ? SOMAXCONN : backlog) ? std::error_code() : sys::error();
 }
 
 chen::bsd_socket chen::bsd_socket::accept() noexcept

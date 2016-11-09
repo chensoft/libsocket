@@ -18,6 +18,11 @@ namespace chen
     {
     public:
         /**
+         * Shutdown flag
+         */
+        using Shutdown = bsd_socket::Shutdown;
+
+        /**
          * Requirements for address:
          * -:) must have a constructor which accept bsd_address as its param
          * -:) must define bsd_address conversion operator, see inet_address
@@ -29,6 +34,23 @@ namespace chen
          * -:) must derived from bsd_option and accept bsd_socket& as its param
          */
         typedef typename T::option_type option_type;
+
+    public:
+        /**
+         * Stop send or receive, but socket is still valid
+         */
+        void shutdown(Shutdown type = Shutdown::Both) noexcept
+        {
+            this->_socket.shutdown(type);
+        }
+
+        /**
+         * Close the socket, the socket will disconnect immediately
+         */
+        void close() noexcept
+        {
+            this->_socket.close();
+        }
 
     public:
         /**
