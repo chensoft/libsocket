@@ -12,7 +12,7 @@
 namespace chen
 {
     /**
-     * bsd socket wrapper, usually you don't need to use it directly
+     * BSD socket wrapper, usually you don't need to use it directly
      * use tcp_client, tcp_server, udp_client, udp_server instead
      */
     class bsd_socket

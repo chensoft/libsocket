@@ -10,17 +10,14 @@
 
 namespace chen
 {
-    template <typename T>
-    class dgram_server : public dgram_socket<T>
+    template <typename Address, typename Option>
+    class dgram_server : public dgram_socket<Address, Option>
     {
-    public:
-        typedef typename dgram_socket<T>::address_type address_type;
-
     public:
         /**
          * Construct according to address family
          */
-        dgram_server(const address_type &addr, int protocol = 0)
+        dgram_server(const Address &addr, int protocol = 0)
         {
             this->_local = addr;
             this->_socket.reset(this->_local.addr.ss_family, SOCK_DGRAM, protocol);

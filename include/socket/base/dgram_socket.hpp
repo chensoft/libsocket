@@ -12,12 +12,9 @@
 
 namespace chen
 {
-    template <typename T>
-    class dgram_socket : public basic_socket<T>
+    template <typename Address, typename Option>
+    class dgram_socket : public basic_socket<Address, Option>
     {
-    public:
-        typedef typename dgram_socket<T>::address_type address_type;
-
     public:
         /**
          * Read a packet from remote
@@ -31,17 +28,17 @@ namespace chen
         /**
          * Write a packet to remote
          */
-        ssize_t write(const char *text, const address_type &addr, int flags = 0) noexcept
+        ssize_t write(const char *text, const Address &addr, int flags = 0) noexcept
         {
             return this->write(text, ::strlen(text), addr, flags);
         }
 
-        ssize_t write(const std::string &text, const address_type &addr, int flags = 0) noexcept
+        ssize_t write(const std::string &text, const Address &addr, int flags = 0) noexcept
         {
             return this->write(text.data(), text.size(), addr, flags);
         }
 
-        ssize_t write(const void *data, std::size_t size, const address_type &addr, int flags = 0) noexcept
+        ssize_t write(const void *data, std::size_t size, const Address &addr, int flags = 0) noexcept
         {
             return this->_socket.sendto(data, size, addr, flags);
         }

@@ -26,13 +26,12 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/core/runloop.hpp>
 #include <socket/core/startup.hpp>
 
-#include <socket/base/basic_socket.hpp>
-
 #include <socket/base/bsd_address.hpp>
 #include <socket/base/bsd_option.hpp>
 #include <socket/base/bsd_socket.hpp>
 
 #include <socket/base/dgram_client.hpp>
+#include <socket/base/dgram_server.hpp>
 #include <socket/base/dgram_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>
@@ -42,7 +41,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 
 #include <socket/inet/inet_address.hpp>
 #include <socket/inet/inet_resolver.hpp>
-#include <socket/inet/inet_socket.hpp>
 
 //#include <socket/tcp/tcp_basic.hpp>
 //#include <socket/tcp/tcp_client.hpp>
@@ -52,8 +50,8 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 //#include <socket/tcp/tcp_option.hpp>
 //#include <socket/tcp/tcp_policy.hpp>
 //#include <socket/tcp/tcp_server.hpp>
-//
-//#include <socket/udp/udp_basic.hpp>
-//#include <socket/udp/udp_client.hpp>
-//#include <socket/udp/udp_define.hpp>
-//#include <socket/udp/udp_server.hpp>
+
+#include <socket/udp/udp_client.hpp>
+#include <socket/udp/udp_define.hpp>
+#include <socket/udp/udp_option.hpp>
+#include <socket/udp/udp_server.hpp>

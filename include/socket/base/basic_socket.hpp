@@ -12,8 +12,13 @@ namespace chen
 {
     /**
      * The basic class for dgram_socket, stream_socket and more
+     * Requirements for Address:
+     * -:) must have a constructor which accept bsd_address as its param
+     * -:) must define bsd_address conversion operator, see inet_address
+     * Requirements for Option:
+     * -:) must derived from bsd_option and accept bsd_socket& as its param
      */
-    template <typename T>
+    template <typename Address, typename Option>
     class basic_socket
     {
     public:
@@ -21,20 +26,7 @@ namespace chen
          * Shutdown flag
          */
         using Shutdown = bsd_socket::Shutdown;
-
-        /**
-         * Requirements for address:
-         * -:) must have a constructor which accept bsd_address as its param
-         * -:) must define bsd_address conversion operator, see inet_address
-         */
-        typedef typename T::address_type address_type;
-
-        /**
-         * Requirements for option:
-         * -:) must derived from bsd_option and accept bsd_socket& as its param
-         */
-        typedef typename T::option_type option_type;
-
+        
     public:
         /**
          * Stop send or receive, but socket is still valid
@@ -56,12 +48,12 @@ namespace chen
         /**
          * Peer & Local address
          */
-        address_type peer() const noexcept
+        Address peer() const noexcept
         {
             return this->_socket.peer();
         }
 
-        address_type sock() const noexcept
+        Address sock() const noexcept
         {
             return this->_socket.sock();
         }
@@ -81,9 +73,9 @@ namespace chen
          * >> opt.reuseaddr(true);           // set option
          * >> bool reuse = opt.reuseaddr();  // get option
          */
-        option_type option() noexcept
+        Option option() noexcept
         {
-            return option_type(*this);
+            return Option(*this);
         }
 
         /**

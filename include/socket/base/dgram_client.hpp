@@ -10,8 +10,8 @@
 
 namespace chen
 {
-    template <typename T>
-    class dgram_client : public dgram_socket<T>
+    template <typename Address, typename Option>
+    class dgram_client : public dgram_socket<Address, Option>
     {
     public:
         /**
