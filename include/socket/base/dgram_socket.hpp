@@ -22,7 +22,6 @@ namespace chen
          */
         ssize_t read(void *data, std::size_t size, Address &addr, int flags = 0) noexcept
         {
-            // todo let Address inherit from bsd_address?
             bsd_address tmp;
             auto ret = this->_socket.recvfrom(data, size, tmp, flags);
 
