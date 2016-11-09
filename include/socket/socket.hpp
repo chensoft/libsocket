@@ -30,10 +30,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/base/bsd_option.hpp>
 #include <socket/base/bsd_socket.hpp>
 
-#include <socket/base/dgram_client.hpp>
-#include <socket/base/dgram_server.hpp>
-#include <socket/base/dgram_socket.hpp>
-
 #include <socket/ip/ip_address.hpp>
 #include <socket/ip/ip_ifaddr.hpp>
 #include <socket/ip/ip_option.hpp>
@@ -41,17 +37,3 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 
 #include <socket/inet/inet_address.hpp>
 #include <socket/inet/inet_resolver.hpp>
-
-//#include <socket/tcp/tcp_basic.hpp>
-//#include <socket/tcp/tcp_client.hpp>
-//#include <socket/tcp/tcp_conn.hpp>
-//#include <socket/tcp/tcp_event.hpp>
-//#include <socket/tcp/tcp_handler.hpp>
-//#include <socket/tcp/tcp_option.hpp>
-//#include <socket/tcp/tcp_policy.hpp>
-//#include <socket/tcp/tcp_server.hpp>
-
-#include <socket/udp/udp_client.hpp>
-#include <socket/udp/udp_define.hpp>
-#include <socket/udp/udp_option.hpp>
-#include <socket/udp/udp_server.hpp>
