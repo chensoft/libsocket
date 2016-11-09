@@ -57,6 +57,8 @@ namespace
     std::unique_ptr<chen::ip_address> create(struct ::sockaddr *ptr)
     {
         using chen::ip_address;
+        using chen::ip_version4;
+        using chen::ip_version6;
 
         if (!ptr)
             return nullptr;
@@ -64,12 +66,12 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return std::unique_ptr<ip_address>(new ip_address(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr)));
+                return std::unique_ptr<ip_address>(new ip_address(ip_version4(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr))));
 
             case AF_INET6:
             {
                 auto tmp = (struct ::sockaddr_in6*)ptr;
-                auto ret = std::unique_ptr<ip_address>(new ip_address(tmp->sin6_addr.s6_addr));
+                auto ret = std::unique_ptr<ip_address>(new ip_address(ip_version6(tmp->sin6_addr.s6_addr)));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
             }

@@ -176,7 +176,7 @@ void chen::inet_address::assign(const struct ::sockaddr *addr)
         case AF_INET:
         {
             auto in = (struct ::sockaddr_in*)addr;
-            this->_addr = num::swap(in->sin_addr.s_addr);
+            this->_addr = ip_version4(num::swap(in->sin_addr.s_addr));
             this->_port = num::swap(in->sin_port);
         }
             break;

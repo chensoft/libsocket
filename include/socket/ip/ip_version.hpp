@@ -37,11 +37,11 @@ namespace chen
         ip_version4() = default;  // trivial constructor, used by address only
 
     public:
-        ip_version4(const std::string &addr);
+        explicit ip_version4(const std::string &addr);
         ip_version4(const std::string &addr, std::uint8_t cidr);
         ip_version4(const std::string &addr, const std::string &mask);
 
-        ip_version4(std::uint32_t addr);
+        explicit ip_version4(std::uint32_t addr);
         ip_version4(std::uint32_t addr, std::uint8_t cidr);
         ip_version4(std::uint32_t addr, const std::string &mask);
 
@@ -188,13 +188,13 @@ namespace chen
         ip_version6() = default;  // trivial constructor, used by address only
 
     public:
-        ip_version6(const std::string &addr);
+        explicit ip_version6(const std::string &addr);
         ip_version6(const std::string &addr, std::uint8_t cidr);
         ip_version6(const std::string &addr, std::uint8_t cidr, std::uint32_t scope);
         ip_version6(const std::string &addr, const std::string &mask);
         ip_version6(const std::string &addr, const std::string &mask, std::uint32_t scope);
 
-        ip_version6(const std::uint8_t addr[16]);
+        explicit ip_version6(const std::uint8_t addr[16]);
         ip_version6(const std::uint8_t addr[16], std::uint8_t cidr);
         ip_version6(const std::uint8_t addr[16], std::uint8_t cidr, std::uint32_t scope);
         ip_version6(const std::uint8_t addr[16], const std::string &mask);

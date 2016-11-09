@@ -34,7 +34,7 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ(ip_address("127.1"), ip_address("127.0.0.1"));
     EXPECT_EQ(ip_address("192.168.1"), ip_address("192.168.0.1"));
 
-    EXPECT_EQ(ip_address(0x7F000001), ip_address("127.0.0.1"));
+    EXPECT_EQ(ip_address(ip_version4(0x7F000001)), ip_address("127.0.0.1"));
     EXPECT_EQ(ip_address(ip_version4(0x7F000001, 8)), ip_address("127.0.0.1/8"));
     EXPECT_EQ(ip_address(ip_version4(0x7F000001, "255.0.0.0")), ip_address("127.0.0.1/8"));
 
@@ -48,7 +48,7 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ("192.168.1.1/24", v4.str(true));
     EXPECT_EQ(24, v4.cidr());
 
-    v4 = 0x7F000001;
+    v4 = ip_version4(0x7F000001);
     EXPECT_EQ("127.0.0.1", v4.str());
     EXPECT_EQ(32, v4.cidr());
 
@@ -56,7 +56,7 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ("127.0.0.1", ip_address("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1", ip_address("127.0.1").str());
     EXPECT_EQ("127.0.0.1", ip_address("127.1").str());
-    EXPECT_EQ("127.0.0.1", ip_address(0x7F000001).str());
+    EXPECT_EQ("127.0.0.1", ip_address(ip_version4(0x7F000001)).str());
 
     EXPECT_EQ("127.0.0.1", ip_address("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1/8", ip_address("127.0.0.1/8").str(true));
@@ -223,7 +223,7 @@ TEST(IPAddressTest, IPv6)
 
     std::uint8_t bytes[16] = {0x24, 0x04, 0x68, 0, 0x40, 0x04, 0x08, 0x17, 0, 0, 0, 0, 0, 0, 0x20, 0x0e};
 
-    EXPECT_EQ(ip_address("2404:6800:4004:817::200e"), ip_address(bytes));
+    EXPECT_EQ(ip_address("2404:6800:4004:817::200e"), ip_address(ip_version6(bytes)));
     EXPECT_EQ(ip_address("2404:6800:4004:817::200e/64"), ip_address(ip_version6(bytes, 64)));
     EXPECT_EQ(ip_address("2404:6800:4004:817::200e/64"), ip_address(ip_version6(bytes, "ffff:ffff:ffff:ffff::")));
 
@@ -237,7 +237,7 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817::200e", v6.str());
     EXPECT_EQ(128, v6.cidr());
 
-    v6 = bytes;
+    v6 = ip_version6(bytes);
     EXPECT_EQ("2404:6800:4004:817::200e", v6.str());
     EXPECT_EQ(128, v6.cidr());
 
