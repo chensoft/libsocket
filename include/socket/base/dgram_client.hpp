@@ -21,8 +21,5 @@ namespace chen
         {
             this->_socket.reset(family, SOCK_DGRAM, protocol);
         }
-
-    public:
-
     };
 }

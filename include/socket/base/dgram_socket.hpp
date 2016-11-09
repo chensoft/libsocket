@@ -7,11 +7,43 @@
 #pragma once
 
 #include <socket/base/basic_socket.hpp>
+#include <cstring>
+#include <string>
 
 namespace chen
 {
     template <typename T>
     class dgram_socket : public basic_socket<T>
     {
+    public:
+        typedef typename dgram_socket<T>::address_type address_type;
+
+    public:
+        /**
+         * Read a packet from remote
+         * @param size the desired read length, actual size will be less or equal than this value
+         */
+        ssize_t read(void *data, std::size_t size, bsd_address &addr, int flags = 0) noexcept
+        {
+            return this->_socket.recvfrom(data, size, addr, flags);
+        }
+
+        /**
+         * Write a packet to remote
+         */
+        ssize_t write(const char *text, const address_type &addr, int flags = 0) noexcept
+        {
+            return this->write(text, ::strlen(text), addr, flags);
+        }
+
+        ssize_t write(const std::string &text, const address_type &addr, int flags = 0) noexcept
+        {
+            return this->write(text.data(), text.size(), addr, flags);
+        }
+
+        ssize_t write(const void *data, std::size_t size, const address_type &addr, int flags = 0) noexcept
+        {
+            return this->_socket.sendto(data, size, addr, flags);
+        }
     };
 }

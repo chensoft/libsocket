@@ -32,6 +32,7 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/base/bsd_option.hpp>
 #include <socket/base/bsd_socket.hpp>
 
+#include <socket/base/dgram_client.hpp>
 #include <socket/base/dgram_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>
