@@ -26,9 +26,9 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/core/runloop.hpp>
 #include <socket/core/startup.hpp>
 
-#include <socket/base/bsd_address.hpp>
-#include <socket/base/bsd_option.hpp>
-#include <socket/base/bsd_socket.hpp>
+#include <socket/base/basic_address.hpp>
+#include <socket/base/basic_option.hpp>
+#include <socket/base/basic_socket.hpp>
 
 #include <socket/ip/ip_address.hpp>
 #include <socket/ip/ip_ifaddr.hpp>

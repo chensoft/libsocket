@@ -33,17 +33,17 @@ chen::inet_address::inet_address(const ip_address &addr, const std::string &serv
 {
 }
 
-chen::inet_address::inet_address(const bsd_address &addr)
+chen::inet_address::inet_address(const basic_address &addr)
 {
     this->assign(addr);
 }
 
-chen::inet_address::inet_address(const bsd_address &addr, std::uint16_t port)
+chen::inet_address::inet_address(const basic_address &addr, std::uint16_t port)
 {
     this->assign(addr, port);
 }
 
-chen::inet_address::inet_address(const bsd_address &addr, const std::string &service)
+chen::inet_address::inet_address(const basic_address &addr, const std::string &service)
 {
     this->assign(addr, service);
 }
@@ -154,17 +154,17 @@ void chen::inet_address::assign(const ip_address &addr, const std::string &servi
     this->_port = inet_resolver::service(service);
 }
 
-void chen::inet_address::assign(const bsd_address &addr)
+void chen::inet_address::assign(const basic_address &addr)
 {
     this->assign((struct ::sockaddr*)&addr.addr);
 }
 
-void chen::inet_address::assign(const bsd_address &addr, std::uint16_t port)
+void chen::inet_address::assign(const basic_address &addr, std::uint16_t port)
 {
     this->assign((struct ::sockaddr*)&addr.addr, port);
 }
 
-void chen::inet_address::assign(const bsd_address &addr, const std::string &service)
+void chen::inet_address::assign(const basic_address &addr, const std::string &service)
 {
     this->assign((struct ::sockaddr*)&addr.addr, service);
 }
@@ -224,7 +224,7 @@ chen::inet_address& chen::inet_address::operator=(const std::string &mixed)
     return *this;
 }
 
-chen::inet_address& chen::inet_address::operator=(const bsd_address &addr)
+chen::inet_address& chen::inet_address::operator=(const basic_address &addr)
 {
     this->assign(addr);
     return *this;
@@ -237,9 +237,9 @@ chen::inet_address& chen::inet_address::operator=(const struct ::sockaddr *addr)
 }
 
 // conversion
-chen::inet_address::operator chen::bsd_address() const
+chen::inet_address::operator chen::basic_address() const
 {
-    bsd_address ret;
+    basic_address ret;
 
     switch (this->_addr.type())
     {

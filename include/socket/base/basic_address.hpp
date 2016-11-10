@@ -13,7 +13,7 @@ namespace chen
     /**
      * BSD socket address wrapper, you don't need to use it directly
      */
-    class bsd_address
+    class basic_address final
     {
     public:
         socklen_t size = sizeof(addr);  // use sockaddr_storage's size as initialization value

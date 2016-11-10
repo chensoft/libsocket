@@ -4,21 +4,21 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/base/bsd_socket.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// bsd_socket
-chen::bsd_socket::bsd_socket(std::nullptr_t) noexcept
+// basic_socket
+chen::basic_socket::basic_socket(std::nullptr_t) noexcept
 {
 }
 
-chen::bsd_socket::bsd_socket(socket_t fd) noexcept
+chen::basic_socket::basic_socket(socket_t fd) noexcept
 {
     this->reset(fd);
 }
 
-chen::bsd_socket::bsd_socket(socket_t fd, int family, int type, int protocol) noexcept
+chen::basic_socket::basic_socket(socket_t fd, int family, int type, int protocol) noexcept
 {
     this->reset(fd);
 
@@ -27,17 +27,17 @@ chen::bsd_socket::bsd_socket(socket_t fd, int family, int type, int protocol) no
     this->_protocol = protocol;
 }
 
-chen::bsd_socket::bsd_socket(int family, int type, int protocol)
+chen::basic_socket::basic_socket(int family, int type, int protocol)
 {
     this->reset(family, type, protocol);
 }
 
-chen::bsd_socket::bsd_socket(bsd_socket &&o) noexcept
+chen::basic_socket::basic_socket(basic_socket &&o) noexcept
 {
     *this = std::move(o);
 }
 
-chen::bsd_socket& chen::bsd_socket::operator=(bsd_socket &&o) noexcept
+chen::basic_socket& chen::basic_socket::operator=(basic_socket &&o) noexcept
 {
     if (this == &o)
         return *this;
@@ -58,14 +58,14 @@ chen::bsd_socket& chen::bsd_socket::operator=(bsd_socket &&o) noexcept
     return *this;
 }
 
-chen::bsd_socket::~bsd_socket() noexcept
+chen::basic_socket::~basic_socket() noexcept
 {
     if (this->_fd != invalid_socket)
         this->close();
 }
 
 // reset
-void chen::bsd_socket::reset()
+void chen::basic_socket::reset()
 {
     if (this->_fd != invalid_socket)
         this->close();
@@ -77,7 +77,7 @@ void chen::bsd_socket::reset()
         throw std::system_error(sys::error(), "socket: failed to create socket");
 }
 
-void chen::bsd_socket::reset(socket_t fd) noexcept
+void chen::basic_socket::reset(socket_t fd) noexcept
 {
     if (this->_fd != invalid_socket)
         this->close();
@@ -88,7 +88,7 @@ void chen::bsd_socket::reset(socket_t fd) noexcept
     this->_protocol = 0;
 }
 
-void chen::bsd_socket::reset(int family, int type, int protocol)
+void chen::basic_socket::reset(int family, int type, int protocol)
 {
     this->_family   = family;
     this->_type     = type;
@@ -98,108 +98,108 @@ void chen::bsd_socket::reset(int family, int type, int protocol)
 }
 
 // connection
-std::error_code chen::bsd_socket::connect(const bsd_address &addr) noexcept
+std::error_code chen::basic_socket::connect(const basic_address &addr) noexcept
 {
     return !::connect(this->_fd, (struct ::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
-std::error_code chen::bsd_socket::bind(const bsd_address &addr) noexcept
+std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
 {
     return !::bind(this->_fd, (struct ::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
-std::error_code chen::bsd_socket::listen(int backlog) noexcept
+std::error_code chen::basic_socket::listen(int backlog) noexcept
 {
     return !::listen(this->_fd, backlog <= 0 ? SOMAXCONN : backlog) ? std::error_code() : sys::error();
 }
 
-chen::bsd_socket chen::bsd_socket::accept() noexcept
+chen::basic_socket chen::basic_socket::accept() noexcept
 {
     socket_t fd = invalid_socket;
 
     if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
         return nullptr;
 
-    return bsd_socket(fd);
+    return basic_socket(fd);
 }
 
-chen::bsd_socket chen::bsd_socket::accept(bsd_address &addr) noexcept
+chen::basic_socket chen::basic_socket::accept(basic_address &addr) noexcept
 {
     socket_t fd = invalid_socket;
 
     if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size)) < 0)
         return nullptr;
 
-    return bsd_socket(fd);
+    return basic_socket(fd);
 }
 
 // transmission
-chen::ssize_t chen::bsd_socket::recv(void *data, std::size_t size, int flags) noexcept
+chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) noexcept
 {
     return ::recv(this->_fd, (char*)data, size, flags);
 }
 
-chen::ssize_t chen::bsd_socket::recvfrom(void *data, std::size_t size, bsd_address &addr, int flags) noexcept
+chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr, int flags) noexcept
 {
     return ::recvfrom(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&addr.addr, &addr.size);
 }
 
-chen::ssize_t chen::bsd_socket::send(const void *data, std::size_t size, int flags) noexcept
+chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int flags) noexcept
 {
     return ::send(this->_fd, (char*)data, size, flags);
 }
 
-chen::ssize_t chen::bsd_socket::sendto(const void *data, std::size_t size, const bsd_address &addr, int flags) noexcept
+chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr, int flags) noexcept
 {
     return ::sendto(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&addr.addr, addr.size);
 }
 
 // property
-chen::bsd_address chen::bsd_socket::peer() const noexcept
+chen::basic_address chen::basic_socket::peer() const noexcept
 {
-    bsd_address addr;
+    basic_address addr;
     ::getpeername(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size);
     return addr;
 }
 
-chen::bsd_address chen::bsd_socket::sock() const noexcept
+chen::basic_address chen::basic_socket::sock() const noexcept
 {
-    bsd_address addr;
+    basic_address addr;
     ::getsockname(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size);
     return addr;
 }
 
-chen::bsd_option chen::bsd_socket::option() noexcept
+chen::basic_option chen::basic_socket::option() noexcept
 {
-    return bsd_option(*this);
+    return basic_option(*this);
 }
 
-bool chen::bsd_socket::valid() const noexcept
+bool chen::basic_socket::valid() const noexcept
 {
     return this->_fd != invalid_socket;
 }
 
-chen::bsd_socket::operator bool() const noexcept
+chen::basic_socket::operator bool() const noexcept
 {
     return this->valid();
 }
 
-chen::socket_t chen::bsd_socket::native() const noexcept
+chen::socket_t chen::basic_socket::native() const noexcept
 {
     return this->_fd;
 }
 
-int chen::bsd_socket::family() const noexcept
+int chen::basic_socket::family() const noexcept
 {
     return this->_family;
 }
 
-int chen::bsd_socket::type() const noexcept
+int chen::basic_socket::type() const noexcept
 {
     return this->_type;
 }
 
-int chen::bsd_socket::protocol() const noexcept
+int chen::basic_socket::protocol() const noexcept
 {
     return this->_protocol;
 }

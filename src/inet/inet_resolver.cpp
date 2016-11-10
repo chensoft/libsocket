@@ -66,7 +66,7 @@ std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_addr
     char host[NI_MAXHOST]{};
     char serv[NI_MAXSERV]{};
 
-    chen::bsd_address tmp = static_cast<chen::bsd_address>(addr);
+    chen::basic_address tmp = static_cast<chen::basic_address>(addr);
 
     if (!::getnameinfo((const struct sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
         return std::make_pair(host, serv);

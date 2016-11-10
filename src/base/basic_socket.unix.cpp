@@ -6,14 +6,14 @@
  */
 #ifndef _WIN32
 
-#include <socket/base/bsd_socket.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// bsd_socket
+// basic_socket
 
 // cleanup
-void chen::bsd_socket::shutdown(Shutdown type) noexcept
+void chen::basic_socket::shutdown(Shutdown type) noexcept
 {
     switch (type)
     {
@@ -31,14 +31,14 @@ void chen::bsd_socket::shutdown(Shutdown type) noexcept
     }
 }
 
-void chen::bsd_socket::close() noexcept
+void chen::basic_socket::close() noexcept
 {
     ::close(this->_fd);
     this->_fd = invalid_socket;
 }
 
 // property
-std::error_code chen::bsd_socket::nonblocking(bool enable) noexcept
+std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {
     auto flag = ::fcntl(this->_fd, F_GETFL, 0);
     if (flag < 0)
@@ -47,7 +47,7 @@ std::error_code chen::bsd_socket::nonblocking(bool enable) noexcept
     return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK)) ? std::error_code() : sys::error();
 }
 
-std::size_t chen::bsd_socket::available() const noexcept
+std::size_t chen::basic_socket::available() const noexcept
 {
     std::size_t bytes = 0;
     return ::ioctl(this->_fd, FIONREAD, &bytes) < 0 ? 0 : bytes;
