@@ -9,8 +9,8 @@
 #ifndef _WIN32
 
 // For Unix-like systems
-#include <netinet/tcp.h>  // TCP macros
 #include <netinet/in.h>   // IPv4 & IPv6
+#include <netinet/tcp.h>  // TCP macros
 #include <sys/socket.h>   // socket
 #include <sys/types.h>    // types
 #include <sys/ioctl.h>    // ioctl
