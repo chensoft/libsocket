@@ -106,7 +106,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
 
             // remove fd if Ended event occurs
             if (ev == Event::Ended)
-                this->del(static_cast<int>(event.ident));
+                this->del(event.data.fd);
 
             if (i < length)
                 cache[i] = Data(event.data.fd, ev);
