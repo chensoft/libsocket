@@ -59,6 +59,10 @@ void chen::reactor::run(std::size_t count, double timeout)
             if (find == this->_mapping.end())
                 throw std::runtime_error("reactor: event detect but no callback");
 
+            // remove fd if Ended event occurs
+            if (event.ev == Event::Ended)
+                this->del(event.fd);
+
             find->second(event.ev);
         }
 

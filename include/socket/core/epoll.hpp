@@ -90,7 +90,7 @@ namespace chen
         
     public:
         /**
-         * Set events for fd
+         * Set events for fd, if Ended event occurs then fd will be removed
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
          */

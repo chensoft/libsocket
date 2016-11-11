@@ -57,7 +57,7 @@ namespace chen
 
     public:
         /**
-         * Set events and callback
+         * Set events and callback, if Ended event occurs then fd will be removed
          */
         void set(socket_t fd, int opcode, callback_type callback);
         void set(socket_t fd, int opcode, int flag, callback_type callback);
