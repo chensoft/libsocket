@@ -4,27 +4,27 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/core/runloop.hpp>
+#include <socket/core/reactor.hpp>
 
 // -----------------------------------------------------------------------------
-// runloop
+// reactor
 
 // modify
-void chen::runloop::set(socket_t fd, int opcode, callback_type callback)
+void chen::reactor::set(socket_t fd, int opcode, callback_type callback)
 {
     this->set(fd, opcode, 0, callback);
 }
 
-void chen::runloop::set(socket_t fd, int opcode, int flag, callback_type callback)
+void chen::reactor::set(socket_t fd, int opcode, int flag, callback_type callback)
 {
-    this->_reactor.set(fd, opcode, flag);
+    this->_backend.set(fd, opcode, flag);
     this->_mapping[fd] = callback;
 }
 
-void chen::runloop::del(socket_t fd)
+void chen::reactor::del(socket_t fd)
 {
     // unregister event and callback
-    this->_reactor.del(fd);
+    this->_backend.del(fd);
     this->_mapping.erase(fd);
 
     // deactivate fd's unhandled events, if user delete
@@ -39,13 +39,13 @@ void chen::runloop::del(socket_t fd)
 }
 
 // control
-void chen::runloop::run(std::size_t count, double timeout)
+void chen::reactor::run(std::size_t count, double timeout)
 {
     this->_caching.resize(count);
 
     while (true)
     {
-        this->_count = this->_reactor.poll(this->_caching, count, timeout);
+        this->_count = this->_backend.poll(this->_caching, count, timeout);
         if (!this->_count)
             break;  // user request to stop or timeout
 
@@ -57,7 +57,7 @@ void chen::runloop::run(std::size_t count, double timeout)
 
             auto find = this->_mapping.find(event.fd);
             if (find == this->_mapping.end())
-                throw std::runtime_error("runloop: event detect but no callback");
+                throw std::runtime_error("reactor: event detect but no callback");
 
             find->second(event.ev);
         }
@@ -66,7 +66,7 @@ void chen::runloop::run(std::size_t count, double timeout)
     }
 }
 
-void chen::runloop::stop()
+void chen::reactor::stop()
 {
-    this->_reactor.stop();
+    this->_backend.stop();
 }

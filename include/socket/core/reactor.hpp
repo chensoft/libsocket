@@ -15,37 +15,45 @@
 
 namespace chen
 {
-    /**
-     * Event loop of libsocket, using reactor model
-     */
-    class runloop
+    class reactor
     {
     public:
         /**
-         * Operation code type
-         * @attention specific meaning can refer to reactor
+         * Backend define
          */
-        static constexpr int OpcodeRead  = reactor::OpcodeRead;
-        static constexpr int OpcodeWrite = reactor::OpcodeWrite;
+#if !defined(__linux__) && !defined(_WIN32)
+        typedef kqueue backend;
+#elif defined(__linux__)
+        typedef epoll backend;
+#else
+        typedef poller backend;
+#endif
+
+        /**
+         * Operation code type
+         * @attention specific meaning can refer to backend
+         */
+        static constexpr int OpcodeRead  = backend::OpcodeRead;
+        static constexpr int OpcodeWrite = backend::OpcodeWrite;
         static constexpr int OpcodeRW    = OpcodeRead | OpcodeWrite;
 
         /**
          * Specific flag type
-         * @attention specific meaning can refer to reactor
+         * @attention specific meaning can refer to backend
          */
-        static constexpr int FlagOnce = reactor::FlagOnce;
-        static constexpr int FlagEdge = reactor::FlagEdge;
+        static constexpr int FlagOnce = backend::FlagOnce;
+        static constexpr int FlagEdge = backend::FlagEdge;
 
         /**
          * Reactor event type
-         * @attention specific meaning can refer to reactor
+         * @attention specific meaning can refer to backend
          */
-        using Event = reactor::Event;
+        using Event = backend::Event;
 
         typedef std::function<void (Event type)> callback_type;
 
     public:
-        runloop() = default;
+        reactor() = default;
 
     public:
         /**
@@ -75,14 +83,14 @@ namespace chen
         void stop();
 
     private:
-        runloop(const runloop&) = delete;
-        runloop& operator=(const runloop&) = delete;
+        reactor(const reactor&) = delete;
+        reactor& operator=(const reactor&) = delete;
 
     private:
-        reactor _reactor;
+        backend _backend;
 
         std::size_t _count = 0;
-        std::vector<reactor::Data> _caching;
+        std::vector<backend::Data> _caching;
         std::unordered_map<socket_t, callback_type> _mapping;
     };
 }

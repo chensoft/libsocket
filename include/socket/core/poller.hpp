@@ -34,12 +34,12 @@ namespace chen
         static constexpr int OpcodeWrite = 1 << 1;
 
         /**
-         * Once: event occurs only once
          * Edge: JUST A PLACEHOLDER HERE, NO EFFECT
+         * Once: event occurs only once
          * @attention since WSAPoll doesn't support edge-triggered, FlagEdge is just a placeholder here
          */
-        static constexpr int FlagOnce = 0;
         static constexpr int FlagEdge = 0;  // just a placeholder, in order to keep ABI compatible with kqueue & epoll
+        static constexpr int FlagOnce = 0;
 
         /**
          * Readable: read event occurs, you can read data from socket
@@ -124,12 +124,6 @@ namespace chen
         int  _ef = -1;     // todo eventfd handle
         bool _wk = false;  // is working
     };
-
-
-    /**
-     * Reactor typedef
-     */
-    typedef poller reactor;
 }
 
 #endif

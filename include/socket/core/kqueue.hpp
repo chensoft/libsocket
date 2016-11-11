@@ -40,11 +40,11 @@ namespace chen
         static constexpr int OpcodeWrite = 1 << 1;
 
         /**
-         * Once: event occurs only once
          * Edge: enable edge triggered, default is level triggered
+         * Once: event occurs only once
          */
-        static constexpr int FlagOnce = EV_ONESHOT;
         static constexpr int FlagEdge = EV_CLEAR;
+        static constexpr int FlagOnce = EV_ONESHOT;
 
         /**
          * Readable: read event occurs, you can read data from socket
@@ -131,12 +131,6 @@ namespace chen
         int  _fd = -1;     // kqueue handle
         bool _wk = false;  // is working
     };
-
-
-    /**
-     * Reactor typedef
-     */
-    typedef kqueue reactor;
 }
 
 #endif

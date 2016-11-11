@@ -40,11 +40,11 @@ namespace chen
         static constexpr int OpcodeWrite = 1 << 1;
 
         /**
-         * Once: event occurs only once
          * Edge: enable edge triggered, default is level triggered
+         * Once: event occurs only once
          */
-        static constexpr int FlagOnce = EPOLLONESHOT;
         static constexpr int FlagEdge = EPOLLET;
+        static constexpr int FlagOnce = EPOLLONESHOT;
 
         /**
          * Readable: read event occurs, you can read data from socket
@@ -127,12 +127,6 @@ namespace chen
         int  _ef = -1;     // eventfd handle
         bool _wk = false;  // is working
     };
-
-
-    /**
-     * Reactor typedef
-     */
-    typedef epoll reactor;
 }
 
 #endif
