@@ -49,7 +49,8 @@ namespace chen
          */
         static constexpr int OpcodeRead  = 1 << 0;
         static constexpr int OpcodeWrite = 1 << 1;
-        
+        static constexpr int OpcodeRW    = OpcodeRead | OpcodeWrite;
+
         /**
          * Edge: enable edge triggered, default is level triggered
          * Once: event occurs only once
