@@ -11,15 +11,15 @@
 #include <sys/epoll.h>
 #include <vector>
 
-// android only support the following flags after android-21
+// Android support these flags but ndk didn't define them
+// unless you compile with android-21 or higher api level
+// so we define these macros here to maintain consistency
 #ifndef EPOLLONESHOT
 #define EPOLLONESHOT 0x40000000
-#warning "your system may not support EPOLLONESHOT"
 #endif
 
 #ifndef EPOLLRDHUP
 #define EPOLLRDHUP 0x00002000
-#warning "your system may not support EPOLLRDHUP"
 #endif
 
 namespace chen
@@ -49,14 +49,14 @@ namespace chen
          */
         static constexpr int OpcodeRead  = 1 << 0;
         static constexpr int OpcodeWrite = 1 << 1;
-
+        
         /**
          * Edge: enable edge triggered, default is level triggered
          * Once: event occurs only once
          */
         static constexpr int FlagEdge = EPOLLET;
         static constexpr int FlagOnce = EPOLLONESHOT;
-
+        
         /**
          * Readable: read event occurs, you can read data from socket
          * -----------------------------------------------------------------
@@ -73,20 +73,20 @@ namespace chen
          * epoll may report Readable & Ended event or only report the Ended event
          */
         enum class Event {Readable = 1, Writable, Ended};
-
+        
         typedef struct Data
         {
             Data() = default;
             Data(int fd, Event ev) : fd(fd), ev(ev) {}
-
+            
             int   fd = -1;
             Event ev;
         } Data;
-
+        
     public:
         epoll();
         ~epoll();
-
+        
     public:
         /**
          * Set events for fd
@@ -94,12 +94,12 @@ namespace chen
          * @param flag FlagOnce, FlagEdge or combination of them
          */
         void set(int fd, int opcode, int flag = 0);
-
+        
         /**
          * Delete all events for fd
          */
         void del(int fd);
-
+        
     public:
         /**
          * Poll events, with an optional timeout
@@ -111,28 +111,28 @@ namespace chen
          * @return zero if user request to stop or timeout
          */
         std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
-
+        
         /**
          * Poll events, return vector directly
          * @return empty if user request to stop or timeout
          */
         std::vector<Data> poll(std::size_t count, double timeout = -1);
-
+        
         /**
          * Stop the poll if epoll is waiting for events
          */
         void stop();
-
+        
     private:
         /**
          * Helper
          */
         Event event(unsigned events);
-
+        
     private:
         epoll(const epoll&) = delete;
         epoll& operator=(const epoll&) = delete;
-
+        
     private:
         int  _fd = -1;     // epoll handle
         int  _ef = -1;     // eventfd handle
