@@ -11,6 +11,17 @@
 #include <sys/epoll.h>
 #include <vector>
 
+// android only support the following flags after android-21
+#ifndef EPOLLONESHOT
+#define EPOLLONESHOT 0x40000000
+#warning "your system may not support EPOLLONESHOT"
+#endif
+
+#ifndef EPOLLRDHUP
+#define EPOLLRDHUP 0x00002000
+#warning "your system may not support EPOLLRDHUP"
+#endif
+
 namespace chen
 {
     /**

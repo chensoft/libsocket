@@ -16,7 +16,8 @@
 chen::epoll::epoll()
 {
     // create epoll file descriptor
-    if ((this->_fd = ::epoll_create1(0)) < 0)
+    // 1 is just a hit, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
+    if ((this->_fd = ::epoll_create(1)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
     // create eventfd to receive wake message
