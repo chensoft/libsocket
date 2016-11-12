@@ -17,6 +17,16 @@ add_subdirectory(lib/libchen)
 include_directories(include)
 include_directories(lib/libchen/include)
 
+# source codes
+file(GLOB_RECURSE INC_SOCKET include/socket/*.hpp)
+file(GLOB_RECURSE SRC_SOCKET src/*.cpp)
+
+# generate lib, build static library by default
+# use -DBUILD_SHARED_LIBS=ON if you want to build a shared library
+add_library(libsocket ${INC_SOCKET} ${SRC_SOCKET})
+target_link_libraries(libsocket libchen)
+set_target_properties(libsocket PROPERTIES OUTPUT_NAME libsocket PREFIX "")
+
 # android ifaddrs
 # android-ndk-r13+ provide a cmake toolchain file(require cmake 3.6+)
 # use cmake -DCMAKE_TOOLCHAIN_FILE=android-ndk-r13/build/cmake/android.toolchain.cmake \
@@ -25,17 +35,8 @@ include_directories(lib/libchen/include)
 if(ANDROID)
     add_subdirectory(lib/ifaddrs)
     include_directories(lib/ifaddrs)
+    target_link_libraries(libsocket ifaddrs)
 endif()
-
-# source codes
-file(GLOB_RECURSE INC_SOCKET include/socket/*.hpp)
-file(GLOB_RECURSE SRC_SOCKET src/*.cpp)
-
-# generate lib, build static library by default
-# use -DBUILD_SHARED_LIBS=ON if you want to build a shared library
-add_library(libsocket ${INC_SOCKET} ${SRC_SOCKET})
-target_link_libraries(libsocket libchen ifaddrs)
-set_target_properties(libsocket PROPERTIES OUTPUT_NAME libsocket PREFIX "")
 
 # group files in the IDE(e.g: Xcode and Visual Studio)
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${INC_SOCKET}")
