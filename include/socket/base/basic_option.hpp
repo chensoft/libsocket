@@ -120,7 +120,7 @@ namespace chen
          */
         int type() const;
 
-    protected:
+    public:
         /**
          * Helper
          */

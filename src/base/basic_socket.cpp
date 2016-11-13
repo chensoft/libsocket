@@ -75,6 +75,11 @@ void chen::basic_socket::reset()
 
     if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) < 0)
         throw std::system_error(sys::error(), "socket: failed to create socket");
+
+#ifdef SO_NOSIGPIPE
+    // this macro is defined on Unix to prevent SIGPIPE on this socket
+    this->option().set(SOL_SOCKET, SO_NOSIGPIPE, 1);
+#endif
 }
 
 void chen::basic_socket::reset(socket_t fd) noexcept
@@ -86,6 +91,11 @@ void chen::basic_socket::reset(socket_t fd) noexcept
     this->_family   = 0;
     this->_type     = this->option().type();
     this->_protocol = 0;
+
+#ifdef SO_NOSIGPIPE
+    // this macro is defined on Unix to prevent SIGPIPE on this socket
+    this->option().set(SOL_SOCKET, SO_NOSIGPIPE, 1);
+#endif
 }
 
 void chen::basic_socket::reset(int family, int type, int protocol)
