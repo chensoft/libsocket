@@ -116,7 +116,7 @@ namespace chen
 
     private:
 #ifdef _WIN32
-		basic_socket _up;  // wake handle
+		basic_socket _up;  // wake socket
 #else
         int _pp[2]{};  // pipe handle
 #endif

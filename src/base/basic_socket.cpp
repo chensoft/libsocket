@@ -73,7 +73,7 @@ void chen::basic_socket::reset()
     if (!this->_family)
         throw std::runtime_error("socket: reset failed because family is unknown");
 
-    if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) < 0)
+    if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) == invalid_handle)
         throw std::system_error(sys::error(), "socket: failed to create socket");
 
 #ifdef SO_NOSIGPIPE
@@ -127,7 +127,7 @@ chen::basic_socket chen::basic_socket::accept() noexcept
 {
     handle_t fd = invalid_handle;
 
-    if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
+    if ((fd = ::accept(this->_fd, nullptr, nullptr)) == invalid_handle)
         return nullptr;
 
     return basic_socket(fd);
@@ -137,7 +137,7 @@ chen::basic_socket chen::basic_socket::accept(basic_address &addr) noexcept
 {
     handle_t fd = invalid_handle;
 
-    if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size)) < 0)
+    if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size)) == invalid_handle)
         return nullptr;
 
     return basic_socket(fd);
