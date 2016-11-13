@@ -123,13 +123,7 @@ namespace chen
          * Stop the poll if epoll is waiting for events
          */
         void stop();
-        
-    private:
-        /**
-         * Helper
-         */
-        Event event(unsigned events);
-        
+
     private:
         epoll(const epoll&) = delete;
         epoll& operator=(const epoll&) = delete;

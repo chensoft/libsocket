@@ -69,6 +69,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
     if (!count)
         return 0;
 
+    // wait for events
     this->_wk = true;
 
     struct ::epoll_event events[count];
@@ -89,7 +90,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
     // check return data
     auto length = cache.size();
 
-    for (std::size_t i = 0; i < static_cast<std::size_t>(result); ++i)
+    for (std::size_t i = 0, c = count; (i < static_cast<std::size_t>(result)) && c; ++i)
     {
         auto &event = events[i];
 
@@ -100,18 +101,32 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
             ::eventfd_read(this->_ef, &dummy);
             return 0;
         }
-        else
-        {
-            auto ev = this->event(event.events);
 
+        // check events, multiple events maybe occur
+        auto insert = [&] (Event code) {
             // remove fd if Ended event occurs
-            if (ev == Event::Ended)
+            if (code == Event::Ended)
                 this->del(event.data.fd);
 
             if (i < length)
-                cache[i] = Data(event.data.fd, ev);
+                cache[i] = Data(event.data.fd, code);
             else
-                cache.emplace_back(Data(event.data.fd, ev));
+                cache.emplace_back(Data(event.data.fd, code));
+
+            --c;
+        };
+
+        if ((event.events & EPOLLRDHUP) || (event.events & EPOLLERR) || (event.events & EPOLLHUP))
+        {
+            insert(Event::Ended);
+        }
+        else
+        {
+            if (event.events & EPOLLIN)
+                insert(Event::Readable);
+
+            if ((event.events & EPOLLOUT) && c)
+                insert(Event::Writable);
         }
     }
 
@@ -133,20 +148,6 @@ void chen::epoll::stop()
     // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)
         throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
-}
-
-// misc
-chen::epoll::Event chen::epoll::event(unsigned events)
-{
-    if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
-        return Event::Ended;
-
-    if (events & EPOLLIN)
-        return Event::Readable;
-    else if (events & EPOLLOUT)
-        return Event::Writable;
-    else
-        throw std::runtime_error("epoll: unknown event detect");
 }
 
 #endif

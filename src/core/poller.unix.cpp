@@ -120,7 +120,7 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
             --c;
         };
 
-        if ((event.revents & POLLERR) || (event.revents & POLLHUP) || (event.revents & POLLRDHUP))
+        if ((event.revents & POLLRDHUP) || (event.revents & POLLERR) || (event.revents & POLLHUP))
         {
             insert(Event::Ended);
         }
