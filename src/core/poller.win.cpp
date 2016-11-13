@@ -14,17 +14,10 @@
 // poller
 chen::poller::poller()
 {
-	//// create pipe to receive wake message
-	//if (::pipe(this->_pp) < 0)
-	//	throw std::system_error(sys::error(), "poller: failed to create pipe");
-
-	//this->set(this->_pp[0], OpcodeRead);
 }
 
 chen::poller::~poller()
 {
-	//::close(this->_pp[0]);
-	//::close(this->_pp[1]);
 }
 
 // modify
@@ -52,9 +45,15 @@ void chen::poller::del(handle_t fd)
 // poll
 std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
-	// todo
-	//if (!count || (this->_fds.size() == 1))  // ignore if just has a pipe in it
-	//	return 0;
+	if (!count || this->_fds.empty() || ((this->_fds.size() == 1) && this->_up))  // ignore if it's empty or just a wakeup socket in it
+		return 0;
+
+	// create socket to receive close event
+	if (!this->_up)
+	{
+		this->_up.reset(AF_INET, SOCK_DGRAM);
+		this->set(this->_up.native(), OpcodeRead);
+	}
 
 	// temporary use only
 	std::vector<::pollfd> scan(this->_fds.size());
@@ -75,12 +74,16 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
 	// check error status
 	if (result <= 0)
 	{
-		// EINTR maybe triggered by debugger, treat it as user request to stop
-		if ((errno == EINTR) || !result)
+		// zero means timeout
+		if (!result)
 			return 0;
 		else
 			throw std::system_error(sys::error(), "poller: failed to poll event");
 	}
+
+	// user request to stop
+	if (!this->_up)
+		return 0;
 
 	// check return data
 	auto length = cache.size();
@@ -90,14 +93,6 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
 		auto &event = scan[i];
 		if (event.revents == 0)
 			continue;
-
-		//if (event.fd == this->_pp[0])
-		//{
-		//	// user request to stop
-		//	char dummy;
-		//	::read(this->_pp[0], &dummy, 1);
-		//	return 0;
-		//}
 
 		// check events, multiple events maybe occur
 		auto insert = [&](Event code) {
@@ -139,12 +134,11 @@ std::vector<chen::poller::Data> chen::poller::poll(std::size_t count, double tim
 
 void chen::poller::stop()
 {
-	//if (!this->_wk)
-	//	return;
+	if (!this->_wk)
+		return;
 
-	//// notify wake message via pipe
-	//if (::write(this->_pp[1], "\n", 1) != 1)
-	//	throw std::system_error(sys::error(), "poller: failed to wake the poller");
+	// notify wake message via socket's close event
+	this->_up.close();
 }
 
 #endif

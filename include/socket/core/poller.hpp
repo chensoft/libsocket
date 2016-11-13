@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/config.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -116,6 +116,7 @@ namespace chen
 
     private:
 #ifdef _WIN32
+		basic_socket _up;  // wake handle
 #else
         int _pp[2]{};  // pipe handle
 #endif
