@@ -146,21 +146,41 @@ chen::basic_socket chen::basic_socket::accept(basic_address &addr) noexcept
 // transmission
 chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) noexcept
 {
+#ifdef MSG_NOSIGNAL
+    // this macro is defined on Linux to prevent SIGPIPE on this socket
+    flags |= MSG_NOSIGNAL;
+#endif
+
     return ::recv(this->_fd, (char*)data, size, flags);
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr, int flags) noexcept
 {
+#ifdef MSG_NOSIGNAL
+    // this macro is defined on Linux to prevent SIGPIPE on this socket
+    flags |= MSG_NOSIGNAL;
+#endif
+
     return ::recvfrom(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&addr.addr, &addr.size);
 }
 
 chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int flags) noexcept
 {
+#ifdef MSG_NOSIGNAL
+    // this macro is defined on Linux to prevent SIGPIPE on this socket
+    flags |= MSG_NOSIGNAL;
+#endif
+
     return ::send(this->_fd, (char*)data, size, flags);
 }
 
 chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr, int flags) noexcept
 {
+#ifdef MSG_NOSIGNAL
+    // this macro is defined on Linux to prevent SIGPIPE on this socket
+    flags |= MSG_NOSIGNAL;
+#endif
+
     return ::sendto(this->_fd, (char*)data, size, flags, (struct ::sockaddr*)&addr.addr, addr.size);
 }
 
