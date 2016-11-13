@@ -1,31 +1,33 @@
 /**
  * Created by Jian Chen
- * @since  2016.09.25
+ * @since  2016.11.12
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
 #pragma once
 
-#ifdef _WIN32
+#ifndef _WIN32
+#include <poll.h>
+#endif
 
+#include <unordered_map>
 #include <vector>
 
 namespace chen
 {
     /**
-     * todo use WSAEventSelect & WaitForSingleObject & WSAEnumEvents ?
-     * WSAPoll for Windows(reactor model)
+     * poll for Unix, WSAPoll for Windows(reactor model)
      * Windows's most efficient model is IOCP, but IOCP is a proactor model, so we use WSAPoll here
      * you should not use this class directly unless you want to implement your own event-based model
-     * @attention WSAPoll does not provide edge triggering
+     * @attention poller does not support edge-triggered, so it's always level-triggered
      */
     class poller
     {
     public:
         /**
-         * Read: event always occurs if the recv buffer has unread data
+         * Read(LT): event always occurs if the recv buffer has unread data
          * -----------------------------------------------------------------
-         * Write: event always occurs if the send buffer is not full
+         * Write(LT): event always occurs if the send buffer is not full
          * -----------------------------------------------------------------
          * @attention since the socket has its own send buffer, you don't need to monitor the write event from the start
          * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
@@ -35,12 +37,11 @@ namespace chen
         static constexpr int OpcodeRW    = OpcodeRead | OpcodeWrite;
 
         /**
-         * Edge: JUST A PLACEHOLDER HERE, NO EFFECT
+         * Edge: JUST A PLACEHOLDER HERE
          * Once: event occurs only once
-         * @attention since WSAPoll doesn't support edge-triggered, FlagEdge is just a placeholder here
          */
-        static constexpr int FlagEdge = 0;  // just a placeholder, in order to keep ABI compatible with kqueue & epoll
-        static constexpr int FlagOnce = 0;
+        static constexpr int FlagEdge = 0;  // no effect, in order to keep ABI compatible with kqueue & epoll
+        static constexpr int FlagOnce = 1;  // we simulate this flag in poller
 
         /**
          * Readable: read event occurs, you can read data from socket
@@ -49,15 +50,13 @@ namespace chen
          * -----------------------------------------------------------------
          * Ended: socket disconnected or connection refused
          * -----------------------------------------------------------------
-         * todo verify
          * @attention you must monitor the read event if you want to know the end event
          * this behavior is different than Linux's epoll
          * in epoll, end event will always be monitored
          * -----------------------------------------------------------------
-         * todo verify
          * @attention you should read the rest of the data even if you received the end event
          * because server may send last message and then close the connection immediately
-         * kqueue may report Readable & Ended event or only report the Ended event
+         * poller may report Readable & Ended event or only report the Ended event
          */
         enum class Event {Readable = 1, Writable, Ended};
 
@@ -78,7 +77,7 @@ namespace chen
         /**
          * Set events for fd, if Ended event occurs then fd will be removed
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
-         * @param flag FlagOnce, FlagEdge or combination of them
+         * @param flag just allow FlagOnce, use FlagEdge has no effect
          */
         void set(int fd, int opcode, int flag = 0);
 
@@ -111,20 +110,16 @@ namespace chen
         void stop();
 
     private:
-        /**
-         * Helper
-         */
-        Event event(unsigned events);
-
-    private:
         poller(const poller&) = delete;
         poller& operator=(const poller&) = delete;
 
     private:
-        int  _fd = -1;     // epoll handle
-        int  _ef = -1;     // todo eventfd handle
+#ifdef _WIN32
+#else
+        int _pp[2]{};  // pipe handle
+#endif
+
         bool _wk = false;  // is working
+        std::unordered_map<int, std::pair<::pollfd, int>> _fds;  // all fds
     };
 }
-
-#endif

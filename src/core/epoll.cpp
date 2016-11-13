@@ -76,7 +76,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
 
     this->_wk = false;
 
-    // poll next events
+    // check error status
     if (result <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
@@ -98,7 +98,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
             // user request to stop
             ::eventfd_t dummy;
             ::eventfd_read(this->_ef, &dummy);
-            return {};
+            return 0;
         }
         else
         {
