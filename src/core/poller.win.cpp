@@ -28,7 +28,7 @@ chen::poller::~poller()
 }
 
 // modify
-void chen::poller::set(int fd, int opcode, int flag)
+void chen::poller::set(handle_t fd, int opcode, int flag)
 {
 	auto &item = this->_fds[fd];
 
@@ -44,7 +44,7 @@ void chen::poller::set(int fd, int opcode, int flag)
 	item.second = flag;
 }
 
-void chen::poller::del(int fd)
+void chen::poller::del(handle_t fd)
 {
 	this->_fds.erase(fd);
 }

@@ -64,9 +64,9 @@ namespace chen
         typedef struct Data
         {
             Data() = default;
-            Data(int fd, Event ev) : fd(fd), ev(ev) {}
+            Data(handle_t fd, Event ev) : fd(fd), ev(ev) {}
 
-            int   fd = -1;
+            handle_t fd = invalid_handle;
             Event ev;
         } Data;
 
@@ -80,12 +80,12 @@ namespace chen
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag just allow FlagOnce, use FlagEdge has no effect
          */
-        void set(int fd, int opcode, int flag = 0);
+        void set(handle_t fd, int opcode, int flag = 0);
 
         /**
          * Delete all events for fd
          */
-        void del(int fd);
+        void del(handle_t fd);
 
     public:
         /**
@@ -121,6 +121,6 @@ namespace chen
 #endif
 
         bool _wk = false;  // is working
-        std::unordered_map<int, std::pair<::pollfd, int>> _fds;  // all fds
+        std::unordered_map<handle_t, std::pair<::pollfd, int>> _fds;  // all fds
     };
 }

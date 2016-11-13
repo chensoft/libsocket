@@ -7,7 +7,6 @@
 #if !defined(__linux__) && !defined(_WIN32)
 
 #include <socket/core/kqueue.hpp>
-#include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
@@ -37,7 +36,7 @@ chen::kqueue::~kqueue()
 }
 
 // modify
-void chen::kqueue::set(int fd, int opcode, int flag)
+void chen::kqueue::set(handle_t fd, int opcode, int flag)
 {
     struct ::kevent event{};
 
@@ -54,7 +53,7 @@ void chen::kqueue::set(int fd, int opcode, int flag)
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
-void chen::kqueue::del(int fd)
+void chen::kqueue::del(handle_t fd)
 {
     struct ::kevent event{};
 

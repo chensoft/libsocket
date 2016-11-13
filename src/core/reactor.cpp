@@ -10,18 +10,18 @@
 // reactor
 
 // modify
-void chen::reactor::set(socket_t fd, int opcode, callback_type callback)
+void chen::reactor::set(handle_t fd, int opcode, callback_type callback)
 {
     this->set(fd, opcode, 0, callback);
 }
 
-void chen::reactor::set(socket_t fd, int opcode, int flag, callback_type callback)
+void chen::reactor::set(handle_t fd, int opcode, int flag, callback_type callback)
 {
     this->_backend.set(fd, opcode, flag);
     this->_mapping[fd] = callback;
 }
 
-void chen::reactor::del(socket_t fd)
+void chen::reactor::del(handle_t fd)
 {
     // unregister event and callback
     this->_backend.del(fd);
@@ -34,7 +34,7 @@ void chen::reactor::del(socket_t fd)
     {
         auto &event = this->_caching[i];
         if (event.fd == fd)
-            event.fd = invalid_socket;
+            event.fd = invalid_handle;
     }
 }
 
@@ -52,7 +52,7 @@ void chen::reactor::run(std::size_t count, double timeout)
         for (std::size_t idx = 0; idx < this->_count; ++idx)
         {
             auto &event = this->_caching[idx];
-            if (event.fd == invalid_socket)
+            if (event.fd == invalid_handle)
                 continue;  // someone has removed the socket in previous callback
 
             auto find = this->_mapping.find(event.fd);

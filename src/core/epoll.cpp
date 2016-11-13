@@ -7,7 +7,6 @@
 #ifdef __linux__
 
 #include <socket/core/epoll.hpp>
-#include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
 
@@ -37,7 +36,7 @@ chen::epoll::~epoll()
 }
 
 // modify
-void chen::epoll::set(int fd, int opcode, int flag)
+void chen::epoll::set(handle_t fd, int opcode, int flag)
 {
     struct ::epoll_event event{};
 
@@ -57,7 +56,7 @@ void chen::epoll::set(int fd, int opcode, int flag)
     }
 }
 
-void chen::epoll::del(int fd)
+void chen::epoll::del(handle_t fd)
 {
     if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");

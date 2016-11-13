@@ -8,6 +8,7 @@
 
 #ifdef __linux__
 
+#include <socket/config.hpp>
 #include <sys/epoll.h>
 #include <vector>
 
@@ -78,9 +79,9 @@ namespace chen
         typedef struct Data
         {
             Data() = default;
-            Data(int fd, Event ev) : fd(fd), ev(ev) {}
+            Data(handle_t fd, Event ev) : fd(fd), ev(ev) {}
             
-            int   fd = -1;
+            handle_t fd = invalid_handle;
             Event ev;
         } Data;
         
@@ -94,12 +95,12 @@ namespace chen
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
          */
-        void set(int fd, int opcode, int flag = 0);
+        void set(handle_t fd, int opcode, int flag = 0);
         
         /**
          * Delete all events for fd
          */
-        void del(int fd);
+        void del(handle_t fd);
         
     public:
         /**
@@ -129,9 +130,9 @@ namespace chen
         epoll& operator=(const epoll&) = delete;
         
     private:
-        int  _fd = -1;     // epoll handle
-        int  _ef = -1;     // eventfd handle
-        bool _wk = false;  // is working
+        int  _fd = invalid_handle;  // epoll handle
+        int  _ef = invalid_handle;  // eventfd handle
+        bool _wk = false;           // is working
     };
 }
 

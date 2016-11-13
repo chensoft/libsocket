@@ -9,7 +9,6 @@
 #include <socket/core/kqueue.hpp>
 #include <socket/core/poller.hpp>
 #include <socket/core/epoll.hpp>
-#include <socket/config.hpp>
 #include <unordered_map>
 #include <functional>
 
@@ -59,14 +58,14 @@ namespace chen
         /**
          * Set events and callback, if Ended event occurs then fd will be removed
          */
-        void set(socket_t fd, int opcode, callback_type callback);
-        void set(socket_t fd, int opcode, int flag, callback_type callback);
+        void set(handle_t fd, int opcode, callback_type callback);
+        void set(handle_t fd, int opcode, int flag, callback_type callback);
 
         /**
          * Remove events & callbacks
          * @attention socket should call this method when it is destroyed
          */
-        void del(socket_t fd);
+        void del(handle_t fd);
 
     public:
         /**
@@ -91,6 +90,6 @@ namespace chen
 
         std::size_t _count = 0;
         std::vector<backend::Data> _caching;
-        std::unordered_map<socket_t, callback_type> _mapping;
+        std::unordered_map<handle_t, callback_type> _mapping;
     };
 }

@@ -13,12 +13,12 @@ chen::basic_socket::basic_socket(std::nullptr_t) noexcept
 {
 }
 
-chen::basic_socket::basic_socket(socket_t fd) noexcept
+chen::basic_socket::basic_socket(handle_t fd) noexcept
 {
     this->reset(fd);
 }
 
-chen::basic_socket::basic_socket(socket_t fd, int family, int type, int protocol) noexcept
+chen::basic_socket::basic_socket(handle_t fd, int family, int type, int protocol) noexcept
 {
     this->reset(fd);
 
@@ -42,7 +42,7 @@ chen::basic_socket& chen::basic_socket::operator=(basic_socket &&o) noexcept
     if (this == &o)
         return *this;
 
-    if (this->_fd != invalid_socket)
+    if (this->_fd != invalid_handle)
         this->close();
 
     this->_fd       = o._fd;
@@ -50,7 +50,7 @@ chen::basic_socket& chen::basic_socket::operator=(basic_socket &&o) noexcept
     this->_type     = o._type;
     this->_protocol = o._protocol;
 
-    o._fd       = invalid_socket;
+    o._fd       = invalid_handle;
     o._family   = 0;
     o._type     = 0;
     o._protocol = 0;
@@ -60,14 +60,14 @@ chen::basic_socket& chen::basic_socket::operator=(basic_socket &&o) noexcept
 
 chen::basic_socket::~basic_socket() noexcept
 {
-    if (this->_fd != invalid_socket)
+    if (this->_fd != invalid_handle)
         this->close();
 }
 
 // reset
 void chen::basic_socket::reset()
 {
-    if (this->_fd != invalid_socket)
+    if (this->_fd != invalid_handle)
         this->close();
 
     if (!this->_family)
@@ -82,9 +82,9 @@ void chen::basic_socket::reset()
 #endif
 }
 
-void chen::basic_socket::reset(socket_t fd) noexcept
+void chen::basic_socket::reset(handle_t fd) noexcept
 {
-    if (this->_fd != invalid_socket)
+    if (this->_fd != invalid_handle)
         this->close();
 
     this->_fd       = fd;
@@ -125,7 +125,7 @@ std::error_code chen::basic_socket::listen(int backlog) noexcept
 
 chen::basic_socket chen::basic_socket::accept() noexcept
 {
-    socket_t fd = invalid_socket;
+    handle_t fd = invalid_handle;
 
     if ((fd = ::accept(this->_fd, nullptr, nullptr)) < 0)
         return nullptr;
@@ -135,7 +135,7 @@ chen::basic_socket chen::basic_socket::accept() noexcept
 
 chen::basic_socket chen::basic_socket::accept(basic_address &addr) noexcept
 {
-    socket_t fd = invalid_socket;
+    handle_t fd = invalid_handle;
 
     if ((fd = ::accept(this->_fd, (struct ::sockaddr*)&addr.addr, &addr.size)) < 0)
         return nullptr;
@@ -206,7 +206,7 @@ chen::basic_option chen::basic_socket::option() noexcept
 
 bool chen::basic_socket::valid() const noexcept
 {
-    return this->_fd != invalid_socket;
+    return this->_fd != invalid_handle;
 }
 
 chen::basic_socket::operator bool() const noexcept
@@ -214,7 +214,7 @@ chen::basic_socket::operator bool() const noexcept
     return this->valid();
 }
 
-chen::socket_t chen::basic_socket::native() const noexcept
+chen::handle_t chen::basic_socket::native() const noexcept
 {
     return this->_fd;
 }

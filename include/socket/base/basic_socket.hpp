@@ -36,8 +36,8 @@ namespace chen
          * Construct by socket handle directly
          * @attention you can't use reset() if you construct only from fd, because we didn't know fd's family & protocol
          */
-        basic_socket(socket_t fd) noexcept;
-        basic_socket(socket_t fd, int family, int type, int protocol) noexcept;
+        basic_socket(handle_t fd) noexcept;
+        basic_socket(handle_t fd, int family, int type, int protocol) noexcept;
 
         /**
          * Construct by socket type
@@ -62,7 +62,7 @@ namespace chen
         /**
          * Reset socket by fd or info
          */
-        void reset(socket_t fd) noexcept;
+        void reset(handle_t fd) noexcept;
         void reset(int family, int type, int protocol = 0);
 
     public:
@@ -152,7 +152,7 @@ namespace chen
         /**
          * Native socket handle
          */
-        socket_t native() const noexcept;
+        handle_t native() const noexcept;
 
         /**
          * Available bytes to read without blocking
@@ -176,7 +176,7 @@ namespace chen
         basic_socket& operator=(const basic_socket&) = delete;
 
     private:
-        socket_t _fd = invalid_socket;  // socket descriptor
+        handle_t _fd = invalid_handle;  // socket descriptor
 
         // used for reset socket
         // only type is valid if you construct from a socket descriptor

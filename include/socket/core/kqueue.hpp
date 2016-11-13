@@ -8,6 +8,7 @@
 
 #if !defined(__linux__) && !defined(_WIN32)
 
+#include <socket/config.hpp>
 #include <sys/event.h>
 #include <vector>
 
@@ -67,9 +68,9 @@ namespace chen
         typedef struct Data
         {
             Data() = default;
-            Data(int fd, Event ev) : fd(fd), ev(ev) {}
+            Data(handle_t fd, Event ev) : fd(fd), ev(ev) {}
 
-            int   fd = -1;
+            handle_t fd = invalid_handle;
             Event ev;
         } Data;
 
@@ -88,12 +89,12 @@ namespace chen
          * running Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll.
          */
-        void set(int fd, int opcode, int flag = 0);
+        void set(handle_t fd, int opcode, int flag = 0);
 
         /**
          * Delete all events for fd
          */
-        void del(int fd);
+        void del(handle_t fd);
 
     public:
         /**
@@ -129,8 +130,8 @@ namespace chen
         kqueue& operator=(const kqueue&) = delete;
 
     private:
-        int  _fd = -1;     // kqueue handle
-        bool _wk = false;  // is working
+        int  _fd = invalid_handle;  // kqueue handle
+        bool _wk = false;           // is working
     };
 }
 

@@ -34,7 +34,7 @@ void chen::basic_socket::shutdown(Shutdown type) noexcept
 void chen::basic_socket::close() noexcept
 {
     ::closesocket(this->_fd);
-    this->_fd = invalid_socket;
+    this->_fd = invalid_handle;
 }
 
 // property
