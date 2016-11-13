@@ -6,12 +6,13 @@
  */
 #pragma once
 
+#include <socket/config.hpp>
+#include <unordered_map>
+#include <vector>
+
 #ifndef _WIN32
 #include <poll.h>
 #endif
-
-#include <unordered_map>
-#include <vector>
 
 namespace chen
 {

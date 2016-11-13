@@ -7,7 +7,6 @@
 #ifndef _WIN32
 
 #include <socket/core/poller.hpp>
-#include <socket/config.hpp>
 #include <chen/sys/sys.hpp>
 #include <unistd.h>
 
