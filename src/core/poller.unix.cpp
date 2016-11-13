@@ -12,6 +12,13 @@
 #include <unistd.h>
 
 // -----------------------------------------------------------------------------
+// only Linux define the POLLRDHUP, you must use it to detect close event on Linux
+#ifndef POLLRDHUP
+#define POLLRDHUP 0
+#endif
+
+
+// -----------------------------------------------------------------------------
 // poller
 chen::poller::poller()
 {
@@ -34,7 +41,7 @@ void chen::poller::set(int fd, int opcode, int flag)
     auto &item = this->_fds[fd];
 
     item.first.fd = fd;
-    item.first.events = 0;
+    item.first.events = POLLRDHUP;
 
     if (opcode & OpcodeRead)
         item.first.events |= POLLIN;
@@ -113,7 +120,7 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
             --c;
         };
 
-        if ((event.revents & POLLERR) || (event.revents & POLLHUP))
+        if ((event.revents & POLLERR) || (event.revents & POLLHUP) || (event.revents & POLLRDHUP))
         {
             insert(Event::Ended);
         }
