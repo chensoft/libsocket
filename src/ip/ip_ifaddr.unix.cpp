@@ -81,7 +81,7 @@ namespace
         }
     }
 
-    void hardware(struct ::ifaddrs *ptr, std::string &mac, std::int32_t &mtu)
+    void hardware(struct ::ifaddrs *ptr, std::string &mac, std::uint32_t &mtu)
     {
         if (ptr->ifa_addr->sa_family != AF_LINK)
             return;
