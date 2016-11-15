@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/ip/ip_ifaddr.hpp>
+#include <socket/ip/ip_adapter.hpp>
 #include <gtest/gtest.h>
 
 TEST(IPAddressTest, Base)
@@ -193,7 +193,7 @@ TEST(IPAddressTest, IPv4)
 
 TEST(IPAddressTest, IPv6)
 {
-    using chen::ip_ifaddr;
+    using chen::ip_adapter;
     using chen::ip_address;
     using chen::ip_version6;
 
@@ -254,7 +254,7 @@ TEST(IPAddressTest, IPv6)
     EXPECT_EQ("2404:6800:4004:817::200e", ip_address("2404:6800:4004:817:0000:0000:0000:200e").v6().compressed());
     EXPECT_EQ("::ffff:192.0.2.128", ip_address("::ffff:c000:280").v6().mixed());
 
-    auto scope = ip_ifaddr::scope(1);
+    auto scope = ip_adapter::scope(1);
 
     EXPECT_EQ("fe80::1%" + scope, ip_address("fe80::1%1").v6().str(false, true));
     EXPECT_EQ("fe80::1%" + scope + "/128", ip_address("fe80::1%1").v6().str(true, true));

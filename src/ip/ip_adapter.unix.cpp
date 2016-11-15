@@ -7,7 +7,7 @@
 #ifndef _WIN32
 
 #include <socket/base/basic_socket.hpp>
-#include <socket/ip/ip_ifaddr.hpp>
+#include <socket/ip/ip_adapter.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <functional>
@@ -134,9 +134,9 @@ namespace
 // ifaddr
 
 // enumerate
-std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
+std::map<std::string, chen::ip_adapter> chen::ip_adapter::enumerate()
 {
-    std::map<std::string, ip_ifaddr> map;
+    std::map<std::string, ip_adapter> map;
 
     ::visit([&] (struct ::ifaddrs *ptr, bool &stop) {
         auto &item = map[ptr->ifa_name];
@@ -168,7 +168,7 @@ std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
 }
 
 // scope
-std::uint32_t chen::ip_ifaddr::scope(const std::uint8_t addr[16], const std::string &name)
+std::uint32_t chen::ip_adapter::scope(const std::uint8_t addr[16], const std::string &name)
 {
     // if name is integer
     bool digits = std::all_of(name.begin(), name.end(), [] (char ch) -> bool {
@@ -198,7 +198,7 @@ std::uint32_t chen::ip_ifaddr::scope(const std::uint8_t addr[16], const std::str
     return id;
 }
 
-std::string chen::ip_ifaddr::scope(std::uint32_t id)
+std::string chen::ip_adapter::scope(std::uint32_t id)
 {
     std::string name;
 
