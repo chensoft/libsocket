@@ -6,11 +6,11 @@
  */
 #ifdef _WIN32
 
-#include <socket/ip/ip_ifaddr.hpp>
+#include <socket/ip/ip_adapter.hpp>
 #include <chen/base/str.hpp>
 #include <chen/base/num.hpp>
-#include <functional>
 #include <Iphlpapi.h>
+#include <functional>
 #include <codecvt>
 #include <cstring>
 #include <cctype>
@@ -110,9 +110,9 @@ namespace
 // ifaddr
 
 // enumerate
-std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
+std::map<std::string, chen::ip_adapter> chen::ip_adapter::enumerate()
 {
-	std::map<std::string, ip_ifaddr> map;
+	std::map<std::string, ip_adapter> map;
 
 	::visit([&](PIP_ADAPTER_ADDRESSES ptr, bool &stop) {
 		auto  name = ::utf8(ptr->FriendlyName);
@@ -147,15 +147,15 @@ std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
 }
 
 // scope
-std::uint32_t chen::ip_ifaddr::scope(const std::uint8_t addr[16], const std::string &name)
+std::uint32_t chen::ip_adapter::scope(const std::uint8_t addr[16], const std::string &name)
 {
-	// scope is number on Windows
+	// scope is always a number on Windows
 	return static_cast<std::uint32_t>(std::atoi(name.c_str()));
 }
 
-std::string chen::ip_ifaddr::scope(std::uint32_t id)
+std::string chen::ip_adapter::scope(std::uint32_t id)
 {
-	// scope is number on Windows
+	// scope is always a number on Windows
 	return num::str(id);
 }
 
