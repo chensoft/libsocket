@@ -133,37 +133,6 @@ namespace
 // -----------------------------------------------------------------------------
 // ifaddr
 
-// flags
-bool chen::ip_ifaddr::isUp() const
-{
-    return (this->flag & IFF_UP) != 0;
-}
-
-bool chen::ip_ifaddr::isBroadcast() const
-{
-    return (this->flag & IFF_BROADCAST) != 0;
-}
-
-bool chen::ip_ifaddr::isLoopback() const
-{
-    return (this->flag & IFF_LOOPBACK) != 0;
-}
-
-bool chen::ip_ifaddr::isRunning() const
-{
-    return (this->flag & IFF_RUNNING) != 0;
-}
-
-bool chen::ip_ifaddr::isPromiscuous() const
-{
-    return (this->flag & IFF_PROMISC) != 0;
-}
-
-bool chen::ip_ifaddr::isMulticast() const
-{
-    return (this->flag & IFF_MULTICAST) != 0;
-}
-
 // enumerate
 std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
 {

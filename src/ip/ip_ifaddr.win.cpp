@@ -106,45 +106,8 @@ namespace
 }
 
 
- // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // ifaddr
-
-// flags
-bool chen::ip_ifaddr::isUp() const
-{
-    // todo
-    return false;
-}
-
-bool chen::ip_ifaddr::isBroadcast() const
-{
-    // todo
-    return false;
-}
-
-bool chen::ip_ifaddr::isLoopback() const
-{
-    // todo
-    return false;
-}
-
-bool chen::ip_ifaddr::isRunning() const
-{
-    // todo
-    return false;
-}
-
-bool chen::ip_ifaddr::isPromiscuous() const
-{
-    // todo
-    return false;
-}
-
-bool chen::ip_ifaddr::isMulticast() const
-{
-    // todo
-    return false;
-}
 
 // enumerate
 std::map<std::string, chen::ip_ifaddr> chen::ip_ifaddr::enumerate()
