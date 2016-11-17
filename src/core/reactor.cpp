@@ -60,10 +60,12 @@ void chen::reactor::run(std::size_t count, double timeout)
                 throw std::runtime_error("reactor: event detect but no callback");
 
             // remove fd if Ended event occurs
+            auto callback = find->second;
+
             if (event.ev == Event::Ended)
                 this->del(event.fd);
 
-            find->second(event.ev);
+            callback(event.ev);
         }
 
         this->_count = 0;
