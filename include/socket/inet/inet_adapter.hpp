@@ -11,14 +11,14 @@
 
 namespace chen
 {
-    class ip_adapter
+    class inet_adapter
     {
     public:
         /**
          * Enumerate all network interfaces
          * @attention only enumerate interfaces with IPv4 or IPv6 address
          */
-        static std::map<std::string, ip_adapter> enumerate();
+        static std::map<std::string, inet_adapter> enumerate();
 
         /**
          * Get IPv6 scope id by address and interface name
