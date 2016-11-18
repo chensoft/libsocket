@@ -15,23 +15,9 @@
 std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &mixed, ip_address::Type type)
 {
     auto split = inet_resolver::extract(mixed);
-    return inet_resolver::resolve(split.first, split.second, type);
-}
 
-std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &host, std::uint16_t port, ip_address::Type type)
-{
-    auto ret = inet_resolver::resolve(host, "", type);
-
-    for (auto &addr : ret)
-        addr.port(port);
-
-    return ret;
-}
-
-std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &host, const std::string &service, ip_address::Type type)
-{
-    if (host.empty())
-        return {inet_address(ip_version4(0u), inet_resolver::service(service))};
+    if (split.first.empty())
+        return {inet_address(ip_version4(0u), inet_resolver::service(split.second))};
 
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};
@@ -39,7 +25,7 @@ std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &
     hint.ai_family   = static_cast<int>(type);
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
 
-    if (::getaddrinfo(host.c_str(), !service.empty() ? service.c_str() : nullptr, &hint, &info))
+    if (::getaddrinfo(split.first.c_str(), !split.second.empty() ? split.second.c_str() : nullptr, &hint, &info))
         return {};
 
     std::vector<inet_address> ret;

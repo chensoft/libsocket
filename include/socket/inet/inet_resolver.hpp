@@ -34,8 +34,6 @@ namespace chen
          * :-) inet_resolve("[fe80::1%lo0]:http")
          */
         static std::vector<inet_address> resolve(const std::string &mixed, ip_address::Type type = ip_address::Type::None);
-        static std::vector<inet_address> resolve(const std::string &host, std::uint16_t port, ip_address::Type type = ip_address::Type::None);
-        static std::vector<inet_address> resolve(const std::string &host, const std::string &service, ip_address::Type type = ip_address::Type::None);
 
         /**
          * Reverse resolve address to host and service
