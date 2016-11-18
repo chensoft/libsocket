@@ -29,14 +29,17 @@ namespace chen
          * :-) inet_address("127.0.0.1")
          * :-) inet_address("127.0.0.1:80")
          * :-) inet_address("127.0.0.1:http")
-         * For IPv6:
-         * :-) inet_address("[::]:80")
-         * :-) inet_address("[fe80::1]")
-         * :-) inet_address("[fe80::1]:80")
-         * :-) inet_address("[fe80::1]:http")
-         * :-) inet_address("[fe80::1%lo0]")
-         * :-) inet_address("[fe80::1%lo0]:80")
-         * :-) inet_address("[fe80::1%lo0]:http")
+         * For IPv6(no port):
+         * :-) inet_resolve("fe80::1")
+         * :-) inet_resolve("fe80::1%lo0")
+         * :-) inet_resolve("[fe80::1]")
+         * :-) inet_resolve("[fe80::1%lo0]")
+         * For IPv6(with port):
+         * :-) inet_resolve("[::]:80")
+         * :-) inet_resolve("[fe80::1]:80")
+         * :-) inet_resolve("[fe80::1]:http")
+         * :-) inet_resolve("[fe80::1%lo0]:80")
+         * :-) inet_resolve("[fe80::1%lo0]:http")
          */
         inet_address(const char *mixed);
         inet_address(const std::string &mixed);

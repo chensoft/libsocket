@@ -121,10 +121,14 @@ std::pair<std::string, std::string> chen::inet_resolver::extract(const std::stri
     else
     {
         // IPv4:Port or Domain:Port
-        auto sep = (std::min)(len, mixed.rfind(':'));
+        auto sep = (std::min)(len, mixed.rfind(':', len - 1));
 
         if (sep)
         {
+            // Or just IPv6 address(more than two colons)
+            if ((sep < len) && (mixed.rfind(':', sep - 1) != std::string::npos))
+                sep = len;
+
             ret.first.resize(sep);
             ::memcpy((void*)ret.first.data(), beg, sep);
 
