@@ -27,10 +27,10 @@ TEST(NetResolverTest, IPv4)
     EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:80")[0].str());
     EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:http")[0].str());
 
-    EXPECT_EQ("0.0.0.0:80", inet_resolver::resolve(":80", ip_address::Type::IPv4)[0].str());
-    EXPECT_EQ("127.0.0.1:0", inet_resolver::resolve("127.0.0.1", ip_address::Type::IPv4)[0].str());
-    EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:80", ip_address::Type::IPv4)[0].str());
-    EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:http", ip_address::Type::IPv4)[0].str());
+    EXPECT_EQ("0.0.0.0:80", inet_resolver::resolve(":80", AF_INET)[0].str());
+    EXPECT_EQ("127.0.0.1:0", inet_resolver::resolve("127.0.0.1", AF_INET)[0].str());
+    EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:80", AF_INET)[0].str());
+    EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:http", AF_INET)[0].str());
 }
 
 TEST(NetResolverTest, IPv6)
@@ -43,10 +43,10 @@ TEST(NetResolverTest, IPv6)
     EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:80")[0].str());
     EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:http")[0].str());
 
-    EXPECT_EQ("[::]:80", inet_resolver::resolve("[::]:80", ip_address::Type::IPv6)[0].str());
-    EXPECT_EQ("[fe80::1]:0", inet_resolver::resolve("[fe80::1]", ip_address::Type::IPv6)[0].str());
-    EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:80", ip_address::Type::IPv6)[0].str());
-    EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:http", ip_address::Type::IPv6)[0].str());
+    EXPECT_EQ("[::]:80", inet_resolver::resolve("[::]:80", AF_INET6)[0].str());
+    EXPECT_EQ("[fe80::1]:0", inet_resolver::resolve("[fe80::1]", AF_INET6)[0].str());
+    EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:80", AF_INET6)[0].str());
+    EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:http", AF_INET6)[0].str());
 }
 
 TEST(NetResolverTest, Reverse)

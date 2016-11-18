@@ -12,7 +12,7 @@
 
 // -----------------------------------------------------------------------------
 // resolver
-std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &mixed, ip_address::Type type)
+std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &mixed, int family)
 {
     auto split = inet_resolver::extract(mixed);
 
@@ -22,7 +22,7 @@ std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &
     struct ::addrinfo *info = nullptr;
     struct ::addrinfo  hint{};
 
-    hint.ai_family   = static_cast<int>(type);
+    hint.ai_family   = family;
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
 
     if (::getaddrinfo(split.first.c_str(), !split.second.empty() ? split.second.c_str() : nullptr, &hint, &info))
