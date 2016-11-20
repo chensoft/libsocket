@@ -6,7 +6,7 @@
  */
 #include <chen/base/regex.hpp>
 #include <gtest/gtest.h>
-#include "../../conf.hpp"
+#include "../conf.hpp"
 
 TEST(BaseRegexTest, General)
 {

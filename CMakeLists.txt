@@ -25,3 +25,10 @@ set_target_properties(libchen PROPERTIES OUTPUT_NAME libchen PREFIX "")
 # group files in the IDE(e.g: Xcode and Visual Studio)
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${INC_CHEN}")
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${SRC_CHEN}")
+
+# enable unit test for libchen
+option(LIBCHEN_ENABLE_UNIT_TEST "Enable libchen unit test." ON)
+
+if(LIBCHEN_ENABLE_UNIT_TEST)
+    add_subdirectory(test)
+endif()

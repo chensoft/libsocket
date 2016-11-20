@@ -60,7 +60,7 @@ std::string chen::fs::temp()
 
 std::string chen::fs::current()
 {
-    char cwd[PATH_MAX] = {};
+    char cwd[PATH_MAX]{};
     return std::string(::getcwd(cwd, PATH_MAX));
 }
 
@@ -77,7 +77,7 @@ char chen::fs::separator()
 std::string chen::fs::realpath(const std::string &path)
 {
     // realpath
-    char buf[PATH_MAX] = {};
+    char buf[PATH_MAX]{};
     ::realpath(fs::absolute(path).c_str(), buf);
 
     // existence

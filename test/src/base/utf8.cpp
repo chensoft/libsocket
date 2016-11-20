@@ -7,7 +7,7 @@
 #include <chen/base/utf8.hpp>
 #include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
-#include "../../conf.hpp"
+#include "../conf.hpp"
 
 TEST(BaseUtf8Test, General)
 {
