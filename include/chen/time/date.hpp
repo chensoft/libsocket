@@ -18,8 +18,8 @@ namespace chen
          * GMT & Local time
          * @thread-safe
          */
-        static struct tm gmtime(std::time_t time);
-        static struct tm localtime(std::time_t time);
+        static struct ::tm gmtime(std::time_t time);
+        static struct ::tm localtime(std::time_t time);
 
         /**
          * Date stamp

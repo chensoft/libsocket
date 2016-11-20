@@ -12,8 +12,8 @@
 // date
 std::string chen::date::stamp(const std::string &sep, bool utc)
 {
-    std::time_t time = std::time(nullptr);
-    struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
+    auto time = std::time(nullptr);
+    auto  now = utc ? date::gmtime(time) : date::localtime(time);
 
     auto year  = now.tm_year + 1900;
     auto month = now.tm_mon  + 1;
@@ -27,8 +27,8 @@ std::string chen::date::time(const std::string &sep, bool utc, bool microseconds
     auto high = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     auto last = high - high / 1000000 * 1000000;
 
-    std::time_t time = (time_t)(high / 1000000);
-    struct tm    now = utc ? date::gmtime(time) : date::localtime(time);
+    auto time = (time_t)(high / 1000000);
+    auto  now = utc ? date::gmtime(time) : date::localtime(time);
 
     auto hour   = now.tm_hour;
     auto minute = now.tm_min;

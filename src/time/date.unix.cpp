@@ -10,16 +10,16 @@
 
 // -----------------------------------------------------------------------------
 // date
-struct tm chen::date::gmtime(std::time_t time)
+struct ::tm chen::date::gmtime(std::time_t time)
 {
-    struct tm now = {};
+    ::tm now{};
     ::gmtime_r(&time, &now);
     return now;
 }
 
-struct tm chen::date::localtime(std::time_t time)
+struct ::tm chen::date::localtime(std::time_t time)
 {
-    struct tm now = {};
+    ::tm now{};
     ::localtime_r(&time, &now);
     return now;
 }

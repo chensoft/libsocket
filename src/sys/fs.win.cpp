@@ -167,11 +167,11 @@ std::error_code chen::fs::touch(const std::string &file, std::time_t mtime, std:
 	    ::fclose(fp);
 
     // modify mtime and atime
-    struct stat st = { 0 };
+    struct ::stat st{};
 
     if (!::stat(file.c_str(), &st))
     {
-        struct _utimbuf time = { 0 };
+        ::_utimbuf time{};
 
         time.modtime = mtime;
         time.actime = atime;
