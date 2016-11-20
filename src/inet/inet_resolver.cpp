@@ -19,8 +19,8 @@ std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &
     if (split.first.empty())
         return {inet_address(ip_version4(0u), inet_resolver::service(split.second))};
 
-    struct ::addrinfo *info = nullptr;
-    struct ::addrinfo  hint{};
+    ::addrinfo *info = nullptr;
+    ::addrinfo  hint{};
 
     hint.ai_family   = family;
     hint.ai_socktype = SOCK_STREAM;  // prevent return same addresses
@@ -54,7 +54,7 @@ std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_addr
 
     chen::basic_address tmp = static_cast<chen::basic_address>(addr);
 
-    if (!::getnameinfo((const struct sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
+    if (!::getnameinfo((const ::sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
         return std::make_pair(host, serv);
     else
         return {};

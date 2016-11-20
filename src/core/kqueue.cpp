@@ -97,7 +97,7 @@ std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, doub
     }
     else
     {
-        struct timespec val{};
+        ::timespec val{};
         val.tv_sec  = static_cast<long>(timeout);
         val.tv_nsec = static_cast<long>((timeout - val.tv_sec) * 1000000000);
 

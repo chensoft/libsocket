@@ -38,7 +38,7 @@ chen::epoll::~epoll()
 // modify
 void chen::epoll::set(handle_t fd, int opcode, int flag)
 {
-    struct ::epoll_event event{};
+    ::epoll_event event{};
 
     if (opcode & OpcodeRead)
         event.events |= EPOLLIN;
@@ -71,7 +71,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
     // wait for events
     this->_wk = true;
 
-    struct ::epoll_event events[count];
+    ::epoll_event events[count];
     int result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
     this->_wk = false;

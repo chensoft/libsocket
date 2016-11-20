@@ -167,14 +167,14 @@ bool chen::basic_option::rcvlowat(int val)
 // sndtimeo
 struct ::timeval chen::basic_option::sndtimeo() const
 {
-    struct ::timeval val{};
+    ::timeval val{};
     option_t len = sizeof(val);
     return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len), val;
 }
 
 bool chen::basic_option::sndtimeo(int sec, int usec)
 {
-    struct ::timeval val{};
+    ::timeval val{};
     val.tv_sec  = sec;
     val.tv_usec = usec;
 
@@ -189,14 +189,14 @@ bool chen::basic_option::sndtimeo(const struct ::timeval &time)
 // rcvtimeo
 struct ::timeval chen::basic_option::rcvtimeo() const
 {
-    struct ::timeval val{};
+    ::timeval val{};
     option_t len = sizeof(val);
     return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len), val;
 }
 
 bool chen::basic_option::rcvtimeo(int sec, int usec)
 {
-    struct ::timeval val{};
+    ::timeval val{};
     val.tv_sec  = sec;
     val.tv_usec = usec;
 

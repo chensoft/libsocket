@@ -156,17 +156,17 @@ void chen::inet_address::assign(const ip_address &addr, const std::string &servi
 
 void chen::inet_address::assign(const basic_address &addr)
 {
-    this->assign((struct ::sockaddr*)&addr.addr);
+    this->assign((::sockaddr*)&addr.addr);
 }
 
 void chen::inet_address::assign(const basic_address &addr, std::uint16_t port)
 {
-    this->assign((struct ::sockaddr*)&addr.addr, port);
+    this->assign((::sockaddr*)&addr.addr, port);
 }
 
 void chen::inet_address::assign(const basic_address &addr, const std::string &service)
 {
-    this->assign((struct ::sockaddr*)&addr.addr, service);
+    this->assign((::sockaddr*)&addr.addr, service);
 }
 
 void chen::inet_address::assign(const struct ::sockaddr *addr)
@@ -175,7 +175,7 @@ void chen::inet_address::assign(const struct ::sockaddr *addr)
     {
         case AF_INET:
         {
-            auto in = (struct ::sockaddr_in*)addr;
+            auto in = (::sockaddr_in*)addr;
             this->_addr = ip_version4(num::swap(in->sin_addr.s_addr));
             this->_port = num::swap(in->sin_port);
         }
@@ -183,7 +183,7 @@ void chen::inet_address::assign(const struct ::sockaddr *addr)
 
         case AF_INET6:
         {
-            auto in = (struct ::sockaddr_in6*)addr;
+            auto in = (::sockaddr_in6*)addr;
             this->_addr = ip_version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
             this->_port = num::swap(in->sin6_port);
         }
@@ -245,7 +245,7 @@ chen::inet_address::operator chen::basic_address() const
     {
         case ip_address::Type::IPv4:
         {
-            auto in = (struct ::sockaddr_in*)&ret.addr;
+            auto in = (::sockaddr_in*)&ret.addr;
 
             in->sin_family      = AF_INET;
             in->sin_port        = chen::num::swap(this->_port);
@@ -257,7 +257,7 @@ chen::inet_address::operator chen::basic_address() const
 
         case ip_address::Type::IPv6:
         {
-            auto in = (struct ::sockaddr_in6*)&ret.addr;
+            auto in = (::sockaddr_in6*)&ret.addr;
 
             in->sin6_family   = AF_INET6;
             in->sin6_port     = chen::num::swap(this->_port);

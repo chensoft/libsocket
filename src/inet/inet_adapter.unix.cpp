@@ -30,7 +30,7 @@ namespace
 {
     void visit(std::function<void (struct ::ifaddrs *ptr, bool &stop)> cb)
     {
-        struct ::ifaddrs *list = nullptr;
+        ::ifaddrs *list = nullptr;
         if (::getifaddrs(&list) != 0)
             return;
 
@@ -66,11 +66,11 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return std::unique_ptr<ip_address>(new ip_address(ip_version4(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr))));
+                return std::unique_ptr<ip_address>(new ip_address(ip_version4(chen::num::swap(((::sockaddr_in*)ptr)->sin_addr.s_addr))));
 
             case AF_INET6:
             {
-                auto tmp = (struct ::sockaddr_in6*)ptr;
+                auto tmp = (::sockaddr_in6*)ptr;
                 auto ret = std::unique_ptr<ip_address>(new ip_address(ip_version6(tmp->sin6_addr.s6_addr)));
                 ret->scope(tmp->sin6_scope_id);
                 return ret;
@@ -89,7 +89,7 @@ namespace
         // mtu
         chen::basic_socket tmp(AF_INET6, SOCK_DGRAM);
 
-        struct ::ifreq ifr{};
+        ::ifreq ifr{};
         ifr.ifr_addr.sa_family = AF_INET6;
         ::memcpy(ifr.ifr_name, ptr->ifa_name, IFNAMSIZ);
 
@@ -102,8 +102,8 @@ namespace
         if (::ioctl(tmp.native(), SIOCGIFHWADDR, &ifr) >= 0)
             data = reinterpret_cast<uint8_t*>(ifr.ifr_hwaddr.sa_data);
 #else
-        struct ::sockaddr_dl *sdl = (struct ::sockaddr_dl*)ptr->ifa_addr;
-        const std::uint8_t  *data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
+        auto  sdl = (::sockaddr_dl*)ptr->ifa_addr;
+        auto data = reinterpret_cast<const std::uint8_t*>(LLADDR(sdl));
 #endif
 
         if (data && std::any_of(data, data + 6, [] (std::uint8_t ch) { return ch > 0; }))
@@ -118,10 +118,10 @@ namespace
         switch (ptr->sa_family)
         {
             case AF_INET:
-                return chen::ip_version4::toCIDR(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr));
+                return chen::ip_version4::toCIDR(chen::num::swap(((::sockaddr_in*)ptr)->sin_addr.s_addr));
 
             case AF_INET6:
-                return chen::ip_version6::toCIDR(((struct ::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
+                return chen::ip_version6::toCIDR(((::sockaddr_in6*)ptr)->sin6_addr.s6_addr);
 
             default:
                 return 0;
@@ -186,7 +186,7 @@ std::uint32_t chen::inet_adapter::scope(const std::uint8_t addr[16], const std::
             return;
 
         // check address
-        auto tmp = (struct ::sockaddr_in6*)ptr->ifa_addr;
+        auto tmp = (::sockaddr_in6*)ptr->ifa_addr;
 
         if (!::memcmp(addr, tmp->sin6_addr.s6_addr, 16))
         {
@@ -206,7 +206,7 @@ std::string chen::inet_adapter::scope(std::uint32_t id)
         if (!ptr->ifa_addr || (ptr->ifa_addr->sa_family != AF_INET6))
             return;
 
-        auto tmp = (struct ::sockaddr_in6*)ptr->ifa_addr;
+        auto tmp = (::sockaddr_in6*)ptr->ifa_addr;
 
         if (tmp->sin6_scope_id == id)
         {

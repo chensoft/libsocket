@@ -74,11 +74,11 @@ namespace
 		switch (ptr->sa_family)
 		{
 		case AF_INET:
-			return std::unique_ptr<ip_address>(new ip_address(ip_version4(chen::num::swap(((struct ::sockaddr_in*)ptr)->sin_addr.s_addr))));
+			return std::unique_ptr<ip_address>(new ip_address(ip_version4(chen::num::swap(((::sockaddr_in*)ptr)->sin_addr.s_addr))));
 
 		case AF_INET6:
 		{
-			auto tmp = (struct ::sockaddr_in6*)ptr;
+			auto tmp = (::sockaddr_in6*)ptr;
 			auto ret = std::unique_ptr<ip_address>(new ip_address(ip_version6(tmp->sin6_addr.s6_addr)));
 			ret->scope(tmp->sin6_scope_id);
 			return ret;
