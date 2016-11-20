@@ -3,13 +3,13 @@
 set -e
 
 # compile
-mkdir test/build
-cd test/build
+mkdir build
+cd build
 cmake -DLIBCHEN_TEST_CODE_COVERAGE=ON ..
-make
+make -j4
 
 # test
-./test_libchen --data=../data
+test/libchen_test --data=../test/data
 
 # code coverage
 bash <(curl -s https://codecov.io/bash)

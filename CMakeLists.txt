@@ -41,3 +41,10 @@ endif()
 # group files in the IDE(e.g: Xcode and Visual Studio)
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${INC_SOCKET}")
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${SRC_SOCKET}")
+
+# enable unit test for libsocket
+option(LIBSOCKET_ENABLE_UNIT_TEST "Enable libsocket unit test." ON)
+
+if(LIBSOCKET_ENABLE_UNIT_TEST)
+    add_subdirectory(test)
+endif()

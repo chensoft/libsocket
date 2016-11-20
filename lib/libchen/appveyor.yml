@@ -18,15 +18,14 @@ before_build:
   - pwd
   - cmake --version
   - echo %configuration%
-  - cd test
   - mkdir build
   - cd build
   - cmake -G "Visual Studio 14 2015 Win64" ..
 
 build:
-  project: C:\projects\libchen\test\build\test_libchen.sln
+  project: C:\projects\libchen\build\test\libchen_test.sln
 
 test_script:
   - pwd
   - ls
-  - .\%configuration%\test_libchen.exe --data=..\data
+  - test\%configuration%\libchen_test.exe --data=..\test\data

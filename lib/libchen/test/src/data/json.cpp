@@ -8,7 +8,7 @@
 #include <chen/base/str.hpp>
 #include <chen/sys/fs.hpp>
 #include <gtest/gtest.h>
-#include "../../conf.hpp"
+#include "../conf.hpp"
 
 TEST(DataJsonTest, Type)
 {
