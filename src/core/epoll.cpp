@@ -9,6 +9,7 @@
 #include <socket/core/epoll.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
+#include <limits>
 
 // -----------------------------------------------------------------------------
 // epoll
@@ -20,7 +21,9 @@ chen::epoll::epoll()
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
     // create eventfd to receive wake message
-    if ((this->_ef = ::eventfd(0, 0)) < 0)
+    this->_ef = ::eventfd(0, 0);
+
+    if ((this->_ef < 0) || ::fcntl(this->_ef, F_SETFL, ::fcntl(this->_ef, F_GETFL, 0) | O_NONBLOCK))
     {
         ::close(this->_fd);
         throw std::system_error(sys::error(), "epoll: failed to create eventfd");
@@ -67,6 +70,10 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
 {
     if (!count)
         return 0;
+
+    // reset wake event
+    ::eventfd_t wake;
+    ::eventfd_read(this->_ef, &wake);
 
     // poll next events
     ::epoll_event events[count];  // VLA
