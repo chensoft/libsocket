@@ -15,7 +15,7 @@
 chen::epoll::epoll()
 {
     // create epoll file descriptor
-    // 1 is just a hit, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
+    // 1 is just a hint, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
     if ((this->_fd = ::epoll_create(1)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
@@ -68,34 +68,29 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
     if (!count)
         return 0;
 
-    // wait for events
-    this->_wk = true;
-
-    ::epoll_event events[count];
+    // poll next events
+    ::epoll_event events[count];  // VLA
     int result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
-    this->_wk = false;
-
-    // check error status
     if (result <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
-        if ((errno == EINTR) || !result)
+        if ((errno == EINTR) || !result)  // timeout if result is zero
             return 0;
         else
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
 
-    // check return data
-    auto length = cache.size();
+    // collect poll data
+    auto origin = cache.size();
 
-    for (std::size_t i = 0, c = count; (i < static_cast<std::size_t>(result)) && c; ++i)
+    for (std::size_t i = 0; i < result; ++i)
     {
         auto &event = events[i];
 
+        // user request to stop
         if (event.data.fd == this->_ef)
         {
-            // user request to stop
             ::eventfd_t dummy;
             ::eventfd_read(this->_ef, &dummy);
             return 0;
@@ -107,12 +102,10 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
             if (code == Event::Ended)
                 this->del(event.data.fd);
 
-            if (i < length)
+            if (i < origin)
                 cache[i] = Data(event.data.fd, code);
             else
                 cache.emplace_back(Data(event.data.fd, code));
-
-            --c;
         };
 
         if ((event.events & EPOLLRDHUP) || (event.events & EPOLLERR) || (event.events & EPOLLHUP))
@@ -124,7 +117,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
             if (event.events & EPOLLIN)
                 insert(Event::Readable);
 
-            if ((event.events & EPOLLOUT) && c)
+            if (event.events & EPOLLOUT)
                 insert(Event::Writable);
         }
     }
@@ -141,9 +134,6 @@ std::vector<chen::epoll::Data> chen::epoll::poll(std::size_t count, double timeo
 
 void chen::epoll::stop()
 {
-    if (!this->_wk)
-        return;
-
     // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)
         throw std::system_error(sys::error(), "epoll: failed to wake the epoll");

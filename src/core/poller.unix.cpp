@@ -91,7 +91,7 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
     // check return data
     auto length = cache.size();
 
-    for (std::size_t i = 0, l = data.size(), c = count; (i < l) && c; ++i)
+    for (std::size_t i = 0, l = data.size(); i < l; ++i)
     {
         auto &event = scan[i];
         if (event.revents == 0)
@@ -115,8 +115,6 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
                 cache[i] = Data(event.fd, code);
             else
                 cache.emplace_back(Data(event.fd, code));
-
-            --c;
         };
 
         if ((event.revents & POLLRDHUP) || (event.revents & POLLERR) || (event.revents & POLLHUP))
@@ -128,7 +126,7 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
             if (event.revents & POLLIN)
                 insert(Event::Readable);
 
-            if ((event.revents & POLLOUT) && c)
+            if (event.revents & POLLOUT)
                 insert(Event::Writable);
         }
     }

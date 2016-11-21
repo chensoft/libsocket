@@ -27,9 +27,9 @@ namespace chen
     public:
         /**
          * Read(LT): event always occurs if the recv buffer has unread data
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Write(LT): event always occurs if the send buffer is not full
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention since the socket has its own send buffer, you don't need to monitor the write event from the start
          * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
          */
@@ -46,15 +46,15 @@ namespace chen
 
         /**
          * Readable: read event occurs, you can read data from socket
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Writable: you can write data to remote host
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Ended: socket disconnected or connection refused
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention you must monitor the read event if you want to know the end event
          * this behavior is different than Linux's epoll
          * in epoll, end event will always be monitored
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention you should read the rest of the data even if you received the end event
          * because server may send last message and then close the connection immediately
          * poller may report Readable & Ended event or only report the Ended event
@@ -94,8 +94,10 @@ namespace chen
          * when timeout is zero, the poll method will return immediately, an event may or may not return
          * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
          * @param cache pre allocated cache, if size < count then push result to it if needed
-         * @param count how many events you want to monitor for
-         * @return zero if user request to stop, timeout or interrupted
+         * @param count how many events you want to monitor, just a hint, final events may greater than this
+         * @return the final events count, or zero if user request to stop, timeout or interrupted
+         * @attention the number of events may greater than count because we treat read
+         * and write as separate events, but poll may report them as a single event
          */
         std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
 

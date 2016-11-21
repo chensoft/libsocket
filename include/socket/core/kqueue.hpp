@@ -24,16 +24,16 @@ namespace chen
     public:
         /**
          * Read(LT): event always occurs if the recv buffer has unread data
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Read(ET): event occurs only when new data arrives
          * if you read part of the data, event will not occur again unless new data arrives
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Write(LT): event always occurs if the send buffer is not full
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Write(ET): as long as the buffer is not full, the event always occurs after you call send()
          * this behavior is different than Linux's epoll
          * in epoll, the event occurs only when the state changes from "cannot output" to "can output"
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention since the socket has its own send buffer, you don't need to monitor the write event from the start
          * usually you should call send() first, if the method return EAGAIN then to wait for the write event occurs
          */
@@ -50,15 +50,15 @@ namespace chen
 
         /**
          * Readable: read event occurs, you can read data from socket
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Writable: you can write data to remote host
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * Ended: socket disconnected or connection refused
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention you must monitor the read event if you want to know the end event
          * this behavior is different than Linux's epoll
          * in epoll, the end event will always be monitored
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention you should read the rest of the data even if you received the end event
          * because server may send last message and then close the connection immediately
          * kqueue may report Readable & Ended event or only report the Ended event
@@ -83,7 +83,7 @@ namespace chen
          * Set events for fd, if Ended event occurs then fd will be removed
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
-         * -----------------------------------------------------------------
+         * ---------------------------------------------------------------------
          * @attention although read & write events are separate in kqueue, but
          * epoll does not distinguish between them. since most of the servers
          * running Linux today, so I had to simulate the epoll's behaviour here.
@@ -131,7 +131,7 @@ namespace chen
         kqueue& operator=(const kqueue&) = delete;
 
     private:
-        int _fd = invalid_handle;  // kqueue handle
+        handle_t _fd = invalid_handle;  // kqueue handle
     };
 }
 
