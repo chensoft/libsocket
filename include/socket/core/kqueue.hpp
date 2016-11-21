@@ -124,14 +124,14 @@ namespace chen
          * Helper
          */
         Event event(int filter, int flags);
+        int alter(handle_t fd, int filter, int flags, int fflags);
 
     private:
         kqueue(const kqueue&) = delete;
         kqueue& operator=(const kqueue&) = delete;
 
     private:
-        int  _fd = invalid_handle;  // kqueue handle
-        bool _wk = false;           // is working
+        int _fd = invalid_handle;  // kqueue handle
     };
 }
 

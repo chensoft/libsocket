@@ -17,13 +17,9 @@ chen::kqueue::kqueue()
     if ((this->_fd = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
 
-    struct ::kevent event{};
-
     // register custom filter to receive wake message
     // ident's value is not important in this case, so use zero is enough
-    EV_SET(&event, 0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, nullptr);
-
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
+    if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0) < 0)
     {
         ::close(this->_fd);
         throw std::system_error(chen::sys::error(), "kqueue: failed to create custom filter");
@@ -38,35 +34,23 @@ chen::kqueue::~kqueue()
 // modify
 void chen::kqueue::set(handle_t fd, int opcode, int flag)
 {
-    struct ::kevent event{};
-
     // register read or delete
-    EV_SET(&event, fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0, 0, nullptr);
-
-    if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 
     // register write or delete
-    EV_SET(&event, fd, EVFILT_WRITE, (opcode & OpcodeWrite) ? EV_ADD | flag : EV_DELETE, 0, 0, nullptr);
-
-    if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_WRITE, (opcode & OpcodeWrite) ? EV_ADD | flag : EV_DELETE, 0) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
 void chen::kqueue::del(handle_t fd)
 {
-    struct ::kevent event{};
-
     // delete read
-    EV_SET(&event, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr);
-
-    if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 
     // delete write
-    EV_SET(&event, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr);
-
-    if ((::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_WRITE, EV_DELETE, 0) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 }
 
@@ -79,16 +63,13 @@ std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, doub
     struct ::kevent events[count];
     int result = 0;
 
+    // todo remove timeout
     // poll next events
-    this->_wk = true;
-
     if (timeout < 0.0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), nullptr)) <= 0)
         {
-            this->_wk = false;
-
             if (errno == EINTR)
                 return 0;
             else
@@ -103,16 +84,12 @@ std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, doub
 
         if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val)) <= 0)
         {
-            this->_wk = false;
-
             if ((errno == EINTR) || !result)
                 return 0;
             else
                 throw std::system_error(sys::error(), "kqueue: failed to poll event");
         }
     }
-
-    this->_wk = false;
 
     // check return data
     auto length = cache.size();
@@ -153,15 +130,8 @@ std::vector<chen::kqueue::Data> chen::kqueue::poll(std::size_t count, double tim
 
 void chen::kqueue::stop()
 {
-    if (!this->_wk)
-        return;
-
-    struct ::kevent event{};
-
     // notify wake message via custom filter
-    EV_SET(&event, 0, EVFILT_USER, 0, NOTE_TRIGGER, 0, nullptr);
-
-    if (::kevent(this->_fd, &event, 1, nullptr, 0, nullptr) < 0)
+    if (this->alter(0, EVFILT_USER, 0, NOTE_TRIGGER) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to stop the kqueue");
 }
 
@@ -182,6 +152,13 @@ chen::kqueue::Event chen::kqueue::event(int filter, int flags)
         default:
             throw std::runtime_error("kqueue: unknown event detect");
     }
+}
+
+int chen::kqueue::alter(handle_t fd, int filter, int flags, int fflags)
+{
+    struct ::kevent event{};
+    EV_SET(&event, fd, filter, flags, fflags, 0, nullptr);
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr);
 }
 
 #endif
