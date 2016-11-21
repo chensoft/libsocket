@@ -18,7 +18,7 @@ chen::kqueue::kqueue()
         throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
 
     // register custom filter to receive wake message
-    // ident's value is not important in this case, so use zero is enough
+    // ident's value is not important here, so use zero is enough
     if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0) < 0)
     {
         ::close(this->_fd);
@@ -60,62 +60,56 @@ std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, doub
     if (!count)
         return 0;
 
-    struct ::kevent events[count];
+    // reset wake event
+    if (this->alter(0, EVFILT_USER, EV_DISABLE, 0) < 0)
+        throw std::system_error(sys::error(), "kqueue: failed to reset the wake event");
+
+    // poll next events
+    struct ::kevent events[count];  // VLA
     int result = 0;
 
-    // todo remove timeout
-    // poll next events
-    if (timeout < 0.0)
-    {
-        // EINTR maybe triggered by debugger, treat it as user request to stop
-        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), nullptr)) <= 0)
-        {
-            if (errno == EINTR)
-                return 0;
-            else
-                throw std::system_error(sys::error(), "kqueue: failed to poll event");
-        }
-    }
-    else
+    if (timeout >= 0)
     {
         ::timespec val{};
         val.tv_sec  = static_cast<long>(timeout);
         val.tv_nsec = static_cast<long>((timeout - val.tv_sec) * 1000000000);
 
-        if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val)) <= 0)
-        {
-            if ((errno == EINTR) || !result)
-                return 0;
-            else
-                throw std::system_error(sys::error(), "kqueue: failed to poll event");
-        }
+        result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), &val);
+    }
+    else
+    {
+        result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), nullptr);
     }
 
-    // check return data
-    auto length = cache.size();
+    if (result <= 0)
+    {
+        // EINTR maybe triggered by debugger, treat it as user request to stop
+        if ((errno == EINTR) || !result)  // timeout if result is zero
+            return 0;
+        else
+            throw std::system_error(sys::error(), "kqueue: failed to poll event");
+    }
 
-    for (std::size_t i = 0; i < static_cast<std::size_t>(result); ++i)
+    // collect poll data
+    auto origin = cache.size();
+
+    for (auto i = 0; i < result; ++i)
     {
         auto &event = events[i];
 
+        // user request to stop
         if (event.filter == EVFILT_USER)
-        {
-            // user request to stop
             return 0;
-        }
+
+        // remove fd if Ended event occurs
+        auto ev = this->event(event.filter, event.flags);
+        if (ev == Event::Ended)
+            this->del(static_cast<int>(event.ident));
+
+        if (i < origin)
+            cache[i] = Data(static_cast<int>(event.ident), ev);
         else
-        {
-            auto ev = this->event(event.filter, event.flags);
-
-            // remove fd if Ended event occurs
-            if (ev == Event::Ended)
-                this->del(static_cast<int>(event.ident));
-
-            if (i < length)
-                cache[i] = Data(static_cast<int>(event.ident), ev);
-            else
-                cache.emplace_back(Data(static_cast<int>(event.ident), ev));
-        }
+            cache.emplace_back(Data(static_cast<int>(event.ident), ev));
     }
 
     return static_cast<std::size_t>(result);
@@ -131,7 +125,7 @@ std::vector<chen::kqueue::Data> chen::kqueue::poll(std::size_t count, double tim
 void chen::kqueue::stop()
 {
     // notify wake message via custom filter
-    if (this->alter(0, EVFILT_USER, 0, NOTE_TRIGGER) < 0)
+    if (this->alter(0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to stop the kqueue");
 }
 
