@@ -6,9 +6,10 @@
  */
 #include <socket/core/poller.hpp>
 #include <chen/sys/sys.hpp>
+#include <algorithm>
 
- // -----------------------------------------------------------------------------
- // define
+// -----------------------------------------------------------------------------
+// define
 #ifdef _WIN32
 namespace
 {
@@ -17,8 +18,6 @@ namespace
 		return ::WSAPoll(fdArray, fds, timeout);
 	}
 }
-#else
-#include <alloca.h>
 #endif
 
 // only Linux defines POLLRDHUP, you must
@@ -41,29 +40,38 @@ chen::poller::~poller()
 // modify
 void chen::poller::set(handle_t fd, int opcode, int flag)
 {
-    auto &item = this->_fds[fd];
+    auto find = std::find_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
+        return item.fd == fd;
+    });
 
-    item.first.fd = fd;
-    item.first.events = POLLRDHUP;
+    if (find == this->_fds.end())
+        find = this->_fds.insert(this->_fds.end(), ::pollfd());
+
+    find->fd = fd;
+    find->events = POLLRDHUP;
 
     if (opcode & OpcodeRead)
-        item.first.events |= POLLIN;
+        find->events |= POLLIN;
 
     if (opcode & OpcodeWrite)
-        item.first.events |= POLLOUT;
+        find->events |= POLLOUT;
 
-    item.second = flag;
+    this->_flags[fd] = flag;
 }
 
 void chen::poller::del(handle_t fd)
 {
-    this->_fds.erase(fd);
+    std::remove_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
+        return item.fd == fd;
+    });
+
+    this->_flags.erase(fd);
 }
 
 std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
     // ignore if it's empty or just a wakeup socket in it
-    if (!count || this->_fds.empty() || (this->_fds.begin()->first == this->_wake.native()))
+    if (!count || this->_fds.empty() || (this->_fds.front().fd == this->_wake.native()))
         return 0;
 
     // reset wake event
@@ -74,15 +82,11 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
     }
 
     // temporary use only
-    auto scan = static_cast<::pollfd*>(alloca(sizeof(::pollfd) * this->_fds.size()));  // simulate VLA
-    auto data = this->_fds;
-    auto copy = 0;
-
-    for (auto &pair : data)
-        scan[copy++] = pair.second.first;
+    auto fds   = this->_fds;
+    auto flags = this->_flags;
 
     // poll next events
-    auto result = ::poll(scan, static_cast<unsigned>(data.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+    auto result = ::poll(fds.data(), static_cast<unsigned>(fds.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
     if (result <= 0)
     {
@@ -100,16 +104,16 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
     // collect poll data
     auto origin = cache.size();
 
-    for (std::size_t i = 0, l = data.size(); i < l; ++i)
+    for (std::size_t i = 0, l = fds.size(); i < l; ++i)
     {
-        auto &event = scan[i];
+        auto &event = fds[i];
         if (event.revents == 0)
             continue;
 
         // check events, multiple events maybe occur
         auto insert = [&] (Event code) {
             // remove fd if Ended event occurs or flag is once
-            if ((code == Event::Ended) || (data[event.fd].second & FlagOnce))
+            if ((code == Event::Ended) || (flags[event.fd] & FlagOnce))
                 this->del(event.fd);
 
             if (i < origin)

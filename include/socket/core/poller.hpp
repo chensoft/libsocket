@@ -117,7 +117,9 @@ namespace chen
         poller& operator=(const poller&) = delete;
 
     private:
-        basic_socket _wake;  // wake poll
-        std::unordered_map<handle_t, std::pair<::pollfd, int>> _fds;  // all fds
+        basic_socket _wake;
+
+        std::vector<::pollfd> _fds;
+        std::unordered_map<handle_t, int> _flags;
     };
 }
