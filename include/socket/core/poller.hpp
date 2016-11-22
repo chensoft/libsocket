@@ -95,7 +95,7 @@ namespace chen
          * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
          * @param cache pre allocated cache, if size < count then push result to it if needed
          * @param count how many events you want to monitor, just a hint, final events may greater than this
-         * @return the final events count, or zero if user request to stop, timeout or interrupted
+         * @return the final events count, or zero if user request to stop, timeout, interrupted or no fds to monitor
          * @attention the number of events may greater than count because we treat read
          * and write as separate events, but poll may report them as a single event
          */
@@ -117,13 +117,7 @@ namespace chen
         poller& operator=(const poller&) = delete;
 
     private:
-#ifdef _WIN32
-		basic_socket _up;  // wake socket
-#else
-        int _pp[2]{};  // pipe handle
-#endif
-
-        bool _wk = false;  // is working
+        basic_socket _wake;  // wake poll
         std::unordered_map<handle_t, std::pair<::pollfd, int>> _fds;  // all fds
     };
 }

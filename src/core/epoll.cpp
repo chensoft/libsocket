@@ -129,7 +129,7 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
         }
     }
 
-    return static_cast<std::size_t>(result);
+    return static_cast<std::size_t>(cache.size() - origin);
 }
 
 std::vector<chen::epoll::Data> chen::epoll::poll(std::size_t count, double timeout)
