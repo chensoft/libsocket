@@ -6,12 +6,19 @@
  */
 #include <socket/core/poller.hpp>
 #include <chen/sys/sys.hpp>
-#include <alloca.h>
 
-// -----------------------------------------------------------------------------
-// define
+ // -----------------------------------------------------------------------------
+ // define
 #ifdef _WIN32
-typedef ::WSAPoll poll;
+namespace
+{
+	inline int poll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout)
+	{
+		return ::WSAPoll(fdArray, fds, timeout);
+	}
+}
+#else
+#include <alloca.h>
 #endif
 
 // only Linux defines POLLRDHUP, you must
@@ -75,7 +82,7 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
         scan[copy++] = pair.second.first;
 
     // poll next events
-    auto result = ::poll(scan, static_cast<nfds_t>(data.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+    auto result = ::poll(scan, static_cast<unsigned>(data.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
     if (result <= 0)
     {
