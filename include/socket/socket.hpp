@@ -20,15 +20,15 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 // libsocket
 #include <socket/config.hpp>
 
-#include <socket/core/epoll.hpp>
-#include <socket/core/kqueue.hpp>
-#include <socket/core/poller.hpp>
-#include <socket/core/reactor.hpp>
-#include <socket/core/startup.hpp>
-
 #include <socket/base/basic_address.hpp>
 #include <socket/base/basic_option.hpp>
 #include <socket/base/basic_socket.hpp>
+#include <socket/base/service_epoll.hpp>
+#include <socket/base/service_kqueue.hpp>
+#include <socket/base/service_poller.hpp>
+
+#include <socket/core/reactor.hpp>
+#include <socket/core/startup.hpp>
 
 #include <socket/ip/ip_address.hpp>
 #include <socket/ip/ip_option.hpp>

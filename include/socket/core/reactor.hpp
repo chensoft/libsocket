@@ -6,9 +6,9 @@
  */
 #pragma once
 
-#include <socket/core/kqueue.hpp>
-#include <socket/core/poller.hpp>
-#include <socket/core/epoll.hpp>
+#include <socket/base/service_kqueue.hpp>
+#include <socket/base/service_poller.hpp>
+#include <socket/base/service_epoll.hpp>
 #include <unordered_map>
 #include <functional>
 
@@ -21,11 +21,11 @@ namespace chen
          * Backend define
          */
 #if !defined(__linux__) && !defined(_WIN32)
-        typedef kqueue backend;
+        typedef service_kqueue backend;
 #elif defined(__linux__)
-        typedef epoll backend;
+        typedef service_epoll backend;
 #else
-        typedef poller backend;
+        typedef service_poller backend;
 #endif
 
         /**

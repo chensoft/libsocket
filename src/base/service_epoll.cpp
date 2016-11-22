@@ -13,7 +13,7 @@
 
 // -----------------------------------------------------------------------------
 // epoll
-chen::epoll::epoll()
+chen::service_epoll::service_epoll()
 {
     // create epoll file descriptor
     // 1 is just a hint, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
@@ -32,14 +32,14 @@ chen::epoll::epoll()
     this->set(this->_ef, OpcodeRead, FlagEdge);
 }
 
-chen::epoll::~epoll()
+chen::service_epoll::~service_epoll()
 {
     ::close(this->_fd);
     ::close(this->_ef);
 }
 
 // modify
-void chen::epoll::set(handle_t fd, int opcode, int flag)
+void chen::service_epoll::set(handle_t fd, int opcode, int flag)
 {
     ::epoll_event event{};
 
@@ -59,14 +59,14 @@ void chen::epoll::set(handle_t fd, int opcode, int flag)
     }
 }
 
-void chen::epoll::del(handle_t fd)
+void chen::service_epoll::del(handle_t fd)
 {
     if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
 
 // poll
-std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, double timeout)
+std::size_t chen::service_epoll::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
     if (!count)
         return 0;
@@ -132,14 +132,14 @@ std::size_t chen::epoll::poll(std::vector<Data> &cache, std::size_t count, doubl
     return static_cast<std::size_t>(cache.size() - origin);
 }
 
-std::vector<chen::epoll::Data> chen::epoll::poll(std::size_t count, double timeout)
+std::vector<chen::service_epoll::Data> chen::service_epoll::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::epoll::Data> ret;
+    std::vector<chen::service_epoll::Data> ret;
     this->poll(ret, count, timeout);
     return ret;
 }
 
-void chen::epoll::stop()
+void chen::service_epoll::stop()
 {
     // notify wake message via eventfd
     if (::eventfd_write(this->_ef, 1) != 0)

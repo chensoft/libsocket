@@ -19,7 +19,7 @@ namespace chen
      * you should not use this class directly unless you want to implement your own event-based model
      * @attention in the following comments, LT means level-triggered, ET means edge-triggered
      */
-    class kqueue
+    class service_kqueue
     {
     public:
         /**
@@ -75,8 +75,8 @@ namespace chen
         } Data;
 
     public:
-        kqueue();
-        ~kqueue();
+        service_kqueue();
+        ~service_kqueue();
 
     public:
         /**
@@ -127,8 +127,8 @@ namespace chen
         int alter(handle_t fd, int filter, int flags, int fflags);
 
     private:
-        kqueue(const kqueue&) = delete;
-        kqueue& operator=(const kqueue&) = delete;
+        service_kqueue(const service_kqueue&) = delete;
+        service_kqueue& operator=(const service_kqueue&) = delete;
 
     private:
         handle_t _fd = invalid_handle;  // kqueue handle

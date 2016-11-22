@@ -6,12 +6,12 @@
  */
 #if !defined(__linux__) && !defined(_WIN32)
 
-#include <socket/core/kqueue.hpp>
+#include <socket/base/service_kqueue.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // kqueue
-chen::kqueue::kqueue()
+chen::service_kqueue::service_kqueue()
 {
     // create kqueue file descriptor
     if ((this->_fd = ::kqueue()) < 0)
@@ -26,13 +26,13 @@ chen::kqueue::kqueue()
     }
 }
 
-chen::kqueue::~kqueue()
+chen::service_kqueue::~service_kqueue()
 {
     ::close(this->_fd);
 }
 
 // modify
-void chen::kqueue::set(handle_t fd, int opcode, int flag)
+void chen::service_kqueue::set(handle_t fd, int opcode, int flag)
 {
     // register read or delete
     if ((this->alter(fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0) < 0) && (errno != ENOENT))
@@ -43,7 +43,7 @@ void chen::kqueue::set(handle_t fd, int opcode, int flag)
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
-void chen::kqueue::del(handle_t fd)
+void chen::service_kqueue::del(handle_t fd)
 {
     // delete read
     if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0) < 0) && (errno != ENOENT))
@@ -55,7 +55,7 @@ void chen::kqueue::del(handle_t fd)
 }
 
 // poll
-std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, double timeout)
+std::size_t chen::service_kqueue::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
     if (!count)
         return 0;
@@ -115,14 +115,14 @@ std::size_t chen::kqueue::poll(std::vector<Data> &cache, std::size_t count, doub
     return static_cast<std::size_t>(cache.size() - origin);
 }
 
-std::vector<chen::kqueue::Data> chen::kqueue::poll(std::size_t count, double timeout)
+std::vector<chen::service_kqueue::Data> chen::service_kqueue::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::kqueue::Data> ret;
+    std::vector<chen::service_kqueue::Data> ret;
     this->poll(ret, count, timeout);
     return ret;
 }
 
-void chen::kqueue::stop()
+void chen::service_kqueue::stop()
 {
     // notify wake message via custom filter
     if (this->alter(0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER) < 0)
@@ -130,7 +130,7 @@ void chen::kqueue::stop()
 }
 
 // misc
-chen::kqueue::Event chen::kqueue::event(int filter, int flags)
+chen::service_kqueue::Event chen::service_kqueue::event(int filter, int flags)
 {
     if (flags & EV_EOF)
         return Event::Ended;
@@ -148,7 +148,7 @@ chen::kqueue::Event chen::kqueue::event(int filter, int flags)
     }
 }
 
-int chen::kqueue::alter(handle_t fd, int filter, int flags, int fflags)
+int chen::service_kqueue::alter(handle_t fd, int filter, int flags, int fflags)
 {
     struct ::kevent event{};
     EV_SET(&event, fd, filter, flags, fflags, 0, nullptr);

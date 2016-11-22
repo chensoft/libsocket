@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/core/poller.hpp>
+#include <socket/base/service_poller.hpp>
 #include <chen/sys/sys.hpp>
 #include <algorithm>
 
@@ -29,16 +29,16 @@ namespace
 
 // -----------------------------------------------------------------------------
 // poller
-chen::poller::poller()
+chen::service_poller::service_poller()
 {
 }
 
-chen::poller::~poller()
+chen::service_poller::~service_poller()
 {
 }
 
 // modify
-void chen::poller::set(handle_t fd, int opcode, int flag)
+void chen::service_poller::set(handle_t fd, int opcode, int flag)
 {
     auto find = std::find_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
         return item.fd == fd;
@@ -59,7 +59,7 @@ void chen::poller::set(handle_t fd, int opcode, int flag)
     this->_flags[fd] = flag;
 }
 
-void chen::poller::del(handle_t fd)
+void chen::service_poller::del(handle_t fd)
 {
     std::remove_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
         return item.fd == fd;
@@ -68,7 +68,7 @@ void chen::poller::del(handle_t fd)
     this->_flags.erase(fd);
 }
 
-std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
+std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 {
     // ignore if it's empty or just a wakeup socket in it
     if (!count || this->_fds.empty() || (this->_fds.front().fd == this->_wake.native()))
@@ -139,14 +139,14 @@ std::size_t chen::poller::poll(std::vector<Data> &cache, std::size_t count, doub
     return static_cast<std::size_t>(cache.size() - origin);
 }
 
-std::vector<chen::poller::Data> chen::poller::poll(std::size_t count, double timeout)
+std::vector<chen::service_poller::Data> chen::service_poller::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::poller::Data> ret;
+    std::vector<chen::service_poller::Data> ret;
     this->poll(ret, count, timeout);
     return ret;
 }
 
-void chen::poller::stop()
+void chen::service_poller::stop()
 {
     // notify wake message via socket's close event
     this->_wake.close();
