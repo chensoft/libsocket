@@ -22,7 +22,7 @@ namespace chen
      * you should not use this class directly unless you want to implement your own event-based model
      * @attention poller does not support edge-triggered, so it's always level-triggered
      */
-    class reactor_poller
+    class service_poller
     {
     public:
         /**
@@ -76,8 +76,8 @@ namespace chen
         };
 
     public:
-        reactor_poller();
-        ~reactor_poller();
+        service_poller();
+        ~service_poller();
 
     public:
         /**
@@ -119,8 +119,8 @@ namespace chen
         void stop();
 
     private:
-        reactor_poller(const reactor_poller&) = delete;
-        reactor_poller& operator=(const reactor_poller&) = delete;
+        service_poller(const service_poller&) = delete;
+        service_poller& operator=(const service_poller&) = delete;
 
     private:
         struct Detail

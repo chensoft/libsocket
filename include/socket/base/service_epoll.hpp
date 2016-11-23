@@ -30,7 +30,7 @@ namespace chen
      * you should not use this class directly unless you want to implement your own event-based model
      * @attention in the following comments, LT means level-triggered, ET means edge-triggered
      */
-    class reactor_epoll
+    class service_epoll
     {
     public:
         /**
@@ -91,8 +91,8 @@ namespace chen
         };
         
     public:
-        reactor_epoll();
-        ~reactor_epoll();
+        service_epoll();
+        ~service_epoll();
         
     public:
         /**
@@ -134,8 +134,8 @@ namespace chen
         void stop();
 
     private:
-        reactor_epoll(const reactor_epoll&) = delete;
-        reactor_epoll& operator=(const reactor_epoll&) = delete;
+        service_epoll(const service_epoll&) = delete;
+        service_epoll& operator=(const service_epoll&) = delete;
         
     private:
         handle_t _fd = invalid_handle;  // epoll handle
