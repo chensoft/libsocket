@@ -29,7 +29,7 @@ chen::reactor_epoll::reactor_epoll()
         throw std::system_error(sys::error(), "epoll: failed to create eventfd");
     }
 
-    this->set(this->_ef, OpcodeRead, FlagEdge);
+    this->set(this->_ef, OpcodeRead, FlagEdge, &this->_ef);
 }
 
 chen::reactor_epoll::~reactor_epoll()
@@ -39,7 +39,7 @@ chen::reactor_epoll::~reactor_epoll()
 }
 
 // modify
-void chen::reactor_epoll::set(handle_t fd, int opcode, int flag)
+void chen::reactor_epoll::set(handle_t fd, int opcode, int flag, void *ptr)
 {
     ::epoll_event event{};
 
@@ -49,8 +49,8 @@ void chen::reactor_epoll::set(handle_t fd, int opcode, int flag)
     if (opcode & OpcodeWrite)
         event.events |= EPOLLOUT;
 
-    event.events |= flag | EPOLLRDHUP;
-    event.data.fd = fd;
+    event.events  |= flag | EPOLLRDHUP;
+    event.data.ptr = ptr;
 
     if (::epoll_ctl(this->_fd, EPOLL_CTL_MOD, fd, &event) != 0)
     {
@@ -96,7 +96,7 @@ std::size_t chen::reactor_epoll::poll(std::vector<Data> &cache, std::size_t coun
         auto &event = events[i];
 
         // user request to stop
-        if (event.data.fd == this->_ef)
+        if (event.data.ptr == &this->_ef)
         {
             ::eventfd_t dummy;
             ::eventfd_read(this->_ef, &dummy);
@@ -105,14 +105,15 @@ std::size_t chen::reactor_epoll::poll(std::vector<Data> &cache, std::size_t coun
 
         // check events, multiple events maybe occur
         auto insert = [&] (Event code) {
+            // todo let user remove the fd
             // remove fd if Ended event occurs
             if (code == Event::Ended)
                 this->del(event.data.fd);
 
             if (i < origin)
-                cache[i] = Data(event.data.fd, code);
+                cache[i] = Data(event.data.ptr, code);
             else
-                cache.emplace_back(Data(event.data.fd, code));
+                cache.emplace_back(Data(event.data.ptr, code));
         };
 
         if ((event.events & EPOLLRDHUP) || (event.events & EPOLLERR) || (event.events & EPOLLHUP))

@@ -88,7 +88,7 @@ namespace chen
          * Set events for fd, if Ended event occurs then fd will be removed
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
-         * @param ptr User's custom data pointer
+         * @param ptr user's custom data pointer
          * ---------------------------------------------------------------------
          * @attention although read & write events are separate in kqueue, but
          * epoll does not distinguish between them. since most of the servers
