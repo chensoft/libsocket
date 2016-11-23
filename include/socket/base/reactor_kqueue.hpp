@@ -65,12 +65,17 @@ namespace chen
          */
         enum class Event {Readable = 1, Writable, Ended};
 
+        /**
+         * Only report custom data pointer and event type
+         * user can pass an object's pointer when set fd
+         * if event occurs then call object's callback
+         */
         typedef struct Data
         {
             Data() = default;
-            Data(handle_t fd, Event ev) : fd(fd), ev(ev) {}
+            Data(void *ptr, Event ev) : ptr(ptr), ev(ev) {}
 
-            handle_t fd = invalid_handle;
+            void *ptr;
             Event ev;
         } Data;
 
@@ -83,13 +88,14 @@ namespace chen
          * Set events for fd, if Ended event occurs then fd will be removed
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
+         * @param ptr User's custom data pointer
          * ---------------------------------------------------------------------
          * @attention although read & write events are separate in kqueue, but
          * epoll does not distinguish between them. since most of the servers
          * running Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll.
          */
-        void set(handle_t fd, int opcode, int flag = 0);
+        void set(handle_t fd, int opcode, int flag, void *ptr);
 
         /**
          * Delete all events for fd
@@ -124,7 +130,7 @@ namespace chen
          * Helper
          */
         Event event(int filter, int flags);
-        int alter(handle_t fd, int filter, int flags, int fflags);
+        int alter(handle_t fd, int filter, int flags, int fflags, void *ptr);
 
     private:
         reactor_kqueue(const reactor_kqueue&) = delete;
