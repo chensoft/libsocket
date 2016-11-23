@@ -98,10 +98,7 @@ std::size_t chen::reactor_kqueue::poll(std::vector<Data> &cache, std::size_t cou
         if (event.filter == EVFILT_USER)
             return 0;
 
-        // remove fd if Ended event occurs
         auto ev = this->event(event.filter, event.flags);
-        if (ev == Event::Ended)
-            this->del(static_cast<int>(event.ident));
 
         if (i < origin)
             cache[i] = Data(event.udata, ev);

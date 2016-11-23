@@ -105,11 +105,6 @@ std::size_t chen::reactor_epoll::poll(std::vector<Data> &cache, std::size_t coun
 
         // check events, multiple events maybe occur
         auto insert = [&] (Event code) {
-            // todo let user remove the fd
-            // remove fd if Ended event occurs
-            if (code == Event::Ended)
-                this->del(event.data.fd);
-
             if (i < origin)
                 cache[i] = Data(event.data.ptr, code);
             else

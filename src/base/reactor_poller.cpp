@@ -112,8 +112,8 @@ std::size_t chen::reactor_poller::poll(std::vector<Data> &cache, std::size_t cou
 
         // check events, multiple events maybe occur
         auto insert = [&] (Event code) {
-            // remove fd if Ended event occurs or flag is once
-            if ((code == Event::Ended) || (flags[event.fd] & FlagOnce))
+            // remove fd if flag is once
+            if (flags[event.fd] & FlagOnce)
                 this->del(event.fd);
 
             if (i < origin)
