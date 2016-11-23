@@ -38,7 +38,7 @@ chen::reactor_poller::~reactor_poller()
 }
 
 // modify
-void chen::reactor_poller::set(handle_t fd, int opcode, int flag)
+void chen::reactor_poller::set(handle_t fd, int opcode, int flag, void *ptr)
 {
     auto find = std::find_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
         return item.fd == fd;
@@ -56,7 +56,7 @@ void chen::reactor_poller::set(handle_t fd, int opcode, int flag)
     if (opcode & OpcodeWrite)
         find->events |= POLLOUT;
 
-    this->_flags[fd] = flag;
+    this->_map[fd] = Detail(flag, ptr);
 }
 
 void chen::reactor_poller::del(handle_t fd)
@@ -65,7 +65,7 @@ void chen::reactor_poller::del(handle_t fd)
         return item.fd == fd;
     });
 
-    this->_flags.erase(fd);
+    this->_map.erase(fd);
 }
 
 std::size_t chen::reactor_poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
@@ -78,12 +78,12 @@ std::size_t chen::reactor_poller::poll(std::vector<Data> &cache, std::size_t cou
     if (!this->_wake)
     {
         this->_wake.reset(AF_INET, SOCK_DGRAM);
-        this->set(this->_wake.native(), OpcodeRead);
+        this->set(this->_wake.native(), OpcodeRead, 0, nullptr);
     }
 
     // temporary use only
-    auto fds   = this->_fds;
-    auto flags = this->_flags;
+    auto fds = this->_fds;
+    auto map = this->_map;
 
     // poll next events
     auto result = ::poll(fds.data(), static_cast<unsigned>(fds.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
@@ -113,13 +113,13 @@ std::size_t chen::reactor_poller::poll(std::vector<Data> &cache, std::size_t cou
         // check events, multiple events maybe occur
         auto insert = [&] (Event code) {
             // remove fd if flag is once
-            if (flags[event.fd] & FlagOnce)
+            if (map[event.fd].flag & FlagOnce)
                 this->del(event.fd);
 
             if (i < origin)
-                cache[i] = Data(event.fd, code);
+                cache[i] = Data(map[event.fd].ptr, code);
             else
-                cache.emplace_back(Data(event.fd, code));
+                cache.emplace_back(Data(map[event.fd].ptr, code));
         };
 
         if ((event.revents & POLLRDHUP) || (event.revents & POLLERR) || (event.revents & POLLHUP))

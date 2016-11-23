@@ -70,14 +70,14 @@ namespace chen
          * user can pass an object's pointer when set fd
          * if event occurs then call object's callback
          */
-        typedef struct Data
+        struct Data
         {
             Data() = default;
             Data(void *ptr, Event ev) : ptr(ptr), ev(ev) {}
 
             void *ptr;
             Event ev;
-        } Data;
+        };
 
     public:
         reactor_kqueue();

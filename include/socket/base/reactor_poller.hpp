@@ -61,14 +61,19 @@ namespace chen
          */
         enum class Event {Readable = 1, Writable, Ended};
 
-        typedef struct Data
+        /**
+         * Only report custom data pointer and event type
+         * user can pass an object's pointer when set fd
+         * if event occurs then call object's callback
+         */
+        struct Data
         {
             Data() = default;
-            Data(handle_t fd, Event ev) : fd(fd), ev(ev) {}
+            Data(void *ptr, Event ev) : ptr(ptr), ev(ev) {}
 
-            handle_t fd = invalid_handle;
+            void *ptr;
             Event ev;
-        } Data;
+        };
 
     public:
         reactor_poller();
@@ -79,8 +84,9 @@ namespace chen
          * Set events for fd, if Ended event occurs then fd will be removed
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag just allow FlagOnce, use FlagEdge has no effect
+         * @param ptr user's custom data pointer
          */
-        void set(handle_t fd, int opcode, int flag = 0);
+        void set(handle_t fd, int opcode, int flag, void *ptr);
 
         /**
          * Delete all events for fd
@@ -117,9 +123,18 @@ namespace chen
         reactor_poller& operator=(const reactor_poller&) = delete;
 
     private:
+        struct Detail
+        {
+            Detail() = default;
+            Detail(int flag, void *ptr) : flag(flag), ptr(ptr) {}
+
+            int  flag = 0;
+            void *ptr = nullptr;
+        };
+
         basic_socket _wake;
 
         std::vector<::pollfd> _fds;
-        std::unordered_map<handle_t, int> _flags;
+        std::unordered_map<handle_t, Detail> _map;
     };
 }
