@@ -10,11 +10,6 @@
 // reactor
 
 // modify
-void chen::reactor::set(handle_t fd, int opcode, callback_type callback)
-{
-    this->set(fd, opcode, 0, callback);
-}
-
 void chen::reactor::set(handle_t fd, int opcode, int flag, callback_type callback)
 {
     // todo

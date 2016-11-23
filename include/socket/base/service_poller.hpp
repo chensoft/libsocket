@@ -81,7 +81,7 @@ namespace chen
 
     public:
         /**
-         * Set events for fd, if Ended event occurs then fd will be removed
+         * Set events for fd
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag just allow FlagOnce, use FlagEdge has no effect
          * @param ptr user's custom data pointer

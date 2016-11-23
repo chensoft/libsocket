@@ -9,7 +9,6 @@
 #include <socket/base/service_kqueue.hpp>
 #include <socket/base/service_poller.hpp>
 #include <socket/base/service_epoll.hpp>
-#include <unordered_map>
 #include <functional>
 
 namespace chen
@@ -29,26 +28,29 @@ namespace chen
 #endif
 
         /**
-         * Operation code type
-         * @attention specific meaning can refer to backend
+         * Operation code
+         * @attention specific meaning can refer to backend class
          */
         static constexpr int OpcodeRead  = backend::OpcodeRead;
         static constexpr int OpcodeWrite = backend::OpcodeWrite;
-        static constexpr int OpcodeRW    = OpcodeRead | OpcodeWrite;
+        static constexpr int OpcodeRW    = backend::OpcodeRW;
 
         /**
-         * Specific flag type
-         * @attention specific meaning can refer to backend
+         * Event flag
+         * @attention specific meaning can refer to backend class
          */
         static constexpr int FlagOnce = backend::FlagOnce;
         static constexpr int FlagEdge = backend::FlagEdge;
 
         /**
-         * Reactor event type
-         * @attention specific meaning can refer to backend
+         * Event type
+         * @attention specific meaning can refer to backend class
          */
         using Event = backend::Event;
 
+        /**
+         * Event callback
+         */
         typedef std::function<void (Event type)> callback_type;
 
     public:
@@ -56,21 +58,23 @@ namespace chen
 
     public:
         /**
-         * Set events and callback, if Ended event occurs then fd will be removed
+         * Set events and callback
          */
-        void set(handle_t fd, int opcode, callback_type callback);
         void set(handle_t fd, int opcode, int flag, callback_type callback);
 
         /**
          * Remove events & callbacks
-         * @attention socket should call this method when it is destroyed
+         * @attention call this method when the fd is destroyed
          */
         void del(handle_t fd);
 
     public:
         /**
          * Run the loop
-         * @param count max events count when use rector::fetch, default is 1
+         * when timeout is negative, it means wait forever, usually you can pass -1 to it
+         * when timeout is zero, the poll method will return immediately, an event may or may not return
+         * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
+         * @param count how many events you want to monitor per loop, it's just a hint, default is 1
          * @attention this method will not return unless user request to stop, timeout or interrupted
          */
         void run(std::size_t count = 1, double timeout = -1);
