@@ -106,7 +106,7 @@ std::size_t chen::service_kqueue::poll(std::vector<Data> &cache, std::size_t cou
             cache.emplace_back(Data(event.udata, ev));
     }
 
-    return static_cast<std::size_t>(cache.size() - origin);
+    return static_cast<std::size_t>(result);
 }
 
 std::vector<chen::service_kqueue::Data> chen::service_kqueue::poll(std::size_t count, double timeout)

@@ -102,7 +102,8 @@ std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t cou
         return 0;
 
     // collect poll data
-    auto origin = cache.size();
+    std::size_t origin = cache.size();
+    std::size_t number = 0;
 
     for (std::size_t i = 0, l = fds.size(); i < l; ++i)
     {
@@ -115,6 +116,8 @@ std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t cou
             // remove fd if flag is once
             if (map[event.fd].flag & FlagOnce)
                 this->del(event.fd);
+
+            ++number;
 
             if (i < origin)
                 cache[i] = Data(map[event.fd].ptr, code);
@@ -136,7 +139,7 @@ std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t cou
         }
     }
 
-    return static_cast<std::size_t>(cache.size() - origin);
+    return number;
 }
 
 std::vector<chen::service_poller::Data> chen::service_poller::poll(std::size_t count, double timeout)

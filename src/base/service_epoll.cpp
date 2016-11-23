@@ -89,7 +89,8 @@ std::size_t chen::service_epoll::poll(std::vector<Data> &cache, std::size_t coun
     }
 
     // collect poll data
-    auto origin = cache.size();
+    std::size_t origin = cache.size();
+    std::size_t number = 0;
 
     for (std::size_t i = 0; i < result; ++i)
     {
@@ -105,6 +106,8 @@ std::size_t chen::service_epoll::poll(std::vector<Data> &cache, std::size_t coun
 
         // check events, multiple events maybe occur
         auto insert = [&] (Event code) {
+            ++number;
+
             if (i < origin)
                 cache[i] = Data(event.data.ptr, code);
             else
@@ -125,7 +128,7 @@ std::size_t chen::service_epoll::poll(std::vector<Data> &cache, std::size_t coun
         }
     }
 
-    return static_cast<std::size_t>(cache.size() - origin);
+    return number;
 }
 
 std::vector<chen::service_epoll::Data> chen::service_epoll::poll(std::size_t count, double timeout)
