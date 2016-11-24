@@ -38,7 +38,7 @@ chen::service_poller::~service_poller()
 }
 
 // modify
-void chen::service_poller::set(handle_t fd, int opcode, int flag, void *ptr)
+void chen::service_poller::set(handle_t fd, void *ptr, int opcode, int flag)
 {
     auto find = std::find_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
         return item.fd == fd;
@@ -78,7 +78,7 @@ std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t cou
     if (!this->_wake)
     {
         this->_wake.reset(AF_INET, SOCK_DGRAM);
-        this->set(this->_wake.native(), OpcodeRead, 0, nullptr);
+        this->set(this->_wake.native(), nullptr, OpcodeRead, 0);
     }
 
     // temporary use only

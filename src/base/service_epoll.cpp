@@ -39,7 +39,7 @@ chen::service_epoll::~service_epoll()
 }
 
 // modify
-void chen::service_epoll::set(handle_t fd, int opcode, int flag, void *ptr)
+void chen::service_epoll::set(handle_t fd, void *ptr, int opcode, int flag)
 {
     ::epoll_event event{};
 

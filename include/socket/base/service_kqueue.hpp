@@ -86,16 +86,16 @@ namespace chen
     public:
         /**
          * Set events for fd
+         * @param ptr user's custom data pointer
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
-         * @param ptr user's custom data pointer
          * ---------------------------------------------------------------------
          * @attention although read & write events are separate in kqueue, but
          * epoll does not distinguish between them. since most of the servers
          * running Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll.
          */
-        void set(handle_t fd, int opcode, int flag, void *ptr);
+        void set(handle_t fd, void *ptr, int opcode, int flag);
 
         /**
          * Delete all events for fd

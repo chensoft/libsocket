@@ -33,7 +33,7 @@ chen::service_kqueue::~service_kqueue()
 }
 
 // modify
-void chen::service_kqueue::set(handle_t fd, int opcode, int flag, void *ptr)
+void chen::service_kqueue::set(handle_t fd, void *ptr, int opcode, int flag)
 {
     // register read or delete
     if ((this->alter(fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))

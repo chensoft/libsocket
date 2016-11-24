@@ -97,11 +97,11 @@ namespace chen
     public:
         /**
          * Set events for fd
+         * @param ptr user's custom data pointer
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
-         * @param ptr user's custom data pointer
          */
-        void set(handle_t fd, int opcode, int flag, void *ptr);
+        void set(handle_t fd, void *ptr, int opcode, int flag);
         
         /**
          * Delete all events for fd

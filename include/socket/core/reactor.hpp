@@ -51,7 +51,7 @@ namespace chen
         /**
          * Event callback
          */
-        typedef std::function<void (Event type)> callback_type;
+        typedef std::function<void (void *ptr, Event type)> callback_type;
 
     public:
         reactor() = default;
@@ -60,7 +60,7 @@ namespace chen
         /**
          * Set events and callback
          */
-        void set(handle_t fd, int opcode, int flag, callback_type callback);
+        void set(handle_t fd, void *ptr, int opcode, int flag, callback_type callback);
 
         /**
          * Remove events & callbacks
