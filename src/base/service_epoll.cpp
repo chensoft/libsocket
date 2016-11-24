@@ -29,7 +29,7 @@ chen::service_epoll::service_epoll()
         throw std::system_error(sys::error(), "epoll: failed to create eventfd");
     }
 
-    this->set(this->_ef, OpcodeRead, FlagEdge, &this->_ef);
+    this->set(this->_ef, &this->_ef, OpcodeRead, FlagEdge);
 }
 
 chen::service_epoll::~service_epoll()

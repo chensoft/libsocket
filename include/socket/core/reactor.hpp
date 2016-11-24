@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * @since  2016.10.15
+ * @since  2016.11.24
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
@@ -13,6 +13,22 @@
 
 namespace chen
 {
+    // -------------------------------------------------------------------------
+    // reactor_delegate
+    class reactor_delegate
+    {
+    public:
+        virtual ~reactor_delegate() = default;
+
+    public:
+        virtual void onReadable() {}
+        virtual void onWritable() {}
+        virtual void onEnded() {}
+    };
+
+
+    // -------------------------------------------------------------------------
+    // reactor
     class reactor
     {
     public:
@@ -48,23 +64,19 @@ namespace chen
          */
         using Event = backend::Event;
 
-        /**
-         * Event callback
-         */
-        typedef std::function<void (void *ptr, Event type)> callback_type;
-
     public:
-        reactor() = default;
+        reactor();
+        ~reactor();
 
     public:
         /**
          * Set events and callback
          */
-        void set(handle_t fd, void *ptr, int opcode, int flag, callback_type callback);
+        void set(handle_t fd, reactor_delegate *delegate, int opcode, int flag);
 
         /**
          * Remove events & callbacks
-         * @attention call this method when the fd is destroyed
+         * @attention call this method when fd is destroyed
          */
         void del(handle_t fd);
 
@@ -91,9 +103,5 @@ namespace chen
 
     private:
         backend _backend;
-
-        std::size_t _count = 0;
-        std::vector<backend::Data> _caching;
-        std::unordered_map<handle_t, callback_type> _mapping;
     };
 }
