@@ -39,7 +39,7 @@ chen::service_epoll::~service_epoll()
 }
 
 // modify
-void chen::service_epoll::set(handle_t fd, void *ptr, int opcode, int flag)
+void chen::service_epoll::set(handle_t fd, void *data, int opcode, int flag)
 {
     ::epoll_event event{};
 
@@ -50,7 +50,7 @@ void chen::service_epoll::set(handle_t fd, void *ptr, int opcode, int flag)
         event.events |= EPOLLOUT;
 
     event.events  |= flag | EPOLLRDHUP;
-    event.data.ptr = ptr;
+    event.data.ptr = data;
 
     if (::epoll_ctl(this->_fd, EPOLL_CTL_MOD, fd, &event) != 0)
     {

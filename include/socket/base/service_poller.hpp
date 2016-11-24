@@ -69,10 +69,10 @@ namespace chen
         struct Data
         {
             Data() = default;
-            Data(void *ptr, Event ev) : ptr(ptr), ev(ev) {}
+            Data(void *data, Event event) : data(data), event(event) {}
 
-            void *ptr;
-            Event ev;
+            void  *data;
+            Event event;
         };
 
     public:
@@ -86,7 +86,7 @@ namespace chen
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag just allow FlagOnce, use FlagEdge has no effect
          */
-        void set(handle_t fd, void *ptr, int opcode, int flag);
+        void set(handle_t fd, void *data, int opcode, int flag);
 
         /**
          * Delete all events for fd
@@ -126,10 +126,10 @@ namespace chen
         struct Detail
         {
             Detail() = default;
-            Detail(int flag, void *ptr) : flag(flag), ptr(ptr) {}
+            Detail(int flag, void *data) : flag(flag), data(data) {}
 
-            int  flag = 0;
-            void *ptr = nullptr;
+            int   flag = 0;
+            void *data = nullptr;
         };
 
         basic_socket _wake;

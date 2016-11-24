@@ -84,10 +84,10 @@ namespace chen
         struct Data
         {
             Data() = default;
-            Data(void *ptr, Event ev) : ptr(ptr), ev(ev) {}
+            Data(void *data, Event event) : data(data), event(event) {}
 
-            void *ptr;
-            Event ev;
+            void  *data;
+            Event event;
         };
         
     public:
@@ -101,7 +101,7 @@ namespace chen
          * @param opcode OpcodeRead, OpcodeWrite or combination of them
          * @param flag FlagOnce, FlagEdge or combination of them
          */
-        void set(handle_t fd, void *ptr, int opcode, int flag);
+        void set(handle_t fd, void *data, int opcode, int flag);
         
         /**
          * Delete all events for fd

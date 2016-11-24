@@ -38,7 +38,7 @@ chen::service_poller::~service_poller()
 }
 
 // modify
-void chen::service_poller::set(handle_t fd, void *ptr, int opcode, int flag)
+void chen::service_poller::set(handle_t fd, void *data, int opcode, int flag)
 {
     auto find = std::find_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
         return item.fd == fd;
@@ -56,7 +56,7 @@ void chen::service_poller::set(handle_t fd, void *ptr, int opcode, int flag)
     if (opcode & OpcodeWrite)
         find->events |= POLLOUT;
 
-    this->_map[fd] = Detail(flag, ptr);
+    this->_map[fd] = Detail(flag, data);
 }
 
 void chen::service_poller::del(handle_t fd)
@@ -120,9 +120,9 @@ std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t cou
             ++number;
 
             if (i < origin)
-                cache[i] = Data(map[event.fd].ptr, code);
+                cache[i] = Data(map[event.fd].data, code);
             else
-                cache.emplace_back(Data(map[event.fd].ptr, code));
+                cache.emplace_back(Data(map[event.fd].data, code));
         };
 
         if ((event.revents & POLLRDHUP) || (event.revents & POLLERR) || (event.revents & POLLHUP))

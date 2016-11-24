@@ -38,18 +38,18 @@ void chen::reactor::run(std::size_t count, double timeout)
 
         for (auto &item : list)
         {
-            switch (item.ev)
+            switch (item.event)
             {
                 case Event::Readable:
-                    static_cast<reactor_delegate*>(item.ptr)->onReadable();
+                    static_cast<reactor_delegate*>(item.data)->onReadable();
                     break;
 
                 case Event::Writable:
-                    static_cast<reactor_delegate*>(item.ptr)->onWritable();
+                    static_cast<reactor_delegate*>(item.data)->onWritable();
                     break;
 
                 case Event::Ended:
-                    static_cast<reactor_delegate*>(item.ptr)->onEnded();
+                    static_cast<reactor_delegate*>(item.data)->onEnded();
                     break;
             }
         }

@@ -73,10 +73,10 @@ namespace chen
         struct Data
         {
             Data() = default;
-            Data(void *ptr, Event ev) : ptr(ptr), ev(ev) {}
+            Data(void *data, Event event) : data(data), event(event) {}
 
-            void *ptr;
-            Event ev;
+            void  *data;
+            Event event;
         };
 
     public:
@@ -95,7 +95,7 @@ namespace chen
          * running Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll.
          */
-        void set(handle_t fd, void *ptr, int opcode, int flag);
+        void set(handle_t fd, void *data, int opcode, int flag);
 
         /**
          * Delete all events for fd
@@ -130,7 +130,7 @@ namespace chen
          * Helper
          */
         Event event(int filter, int flags);
-        int alter(handle_t fd, int filter, int flags, int fflags, void *ptr);
+        int alter(handle_t fd, int filter, int flags, int fflags, void *data);
 
     private:
         service_kqueue(const service_kqueue&) = delete;

@@ -33,14 +33,14 @@ chen::service_kqueue::~service_kqueue()
 }
 
 // modify
-void chen::service_kqueue::set(handle_t fd, void *ptr, int opcode, int flag)
+void chen::service_kqueue::set(handle_t fd, void *data, int opcode, int flag)
 {
     // register read or delete
-    if ((this->alter(fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_READ, (opcode & OpcodeRead) ? EV_ADD | flag : EV_DELETE, 0, data) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 
     // register write or delete
-    if ((this->alter(fd, EVFILT_WRITE, (opcode & OpcodeWrite) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_WRITE, (opcode & OpcodeWrite) ? EV_ADD | flag : EV_DELETE, 0, data) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
@@ -142,10 +142,10 @@ chen::service_kqueue::Event chen::service_kqueue::event(int filter, int flags)
     }
 }
 
-int chen::service_kqueue::alter(handle_t fd, int filter, int flags, int fflags, void *ptr)
+int chen::service_kqueue::alter(handle_t fd, int filter, int flags, int fflags, void *data)
 {
     struct ::kevent event{};
-    EV_SET(&event, fd, filter, flags, fflags, 0, ptr);
+    EV_SET(&event, fd, filter, flags, fflags, 0, data);
     return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr);
 }
 
