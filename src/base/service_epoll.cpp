@@ -71,10 +71,6 @@ std::size_t chen::service_epoll::poll(std::vector<Data> &cache, std::size_t coun
     if (!count)
         return 0;
 
-    // reset wake event
-    ::eventfd_t wake;
-    ::eventfd_read(this->_ef, &wake);
-
     // poll next events
     ::epoll_event events[count];  // VLA
     int result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
