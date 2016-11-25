@@ -61,7 +61,7 @@ void chen::service_poller::set(handle_t fd, void *data, int opcode, int flag)
 
 void chen::service_poller::del(handle_t fd)
 {
-    std::remove_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
+    (void)std::remove_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
         return item.fd == fd;
     });
 
