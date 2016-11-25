@@ -61,10 +61,6 @@ std::size_t chen::service_kqueue::poll(std::vector<Data> &cache, std::size_t cou
     if (!count)
         return 0;
 
-    // reset wake event
-    if (this->alter(0, EVFILT_USER, EV_DISABLE, 0, nullptr) < 0)
-        throw std::system_error(sys::error(), "kqueue: failed to reset the wake event");
-
     // poll next events
     struct ::kevent events[count];  // VLA
     int result = 0;
