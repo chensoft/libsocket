@@ -42,12 +42,12 @@ TEST(IPAddressTest, None)
     EXPECT_EQ(0u, ip_address(nullptr).bytes().size());
 
     EXPECT_EQ(ip_address(ip_address::Type::None), ip_address(nullptr));
-    EXPECT_LT(ip_address(ip_address::Type::None), ip_address(nullptr));
     EXPECT_LE(ip_address(ip_address::Type::None), ip_address(nullptr));
     EXPECT_EQ(ip_address(ip_address::Type::None), ip_address::any(ip_address::Type::None));
     EXPECT_EQ(ip_address(ip_address::Type::None), ip_address::loopback(ip_address::Type::None));
-
     EXPECT_NE(ip_address(ip_address::Type::IPv4), ip_address(ip_address::Type::IPv6));
+
+    EXPECT_FALSE(ip_address(ip_address::Type::None) < ip_address(nullptr));
     EXPECT_FALSE(ip_address(ip_address::Type::IPv4) > ip_address(ip_address::Type::IPv6));
     EXPECT_FALSE(ip_address(ip_address::Type::IPv4) < ip_address(ip_address::Type::IPv6));
 }
