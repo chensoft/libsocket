@@ -14,9 +14,8 @@ chen::inet_address::inet_address(std::nullptr_t)
 {
 }
 
-chen::inet_address::inet_address(const char *mixed)
+chen::inet_address::inet_address(const char *mixed) : inet_address(std::string(mixed))
 {
-    this->assign(mixed);
 }
 
 chen::inet_address::inet_address(const std::string &mixed)

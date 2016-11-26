@@ -16,6 +16,9 @@ namespace chen
     class basic_address
     {
     public:
+        basic_address() = default;
+
+    public:
         socklen_t size = sizeof(addr);  // use sockaddr_storage's size as initialization value
         struct ::sockaddr_storage addr{};
     };

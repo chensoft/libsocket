@@ -6,8 +6,8 @@
  */
 #ifndef _WIN32
 
-#include <socket/base/basic_socket.hpp>
 #include <socket/inet/inet_adapter.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <chen/base/num.hpp>
 #include <chen/base/str.hpp>
 #include <functional>
@@ -94,7 +94,7 @@ namespace
         ::memcpy(ifr.ifr_name, ptr->ifa_name, IFNAMSIZ);
 
         if (::ioctl(tmp.native(), SIOCGIFMTU, &ifr) >= 0)
-            mtu = ifr.ifr_mtu;
+            mtu = static_cast<std::uint32_t>((std::max)(0, ifr.ifr_mtu));
 
         // mac
 #ifdef __linux__

@@ -5,19 +5,23 @@
  * @link   http://chensoft.com
  */
 #include <socket/inet/inet_address.hpp>
+#include <chen/base/num.hpp>
 #include <gtest/gtest.h>
 
 using chen::ip_address;
+using chen::ip_version6;
 using chen::inet_address;
+using chen::basic_address;
 
 TEST(InetAddressTest, General)
 {
-    // construct
+    // nullptr
     EXPECT_TRUE(inet_address(nullptr).empty());
     EXPECT_FALSE(inet_address(nullptr));
+    EXPECT_EQ("", inet_address().str());
 
+    // one param: string
     EXPECT_EQ("0.0.0.0:80", inet_address(":80").str());
-    EXPECT_EQ("127.0.0.1:80", inet_address("127.0.0.1", 80).str());
     EXPECT_EQ("127.0.0.1:0", inet_address("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1:80", inet_address("127.0.0.1:80").str());
     EXPECT_EQ("127.0.0.1:80", inet_address("127.0.0.1:http").str());
@@ -26,6 +30,92 @@ TEST(InetAddressTest, General)
     EXPECT_EQ("[fe80::1]:0", inet_address("[fe80::1]").str());
     EXPECT_EQ("[fe80::1]:80", inet_address("[fe80::1]:80").str());
     EXPECT_EQ("[fe80::1]:80", inet_address("[fe80::1]:http").str());
+
+    // addr + port|service
+    EXPECT_EQ("127.0.0.1:80", inet_address("127.0.0.1", 80).str());
+    EXPECT_EQ("127.0.0.1:80", inet_address("127.0.0.1", "80").str());
+    EXPECT_EQ("127.0.0.1:80", inet_address("127.0.0.1", "http").str());
+
+    EXPECT_EQ("[::]:80", inet_address("::", 80).str());
+    EXPECT_EQ("[fe80::1]:80", inet_address("fe80::1", "80").str());
+    EXPECT_EQ("[fe80::1]:80", inet_address("fe80::1", "http").str());
+
+    // raw socket address
+    basic_address v4;
+    basic_address v6;
+
+    v4.size = sizeof(::sockaddr_in);
+    v6.size = sizeof(::sockaddr_in6);
+
+    ::sockaddr_in  *p4 = (::sockaddr_in*)&v4.addr;
+    ::sockaddr_in6 *p6 = (::sockaddr_in6*)&v6.addr;
+
+    p4->sin_family = AF_INET;
+    p4->sin_port   = chen::num::swap(static_cast<std::uint16_t>(80));
+    p4->sin_addr.s_addr = chen::num::swap(static_cast<std::uint32_t>(0x7F000001));
+
+    EXPECT_EQ("127.0.0.1:80", inet_address(v4).str());
+    EXPECT_EQ("127.0.0.1:443", inet_address(v4, 443).str());
+    EXPECT_EQ("127.0.0.1:443", inet_address(v4, "https").str());
+
+    EXPECT_EQ("127.0.0.1:80", inet_address((::sockaddr*)&v4.addr).str());
+    EXPECT_EQ("127.0.0.1:443", inet_address((::sockaddr*)&v4.addr, 443).str());
+    EXPECT_EQ("127.0.0.1:443", inet_address((::sockaddr*)&v4.addr, "https").str());
+
+    p6->sin6_family = AF_INET6;
+    p6->sin6_port   = chen::num::swap(static_cast<std::uint16_t>(80));
+
+    ip_version6 i6("fe80::1");
+    ::memcpy(p6->sin6_addr.s6_addr, i6.addr().data(), 16);
+
+    EXPECT_EQ("[fe80::1]:80", inet_address(v6).str());
+    EXPECT_EQ("[fe80::1]:443", inet_address(v6, 443).str());
+    EXPECT_EQ("[fe80::1]:443", inet_address(v6, "https").str());
+
+    EXPECT_EQ("[fe80::1]:80", inet_address((::sockaddr*)&v6.addr).str());
+    EXPECT_EQ("[fe80::1]:443", inet_address((::sockaddr*)&v6.addr, 443).str());
+    EXPECT_EQ("[fe80::1]:443", inet_address((::sockaddr*)&v6.addr, "https").str());
+
+    // conversion
+    auto c4 = static_cast<basic_address>(inet_address(v4));
+    auto c6 = static_cast<basic_address>(inet_address(v6));
+
+    EXPECT_TRUE(::memcmp(&v4.addr, &c4.addr, v4.size) == 0);
+    EXPECT_TRUE(::memcmp(&v6.addr, &c6.addr, v6.size) == 0);
+}
+
+TEST(InetAddressTest, Assignment)
+{
+    inet_address addr;
+
+    // normal
+    addr.assign(nullptr);
+    EXPECT_EQ("", addr.str());
+
+    basic_address empty;  // family is 0
+    EXPECT_ANY_THROW(addr.assign((::sockaddr*)&empty.addr));
+
+    addr = nullptr;
+    EXPECT_EQ("", addr.str());
+
+    addr = "[fe80::1]:80";
+    EXPECT_EQ("[fe80::1]:80", addr.str());
+
+    addr = std::string("[fe80::1]:80");
+    EXPECT_EQ("[fe80::1]:80", addr.str());
+
+    // raw address
+    ::sockaddr_in *p4 = (::sockaddr_in*)&empty.addr;
+
+    p4->sin_family = AF_INET;
+    p4->sin_port   = chen::num::swap(static_cast<std::uint16_t>(80));
+    p4->sin_addr.s_addr = chen::num::swap(static_cast<std::uint32_t>(0x7F000001));
+
+    addr = empty;
+    EXPECT_EQ("127.0.0.1:80", addr.str());
+
+    addr = (::sockaddr*)&empty.addr;
+    EXPECT_EQ("127.0.0.1:80", addr.str());
 }
 
 TEST(InetAddressTest, Property)

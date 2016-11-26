@@ -7,21 +7,19 @@
 #include <socket/inet/inet_resolver.hpp>
 #include <gtest/gtest.h>
 
-TEST(NetResolverTest, Domain)
-{
-    using chen::inet_resolver;
+using chen::ip_address;
+using chen::inet_resolver;
 
+TEST(InetResolverTest, Domain)
+{
     // resolve domain
     EXPECT_NO_THROW(inet_resolver::resolve("example.com"));
     EXPECT_NO_THROW(inet_resolver::resolve("example.com:80"));
     EXPECT_NO_THROW(inet_resolver::resolve("example.com:http"));
 }
 
-TEST(NetResolverTest, IPv4)
+TEST(InetResolverTest, IPv4)
 {
-    using chen::inet_resolver;
-    using chen::ip_address;
-
     EXPECT_EQ("0.0.0.0:80", inet_resolver::resolve(":80")[0].str());
     EXPECT_EQ("127.0.0.1:0", inet_resolver::resolve("127.0.0.1")[0].str());
     EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:80")[0].str());
@@ -33,11 +31,8 @@ TEST(NetResolverTest, IPv4)
     EXPECT_EQ("127.0.0.1:80", inet_resolver::resolve("127.0.0.1:http", AF_INET)[0].str());
 }
 
-TEST(NetResolverTest, IPv6)
+TEST(InetResolverTest, IPv6)
 {
-    using chen::inet_resolver;
-    using chen::ip_address;
-
     EXPECT_EQ("[fe80::1]:0", inet_resolver::resolve("fe80::1")[0].str());
     EXPECT_EQ("[fe80::1]:0", inet_resolver::resolve("[fe80::1]")[0].str());
 
@@ -50,19 +45,15 @@ TEST(NetResolverTest, IPv6)
     EXPECT_EQ("[fe80::1]:80", inet_resolver::resolve("[fe80::1]:http", AF_INET6)[0].str());
 }
 
-TEST(NetResolverTest, Reverse)
+TEST(InetResolverTest, Reverse)
 {
-    using chen::inet_resolver;
-
     // reverse resolve
 	EXPECT_NO_THROW(inet_resolver::reverse("127.0.0.1:80"));
 	EXPECT_NO_THROW(inet_resolver::reverse("127.0.0.1:443"));
 }
 
-TEST(NetResolverTest, Service)
+TEST(InetResolverTest, Service)
 {
-    using chen::inet_resolver;
-
     // service port and name
     EXPECT_EQ(0, inet_resolver::service(""));
 
