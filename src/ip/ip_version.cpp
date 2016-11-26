@@ -704,9 +704,9 @@ chen::ip_version4 chen::ip_version6::embedded() const
     }
 
     return ip_version4(a * 256u * 256u * 256u +
-                    b * 256u * 256u +
-                    c * 256u +
-                    d);
+                       b * 256u * 256u +
+                       c * 256u +
+                       d);
 }
 
 const std::array<std::uint8_t, 16>& chen::ip_version6::addr() const

@@ -21,12 +21,12 @@
 // fs
 std::string chen::fs::root()
 {
-	CHAR buf[MAX_PATH] = { 0 };
+    CHAR buf[MAX_PATH] = { 0 };
 
-	if (::GetSystemWindowsDirectory(buf, sizeof(buf)) >= 3)
-		return std::string(buf, 3);
-	else
-		return "";
+    if (::GetSystemWindowsDirectory(buf, sizeof(buf)) >= 3)
+        return std::string(buf, 3);
+    else
+        return "";
 }
 
 std::string chen::fs::home()
@@ -160,11 +160,11 @@ std::error_code chen::fs::touch(const std::string &file, std::time_t mtime, std:
     // create file if not exist
     FILE *fp = NULL;
     auto err = ::fopen_s(&fp, file.c_str(), "ab+");
-	if (err)
-		return sys::error(err);
+    if (err)
+        return sys::error(err);
 
-	if (fp)
-	    ::fclose(fp);
+    if (fp)
+        ::fclose(fp);
 
     // modify mtime and atime
     struct ::stat st{};
@@ -206,7 +206,7 @@ std::error_code chen::fs::create(const std::string &dir, std::uint16_t mode, boo
     }
     else
     {
-		return{};
+        return{};
     }
 }
 

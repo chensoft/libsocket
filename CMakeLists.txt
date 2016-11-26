@@ -10,6 +10,14 @@ project(libsocket)
 include(lib/libchen/cmake/ChenInit.cmake)
 include(lib/libchen/cmake/ChenUtil.cmake)
 
+# code coverage
+option(LIBSOCKET_CODE_COVERAGE "Enable libsocket code coverage." OFF)
+
+if(LIBSOCKET_CODE_COVERAGE)
+    # debug, no optimization, enable coverage
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
+endif()
+
 # libraries
 add_subdirectory(lib/libchen)
 

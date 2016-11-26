@@ -10,6 +10,14 @@ project(libchen)
 include(cmake/ChenInit.cmake)
 include(cmake/ChenUtil.cmake)
 
+# code coverage
+option(LIBCHEN_CODE_COVERAGE "Enable libchen code coverage." OFF)
+
+if(LIBCHEN_CODE_COVERAGE)
+    # debug, no optimization, enable coverage
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
+endif()
+
 # include path
 include_directories(include)
 

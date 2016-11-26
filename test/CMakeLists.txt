@@ -11,14 +11,6 @@ if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers")
 endif()
 
-# code coverage
-option(LIBSOCKET_TEST_CODE_COVERAGE "Enable libsocket code coverage." OFF)
-
-if(LIBSOCKET_TEST_CODE_COVERAGE)
-    message("-- Enable code coverage")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")  # debug, no optimisation, enabling coverage
-endif()
-
 # libraries
 set(gtest_force_shared_crt ON CACHE BOOL "Use /MD in googletest")
 
