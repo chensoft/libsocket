@@ -52,12 +52,10 @@ std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_addr
     char host[NI_MAXHOST]{};
     char serv[NI_MAXSERV]{};
 
-    chen::basic_address tmp = static_cast<chen::basic_address>(addr);
+    auto tmp = static_cast<chen::basic_address>(addr);
+    auto ret = ::getnameinfo((const ::sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0);
 
-    if (!::getnameinfo((const ::sockaddr*)&tmp.addr, tmp.size, host, NI_MAXHOST, serv, NI_MAXSERV, 0))
-        return std::make_pair(host, serv);
-    else
-        return {};
+    return !ret ? std::make_pair(std::string(host), std::string(serv)) : std::pair<std::string, std::string>();
 }
 
 // service
@@ -96,9 +94,6 @@ std::string chen::inet_resolver::service(std::uint16_t port, const std::string &
 // split
 std::pair<std::string, std::string> chen::inet_resolver::extract(const std::string &mixed)
 {
-    if (mixed.empty())
-        return {};
-
     auto beg = mixed.data();
     auto len = mixed.size();
     auto end = beg + len;

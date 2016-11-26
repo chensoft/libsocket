@@ -335,33 +335,13 @@ void chen::ip_address::cidr(std::uint8_t value)
 
 std::uint32_t chen::ip_address::scope() const
 {
-    switch (this->_type)
-    {
-        case Type::IPv4:
-            return 0;
-
-        case Type::IPv6:
-            return this->_impl.v6.scope();
-
-        default:
-            return 0;
-    }
+    return this->isIPv6() ? this->_impl.v6.scope() : 0;
 }
 
 void chen::ip_address::scope(std::uint32_t value)
 {
-    switch (this->_type)
-    {
-        case Type::IPv4:
-            break;
-
-        case Type::IPv6:
-            this->_impl.v6.scope(value);
-            break;
-
-        default:
-            break;
-    }
+    if (this->isIPv6())
+        this->_impl.v6.scope(value);
 }
 
 // network
@@ -376,7 +356,7 @@ chen::ip_address chen::ip_address::network() const
             return ip_address(this->_impl.v6.network());
 
         default:
-            return ip_address(nullptr);
+            return nullptr;
     }
 }
 
@@ -391,7 +371,7 @@ chen::ip_address chen::ip_address::minhost() const
             return ip_address(this->_impl.v6.minhost());
 
         default:
-            return ip_address(nullptr);
+            return nullptr;
     }
 }
 
@@ -406,7 +386,7 @@ chen::ip_address chen::ip_address::maxhost() const
             return ip_address(this->_impl.v6.maxhost());
 
         default:
-            return ip_address(nullptr);
+            return nullptr;
     }
 }
 
@@ -471,7 +451,7 @@ bool chen::ip_address::operator==(const ip_address &o) const
             return this->_impl.v6 == o._impl.v6;
 
         default:
-            return false;
+            return true;
     }
 }
 
@@ -517,7 +497,7 @@ bool chen::ip_address::operator<=(const ip_address &o) const
             return this->_impl.v6 <= o._impl.v6;
 
         default:
-            return false;
+            return true;
     }
 }
 

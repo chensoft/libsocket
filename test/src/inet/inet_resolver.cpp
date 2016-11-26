@@ -66,6 +66,8 @@ TEST(InetResolverTest, Service)
     EXPECT_EQ(53, inet_resolver::service("domain", "tcp"));
     EXPECT_EQ(53, inet_resolver::service("domain", "udp"));
 
+    EXPECT_EQ(513, inet_resolver::service("who"));  // only udp
+
     EXPECT_EQ("http", inet_resolver::service(80));
     EXPECT_EQ("https", inet_resolver::service(443));
 }

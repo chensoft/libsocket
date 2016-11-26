@@ -14,11 +14,42 @@ using chen::inet_adapter;
 
 TEST(IPAddressTest, Base)
 {
+    EXPECT_EQ(ip_address::Type::IPv4, ip_address::detect("127.0.0.1"));
+    EXPECT_EQ(ip_address::Type::IPv6, ip_address::detect("2404:6800:4004:817::200e"));
+}
+
+TEST(IPAddressTest, None)
+{
     EXPECT_TRUE(ip_address(nullptr).empty());
     EXPECT_FALSE(ip_address(nullptr));
 
-    EXPECT_EQ(ip_address::Type::IPv4, ip_address::detect("127.0.0.1"));
-    EXPECT_EQ(ip_address::Type::IPv6, ip_address::detect("2404:6800:4004:817::200e"));
+    ip_address empty("127");
+    empty = nullptr;
+
+    EXPECT_TRUE(empty.empty());
+    EXPECT_FALSE(empty.isUnspecified());
+
+    EXPECT_TRUE(empty.network().empty());
+    EXPECT_TRUE(empty.minhost().empty());
+    EXPECT_TRUE(empty.maxhost().empty());
+
+    EXPECT_FALSE(empty.isLoopback());
+    EXPECT_FALSE(empty.isMulticast());
+
+    EXPECT_EQ("", ip_address(nullptr).str());
+    EXPECT_EQ(0u, ip_address(nullptr).cidr());
+    EXPECT_EQ(0u, ip_address(nullptr).scope());
+    EXPECT_EQ(0u, ip_address(nullptr).bytes().size());
+
+    EXPECT_EQ(ip_address(ip_address::Type::None), ip_address(nullptr));
+    EXPECT_LT(ip_address(ip_address::Type::None), ip_address(nullptr));
+    EXPECT_LE(ip_address(ip_address::Type::None), ip_address(nullptr));
+    EXPECT_EQ(ip_address(ip_address::Type::None), ip_address::any(ip_address::Type::None));
+    EXPECT_EQ(ip_address(ip_address::Type::None), ip_address::loopback(ip_address::Type::None));
+
+    EXPECT_NE(ip_address(ip_address::Type::IPv4), ip_address(ip_address::Type::IPv6));
+    EXPECT_FALSE(ip_address(ip_address::Type::IPv4) > ip_address(ip_address::Type::IPv6));
+    EXPECT_FALSE(ip_address(ip_address::Type::IPv4) < ip_address(ip_address::Type::IPv6));
 }
 
 TEST(IPAddressTest, IPv4)
@@ -42,7 +73,12 @@ TEST(IPAddressTest, IPv4)
     EXPECT_THROW(ip_address(ip_version4(0x7F000001, 33)), std::runtime_error);
 
     ip_address v4("127");
+    EXPECT_TRUE(v4.isIPv4());
     EXPECT_EQ("127.0.0.0", v4.str());
+    EXPECT_EQ(4u, v4.bytes().size());
+
+    v4 = ip_address::Type::IPv4;
+    EXPECT_EQ("0.0.0.0", v4.str());
 
     v4 = "192.168.1.1/24";
     EXPECT_EQ("192.168.1.1/24", v4.str(true));
@@ -79,6 +115,8 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ(16777214u, ip_address("127.0.0.1/8").v4().hosts());
 
     // special
+    EXPECT_TRUE(ip_address("0.0.0.0").isUnspecified());
+
     EXPECT_TRUE(ip_address("0.0.0.0").v4().isReserved());
     EXPECT_TRUE(ip_address("127.0.0.1").v4().isReserved());
     EXPECT_TRUE(ip_address("169.254.0.0").v4().isReserved());
@@ -227,7 +265,9 @@ TEST(IPAddressTest, IPv6)
     EXPECT_THROW(ip_address(ip_version6(bytes, 129)), std::runtime_error);
 
     ip_address v6("::1");
+    EXPECT_TRUE(v6.isIPv6());
     EXPECT_EQ("::1", v6.str());
+    EXPECT_EQ(16u, v6.bytes().size());
 
     v6 = "2404:6800:4004:817::200e";
     EXPECT_EQ("2404:6800:4004:817::200e", v6.str());
@@ -254,6 +294,8 @@ TEST(IPAddressTest, IPv6)
 
     EXPECT_EQ("fe80::1%" + scope, ip_address("fe80::1%1").v6().str(false, true));
     EXPECT_EQ("fe80::1%" + scope + "/128", ip_address("fe80::1%1").v6().str(true, true));
+
+    EXPECT_EQ(1u, ip_address("fe80::1%1").scope());
 
     EXPECT_EQ(ip_address("192.0.2.128").v4(), ip_address("::ffff:c000:280").v6().embedded());
     EXPECT_EQ(ip_address("192.0.2.33").v4(), ip_address("2001:db8:c000:221::/32").v6().embedded());
