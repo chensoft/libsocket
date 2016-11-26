@@ -8,14 +8,12 @@
 
 namespace chen
 {
-    /**
-     * Global initialization
-     */
     class startup
     {
     public:
         startup();
     };
 
-    static const startup startup_dummy;  // force linking the startup code
+    // global initialization, force linking the startup code
+    static const startup startup_dummy;
 }

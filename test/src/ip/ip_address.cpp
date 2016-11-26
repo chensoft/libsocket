@@ -7,10 +7,13 @@
 #include <socket/inet/inet_adapter.hpp>
 #include <gtest/gtest.h>
 
+using chen::ip_address;
+using chen::ip_version4;
+using chen::ip_version6;
+using chen::inet_adapter;
+
 TEST(IPAddressTest, Base)
 {
-    using chen::ip_address;
-
     EXPECT_TRUE(ip_address(nullptr).empty());
     EXPECT_FALSE(ip_address(nullptr));
 
@@ -20,9 +23,6 @@ TEST(IPAddressTest, Base)
 
 TEST(IPAddressTest, IPv4)
 {
-    using chen::ip_address;
-    using chen::ip_version4;
-
     // assign
     EXPECT_EQ(ip_address(ip_address::Type::IPv4), ip_address("0.0.0.0"));
 
@@ -193,10 +193,6 @@ TEST(IPAddressTest, IPv4)
 
 TEST(IPAddressTest, IPv6)
 {
-    using chen::inet_adapter;
-    using chen::ip_address;
-    using chen::ip_version6;
-
     // assign
     EXPECT_EQ(ip_address(ip_address::Type::IPv6), ip_address("::"));
     EXPECT_EQ(ip_address("::1/64"), ip_address("::1/64"));

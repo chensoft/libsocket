@@ -7,10 +7,11 @@
 #include <socket/inet/inet_address.hpp>
 #include <gtest/gtest.h>
 
+using chen::ip_address;
+using chen::inet_address;
+
 TEST(InetAddressTest, General)
 {
-    using chen::inet_address;
-
     // construct
     EXPECT_TRUE(inet_address(nullptr).empty());
     EXPECT_FALSE(inet_address(nullptr));
@@ -29,9 +30,6 @@ TEST(InetAddressTest, General)
 
 TEST(InetAddressTest, Property)
 {
-    using chen::inet_address;
-    using chen::ip_address;
-
     // modify port and address
     inet_address addr("127.0.0.1", 80);
 
@@ -51,8 +49,6 @@ TEST(InetAddressTest, Property)
 
 TEST(InetAddressTest, Special)
 {
-    using chen::inet_address;
-
     // special ports
     EXPECT_TRUE(inet_address("127.0.0.1", 0).isWellKnownPort());
     EXPECT_FALSE(inet_address("127.0.0.1", 0).isRegisteredPort());
@@ -72,8 +68,6 @@ TEST(InetAddressTest, Special)
 
 TEST(InetAddressTest, Compare)
 {
-    using chen::inet_address;
-
     // compare
     EXPECT_EQ(inet_address("127.0.0.1", 80), inet_address("127.0.0.1", 80));
     EXPECT_NE(inet_address("192.168.0.1", 80), inet_address("127.0.0.1", 80));

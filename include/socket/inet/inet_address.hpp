@@ -11,9 +11,6 @@
 
 namespace chen
 {
-    /**
-     * Address for TCP & UDP
-     */
     class inet_address
     {
     public:

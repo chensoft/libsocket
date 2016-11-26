@@ -1,5 +1,6 @@
 // todo use event instead of dgram socket?
 // todo if first call stop then poll should exit
+// todo use semaphore to simulate waiting if no fd exist, and re-poll if add new fds
 ///**
 // * Created by Jian Chen
 // * @since  2016.11.22
