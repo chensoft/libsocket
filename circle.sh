@@ -5,7 +5,7 @@ set -e
 # compile
 mkdir build
 cd build
-cmake -DLIBCHEN_TEST_CODE_COVERAGE=ON ..
+cmake -DLIBCHEN_CODE_COVERAGE=ON ..
 make -j4
 
 # test

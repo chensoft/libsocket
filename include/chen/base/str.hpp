@@ -36,12 +36,12 @@ namespace chen
 
             std::string ret(++size, '\0');
 
-			size = ::snprintf(&ret[0], static_cast<std::size_t>(size), fmt, args...);
-			if (size <= 0)  // re-check
-				return "";
+            size = ::snprintf(&ret[0], static_cast<std::size_t>(size), fmt, args...);
+            if (size <= 0)  // re-check
+                return "";
 
-			ret.resize(static_cast<std::size_t>(size));
-			return ret;
+            ret.resize(static_cast<std::size_t>(size));
+            return ret;
         }
 
         /**
