@@ -25,8 +25,8 @@ TEST(BasicOptionTest, TCP)
 
     // debug
     EXPECT_FALSE(o.debug());
-    EXPECT_TRUE(o.debug(true));
-    EXPECT_TRUE(o.debug());
+    EXPECT_NO_THROW(o.debug(true));  // system may not allowed
+    EXPECT_NO_THROW(o.debug());
 
     // reuseaddr
     EXPECT_FALSE(o.reuseaddr());
@@ -79,18 +79,12 @@ TEST(BasicOptionTest, TCP)
     EXPECT_NO_THROW(o.rcvlowat(1024));  // may not allowed
 
     // sndtimeo
-    EXPECT_TRUE(o.sndtimeo(100, 1000));
-
-    auto tmp = o.sndtimeo();
-    EXPECT_EQ(100, tmp.tv_sec);
-    EXPECT_EQ(1000, tmp.tv_usec);
+    EXPECT_TRUE(o.sndtimeo(100, 4000));  // just a hint
+    EXPECT_NO_THROW(o.sndtimeo());
 
     // rcvtimeo
-    EXPECT_TRUE(o.rcvtimeo(100, 1000));
-
-    tmp = o.rcvtimeo();
-    EXPECT_EQ(100, tmp.tv_sec);
-    EXPECT_EQ(1000, tmp.tv_usec);
+    EXPECT_TRUE(o.rcvtimeo(100, 4000));  // just a hint
+    EXPECT_NO_THROW(o.rcvtimeo());
 }
 
 TEST(BasicOptionTest, UDP)
