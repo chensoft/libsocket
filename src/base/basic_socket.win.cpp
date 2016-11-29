@@ -46,8 +46,8 @@ std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 
 std::size_t chen::basic_socket::available() const noexcept
 {
-    std::size_t bytes = 0;
-    return ::ioctlsocket(this->_fd, FIONREAD, reinterpret_cast<u_long*>(&bytes)) < 0 ? 0 : bytes;
+    u_long bytes = 0;
+    return ::ioctlsocket(this->_fd, FIONREAD, &bytes) < 0 ? 0 : static_cast<std::size_t>(bytes);
 }
 
 #endif

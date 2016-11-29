@@ -48,10 +48,7 @@ chen::handle_t chen::basic_socket::detach() noexcept
 std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {
     auto flag = ::fcntl(this->_fd, F_GETFL, 0);
-    if (flag < 0)
-        return sys::error();
-
-    return !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK)) ? std::error_code() : sys::error();
+    return (flag >= 0) && !::fcntl(this->_fd, F_SETFL, enable ? (flag | O_NONBLOCK) : (flag & ~O_NONBLOCK)) ? std::error_code() : sys::error();
 }
 
 std::size_t chen::basic_socket::available() const noexcept
