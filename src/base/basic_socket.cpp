@@ -133,16 +133,6 @@ chen::basic_socket chen::basic_socket::accept() noexcept
     return basic_socket(fd);
 }
 
-chen::basic_socket chen::basic_socket::accept(basic_address &addr) noexcept
-{
-    handle_t fd = invalid_handle;
-
-    if ((fd = ::accept(this->_fd, (::sockaddr*)&addr.addr, &addr.size)) == invalid_handle)
-        return nullptr;
-
-    return basic_socket(fd);
-}
-
 // transmission
 chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) noexcept
 {

@@ -87,7 +87,6 @@ namespace chen
          * @attention check to see if the result is valid before use it
          */
         basic_socket accept() noexcept;
-        basic_socket accept(basic_address &addr) noexcept;
 
     public:
         /**

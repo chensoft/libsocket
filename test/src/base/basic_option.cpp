@@ -14,5 +14,8 @@ using chen::basic_address;
 
 TEST(BasicOptionTest, General)
 {
+    basic_socket s(AF_INET, SOCK_STREAM, 0);
+    basic_option o = s.option();
+
 
 }
