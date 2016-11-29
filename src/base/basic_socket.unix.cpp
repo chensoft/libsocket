@@ -37,6 +37,13 @@ void chen::basic_socket::close() noexcept
     this->_fd = invalid_handle;
 }
 
+chen::handle_t chen::basic_socket::detach() noexcept
+{
+    auto temp = this->_fd;
+    this->_fd = invalid_handle;
+    return temp;
+}
+
 // property
 std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {

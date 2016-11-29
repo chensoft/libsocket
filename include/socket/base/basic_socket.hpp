@@ -121,6 +121,12 @@ namespace chen
          */
         void close() noexcept;
 
+        /**
+         * Detach the socket handle, you must close the handle manually
+         * @attention this method is dangerous, you may leak the handle if you forget to close it
+         */
+        handle_t detach() noexcept;
+
     public:
         /**
          * Peer & Local address
