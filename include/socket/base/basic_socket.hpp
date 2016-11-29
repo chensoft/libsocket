@@ -123,6 +123,7 @@ namespace chen
 
         /**
          * Detach the socket handle, you must close the handle manually
+         * @attention the family, type and protocol info is preserved
          * @attention this method is dangerous, you may leak the handle if you forget to close it
          */
         handle_t detach() noexcept;
