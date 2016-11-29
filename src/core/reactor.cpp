@@ -28,11 +28,16 @@ void chen::reactor::del(handle_t fd)
 }
 
 // control
-void chen::reactor::run(std::size_t count, double timeout)
+void chen::reactor::run()
+{
+    this->run(1);
+}
+
+void chen::reactor::run(std::size_t count)
 {
     while (true)
     {
-        auto list = this->_backend.poll(count, timeout);
+        auto list = this->_backend.poll(count);
         if (list.empty())
             break;  // user request to stop or timeout
 

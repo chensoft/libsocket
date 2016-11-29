@@ -83,13 +83,11 @@ namespace chen
     public:
         /**
          * Run the loop
-         * when timeout is negative, it means wait forever, usually you can pass -1 to it
-         * when timeout is zero, the poll method will return immediately, an event may or may not return
-         * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
          * @param count how many events you want to monitor per loop, it's just a hint, default is 1
          * @attention this method will not return unless user request to stop, timeout or interrupted
          */
-        void run(std::size_t count = 1, double timeout = -1);
+        void run();
+        void run(std::size_t count);
 
         /**
          * Stop the loop
