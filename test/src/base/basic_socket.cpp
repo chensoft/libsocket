@@ -26,6 +26,8 @@ TEST(BasicSocketTest, Empty)
 
     EXPECT_FALSE(basic_socket(invalid_handle));
     EXPECT_FALSE(basic_socket(invalid_handle, 0, 0, 0));
+
+    EXPECT_ANY_THROW(basic_socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP));  // wrong protocol
 }
 
 TEST(BasicSocketTest, Create)
@@ -36,6 +38,7 @@ TEST(BasicSocketTest, Create)
 
     EXPECT_TRUE(s1);
     EXPECT_TRUE(s2);
+    EXPECT_TRUE(!s2.nonblocking(true));
 
     EXPECT_NE(s1.native(), s2.native());  // handle is unique
 
@@ -51,6 +54,13 @@ TEST(BasicSocketTest, Create)
 
     EXPECT_ANY_THROW(s3.reset());  // because no family info
     EXPECT_NO_THROW(s4.reset());   // because family info is provided when construct
+
+    // create via move
+    EXPECT_FALSE(s3);  // s3 already closed in above code
+    EXPECT_TRUE(s3 = basic_socket(std::move(s4)));
+
+    EXPECT_TRUE(s3);
+    EXPECT_FALSE(s4);
 }
 
 TEST(BasicSocketTest, TCP)
@@ -77,6 +87,9 @@ TEST(BasicSocketTest, TCP)
 
             // remote address
             EXPECT_EQ("127.0.0.1", inet_address(conn.peer()).addr().str());
+
+            // retrieve available bytes to read
+            EXPECT_GE(conn.available(), 0u);
 
             // receive message
             char buff[512]{};
@@ -115,7 +128,11 @@ TEST(BasicSocketTest, TCP)
             EXPECT_EQ(text, buff);
             EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), size);
 
-            client.shutdown();  // just for demonstration purpose
+            // the following code is just for demonstration purpose
+            client.shutdown(basic_socket::Shutdown::Read);   // close read channel
+            client.shutdown(basic_socket::Shutdown::Write);  // close write channel
+            client.shutdown(basic_socket::Shutdown::Both);   // close read & write
+            client.shutdown();  // the same to Shutdown::Both
         }
 
         // stop it
