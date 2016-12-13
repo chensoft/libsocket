@@ -24,8 +24,30 @@ namespace chen
     typedef int       handle_t;  // handle type
     typedef socklen_t option_t;  // socket option size
 
-    constexpr int invalid_handle = -1;  // invalid file descriptor
+    constexpr handle_t invalid_handle = -1;  // invalid file descriptor
 }
+
+// For event model
+#ifdef __linux__
+
+#include <sys/epoll.h>  // epoll
+
+// Android support these flags but ndk didn't define them
+// unless you compile with android-21 or higher api level
+// so we define these macros here to maintain consistency
+#ifndef EPOLLONESHOT
+#define EPOLLONESHOT 0x40000000
+#endif
+
+#ifndef EPOLLRDHUP
+#define EPOLLRDHUP 0x00002000
+#endif
+
+#else
+
+#include <sys/event.h>  // kqueue
+
+#endif  // event
 
 #else
 
@@ -40,7 +62,7 @@ namespace chen
     typedef SOCKET handle_t;  // handle type
     typedef int    option_t;  // socket option size
 
-    constexpr SOCKET invalid_handle = INVALID_SOCKET;  // invalid socket value
+    constexpr handle_t invalid_handle = INVALID_SOCKET;  // invalid socket value
 }
 
 #endif

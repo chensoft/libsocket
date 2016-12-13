@@ -23,9 +23,6 @@ constexpr const char *SOCKET_VERSION = "0.1.0";
 #include <socket/base/basic_address.hpp>
 #include <socket/base/basic_option.hpp>
 #include <socket/base/basic_socket.hpp>
-#include <socket/base/service_epoll.hpp>
-#include <socket/base/service_kqueue.hpp>
-#include <socket/base/service_poller.hpp>
 
 #include <socket/core/reactor.hpp>
 #include <socket/core/startup.hpp>
