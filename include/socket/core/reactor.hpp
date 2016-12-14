@@ -25,10 +25,10 @@ namespace chen
          * ---------------------------------------------------------------------
          * Write(LT): event always occurs if the send buffer is not full
          * ---------------------------------------------------------------------
-         * Write(ET, kqueue): as long as the buffer is not full, the event
-         * always occurs after you call send()
          * Write(ET, epoll): event occurs only when the state changes from
          * "cannot output" to "can output"
+         * Write(ET, kqueue): event always occurs after you send the data
+         * and the send buffer is still not full
          * ---------------------------------------------------------------------
          * @note since the socket has its own send buffer, you don't need to monitor
          * the write event from the start, usually you should call send() first, if
@@ -49,14 +49,14 @@ namespace chen
         /**
          * Event type
          * ---------------------------------------------------------------------
-         * Readable: read event occurs, you can read data from socket
+         * Readable: you can read data from remote
          * ---------------------------------------------------------------------
-         * Writable: you can write data to remote host
+         * Writable: you can write data to remote
          * ---------------------------------------------------------------------
          * Closed: socket disconnected or connection refused
          * ---------------------------------------------------------------------
          * @note in epoll, closed event is always be monitored, in kqueue and poll
-         * you must monitor the read event if you want to receive the closed event
+         * you must monitor the read event if you want to monitor the closed event
          * ---------------------------------------------------------------------
          * @note you should read the rest of the data even if you received the closed
          * event, server may send last message and then close the connection immediately
@@ -84,16 +84,16 @@ namespace chen
     public:
         /**
          * Set events for fd
-         * @param ptr user's custom data pointer
-         * @param mode ModeRead, ModeWrite or combination of them
-         * @param flag FlagOnce, FlagEdge or combination of them
+         * @param data user's custom data pointer
+         * @param mode ModeRead, ModeWrite and etc
+         * @param flag FlagOnce, FlagEdge and etc
          * ---------------------------------------------------------------------
          * @note although read & write events are separate in kqueue, but epoll
          * does not distinguish between them. since most of the servers running
          * Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll
          */
-        void set(handle_t fd, void *data, int opcode, int flag);
+        void set(handle_t fd, void *data, int mode, int flag);
 
         /**
          * Delete all events for fd
@@ -102,28 +102,37 @@ namespace chen
 
     public:
         /**
+         * Run the loop
+         * @param count how many events you want to monitor per loop, it's just a hint, default is 1
+         * @note this method will not return unless user request to stop, timeout or interrupted
+         */
+        void run(std::size_t count = 1);
+
+        /**
+         * Stop the poll
+         * @note you can call this method in callback or other thread
+         */
+        void stop();
+
+    public:
+        /**
          * Poll events, with an optional timeout
          * when timeout is negative, it means wait forever, usually you can pass -1 to it
          * when timeout is zero, the poll method will return immediately, an event may or may not return
          * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
-         * @param cache pre allocated cache, if size < count then push result to it if needed
          * @param count how many events you want to monitor, just a hint, final events may greater than this
-         * @return the final events count, or zero if user request to stop, timeout, interrupted or no fds to monitor
+         * @return empty if user request to stop, timeout or interrupted
          * @note the number of events may greater than count because we treat the read
          * and write as separate events, but backend may report them as a single event
-         */
-        std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
-
-        /**
-         * Poll events, return vector directly
-         * @return empty if user request to stop, timeout or interrupted
          */
         std::vector<Data> poll(std::size_t count, double timeout = -1);
 
         /**
-         * Stop the poll if poller is waiting for events
+         * Poll events, with a pre allocated cache
+         * @param cache store data in specific pos or push back if cache's size is less than events count
+         * @return the final events count, or zero if user request to stop, timeout, interrupted or no fds to monitor
          */
-        void stop();
+        std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
 
     private:
         reactor(const reactor&) = delete;
@@ -155,46 +164,3 @@ namespace chen
 #endif
     };
 }
-
-//namespace chen
-//{
-//    // -------------------------------------------------------------------------
-//    // reactor_delegate
-//    class reactor_delegate
-//    {
-//    public:
-//        virtual ~reactor_delegate() = default;
-//
-//    public:
-//        virtual void onReadable() {}
-//        virtual void onWritable() {}
-//        virtual void onEnded() {}
-//    };
-//
-//
-//    // -------------------------------------------------------------------------
-//    // reactor
-//    class reactor
-//    {
-//    public:
-//        /**
-//         * Set events and callback
-//         */
-//        void set(handle_t fd, reactor_delegate *delegate, int opcode, int flag);
-//
-//    public:
-//        /**
-//         * Run the loop
-//         * @param count how many events you want to monitor per loop, it's just a hint, default is 1
-//         * @note this method will not return unless user request to stop, timeout or interrupted
-//         */
-//        void run();
-//        void run(std::size_t count);
-//
-//        /**
-//         * Stop the loop
-//         * @note you can call this method in callback or other thread
-//         */
-//        void stop();
-//    };
-//}
