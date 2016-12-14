@@ -1,21 +1,26 @@
-///**
-// * Created by Jian Chen
-// * @since  2016.11.24
-// * @author Jian Chen <admin@chensoft.com>
-// * @link   http://chensoft.com
-// */
-//#include <socket/core/reactor.hpp>
-//
-//// -----------------------------------------------------------------------------
-//// reactor
-//chen::reactor::reactor()
-//{
-//}
-//
-//chen::reactor::~reactor()
-//{
-//}
-//
+/**
+ * Created by Jian Chen
+ * @since  2016.12.14
+ * @author Jian Chen <admin@chensoft.com>
+ * @link   http://chensoft.com
+ */
+#ifdef __linux__
+
+#include <socket/core/reactor.hpp>
+
+// -----------------------------------------------------------------------------
+// reactor
+const int chen::reactor::FlagEdge = EPOLLET;
+const int chen::reactor::FlagOnce = EPOLLONESHOT;
+
+chen::reactor::reactor()
+{
+}
+
+chen::reactor::~reactor()
+{
+}
+
 //// modify
 //void chen::reactor::set(handle_t fd, reactor_delegate *delegate, int opcode, int flag)
 //{
@@ -65,3 +70,5 @@
 //{
 //    this->_backend.stop();
 //}
+
+#endif

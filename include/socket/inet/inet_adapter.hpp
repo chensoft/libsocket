@@ -16,7 +16,7 @@ namespace chen
     public:
         /**
          * Enumerate all network interfaces
-         * @attention only enumerate interfaces with IPv4 or IPv6 address
+         * @note only enumerate interfaces with IPv4 or IPv6 address
          */
         static std::map<std::string, inet_adapter> enumerate();
 

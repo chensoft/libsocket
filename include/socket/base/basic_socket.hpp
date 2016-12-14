@@ -34,7 +34,7 @@ namespace chen
 
         /**
          * Construct by socket handle directly
-         * @attention you can't use reset() if you construct only from fd, because we didn't know fd's family & protocol
+         * @note you can't use reset() if you construct only from fd, because we didn't know fd's family & protocol
          */
         basic_socket(handle_t fd) noexcept;
         basic_socket(handle_t fd, int family, int type, int protocol) noexcept;
@@ -55,7 +55,7 @@ namespace chen
     public:
         /**
          * Reset socket by stored family, type and protocol
-         * @attention if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
+         * @note if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
          */
         void reset();
 
@@ -84,7 +84,7 @@ namespace chen
 
         /**
          * Accept new request and create a new socket
-         * @attention check to see if the result is valid before use it
+         * @note check to see if the result is valid before use it
          */
         basic_socket accept() noexcept;
 
@@ -122,8 +122,8 @@ namespace chen
 
         /**
          * Detach the socket handle, you must close the handle manually
-         * @attention the family, type and protocol info is preserved
-         * @attention this method is dangerous, you may leak the handle if you forget to close it
+         * @note the family, type and protocol info is preserved
+         * @note this method is dangerous, you may leak the handle if you forget to close it
          */
         handle_t detach() noexcept;
 
@@ -150,7 +150,7 @@ namespace chen
 
         /**
          * Check socket is valid
-         * @attention zero is a valid file descriptor
+         * @note zero is a valid file descriptor
          */
         bool valid() const noexcept;
         operator bool() const noexcept;
