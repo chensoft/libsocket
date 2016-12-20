@@ -79,13 +79,6 @@ void chen::reactor::stop()
 // poll
 std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::reactor::Data> ret;
-    this->poll(ret, count, timeout);
-    return ret;
-}
-
-std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, double timeout)
-{
     if (!count)
         return 0;
 
@@ -103,8 +96,7 @@ std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, dou
     }
 
     // collect poll data
-    std::size_t origin = cache.size();
-    std::size_t number = 0;
+    std::vector<chen::reactor::Data> ret;
 
     for (std::size_t i = 0; i < result; ++i)
     {
@@ -120,12 +112,7 @@ std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, dou
 
         // check events, multiple events maybe occur
         auto insert = [&] (Type type) {
-            ++number;
-
-            if (i < origin)
-                cache[i] = Data(event.data.ptr, type);
-            else
-                cache.emplace_back(Data(event.data.ptr, type));
+            ret.emplace_back(Data(event.data.ptr, type));
         };
 
         if ((event.events & EPOLLRDHUP) || (event.events & EPOLLERR) || (event.events & EPOLLHUP))
@@ -142,7 +129,7 @@ std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, dou
         }
     }
 
-    return number;
+    return ret;
 }
 
 #endif

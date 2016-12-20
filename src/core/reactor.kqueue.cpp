@@ -97,15 +97,8 @@ void chen::reactor::stop()
 // poll
 std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double timeout)
 {
-    std::vector<chen::reactor::Data> ret;
-    this->poll(ret, count, timeout);
-    return ret;
-}
-
-std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, double timeout)
-{
     if (!count)
-        return 0;
+        return {};
 
     // poll next events
     struct ::kevent events[count];  // VLA
@@ -124,13 +117,13 @@ std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, dou
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((errno == EINTR) || !result)  // timeout if result is zero
-            return 0;
+            return {};
         else
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
     }
 
     // collect poll data
-    auto origin = cache.size();
+    std::vector<chen::reactor::Data> ret;
 
     for (auto i = 0; i < result; ++i)
     {
@@ -138,17 +131,13 @@ std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, dou
 
         // user request to stop
         if (event.filter == EVFILT_USER)
-            return 0;
+            return {};
 
         auto ev = this->event(event.filter, event.flags);
-
-        if (i < origin)
-            cache[i] = Data(event.udata, ev);
-        else
-            cache.emplace_back(Data(event.udata, ev));
+        ret.emplace_back(Data(event.udata, ev));
     }
 
-    return static_cast<std::size_t>(result);
+    return ret;
 }
 
 // misc

@@ -83,7 +83,7 @@ namespace chen
 
     public:
         /**
-         * Set events for fd
+         * Monitor events for fd
          * @param data user's custom data pointer
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
@@ -117,22 +117,13 @@ namespace chen
     public:
         /**
          * Poll events, with an optional timeout
-         * when timeout is negative, it means wait forever, usually you can pass -1 to it
-         * when timeout is zero, the poll method will return immediately, an event may or may not return
-         * when timeout is positive, the time unit is second, e.g: 1.15 means 1.15 seconds to wait
          * @param count how many events you want to monitor, just a hint, final events may greater than this
+         * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
          * @return empty if user request to stop, timeout or interrupted
          * @note the number of events may greater than count because we treat the read
          * and write as separate events, but backend may report them as a single event
          */
         std::vector<Data> poll(std::size_t count, double timeout = -1);
-
-        /**
-         * Poll events, with a pre allocated cache
-         * @param cache store data in specific pos or push back if cache's size is less than events count
-         * @return the final events count, or zero if user request to stop, timeout, interrupted or no fds to monitor
-         */
-        std::size_t poll(std::vector<Data> &cache, std::size_t count, double timeout = -1);
 
     private:
         reactor(const reactor&) = delete;
