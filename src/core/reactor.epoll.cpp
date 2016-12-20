@@ -80,7 +80,7 @@ void chen::reactor::stop()
 std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double timeout)
 {
     if (!count)
-        return 0;
+        return {};
 
     // poll next events
     ::epoll_event events[count];  // VLA
@@ -90,7 +90,7 @@ std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double t
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((errno == EINTR) || !result)  // timeout if result is zero
-            return 0;
+            return {};
         else
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
@@ -107,7 +107,7 @@ std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double t
         {
             ::eventfd_t dummy;
             ::eventfd_read(this->_ef, &dummy);
-            return 0;
+            return {};
         }
 
         // check events, multiple events maybe occur

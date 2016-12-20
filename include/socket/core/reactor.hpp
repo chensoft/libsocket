@@ -117,7 +117,7 @@ namespace chen
     public:
         /**
          * Poll events, with an optional timeout
-         * @param count how many events you want to monitor, just a hint, final events may greater than this
+         * @param count how many events you want to monitor, just a hint, final events count may greater than this
          * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
          * @return empty if user request to stop, timeout or interrupted
          * @note the number of events may greater than count because we treat the read

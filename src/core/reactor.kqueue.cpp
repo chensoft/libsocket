@@ -8,6 +8,7 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
+#include <memory>
 
 // -----------------------------------------------------------------------------
 // reactor
