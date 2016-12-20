@@ -75,11 +75,11 @@ void chen::reactor::run(size_t count)
 //                    static_cast<reactor_delegate*>(item.data)->onReadable();
 //                    break;
 //
-//                case Event::Writable:
+//                case Type::Writable:
 //                    static_cast<reactor_delegate*>(item.data)->onWritable();
 //                    break;
 //
-//                case Event::Ended:
+//                case Type::Closed:
 //                    static_cast<reactor_delegate*>(item.data)->onEnded();
 //                    break;
 //            }

@@ -130,7 +130,7 @@ std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, dou
 
         if ((event.events & EPOLLRDHUP) || (event.events & EPOLLERR) || (event.events & EPOLLHUP))
         {
-            insert(Type::Ended);
+            insert(Type::Closed);
         }
         else
         {
