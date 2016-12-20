@@ -7,6 +7,7 @@
 #if !defined(__linux__) && !defined(_WIN32)
 
 #include <socket/core/reactor.hpp>
+#include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -15,42 +16,62 @@ const int chen::reactor::FlagOnce = EV_ONESHOT;
 
 chen::reactor::reactor()
 {
+    // create kqueue file descriptor
+    if ((this->_fd = ::kqueue()) < 0)
+        throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
+
+    // register custom filter to receive wake message
+    // ident's value is not important here, so use zero is enough
+    if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, nullptr) < 0)
+    {
+        ::close(this->_fd);
+        throw std::system_error(chen::sys::error(), "kqueue: failed to create custom filter");
+    }
 }
 
 chen::reactor::~reactor()
 {
+    ::close(this->_fd);
 }
 
-//// modify
-//void chen::reactor::set(handle_t fd, reactor_delegate *delegate, int opcode, int flag)
-//{
-//    this->_backend.set(fd, delegate, opcode, flag);
-//}
-//
-//void chen::reactor::del(handle_t fd)
-//{
-//    this->_backend.del(fd);
-//}
-//
-//// control
-//void chen::reactor::run()
-//{
-//    this->run(1);
-//}
-//
-//void chen::reactor::run(std::size_t count)
-//{
+// modify
+void chen::reactor::set(handle_t fd, void *data, int mode, int flag)
+{
+    // register read or delete
+    if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, data) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+
+    // register write or delete
+    if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, data) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+}
+
+void chen::reactor::del(handle_t fd)
+{
+    // delete read
+    if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
+
+    // delete write
+    if ((this->alter(fd, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
+}
+
+// run
+void chen::reactor::run(size_t count)
+{
+    // todo
 //    while (true)
 //    {
-//        auto list = this->_backend.poll(count);
+//        auto list = this->poll(count);
 //        if (list.empty())
 //            break;  // user request to stop or timeout
 //
 //        for (auto &item : list)
 //        {
-//            switch (item.event)
+//            switch (item.type)
 //            {
-//                case Event::Readable:
+//                case Type::Readable:
 //                    static_cast<reactor_delegate*>(item.data)->onReadable();
 //                    break;
 //
@@ -64,11 +85,96 @@ chen::reactor::~reactor()
 //            }
 //        }
 //    }
-//}
-//
-//void chen::reactor::stop()
-//{
-//    this->_backend.stop();
-//}
+}
+
+void chen::reactor::stop()
+{
+    // notify wake message via custom filter
+    if (this->alter(0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER, nullptr) < 0)
+        throw std::system_error(sys::error(), "kqueue: failed to stop the kqueue");
+}
+
+// poll
+std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double timeout)
+{
+    std::vector<chen::reactor::Data> ret;
+    this->poll(ret, count, timeout);
+    return ret;
+}
+
+std::size_t chen::reactor::poll(std::vector<Data> &cache, std::size_t count, double timeout)
+{
+    if (!count)
+        return 0;
+
+    // poll next events
+    struct ::kevent events[count];  // VLA
+    int result = 0;
+
+    std::unique_ptr<::timespec> val;
+
+    if (timeout >= 0)
+    {
+        val.reset(new ::timespec);
+        val->tv_sec  = static_cast<long>(timeout);
+        val->tv_nsec = static_cast<long>((timeout - val->tv_sec) * 1000000000);
+    }
+
+    if ((result = ::kevent(this->_fd, nullptr, 0, events, static_cast<int>(count), val.get())) <= 0)
+    {
+        // EINTR maybe triggered by debugger, treat it as user request to stop
+        if ((errno == EINTR) || !result)  // timeout if result is zero
+            return 0;
+        else
+            throw std::system_error(sys::error(), "kqueue: failed to poll event");
+    }
+
+    // collect poll data
+    auto origin = cache.size();
+
+    for (auto i = 0; i < result; ++i)
+    {
+        auto &event = events[i];
+
+        // user request to stop
+        if (event.filter == EVFILT_USER)
+            return 0;
+
+        auto ev = this->event(event.filter, event.flags);
+
+        if (i < origin)
+            cache[i] = Data(event.udata, ev);
+        else
+            cache.emplace_back(Data(event.udata, ev));
+    }
+
+    return static_cast<std::size_t>(result);
+}
+
+// misc
+chen::reactor::Type chen::reactor::event(int filter, int flags)
+{
+    if (flags & EV_EOF)
+        return Type::Closed;
+
+    switch (filter)
+    {
+        case EVFILT_READ:
+            return Type::Readable;
+
+        case EVFILT_WRITE:
+            return Type::Writable;
+
+        default:
+            throw std::runtime_error("kqueue: unknown event detect");
+    }
+}
+
+int chen::reactor::alter(handle_t fd, int filter, int flags, int fflags, void *data)
+{
+    struct ::kevent event{};
+    EV_SET(&event, fd, filter, flags, fflags, 0, data);
+    return ::kevent(this->_fd, &event, 1, nullptr, 0, nullptr);
+}
 
 #endif

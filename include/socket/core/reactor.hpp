@@ -20,15 +20,15 @@ namespace chen
          * ---------------------------------------------------------------------
          * Read(LT): event always occurs if the recv buffer has unread data
          * ---------------------------------------------------------------------
-         * Read(ET): event occurs only when new data arrives if you read part
-         * of the data, event will not occur again unless new data arrives
+         * Read(ET): event occurs only when new data arrives, if you read part
+         * of the data, event will no longer occurs unless new data arrives
          * ---------------------------------------------------------------------
          * Write(LT): event always occurs if the send buffer is not full
          * ---------------------------------------------------------------------
          * Write(ET, epoll): event occurs only when the state changes from
          * "cannot output" to "can output"
-         * Write(ET, kqueue): event always occurs after you send the data
-         * and the send buffer is still not full
+         * Write(ET, kqueue): event occurs after you send the data and the
+         * send buffer is not full
          * ---------------------------------------------------------------------
          * @note since the socket has its own send buffer, you don't need to monitor
          * the write event from the start, usually you should call send() first, if
@@ -56,7 +56,7 @@ namespace chen
          * Closed: socket disconnected or connection refused
          * ---------------------------------------------------------------------
          * @note in epoll, closed event is always be monitored, in kqueue and poll
-         * you must monitor the read event if you want to monitor the closed event
+         * you must monitor the read event if you want to know the closed event
          * ---------------------------------------------------------------------
          * @note you should read the rest of the data even if you received the closed
          * event, server may send last message and then close the connection immediately
@@ -110,7 +110,7 @@ namespace chen
 
         /**
          * Stop the poll
-         * @note you can call this method in callback or other thread
+         * @note you can call this method in callback or other thread to interrupt the poll
          */
         void stop();
 
