@@ -144,7 +144,7 @@ std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double t
 // misc
 chen::reactor::Type chen::reactor::event(int filter, int flags)
 {
-    if (flags & EV_EOF)
+    if ((flags & EV_EOF) || (flags & EV_ERROR))
         return Type::Closed;
 
     switch (filter)

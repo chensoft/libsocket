@@ -109,12 +109,6 @@ namespace chen
         void run(std::size_t count = 1);
 
         /**
-         * Post a custom event
-         * @note event will be notified in next poll
-         */
-        void post(void *data);
-
-        /**
          * Stop the poll
          * @note you can call this method in callback or other thread to interrupt the poll
          */
