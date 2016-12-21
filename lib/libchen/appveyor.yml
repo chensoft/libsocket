@@ -23,7 +23,7 @@ before_build:
   - cmake -G "Visual Studio 14 2015 Win64" ..
 
 build:
-  project: C:\projects\libchen\build\test\libchen_test.sln
+  project: C:\projects\libchen\build\libchen.sln
 
 test_script:
   - pwd

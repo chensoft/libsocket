@@ -7,6 +7,7 @@
 #include <socket/inet/inet_address.hpp>
 #include <socket/core/reactor.hpp>
 #include <gtest/gtest.h>
+#include <thread>
 
 using chen::reactor;
 using chen::basic_socket;
@@ -137,4 +138,30 @@ TEST(CoreReactorTest, Delete)
     list = r.poll(1, 0.);  // we want return immediately
 
     EXPECT_TRUE(list.empty());
+}
+
+TEST(CoreReactorTest, Stop)
+{
+    // create server
+    basic_socket server(AF_INET, SOCK_STREAM, 0);
+
+    EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
+    EXPECT_TRUE(!server.listen());
+
+    // monitor read
+    reactor r;
+    r.set(server.native(), &server, reactor::ModeRead, 0);  // level-triggered
+
+    // stop reactor after a moment in another thread
+    std::thread t([&] () {
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        r.stop();  // interrupt poll
+    });
+
+    // poll will wait forever unless user interrupt it
+    auto list = r.poll(1);
+
+    EXPECT_TRUE(list.empty());  // because stop
+
+    t.join();
 }
