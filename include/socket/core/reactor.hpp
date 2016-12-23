@@ -8,6 +8,7 @@
 
 #include <socket/base/basic_socket.hpp>
 #include <unordered_map>
+#include <functional>
 #include <vector>
 
 namespace chen
@@ -65,26 +66,18 @@ namespace chen
         enum class Type {Readable = 1, Writable, Closed};
 
         /**
-         * Event data, only report custom data pointer and event type, user can pass an
-         * object's pointer when set fd, if event occurs then call the object's callback
+         * Event callback
+         * @note if you want to bind custom params to callback, you can use std::bind
          */
-        struct Data
-        {
-            Data() = default;
-            Data(void *data, Type type) : data(data), type(type) {}
-
-            void *data;
-            Type  type;
-        };
+        typedef std::function<void (chen::handle_t fd, chen::reactor::Type type)> callback;
 
     public:
-        reactor();
+        reactor(std::size_t events = 64);  // events number used in backend
         ~reactor();
 
     public:
         /**
          * Monitor events for fd
-         * @param data user's custom data pointer
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          * ---------------------------------------------------------------------
@@ -93,37 +86,33 @@ namespace chen
          * Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll
          */
-        void set(handle_t fd, void *data, int mode, int flag);
+        void set(handle_t fd, callback cb, int mode, int flag);
 
         /**
          * Delete all events for fd
+         * @note don't forget to delete fd when it is destroyed
          */
         void del(handle_t fd);
 
     public:
         /**
-         * Run the loop
-         * @param count how many events you want to monitor per loop, it's just a hint, default is 1
-         * @note this method will not return unless user request to stop, timeout or interrupted
+         * Run loop forever, unless user request to stop, timeout or interrupted
+         * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
          */
-        void run(std::size_t count = 1);
+        void run(double timeout = -1);
 
         /**
-         * Stop the poll
-         * @note you can call this method in callback or other thread to interrupt the poll
+         * Run loop only once
+         * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
+         * @note this method is useful when you have your own runloop, you can call it in every frame
+         */
+        bool once(double timeout = -1);
+
+        /**
+         * Stop the loop
+         * @note you can call this method in callback or other thread to interrupt the loop
          */
         void stop();
-
-    public:
-        /**
-         * Poll events, with an optional timeout
-         * @param count how many events you want to monitor, just a hint, final events count may greater than this
-         * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
-         * @return empty if user request to stop, timeout or interrupted
-         * @note the number of events may greater than count because we treat the read
-         * and write as separate events, but backend may report them as a single event
-         */
-        std::vector<Data> poll(std::size_t count, double timeout = -1);
 
     private:
         reactor(const reactor&) = delete;
@@ -131,27 +120,26 @@ namespace chen
 
     private:
 #if !defined(__linux__) && !defined(_WIN32)
+
+        // kqueue
         Type event(int filter, int flags);
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
 
-        handle_t _fd = invalid_handle;  // kqueue handle
+        handle_t _kqueue = invalid_handle;
+
+        std::vector<struct ::kevent> _events;
+        std::unordered_map<handle_t, callback> _callbacks;
+
 #elif defined(__linux__)
+
+        // epoll
         handle_t _fd = invalid_handle;  // epoll handle
         handle_t _ef = invalid_handle;  // eventfd handle
+
 #else
-        struct Detail
-        {
-            Detail() = default;
-            Detail(int flag, void *data) : flag(flag), data(data) {}
 
-            int   flag = 0;
-            void *data = nullptr;
-        };
+        // WSAPoll
 
-        basic_socket _wake;
-
-        std::vector<::pollfd> _fds;
-        std::unordered_map<handle_t, Detail> _map;
 #endif
     };
 }
