@@ -9,6 +9,7 @@
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
+#include <algorithm>
 #include <limits>
 
 // -----------------------------------------------------------------------------
@@ -16,33 +17,33 @@
 const int chen::reactor::FlagEdge = EPOLLET;
 const int chen::reactor::FlagOnce = EPOLLONESHOT;
 
-chen::reactor::reactor()
+chen::reactor::reactor(std::size_t events) : _events(events)
 {
     // create epoll file descriptor
     // 1 is just a hint, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
-    if ((this->_fd = ::epoll_create(1)) < 0)
+    if ((this->_epoll = ::epoll_create(1)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
     // create eventfd to receive wake message
-    this->_ef = ::eventfd(0, 0);
+    this->_wake = ::eventfd(0, 0);
 
-    if ((this->_ef < 0) || ::fcntl(this->_ef, F_SETFL, ::fcntl(this->_ef, F_GETFL, 0) | O_NONBLOCK))
+    if ((this->_wake < 0) || ::fcntl(this->_wake, F_SETFL, ::fcntl(this->_wake, F_GETFL, 0) | O_NONBLOCK))
     {
-        ::close(this->_fd);
+        ::close(this->_epoll);
         throw std::system_error(sys::error(), "epoll: failed to create eventfd");
     }
 
-    this->set(this->_ef, &this->_ef, ModeRead, FlagEdge);
+    this->set(this->_wake, nullptr, ModeRead, FlagEdge);
 }
 
 chen::reactor::~reactor()
 {
-    ::close(this->_fd);
-    ::close(this->_ef);
+    ::close(this->_epoll);
+    ::close(this->_wake);
 }
 
 // modify
-void chen::reactor::set(handle_t fd, void *data, int mode, int flag)
+void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
 {
     ::epoll_event event{};
 
@@ -52,84 +53,108 @@ void chen::reactor::set(handle_t fd, void *data, int mode, int flag)
     if (mode & ModeWrite)
         event.events |= EPOLLOUT;
 
-    event.events  |= flag | EPOLLRDHUP;
-    event.data.ptr = data;
+    event.events |= flag | EPOLLRDHUP;
+    event.data.fd = fd;
 
-    if (::epoll_ctl(this->_fd, EPOLL_CTL_MOD, fd, &event) != 0)
+    // register event
+    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
     {
-        if ((errno != ENOENT) || (::epoll_ctl(this->_fd, EPOLL_CTL_ADD, fd, &event) != 0))
+        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
             throw std::system_error(sys::error(), "epoll: failed to set event");
     }
+
+    // register callback
+    this->_callbacks[fd] = cb;
 }
 
 void chen::reactor::del(handle_t fd)
 {
-    if ((::epoll_ctl(this->_fd, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
+    // delete callback
+    this->_callbacks.erase(fd);
+
+    // disable pending
+    std::for_each(this->_events.begin(), this->_events.end(), [=] (::epoll_event &event) {
+        // user may delete fd in previous callback, if there are events to be
+        // processed will lead to errors, so we disable unhandled events here
+        if (event.data.fd == fd)
+            event.data.fd = invalid_handle;
+    });
+
+    // delete event
+    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
 
 // run
-void chen::reactor::stop()
+void chen::reactor::run(double timeout)
 {
-    // notify wake message via eventfd
-    if (::eventfd_write(this->_ef, 1) != 0)
-        throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
+    while (!this->once(timeout))
+        ;
 }
 
-// poll
-std::vector<chen::reactor::Data> chen::reactor::poll(std::size_t count, double timeout)
+bool chen::reactor::once(double timeout)
 {
-    if (!count)
-        return {};
-
-    // poll next events
-    ::epoll_event events[count];  // VLA
-    int result = ::epoll_wait(this->_fd, events, static_cast<int>(count), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+    // poll events
+    int result = ::epoll_wait(this->_epoll, this->_events.data(), static_cast<int>(this->_events.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
     if (result <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((errno == EINTR) || !result)  // timeout if result is zero
-            return {};
+            return false;
         else
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
 
-    // collect poll data
-    std::vector<chen::reactor::Data> ret;
-
+    // invoke callback
     for (std::size_t i = 0; i < result; ++i)
     {
-        auto &event = events[i];
+        auto &event = this->_events[i];
+        auto handle = event.data.fd;
+
+        // disabled by user
+        if (handle == invalid_handle)
+            continue;
 
         // user request to stop
-        if (event.data.ptr == &this->_ef)
+        if (handle == this->_wake)
         {
             ::eventfd_t dummy;
-            ::eventfd_read(this->_ef, &dummy);
-            return {};
+            ::eventfd_read(this->_wake, &dummy);
+            return false;
         }
 
         // check events, multiple events maybe occur
-        auto insert = [&] (Type type) {
-            ret.emplace_back(Data(event.data.ptr, type));
+        auto method = this->_callbacks.find(handle);
+        auto invoke = [&] (Type type) {
+            method->second(handle, type);
         };
+
+        if (method == this->_callbacks.end())
+            continue;
 
         if ((event.events & EPOLLRDHUP) || (event.events & EPOLLERR) || (event.events & EPOLLHUP))
         {
-            insert(Type::Closed);
+            invoke(Type::Closed);
         }
         else
         {
             if (event.events & EPOLLIN)
-                insert(Type::Readable);
+                invoke(Type::Readable);
 
             if (event.events & EPOLLOUT)
-                insert(Type::Writable);
+                invoke(Type::Writable);
         }
     }
 
-    return ret;
+    return result > 0;
+}
+
+void chen::reactor::stop()
+{
+    // notify wake message via eventfd
+    if (::eventfd_write(this->_wake, 1) != 0)
+        throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
 }
 
 #endif

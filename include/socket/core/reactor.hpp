@@ -104,7 +104,8 @@ namespace chen
         /**
          * Run loop only once
          * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
-         * @note this method is useful when you have your own runloop, you can call it in every frame
+         * @return true if an event is handled, false if stop, timeout or interrupted
+         * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
          */
         bool once(double timeout = -1);
 
@@ -133,8 +134,11 @@ namespace chen
 #elif defined(__linux__)
 
         // epoll
-        handle_t _fd = invalid_handle;  // epoll handle
-        handle_t _ef = invalid_handle;  // eventfd handle
+        handle_t _epoll = invalid_handle;
+        handle_t _wake  = invalid_handle;  // eventfd handle
+
+        std::vector<struct ::epoll_event> _events;
+        std::unordered_map<handle_t, callback> _callbacks;
 
 #else
 

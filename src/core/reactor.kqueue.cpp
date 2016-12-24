@@ -114,7 +114,7 @@ bool chen::reactor::once(double timeout)
 
         // user request to stop
         if (event.filter == EVFILT_USER)
-            return {};
+            return false;
 
         auto ev = this->event(event.filter, event.flags);
         auto cb = this->_callbacks.find(handle);
