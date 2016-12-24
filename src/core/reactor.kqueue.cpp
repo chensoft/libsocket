@@ -75,7 +75,7 @@ void chen::reactor::del(handle_t fd)
 // run
 void chen::reactor::run(double timeout)
 {
-    while (!this->once(timeout))
+    while (this->once(timeout))
         ;
 }
 
