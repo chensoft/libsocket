@@ -129,7 +129,6 @@ namespace chen
         handle_t _kqueue = invalid_handle;
 
         std::vector<struct ::kevent> _events;
-        std::unordered_map<handle_t, callback> _callbacks;
 
 #elif defined(__linux__)
 
@@ -138,12 +137,16 @@ namespace chen
         handle_t _wake  = invalid_handle;  // eventfd handle
 
         std::vector<struct ::epoll_event> _events;
-        std::unordered_map<handle_t, callback> _callbacks;
 
 #else
 
         // WSAPoll
 
 #endif
+
+        int _index = 0;  // current iteration index
+        int _count = 0;  // current events count
+
+        std::unordered_map<handle_t, callback> _callbacks;
     };
 }

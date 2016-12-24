@@ -9,7 +9,6 @@
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
-#include <algorithm>
 #include <limits>
 
 // -----------------------------------------------------------------------------
@@ -73,12 +72,15 @@ void chen::reactor::del(handle_t fd)
     this->_callbacks.erase(fd);
 
     // disable pending
-    std::for_each(this->_events.begin(), this->_events.end(), [=] (::epoll_event &event) {
+    for (int i = this->_index + 1; i < this->_count; ++i)
+    {
+        auto &event = this->_events[i];
+
         // user may delete fd in previous callback, if there are events to be
         // processed will lead to errors, so we disable unhandled events here
         if (event.data.fd == fd)
             event.data.fd = invalid_handle;
-    });
+    }
 
     // delete event
     if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
@@ -95,21 +97,21 @@ void chen::reactor::run(double timeout)
 bool chen::reactor::once(double timeout)
 {
     // poll events
-    int result = ::epoll_wait(this->_epoll, this->_events.data(), static_cast<int>(this->_events.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+    this->_count = ::epoll_wait(this->_epoll, this->_events.data(), static_cast<int>(this->_events.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
-    if (result <= 0)
+    if (this->_count <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
-        if ((errno == EINTR) || !result)  // timeout if result is zero
+        if ((errno == EINTR) || !this->_count)  // timeout if result is zero
             return false;
         else
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
 
     // invoke callback
-    for (std::size_t i = 0; i < result; ++i)
+    for (this->_index = 0; this->_index < this->_count; ++this->_index)
     {
-        auto &event = this->_events[i];
+        auto &event = this->_events[this->_index];
         auto handle = event.data.fd;
 
         // disabled by user
@@ -147,7 +149,7 @@ bool chen::reactor::once(double timeout)
         }
     }
 
-    return result > 0;
+    return this->_count > 0;
 }
 
 void chen::reactor::stop()

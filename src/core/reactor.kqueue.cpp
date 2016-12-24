@@ -56,12 +56,15 @@ void chen::reactor::del(handle_t fd)
     this->_callbacks.erase(fd);
 
     // disable pending
-    std::for_each(this->_events.begin(), this->_events.end(), [=] (struct ::kevent &event) {
+    for (int i = this->_index + 1; i < this->_count; ++i)
+    {
+        auto &event = this->_events[i];
+
         // user may delete fd in previous callback, if there are events to be
         // processed will lead to errors, so we disable unhandled events here
         if (event.ident == fd)
             event.ident = static_cast<uintptr_t>(invalid_handle);
-    });
+    }
 
     // delete read
     if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
@@ -82,8 +85,6 @@ void chen::reactor::run(double timeout)
 bool chen::reactor::once(double timeout)
 {
     // poll events
-    int result = 0;
-
     std::unique_ptr<::timespec> val;
 
     if (timeout >= 0)
@@ -93,19 +94,19 @@ bool chen::reactor::once(double timeout)
         val->tv_nsec = static_cast<long>((timeout - val->tv_sec) * 1000000000);
     }
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_events.data(), static_cast<int>(this->_events.size()), val.get())) <= 0)
+    if ((this->_count = ::kevent(this->_kqueue, nullptr, 0, this->_events.data(), static_cast<int>(this->_events.size()), val.get())) <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
-        if ((errno == EINTR) || !result)  // timeout if result is zero
+        if ((errno == EINTR) || !this->_count)  // timeout if result is zero
             return false;
         else
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
     }
 
     // invoke callback
-    for (auto i = 0; i < result; ++i)
+    for (this->_index = 0; this->_index < this->_count; ++this->_index)
     {
-        auto &event = this->_events[i];
+        auto &event = this->_events[this->_index];
         auto handle = static_cast<handle_t>(event.ident);
 
         // disabled by user
@@ -123,7 +124,7 @@ bool chen::reactor::once(double timeout)
             cb->second(handle, ev);
     }
 
-    return result > 0;
+    return this->_count > 0;
 }
 
 void chen::reactor::stop()
