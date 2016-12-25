@@ -69,12 +69,12 @@ namespace chen
          */
         typedef struct
         {
-            handle_t handle;
+            handle_t handle = invalid_handle;
             std::function<void (Type type)> callback;
         } Event;
 
     public:
-        reactor(std::size_t count = 64);  // events number used in backend
+        reactor(int count = 64);  // events number used in backend
         ~reactor();
 
     public:
@@ -133,8 +133,8 @@ namespace chen
 #elif defined(__linux__)
 
         // epoll
+        Event _wake;
         handle_t _epoll = invalid_handle;
-        handle_t _wake  = invalid_handle;  // eventfd handle
 
 #else
 
@@ -142,6 +142,6 @@ namespace chen
 
 #endif
 
-        std::size_t _count = 0;
+        int _count = 0;
     };
 }

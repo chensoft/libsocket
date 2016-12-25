@@ -15,7 +15,7 @@
 const int chen::reactor::FlagEdge = EV_CLEAR;
 const int chen::reactor::FlagOnce = EV_ONESHOT;
 
-chen::reactor::reactor(std::size_t count) : _count(count)
+chen::reactor::reactor(int count) : _count(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
@@ -80,7 +80,7 @@ bool chen::reactor::once(double timeout)
         val->tv_nsec = static_cast<long>((timeout - val->tv_sec) * 1000000000);
     }
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, static_cast<int>(this->_count), val.get())) <= 0)
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
         if ((errno == EINTR) || !result)  // timeout if result is zero
@@ -98,7 +98,8 @@ bool chen::reactor::once(double timeout)
         if (item.filter == EVFILT_USER)
             return false;
 
-        ((Event*)item.udata)->callback(this->type(item.filter, item.flags));
+        if (item.udata)
+            ((Event*)item.udata)->callback(this->type(item.filter, item.flags));
     }
 
     return result > 0;
