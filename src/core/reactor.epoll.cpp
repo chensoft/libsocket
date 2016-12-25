@@ -24,25 +24,25 @@ chen::reactor::reactor(int count) : _count(count)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
     // create eventfd to receive wake message
-    this->_wake.handle = ::eventfd(0, 0);
+    this->_wake = ::eventfd(0, 0);
 
-    if ((this->_wake.handle < 0) || ::fcntl(this->_wake.handle, F_SETFL, ::fcntl(this->_wake.handle, F_GETFL, 0) | O_NONBLOCK))
+    if ((this->_wake < 0) || ::fcntl(this->_wake, F_SETFL, ::fcntl(this->_wake, F_GETFL, 0) | O_NONBLOCK))
     {
         ::close(this->_epoll);
         throw std::system_error(sys::error(), "epoll: failed to create eventfd");
     }
 
-    this->set(&this->_wake, ModeRead, FlagEdge);
+    this->set(this->_wake, nullptr, ModeRead, FlagEdge);
 }
 
 chen::reactor::~reactor()
 {
     ::close(this->_epoll);
-    ::close(this->_wake.handle);
+    ::close(this->_wake);
 }
 
 // modify
-void chen::reactor::set(Event *ev, int mode, int flag)
+void chen::reactor::set(handle_t fd, callback *cb, int mode, int flag)
 {
     ::epoll_event event{};
 
@@ -53,19 +53,19 @@ void chen::reactor::set(Event *ev, int mode, int flag)
         event.events |= EPOLLOUT;
 
     event.events  |= flag | EPOLLRDHUP;
-    event.data.ptr = ev;
+    event.data.ptr = cb;
 
     // register event
-    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, ev->handle, &event) != 0)
+    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
     {
-        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, ev->handle, &event) != 0))
+        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
             throw std::system_error(sys::error(), "epoll: failed to set event");
     }
 }
 
-void chen::reactor::del(Event *ev)
+void chen::reactor::del(handle_t fd)
 {
-    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, ev->handle, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
+    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
 
@@ -100,26 +100,26 @@ bool chen::reactor::once(double timeout)
         if (item.data.ptr == &this->_wake)
         {
             ::eventfd_t dummy;
-            ::eventfd_read(this->_wake.handle, &dummy);
+            ::eventfd_read(this->_wake, &dummy);
             return false;
         }
 
         // check events, multiple events maybe occur
-        auto ev = static_cast<Event*>(item.data.ptr);
-        if (!ev->callback)
+        auto cb = static_cast<callback*>(item.data.ptr);
+        if (!cb)
             continue;
 
         if ((item.events & EPOLLRDHUP) || (item.events & EPOLLERR) || (item.events & EPOLLHUP))
         {
-            ev->callback(Type::Closed);
+            (*cb)(Type::Closed);
         }
         else
         {
             if (item.events & EPOLLIN)
-                ev->callback(Type::Readable);
+                (*cb)(Type::Readable);
 
             if (item.events & EPOLLOUT)
-                ev->callback(Type::Writable);
+                (*cb)(Type::Writable);
         }
     }
 
@@ -129,7 +129,7 @@ bool chen::reactor::once(double timeout)
 void chen::reactor::stop()
 {
     // notify wake message via eventfd
-    if (::eventfd_write(this->_wake.handle, 1) != 0)
+    if (::eventfd_write(this->_wake, 1) != 0)
         throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
 }
 
