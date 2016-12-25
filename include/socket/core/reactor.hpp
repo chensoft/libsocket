@@ -6,10 +6,8 @@
  */
 #pragma once
 
-#include <socket/base/basic_socket.hpp>
-#include <unordered_map>
+#include <socket/config.hpp>
 #include <functional>
-#include <vector>
 
 namespace chen
 {
@@ -60,24 +58,28 @@ namespace chen
          * you must monitor the read event if you want to know the closed event
          * ---------------------------------------------------------------------
          * @note you should read the rest of the data even if you received the closed
-         * event, server may send last message and then close the connection immediately
+         * event, server may send last message and then close the connection immediately.
          * the backend may report readable & closed event or only report the closed event
          */
         enum class Type {Readable = 1, Writable, Closed};
 
         /**
-         * Event callback
+         * Event struct
          * @note if you want to bind custom params to callback, you can use std::bind
          */
-        typedef std::function<void (chen::handle_t fd, chen::reactor::Type type)> callback;
+        typedef struct
+        {
+            handle_t handle;
+            std::function<void (Type type)> callback;
+        } Event;
 
     public:
-        reactor(std::size_t events = 64);  // events number used in backend
+        reactor(std::size_t count = 64);  // events number used in backend
         ~reactor();
 
     public:
         /**
-         * Monitor events for fd
+         * Monitor event
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          * ---------------------------------------------------------------------
@@ -86,13 +88,13 @@ namespace chen
          * Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll
          */
-        void set(handle_t fd, callback cb, int mode, int flag);
+        void set(Event *ev, int mode, int flag);
 
         /**
-         * Delete all events for fd
-         * @note don't forget to delete fd when it is destroyed
+         * Delete event
+         * @note don't forget to delete it when it is destroyed
          */
-        void del(handle_t fd);
+        void del(Event *ev);
 
     public:
         /**
@@ -123,12 +125,10 @@ namespace chen
 #if !defined(__linux__) && !defined(_WIN32)
 
         // kqueue
-        Type event(int filter, int flags);
+        Type type(int filter, int flags);
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
 
         handle_t _kqueue = invalid_handle;
-
-        std::vector<struct ::kevent> _events;
 
 #elif defined(__linux__)
 
@@ -136,17 +136,12 @@ namespace chen
         handle_t _epoll = invalid_handle;
         handle_t _wake  = invalid_handle;  // eventfd handle
 
-        std::vector<struct ::epoll_event> _events;
-
 #else
 
         // WSAPoll
 
 #endif
 
-        int _index = 0;  // current iteration index
-        int _count = 0;  // current events count
-
-        std::unordered_map<handle_t, callback> _callbacks;
+        std::size_t _count = 0;
     };
 }

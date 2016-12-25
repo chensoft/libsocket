@@ -15,14 +15,14 @@
 const int chen::reactor::FlagEdge = EV_CLEAR;
 const int chen::reactor::FlagOnce = EV_ONESHOT;
 
-chen::reactor::reactor(std::size_t events) : _events(events)
+chen::reactor::reactor(std::size_t count) : _count(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
 
     // register custom filter to receive wake message
-    // ident's value is not important here, so use zero is enough
+    // ident's value is not important here, so use zero is ok
     if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, nullptr) < 0)
     {
         ::close(this->_kqueue);
@@ -36,42 +36,25 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
+void chen::reactor::set(Event *ev, int mode, int flag)
 {
     // register read or delete
-    if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->handle, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 
     // register write or delete
-    if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->handle, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
-
-    // register callback
-    this->_callbacks[fd] = cb;
 }
 
-void chen::reactor::del(handle_t fd)
+void chen::reactor::del(Event *ev)
 {
-    // delete callback
-    this->_callbacks.erase(fd);
-
-    // disable pending
-    for (int i = this->_index + 1; i < this->_count; ++i)
-    {
-        auto &event = this->_events[i];
-
-        // user may delete fd in previous callback, if there are events to be
-        // processed will lead to errors, so we disable unhandled events here
-        if (event.ident == fd)
-            event.ident = static_cast<uintptr_t>(invalid_handle);
-    }
-
     // delete read
-    if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->handle, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 
     // delete write
-    if ((this->alter(fd, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->handle, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 }
 
@@ -84,9 +67,10 @@ void chen::reactor::run(double timeout)
 
 bool chen::reactor::once(double timeout)
 {
-    this->_index = 0;
-
     // poll events
+    struct ::kevent events[this->_count];  // VLA
+    int result = 0;
+
     std::unique_ptr<::timespec> val;
 
     if (timeout >= 0)
@@ -96,37 +80,28 @@ bool chen::reactor::once(double timeout)
         val->tv_nsec = static_cast<long>((timeout - val->tv_sec) * 1000000000);
     }
 
-    if ((this->_count = ::kevent(this->_kqueue, nullptr, 0, this->_events.data(), static_cast<int>(this->_events.size()), val.get())) <= 0)
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, static_cast<int>(this->_count), val.get())) <= 0)
     {
         // EINTR maybe triggered by debugger, treat it as user request to stop
-        if ((errno == EINTR) || !this->_count)  // timeout if result is zero
+        if ((errno == EINTR) || !result)  // timeout if result is zero
             return false;
         else
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
     }
 
     // invoke callback
-    for (; this->_index < this->_count; ++this->_index)
+    for (int i = 0; i < result; ++i)
     {
-        auto &event = this->_events[this->_index];
-        auto handle = static_cast<handle_t>(event.ident);
-
-        // disabled by user
-        if (handle == invalid_handle)
-            continue;
+        auto &item = events[i];
 
         // user request to stop
-        if (event.filter == EVFILT_USER)
+        if (item.filter == EVFILT_USER)
             return false;
 
-        auto ev = this->event(event.filter, event.flags);
-        auto cb = this->_callbacks.find(handle);
-
-        if (cb != this->_callbacks.end())
-            cb->second(handle, ev);
+        ((Event*)item.udata)->callback(this->type(item.filter, item.flags));
     }
 
-    return this->_count > 0;
+    return result > 0;
 }
 
 void chen::reactor::stop()
@@ -137,7 +112,7 @@ void chen::reactor::stop()
 }
 
 // misc
-chen::reactor::Type chen::reactor::event(int filter, int flags)
+chen::reactor::Type chen::reactor::type(int filter, int flags)
 {
     if ((flags & EV_EOF) || (flags & EV_ERROR))
         return Type::Closed;
