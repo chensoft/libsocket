@@ -36,25 +36,25 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(Event *ev, int mode, int flag)
+void chen::reactor::set(handle_t fd, callback *cb, int mode, int flag)
 {
     // register read or delete
-    if ((this->alter(ev->handle, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, cb) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 
     // register write or delete
-    if ((this->alter(ev->handle, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, cb) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 }
 
-void chen::reactor::del(Event *ev)
+void chen::reactor::del(handle_t fd)
 {
     // delete read
-    if ((this->alter(ev->handle, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 
     // delete write
-    if ((this->alter(ev->handle, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
 }
 
@@ -99,7 +99,7 @@ bool chen::reactor::once(double timeout)
             return false;
 
         if (item.udata)
-            ((Event*)item.udata)->callback(this->type(item.filter, item.flags));
+            (*(callback*)item.udata)(this->type(item.filter, item.flags));
     }
 
     return result > 0;

@@ -1,5 +1,3 @@
--) net socket's onXXX support pass void* as user's tag
-
 -) server, client support usage stat, like received packets, bytes, current connections
 
 -) the capability of sending raw packet
@@ -27,5 +25,3 @@
 -) support set max connections limit in tcp, udp server socket
 
 -) add sendfile, TransmitFile, use method name: transmit
-
--) notify user when accept error

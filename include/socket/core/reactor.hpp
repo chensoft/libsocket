@@ -64,14 +64,10 @@ namespace chen
         enum class Type {Readable = 1, Writable, Closed};
 
         /**
-         * Event struct
+         * Event callback
          * @note if you want to bind custom params to callback, you can use std::bind
          */
-        typedef struct
-        {
-            handle_t handle = invalid_handle;
-            std::function<void (Type type)> callback;
-        } Event;
+        typedef std::function<void (Type type)> callback;
 
     public:
         reactor(int count = 64);  // events number used in backend
@@ -88,13 +84,13 @@ namespace chen
          * Linux today, so I had to simulate the epoll's behaviour here.
          * Personally, I think kqueue's design is more flexible than epoll
          */
-        void set(Event *ev, int mode, int flag);
+        void set(handle_t fd, callback *cb, int mode, int flag);
 
         /**
          * Delete event
          * @note don't forget to delete it when it is destroyed
          */
-        void del(Event *ev);
+        void del(handle_t fd);
 
     public:
         /**
@@ -133,8 +129,8 @@ namespace chen
 #elif defined(__linux__)
 
         // epoll
-        Event _wake;
         handle_t _epoll = invalid_handle;
+        handle_t _wake  = invalid_handle;  // eventfd
 
 #else
 
