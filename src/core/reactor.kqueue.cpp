@@ -84,6 +84,8 @@ void chen::reactor::run(double timeout)
 
 bool chen::reactor::once(double timeout)
 {
+    this->_index = 0;
+
     // poll events
     std::unique_ptr<::timespec> val;
 
@@ -104,7 +106,7 @@ bool chen::reactor::once(double timeout)
     }
 
     // invoke callback
-    for (this->_index = 0; this->_index < this->_count; ++this->_index)
+    for (; this->_index < this->_count; ++this->_index)
     {
         auto &event = this->_events[this->_index];
         auto handle = static_cast<handle_t>(event.ident);

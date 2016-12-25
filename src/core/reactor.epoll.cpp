@@ -96,6 +96,8 @@ void chen::reactor::run(double timeout)
 
 bool chen::reactor::once(double timeout)
 {
+    this->_index = 0;
+
     // poll events
     this->_count = ::epoll_wait(this->_epoll, this->_events.data(), static_cast<int>(this->_events.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
 
@@ -109,7 +111,7 @@ bool chen::reactor::once(double timeout)
     }
 
     // invoke callback
-    for (this->_index = 0; this->_index < this->_count; ++this->_index)
+    for (; this->_index < this->_count; ++this->_index)
     {
         auto &event = this->_events[this->_index];
         auto handle = event.data.fd;
