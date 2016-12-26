@@ -8,6 +8,7 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
+#include <unordered_set>
 #include <memory>
 
 // -----------------------------------------------------------------------------
@@ -90,6 +91,8 @@ bool chen::reactor::once(double timeout)
     }
 
     // invoke callback
+    std::unordered_set<uintptr_t> closed;
+
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
@@ -98,8 +101,19 @@ bool chen::reactor::once(double timeout)
         if (item.filter == EVFILT_USER)
             return false;
 
+        // already closed
+        if (closed.find(item.ident) != closed.end())
+            continue;
+
+        // notify callback
         if (item.udata)
-            (*(callback*)item.udata)(this->type(item.filter, item.flags));
+        {
+            auto t = this->type(item.filter, item.flags);
+            if (t == Type::Closed)
+                closed.insert(item.ident);
+
+            (*(callback*)item.udata)(t);
+        }
     }
 
     return result > 0;
