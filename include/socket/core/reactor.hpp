@@ -134,6 +134,8 @@ namespace chen
 #elif defined(__linux__)
 
         // epoll
+        Type type(int events);
+
         handle_t _epoll = invalid_handle;
         handle_t _wake  = invalid_handle;  // eventfd
 

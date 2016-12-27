@@ -9,7 +9,10 @@
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
+#include <unordered_map>
+#include <algorithm>
 #include <limits>
+#include <vector>
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -92,10 +95,18 @@ std::error_code chen::reactor::once(double timeout)
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
 
-    // invoke callback
+    // merge events, events on the same fd will be notified only once
+    typedef std::pair<callback*, Type> item_type;
+    typedef std::vector<item_type> list_type;
+    typedef std::unordered_map<callback*, list_type::iterator> dict_type;
+
+    list_type list;
+    dict_type dict;
+
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
+        auto *call = static_cast<callback*>(item.data.ptr);
 
         // user request to stop
         if (item.data.ptr == &this->_wake)
@@ -105,24 +116,23 @@ std::error_code chen::reactor::once(double timeout)
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        // check events, multiple events maybe occur
-        auto cb = static_cast<callback*>(item.data.ptr);
-        if (!cb)
+        if (!call)
             continue;
 
-        if ((item.events & EPOLLRDHUP) || (item.events & EPOLLERR) || (item.events & EPOLLHUP))
-        {
-            (*cb)(Type::Closed);
-        }
-        else
-        {
-            if (item.events & EPOLLIN)
-                (*cb)(Type::Readable);
+        // find exist event
+        auto find = dict.find(call);
+        auto type = this->type(item.events);
 
-            if (item.events & EPOLLOUT)
-                (*cb)(Type::Writable);
-        }
+        if (find != dict.end())
+            find->second->second |= type;
+        else
+            dict[call] = list.insert(list.end(), std::make_pair(call, type));
     }
+
+    // invoke callback
+    std::for_each(list.begin(), list.end(), [] (item_type &item) {
+        (*item.first)(item.second);
+    });
 
     return {};
 }
@@ -132,6 +142,28 @@ void chen::reactor::stop()
     // notify wake message via eventfd
     if (::eventfd_write(this->_wake, 1) != 0)
         throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
+}
+
+// misc
+chen::reactor::Type chen::reactor::type(int events)
+{
+    // check events, multiple events maybe occur
+    if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
+    {
+        return Closed;
+    }
+    else
+    {
+        chen::reactor::Type ret = 0;
+
+        if (events & EPOLLIN)
+            ret |= Readable;
+
+        if (events & EPOLLOUT)
+            ret |= Writable;
+
+        return ret;
+    }
 }
 
 #endif
