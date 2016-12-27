@@ -8,8 +8,9 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
-#include <unordered_set>
+#include <unordered_map>
 #include <memory>
+#include <vector>
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -70,16 +71,16 @@ std::error_code chen::reactor::once(double timeout)
 {
     // poll events
     struct ::kevent events[this->_count];  // VLA
-    int result = 0;
-
     std::unique_ptr<::timespec> val;
 
     if (timeout >= 0)
     {
         val.reset(new ::timespec);
-        val->tv_sec  = static_cast<long>(timeout);
-        val->tv_nsec = static_cast<long>((timeout - val->tv_sec) * 1000000000);
+        val->tv_sec  = static_cast<time_t>(timeout);
+        val->tv_nsec = static_cast<time_t>((timeout - val->tv_sec) * 1000000000);
     }
+
+    int result = 0;
 
     if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) <= 0)
     {
@@ -91,31 +92,40 @@ std::error_code chen::reactor::once(double timeout)
             throw std::system_error(sys::error(), "kqueue: failed to poll event");
     }
 
-    // invoke callback
-    std::unordered_set<uintptr_t> closed;
+    // merge events, events on the same fd will be notified only once
+    typedef std::pair<callback*, Type> item_type;
+    typedef std::vector<item_type> list_type;
+    typedef std::unordered_map<callback*, list_type::iterator> dict_type;
+
+    list_type list;
+    dict_type dict;
 
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
+        auto *call = static_cast<callback*>(item.udata);
 
         // user request to stop
         if (item.filter == EVFILT_USER)
             return std::make_error_code(std::errc::operation_canceled);
 
-        // already closed
-        if (closed.find(item.ident) != closed.end())
+        if (!call)
             continue;
 
-        // notify callback
-        if (item.udata)
-        {
-            auto t = this->type(item.filter, item.flags);
-            if (t == Type::Closed)
-                closed.insert(item.ident);
+        // find exist event
+        auto find = dict.find(call);
+        auto type = this->type(item.filter, item.flags);
 
-            (*(callback*)item.udata)(t);
-        }
+        if (find != dict.end())
+            find->second->second |= type;
+        else
+            dict[call] = list.insert(list.end(), std::make_pair(call, type));
     }
+
+    // invoke callback
+    std::for_each(list.begin(), list.end(), [] (item_type &item) {
+        (*item.first)(item.second);
+    });
 
     return {};
 }
@@ -131,15 +141,15 @@ void chen::reactor::stop()
 chen::reactor::Type chen::reactor::type(int filter, int flags)
 {
     if ((flags & EV_EOF) || (flags & EV_ERROR))
-        return Type::Closed;
+        return Closed;
 
     switch (filter)
     {
         case EVFILT_READ:
-            return Type::Readable;
+            return Readable;
 
         case EVFILT_WRITE:
-            return Type::Writable;
+            return Writable;
 
         default:
             throw std::runtime_error("kqueue: unknown event detect");

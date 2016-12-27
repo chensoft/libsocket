@@ -62,10 +62,15 @@ namespace chen
          * event, server may send last message and then close the connection immediately.
          * the backend may report readable & closed event or only report the closed event
          */
-        enum class Type {Readable = 1, Writable, Closed};
+        typedef int Type;
+
+        static constexpr Type Readable = 1 << 0;
+        static constexpr Type Writable = 1 << 1;
+        static constexpr Type Closed   = 1 << 2;
 
         /**
          * Event callback
+         * @note use bitwise and to check event type, e.g: if (type & Readable)
          * @note if you want to bind custom params to callback, you can use std::bind
          */
         typedef std::function<void (Type type)> callback;
