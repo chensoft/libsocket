@@ -60,9 +60,9 @@ void chen::reactor::del(handle_t fd)
 }
 
 // run
-void chen::reactor::run(double timeout)
+void chen::reactor::run()
 {
-    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->once(timeout))
+    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->once())
         ;
 }
 

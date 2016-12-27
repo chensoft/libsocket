@@ -95,15 +95,14 @@ namespace chen
 
     public:
         /**
-         * Run loop forever, unless user request to stop, timeout or interrupted
-         * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
+         * Run loop forever, unless user request to stop
          */
-        void run(double timeout = -1);
+        void run();
 
         /**
          * Run loop only once
          * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
-         * @return true if an event is handled, false if stop, timeout or interrupted
+         * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupted
          * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
          */
         std::error_code once(double timeout = -1);
