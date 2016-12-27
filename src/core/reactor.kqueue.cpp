@@ -9,8 +9,8 @@
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <unordered_map>
-#include <memory>
 #include <vector>
+#include <memory>
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -93,12 +93,11 @@ std::error_code chen::reactor::once(double timeout)
     }
 
     // merge events, events on the same fd will be notified only once
-    typedef std::pair<callback*, Type> item_type;
-    typedef std::vector<item_type> list_type;
-    typedef std::unordered_map<callback*, list_type::iterator> dict_type;
+    typedef std::vector<std::pair<callback*, Type>> merge_t;  // keep events' original order
+    typedef std::unordered_map<callback*, merge_t::iterator> cache_t;
 
-    list_type list;
-    dict_type dict;
+    merge_t merge;
+    cache_t cache;
 
     for (int i = 0; i < result; ++i)
     {
@@ -113,17 +112,17 @@ std::error_code chen::reactor::once(double timeout)
             continue;
 
         // find exist event
-        auto find = dict.find(call);
+        auto find = cache.find(call);
         auto type = this->type(item.filter, item.flags);
 
-        if (find != dict.end())
+        if (find != cache.end())
             find->second->second |= type;
         else
-            dict[call] = list.insert(list.end(), std::make_pair(call, type));
+            cache[call] = merge.insert(merge.end(), std::make_pair(call, type));
     }
 
     // invoke callback
-    std::for_each(list.begin(), list.end(), [] (item_type &item) {
+    std::for_each(merge.begin(), merge.end(), [] (merge_t::value_type &item) {
         (*item.first)(item.second);
     });
 

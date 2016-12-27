@@ -100,7 +100,7 @@ std::error_code chen::reactor::once(double timeout)
         auto *call = static_cast<callback*>(item.data.ptr);
 
         // user request to stop
-        if (item.data.ptr == &this->_wake)
+        if (static_cast<void*>(call) == &this->_wake)
         {
             ::eventfd_t dummy;
             ::eventfd_read(this->_wake, &dummy);
