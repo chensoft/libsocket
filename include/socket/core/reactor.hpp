@@ -28,7 +28,7 @@ namespace chen
          * Write(ET, epoll): event occurs only when the state changes from
          * "cannot output" to "can output"
          * Write(ET, kqueue): event occurs after you send the data and the
-         * send buffer is not full
+         * send buffer is not full at that moment
          * ---------------------------------------------------------------------
          * @note since the socket has its own send buffer, you don't need to monitor
          * the write event from the start, usually you should call send() first, if
@@ -84,11 +84,6 @@ namespace chen
          * Monitor event
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
-         * ---------------------------------------------------------------------
-         * @note although read & write events are separate in kqueue, but epoll
-         * does not distinguish between them. since most of the servers running
-         * Linux today, so I had to simulate the epoll's behaviour here.
-         * Personally, I think kqueue's design is more flexible than epoll
          */
         void set(handle_t fd, callback *cb, int mode, int flag);
 

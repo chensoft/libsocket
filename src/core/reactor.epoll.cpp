@@ -9,10 +9,7 @@
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <sys/eventfd.h>
-#include <unordered_map>
-#include <algorithm>
 #include <limits>
-#include <vector>
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -95,14 +92,8 @@ std::error_code chen::reactor::once(double timeout)
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
 
-    // merge events, events on the same fd will be notified only once
-    typedef std::pair<callback*, Type> item_type;
-    typedef std::vector<item_type> list_type;
-    typedef std::unordered_map<callback*, list_type::iterator> dict_type;
-
-    list_type list;
-    dict_type dict;
-
+    // epoll has helped us merge the events
+    // events on the same fd will be notified only once
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
@@ -119,20 +110,9 @@ std::error_code chen::reactor::once(double timeout)
         if (!call)
             continue;
 
-        // find exist event
-        auto find = dict.find(call);
-        auto type = this->type(item.events);
-
-        if (find != dict.end())
-            find->second->second |= type;
-        else
-            dict[call] = list.insert(list.end(), std::make_pair(call, type));
+        // invoke callback
+        (*call)(this->type(item.events));
     }
-
-    // invoke callback
-    std::for_each(list.begin(), list.end(), [] (item_type &item) {
-        (*item.first)(item.second);
-    });
 
     return {};
 }
