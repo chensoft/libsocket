@@ -72,11 +72,11 @@ void chen::reactor::del(handle_t fd)
 // run
 void chen::reactor::run(double timeout)
 {
-    while (this->once(timeout))
+    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->once(timeout))
         ;
 }
 
-bool chen::reactor::once(double timeout)
+std::error_code chen::reactor::once(double timeout)
 {
     // poll events
     ::epoll_event events[this->_count];  // VLA
@@ -84,9 +84,10 @@ bool chen::reactor::once(double timeout)
 
     if (result <= 0)
     {
-        // EINTR maybe triggered by debugger, treat it as user request to stop
-        if ((errno == EINTR) || !result)  // timeout if result is zero
-            return false;
+        if (!result)
+            return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
+        else if (errno == EINTR)
+            return std::make_error_code(std::errc::interrupted);  // EINTR maybe triggered by debugger
         else
             throw std::system_error(sys::error(), "epoll: failed to poll event");
     }
@@ -101,7 +102,7 @@ bool chen::reactor::once(double timeout)
         {
             ::eventfd_t dummy;
             ::eventfd_read(this->_wake, &dummy);
-            return false;
+            return std::make_error_code(std::errc::operation_canceled);
         }
 
         // check events, multiple events maybe occur
@@ -123,7 +124,7 @@ bool chen::reactor::once(double timeout)
         }
     }
 
-    return result > 0;
+    return {};
 }
 
 void chen::reactor::stop()
