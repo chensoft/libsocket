@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/config.hpp>
+#include <system_error>
 #include <functional>
 
 namespace chen
@@ -105,7 +106,7 @@ namespace chen
          * @return true if an event is handled, false if stop, timeout or interrupted
          * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
          */
-        bool once(double timeout = -1);
+        std::error_code once(double timeout = -1);
 
         /**
          * Stop the loop
@@ -138,6 +139,6 @@ namespace chen
 
 #endif
 
-        int _count = 0;
+        const int _count = 0;
     };
 }
