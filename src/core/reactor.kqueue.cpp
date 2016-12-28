@@ -106,7 +106,11 @@ std::error_code chen::reactor::once(double timeout)
 
         // user request to stop
         if (item.filter == EVFILT_USER)
-            return std::make_error_code(std::errc::operation_canceled);
+        {
+            // store for later use
+            merge.emplace_back(std::make_pair(nullptr, 0));
+            continue;
+        }
 
         if (!call)
             continue;
@@ -122,9 +126,14 @@ std::error_code chen::reactor::once(double timeout)
     }
 
     // invoke callback
-    std::for_each(merge.begin(), merge.end(), [] (merge_t::value_type &item) {
-        (*item.first)(item.second);
-    });
+    for (auto it = merge.begin(); it != merge.end(); ++it)
+    {
+        // user request to stop
+        if (!it->first)
+            return std::make_error_code(std::errc::operation_canceled);
+
+        (*it->first)(it->second);
+    }
 
     return {};
 }
