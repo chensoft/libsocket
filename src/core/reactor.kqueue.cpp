@@ -9,7 +9,6 @@
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <unordered_map>
-#include <vector>
 #include <memory>
 
 // -----------------------------------------------------------------------------
@@ -93,46 +92,43 @@ std::error_code chen::reactor::once(double timeout)
     }
 
     // merge events, events on the same fd will be notified only once
-    typedef std::vector<std::pair<callback*, Type>> merge_t;  // keep events' original order
-    typedef std::unordered_map<callback*, merge_t::iterator> cache_t;
-
-    merge_t merge;
-    cache_t cache;
+    std::unordered_map<uintptr_t, struct ::kevent*> map;
 
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
-        auto *call = static_cast<callback*>(item.udata);
 
-        // user request to stop
-        if (item.filter == EVFILT_USER)
-        {
-            // store for later use
-            merge.emplace_back(std::make_pair(nullptr, 0));
-            continue;
-        }
-
-        if (!call)
+        if ((item.filter == EVFILT_USER) || !item.udata)
             continue;
 
-        // find exist event
-        auto find = cache.find(call);
+        auto find = map.find(item.ident);
         auto type = this->type(item.filter, item.flags);
 
-        if (find != cache.end())
-            find->second->second |= type;
+        // borrow 'filter' field for temporary use
+        if (find != map.end())
+        {
+            item.udata = nullptr;  // item already append event to previous item
+            find->second->filter |= type;
+        }
         else
-            cache[call] = merge.insert(merge.end(), std::make_pair(call, type));
+        {
+            map[item.ident] = &item;
+            item.filter = static_cast<std::int16_t>(type);  // filter is enough to store event type
+        }
     }
 
     // invoke callback
-    for (auto it = merge.begin(); it != merge.end(); ++it)
+    for (int i = 0; i < result; ++i)
     {
+        auto &item = events[i];
+
         // user request to stop
-        if (!it->first)
+        if (item.filter == EVFILT_USER)
             return std::make_error_code(std::errc::operation_canceled);
 
-        (*it->first)(it->second);
+        // normal callback
+        if (item.udata)
+            (*static_cast<callback*>(item.udata))(item.filter);
     }
 
     return {};
