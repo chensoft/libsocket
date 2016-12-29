@@ -104,11 +104,10 @@ std::error_code chen::reactor::once(double timeout)
         auto find = map.find(item.ident);
         auto type = this->type(item.filter, item.flags);
 
-        // borrow 'filter' field for temporary use
         if (find != map.end())
         {
-            item.udata = nullptr;  // item already append event to previous item
-            find->second->filter |= type;
+            item.udata = nullptr;  // set to null because we merge item's event to previous item
+            find->second->filter |= type;  // borrow 'filter' field for temporary use
         }
         else
         {

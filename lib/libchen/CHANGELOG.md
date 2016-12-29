@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- fs: resize string if user provide a large length to read.
 
 ## [1.1.1] - 2016-11-05
 ### Added

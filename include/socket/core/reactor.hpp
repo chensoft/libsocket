@@ -70,7 +70,7 @@ namespace chen
 
         /**
          * Event callback
-         * @note use bitwise and to check event type, e.g: if (type & Readable)
+         * @note use bitwise and to check the event type, e.g: if (type & Readable)
          * @note if you want to bind custom params to callback, you can use std::bind
          */
         typedef std::function<void (Type type)> callback;
@@ -102,7 +102,7 @@ namespace chen
         /**
          * Run loop only once
          * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
-         * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupted
+         * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
          * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
          */
         std::error_code once(double timeout = -1);

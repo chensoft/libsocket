@@ -403,6 +403,8 @@ std::string chen::fs::read(const std::string &file, std::streamoff start, std::s
     {
         std::string ret(static_cast<std::size_t>(length), '\0');
         in.read(&ret[0], length);
+        ret.resize(static_cast<std::size_t>(in.gcount()));
+
         return ret;
     }
 
