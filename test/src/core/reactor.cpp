@@ -1,167 +1,80 @@
-///**
-// * Created by Jian Chen
-// * @since  2016.12.20
-// * @author Jian Chen <admin@chensoft.com>
-// * @link   http://chensoft.com
-// */
-//#include <socket/inet/inet_address.hpp>
-//#include <socket/core/reactor.hpp>
-//#include <gtest/gtest.h>
-//#include <thread>
-//
-//using chen::reactor;
-//using chen::basic_socket;
-//using chen::inet_address;
-//
-//TEST(CoreReactorTest, LT)
-//{
-//    // create server
-//    basic_socket server(AF_INET, SOCK_STREAM, 0);
-//
-//    EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-//    EXPECT_TRUE(!server.listen());
-//
-//    // monitor read
+/**
+ * Created by Jian Chen
+ * @since  2016.12.29
+ * @author Jian Chen <admin@chensoft.com>
+ * @link   http://chensoft.com
+ */
+#include <socket/base/basic_socket.hpp>
+#include <socket/inet/inet_address.hpp>
+#include <socket/core/reactor.hpp>
+#include <chen/mt/threadpool.hpp>
+#include <gtest/gtest.h>
+
+using chen::reactor;
+using chen::inet_address;
+using chen::basic_socket;
+
+void server(basic_socket &s)
+{
 //    reactor r;
-//    r.set(server.native(), &server, reactor::ModeRead, 0);  // level-triggered
 //
-//    // create client
-//    basic_socket client(AF_INET, SOCK_STREAM, 0);
-//    EXPECT_TRUE(!client.connect(server.sock()));
+//    // connection
 //
-//    // reactor should report readable event
-//    auto list = r.poll(1);
+//    // listen
+//    r.set(s.native(), [] (reactor::Type type) {
+//    }, reactor::ModeRead, 0);
 //
-//    EXPECT_EQ(1u, list.size());
-//    EXPECT_EQ(&server, list.front().data);
-//    EXPECT_EQ(reactor::Type::Readable, list.front().type);
+//    r.run();
+}
+
+void client(std::uint16_t port)
+{
+//    std::vector<std::string> data = {
+//            "You say that you love rain",
+//            "but you open your umbrella when it rains",
+//            "You say that you love the sun",
+//            "but you find a shadow spot when the sun shines",
+//            "You say that you love the wind",
+//            "But you close your windows when wind blows",
+//            "This is why I am afraid",
+//            "You say that you love me too",
+//    };
 //
-//    // poll should still report last event because we didn't accept the connection
-//    list = r.poll(1);
+//    // spawn many clients to exchange data with server
+//    chen::threadpool pool;
 //
-//    EXPECT_EQ(1u, list.size());
-//    EXPECT_EQ(&server, list.front().data);
-//    EXPECT_EQ(reactor::Type::Readable, list.front().type);
+//    for (std::size_t i = 0, l = data.size(); i < l; ++i)
+//    {
+//        pool.post([&data, port, i] () {
+//            auto text = data[i % data.size()];
 //
-//    // accept connection
-//    EXPECT_TRUE(server.accept());
+//            basic_socket c(AF_INET, SOCK_STREAM, 0);
 //
-//    // poll should return empty list because we have accepted the connection
-//    list = r.poll(1, 0.);  // we want return immediately
+//            EXPECT_TRUE(!c.connect(inet_address("127.0.0.1", port)));
+//            EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), c.send(text.data(), text.size()));
 //
-//    EXPECT_TRUE(list.empty());
-//}
+//            std::string response(text.size(), '\0');
+//            std::string reverse(text.rbegin(), text.rend());
 //
-//TEST(CoreReactorTest, ET)
-//{
-//    // create server
-//    basic_socket server(AF_INET, SOCK_STREAM, 0);
-//
-//    EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-//    EXPECT_TRUE(!server.listen());
-//
-//    // monitor read
-//    reactor r;
-//    r.set(server.native(), &server, reactor::ModeRead, reactor::FlagEdge);  // edge-triggered
-//
-//    // create client
-//    basic_socket client(AF_INET, SOCK_STREAM, 0);
-//    EXPECT_TRUE(!client.connect(server.sock()));
-//
-//    // reactor should report readable event
-//    auto list = r.poll(1);
-//
-//    EXPECT_EQ(1u, list.size());
-//    EXPECT_EQ(&server, list.front().data);
-//    EXPECT_EQ(reactor::Type::Readable, list.front().type);
-//
-//    // poll should timeout because it's edge-triggered, event won't occur twice
-//    list = r.poll(1, 0.);  // we want return immediately
-//
-//    EXPECT_TRUE(list.empty());
-//}
-//
-//TEST(CoreReactorTest, Once)
-//{
-//    // create server
-//    basic_socket server(AF_INET, SOCK_STREAM, 0);
-//
-//    EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-//    EXPECT_TRUE(!server.listen());
-//
-//    // monitor read
-//    reactor r;
-//    r.set(server.native(), &server, reactor::ModeRead, reactor::FlagOnce);  // report once
-//
-//    // create client
-//    basic_socket client(AF_INET, SOCK_STREAM, 0);
-//    EXPECT_TRUE(!client.connect(server.sock()));
-//
-//    // reactor should report readable event
-//    auto list = r.poll(1);
-//
-//    EXPECT_EQ(1u, list.size());
-//    EXPECT_EQ(&server, list.front().data);
-//    EXPECT_EQ(reactor::Type::Readable, list.front().type);
-//
-//    // poll should timeout because the event will report only once
-//    list = r.poll(1, 0.);  // we want return immediately
-//
-//    EXPECT_TRUE(list.empty());
-//}
-//
-//TEST(CoreReactorTest, Delete)
-//{
-//    // create server
-//    basic_socket server(AF_INET, SOCK_STREAM, 0);
-//
-//    EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-//    EXPECT_TRUE(!server.listen());
-//
-//    // monitor read
-//    reactor r;
-//    r.set(server.native(), &server, reactor::ModeRead, 0);  // level-triggered
-//
-//    // create client
-//    basic_socket client(AF_INET, SOCK_STREAM, 0);
-//    EXPECT_TRUE(!client.connect(server.sock()));
-//
-//    // reactor should report readable event
-//    auto list = r.poll(1);
-//
-//    EXPECT_EQ(1u, list.size());
-//
-//    // delete the handle
-//    r.del(server.native());
-//
-//    // poll should timeout because no handle exist
-//    list = r.poll(1, 0.);  // we want return immediately
-//
-//    EXPECT_TRUE(list.empty());
-//}
-//
-//TEST(CoreReactorTest, Stop)
-//{
-//    // create server
-//    basic_socket server(AF_INET, SOCK_STREAM, 0);
-//
-//    EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-//    EXPECT_TRUE(!server.listen());
-//
-//    // monitor read
-//    reactor r;
-//    r.set(server.native(), &server, reactor::ModeRead, 0);  // level-triggered
-//
-//    // stop reactor after a moment in another thread
-//    std::thread t([&] () {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(300));
-//        r.stop();  // interrupt poll
-//    });
-//
-//    // poll will wait forever unless user interrupt it
-//    auto list = r.poll(1);
-//
-//    EXPECT_TRUE(list.empty());  // because stop
-//
-//    t.join();
-//}
+//            EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), c.recv(&response[0], text.size()));
+//            EXPECT_EQ(reverse, response);  // the server will inverts the string
+//        });
+//    }
+}
+
+TEST(CoreReactorTest, Echo)
+{
+    // server
+    basic_socket s(AF_INET, SOCK_STREAM, 0);
+
+    EXPECT_TRUE(!s.bind(inet_address("127.0.0.1:0")));  // bind on a random port
+    EXPECT_TRUE(!s.listen());
+
+    std::thread t_server(std::bind(&server, std::ref(s)));
+
+    // client
+    std::thread t_client(std::bind(&client, inet_address(s.sock()).port()));
+
+    t_server.join();
+    t_client.join();
+}
