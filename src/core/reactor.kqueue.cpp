@@ -8,7 +8,6 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
-#include <unordered_map>
 #include <memory>
 
 // -----------------------------------------------------------------------------
@@ -37,19 +36,29 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(handle_t fd, callback *cb, int mode, int flag)
+void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
 {
     // register read or delete
-    if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, cb) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
 
     // register write or delete
-    if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, cb) < 0) && (errno != ENOENT))
+    if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+
+    // register callback
+    std::lock_guard<std::mutex> lock(this->_mutex);
+    this->_store[fd] = cb;
 }
 
 void chen::reactor::del(handle_t fd)
 {
+    // delete callback
+    {
+        std::lock_guard<std::mutex> lock(this->_mutex);
+        this->_store.erase(fd);
+    }
+
     // delete read
     if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
@@ -98,7 +107,7 @@ std::error_code chen::reactor::once(double timeout)
     {
         auto &item = events[i];
 
-        if ((item.filter == EVFILT_USER) || !item.udata)
+        if (item.filter == EVFILT_USER)
             continue;
 
         auto find = map.find(item.ident);
@@ -106,7 +115,7 @@ std::error_code chen::reactor::once(double timeout)
 
         if (find != map.end())
         {
-            item.udata = nullptr;  // set to null because we merge item's event to previous item
+            item.ident = static_cast<uintptr_t>(invalid_handle);  // set to invalid because we merge item's event to previous item
             find->second->filter |= type;  // borrow 'filter' field for temporary use
         }
         else
@@ -120,14 +129,26 @@ std::error_code chen::reactor::once(double timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
+        auto    fd = static_cast<handle_t>(item.ident);
 
         // user request to stop
         if (item.filter == EVFILT_USER)
             return std::make_error_code(std::errc::operation_canceled);
 
+        // item is invalid
+        if (fd == invalid_handle)
+            continue;
+
         // normal callback
-        if (item.udata)
-            (*static_cast<callback*>(item.udata))(item.filter);
+        callback cb;
+
+        {
+            std::lock_guard<std::mutex> lock(this->_mutex);
+            cb = this->_store[fd];
+        }
+
+        if (cb)
+            cb(item.filter);
     }
 
     return {};

@@ -7,8 +7,10 @@
 #pragma once
 
 #include <socket/config.hpp>
+#include <unordered_map>
 #include <system_error>
 #include <functional>
+#include <mutex>
 
 namespace chen
 {
@@ -85,7 +87,7 @@ namespace chen
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          */
-        void set(handle_t fd, callback *cb, int mode, int flag);
+        void set(handle_t fd, callback cb, int mode, int flag);
 
         /**
          * Delete event
@@ -125,6 +127,9 @@ namespace chen
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
 
         handle_t _kqueue = invalid_handle;
+
+        std::mutex _mutex;
+        std::unordered_map<handle_t, callback> _store;
 
 #elif defined(__linux__)
 
