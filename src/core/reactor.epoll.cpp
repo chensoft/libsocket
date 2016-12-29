@@ -42,7 +42,7 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(handle_t fd, callback *cb, int mode, int flag)
+void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
 {
     ::epoll_event event{};
 
@@ -52,8 +52,8 @@ void chen::reactor::set(handle_t fd, callback *cb, int mode, int flag)
     if (mode & ModeWrite)
         event.events |= EPOLLOUT;
 
-    event.events  |= flag | EPOLLRDHUP;
-    event.data.ptr = cb;
+    event.events |= flag | EPOLLRDHUP;
+    event.data.fd = fd;
 
     // register event
     if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
@@ -61,10 +61,21 @@ void chen::reactor::set(handle_t fd, callback *cb, int mode, int flag)
         if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
             throw std::system_error(sys::error(), "epoll: failed to set event");
     }
+
+    // register callback
+    std::lock_guard<std::mutex> lock(this->_mutex);
+    this->_store[fd] = cb;
 }
 
 void chen::reactor::del(handle_t fd)
 {
+    // delete callback
+    {
+        std::lock_guard<std::mutex> lock(this->_mutex);
+        this->_store.erase(fd);
+    }
+
+    // delete event
     if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "epoll: failed to delete event");
 }
@@ -97,21 +108,25 @@ std::error_code chen::reactor::once(double timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
-        auto *call = static_cast<callback*>(item.data.ptr);
 
         // user request to stop
-        if (static_cast<void*>(call) == &this->_wake)
+        if (item.data.fd == this->_wake)
         {
             ::eventfd_t dummy;
             ::eventfd_read(this->_wake, &dummy);
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        if (!call)
-            continue;
-
         // invoke callback
-        (*call)(this->type(item.events));
+        callback cb;
+
+        {
+            std::lock_guard<std::mutex> lock(this->_mutex);
+            cb = this->_store[item.data.fd];
+        }
+
+        if (cb)
+            cb(this->type(item.events));
     }
 
     return {};

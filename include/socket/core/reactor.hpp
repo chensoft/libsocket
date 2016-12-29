@@ -128,9 +128,6 @@ namespace chen
 
         handle_t _kqueue = invalid_handle;
 
-        std::mutex _mutex;
-        std::unordered_map<handle_t, callback> _store;
-
 #elif defined(__linux__)
 
         // epoll
@@ -146,5 +143,8 @@ namespace chen
 #endif
 
         const int _count = 0;
+
+        std::mutex _mutex;
+        std::unordered_map<handle_t, callback> _store;
     };
 }
