@@ -22,24 +22,24 @@ void server(basic_socket &s)
     reactor r;
 
     auto handler_c = [&] (std::size_t index, reactor::Type type) {
-        auto &socket = cache[index];
+        auto &conn = cache[index];
 
-        // user should read rest of the data even type contains Closed
+        // you should read the rest of the data even if you received the closed event
         EXPECT_TRUE((type & reactor::Readable) || (type & reactor::Closed));
 
         // unregister it
         if (type & reactor::Closed)
-            r.del(socket.native());
+            r.del(conn.native());
 
         // read data from client
-        auto size = socket.available();
+        auto size = conn.available();
         EXPECT_GE(size, 0u);
 
         if (!size)
             return;  // connection closed
 
         std::string text(size, '\0');
-        EXPECT_EQ((chen::ssize_t)size, socket.recv(&text[0], size));
+        EXPECT_EQ((chen::ssize_t)size, conn.recv(&text[0], size));
 
         // need stop the reactor?
         if (text == "stop")
@@ -47,7 +47,7 @@ void server(basic_socket &s)
 
         // revert and send back
         std::reverse(text.begin(), text.end());
-        EXPECT_EQ((chen::ssize_t)size, socket.send(text.data(), size));
+        EXPECT_EQ((chen::ssize_t)size, conn.send(text.data(), size));
     };
 
     auto handler_s = [&] (reactor::Type type) {
