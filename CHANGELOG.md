@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Fixed
 - fs: resize string if user provide a large length to read.
+- threadpool: all jobs should be done before exit.
 
 ## [1.1.1] - 2016-11-05
 ### Added

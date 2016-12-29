@@ -44,9 +44,6 @@ void chen::threadpool::run()
     {
         this->_semaphore.wait();
 
-        if (this->_exit)
-            break;
-
         std::unique_lock<std::mutex> lock(this->_mutex);
 
         if (!this->_queue.empty())
@@ -56,6 +53,10 @@ void chen::threadpool::run()
             lock.unlock();
 
             task();
+        }
+        else if (this->_exit)
+        {
+            break;
         }
     }
 }
