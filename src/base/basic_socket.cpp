@@ -174,6 +174,14 @@ chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, con
     return ::sendto(this->_fd, (char*)data, size, flags, (::sockaddr*)&addr.addr, addr.size);
 }
 
+// detach
+chen::handle_t chen::basic_socket::detach() noexcept
+{
+    auto temp = this->_fd;
+    this->_fd = invalid_handle;
+    return temp;
+}
+
 // property
 chen::basic_address chen::basic_socket::peer() const noexcept
 {

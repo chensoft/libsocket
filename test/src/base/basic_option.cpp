@@ -71,11 +71,11 @@ TEST(BasicOptionTest, TCP)
     EXPECT_TRUE(o.rcvbuf(1024));  // just a hint
 
     // sndlowat
-    EXPECT_GT(o.sndlowat(), 0);
+    EXPECT_GE(o.sndlowat(), 0);
     EXPECT_NO_THROW(o.sndlowat(1024));  // may not allowed
 
     // rcvlowat
-    EXPECT_GT(o.rcvlowat(), 0);
+    EXPECT_GE(o.rcvlowat(), 0);
     EXPECT_NO_THROW(o.rcvlowat(1024));  // may not allowed
 
     // sndtimeo

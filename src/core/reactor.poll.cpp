@@ -1,19 +1,20 @@
 /**
  * Created by Jian Chen
- * @since  2016.12.14
+ * @since  2016.12.30
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
 #ifdef _WIN32
 
 #include <socket/core/reactor.hpp>
+#include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // reactor
 const int chen::reactor::FlagEdge = 0;
 const int chen::reactor::FlagOnce = 1;
 
-chen::reactor::reactor()
+chen::reactor::reactor(int count) : _count(count)
 {
 }
 
@@ -21,42 +22,6 @@ chen::reactor::~reactor()
 {
 }
 
-// todo use event instead of dgram socket?
-// todo if first call stop then poll should exit
-// todo use semaphore to simulate waiting if no fd exist, and re-poll if add new fds
-//#include <socket/base/service_poller.hpp>
-//#include <chen/sys/sys.hpp>
-//#include <algorithm>
-//
-//// -----------------------------------------------------------------------------
-//// define
-//#ifdef _WIN32
-//namespace
-//{
-//	inline int poll(LPWSAPOLLFD fdArray, ULONG fds, INT timeout)
-//	{
-//		return ::WSAPoll(fdArray, fds, timeout);
-//	}
-//}
-//#endif
-//
-//// only Linux defines POLLRDHUP, you must
-//// use it to detect close event on Linux
-//#ifndef POLLRDHUP
-//#define POLLRDHUP 0
-//#endif
-//
-//
-//// -----------------------------------------------------------------------------
-//// poller
-//chen::service_poller::service_poller()
-//{
-//}
-//
-//chen::service_poller::~service_poller()
-//{
-//}
-//
 //// modify
 //void chen::service_poller::set(handle_t fd, void *data, int opcode, int flag)
 //{
