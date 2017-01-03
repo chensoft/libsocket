@@ -36,9 +36,9 @@ namespace chen
          * the write event from the start, usually you should call send() first, if
          * the method return EAGAIN then to wait for the write event occurs
          */
-        static constexpr int ModeRead  = 1 << 0;
-        static constexpr int ModeWrite = 1 << 1;
-        static constexpr int ModeRW    = ModeRead | ModeWrite;
+        static const int ModeRead;
+        static const int ModeWrite;
+        static const int ModeRW;
 
         /**
          * Event flag
@@ -66,9 +66,9 @@ namespace chen
          */
         typedef int Type;
 
-        static constexpr Type Readable = 1 << 0;
-        static constexpr Type Writable = 1 << 1;
-        static constexpr Type Closed   = 1 << 2;
+        static const Type Readable;
+        static const Type Writable;
+        static const Type Closed;
 
         /**
          * Event callback

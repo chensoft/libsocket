@@ -12,8 +12,16 @@
 
 // -----------------------------------------------------------------------------
 // reactor
+const int chen::reactor::ModeRead  = 1 << 0;
+const int chen::reactor::ModeWrite = 1 << 1;
+const int chen::reactor::ModeRW    = ModeRead | ModeWrite;
+
 const int chen::reactor::FlagEdge = EV_CLEAR;
 const int chen::reactor::FlagOnce = EV_ONESHOT;
+
+const chen::reactor::Type chen::reactor::Readable = 1 << 0;
+const chen::reactor::Type chen::reactor::Writable = 1 << 1;
+const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
 
 chen::reactor::reactor(int count) : _count(count)
 {

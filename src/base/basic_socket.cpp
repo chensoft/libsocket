@@ -9,6 +9,11 @@
 
 // -----------------------------------------------------------------------------
 // basic_socket
+static const int FlagOutOfBand  = MSG_OOB;
+static const int FlagPeek       = MSG_PEEK;
+static const int FlagDoNotRoute = MSG_DONTROUTE;
+static const int FlagWaitAll    = MSG_WAITALL;
+
 chen::basic_socket::basic_socket(std::nullptr_t) noexcept
 {
 }

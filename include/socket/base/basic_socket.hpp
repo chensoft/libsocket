@@ -21,10 +21,10 @@ namespace chen
         enum class Shutdown {Read = 1, Write, Both};
 
         // cross-platform flags for recv and send
-        static constexpr int FlagOutOfBand  = MSG_OOB;        // send out-of-band data on socket
-        static constexpr int FlagPeek       = MSG_PEEK;       // receive data without removing it from the queue
-        static constexpr int FlagDoNotRoute = MSG_DONTROUTE;  // send data to directly connected host
-        static constexpr int FlagWaitAll    = MSG_WAITALL;    // block until the full request is satisfied or error
+        static const int FlagOutOfBand;   // send out-of-band data on socket
+        static const int FlagPeek;        // receive data without removing it from the queue
+        static const int FlagDoNotRoute;  // send data to directly connected host
+        static const int FlagWaitAll;     // block until the full request is satisfied or error
 
     public:
         /**

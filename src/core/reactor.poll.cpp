@@ -4,15 +4,23 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifdef _WIN32
+//#ifdef _WIN32
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // reactor
+const int chen::reactor::ModeRead  = 1 << 0;
+const int chen::reactor::ModeWrite = 1 << 1;
+const int chen::reactor::ModeRW    = ModeRead | ModeWrite;
+
 const int chen::reactor::FlagEdge = 0;
 const int chen::reactor::FlagOnce = 1;
+
+const chen::reactor::Type chen::reactor::Readable = 1 << 0;
+const chen::reactor::Type chen::reactor::Writable = 1 << 1;
+const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
 
 chen::reactor::reactor(int count) : _count(count)
 {
@@ -140,4 +148,4 @@ chen::reactor::~reactor()
 //    this->_wake.close();
 //}
 
-#endif
+//#endif
