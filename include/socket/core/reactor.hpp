@@ -6,10 +6,11 @@
  */
 #pragma once
 
-#include <socket/config.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <unordered_map>
 #include <system_error>
 #include <functional>
+#include <vector>
 #include <mutex>
 
 namespace chen
@@ -139,6 +140,10 @@ namespace chen
 #else
 
         // WSAPoll
+        basic_socket _wake;  // use udp to wakeup poll
+
+        std::vector<struct ::pollfd> _cache;
+        std::unordered_map<handle_t, int> _flags;
 
 #endif
 

@@ -1,6 +1,6 @@
 /**
  * Created by Jian Chen
- * @since  2016.12.30
+ * @since  2017.01.03
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
@@ -8,6 +8,7 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
+#include <algorithm>
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -24,43 +25,70 @@ const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
 
 chen::reactor::reactor(int count) : _count(count)
 {
+    // create udp to send wake message
+    this->_wake.reset(AF_INET, SOCK_DGRAM);
+
+    if (this->_wake.nonblocking(true))
+        throw std::system_error(sys::error(), "poll: failed to create wake socket");
+
+    this->set(this->_wake.native(), nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
 {
 }
 
-//// modify
-//void chen::service_poller::set(handle_t fd, void *data, int opcode, int flag)
-//{
-//    auto find = std::find_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
-//        return item.fd == fd;
-//    });
-//
-//    if (find == this->_fds.end())
-//        find = this->_fds.insert(this->_fds.end(), ::pollfd());
-//
-//    find->fd = fd;
-//    find->events = POLLRDHUP;
-//
-//    if (opcode & OpcodeRead)
-//        find->events |= POLLIN;
-//
-//    if (opcode & OpcodeWrite)
-//        find->events |= POLLOUT;
-//
-//    this->_map[fd] = Detail(flag, data);
-//}
-//
-//void chen::service_poller::del(handle_t fd)
-//{
-//    (void)std::remove_if(this->_fds.begin(), this->_fds.end(), [&] (::pollfd &item) {
-//        return item.fd == fd;
-//    });
-//
-//    this->_map.erase(fd);
-//}
-//
+// modify
+void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
+{
+    std::lock_guard<std::mutex> lock(this->_mutex);
+
+    // register event
+    auto find = std::find_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
+        return item.fd == fd;
+    });
+
+    if (find == this->_cache.end())
+        find = this->_cache.insert(this->_cache.end(), ::pollfd());
+
+    find->fd = fd;
+    find->events = 0;
+
+    if (mode & ModeRead)
+        find->events |= POLLIN;
+
+    if (mode & ModeWrite)
+        find->events |= POLLOUT;
+
+    this->_flags[fd] = flag;
+
+    // register callback
+    this->_store[fd] = cb;
+}
+
+void chen::reactor::del(handle_t fd)
+{
+    std::lock_guard<std::mutex> lock(this->_mutex);
+    
+    // delete callback
+    this->_store.erase(fd);
+
+    // delete flags
+    this->_flags.erase(fd);
+
+    // delete event
+    (void)std::remove_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
+        return item.fd == fd;
+    });
+}
+
+// run
+void chen::reactor::run()
+{
+    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->once())
+        ;
+}
+
 //std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
 //{
 //    // ignore if it's empty or just a wakeup socket in it
@@ -133,13 +161,6 @@ chen::reactor::~reactor()
 //    }
 //
 //    return number;
-//}
-//
-//std::vector<chen::service_poller::Data> chen::service_poller::poll(std::size_t count, double timeout)
-//{
-//    std::vector<chen::service_poller::Data> ret;
-//    this->poll(ret, count, timeout);
-//    return ret;
 //}
 //
 //void chen::service_poller::stop()

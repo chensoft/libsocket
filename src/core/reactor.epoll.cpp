@@ -31,7 +31,7 @@ chen::reactor::reactor(int count) : _count(count)
     if ((this->_epoll = ::epoll_create(1)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
-    // create eventfd to receive wake message
+    // create eventfd to send wake message
     this->_wake = ::eventfd(0, 0);
 
     if ((this->_wake < 0) || ::fcntl(this->_wake, F_SETFL, ::fcntl(this->_wake, F_GETFL, 0) | O_NONBLOCK))

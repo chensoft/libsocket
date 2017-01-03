@@ -29,7 +29,7 @@ chen::reactor::reactor(int count) : _count(count)
     if ((this->_kqueue = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
 
-    // register custom filter to receive wake message
+    // register custom filter to send wake message
     // ident's value is not important here, so use zero is ok
     if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, nullptr) < 0)
     {
