@@ -32,9 +32,6 @@ chen::reactor::reactor(int count) : _count(count)
     if (this->_wake.bind(inet_address("127.0.0.1:0")))
         throw std::system_error(sys::error(), "poll: failed to bind on wake socket");
 
-    if (this->_wake.listen())
-        throw std::system_error(sys::error(), "poll: failed to listen on wake socket");
-
     if (this->_wake.nonblocking(true))
         throw std::system_error(sys::error(), "poll: failed to make nonblocking on wake socket");
 
@@ -96,85 +93,68 @@ void chen::reactor::run()
         ;
 }
 
-//std::size_t chen::service_poller::poll(std::vector<Data> &cache, std::size_t count, double timeout)
-//{
-//    // ignore if it's empty or just a wakeup socket in it
-//    if (!count || this->_fds.empty() || (this->_fds.front().fd == this->_wake.native()))
-//        return 0;
-//
-//    // reset wake event
-//    if (!this->_wake)
-//    {
-//        this->_wake.reset(AF_INET, SOCK_DGRAM);
-//        this->set(this->_wake.native(), nullptr, OpcodeRead, 0);
-//    }
-//
-//    // temporary use only
-//    auto fds = this->_fds;
-//    auto map = this->_map;
-//
-//    // poll next events
-//    auto result = ::poll(fds.data(), static_cast<unsigned>(fds.size()), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
-//
-//    if (result <= 0)
-//    {
-//        // EINTR maybe triggered by debugger, treat it as user request to stop
-//        if ((errno == EINTR) || !result)
-//            return 0;
-//        else
-//            throw std::system_error(sys::error(), "poller: failed to poll event");
-//    }
-//
-//    // user request to stop
-//    if (!this->_wake)
-//        return 0;
-//
-//    // collect poll data
-//    std::size_t origin = cache.size();
-//    std::size_t number = 0;
-//
-//    for (std::size_t i = 0, l = fds.size(); i < l; ++i)
-//    {
-//        auto &event = fds[i];
-//        if (event.revents == 0)
-//            continue;
-//
-//        // check events, multiple events maybe occur
-//        auto insert = [&] (Event code) {
-//            // remove fd if flag is once
-//            if (map[event.fd].flag & FlagOnce)
-//                this->del(event.fd);
-//
-//            ++number;
-//
-//            if (i < origin)
-//                cache[i] = Data(map[event.fd].data, code);
-//            else
-//                cache.emplace_back(Data(map[event.fd].data, code));
-//        };
-//
-//        if ((event.revents & POLLRDHUP) || (event.revents & POLLERR) || (event.revents & POLLHUP))
-//        {
-//            insert(Type::Closed);
-//        }
-//        else
-//        {
-//            if (event.revents & POLLIN)
-//                insert(Type::Readable);
-//
-//            if (event.revents & POLLOUT)
-//                insert(Type::Writable);
-//        }
-//    }
-//
-//    return number;
-//}
+std::error_code chen::reactor::once(double timeout)
+{
+    // poll events
+    std::vector<::pollfd> cache;
+
+    {
+        std::lock_guard<std::mutex> lock(this->_mutex);
+        cache = this->_cache;  // avoid race condition
+    }
+
+    int result = ::WSAPoll(cache.data(), cache.size(), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+
+    if (result <= 0)
+    {
+        if (!result)
+            return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
+        else
+            throw std::system_error(sys::error(), "poll: failed to poll event");
+    }
+
+    // events on the same fd will be notified only once
+    for (auto it = cache.begin(); it != cache.end(); ++it)
+    {
+        auto &item = *it;
+
+        // continue if revents is 0
+        if (!item.revents)
+            continue;
+
+        // user request to stop
+        if (item.fd == this->_wake.native())
+        {
+            char dummy;
+            basic_address addr;
+
+            while (this->_wake.recvfrom(&dummy, 1, addr) >= 0)
+                ;
+
+            return std::make_error_code(std::errc::operation_canceled);
+        }
+
+        // invoke callback
+        callback cb;
+
+        {
+            std::lock_guard<std::mutex> lock(this->_mutex);
+            cb = this->_store[item.fd];
+        }
+
+        if (cb)
+            cb(this->type(item.events));
+    }
+
+    return {};
+}
 
 void chen::reactor::stop()
 {
     // notify wake message via socket
     basic_socket s(AF_INET, SOCK_DGRAM);
     
+    // since it's a new socket, data should be written to buffer immediately
     if (s.nonblocking(true) || (s.sendto("\n", 1, this->_wake.sock()) != 1))
         throw std::system_error(sys::error(), "poll: failed to wake the poll");
 }
