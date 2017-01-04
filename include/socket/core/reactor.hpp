@@ -79,7 +79,7 @@ namespace chen
         typedef std::function<void (Type type)> callback;
 
     public:
-        reactor(int count = 64);  // events number used in backend
+        reactor(int count = 64);  // events number used in backend, ignored on Windows
         ~reactor();
 
     public:

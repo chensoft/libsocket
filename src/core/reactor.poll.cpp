@@ -4,8 +4,9 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-//#ifdef _WIN32
+#ifdef _WIN32
 
+#include <socket/inet/inet_address.hpp>
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 #include <algorithm>
@@ -28,8 +29,14 @@ chen::reactor::reactor(int count) : _count(count)
     // create udp to send wake message
     this->_wake.reset(AF_INET, SOCK_DGRAM);
 
+    if (this->_wake.bind(inet_address("127.0.0.1:0")))
+        throw std::system_error(sys::error(), "poll: failed to bind on wake socket");
+
+    if (this->_wake.listen())
+        throw std::system_error(sys::error(), "poll: failed to listen on wake socket");
+
     if (this->_wake.nonblocking(true))
-        throw std::system_error(sys::error(), "poll: failed to create wake socket");
+        throw std::system_error(sys::error(), "poll: failed to make nonblocking on wake socket");
 
     this->set(this->_wake.native(), nullptr, ModeRead, 0);
 }
@@ -169,4 +176,4 @@ void chen::reactor::run()
 //    this->_wake.close();
 //}
 
-//#endif
+#endif
