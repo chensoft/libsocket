@@ -140,10 +140,12 @@ namespace chen
 #else
 
         // WSAPoll
-        basic_socket _wake;  // use udp to wakeup poll
+        Type type(int events);
 
         std::vector<struct ::pollfd> _cache;
         std::unordered_map<handle_t, int> _flags;
+
+        basic_socket _wake;  // use udp to wakeup poll
 
 #endif
 

@@ -26,7 +26,7 @@ const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
 
 chen::reactor::reactor(int count) : _count(count)
 {
-    // create udp to send wake message
+    // create udp to recv wake message
     this->_wake.reset(AF_INET, SOCK_DGRAM);
 
     if (this->_wake.bind(inet_address("127.0.0.1:0")))
@@ -84,7 +84,7 @@ void chen::reactor::del(handle_t fd)
     this->_flags.erase(fd);
 
     // delete event
-    (void)std::remove_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
+    std::remove_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
         return item.fd == fd;
     });
 }
@@ -169,11 +169,36 @@ void chen::reactor::run()
 //
 //    return number;
 //}
-//
-//void chen::service_poller::stop()
-//{
-//    // notify wake message via socket's close event
-//    this->_wake.close();
-//}
+
+void chen::reactor::stop()
+{
+    // notify wake message via socket
+    basic_socket s(AF_INET, SOCK_DGRAM);
+    
+    if (s.nonblocking(true) || (s.sendto("\n", 1, this->_wake.sock()) != 1))
+        throw std::system_error(sys::error(), "poll: failed to wake the poll");
+}
+
+// misc
+chen::reactor::Type chen::reactor::type(int events)
+{
+    // check events, multiple events maybe occur
+    if ((events & POLLERR) || (events & POLLHUP))
+    {
+        return Closed;
+    }
+    else
+    {
+        chen::reactor::Type ret = 0;
+
+        if (events & POLLIN)
+            ret |= Readable;
+
+        if (events & POLLOUT)
+            ret |= Writable;
+
+        return ret;
+    }
+}
 
 #endif
