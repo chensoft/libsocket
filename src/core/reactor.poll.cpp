@@ -135,15 +135,20 @@ std::error_code chen::reactor::poll(double timeout)
         }
 
         // invoke callback
-        callback cb;
+        callback func;
+        int flag;
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
-            cb = this->_store[item.fd];
+            func = this->_store[item.fd];
+            flag = this->_flags[item.fd];
         }
 
-        if (cb)
-            cb(this->type(item.events));
+        if (flag & FlagOnce)
+            this->del(item.fd);
+
+        if (func)
+            func(this->type(item.events));
     }
 
     return {};
