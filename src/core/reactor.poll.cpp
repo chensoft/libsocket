@@ -89,11 +89,11 @@ void chen::reactor::del(handle_t fd)
 // run
 void chen::reactor::run()
 {
-    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->once())
+    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->poll())
         ;
 }
 
-std::error_code chen::reactor::once(double timeout)
+std::error_code chen::reactor::poll(double timeout)
 {
     // poll events
     std::vector<::pollfd> cache;

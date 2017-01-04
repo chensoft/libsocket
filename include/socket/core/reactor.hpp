@@ -103,12 +103,12 @@ namespace chen
         void run();
 
         /**
-         * Run loop only once
+         * Poll events and notify
          * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
          * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
          * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
          */
-        std::error_code once(double timeout = -1);
+        std::error_code poll(double timeout = -1);
 
         /**
          * Stop the loop
