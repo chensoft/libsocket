@@ -135,7 +135,7 @@ std::error_code chen::reactor::poll(double timeout)
             this->del(item.fd);
 
         if (func)
-            func(this->type(item.events));
+            func(this->type(item.revents));
     }
 
     return {};
