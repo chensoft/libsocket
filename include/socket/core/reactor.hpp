@@ -6,11 +6,10 @@
  */
 #pragma once
 
-#include <socket/base/basic_socket.hpp>
+#include <socket/core/event.hpp>
 #include <unordered_map>
 #include <system_error>
 #include <functional>
-#include <atomic>
 #include <vector>
 #include <mutex>
 
@@ -135,19 +134,19 @@ namespace chen
         // epoll
         Type type(int events);
 
-        handle_t _epoll  = invalid_handle;
-        handle_t _wakeup = invalid_handle;  // eventfd
+        chen::event _wakeup;
+
+        handle_t _epoll = invalid_handle;
 
 #else
 
         // WSAPoll
         Type type(int events);
 
+        chen::event _wakeup;
+
         std::vector<struct ::pollfd> _cache;
         std::unordered_map<handle_t, int> _flags;
-
-        basic_socket _wakeup;  // use udp to wakeup poll
-        std::atomic<bool> _rewind = false;
 
 #endif
 

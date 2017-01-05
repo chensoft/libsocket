@@ -8,7 +8,6 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
-#include <sys/eventfd.h>
 #include <limits>
 
 // -----------------------------------------------------------------------------
@@ -32,21 +31,12 @@ chen::reactor::reactor(int count) : _count(count)
         throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
     // create eventfd to recv wakeup message
-    this->_wakeup = ::eventfd(0, 0);
-
-    if ((this->_wakeup < 0) || ::fcntl(this->_wakeup, F_SETFL, ::fcntl(this->_wakeup, F_GETFL, 0) | O_NONBLOCK))
-    {
-        ::close(this->_epoll);
-        throw std::system_error(sys::error(), "reactor: failed to create eventfd");
-    }
-
-    this->set(this->_wakeup, nullptr, ModeRead, FlagEdge);
+    this->set(this->_wakeup.native(), nullptr, ModeRead, FlagEdge);
 }
 
 chen::reactor::~reactor()
 {
     ::close(this->_epoll);
-    ::close(this->_wakeup);
 }
 
 // modify
@@ -118,10 +108,9 @@ std::error_code chen::reactor::poll(double timeout)
         auto &item = events[i];
 
         // user request to stop
-        if (item.data.fd == this->_wakeup)
+        if (item.data.fd == this->_wakeup.native())
         {
-            ::eventfd_t dummy;
-            ::eventfd_read(this->_wakeup, &dummy);
+            this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
@@ -143,8 +132,7 @@ std::error_code chen::reactor::poll(double timeout)
 void chen::reactor::stop()
 {
     // notify wakeup message via eventfd
-    if (::eventfd_write(this->_wakeup, 1) != 0)
-        throw std::system_error(sys::error(), "reactor: failed to wakeup the epoll");
+    this->_wakeup.set();
 }
 
 // misc
