@@ -31,22 +31,22 @@ chen::reactor::reactor(int count) : _count(count)
     if ((this->_epoll = ::epoll_create(1)) < 0)
         throw std::system_error(sys::error(), "epoll: failed to create epoll");
 
-    // create eventfd to recv wake message
-    this->_wake = ::eventfd(0, 0);
+    // create eventfd to recv wakeup message
+    this->_wakeup = ::eventfd(0, 0);
 
-    if ((this->_wake < 0) || ::fcntl(this->_wake, F_SETFL, ::fcntl(this->_wake, F_GETFL, 0) | O_NONBLOCK))
+    if ((this->_wakeup < 0) || ::fcntl(this->_wakeup, F_SETFL, ::fcntl(this->_wakeup, F_GETFL, 0) | O_NONBLOCK))
     {
         ::close(this->_epoll);
         throw std::system_error(sys::error(), "epoll: failed to create eventfd");
     }
 
-    this->set(this->_wake, nullptr, ModeRead, FlagEdge);
+    this->set(this->_wakeup, nullptr, ModeRead, FlagEdge);
 }
 
 chen::reactor::~reactor()
 {
     ::close(this->_epoll);
-    ::close(this->_wake);
+    ::close(this->_wakeup);
 }
 
 // modify
@@ -118,10 +118,10 @@ std::error_code chen::reactor::poll(double timeout)
         auto &item = events[i];
 
         // user request to stop
-        if (item.data.fd == this->_wake)
+        if (item.data.fd == this->_wakeup)
         {
             ::eventfd_t dummy;
-            ::eventfd_read(this->_wake, &dummy);
+            ::eventfd_read(this->_wakeup, &dummy);
             return std::make_error_code(std::errc::operation_canceled);
         }
 
@@ -142,9 +142,9 @@ std::error_code chen::reactor::poll(double timeout)
 
 void chen::reactor::stop()
 {
-    // notify wake message via eventfd
-    if (::eventfd_write(this->_wake, 1) != 0)
-        throw std::system_error(sys::error(), "epoll: failed to wake the epoll");
+    // notify wakeup message via eventfd
+    if (::eventfd_write(this->_wakeup, 1) != 0)
+        throw std::system_error(sys::error(), "epoll: failed to wakeup the epoll");
 }
 
 // misc

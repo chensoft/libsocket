@@ -26,16 +26,16 @@ const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
 
 chen::reactor::reactor(int count) : _count(count)
 {
-    // create udp to recv wake message
-    this->_wake.reset(AF_INET, SOCK_DGRAM);
+    // create udp to recv wakeup message
+    this->_wakeup.reset(AF_INET, SOCK_DGRAM);
 
-    if (this->_wake.bind(inet_address("127.0.0.1:0")))
-        throw std::system_error(sys::error(), "poll: failed to bind on wake socket");
+    if (this->_wakeup.bind(inet_address("127.0.0.1:0")))
+        throw std::system_error(sys::error(), "poll: failed to bind on wakeup socket");
 
-    if (this->_wake.nonblocking(true))
-        throw std::system_error(sys::error(), "poll: failed to make nonblocking on wake socket");
+    if (this->_wakeup.nonblocking(true))
+        throw std::system_error(sys::error(), "poll: failed to make nonblocking on wakeup socket");
 
-    this->set(this->_wake.native(), nullptr, ModeRead, 0);
+    this->set(this->_wakeup.native(), nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
@@ -123,12 +123,12 @@ std::error_code chen::reactor::poll(double timeout)
             continue;
 
         // user request to stop
-        if (item.fd == this->_wake.native())
+        if (item.fd == this->_wakeup.native())
         {
             char dummy;
             basic_address addr;
 
-            while (this->_wake.recvfrom(&dummy, 1, addr) >= 0)
+            while (this->_wakeup.recvfrom(&dummy, 1, addr) >= 0)
                 ;
 
             return std::make_error_code(std::errc::operation_canceled);
@@ -156,12 +156,12 @@ std::error_code chen::reactor::poll(double timeout)
 
 void chen::reactor::stop()
 {
-    // notify wake message via socket
+    // notify wakeup message via socket
     basic_socket s(AF_INET, SOCK_DGRAM);
     
     // since it's a new socket, data should be written to buffer immediately
-    if (s.nonblocking(true) || (s.sendto("\n", 1, this->_wake.sock()) != 1))
-        throw std::system_error(sys::error(), "poll: failed to wake the poll");
+    if (s.nonblocking(true) || (s.sendto("\n", 1, this->_wakeup.sock()) != 1))
+        throw std::system_error(sys::error(), "poll: failed to wakeup the poll");
 }
 
 // misc
