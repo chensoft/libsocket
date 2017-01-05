@@ -43,7 +43,10 @@ namespace chen
 
         /**
          * Event flag
-         * @note Windows does not support edge-triggered
+         * @note Windows does not support edge-triggered, we simulate FlagOnce only
+         * @note If you use edge-triggered and multiple threads are calling poll
+         * method, reactor does not guarantee that only one thread get the
+         * events, only FlagOnce(except on Windows) guaranteed this feature
          */
         static const int FlagEdge;  // enable edge-triggered
         static const int FlagOnce;  // event occurs only once
