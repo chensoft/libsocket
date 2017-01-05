@@ -27,14 +27,6 @@ const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
 chen::reactor::reactor(int count) : _count(count)
 {
     // create udp to recv wakeup message
-    this->_wakeup.reset(AF_INET, SOCK_DGRAM);
-
-    if (this->_wakeup.bind(inet_address("127.0.0.1:0")))
-        throw std::system_error(sys::error(), "reactor: failed to bind on wakeup socket");
-
-    if (this->_wakeup.nonblocking(true))
-        throw std::system_error(sys::error(), "reactor: failed to make nonblocking on wakeup socket");
-
     this->set(this->_wakeup.native(), nullptr, ModeRead, 0);
 }
 
@@ -125,10 +117,7 @@ std::error_code chen::reactor::poll(double timeout)
         // user request to stop
         if (item.fd == this->_wakeup.native())
         {
-            char dummy;
-            while (this->_wakeup.recvfrom(&dummy, 1) >= 0)
-                ;
-
+			this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
@@ -155,11 +144,7 @@ std::error_code chen::reactor::poll(double timeout)
 void chen::reactor::stop()
 {
     // notify wakeup message via socket
-    basic_socket s(AF_INET, SOCK_DGRAM);
-    
-    // since it's a new socket, data should be written to buffer immediately
-    if (s.nonblocking(true) || (s.sendto("\n", 1, this->_wakeup.sock()) != 1))
-        throw std::system_error(sys::error(), "reactor: failed to wakeup the poll");
+	this->_wakeup.set();
 }
 
 // misc

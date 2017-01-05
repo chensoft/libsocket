@@ -144,7 +144,7 @@ chen::basic_socket chen::basic_socket::accept() noexcept
 }
 
 // transmission
-ssize_t chen::basic_socket::recv(void *data, std::size_t size) noexcept
+chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size) noexcept
 {
     return this->recv(data, size, 0);
 }
@@ -159,13 +159,13 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
     return ::recv(this->_fd, (char*)data, size, flags);
 }
 
-ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
+chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
 {
     basic_address addr;
     return this->recvfrom(data, size, addr, 0);
 }
 
-ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr) noexcept
+chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr) noexcept
 {
     return this->recvfrom(data, size, addr, 0);
 }
@@ -180,7 +180,7 @@ chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_a
     return ::recvfrom(this->_fd, (char*)data, size, flags, (::sockaddr*)&addr.addr, &addr.size);
 }
 
-ssize_t chen::basic_socket::send(const void *data, std::size_t size) noexcept
+chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size) noexcept
 {
     return this->send(data, size, 0);
 }
@@ -195,13 +195,13 @@ chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int f
     return ::send(this->_fd, (char*)data, size, flags);
 }
 
-ssize_t chen::basic_socket::sendto(const void *data, std::size_t size) noexcept
+chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size) noexcept
 {
     basic_address addr;
     return this->sendto(data, size, addr, 0);
 }
 
-ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr) noexcept
+chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr) noexcept
 {
     return this->sendto(data, size, addr, 0);
 }
