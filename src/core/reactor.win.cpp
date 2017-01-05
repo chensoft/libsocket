@@ -126,9 +126,7 @@ std::error_code chen::reactor::poll(double timeout)
         if (item.fd == this->_wakeup.native())
         {
             char dummy;
-            basic_address addr;
-
-            while (this->_wakeup.recvfrom(&dummy, 1, addr) >= 0)
+            while (this->_wakeup.recvfrom(&dummy, 1) >= 0)
                 ;
 
             return std::make_error_code(std::errc::operation_canceled);

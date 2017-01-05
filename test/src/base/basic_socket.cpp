@@ -193,9 +193,8 @@ TEST(BasicSocketTest, UDP)
             std::string text("hello, " + chen::num::str(i));
             EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), client.sendto(text.data(), text.size(), addr));
 
-            basic_address tmp;
             char buff[512]{};
-            auto size = client.recvfrom(buff, 511, tmp);
+            auto size = client.recvfrom(buff, 511);
 
             EXPECT_EQ(text, buff);
             EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), size);

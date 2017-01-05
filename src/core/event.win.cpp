@@ -39,9 +39,7 @@ void chen::event::set()
 void chen::event::reset()
 {
     char dummy;
-    basic_address addr;
-
-    while (this->_socket.recvfrom(&dummy, 1, addr) >= 0)
+    while (this->_socket.recvfrom(&dummy, 1) >= 0)
         ;
 }
 

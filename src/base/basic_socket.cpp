@@ -123,9 +123,14 @@ std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
     return !::bind(this->_fd, (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
+std::error_code chen::basic_socket::listen() noexcept
+{
+    return this->listen(SOMAXCONN);
+}
+
 std::error_code chen::basic_socket::listen(int backlog) noexcept
 {
-    return !::listen(this->_fd, backlog <= 0 ? SOMAXCONN : backlog) ? std::error_code() : sys::error();
+    return !::listen(this->_fd, backlog) ? std::error_code() : sys::error();
 }
 
 chen::basic_socket chen::basic_socket::accept() noexcept
@@ -139,6 +144,11 @@ chen::basic_socket chen::basic_socket::accept() noexcept
 }
 
 // transmission
+ssize_t chen::basic_socket::recv(void *data, std::size_t size) noexcept
+{
+    return this->recv(data, size, 0);
+}
+
 chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) noexcept
 {
 #ifdef MSG_NOSIGNAL
@@ -147,6 +157,17 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
 #endif
 
     return ::recv(this->_fd, (char*)data, size, flags);
+}
+
+ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
+{
+    basic_address addr;
+    return this->recvfrom(data, size, addr, 0);
+}
+
+ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr) noexcept
+{
+    return this->recvfrom(data, size, addr, 0);
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr, int flags) noexcept
@@ -159,6 +180,11 @@ chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_a
     return ::recvfrom(this->_fd, (char*)data, size, flags, (::sockaddr*)&addr.addr, &addr.size);
 }
 
+ssize_t chen::basic_socket::send(const void *data, std::size_t size) noexcept
+{
+    return this->send(data, size, 0);
+}
+
 chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int flags) noexcept
 {
 #ifdef MSG_NOSIGNAL
@@ -167,6 +193,17 @@ chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int f
 #endif
 
     return ::send(this->_fd, (char*)data, size, flags);
+}
+
+ssize_t chen::basic_socket::sendto(const void *data, std::size_t size) noexcept
+{
+    basic_address addr;
+    return this->sendto(data, size, addr, 0);
+}
+
+ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr) noexcept
+{
+    return this->sendto(data, size, addr, 0);
 }
 
 chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr, int flags) noexcept

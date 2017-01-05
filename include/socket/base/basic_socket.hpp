@@ -80,7 +80,8 @@ namespace chen
          * Listen for request
          * @param backlog maximum queue length for pending connections
          */
-        std::error_code listen(int backlog = 0) noexcept;
+        std::error_code listen() noexcept;
+        std::error_code listen(int backlog) noexcept;
 
         /**
          * Accept new request and create a new socket
@@ -92,22 +93,28 @@ namespace chen
         /**
          * Receive data from connected host, used in stream socket
          */
-        ssize_t recv(void *data, std::size_t size, int flags = 0) noexcept;
+        ssize_t recv(void *data, std::size_t size) noexcept;
+        ssize_t recv(void *data, std::size_t size, int flags) noexcept;
 
         /**
          * Receive data from specific host, used in datagram socket
          */
-        ssize_t recvfrom(void *data, std::size_t size, basic_address &addr, int flags = 0) noexcept;
+        ssize_t recvfrom(void *data, std::size_t size) noexcept;
+        ssize_t recvfrom(void *data, std::size_t size, basic_address &addr) noexcept;
+        ssize_t recvfrom(void *data, std::size_t size, basic_address &addr, int flags) noexcept;
 
         /**
          * Send data to connected host, used in stream socket
          */
-        ssize_t send(const void *data, std::size_t size, int flags = 0) noexcept;
+        ssize_t send(const void *data, std::size_t size) noexcept;
+        ssize_t send(const void *data, std::size_t size, int flags) noexcept;
 
         /**
          * Send data to specific host, used in datagram socket
          */
-        ssize_t sendto(const void *data, std::size_t size, const basic_address &addr, int flags = 0) noexcept;
+        ssize_t sendto(const void *data, std::size_t size) noexcept;
+        ssize_t sendto(const void *data, std::size_t size, const basic_address &addr) noexcept;
+        ssize_t sendto(const void *data, std::size_t size, const basic_address &addr, int flags) noexcept;
 
     public:
         /**
