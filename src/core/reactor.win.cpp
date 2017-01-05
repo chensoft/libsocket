@@ -30,10 +30,10 @@ chen::reactor::reactor(int count) : _count(count)
     this->_wakeup.reset(AF_INET, SOCK_DGRAM);
 
     if (this->_wakeup.bind(inet_address("127.0.0.1:0")))
-        throw std::system_error(sys::error(), "poll: failed to bind on wakeup socket");
+        throw std::system_error(sys::error(), "reactor: failed to bind on wakeup socket");
 
     if (this->_wakeup.nonblocking(true))
-        throw std::system_error(sys::error(), "poll: failed to make nonblocking on wakeup socket");
+        throw std::system_error(sys::error(), "reactor: failed to make nonblocking on wakeup socket");
 
     this->set(this->_wakeup.native(), nullptr, ModeRead, 0);
 }
@@ -110,7 +110,7 @@ std::error_code chen::reactor::poll(double timeout)
         if (!result)
             return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
         else
-            throw std::system_error(sys::error(), "poll: failed to poll event");
+            throw std::system_error(sys::error(), "reactor: failed to poll event");
     }
 
     // events on the same fd will be notified only once
@@ -161,7 +161,7 @@ void chen::reactor::stop()
     
     // since it's a new socket, data should be written to buffer immediately
     if (s.nonblocking(true) || (s.sendto("\n", 1, this->_wakeup.sock()) != 1))
-        throw std::system_error(sys::error(), "poll: failed to wakeup the poll");
+        throw std::system_error(sys::error(), "reactor: failed to wakeup the poll");
 }
 
 // misc

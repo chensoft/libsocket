@@ -27,14 +27,14 @@ chen::reactor::reactor(int count) : _count(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
-        throw std::system_error(sys::error(), "kqueue: failed to create kqueue");
+        throw std::system_error(sys::error(), "reactor: failed to create kqueue");
 
     // register custom filter to recv wake message
     // ident's value is not important here, so use zero is ok
     if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, nullptr) < 0)
     {
         ::close(this->_kqueue);
-        throw std::system_error(chen::sys::error(), "kqueue: failed to create custom filter");
+        throw std::system_error(chen::sys::error(), "reactor: failed to create custom filter");
     }
 }
 
@@ -48,11 +48,11 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
 {
     // register read or delete
     if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
-        throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+        throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register write or delete
     if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
-        throw std::system_error(chen::sys::error(), "kqueue: failed to set event");
+        throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register callback
     std::lock_guard<std::mutex> lock(this->_mutex);
@@ -69,11 +69,11 @@ void chen::reactor::del(handle_t fd)
 
     // delete read
     if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
-        throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
+        throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 
     // delete write
     if ((this->alter(fd, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
-        throw std::system_error(chen::sys::error(), "kqueue: failed to delete event");
+        throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 }
 
 // run
@@ -105,7 +105,7 @@ std::error_code chen::reactor::poll(double timeout)
         else if (errno == EINTR)
             return std::make_error_code(std::errc::interrupted);  // EINTR maybe triggered by debugger
         else
-            throw std::system_error(sys::error(), "kqueue: failed to poll event");
+            throw std::system_error(sys::error(), "reactor: failed to poll event");
     }
 
     // merge events, events on the same fd will be notified only once
@@ -166,7 +166,7 @@ void chen::reactor::stop()
 {
     // notify wake message via custom filter
     if (this->alter(0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER, nullptr) < 0)
-        throw std::system_error(sys::error(), "kqueue: failed to stop the kqueue");
+        throw std::system_error(sys::error(), "reactor: failed to stop the kqueue");
 }
 
 // misc
@@ -184,7 +184,7 @@ chen::reactor::Type chen::reactor::type(int filter, int flags)
             return Writable;
 
         default:
-            throw std::runtime_error("kqueue: unknown event detect");
+            throw std::runtime_error("reactor: unknown event detect");
     }
 }
 

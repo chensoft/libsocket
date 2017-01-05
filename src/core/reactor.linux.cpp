@@ -29,7 +29,7 @@ chen::reactor::reactor(int count) : _count(count)
     // create epoll file descriptor
     // 1 is just a hint, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
     if ((this->_epoll = ::epoll_create(1)) < 0)
-        throw std::system_error(sys::error(), "epoll: failed to create epoll");
+        throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
     // create eventfd to recv wakeup message
     this->_wakeup = ::eventfd(0, 0);
@@ -37,7 +37,7 @@ chen::reactor::reactor(int count) : _count(count)
     if ((this->_wakeup < 0) || ::fcntl(this->_wakeup, F_SETFL, ::fcntl(this->_wakeup, F_GETFL, 0) | O_NONBLOCK))
     {
         ::close(this->_epoll);
-        throw std::system_error(sys::error(), "epoll: failed to create eventfd");
+        throw std::system_error(sys::error(), "reactor: failed to create eventfd");
     }
 
     this->set(this->_wakeup, nullptr, ModeRead, FlagEdge);
@@ -67,7 +67,7 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
     if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
     {
         if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
-            throw std::system_error(sys::error(), "epoll: failed to set event");
+            throw std::system_error(sys::error(), "reactor: failed to set event");
     }
 
     // register callback
@@ -85,7 +85,7 @@ void chen::reactor::del(handle_t fd)
 
     // delete event
     if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
-        throw std::system_error(sys::error(), "epoll: failed to delete event");
+        throw std::system_error(sys::error(), "reactor: failed to delete event");
 }
 
 // run
@@ -108,7 +108,7 @@ std::error_code chen::reactor::poll(double timeout)
         else if (errno == EINTR)
             return std::make_error_code(std::errc::interrupted);  // EINTR maybe triggered by debugger
         else
-            throw std::system_error(sys::error(), "epoll: failed to poll event");
+            throw std::system_error(sys::error(), "reactor: failed to poll event");
     }
 
     // epoll has helped us merge the events
@@ -144,7 +144,7 @@ void chen::reactor::stop()
 {
     // notify wakeup message via eventfd
     if (::eventfd_write(this->_wakeup, 1) != 0)
-        throw std::system_error(sys::error(), "epoll: failed to wakeup the epoll");
+        throw std::system_error(sys::error(), "reactor: failed to wakeup the epoll");
 }
 
 // misc
