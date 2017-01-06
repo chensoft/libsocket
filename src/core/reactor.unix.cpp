@@ -23,15 +23,15 @@ const int chen::reactor::Readable = 1 << 0;
 const int chen::reactor::Writable = 1 << 1;
 const int chen::reactor::Closed   = 1 << 2;
 
-chen::reactor::reactor(int count) : _count(count)
+chen::reactor::reactor(std::uint8_t count) : _count(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "reactor: failed to create kqueue");
 
     // register custom filter to recv wake message
-    // ident's value is not important here, so use zero is ok
-    if (this->alter(0, EVFILT_USER, EV_ADD | EV_CLEAR, 0, nullptr) < 0)
+    // ident's value is not important here, use zero is ok
+    if (this->alter(0, EVFILT_USER, EV_ADD, 0, nullptr) < 0)
     {
         ::close(this->_kqueue);
         throw std::system_error(chen::sys::error(), "reactor: failed to create custom filter");
@@ -56,7 +56,7 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
 
     // register callback
     std::lock_guard<std::mutex> lock(this->_mutex);
-    this->_store[fd] = cb;
+    this->_calls[fd] = cb;
 }
 
 void chen::reactor::del(handle_t fd)
@@ -64,7 +64,7 @@ void chen::reactor::del(handle_t fd)
     // delete callback
     {
         std::lock_guard<std::mutex> lock(this->_mutex);
-        this->_store.erase(fd);
+        this->_calls.erase(fd);
     }
 
     // delete read
@@ -152,7 +152,7 @@ std::error_code chen::reactor::poll(double timeout)
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
-            cb = this->_store[fd];
+            cb = this->_calls[fd];
         }
 
         if (cb)

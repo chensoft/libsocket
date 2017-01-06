@@ -24,7 +24,7 @@ const int chen::reactor::Readable = 1 << 0;
 const int chen::reactor::Writable = 1 << 1;
 const int chen::reactor::Closed   = 1 << 2;
 
-chen::reactor::reactor(int count) : _count(count)
+chen::reactor::reactor(std::uint8_t count) : _count(count)
 {
     // create udp to recv wakeup message
     this->set(this->_wakeup.native(), nullptr, ModeRead, 0);
@@ -62,7 +62,7 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
     this->_flags[fd] = flag;
 
     // register callback
-    this->_store[fd] = cb;
+    this->_calls[fd] = cb;
 
     // repoll if in polling
     this->_repoll.set();
@@ -73,7 +73,7 @@ void chen::reactor::del(handle_t fd)
     std::lock_guard<std::mutex> lock(this->_mutex);
     
     // delete callback
-    this->_store.erase(fd);
+    this->_calls.erase(fd);
 
     // delete flags
     this->_flags.erase(fd);
@@ -161,7 +161,7 @@ std::error_code chen::reactor::poll(double timeout)
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
-            func = this->_store[item.fd];
+            func = this->_calls[item.fd];
             flag = this->_flags[item.fd];
         }
 

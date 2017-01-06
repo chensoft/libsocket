@@ -79,7 +79,7 @@ namespace chen
         typedef std::function<void (int type)> callback;
 
     public:
-        reactor(int count = 64);  // events number used in backend, ignored on Windows
+        reactor(std::uint8_t count = 64);  // events number used in backend, it will be ignored on Windows
         ~reactor();
 
     public:
@@ -92,7 +92,7 @@ namespace chen
 
         /**
          * Delete event
-         * @note don't forget to delete it when it is destroyed
+         * @note don't forget to delete it when fd is closed
          */
         void del(handle_t fd);
 
@@ -103,7 +103,7 @@ namespace chen
         void run();
 
         /**
-         * Poll events and notify
+         * Poll events and notify user via the callback
          * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
          * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
          * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
@@ -111,8 +111,8 @@ namespace chen
         std::error_code poll(double timeout = -1);
 
         /**
-         * Stop the loop
-         * @note you can call this method in callback or other thread to interrupt the loop
+         * Stop the poll
+         * @note you can call this method in callback or other thread to interrupt the poll
          */
         void stop();
 
@@ -132,7 +132,7 @@ namespace chen
 #elif defined(__linux__)
 
         // epoll
-        Type type(int events);
+        int type(int events);
 
         chen::event _wakeup;
 
@@ -141,7 +141,7 @@ namespace chen
 #else
 
         // WSAPoll
-        Type type(int events);
+        int type(int events);
 
         chen::event _wakeup;
         chen::event _repoll;
@@ -151,9 +151,9 @@ namespace chen
 
 #endif
 
-        const int _count = 0;
+        const std::uint8_t _count = 0;
 
         std::mutex _mutex;
-        std::unordered_map<handle_t, callback> _store;
+        std::unordered_map<handle_t, callback> _calls;
     };
 }
