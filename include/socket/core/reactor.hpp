@@ -147,6 +147,7 @@ namespace chen
         Type type(int events);
 
         chen::event _wakeup;
+        chen::event _repoll;
 
         std::vector<struct ::pollfd> _cache;
         std::unordered_map<handle_t, int> _flags;

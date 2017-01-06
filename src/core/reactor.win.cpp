@@ -28,6 +28,9 @@ chen::reactor::reactor(int count) : _count(count)
 {
     // create udp to recv wakeup message
     this->set(this->_wakeup.native(), nullptr, ModeRead, 0);
+
+    // create udp to allow repoll when user call set or del
+    this->set(this->_repoll.native(), nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
@@ -60,6 +63,9 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
 
     // register callback
     this->_store[fd] = cb;
+
+    // repoll if in polling
+    this->_repoll.set();
 }
 
 void chen::reactor::del(handle_t fd)
@@ -76,6 +82,9 @@ void chen::reactor::del(handle_t fd)
     std::remove_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
         return item.fd == fd;
     });
+
+    // repoll if in polling
+    this->_repoll.set();
 }
 
 // run
@@ -89,13 +98,38 @@ std::error_code chen::reactor::poll(double timeout)
 {
     // poll events
     std::vector<::pollfd> cache;
+    int result = 0;
 
+    while (true)
     {
-        std::lock_guard<std::mutex> lock(this->_mutex);
-        cache = this->_cache;  // avoid race condition
-    }
+        {
+            std::lock_guard<std::mutex> lock(this->_mutex);
+            cache = this->_cache;  // avoid race condition
+        }
 
-    int result = ::WSAPoll(cache.data(), cache.size(), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+        // reset repoll event
+        this->_repoll.reset();
+
+        result = ::WSAPoll(cache.data(), cache.size(), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+
+        // repoll if user call set or del when polling
+        bool repoll = false;
+
+        if (result == 1)
+        {
+            for (auto it = cache.begin(); it != cache.end(); ++it)
+            {
+                if (it->revents && (it->fd == this->_repoll.native()))
+                {
+                    repoll = true;
+                    break;
+                }
+            }
+        }
+
+        if (!repoll)
+            break;
+    }
 
     if (result <= 0)
     {
@@ -117,7 +151,7 @@ std::error_code chen::reactor::poll(double timeout)
         // user request to stop
         if (item.fd == this->_wakeup.native())
         {
-			this->_wakeup.reset();
+            this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
@@ -144,7 +178,7 @@ std::error_code chen::reactor::poll(double timeout)
 void chen::reactor::stop()
 {
     // notify wakeup message via socket
-	this->_wakeup.set();
+    this->_wakeup.set();
 }
 
 // misc
