@@ -8,7 +8,6 @@
 
 #include <socket/core/event.hpp>
 #include <unordered_map>
-#include <system_error>
 #include <functional>
 #include <vector>
 #include <mutex>
@@ -68,18 +67,16 @@ namespace chen
          * event, server may send last message and then close the connection immediately.
          * the backend may report readable & closed event or only report the closed event
          */
-        typedef int Type;
-
-        static const Type Readable;
-        static const Type Writable;
-        static const Type Closed;
+        static const int Readable;
+        static const int Writable;
+        static const int Closed;
 
         /**
          * Event callback
          * @note use bitwise and to check the event type, e.g: if (type & Readable)
          * @note if you want to bind custom params to callback, you can use std::bind
          */
-        typedef std::function<void (Type type)> callback;
+        typedef std::function<void (int type)> callback;
 
     public:
         reactor(int count = 64);  // events number used in backend, ignored on Windows
@@ -127,7 +124,7 @@ namespace chen
 #if !defined(__linux__) && !defined(_WIN32)
 
         // kqueue
-        Type type(int filter, int flags);
+        int type(int filter, int flags);
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
 
         handle_t _kqueue = invalid_handle;

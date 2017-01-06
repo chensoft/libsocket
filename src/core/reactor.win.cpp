@@ -20,9 +20,9 @@ const int chen::reactor::ModeRW    = ModeRead | ModeWrite;
 const int chen::reactor::FlagEdge = 0;
 const int chen::reactor::FlagOnce = 1;
 
-const chen::reactor::Type chen::reactor::Readable = 1 << 0;
-const chen::reactor::Type chen::reactor::Writable = 1 << 1;
-const chen::reactor::Type chen::reactor::Closed   = 1 << 2;
+const int chen::reactor::Readable = 1 << 0;
+const int chen::reactor::Writable = 1 << 1;
+const int chen::reactor::Closed   = 1 << 2;
 
 chen::reactor::reactor(int count) : _count(count)
 {
@@ -182,7 +182,7 @@ void chen::reactor::stop()
 }
 
 // misc
-chen::reactor::Type chen::reactor::type(int events)
+int chen::reactor::type(int events)
 {
     // check events, multiple events maybe occur
     if ((events & POLLERR) || (events & POLLHUP))
@@ -191,7 +191,7 @@ chen::reactor::Type chen::reactor::type(int events)
     }
     else
     {
-        chen::reactor::Type ret = 0;
+        int ret = 0;
 
         if (events & POLLIN)
             ret |= Readable;
