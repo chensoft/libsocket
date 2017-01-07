@@ -41,17 +41,17 @@ namespace chen
     private:
 #if !defined(__linux__) && !defined(_WIN32)
 
-        // unix
+        // Unix, use pipe
         handle_t _pp[2]{invalid_handle, invalid_handle};
 
 #elif defined(__linux__)
 
-        // linux
+        // Linux, use eventfd
         handle_t _fd = invalid_handle;
 
 #else
 
-        // win
+        // Windows, use udp
         basic_socket _socket;  // WSAPoll only support SOCKET
 
 #endif

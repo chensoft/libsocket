@@ -95,7 +95,12 @@ void chen::reactor::run()
         ;
 }
 
-std::error_code chen::reactor::poll(double timeout)
+std::error_code chen::reactor::poll()
+{
+    return this->poll(std::chrono::nanoseconds::min());
+}
+
+std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 {
     // poll events
     std::vector<::pollfd> cache;
@@ -111,7 +116,7 @@ std::error_code chen::reactor::poll(double timeout)
         // reset repoll event
         this->_repoll.reset();
 
-        result = ::WSAPoll(cache.data(), cache.size(), timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+        result = ::WSAPoll(cache.data(), cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
         // repoll if user call set or del when polling
         bool repoll = false;

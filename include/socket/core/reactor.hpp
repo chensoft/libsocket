@@ -9,6 +9,7 @@
 #include <socket/core/event.hpp>
 #include <unordered_map>
 #include <functional>
+#include <chrono>
 #include <vector>
 #include <mutex>
 
@@ -105,12 +106,18 @@ namespace chen
         void run();
 
         /**
-         * Poll events and notify user via the callback
-         * @param timeout unit is second(e.g: 1.15 means 1.15 seconds), forever if negative, return immediately if zero
-         * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
-         * @note this method is useful when you have your own runloop, you can use zero timeout and call it in every frame
+         * Poll events and notify user via its callback
+         * @return empty if an event is handled, operation_canceled if stop, interrupted if interrupt
          */
-        std::error_code poll(double timeout = -1);
+        std::error_code poll();
+
+        /**
+         * Poll events with a timeout, time accuracy varies with different systems
+         * @param timeout use std::chrono::milliseconds, seconds and etc, return immediately if use zero as duration value
+         * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
+         * @note it's useful when you want to use it in your own runloop, you can use zero timeout and call it in every frame
+         */
+        std::error_code poll(const std::chrono::nanoseconds &timeout);
 
         /**
          * Stop the poll
@@ -125,7 +132,7 @@ namespace chen
     private:
 #if !defined(__linux__) && !defined(_WIN32)
 
-        // kqueue
+        // Unix, use kqueue
         int type(int filter, int flags);
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
 
@@ -133,7 +140,7 @@ namespace chen
 
 #elif defined(__linux__)
 
-        // epoll
+        // Linux, use epoll
         int type(int events);
 
         chen::event _wakeup;
@@ -142,7 +149,7 @@ namespace chen
 
 #else
 
-        // WSAPoll
+        // Windows, use WSAPoll
         int type(int events);
 
         chen::event _wakeup;

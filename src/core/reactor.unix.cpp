@@ -84,17 +84,24 @@ void chen::reactor::run()
         ;
 }
 
-std::error_code chen::reactor::poll(double timeout)
+std::error_code chen::reactor::poll()
+{
+    return this->poll(std::chrono::nanoseconds::min());
+}
+
+std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 {
     // poll events
     struct ::kevent events[this->_count];  // VLA
     std::unique_ptr<::timespec> val;
 
-    if (timeout >= 0)
+    if (timeout >= std::chrono::nanoseconds::zero())
     {
+        auto time = timeout.count();
+
         val.reset(new ::timespec);
-        val->tv_sec  = static_cast<time_t>(timeout);
-        val->tv_nsec = static_cast<time_t>((timeout - val->tv_sec) * 1000000000);
+        val->tv_sec  = static_cast<time_t>(time / 1000000000);
+        val->tv_nsec = static_cast<time_t>(time % 1000000000);
     }
 
     int result = 0;

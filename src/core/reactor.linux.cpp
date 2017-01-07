@@ -86,11 +86,16 @@ void chen::reactor::run()
         ;
 }
 
-std::error_code chen::reactor::poll(double timeout)
+std::error_code chen::reactor::poll()
+{
+    return this->poll(std::chrono::nanoseconds::min());
+}
+
+std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 {
     // poll events
     ::epoll_event events[this->_count];  // VLA
-    int result = ::epoll_wait(this->_epoll, events, this->_count, timeout < 0 ? -1 : static_cast<int>(timeout * 1000));
+    int result = ::epoll_wait(this->_epoll, events, this->_count, timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
     if (result <= 0)
     {
