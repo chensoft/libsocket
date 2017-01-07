@@ -29,7 +29,7 @@ chen::reactor::reactor(std::uint8_t count) : _count(count)
     if ((this->_kqueue = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "reactor: failed to create kqueue");
 
-    // register custom filter to recv wake message
+    // register custom filter to recv wakeup message
     // ident's value is not important here, use zero is ok
     if (this->alter(0, EVFILT_USER, EV_ADD, 0, nullptr) < 0)
     {
@@ -164,7 +164,7 @@ std::error_code chen::reactor::poll(double timeout)
 
 void chen::reactor::stop()
 {
-    // notify wake message via custom filter
+    // notify wakeup message via custom filter
     if (this->alter(0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER, nullptr) < 0)
         throw std::system_error(sys::error(), "reactor: failed to stop the kqueue");
 }

@@ -8,6 +8,7 @@
 
 #include <socket/inet/inet_address.hpp>
 #include <socket/core/reactor.hpp>
+#include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
 #include <algorithm>
 
@@ -161,8 +162,8 @@ std::error_code chen::reactor::poll(double timeout)
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
-            func = this->_calls[item.fd];
-            flag = this->_flags[item.fd];
+            func = chen::map::find(this->_calls, item.fd);
+            flag = chen::map::find(this->_flags, item.fd);
         }
 
         if (flag & FlagOnce)
