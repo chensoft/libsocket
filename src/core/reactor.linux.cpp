@@ -7,6 +7,7 @@
 #ifdef __linux__
 
 #include <socket/core/reactor.hpp>
+#include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
 #include <limits>
 
@@ -119,7 +120,7 @@ std::error_code chen::reactor::poll(double timeout)
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
-            cb = this->_calls[item.data.fd];
+            cb = chen::map::find(this->_calls, item.data.fd);
         }
 
         if (cb)

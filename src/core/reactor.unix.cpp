@@ -7,6 +7,7 @@
 #if !defined(__linux__) && !defined(_WIN32)
 
 #include <socket/core/reactor.hpp>
+#include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
 #include <memory>
 
@@ -152,7 +153,7 @@ std::error_code chen::reactor::poll(double timeout)
 
         {
             std::lock_guard<std::mutex> lock(this->_mutex);
-            cb = this->_calls[fd];
+            cb = chen::map::find(this->_calls, fd);
         }
 
         if (cb)
