@@ -97,7 +97,7 @@ void chen::reactor::run()
 
 std::error_code chen::reactor::poll()
 {
-    return this->poll(std::chrono::nanoseconds::min());
+    return this->poll((std::chrono::nanoseconds::min)());
 }
 
 std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
