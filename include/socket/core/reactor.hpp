@@ -90,6 +90,8 @@ namespace chen
          */
         void set(handle_t fd, callback cb, int mode, int flag);
 
+        // todo add set method, accept timer *fd, pass expiration time to user via callback
+
         /**
          * Delete event
          * @note don't forget to delete it when fd is closed

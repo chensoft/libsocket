@@ -14,13 +14,9 @@
 // event
 chen::event::event()
 {
-    this->_fd = ::eventfd(0, 0);
-
-    if ((this->_fd < 0) || ::fcntl(this->_fd, F_SETFL, ::fcntl(this->_fd, F_GETFL, 0) | O_NONBLOCK))
-    {
-        ::close(this->_fd);
+    this->_fd = ::eventfd(0, EFD_NONBLOCK);
+    if (this->_fd < 0)
         throw std::system_error(sys::error(), "event: failed to create eventfd");
-    }
 }
 
 chen::event::~event()
