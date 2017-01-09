@@ -26,7 +26,7 @@
 #pragma once
 
 // Only for Android
-#ifdef ANDROID
+#ifdef __ANDROID__
 
 struct ifaddrs {
 	struct ifaddrs  *ifa_next;

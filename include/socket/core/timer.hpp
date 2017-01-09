@@ -44,7 +44,7 @@ namespace chen
         timer& operator=(const timer&) = delete;
 
     private:
-#if !defined(__linux__) && !defined(_WIN32)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // unix
 

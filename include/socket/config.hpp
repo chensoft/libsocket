@@ -8,7 +8,7 @@
 
 // -----------------------------------------------------------------------------
 // Unix-like
-#ifndef _WIN32
+#if defined(__unix__) || defined(__APPLE__)
 
 #include <netinet/in.h>   // IPv4 & IPv6
 #include <netinet/tcp.h>  // TCP macros
@@ -53,7 +53,7 @@ namespace chen
 
 // -----------------------------------------------------------------------------
 // OS X, *BSD
-#if !defined(_WIN32) && !defined(__linux__)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
 #include <sys/event.h>  // kqueue
 
@@ -71,7 +71,7 @@ namespace chen
 
 // -----------------------------------------------------------------------------
 // Android
-#if defined(ANDROID) || defined(__ANDROID__)
+#ifdef __ANDROID__
 
 // Android support these flags but ndk didn't define them
 // unless you compile with android-21 or higher api level

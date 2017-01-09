@@ -130,7 +130,7 @@ namespace chen
         reactor& operator=(const reactor&) = delete;
 
     private:
-#if !defined(__linux__) && !defined(_WIN32)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use kqueue
         int type(int filter, int flags);

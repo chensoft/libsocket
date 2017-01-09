@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifndef _WIN32
+#if defined(__unix__) || defined(__APPLE__)
 
 #include <socket/core/startup.hpp>
 #include <csignal>

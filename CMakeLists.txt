@@ -35,7 +35,7 @@ add_library(libsocket ${INC_SOCKET} ${SRC_SOCKET})
 target_link_libraries(libsocket libchen)
 set_target_properties(libsocket PROPERTIES OUTPUT_NAME libsocket PREFIX "")
 
-# android ifaddrs
+# ifaddrs for Android
 # android-ndk-r13+ provide a cmake toolchain file(require cmake 3.6+)
 # use cmake -DCMAKE_TOOLCHAIN_FILE=android-ndk-r13/build/cmake/android.toolchain.cmake \
 #           -DANDROID_CPP_FEATURES="rtti exceptions" ..

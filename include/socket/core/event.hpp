@@ -39,7 +39,7 @@ namespace chen
         event& operator=(const event&) = delete;
 
     private:
-#if !defined(__linux__) && !defined(_WIN32)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use pipe
         handle_t _pp[2]{invalid_handle, invalid_handle};
