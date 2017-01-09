@@ -27,8 +27,7 @@ const int chen::reactor::Closed   = 1 << 2;
 chen::reactor::reactor(std::uint8_t count) : _count(count)
 {
     // create epoll file descriptor
-    // 1 is just a hint, see http://man7.org/linux/man-pages/man2/epoll_create.2.html
-    if ((this->_epoll = ::epoll_create(1)) < 0)
+    if ((this->_epoll = ::epoll_create1(0)) < 0)
         throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
     // create eventfd to recv wakeup message
