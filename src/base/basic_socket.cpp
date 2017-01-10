@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/base/basic_socket.hpp>
+#include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
@@ -216,7 +217,42 @@ chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, con
     return ::sendto(this->_fd, (char*)data, size, flags, (::sockaddr*)&addr.addr, addr.size);
 }
 
-// detach
+// cleanup
+void chen::basic_socket::shutdown(Shutdown type) noexcept
+{
+#ifdef _WIN32
+    #define SHUT_RD   SD_RECEIVE
+    #define SHUT_WR   SD_SEND
+    #define SHUT_RDWR SD_BOTH
+#endif
+
+    switch (type)
+    {
+        case Shutdown::Read:
+            ::shutdown(this->_fd, SHUT_RD);
+            break;
+
+        case Shutdown::Write:
+            ::shutdown(this->_fd, SHUT_WR);
+            break;
+
+        case Shutdown::Both:
+            ::shutdown(this->_fd, SHUT_RDWR);
+            break;
+    }
+}
+
+void chen::basic_socket::close() noexcept
+{
+#ifdef _WIN32
+    ::closesocket(this->_fd);
+#else
+    ::close(this->_fd);
+#endif
+
+    this->_fd = invalid_handle;
+}
+
 chen::handle_t chen::basic_socket::detach() noexcept
 {
     auto temp = this->_fd;
@@ -239,6 +275,11 @@ chen::basic_address chen::basic_socket::sock() const noexcept
     return addr;
 }
 
+std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
+{
+    return ioctl::nonblocking(this->_fd, enable);
+}
+
 chen::basic_option chen::basic_socket::option() noexcept
 {
     return basic_option(*this);
@@ -257,6 +298,11 @@ chen::basic_socket::operator bool() const noexcept
 chen::handle_t chen::basic_socket::native() const noexcept
 {
     return this->_fd;
+}
+
+std::size_t chen::basic_socket::available() const noexcept
+{
+    return ioctl::available(this->_fd);
 }
 
 int chen::basic_socket::family() const noexcept

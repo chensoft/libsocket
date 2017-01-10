@@ -7,6 +7,7 @@
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
 #include <socket/core/event.hpp>
+#include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
@@ -16,8 +17,7 @@ chen::event::event()
     if (::pipe(this->_pp) < 0)
         throw std::system_error(sys::error(), "event: failed to create pipe");
 
-    if (::fcntl(this->_pp[0], F_SETFL, ::fcntl(this->_pp[0], F_GETFL, 0) | O_NONBLOCK) ||
-        ::fcntl(this->_pp[1], F_SETFL, ::fcntl(this->_pp[1], F_GETFL, 0) | O_NONBLOCK))
+    if (ioctl::nonblocking(this->_pp[0], true) || ioctl::nonblocking(this->_pp[1], true))
     {
         ::close(this->_pp[0]);
         ::close(this->_pp[1]);
