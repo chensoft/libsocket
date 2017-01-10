@@ -33,8 +33,8 @@ TEST(BasicSocketTest, Empty)
 TEST(BasicSocketTest, Create)
 {
     // create via family
-    basic_socket s1(AF_INET, SOCK_DGRAM, 0);
-    basic_socket s2(AF_INET, SOCK_STREAM, 0);
+    basic_socket s1(AF_INET, SOCK_DGRAM);
+    basic_socket s2(AF_INET, SOCK_STREAM);
 
     EXPECT_TRUE(s1);
     EXPECT_TRUE(s2);
@@ -70,7 +70,7 @@ TEST(BasicSocketTest, TCP)
 
     std::thread thread_s([&] () {
         // a simple echo server
-        basic_socket server(AF_INET, SOCK_STREAM, 0);
+        basic_socket server(AF_INET, SOCK_STREAM);
 
         EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
         EXPECT_TRUE(!server.listen());
@@ -115,7 +115,7 @@ TEST(BasicSocketTest, TCP)
         // a simple echo client
         for (int i = 0; i < 10; ++i)
         {
-            basic_socket client(AF_INET, SOCK_STREAM, 0);
+            basic_socket client(AF_INET, SOCK_STREAM);
 
             std::string text("hello, " + chen::num::str(i));
 
@@ -136,7 +136,7 @@ TEST(BasicSocketTest, TCP)
         }
 
         // stop it
-        basic_socket stop(AF_INET, SOCK_STREAM, 0);
+        basic_socket stop(AF_INET, SOCK_STREAM);
 
         EXPECT_TRUE(!stop.connect(addr));
         EXPECT_EQ(1, stop.send("\n", 1));
@@ -153,7 +153,7 @@ TEST(BasicSocketTest, UDP)
 
     std::thread thread_s([&] () {
         // a simple echo server
-        basic_socket server(AF_INET, SOCK_DGRAM, 0);
+        basic_socket server(AF_INET, SOCK_DGRAM);
 
         EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
         EXPECT_GT(port = inet_address(server.sock()).port(), 0);  // retrieve random port number
@@ -188,7 +188,7 @@ TEST(BasicSocketTest, UDP)
         // a simple echo client
         for (int i = 0; i < 10; ++i)
         {
-            basic_socket client(AF_INET, SOCK_DGRAM, 0);
+            basic_socket client(AF_INET, SOCK_DGRAM);
 
             std::string text("hello, " + chen::num::str(i));
             EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), client.sendto(text.data(), text.size(), addr));
@@ -201,7 +201,7 @@ TEST(BasicSocketTest, UDP)
         }
 
         // stop it
-        basic_socket stop(AF_INET, SOCK_DGRAM, 0);
+        basic_socket stop(AF_INET, SOCK_DGRAM);
         EXPECT_EQ(1, stop.sendto("\n", 1, addr));
     });
 

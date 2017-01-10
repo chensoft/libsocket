@@ -25,7 +25,11 @@ const int chen::reactor::Readable = 1 << 0;
 const int chen::reactor::Writable = 1 << 1;
 const int chen::reactor::Closed   = 1 << 2;
 
-chen::reactor::reactor(std::uint8_t count) : _count(count)
+chen::reactor::reactor() : reactor(64)  // 64 is enough
+{
+}
+
+chen::reactor::reactor(std::size_t count) : _cache(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
@@ -59,17 +63,13 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register callback
-    std::lock_guard<std::mutex> lock(this->_mutex);
     this->_calls[fd] = cb;
 }
 
 void chen::reactor::del(handle_t fd)
 {
     // delete callback
-    {
-        std::lock_guard<std::mutex> lock(this->_mutex);
-        this->_calls.erase(fd);
-    }
+    this->_calls.erase(fd);
 
     // delete read
     if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
@@ -95,7 +95,6 @@ std::error_code chen::reactor::poll()
 std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 {
     // poll events
-    struct ::kevent events[this->_count];  // VLA
     std::unique_ptr<::timespec> val;
 
     if (timeout >= std::chrono::nanoseconds::zero())
@@ -109,7 +108,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
     int result = 0;
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) <= 0)
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_cache.data(), static_cast<int>(this->_cache.size()), val.get())) <= 0)
     {
         if (!result)
             return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
@@ -124,7 +123,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
     for (int i = 0; i < result; ++i)
     {
-        auto &item = events[i];
+        auto &item = this->_cache[i];
 
         if (item.filter == EVFILT_USER)
             continue;
@@ -147,7 +146,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
     // invoke callback
     for (int i = 0; i < result; ++i)
     {
-        auto &item = events[i];
+        auto &item = this->_cache[i];
         auto    fd = static_cast<handle_t>(item.ident);
 
         // user request to stop
@@ -159,13 +158,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
             continue;
 
         // normal callback
-        callback cb;
-
-        {
-            std::lock_guard<std::mutex> lock(this->_mutex);
-            cb = chen::map::find(this->_calls, fd);
-        }
-
+        callback cb = chen::map::find(this->_calls, fd);
         if (cb)
             cb(item.filter);
     }

@@ -11,17 +11,37 @@
 #include <gtest/gtest.h>
 
 using chen::reactor;
-using chen::inet_address;
 using chen::basic_socket;
+using chen::basic_address;
 
-void server(basic_socket &s)
+void server_thread(basic_socket &s);
+void client_thread(basic_address a);
+
+TEST(CoreReactorTest, Echo)
 {
-    using std::placeholders::_1;
+    // server
+    basic_socket s(AF_INET, SOCK_STREAM);
+
+    EXPECT_TRUE(!s.bind(chen::inet_address("127.0.0.1:0")));  // bind on a random port
+    EXPECT_TRUE(!s.listen());
+
+    std::thread t_server(std::bind(&server_thread, std::ref(s)));
+
+    // client
+    std::thread t_client(std::bind(&client_thread, s.sock()));
+
+    t_server.join();
+    t_client.join();
+}
+
+void server_thread(basic_socket &s)
+{
+    using namespace std::placeholders;
 
     std::vector<basic_socket> cache;
     reactor r;
 
-    auto handler_c = [&] (std::size_t index, int type) {
+    auto handler_connection = [&] (std::size_t index, int type) {
         auto &conn = cache[index];
 
         // you should read the rest of the data even if you received the closed event
@@ -50,7 +70,7 @@ void server(basic_socket &s)
         EXPECT_EQ((chen::ssize_t)size, conn.send(text.data(), size));
     };
 
-    auto handler_s = [&] (int type) {
+    auto handler_server = [&] (int type) {
         EXPECT_GT(type & reactor::Readable, 0);
 
         // accept new connection
@@ -60,16 +80,18 @@ void server(basic_socket &s)
         cache.emplace_back(std::move(conn));  // prevent connection released
 
         // register event for conn
-        r.set(cache.back().native(), std::bind(handler_c, cache.size() - 1, _1), reactor::ModeRead, 0);
+        r.set(cache.back().native(), std::bind(handler_connection, cache.size() - 1, _1), reactor::ModeRead, 0);
     };
 
-    r.set(s.native(), handler_s, reactor::ModeRead, 0);
+    r.set(s.native(), handler_server, reactor::ModeRead, 0);
 
     r.run();
 }
 
-void client(std::uint16_t port)
+void client_thread(basic_address a)
 {
+    // send each message to server, server
+    // will invert the string and send back
     std::vector<std::string> data = {
             "You say that you love rain",
             "but you open your umbrella when it rains",
@@ -86,12 +108,12 @@ void client(std::uint16_t port)
 
     for (std::size_t i = 0, l = data.size(); i < l; ++i)
     {
-        pool->post([&data, port, i] () {
+        pool->post([&data, a, i] () {
             auto text = data[i % data.size()];
 
-            basic_socket c(AF_INET, SOCK_STREAM, 0);
+            basic_socket c(AF_INET, SOCK_STREAM);
 
-            EXPECT_TRUE(!c.connect(inet_address("127.0.0.1", port)));
+            EXPECT_TRUE(!c.connect(a));
             EXPECT_EQ((chen::ssize_t)text.size(), c.send(text.data(), text.size()));
 
             std::string response(text.size(), '\0');
@@ -106,25 +128,8 @@ void client(std::uint16_t port)
     pool.reset();
 
     // tell the server to quit
-    basic_socket c(AF_INET, SOCK_STREAM, 0);
+    basic_socket c(AF_INET, SOCK_STREAM);
 
-    EXPECT_TRUE(!c.connect(inet_address("127.0.0.1", port)));
+    EXPECT_TRUE(!c.connect(a));
     EXPECT_EQ(4, c.send("stop", 4));
-}
-
-TEST(CoreReactorTest, Echo)
-{
-    // server
-    basic_socket s(AF_INET, SOCK_STREAM, 0);
-
-    EXPECT_TRUE(!s.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-    EXPECT_TRUE(!s.listen());
-
-    std::thread t_server(std::bind(&server, std::ref(s)));
-
-    // client
-    std::thread t_client(std::bind(&client, inet_address(s.sock()).port()));
-
-    t_server.join();
-    t_client.join();
 }

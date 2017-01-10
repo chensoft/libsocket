@@ -24,7 +24,7 @@ const int chen::reactor::Readable = 1 << 0;
 const int chen::reactor::Writable = 1 << 1;
 const int chen::reactor::Closed   = 1 << 2;
 
-chen::reactor::reactor(std::uint8_t count) : _count(count)
+chen::reactor::reactor(short count) : _count(count)
 {
     // create epoll file descriptor
     if ((this->_epoll = ::epoll_create1(EPOLL_CLOEXEC)) < 0)

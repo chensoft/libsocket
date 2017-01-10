@@ -11,10 +11,13 @@
 #include <functional>
 #include <chrono>
 #include <vector>
-#include <mutex>
 
 namespace chen
 {
+    /**
+     * Reactor implements a reactor event loop, note that it is not thread-safe, except the stop method
+     * @link https://en.wikipedia.org/wiki/Reactor_pattern
+     */
     class reactor
     {
     public:
@@ -44,9 +47,6 @@ namespace chen
         /**
          * Event flag
          * @note Windows does not support edge-triggered, we simulate FlagOnce only
-         * @note If you use edge-triggered and multiple threads are calling poll
-         * method, reactor does not guarantee that only one thread get the
-         * events, only FlagOnce(except on Windows) guaranteed this feature
          */
         static const int FlagEdge;  // enable edge-triggered
         static const int FlagOnce;  // event occurs only once
@@ -65,7 +65,7 @@ namespace chen
          * you must monitor the read event if you want to know the closed event
          * ---------------------------------------------------------------------
          * @note you should read the rest of the data even if you received the closed
-         * event, server may send last message and then close the connection immediately.
+         * event, server may send last message and then close the connection immediately
          * the backend may report readable & closed event or only report the closed event
          */
         static const int Readable;
@@ -80,7 +80,8 @@ namespace chen
         typedef std::function<void (int type)> callback;
 
     public:
-        reactor(std::uint8_t count = 64);  // events number used in backend, it will be ignored on Windows
+        reactor();
+        reactor(std::size_t count);  // max events returned after a polling, it will be ignored on Windows
         ~reactor();
 
     public:
@@ -138,31 +139,32 @@ namespace chen
 
         handle_t _kqueue = invalid_handle;
 
+        std::vector<struct ::kevent> _cache;
+        std::unordered_map<handle_t, callback> _calls;
+
 #elif defined(__linux__)
 
         // Linux, use epoll
         int type(int events);
 
-        chen::event _wakeup;
-
         handle_t _epoll = invalid_handle;
+
+        chen::event _wakeup;
+        std::vector<struct ::epoll_event> _cache;
+        std::unordered_map<handle_t, callback> _calls;
 
 #else
 
         // Windows, use WSAPoll
         int type(int events);
 
+        std::vector<struct ::pollfd> _cache;
+        std::unordered_map<handle_t, int> _flags;
+        std::unordered_map<handle_t, callback> _calls;
+
         chen::event _wakeup;
         chen::event _repoll;
 
-        std::vector<struct ::pollfd> _cache;
-        std::unordered_map<handle_t, int> _flags;
-
 #endif
-
-        const std::uint8_t _count = 0;
-
-        std::mutex _mutex;
-        std::unordered_map<handle_t, callback> _calls;
     };
 }

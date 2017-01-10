@@ -14,7 +14,7 @@ using chen::basic_address;
 
 TEST(BasicOptionTest, TCP)
 {
-    basic_socket s(AF_INET, SOCK_STREAM, 0);
+    basic_socket s(AF_INET, SOCK_STREAM);
     basic_option o = s.option();
 
     // error
@@ -86,7 +86,7 @@ TEST(BasicOptionTest, TCP)
 
 TEST(BasicOptionTest, UDP)
 {
-    basic_socket s(AF_INET, SOCK_DGRAM, 0);
+    basic_socket s(AF_INET, SOCK_DGRAM);
     basic_option o = s.option();
 
     // broadcast

@@ -79,10 +79,15 @@ void chen::basic_socket::reset()
     if (!this->_family)
         throw std::runtime_error("socket: reset failed because family is unknown");
 
-    if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) == invalid_handle)
-        throw std::system_error(sys::error(), "socket: failed to create socket");
-
+#ifdef __linux__
+    this->_fd = ::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol);
+#else
+    this->_fd = ::socket(this->_family, this->_type, this->_protocol);
     ioctl::cloexec(this->_fd, true);
+#endif
+
+    if (this->_fd == invalid_handle)
+        throw std::system_error(sys::error(), "socket: failed to create socket");
 
 #ifdef SO_NOSIGPIPE
     // this macro is defined on Unix to prevent SIGPIPE on this socket
