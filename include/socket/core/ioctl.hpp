@@ -8,6 +8,7 @@
 
 #include <socket/config.hpp>
 #include <system_error>
+#include <string>
 
 namespace chen
 {

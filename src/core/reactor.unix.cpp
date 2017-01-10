@@ -7,6 +7,7 @@
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
 #include <socket/core/reactor.hpp>
+#include <socket/core/ioctl.hpp>
 #include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
 #include <memory>
@@ -29,6 +30,8 @@ chen::reactor::reactor(std::uint8_t count) : _count(count)
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "reactor: failed to create kqueue");
+
+    ioctl::cloexec(this->_kqueue, true);
 
     // register custom filter to recv wakeup message
     // ident's value is not important here, use zero is ok

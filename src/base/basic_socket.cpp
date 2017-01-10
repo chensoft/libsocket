@@ -82,6 +82,8 @@ void chen::basic_socket::reset()
     if ((this->_fd = ::socket(this->_family, this->_type, this->_protocol)) == invalid_handle)
         throw std::system_error(sys::error(), "socket: failed to create socket");
 
+    ioctl::cloexec(this->_fd, true);
+
 #ifdef SO_NOSIGPIPE
     // this macro is defined on Unix to prevent SIGPIPE on this socket
     this->option().set(SOL_SOCKET, SO_NOSIGPIPE, 1);
@@ -140,6 +142,8 @@ chen::basic_socket chen::basic_socket::accept() noexcept
 
     if ((fd = ::accept(this->_fd, nullptr, nullptr)) == invalid_handle)
         return nullptr;
+
+    ioctl::cloexec(fd, true);
 
     return basic_socket(fd);
 }

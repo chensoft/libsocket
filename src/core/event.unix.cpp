@@ -23,6 +23,9 @@ chen::event::event()
         ::close(this->_pp[1]);
         throw std::system_error(sys::error(), "event: failed to create pipe");
     }
+
+    ioctl::cloexec(this->_pp[0], true);
+    ioctl::cloexec(this->_pp[1], true);
 }
 
 chen::event::~event()
