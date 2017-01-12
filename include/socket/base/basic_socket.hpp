@@ -48,9 +48,6 @@ namespace chen
          */
         basic_socket(int family, int type, int protocol = 0);
 
-        basic_socket(basic_socket &&o) noexcept;
-        basic_socket& operator=(basic_socket &&o) noexcept;
-
     public:
         /**
          * Reset socket by stored family, type and protocol
@@ -91,7 +88,7 @@ namespace chen
          * Accept new request and create a new socket
          * @note check to see if the result is valid before use it
          */
-        basic_socket accept() noexcept;
+        std::error_code accept(basic_socket &s) noexcept;
 
     public:
         /**

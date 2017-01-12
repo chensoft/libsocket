@@ -7,11 +7,9 @@
 #pragma once
 
 #include <socket/base/event_notify.hpp>
-#include <unordered_map>
+#include <unordered_set>
 #include <system_error>
-#include <functional>
 #include <chrono>
-#include <vector>
 
 namespace chen
 {
@@ -82,7 +80,7 @@ namespace chen
 
     public:
         reactor();
-        reactor(std::size_t count);  // max events returned after a polling, it will be ignored on Windows
+        reactor(short count);  // max events returned after a polling, it will be ignored on Windows
         ~reactor();
 
     public:
@@ -91,15 +89,15 @@ namespace chen
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          */
-        void set(handle_t fd, callback cb, int mode, int flag);
+        void set(basic_event *ev, callback cb, int mode, int flag);
 
         // todo add set method, accept timer *fd, pass expiration time to user via callback
 
         /**
          * Delete event
-         * @note don't forget to delete it when fd is closed
+         * @note this method will be called automatically when ev is destroyed
          */
-        void del(handle_t fd);
+        void del(basic_event *ev);
 
     public:
         /**
@@ -132,6 +130,9 @@ namespace chen
         reactor& operator=(const reactor&) = delete;
 
     private:
+        short _count = 0;
+        std::unordered_set<basic_event*> _cache;
+
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use kqueue
@@ -140,31 +141,28 @@ namespace chen
 
         handle_t _kqueue = invalid_handle;
 
-        std::vector<struct ::kevent> _cache;
-        std::unordered_map<handle_t, callback> _calls;
-
 #elif defined(__linux__)
 
         // Linux, use epoll
-        int type(int events);
-
-        handle_t _epoll = invalid_handle;
-
-        chen::event _wakeup;
-        std::vector<struct ::epoll_event> _cache;
-        std::unordered_map<handle_t, callback> _calls;
+//        int type(int events);
+//
+//        handle_t _epoll = invalid_handle;
+//
+//        chen::event _wakeup;
+//        std::vector<struct ::epoll_event> _cache;
+//        std::unordered_map<handle_t, callback> _calls;
 
 #else
 
         // Windows, use WSAPoll
-        int type(int events);
-
-        std::vector<struct ::pollfd> _cache;
-        std::unordered_map<handle_t, int> _flags;
-        std::unordered_map<handle_t, callback> _calls;
-
-        chen::event _wakeup;
-        chen::event _repoll;
+//        int type(int events);
+//
+//        std::vector<struct ::pollfd> _cache;
+//        std::unordered_map<handle_t, int> _flags;
+//        std::unordered_map<handle_t, callback> _calls;
+//
+//        chen::event _wakeup;
+//        chen::event _repoll;
 
 #endif
     };

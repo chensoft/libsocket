@@ -54,15 +54,6 @@ TEST(BasicSocketTest, Create)
 
     EXPECT_ANY_THROW(s3.reset());  // because no family info
     EXPECT_NO_THROW(s4.reset());   // because family info is provided when construct
-
-    // create via move
-    EXPECT_NO_THROW(s3.close());
-
-    EXPECT_FALSE(s3);  // s3 already closed in above code
-    EXPECT_TRUE(s3 = basic_socket(std::move(s4)));
-
-    EXPECT_TRUE(s3);
-    EXPECT_FALSE(s4);
 }
 
 TEST(BasicSocketTest, TCP)
@@ -84,8 +75,8 @@ TEST(BasicSocketTest, TCP)
         // wait for new connections
         while (true)
         {
-            auto conn = server.accept();
-            EXPECT_TRUE(conn);
+            basic_socket conn;
+            EXPECT_TRUE(!server.accept(conn));
 
             // remote address
             EXPECT_EQ("127.0.0.1", inet_address(conn.peer()).addr().str());

@@ -8,8 +8,8 @@
 
 #include <socket/core/reactor.hpp>
 #include <socket/core/ioctl.hpp>
-#include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
+#include <unordered_map>
 #include <memory>
 
 // -----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 {
 }
 
-chen::reactor::reactor(std::size_t count) : _cache(count)
+chen::reactor::reactor(short count) : _count(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
@@ -48,35 +48,46 @@ chen::reactor::reactor(std::size_t count) : _cache(count)
 
 chen::reactor::~reactor()
 {
+    // clear cache before destroy kqueue
+    auto tmp = std::move(this->_cache);
+    for (auto &ev : tmp)
+        this->del(ev);
+
     ::close(this->_kqueue);
 }
 
 // modify
-void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
+void chen::reactor::set(basic_event *ev, callback cb, int mode, int flag)
 {
     // register read or delete
-    if ((this->alter(fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->native(), EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register write or delete
-    if ((this->alter(fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->native(), EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
-    // register callback
-    this->_calls[fd] = cb;
+    // store event
+    this->_cache.insert(ev);
+
+    // associate callback
+    ev->attach(this, cb);
 }
 
-void chen::reactor::del(handle_t fd)
+void chen::reactor::del(basic_event *ev)
 {
-    // delete callback
-    this->_calls.erase(fd);
+    // clear callback
+    ev->detach();
+
+    // clear event
+    this->_cache.erase(ev);
 
     // delete read
-    if ((this->alter(fd, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->native(), EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 
     // delete write
-    if ((this->alter(fd, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(ev->native(), EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 }
 
@@ -95,6 +106,7 @@ std::error_code chen::reactor::poll()
 std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 {
     // poll events
+    struct ::kevent events[this->_count];  // VLA
     std::unique_ptr<::timespec> val;
 
     if (timeout >= std::chrono::nanoseconds::zero())
@@ -108,7 +120,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
     int result = 0;
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_cache.data(), static_cast<int>(this->_cache.size()), val.get())) <= 0)
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) <= 0)
     {
         if (!result)
             return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
@@ -123,7 +135,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
     for (int i = 0; i < result; ++i)
     {
-        auto &item = this->_cache[i];
+        auto &item = events[i];
 
         if (item.filter == EVFILT_USER)
             continue;
@@ -133,7 +145,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
         if (find != map.end())
         {
-            item.ident = static_cast<uintptr_t>(invalid_handle);  // set to invalid because we merge item's event to previous item
+            item.udata = nullptr;  // set to null because we merge item's event to previous item
             find->second->filter |= type;  // borrow 'filter' field for temporary use
         }
         else
@@ -146,21 +158,16 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
     // invoke callback
     for (int i = 0; i < result; ++i)
     {
-        auto &item = this->_cache[i];
-        auto    fd = static_cast<handle_t>(item.ident);
+        auto &item = events[i];
+        auto   ptr = static_cast<basic_event*>(item.udata);
 
         // user request to stop
         if (item.filter == EVFILT_USER)
             return std::make_error_code(std::errc::operation_canceled);
 
-        // item is invalid
-        if (fd == invalid_handle)
-            continue;
-
         // normal callback
-        callback cb = chen::map::find(this->_calls, fd);
-        if (cb)
-            cb(item.filter);
+        if (ptr)
+            ptr->notify(item.filter);
     }
 
     return {};

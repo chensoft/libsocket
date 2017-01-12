@@ -61,8 +61,8 @@ namespace chen
 
     private:
         /**
-         * Disable copy
-         * if you want to store event in container
+         * Disable copy & move
+         * if you want to store object in container, you can
          * use smart pointer like std::unique_ptr<basic_event>
          */
         basic_event(const basic_event&) = delete;

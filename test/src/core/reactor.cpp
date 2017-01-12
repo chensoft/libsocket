@@ -38,7 +38,7 @@ void server_thread(basic_socket &s)
 {
     using namespace std::placeholders;
 
-    std::vector<basic_socket> cache;
+    std::vector<std::unique_ptr<basic_socket>> cache;
     reactor r;
 
     auto handler_connection = [&] (std::size_t index, int type) {
@@ -49,17 +49,17 @@ void server_thread(basic_socket &s)
 
         // unregister it
         if (type & reactor::Closed)
-            r.del(conn.native());
+            r.del(conn.get());
 
         // read data from client
-        auto size = conn.available();
+        auto size = conn->available();
         EXPECT_GE(size, 0u);
 
         if (!size)
             return;  // connection closed
 
         std::string text(size, '\0');
-        EXPECT_EQ((chen::ssize_t)size, conn.recv(&text[0], size));
+        EXPECT_EQ((chen::ssize_t)size, conn->recv(&text[0], size));
 
         // need stop the reactor?
         if (text == "stop")
@@ -67,23 +67,23 @@ void server_thread(basic_socket &s)
 
         // revert and send back
         std::reverse(text.begin(), text.end());
-        EXPECT_EQ((chen::ssize_t)size, conn.send(text.data(), size));
+        EXPECT_EQ((chen::ssize_t)size, conn->send(text.data(), size));
     };
 
     auto handler_server = [&] (int type) {
         EXPECT_GT(type & reactor::Readable, 0);
 
         // accept new connection
-        auto conn = s.accept();
-        EXPECT_TRUE(conn);
+        std::unique_ptr<basic_socket> conn(new basic_socket);
+        EXPECT_TRUE(!s.accept(*conn));
 
         cache.emplace_back(std::move(conn));  // prevent connection released
 
         // register event for conn
-        r.set(cache.back().native(), std::bind(handler_connection, cache.size() - 1, _1), reactor::ModeRead, 0);
+        r.set(cache.back().get(), std::bind(handler_connection, cache.size() - 1, _1), reactor::ModeRead, 0);
     };
 
-    r.set(s.native(), handler_server, reactor::ModeRead, 0);
+    r.set(&s, handler_server, reactor::ModeRead, 0);
 
     r.run();
 }

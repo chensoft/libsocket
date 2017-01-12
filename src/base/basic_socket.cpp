@@ -34,25 +34,6 @@ chen::basic_socket::basic_socket(int family, int type, int protocol)
     this->reset(family, type, protocol);
 }
 
-chen::basic_socket::basic_socket(basic_socket &&o) noexcept
-{
-    *this = std::move(o);
-}
-
-chen::basic_socket& chen::basic_socket::operator=(basic_socket &&o) noexcept
-{
-    if (this == &o)
-        return *this;
-
-    this->reset(o.transfer(), o.family(), o.type(), o.protocol());
-
-    o._family   = 0;
-    o._type     = 0;
-    o._protocol = 0;
-
-    return *this;
-}
-
 // reset
 void chen::basic_socket::reset()
 {
@@ -125,16 +106,17 @@ std::error_code chen::basic_socket::listen(int backlog) noexcept
     return !::listen(this->native(), backlog) ? std::error_code() : sys::error();
 }
 
-chen::basic_socket chen::basic_socket::accept() noexcept
+std::error_code chen::basic_socket::accept(basic_socket &s) noexcept
 {
-    handle_t fd = invalid_handle;
+    handle_t fd;
 
     if ((fd = ::accept(this->native(), nullptr, nullptr)) == invalid_handle)
-        return nullptr;
+        return sys::error();
 
+    s.reset(fd);
     ioctl::cloexec(fd, true);
 
-    return basic_socket(fd);
+    return {};
 }
 
 // transmission

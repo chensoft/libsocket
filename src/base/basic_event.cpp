@@ -22,23 +22,22 @@ void chen::basic_event::change(handle_t fd) noexcept
 
 void chen::basic_event::close() noexcept
 {
-    if (this->_fd == invalid_handle)
+    auto fd = this->transfer();
+    if (fd == invalid_handle)
         return;
 
-    this->detach();
-
 #ifdef _WIN32
-    ::closesocket(this->_fd);
+    // WSAPoll only support SOCKET, so use closesocket is correct
+    ::closesocket(fd);
 #else
-    ::close(this->_fd);
+    ::close(fd);
 #endif
-
-    this->_fd = invalid_handle;
 }
 
 chen::handle_t chen::basic_event::transfer() noexcept
 {
-    this->detach();
+    if (this->_rt)
+        this->_rt->del(this);
 
     auto temp = this->_fd;
     this->_fd = invalid_handle;
@@ -47,7 +46,8 @@ chen::handle_t chen::basic_event::transfer() noexcept
 
 void chen::basic_event::attach(reactor *rt, std::function<void (int type)> cb) noexcept
 {
-    this->detach();
+    if (this->_rt)
+        this->_rt->del(this);
 
     this->_rt = rt;
     this->_cb = cb;
@@ -55,11 +55,6 @@ void chen::basic_event::attach(reactor *rt, std::function<void (int type)> cb) n
 
 void chen::basic_event::detach() noexcept
 {
-    if (!this->_rt)
-        return;
-
-    this->_rt->del(this->_fd);
-
     this->_rt = nullptr;
     this->_cb = nullptr;
 }
