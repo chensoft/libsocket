@@ -20,13 +20,17 @@ namespace chen
     class basic_event
     {
     public:
+        basic_event() = default;
         ~basic_event() noexcept;
 
     public:
         /**
          * Native handle value, reactor will use this value to register events
          */
-        handle_t native() const noexcept;
+        handle_t native() const noexcept
+        {
+            return this->_fd;
+        }
 
         /**
          * Reset handle value, old fd will be removed from reactor
@@ -54,6 +58,15 @@ namespace chen
         void attach(reactor *rt, std::function<void (int type)> cb) noexcept;
         void detach() noexcept;
         void notify(int type) noexcept;
+
+    private:
+        /**
+         * Disable copy
+         * if you want to store event in container
+         * use smart pointer like std::unique_ptr<basic_event>
+         */
+        basic_event(const basic_event&) = delete;
+        basic_event& operator=(const basic_event&) = delete;
 
     private:
         handle_t _fd = invalid_handle;

@@ -8,6 +8,7 @@
 
 #include <socket/base/basic_address.hpp>
 #include <socket/base/basic_option.hpp>
+#include <socket/base/basic_event.hpp>
 
 namespace chen
 {
@@ -15,7 +16,7 @@ namespace chen
      * BSD socket wrapper, usually you don't need to use it directly
      * use tcp_client, tcp_server, udp_client, udp_server instead
      */
-    class basic_socket
+    class basic_socket : public basic_event
     {
     public:
         enum class Shutdown {Read = 1, Write, Both};
@@ -50,8 +51,6 @@ namespace chen
         basic_socket(basic_socket &&o) noexcept;
         basic_socket& operator=(basic_socket &&o) noexcept;
 
-        ~basic_socket() noexcept;
-
     public:
         /**
          * Reset socket by stored family, type and protocol
@@ -60,10 +59,15 @@ namespace chen
         void reset();
 
         /**
-         * Reset socket by fd or info
+         * Reset socket by the newly created socket
+         */
+        void reset(int family, int type, int protocol);
+
+        /**
+         * Reset socket by fd
          */
         void reset(handle_t fd) noexcept;
-        void reset(int family, int type, int protocol = 0);
+        void reset(handle_t fd, int family, int type, int protocol) noexcept;
 
     public:
         /**
@@ -125,14 +129,14 @@ namespace chen
         /**
          * Close the socket, the socket will disconnect immediately
          */
-        void close() noexcept;
+        using basic_event::close;
 
         /**
          * Detach the socket handle, you must close the handle manually
          * @note the family, type and protocol info is preserved
          * @note this method is dangerous, you may leak the handle if you forget to close it
          */
-        handle_t detach() noexcept;
+        using basic_event::transfer;
 
     public:
         /**
@@ -165,7 +169,7 @@ namespace chen
         /**
          * Native socket handle
          */
-        handle_t native() const noexcept;
+        using basic_event::native;
 
         /**
          * Available bytes to read without blocking
@@ -180,17 +184,6 @@ namespace chen
         int protocol() const noexcept;
 
     private:
-        /**
-         * Disable copy
-         * if you want to store socket in container
-         * use smart pointer like std::unique_ptr<basic_socket>
-         */
-        basic_socket(const basic_socket&) = delete;
-        basic_socket& operator=(const basic_socket&) = delete;
-
-    private:
-        handle_t _fd = invalid_handle;  // socket descriptor
-
         // used for reset socket
         // only type is valid if you construct from a socket descriptor
         int _family   = 0;

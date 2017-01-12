@@ -14,23 +14,18 @@ chen::basic_event::~basic_event() noexcept
     this->close();
 }
 
-chen::handle_t chen::basic_event::native() const noexcept
-{
-    return this->_fd;
-}
-
 void chen::basic_event::reset(handle_t fd) noexcept
 {
-    if (this->_fd != invalid_handle)
-        this->close();
-
+    this->close();
     this->_fd = fd;
 }
 
 void chen::basic_event::close() noexcept
 {
-    if (this->_rt)
-        this->detach();
+    if (this->_fd == invalid_handle)
+        return;
+
+    this->detach();
 
 #ifdef _WIN32
     ::closesocket(this->_fd);
@@ -43,8 +38,7 @@ void chen::basic_event::close() noexcept
 
 chen::handle_t chen::basic_event::transfer() noexcept
 {
-    if (this->_rt)
-        this->detach();
+    this->detach();
 
     auto temp = this->_fd;
     this->_fd = invalid_handle;
@@ -53,8 +47,7 @@ chen::handle_t chen::basic_event::transfer() noexcept
 
 void chen::basic_event::attach(reactor *rt, std::function<void (int type)> cb) noexcept
 {
-    if (this->_rt)
-        this->detach();
+    this->detach();
 
     this->_rt = rt;
     this->_cb = cb;
@@ -62,8 +55,10 @@ void chen::basic_event::attach(reactor *rt, std::function<void (int type)> cb) n
 
 void chen::basic_event::detach() noexcept
 {
-    if (this->_rt)
-        this->_rt->del(this->_fd);
+    if (!this->_rt)
+        return;
+
+    this->_rt->del(this->_fd);
 
     this->_rt = nullptr;
     this->_cb = nullptr;

@@ -40,10 +40,6 @@ namespace chen
         handle_t native() const;
 
     private:
-        event_timer(const event_timer&) = delete;
-        event_timer& operator=(const event_timer&) = delete;
-
-    private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // unix

@@ -35,10 +35,6 @@ namespace chen
         handle_t native() const;
 
     private:
-        event_notify(const event_notify&) = delete;
-        event_notify& operator=(const event_notify&) = delete;
-
-    private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use pipe
