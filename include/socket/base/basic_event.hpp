@@ -33,10 +33,10 @@ namespace chen
         }
 
         /**
-         * Reset handle value, old fd will be removed from reactor
+         * Change handle value, old fd will be removed from reactor
          * note that new fd will NOT add to reactor automatically
          */
-        void reset(handle_t fd) noexcept;
+        void change(handle_t fd) noexcept;
 
         /**
          * Close the handle, fd will be removed from reactor

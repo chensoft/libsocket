@@ -60,9 +60,9 @@ void chen::basic_socket::reset()
         throw std::runtime_error("socket: reset failed because family is unknown");
 
 #ifdef __linux__
-    basic_event::reset(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
+    this->change(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
 #else
-    basic_event::reset(::socket(this->_family, this->_type, this->_protocol));
+    this->change(::socket(this->_family, this->_type, this->_protocol));
     ioctl::cloexec(this->native(), true);
 #endif
 
@@ -92,7 +92,7 @@ void chen::basic_socket::reset(handle_t fd) noexcept
 
 void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) noexcept
 {
-    basic_event::reset(fd);
+    this->change(fd);
 
     this->_family   = family;
     this->_type     = type;

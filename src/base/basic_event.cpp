@@ -14,7 +14,7 @@ chen::basic_event::~basic_event() noexcept
     this->close();
 }
 
-void chen::basic_event::reset(handle_t fd) noexcept
+void chen::basic_event::change(handle_t fd) noexcept
 {
     this->close();
     this->_fd = fd;

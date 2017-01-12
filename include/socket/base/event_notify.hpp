@@ -6,11 +6,11 @@
  */
 #pragma once
 
-#include <socket/base/basic_socket.hpp>
+#include <socket/base/basic_event.hpp>
 
 namespace chen
 {
-    class event_notify
+    class event_notify : public basic_event
     {
     public:
         event_notify();
@@ -27,28 +27,16 @@ namespace chen
          */
         void reset();
 
-        /**
-         * Native event handle
-         * you can use it in reactor, usually you register it with ModeRead, if
-         * Readable event occurs then you can reset the state and do your jobs
-         */
-        handle_t native() const;
-
     private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use pipe
-        handle_t _pp[2]{invalid_handle, invalid_handle};
-
-#elif defined(__linux__)
-
-        // Linux, use eventfd
-        handle_t _fd = invalid_handle;
+        handle_t _write = invalid_handle;
 
 #else
 
+        // Linux, use eventfd
         // Windows, use udp
-        basic_socket _socket;  // WSAPoll only support SOCKET
 
 #endif
     };

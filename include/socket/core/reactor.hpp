@@ -8,6 +8,7 @@
 
 #include <socket/base/event_notify.hpp>
 #include <unordered_map>
+#include <system_error>
 #include <functional>
 #include <chrono>
 #include <vector>

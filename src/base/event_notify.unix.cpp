@@ -14,42 +14,41 @@
 // event
 chen::event_notify::event_notify()
 {
-    if (::pipe(this->_pp) < 0)
+    handle_t pp[2]{};
+
+    if (::pipe(pp) < 0)
         throw std::system_error(sys::error(), "event: failed to create pipe");
 
-    if (ioctl::nonblocking(this->_pp[0], true) || ioctl::nonblocking(this->_pp[1], true))
+    if (ioctl::nonblocking(pp[0], true) || ioctl::nonblocking(pp[1], true))
     {
-        ::close(this->_pp[0]);
-        ::close(this->_pp[1]);
+        ::close(pp[0]);
+        ::close(pp[1]);
         throw std::system_error(sys::error(), "event: failed to create pipe");
     }
 
-    ioctl::cloexec(this->_pp[0], true);
-    ioctl::cloexec(this->_pp[1], true);
+    ioctl::cloexec(pp[0], true);
+    ioctl::cloexec(pp[1], true);
+
+    this->change(pp[0]);   // read
+    this->_write = pp[1];  // write
 }
 
 chen::event_notify::~event_notify()
 {
-    ::close(this->_pp[0]);
-    ::close(this->_pp[1]);
+    ::close(this->_write);
 }
 
 void chen::event_notify::set()
 {
-    ::write(this->_pp[1], "\n", 1);
+    ::write(this->_write, "\n", 1);
 }
 
 void chen::event_notify::reset()
 {
     char buf[512];
 
-    while (::read(this->_pp[0], buf, 512) >= 0)
+    while (::read(this->native(), buf, 512) >= 0)
         ;
-}
-
-chen::handle_t chen::event_notify::native() const
-{
-    return this->_pp[0];
 }
 
 #endif
