@@ -10,11 +10,11 @@
 
 namespace chen
 {
-    class timer
+    class event_timer
     {
     public:
-        timer();
-        ~timer();
+        event_timer();
+        ~event_timer();
 
     public:
         // todo allow specify date and chrono
@@ -40,8 +40,8 @@ namespace chen
         handle_t native() const;
 
     private:
-        timer(const timer&) = delete;
-        timer& operator=(const timer&) = delete;
+        event_timer(const event_timer&) = delete;
+        event_timer& operator=(const event_timer&) = delete;
 
     private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)

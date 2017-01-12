@@ -4,19 +4,19 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
+#ifdef _WIN32
 
 #include <socket/core/timer.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // timer
-chen::timer::timer()
+chen::event_timer::timer()
 {
 
 }
 
-chen::timer::~timer()
+chen::event_timer::~timer()
 {
 
 }

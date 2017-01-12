@@ -11,12 +11,12 @@
 
 // -----------------------------------------------------------------------------
 // timer
-chen::timer::timer()
+chen::event_timer::event_timer()
 {
 
 }
 
-chen::timer::~timer()
+chen::event_timer::~event_timer()
 {
 
 }

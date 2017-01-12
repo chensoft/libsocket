@@ -10,11 +10,11 @@
 
 namespace chen
 {
-    class event
+    class event_notify
     {
     public:
-        event();
-        ~event();
+        event_notify();
+        ~event_notify();
 
     public:
         /**
@@ -35,8 +35,8 @@ namespace chen
         handle_t native() const;
 
     private:
-        event(const event&) = delete;
-        event& operator=(const event&) = delete;
+        event_notify(const event_notify&) = delete;
+        event_notify& operator=(const event_notify&) = delete;
 
     private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)

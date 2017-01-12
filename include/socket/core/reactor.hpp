@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/core/event.hpp>
+#include <socket/base/event_notify.hpp>
 #include <unordered_map>
 #include <functional>
 #include <chrono>
