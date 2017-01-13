@@ -72,7 +72,7 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     this->_cache.insert(ptr);
 
     // associate callback
-    ptr->attach(this, cb);
+    ptr->attach(this, cb, mode, flag);
 }
 
 void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
@@ -151,17 +151,23 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
+        auto   ptr = static_cast<basic_handle*>(item.data.ptr);
 
         // user request to stop
-        if (item.data.ptr == &this->_wakeup.handle())
+        if (ptr == &this->_wakeup.handle())
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
         // normal callback
-        if (item.data.ptr)
-            static_cast<basic_handle*>(item.data.ptr)->notify(this->type(item.events));
+        if (ptr)
+        {
+            if (ptr->flag() & FlagOnce)
+                this->del(ptr);
+
+            ptr->notify(this->type(item.events));
+        }
     }
 
     return {};

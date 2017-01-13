@@ -128,13 +128,6 @@ namespace chen
          */
         void close() noexcept;
 
-        /**
-         * Detach the socket handle, you must close the handle manually
-         * @note the family, type and protocol info is preserved
-         * @note this method is dangerous, you may leak the handle if you forget to close it
-         */
-        handle_t transfer() noexcept;
-
     public:
         /**
          * Peer & Local address

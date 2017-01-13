@@ -104,7 +104,7 @@ namespace chen
 
         /**
          * Delete event
-         * @note this method will be called automatically when ev is destroyed
+         * @note this method will be called automatically when ptr is destroyed
          */
         void del(basic_handle *ptr);
         void del(basic_socket *ptr);

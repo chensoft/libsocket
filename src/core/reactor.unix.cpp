@@ -71,7 +71,7 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     this->_cache.insert(ptr);
 
     // associate callback
-    ptr->attach(this, cb);
+    ptr->attach(this, cb, mode, flag);
 }
 
 void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
@@ -197,7 +197,12 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
         // normal callback
         if (ptr)
+        {
+            if (ptr->flag() & FlagOnce)
+                this->del(ptr);
+
             ptr->notify(item.filter);
+        }
     }
 
     return {};

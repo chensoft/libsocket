@@ -71,7 +71,7 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     this->_cache[*ptr] = ptr;
 
     // associate callback
-    ptr->attach(this, cb);
+    ptr->attach(this, cb, mode, flag);
 
     // repoll if in polling
     this->_repoll.set();

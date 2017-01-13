@@ -222,11 +222,6 @@ void chen::basic_socket::close() noexcept
     this->_handle.close();
 }
 
-chen::handle_t chen::basic_socket::transfer() noexcept
-{
-    return this->_handle.transfer();
-}
-
 // property
 chen::basic_address chen::basic_socket::peer() const noexcept
 {

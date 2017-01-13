@@ -44,23 +44,39 @@ chen::handle_t chen::basic_handle::transfer() noexcept
     return temp;
 }
 
-void chen::basic_handle::attach(reactor *rt, std::function<void (int type)> cb) noexcept
+void chen::basic_handle::attach(reactor *rt, std::function<void (int type)> cb, int mode, int flag) noexcept
 {
     if (this->_rt)
         this->_rt->del(this);
 
     this->_rt = rt;
     this->_cb = cb;
+
+    this->_mode = mode;
+    this->_flag = flag;
 }
 
 void chen::basic_handle::detach() noexcept
 {
     this->_rt = nullptr;
     this->_cb = nullptr;
+
+    this->_mode = 0;
+    this->_flag = 0;
 }
 
 void chen::basic_handle::notify(int type) noexcept
 {
     if (this->_cb)
         this->_cb(type);
+}
+
+int chen::basic_handle::mode() const noexcept
+{
+    return this->_mode;
+}
+
+int chen::basic_handle::flag() const noexcept
+{
+    return this->_flag;
 }

@@ -54,9 +54,12 @@ namespace chen
         /**
          * Used by reactor only, bind, delete and emit callback
          */
-        void attach(reactor *rt, std::function<void (int type)> cb) noexcept;
+        void attach(reactor *rt, std::function<void (int type)> cb, int mode, int flag) noexcept;
         void detach() noexcept;
         void notify(int type) noexcept;
+
+        int mode() const noexcept;
+        int flag() const noexcept;
 
     private:
         /**
@@ -68,6 +71,9 @@ namespace chen
         basic_handle& operator=(const basic_handle&) = delete;
 
     private:
+        int _mode = 0;
+        int _flag = 0;
+
         handle_t _fd = invalid_handle;
         reactor *_rt = nullptr;
         std::function<void (int type)> _cb;
