@@ -27,11 +27,12 @@ namespace chen
         /**
          * Native handle value, reactor will use this value to register events
          */
-        handle_t native() const noexcept
+        operator chen::handle_t() const noexcept
         {
             return this->_fd;
         }
 
+    public:
         /**
          * Change handle value, old fd will be removed from reactor
          * note that new fd will NOT add to reactor automatically

@@ -40,7 +40,7 @@ TEST(BasicSocketTest, Create)
     EXPECT_TRUE(s2);
     EXPECT_TRUE(!s2.nonblocking(true));
 
-    EXPECT_NE(s1.native(), s2.native());  // handle is unique
+    EXPECT_NE(s1.handle(), s2.handle());  // handle is unique
 
     // create via handle
     basic_socket s3(s1.transfer());

@@ -34,19 +34,19 @@ namespace chen
         basic_socket(std::nullptr_t = nullptr) noexcept;
 
         /**
-         * Construct by socket handle directly
-         * @note you can't use reset() if you construct only from fd, because we didn't know fd's family & protocol
-         */
-        basic_socket(handle_t fd) noexcept;
-        basic_socket(handle_t fd, int family, int type, int protocol) noexcept;
-
-        /**
          * Construct by socket type
          * @param family AF_INET, AF_INET6, AF_UNIX...
          * @param type SOCK_STREAM, SOCK_DGRAM, SOCK_RAW...
          * @param protocol IPPROTO_TCP, IPPROTO_UDP or use zero directly
          */
         basic_socket(int family, int type, int protocol = 0);
+
+        /**
+         * Construct by socket handle directly
+         * @note you can't use reset() if you construct only from fd, because we didn't know fd's family & protocol
+         */
+        basic_socket(handle_t fd) noexcept;
+        basic_socket(handle_t fd, int family, int type, int protocol) noexcept;
 
     public:
         /**
@@ -166,12 +166,7 @@ namespace chen
         /**
          * Native socket handle
          */
-        handle_t native() const noexcept
-        {
-            return this->_handle.native();
-        }
-
-        basic_handle* handle() noexcept;
+        basic_handle& handle() noexcept;
 
         /**
          * Available bytes to read without blocking

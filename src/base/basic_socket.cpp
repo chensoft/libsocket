@@ -19,6 +19,11 @@ chen::basic_socket::basic_socket(std::nullptr_t) noexcept
 {
 }
 
+chen::basic_socket::basic_socket(int family, int type, int protocol)
+{
+    this->reset(family, type, protocol);
+}
+
 chen::basic_socket::basic_socket(handle_t fd) noexcept
 {
     this->reset(fd);
@@ -27,11 +32,6 @@ chen::basic_socket::basic_socket(handle_t fd) noexcept
 chen::basic_socket::basic_socket(handle_t fd, int family, int type, int protocol) noexcept
 {
     this->reset(fd, family, type, protocol);
-}
-
-chen::basic_socket::basic_socket(int family, int type, int protocol)
-{
-    this->reset(family, type, protocol);
 }
 
 // reset
@@ -44,7 +44,7 @@ void chen::basic_socket::reset()
     this->_handle.change(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
 #else
     this->_handle.change(::socket(this->_family, this->_type, this->_protocol));
-    ioctl::cloexec(this->native(), true);
+    ioctl::cloexec(this->_handle, true);
 #endif
 
     if (!this->valid())
@@ -88,12 +88,12 @@ void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) 
 // connection
 std::error_code chen::basic_socket::connect(const basic_address &addr) noexcept
 {
-    return !::connect(this->native(), (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
+    return !::connect(this->_handle, (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
 {
-    return !::bind(this->native(), (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
+    return !::bind(this->_handle, (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::listen() noexcept
@@ -103,14 +103,14 @@ std::error_code chen::basic_socket::listen() noexcept
 
 std::error_code chen::basic_socket::listen(int backlog) noexcept
 {
-    return !::listen(this->native(), backlog) ? std::error_code() : sys::error();
+    return !::listen(this->_handle, backlog) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::accept(basic_socket &s) noexcept
 {
     handle_t fd;
 
-    if ((fd = ::accept(this->native(), nullptr, nullptr)) == invalid_handle)
+    if ((fd = ::accept(this->_handle, nullptr, nullptr)) == invalid_handle)
         return sys::error();
 
     s.reset(fd);
@@ -132,7 +132,7 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::recv(this->native(), (char*)data, size, flags);
+    return ::recv(this->_handle, (char*)data, size, flags);
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
@@ -153,7 +153,7 @@ chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_a
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::recvfrom(this->native(), (char*)data, size, flags, (::sockaddr*)&addr.addr, &addr.size);
+    return ::recvfrom(this->_handle, (char*)data, size, flags, (::sockaddr*)&addr.addr, &addr.size);
 }
 
 chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size) noexcept
@@ -168,7 +168,7 @@ chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int f
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::send(this->native(), (char*)data, size, flags);
+    return ::send(this->_handle, (char*)data, size, flags);
 }
 
 chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size) noexcept
@@ -189,7 +189,7 @@ chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, con
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::sendto(this->native(), (char*)data, size, flags, (::sockaddr*)&addr.addr, addr.size);
+    return ::sendto(this->_handle, (char*)data, size, flags, (::sockaddr*)&addr.addr, addr.size);
 }
 
 // cleanup
@@ -204,15 +204,15 @@ void chen::basic_socket::shutdown(Shutdown type) noexcept
     switch (type)
     {
         case Shutdown::Read:
-            ::shutdown(this->native(), SHUT_RD);
+            ::shutdown(this->_handle, SHUT_RD);
             break;
 
         case Shutdown::Write:
-            ::shutdown(this->native(), SHUT_WR);
+            ::shutdown(this->_handle, SHUT_WR);
             break;
 
         case Shutdown::Both:
-            ::shutdown(this->native(), SHUT_RDWR);
+            ::shutdown(this->_handle, SHUT_RDWR);
             break;
     }
 }
@@ -231,20 +231,20 @@ chen::handle_t chen::basic_socket::transfer() noexcept
 chen::basic_address chen::basic_socket::peer() const noexcept
 {
     basic_address addr;
-    ::getpeername(this->native(), (::sockaddr*)&addr.addr, &addr.size);
+    ::getpeername(this->_handle, (::sockaddr*)&addr.addr, &addr.size);
     return addr;
 }
 
 chen::basic_address chen::basic_socket::sock() const noexcept
 {
     basic_address addr;
-    ::getsockname(this->native(), (::sockaddr*)&addr.addr, &addr.size);
+    ::getsockname(this->_handle, (::sockaddr*)&addr.addr, &addr.size);
     return addr;
 }
 
 std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {
-    return ioctl::nonblocking(this->native(), enable);
+    return ioctl::nonblocking(this->_handle, enable);
 }
 
 chen::basic_option chen::basic_socket::option() noexcept
@@ -254,7 +254,7 @@ chen::basic_option chen::basic_socket::option() noexcept
 
 bool chen::basic_socket::valid() const noexcept
 {
-    return this->native() != invalid_handle;
+    return this->_handle != invalid_handle;
 }
 
 chen::basic_socket::operator bool() const noexcept
@@ -262,14 +262,14 @@ chen::basic_socket::operator bool() const noexcept
     return this->valid();
 }
 
-chen::basic_handle* chen::basic_socket::handle() noexcept
+chen::basic_handle& chen::basic_socket::handle() noexcept
 {
-    return &this->_handle;
+    return this->_handle;
 }
 
 std::size_t chen::basic_socket::available() const noexcept
 {
-    return ioctl::available(this->native());
+    return ioctl::available(this->_handle);
 }
 
 int chen::basic_socket::family() const noexcept

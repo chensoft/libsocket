@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/config.hpp>
+#include <socket/base/basic_handle.hpp>
 
 namespace chen
 {
@@ -33,11 +33,11 @@ namespace chen
         // todo allow retrieve interval time
 
         /**
-         * Native event handle
+         * Native timer event
          * you can use it in reactor, usually you register it with ModeRead, if
          * Readable event occurs then you can reset the timeout and do your jobs
          */
-        handle_t native() const;
+        basic_handle& handle() const;
 
     private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)

@@ -47,13 +47,13 @@ void chen::event::reset()
 {
     char buf[512];
 
-    while (::read(this->_handle.native(), buf, 512) >= 0)
+    while (::read(this->_handle, buf, 512) >= 0)
         ;
 }
 
-chen::basic_handle* chen::event::handle()
+chen::basic_handle& chen::event::handle()
 {
-    return &this->_handle;
+    return this->_handle;
 }
 
 #endif

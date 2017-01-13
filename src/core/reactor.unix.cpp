@@ -60,11 +60,11 @@ chen::reactor::~reactor()
 void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
 {
     // register read or delete
-    if ((this->alter(ptr->native(), EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
+    if ((this->alter(*ptr, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register write or delete
-    if ((this->alter(ptr->native(), EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
+    if ((this->alter(*ptr, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // store event
@@ -76,12 +76,12 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
 
 void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
 {
-    this->set(ptr->handle(), cb, mode, flag);
+    this->set(&ptr->handle(), cb, mode, flag);
 }
 
 void chen::reactor::set(event *ptr, callback cb, int mode, int flag)
 {
-    this->set(ptr->handle(), cb, mode, flag);
+    this->set(&ptr->handle(), cb, mode, flag);
 }
 
 void chen::reactor::set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout)
@@ -98,22 +98,22 @@ void chen::reactor::del(basic_handle *ptr)
     this->_cache.erase(ptr);
 
     // delete read
-    if ((this->alter(ptr->native(), EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(*ptr, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 
     // delete write
-    if ((this->alter(ptr->native(), EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((this->alter(*ptr, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 }
 
 void chen::reactor::del(basic_socket *ptr)
 {
-    this->del(ptr->handle());
+    this->del(&ptr->handle());
 }
 
 void chen::reactor::del(event *ptr)
 {
-    this->del(ptr->handle());
+    this->del(&ptr->handle());
 }
 
 void chen::reactor::del(timer *ptr)

@@ -35,7 +35,7 @@ void chen::event::reset()
     ::eventfd_read(this->_fd, &dummy);
 }
 
-chen::handle_t chen::event::native() const
+chen::handle_t chen::event::handle() const
 {
     return this->_fd;
 }

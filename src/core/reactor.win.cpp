@@ -28,10 +28,10 @@ const int chen::reactor::Closed   = 1 << 2;
 chen::reactor::reactor(short count) : _count(count)
 {
     // create udp to recv wakeup message
-    this->set(this->_wakeup.native(), nullptr, ModeRead, 0);
+    this->set(this->_wakeup, nullptr, ModeRead, 0);
 
     // create udp to allow repoll when user call set or del
-    this->set(this->_repoll.native(), nullptr, ModeRead, 0);
+    this->set(this->_repoll, nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
@@ -125,7 +125,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
         {
             for (auto it = cache.begin(); it != cache.end(); ++it)
             {
-                if (it->revents && (it->fd == this->_repoll.native()))
+                if (it->revents && (it->fd == this->_repoll))
                 {
                     repoll = true;
                     break;
@@ -155,7 +155,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
             continue;
 
         // user request to stop
-        if (item.fd == this->_wakeup.native())
+        if (item.fd == this->_wakeup)
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);

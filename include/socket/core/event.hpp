@@ -28,9 +28,9 @@ namespace chen
         void reset();
 
         /**
-         * Native handle object
+         * Native event handle
          */
-        basic_handle* handle();
+        basic_handle& handle();
 
     private:
         basic_handle _handle;

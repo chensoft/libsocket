@@ -43,9 +43,9 @@ void chen::event::reset()
         ;
 }
 
-chen::handle_t chen::event::native() const
+chen::handle_t chen::event::handle() const
 {
-    return this->_socket.native();
+    return this->_socket.handle();
 }
 
 #endif
