@@ -6,7 +6,6 @@
  */
 #ifdef _WIN32
 
-#include <socket/inet/inet_address.hpp>
 #include <socket/core/reactor.hpp>
 #include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
@@ -25,33 +24,39 @@ const int chen::reactor::Readable = 1 << 0;
 const int chen::reactor::Writable = 1 << 1;
 const int chen::reactor::Closed   = 1 << 2;
 
+chen::reactor::reactor() : reactor(0)  // ignored on Windows
+{
+}
+
 chen::reactor::reactor(short count) : _count(count)
 {
     // create udp to recv wakeup message
-    this->set(this->_wakeup, nullptr, ModeRead, 0);
+    this->set(&this->_wakeup.handle(), nullptr, ModeRead, 0);
 
     // create udp to allow repoll when user call set or del
-    this->set(this->_repoll, nullptr, ModeRead, 0);
+    this->set(&this->_repoll.handle(), nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
 {
+    // clear cache before destroy poll
+    auto tmp = std::move(this->_cache);
+    for (auto &ev : tmp)
+        this->del(ev.second);
 }
 
 // modify
-void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
+void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
 {
-    std::lock_guard<std::mutex> lock(this->_mutex);
-
     // register event
-    auto find = std::find_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
-        return item.fd == fd;
+    auto find = std::find_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
+        return item.fd == *ptr;
     });
 
-    if (find == this->_cache.end())
-        find = this->_cache.insert(this->_cache.end(), ::pollfd());
+    if (find == this->_events.end())
+        find = this->_events.insert(this->_events.end(), ::pollfd());
 
-    find->fd = fd;
+    find->fd = *ptr;
     find->events = 0;
 
     if (mode & ModeRead)
@@ -60,32 +65,66 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
     if (mode & ModeWrite)
         find->events |= POLLOUT;
 
-    this->_flags[fd] = flag;
+    this->_flags[*ptr] = flag;
 
-    // register callback
-    this->_calls[fd] = cb;
+    // store event
+    this->_cache[*ptr] = ptr;
+
+    // associate callback
+    ptr->attach(this, cb);
 
     // repoll if in polling
     this->_repoll.set();
 }
 
-void chen::reactor::del(handle_t fd)
+void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
 {
-    std::lock_guard<std::mutex> lock(this->_mutex);
-    
-    // delete callback
-    this->_calls.erase(fd);
+    this->set(&ptr->handle(), cb, mode, flag);
+}
+
+void chen::reactor::set(event *ptr, callback cb, int mode, int flag)
+{
+    this->set(&ptr->handle(), cb, mode, flag);
+}
+
+void chen::reactor::set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout)
+{
+    // todo
+}
+
+void chen::reactor::del(basic_handle *ptr)
+{
+    // clear callback
+    ptr->detach();
+
+    // clear event
+    this->_cache.erase(*ptr);
 
     // delete flags
-    this->_flags.erase(fd);
+    this->_flags.erase(*ptr);
 
     // delete event
-    std::remove_if(this->_cache.begin(), this->_cache.end(), [=] (::pollfd &item) {
-        return item.fd == fd;
+    std::remove_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
+        return item.fd == *ptr;
     });
 
     // repoll if in polling
     this->_repoll.set();
+}
+
+void chen::reactor::del(basic_socket *ptr)
+{
+    this->del(&ptr->handle());
+}
+
+void chen::reactor::del(event *ptr)
+{
+    this->del(&ptr->handle());
+}
+
+void chen::reactor::del(timer *ptr)
+{
+    // todo
 }
 
 // run
@@ -103,29 +142,24 @@ std::error_code chen::reactor::poll()
 std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 {
     // poll events
-    std::vector<::pollfd> cache;
+    std::vector<::pollfd> events = this->_events;
     int result = 0;
 
     while (true)
     {
-        {
-            std::lock_guard<std::mutex> lock(this->_mutex);
-            cache = this->_cache;  // avoid race condition
-        }
-
         // reset repoll event
         this->_repoll.reset();
 
-        result = ::WSAPoll(cache.data(), cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
+        result = ::WSAPoll(events.data(), events.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
         // repoll if user call set or del when polling
         bool repoll = false;
 
         if (result == 1)
         {
-            for (auto it = cache.begin(); it != cache.end(); ++it)
+            for (auto it = events.begin(); it != events.end(); ++it)
             {
-                if (it->revents && (it->fd == this->_repoll))
+                if (it->revents && (it->fd == this->_repoll.handle()))
                 {
                     repoll = true;
                     break;
@@ -146,7 +180,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
     }
 
     // events on the same fd will be notified only once
-    for (auto it = cache.begin(); it != cache.end(); ++it)
+    for (auto it = events.begin(); it != events.end(); ++it)
     {
         auto &item = *it;
 
@@ -155,27 +189,23 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
             continue;
 
         // user request to stop
-        if (item.fd == this->_wakeup)
+        if (item.fd == this->_wakeup.handle())
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
         // invoke callback
-        callback func;
-        int flag;
+        auto hand = chen::map::find(this->_cache, item.fd);
+        auto flag = chen::map::find(this->_flags, item.fd);
 
+        if (hand)
         {
-            std::lock_guard<std::mutex> lock(this->_mutex);
-            func = chen::map::find(this->_calls, item.fd);
-            flag = chen::map::find(this->_flags, item.fd);
+            if (flag & FlagOnce)
+                this->del(hand);
+
+            hand->notify(this->type(item.revents));
         }
-
-        if (flag & FlagOnce)
-            this->del(item.fd);
-
-        if (func)
-            func(this->type(item.revents));
     }
 
     return {};

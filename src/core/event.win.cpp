@@ -7,20 +7,24 @@
 #ifdef _WIN32
 
 #include <socket/inet/inet_address.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <socket/core/event.hpp>
+#include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // event
 chen::event::event()
 {
-    this->_socket.reset(AF_INET, SOCK_DGRAM);
+    basic_socket tmp(AF_INET, SOCK_DGRAM);
 
-    if (this->_socket.bind(inet_address("127.0.0.1:0")))
+    if (tmp.bind(inet_address("127.0.0.1:0")))
         throw std::system_error(sys::error(), "event: failed to bind on socket");
 
-    if (this->_socket.nonblocking(true))
+    if (tmp.nonblocking(true))
         throw std::system_error(sys::error(), "event: failed to make nonblocking on socket");
+
+    this->_handle.change(tmp.transfer());
 }
 
 chen::event::~event()
@@ -30,22 +34,27 @@ chen::event::~event()
 void chen::event::set()
 {
     basic_socket s(AF_INET, SOCK_DGRAM);
+    basic_address a;
+
+    ::getsockname(this->_handle, (::sockaddr*)&a.addr, &a.size);
 
     // since it's a new socket, data should be written to buffer immediately
-    if (s.nonblocking(true) || (s.sendto("\n", 1, this->_socket.sock()) != 1))
+    if (s.nonblocking(true) || (s.sendto("\n", 1, a) != 1))
         throw std::system_error(sys::error(), "event: failed to set event");
 }
 
 void chen::event::reset()
 {
     char dummy;
-    while (this->_socket.recvfrom(&dummy, 1) >= 0)
+    basic_address addr;
+
+    while (::recvfrom(this->_handle, &dummy, 1, 0, (sockaddr*)&addr.addr, &addr.size) >= 0)
         ;
 }
 
-chen::handle_t chen::event::handle() const
+chen::basic_handle& chen::event::handle()
 {
-    return this->_socket.handle();
+    return this->_handle;
 }
 
 #endif

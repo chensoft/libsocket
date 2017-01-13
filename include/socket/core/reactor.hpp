@@ -10,7 +10,9 @@
 #include <socket/core/event.hpp>
 #include <socket/core/timer.hpp>
 #include <unordered_set>
+#include <unordered_map>
 #include <system_error>
+#include <vector>
 #include <chrono>
 
 namespace chen
@@ -141,7 +143,6 @@ namespace chen
 
     private:
         short _count = 0;
-        std::unordered_set<basic_handle*> _cache;
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
@@ -151,25 +152,29 @@ namespace chen
 
         handle_t _kqueue = invalid_handle;
 
+        std::unordered_set<basic_handle*> _cache;
+
 #elif defined(__linux__)
 
         // Linux, use epoll
         int type(int events);
 
-        chen::event _wakeup;
         handle_t _epoll = invalid_handle;
+
+        chen::event _wakeup;
+        std::unordered_set<basic_handle*> _cache;
 
 #else
 
         // Windows, use WSAPoll
-//        int type(int events);
-//
-//        std::vector<struct ::pollfd> _cache;
-//        std::unordered_map<handle_t, int> _flags;
-//        std::unordered_map<handle_t, callback> _calls;
-//
-//        chen::event _wakeup;
-//        chen::event _repoll;
+        int type(int events);
+
+        chen::event _wakeup;
+        chen::event _repoll;
+
+        std::vector<struct ::pollfd> _events;
+        std::unordered_map<handle_t, int> _flags;
+        std::unordered_map<handle_t, basic_handle*> _cache;
 
 #endif
     };

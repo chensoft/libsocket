@@ -14,7 +14,7 @@
 // event
 chen::event::event()
 {
-    auto fd = ::eventfd(0, EFD_NONBLOCK);
+    auto fd = ::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
     if (fd < 0)
         throw std::system_error(sys::error(), "event: failed to create eventfd");
 
