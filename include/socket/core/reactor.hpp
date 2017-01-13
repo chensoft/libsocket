@@ -173,7 +173,6 @@ namespace chen
         chen::event _repoll;
 
         std::vector<struct ::pollfd> _events;
-        std::unordered_map<handle_t, int> _flags;
         std::unordered_map<handle_t, basic_handle*> _cache;
 
 #endif

@@ -24,7 +24,7 @@ chen::event::event()
     if (tmp.nonblocking(true))
         throw std::system_error(sys::error(), "event: failed to make nonblocking on socket");
 
-    this->_handle.change(tmp.transfer());
+    this->_handle.change(tmp.handle().transfer());
 }
 
 chen::event::~event()

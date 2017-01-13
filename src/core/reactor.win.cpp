@@ -65,8 +65,6 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     if (mode & ModeWrite)
         find->events |= POLLOUT;
 
-    this->_flags[*ptr] = flag;
-
     // store event
     this->_cache[*ptr] = ptr;
 
@@ -99,9 +97,6 @@ void chen::reactor::del(basic_handle *ptr)
 
     // clear event
     this->_cache.erase(*ptr);
-
-    // delete flags
-    this->_flags.erase(*ptr);
 
     // delete event
     std::remove_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
@@ -196,15 +191,14 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
         }
 
         // invoke callback
-        auto hand = chen::map::find(this->_cache, item.fd);
-        auto flag = chen::map::find(this->_flags, item.fd);
+        auto ptr = chen::map::find(this->_cache, item.fd);
 
-        if (hand)
+        if (ptr)
         {
-            if (flag & FlagOnce)
-                this->del(hand);
+            if (ptr->flag() & FlagOnce)
+                this->del(ptr);
 
-            hand->notify(this->type(item.revents));
+            ptr->notify(this->type(item.revents));
         }
     }
 
