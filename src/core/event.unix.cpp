@@ -6,13 +6,13 @@
  */
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
-#include <socket/base/event_notify.hpp>
+#include <socket/core/event.hpp>
 #include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
 // event
-chen::event_notify::event_notify()
+chen::event::event()
 {
     handle_t pp[2]{};
 
@@ -29,26 +29,31 @@ chen::event_notify::event_notify()
     ioctl::cloexec(pp[0], true);
     ioctl::cloexec(pp[1], true);
 
-    this->change(pp[0]);   // read
+    this->_handle.change(pp[0]);  // read
     this->_write = pp[1];  // write
 }
 
-chen::event_notify::~event_notify()
+chen::event::~event()
 {
     ::close(this->_write);
 }
 
-void chen::event_notify::set()
+void chen::event::set()
 {
     ::write(this->_write, "\n", 1);
 }
 
-void chen::event_notify::reset()
+void chen::event::reset()
 {
     char buf[512];
 
-    while (::read(this->native(), buf, 512) >= 0)
+    while (::read(this->_handle.native(), buf, 512) >= 0)
         ;
+}
+
+chen::basic_handle& chen::event::handle()
+{
+    return this->_handle;
 }
 
 #endif

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/base/event_notify.hpp>
+#include <socket/core/event.hpp>
 #include <unordered_set>
 #include <system_error>
 #include <chrono>

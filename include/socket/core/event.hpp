@@ -10,11 +10,11 @@
 
 namespace chen
 {
-    class event_notify : public basic_handle
+    class event
     {
     public:
-        event_notify();
-        ~event_notify();
+        event();
+        ~event();
 
     public:
         /**
@@ -27,7 +27,14 @@ namespace chen
          */
         void reset();
 
+        /**
+         * Native handle object
+         */
+        basic_handle& handle();
+
     private:
+        basic_handle _handle;
+
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use pipe

@@ -10,11 +10,11 @@
 
 namespace chen
 {
-    class event_timer
+    class timer
     {
     public:
-        event_timer();
-        ~event_timer();
+        timer();
+        ~timer();
 
     public:
         // todo allow specify date and chrono
