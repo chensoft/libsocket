@@ -49,7 +49,7 @@ void server_thread(basic_socket &s)
 
         // unregister it
         if (type & reactor::Closed)
-            r.del(conn.get());
+            r.del(&conn->handle());
 
         // read data from client
         auto size = conn->available();
@@ -80,10 +80,10 @@ void server_thread(basic_socket &s)
         cache.emplace_back(std::move(conn));  // prevent connection released
 
         // register event for conn
-        r.set(cache.back().get(), std::bind(handler_connection, cache.size() - 1, _1), reactor::ModeRead, 0);
+        r.set(&cache.back()->handle(), std::bind(handler_connection, cache.size() - 1, _1), reactor::ModeRead, 0);
     };
 
-    r.set(&s, handler_server, reactor::ModeRead, 0);
+    r.set(&s.handle(), handler_server, reactor::ModeRead, 0);
 
     r.run();
 }

@@ -6,11 +6,11 @@
  */
 #pragma once
 
-#include <socket/base/basic_event.hpp>
+#include <socket/base/basic_handle.hpp>
 
 namespace chen
 {
-    class event_notify : public basic_event
+    class event_notify : public basic_handle
     {
     public:
         event_notify();

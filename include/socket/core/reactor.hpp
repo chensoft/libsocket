@@ -89,7 +89,7 @@ namespace chen
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          */
-        void set(basic_event *ev, callback cb, int mode, int flag);
+        void set(basic_handle *ev, callback cb, int mode, int flag);
 
         // todo add set method, accept timer *fd, pass expiration time to user via callback
 
@@ -97,7 +97,7 @@ namespace chen
          * Delete event
          * @note this method will be called automatically when ev is destroyed
          */
-        void del(basic_event *ev);
+        void del(basic_handle *ev);
 
     public:
         /**
@@ -131,7 +131,7 @@ namespace chen
 
     private:
         short _count = 0;
-        std::unordered_set<basic_event*> _cache;
+        std::unordered_set<basic_handle*> _cache;
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 

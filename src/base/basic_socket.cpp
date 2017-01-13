@@ -41,9 +41,9 @@ void chen::basic_socket::reset()
         throw std::runtime_error("socket: reset failed because family is unknown");
 
 #ifdef __linux__
-    this->change(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
+    this->_handle.change(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
 #else
-    this->change(::socket(this->_family, this->_type, this->_protocol));
+    this->_handle.change(::socket(this->_family, this->_type, this->_protocol));
     ioctl::cloexec(this->native(), true);
 #endif
 
@@ -73,7 +73,7 @@ void chen::basic_socket::reset(handle_t fd) noexcept
 
 void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) noexcept
 {
-    this->change(fd);
+    this->_handle.change(fd);
 
     this->_family   = family;
     this->_type     = type;
@@ -217,6 +217,16 @@ void chen::basic_socket::shutdown(Shutdown type) noexcept
     }
 }
 
+void chen::basic_socket::close() noexcept
+{
+    this->_handle.close();
+}
+
+chen::handle_t chen::basic_socket::transfer() noexcept
+{
+    return this->_handle.transfer();
+}
+
 // property
 chen::basic_address chen::basic_socket::peer() const noexcept
 {
@@ -250,6 +260,11 @@ bool chen::basic_socket::valid() const noexcept
 chen::basic_socket::operator bool() const noexcept
 {
     return this->valid();
+}
+
+chen::basic_handle& chen::basic_socket::handle() noexcept
+{
+    return this->_handle;
 }
 
 std::size_t chen::basic_socket::available() const noexcept

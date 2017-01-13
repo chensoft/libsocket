@@ -14,14 +14,14 @@ namespace chen
     class reactor;
 
     /**
-     * This is the event base class, other classes that want
-     * to use in the reactor must be derived from this class
+     * This class represent a handle value, classes that want
+     * to use in the reactor can make an instance of this class
      */
-    class basic_event
+    class basic_handle
     {
     public:
-        basic_event() = default;
-        ~basic_event() noexcept;
+        basic_handle() = default;
+        ~basic_handle() noexcept;
 
     public:
         /**
@@ -49,9 +49,7 @@ namespace chen
          */
         handle_t transfer() noexcept;
 
-    private:
-        friend class reactor;
-
+    public:
         /**
          * Used by reactor only, bind, delete and emit callback
          */
@@ -63,10 +61,10 @@ namespace chen
         /**
          * Disable copy & move
          * if you want to store object in container, you can
-         * use smart pointer like std::unique_ptr<basic_event>
+         * use smart pointer like std::unique_ptr<basic_handle>
          */
-        basic_event(const basic_event&) = delete;
-        basic_event& operator=(const basic_event&) = delete;
+        basic_handle(const basic_handle&) = delete;
+        basic_handle& operator=(const basic_handle&) = delete;
 
     private:
         handle_t _fd = invalid_handle;

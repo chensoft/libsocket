@@ -8,7 +8,7 @@
 
 #include <socket/base/basic_address.hpp>
 #include <socket/base/basic_option.hpp>
-#include <socket/base/basic_event.hpp>
+#include <socket/base/basic_handle.hpp>
 
 namespace chen
 {
@@ -16,7 +16,7 @@ namespace chen
      * BSD socket wrapper, usually you don't need to use it directly
      * use tcp_client, tcp_server, udp_client, udp_server instead
      */
-    class basic_socket : public basic_event
+    class basic_socket
     {
     public:
         enum class Shutdown {Read = 1, Write, Both};
@@ -126,14 +126,14 @@ namespace chen
         /**
          * Close the socket, the socket will disconnect immediately
          */
-        using basic_event::close;
+        void close() noexcept;
 
         /**
          * Detach the socket handle, you must close the handle manually
          * @note the family, type and protocol info is preserved
          * @note this method is dangerous, you may leak the handle if you forget to close it
          */
-        using basic_event::transfer;
+        handle_t transfer() noexcept;
 
     public:
         /**
@@ -166,7 +166,12 @@ namespace chen
         /**
          * Native socket handle
          */
-        using basic_event::native;
+        handle_t native() const noexcept
+        {
+            return this->_handle.native();
+        }
+
+        basic_handle& handle() noexcept;
 
         /**
          * Available bytes to read without blocking
@@ -181,6 +186,8 @@ namespace chen
         int protocol() const noexcept;
 
     private:
+        basic_handle _handle;  // socket descriptor
+
         // used for reset socket
         // only type is valid if you construct from a socket descriptor
         int _family   = 0;

@@ -4,23 +4,23 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/base/basic_event.hpp>
+#include <socket/base/basic_handle.hpp>
 #include <socket/core/reactor.hpp>
 
 // -----------------------------------------------------------------------------
-// basic_event
-chen::basic_event::~basic_event() noexcept
+// basic_handle
+chen::basic_handle::~basic_handle() noexcept
 {
     this->close();
 }
 
-void chen::basic_event::change(handle_t fd) noexcept
+void chen::basic_handle::change(handle_t fd) noexcept
 {
     this->close();
     this->_fd = fd;
 }
 
-void chen::basic_event::close() noexcept
+void chen::basic_handle::close() noexcept
 {
     auto fd = this->transfer();
     if (fd == invalid_handle)
@@ -34,7 +34,7 @@ void chen::basic_event::close() noexcept
 #endif
 }
 
-chen::handle_t chen::basic_event::transfer() noexcept
+chen::handle_t chen::basic_handle::transfer() noexcept
 {
     if (this->_rt)
         this->_rt->del(this);
@@ -44,7 +44,7 @@ chen::handle_t chen::basic_event::transfer() noexcept
     return temp;
 }
 
-void chen::basic_event::attach(reactor *rt, std::function<void (int type)> cb) noexcept
+void chen::basic_handle::attach(reactor *rt, std::function<void (int type)> cb) noexcept
 {
     if (this->_rt)
         this->_rt->del(this);
@@ -53,13 +53,13 @@ void chen::basic_event::attach(reactor *rt, std::function<void (int type)> cb) n
     this->_cb = cb;
 }
 
-void chen::basic_event::detach() noexcept
+void chen::basic_handle::detach() noexcept
 {
     this->_rt = nullptr;
     this->_cb = nullptr;
 }
 
-void chen::basic_event::notify(int type) noexcept
+void chen::basic_handle::notify(int type) noexcept
 {
     if (this->_cb)
         this->_cb(type);

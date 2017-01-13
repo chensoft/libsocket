@@ -57,7 +57,7 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(basic_event *ev, callback cb, int mode, int flag)
+void chen::reactor::set(basic_handle *ev, callback cb, int mode, int flag)
 {
     // register read or delete
     if ((this->alter(ev->native(), EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ev) < 0) && (errno != ENOENT))
@@ -74,7 +74,7 @@ void chen::reactor::set(basic_event *ev, callback cb, int mode, int flag)
     ev->attach(this, cb);
 }
 
-void chen::reactor::del(basic_event *ev)
+void chen::reactor::del(basic_handle *ev)
 {
     // clear callback
     ev->detach();
@@ -159,7 +159,7 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = events[i];
-        auto   ptr = static_cast<basic_event*>(item.udata);
+        auto   ptr = static_cast<basic_handle*>(item.udata);
 
         // user request to stop
         if (item.filter == EVFILT_USER)
