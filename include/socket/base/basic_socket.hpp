@@ -171,7 +171,7 @@ namespace chen
             return this->_handle.native();
         }
 
-        basic_handle& handle() noexcept;
+        basic_handle* handle() noexcept;
 
         /**
          * Available bytes to read without blocking

@@ -51,9 +51,9 @@ void chen::event::reset()
         ;
 }
 
-chen::basic_handle& chen::event::handle()
+chen::basic_handle* chen::event::handle()
 {
-    return this->_handle;
+    return &this->_handle;
 }
 
 #endif

@@ -30,7 +30,7 @@ namespace chen
         /**
          * Native handle object
          */
-        basic_handle& handle();
+        basic_handle* handle();
 
     private:
         basic_handle _handle;

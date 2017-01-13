@@ -262,9 +262,9 @@ chen::basic_socket::operator bool() const noexcept
     return this->valid();
 }
 
-chen::basic_handle& chen::basic_socket::handle() noexcept
+chen::basic_handle* chen::basic_socket::handle() noexcept
 {
-    return this->_handle;
+    return &this->_handle;
 }
 
 std::size_t chen::basic_socket::available() const noexcept

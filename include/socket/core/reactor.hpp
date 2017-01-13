@@ -6,7 +6,9 @@
  */
 #pragma once
 
+#include <socket/base/basic_socket.hpp>
 #include <socket/core/event.hpp>
+#include <socket/core/timer.hpp>
 #include <unordered_set>
 #include <system_error>
 #include <chrono>
@@ -89,15 +91,23 @@ namespace chen
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          */
-        void set(basic_handle *ev, callback cb, int mode, int flag);
+        void set(basic_handle *ptr, callback cb, int mode, int flag);
 
-        // todo add set method, accept timer *fd, pass expiration time to user via callback
+        /**
+         * Specific methods for socket, event, timer, and etc
+         */
+        void set(basic_socket *ptr, callback cb, int mode, int flag);
+        void set(event *ptr, callback cb, int mode, int flag);
+        void set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout);
 
         /**
          * Delete event
          * @note this method will be called automatically when ev is destroyed
          */
-        void del(basic_handle *ev);
+        void del(basic_handle *ptr);
+        void del(basic_socket *ptr);
+        void del(event *ptr);
+        void del(timer *ptr);
 
     public:
         /**
