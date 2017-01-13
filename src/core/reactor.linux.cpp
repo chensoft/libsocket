@@ -7,7 +7,6 @@
 #ifdef __linux__
 
 #include <socket/core/reactor.hpp>
-#include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
 #include <limits>
 
@@ -24,6 +23,10 @@ const int chen::reactor::Readable = 1 << 0;
 const int chen::reactor::Writable = 1 << 1;
 const int chen::reactor::Closed   = 1 << 2;
 
+chen::reactor::reactor() : reactor(64)  // 64 is enough
+{
+}
+
 chen::reactor::reactor(short count) : _count(count)
 {
     // create epoll file descriptor
@@ -31,16 +34,21 @@ chen::reactor::reactor(short count) : _count(count)
         throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
     // create eventfd to recv wakeup message
-    this->set(this->_wakeup, nullptr, ModeRead, 0);
+    this->set(&this->_wakeup.handle(), nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
 {
+    // clear cache before destroy epoll
+    auto tmp = std::move(this->_cache);
+    for (auto &ev : tmp)
+        this->del(ev);
+
     ::close(this->_epoll);
 }
 
 // modify
-void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
+void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
 {
     ::epoll_event event{};
 
@@ -50,32 +58,64 @@ void chen::reactor::set(handle_t fd, callback cb, int mode, int flag)
     if (mode & ModeWrite)
         event.events |= EPOLLOUT;
 
-    event.events |= flag | EPOLLRDHUP;
-    event.data.fd = fd;
+    event.events  |= flag | EPOLLRDHUP;
+    event.data.ptr = ptr;
 
     // register event
-    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
+    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, *ptr, &event) != 0)
     {
-        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
+        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, *ptr, &event) != 0))
             throw std::system_error(sys::error(), "reactor: failed to set event");
     }
 
-    // register callback
-    std::lock_guard<std::mutex> lock(this->_mutex);
-    this->_calls[fd] = cb;
+    // store event
+    this->_cache.insert(ptr);
+
+    // associate callback
+    ptr->attach(this, cb);
 }
 
-void chen::reactor::del(handle_t fd)
+void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
 {
-    // delete callback
-    {
-        std::lock_guard<std::mutex> lock(this->_mutex);
-        this->_calls.erase(fd);
-    }
+    this->set(&ptr->handle(), cb, mode, flag);
+}
+
+void chen::reactor::set(event *ptr, callback cb, int mode, int flag)
+{
+    this->set(&ptr->handle(), cb, mode, flag);
+}
+
+void chen::reactor::set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout)
+{
+    // todo
+}
+
+void chen::reactor::del(basic_handle *ptr)
+{
+    // clear callback
+    ptr->detach();
+
+    // clear event
+    this->_cache.erase(ptr);
 
     // delete event
-    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
+    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, *ptr, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "reactor: failed to delete event");
+}
+
+void chen::reactor::del(basic_socket *ptr)
+{
+    this->del(&ptr->handle());
+}
+
+void chen::reactor::del(event *ptr)
+{
+    this->del(&ptr->handle());
+}
+
+void chen::reactor::del(timer *ptr)
+{
+    // todo
 }
 
 // run
@@ -113,22 +153,15 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
         auto &item = events[i];
 
         // user request to stop
-        if (item.data.fd == this->_wakeup)
+        if (item.data.ptr == &this->_wakeup.handle())
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        // invoke callback
-        callback cb;
-
-        {
-            std::lock_guard<std::mutex> lock(this->_mutex);
-            cb = chen::map::find(this->_calls, item.data.fd);
-        }
-
-        if (cb)
-            cb(this->type(item.events));
+        // normal callback
+        if (item.data.ptr)
+            static_cast<basic_handle*>(item.data.ptr)->notify(this->type(item.events));
     }
 
     return {};

@@ -14,30 +14,31 @@
 // event
 chen::event::event()
 {
-    this->_fd = ::eventfd(0, EFD_NONBLOCK);
-    if (this->_fd < 0)
+    auto fd = ::eventfd(0, EFD_NONBLOCK);
+    if (fd < 0)
         throw std::system_error(sys::error(), "event: failed to create eventfd");
+
+    this->_handle.change(fd);
 }
 
 chen::event::~event()
 {
-    ::close(this->_fd);
 }
 
 void chen::event::set()
 {
-    ::eventfd_write(this->_fd, 1);
+    ::eventfd_write(this->_handle, 1);
 }
 
 void chen::event::reset()
 {
     ::eventfd_t dummy;
-    ::eventfd_read(this->_fd, &dummy);
+    ::eventfd_read(this->_handle, &dummy);
 }
 
-chen::handle_t chen::event::handle() const
+chen::basic_handle& chen::event::handle()
 {
-    return this->_fd;
+    return this->_handle;
 }
 
 #endif

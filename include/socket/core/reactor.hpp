@@ -154,13 +154,10 @@ namespace chen
 #elif defined(__linux__)
 
         // Linux, use epoll
-//        int type(int events);
-//
-//        handle_t _epoll = invalid_handle;
-//
-//        chen::event _wakeup;
-//        std::vector<struct ::epoll_event> _cache;
-//        std::unordered_map<handle_t, callback> _calls;
+        int type(int events);
+
+        chen::event _wakeup;
+        handle_t _epoll = invalid_handle;
 
 #else
 
