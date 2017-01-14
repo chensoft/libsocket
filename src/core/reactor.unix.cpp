@@ -6,10 +6,7 @@
  */
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
-#include <socket/base/basic_socket.hpp>
 #include <socket/core/reactor.hpp>
-#include <socket/core/event.hpp>
-#include <socket/core/timer.hpp>
 #include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
 #include <memory>

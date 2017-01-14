@@ -137,12 +137,14 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
 {
+    int flags = 0;
+
 #ifdef MSG_NOSIGNAL
     // this macro is defined on Linux to prevent SIGPIPE on this socket
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::recvfrom(this->_handle, (char*)data, size, 0, nullptr, nullptr);
+    return ::recvfrom(this->_handle, (char*)data, size, flags, nullptr, nullptr);
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr) noexcept

@@ -6,7 +6,7 @@
  */
 #pragma once
 
-#include <socket/base/basic_handle.hpp>
+#include <socket/base/basic_socket.hpp>
 
 namespace chen
 {
@@ -40,10 +40,14 @@ namespace chen
         // Unix, use pipe
         handle_t _write = invalid_handle;
 
+#elif defined(_WIN32)
+
+        // Windows, use udp
+        basic_socket _write;
+
 #else
 
         // Linux, use eventfd
-        // Windows, use udp
 
 #endif
     };

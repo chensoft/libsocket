@@ -6,10 +6,7 @@
  */
 #ifdef __linux__
 
-#include <socket/base/basic_socket.hpp>
 #include <socket/core/reactor.hpp>
-#include <socket/core/event.hpp>
-#include <socket/core/timer.hpp>
 #include <chen/sys/sys.hpp>
 #include <limits>
 
