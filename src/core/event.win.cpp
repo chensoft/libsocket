@@ -45,10 +45,9 @@ void chen::event::set()
 
 void chen::event::reset()
 {
-    char dummy;
-    basic_address addr;
+    char buf[512];
 
-    while (::recvfrom(this->_handle, &dummy, 1, 0, (sockaddr*)&addr.addr, &addr.size) >= 0)
+    while (::recvfrom(this->_handle, &buf, 512, 0, nullptr, nullptr) >= 0)
         ;
 }
 

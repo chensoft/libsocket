@@ -56,7 +56,7 @@ namespace chen
         void reset();
 
         /**
-         * Reset socket by the newly created socket
+         * Reset socket by the socket info
          */
         void reset(int family, int type, int protocol);
 
@@ -113,7 +113,6 @@ namespace chen
         /**
          * Send data to specific host, used in datagram socket
          */
-        ssize_t sendto(const void *data, std::size_t size) noexcept;
         ssize_t sendto(const void *data, std::size_t size, const basic_address &addr) noexcept;
         ssize_t sendto(const void *data, std::size_t size, const basic_address &addr, int flags) noexcept;
 

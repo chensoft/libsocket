@@ -52,7 +52,7 @@ namespace chen
 
     public:
         /**
-         * Used by reactor only, bind, delete and emit callback
+         * Used by reactor only, bind, clear and emit callback
          */
         void attach(reactor *rt, std::function<void (int type)> cb, int mode, int flag) noexcept;
         void detach() noexcept;

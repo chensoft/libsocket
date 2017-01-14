@@ -6,7 +6,10 @@
  */
 #ifdef _WIN32
 
+#include <socket/base/basic_socket.hpp>
 #include <socket/core/reactor.hpp>
+#include <socket/core/event.hpp>
+#include <socket/core/timer.hpp>
 #include <chen/base/map.hpp>
 #include <chen/sys/sys.hpp>
 #include <algorithm>

@@ -6,9 +6,7 @@
  */
 #pragma once
 
-#include <socket/base/basic_socket.hpp>
-#include <socket/core/event.hpp>
-#include <socket/core/timer.hpp>
+#include <socket/config.hpp>
 #include <unordered_set>
 #include <unordered_map>
 #include <system_error>
@@ -17,8 +15,13 @@
 
 namespace chen
 {
+    class basic_handle;
+    class basic_socket;
+    class event;
+    class timer;
+
     /**
-     * Reactor implements a reactor event loop, note that it is not thread-safe, except the stop method
+     * Reactor implements a reactor event loop, note that only the stop method is thread-safe
      * @link https://en.wikipedia.org/wiki/Reactor_pattern
      */
     class reactor

@@ -137,8 +137,12 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
 {
-    basic_address addr;
-    return this->recvfrom(data, size, addr, 0);
+#ifdef MSG_NOSIGNAL
+    // this macro is defined on Linux to prevent SIGPIPE on this socket
+    flags |= MSG_NOSIGNAL;
+#endif
+
+    return ::recvfrom(this->_handle, (char*)data, size, 0, nullptr, nullptr);
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr) noexcept
@@ -169,12 +173,6 @@ chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int f
 #endif
 
     return ::send(this->_handle, (char*)data, size, flags);
-}
-
-chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size) noexcept
-{
-    basic_address addr;
-    return this->sendto(data, size, addr, 0);
 }
 
 chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr) noexcept
