@@ -68,7 +68,10 @@ void chen::basic_handle::detach() noexcept
 void chen::basic_handle::notify(int type) noexcept
 {
     if (this->_cb)
-        this->_cb(type);
+    {
+        auto copy = this->_cb;
+        copy(type);
+    }
 }
 
 int chen::basic_handle::mode() const noexcept
