@@ -1,12 +1,13 @@
 /**
  * Created by Jian Chen
- * @since  2017.01.07
+ * @since  2017.01.15
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
 #pragma once
 
 #include <socket/base/basic_handle.hpp>
+#include <chrono>
 
 namespace chen
 {
@@ -17,40 +18,61 @@ namespace chen
         ~timer();
 
     public:
-        // todo allow specify date and chrono
-        // todo allow specify only once or repeated
         /**
-         * Set timeout
+         * Invoke callback only once after a period of time
+         * @note timer is a steady clock, will not affected by the wall clock
          */
-        void set(double timeout);
+        void timeout(const std::chrono::nanoseconds &value);
 
         /**
-         * Clear timeout
+         * Invoke callback repeatedly after a period of time
+         * @note timer is a steady clock, will not affected by the wall clock
+         */
+        void interval(const std::chrono::nanoseconds &value);
+
+        /**
+         * Invoke callback from now on after a period of time
+         * @note timer is a system clock, will affected by the wall clock
+         */
+        void future(const std::chrono::nanoseconds &value);
+
+        /**
+         * Invoke callback in a future calendar date
+         * @note timer is a system clock, will affected by the wall clock
+         */
+        void future(const std::chrono::time_point<std::chrono::system_clock> &value);
+
+        /**
+         * Reset timer state
          */
         void reset();
 
+    public:
         // todo allow retrieve original time
         // todo allow retrieve interval time
 
+    public:
         /**
-         * Native timer event
-         * you can use it in reactor, usually you register it with ModeRead, if
-         * Readable event occurs then you can reset the timeout and do your jobs
+         * Native timer handle
+         * @note used by reactor only, valid under the Linux
          */
-        basic_handle& handle() const;
+        basic_handle& handle();
+
+        /**
+         * Update the timer
+         * @note used by reactor only, valid under non-Linux
+         */
+        void update(const std::chrono::time_point<std::chrono::steady_clock> &value);
+        void update(const std::chrono::time_point<std::chrono::system_clock> &value);
 
     private:
-#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
+#ifdef __linux__
 
-        // unix
-
-#elif defined(__linux__)
-
-        // linux
+        // Linux, use timerfd
 
 #else
 
-        // win
+        // Unix, Windows, calculate the time manually
 
 #endif
     };
