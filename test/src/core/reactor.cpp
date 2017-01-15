@@ -47,10 +47,6 @@ void server_thread(basic_socket &s)
         // you should read the rest of the data even if you received the closed event
         EXPECT_TRUE((type & reactor::Readable) || (type & reactor::Closed));
 
-        // unregister it
-        if (type & reactor::Closed)
-            r.del(conn.get());
-
         // read data from client
         auto size = conn->available();
         EXPECT_GE(size, 0u);

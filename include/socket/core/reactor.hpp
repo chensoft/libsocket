@@ -103,7 +103,7 @@ namespace chen
 
         /**
          * Delete event
-         * @note this method will be called automatically when ptr is destroyed
+         * @note this method will be called automatically when object destroyed, event is Closed or flag is FlagOnce
          */
         void del(basic_handle *ptr);
         void del(basic_socket *ptr);

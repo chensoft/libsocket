@@ -36,7 +36,8 @@ void chen::basic_handle::close() noexcept
 
 chen::handle_t chen::basic_handle::transfer() noexcept
 {
-    if (this->_rt)
+    // check cb, not rt, rt's value is always preserved unless reactor call attach
+    if (this->_cb)
         this->_rt->del(this);
 
     auto temp = this->_fd;
@@ -46,7 +47,7 @@ chen::handle_t chen::basic_handle::transfer() noexcept
 
 void chen::basic_handle::attach(reactor *rt, std::function<void (int type)> cb, int mode, int flag) noexcept
 {
-    if (this->_rt)
+    if (this->_cb)
         this->_rt->del(this);
 
     this->_rt = rt;
@@ -58,28 +59,8 @@ void chen::basic_handle::attach(reactor *rt, std::function<void (int type)> cb, 
 
 void chen::basic_handle::detach() noexcept
 {
-    this->_rt = nullptr;
+    // only reset callback because reactor will call detach when
+    // type is Closed or flag is Once, user may still want to know
+    // handle's info, so keep the value of the other fields
     this->_cb = nullptr;
-
-    this->_mode = 0;
-    this->_flag = 0;
-}
-
-void chen::basic_handle::notify(int type) noexcept
-{
-    if (this->_cb)
-    {
-        auto copy = this->_cb;
-        copy(type);
-    }
-}
-
-int chen::basic_handle::mode() const noexcept
-{
-    return this->_mode;
-}
-
-int chen::basic_handle::flag() const noexcept
-{
-    return this->_flag;
 }

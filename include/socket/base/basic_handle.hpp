@@ -15,7 +15,7 @@ namespace chen
 
     /**
      * This class represent a handle value, classes that want
-     * to use in the reactor can make an instance of this class
+     * to use in the reactor can add an instance of this class
      */
     class basic_handle
     {
@@ -30,6 +30,24 @@ namespace chen
         operator chen::handle_t() const noexcept
         {
             return this->_fd;
+        }
+
+        /**
+         * Mode, Flag & Callback set by the reactor
+         */
+        int mode() const noexcept
+        {
+            return this->_mode;
+        }
+
+        int flag() const noexcept
+        {
+            return this->_flag;
+        }
+
+        std::function<void (int type)> callback() const noexcept
+        {
+            return this->_cb;
         }
 
     public:
@@ -56,10 +74,6 @@ namespace chen
          */
         void attach(reactor *rt, std::function<void (int type)> cb, int mode, int flag) noexcept;
         void detach() noexcept;
-        void notify(int type) noexcept;
-
-        int mode() const noexcept;
-        int flag() const noexcept;
 
     private:
         /**

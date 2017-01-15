@@ -31,10 +31,10 @@ chen::reactor::reactor() : reactor(0)  // ignored on Windows
 chen::reactor::reactor(short count) : _count(count)
 {
     // create udp to recv wakeup message
-    this->set(&this->_wakeup.handle(), nullptr, ModeRead, 0);
+    this->set(&this->_wakeup, nullptr, ModeRead, 0);
 
     // create udp to allow repoll when user call set or del
-    this->set(&this->_repoll.handle(), nullptr, ModeRead, 0);
+    this->set(&this->_repoll, nullptr, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
@@ -195,10 +195,14 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
         if (ptr)
         {
-            if (ptr->flag() & FlagOnce)
+            auto cb = ptr->callback();
+            auto tp = this->type(item.revents);
+
+            if ((tp & Closed) || (ptr->flag() & FlagOnce))
                 this->del(ptr);
 
-            ptr->notify(this->type(item.revents));
+            if (cb)
+                cb(tp);
         }
     }
 

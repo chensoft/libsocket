@@ -197,10 +197,13 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
         // normal callback
         if (ptr)
         {
-            if (ptr->flag() & FlagOnce)
+            auto cb = ptr->callback();
+
+            if ((item.filter & Closed) || (ptr->flag() & FlagOnce))
                 this->del(ptr);
 
-            ptr->notify(item.filter);
+            if (cb)
+                cb(item.filter);
         }
     }
 
