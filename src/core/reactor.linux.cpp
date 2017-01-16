@@ -34,7 +34,7 @@ chen::reactor::reactor(short count) : _count(count)
         throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
     // create eventfd to recv wakeup message
-    this->set(&this->_wakeup, nullptr, ModeRead, 0);
+    this->set(&this->_wakeup, nullptr, 0);
 }
 
 chen::reactor::~reactor()
@@ -80,12 +80,12 @@ void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
     this->set(&ptr->handle(), cb, mode, flag);
 }
 
-void chen::reactor::set(event *ptr, callback cb, int mode, int flag)
+void chen::reactor::set(event *ptr, callback cb, int flag)
 {
-    this->set(&ptr->handle(), cb, mode, flag);
+    this->set(&ptr->handle(), cb, ModeRead, flag);
 }
 
-void chen::reactor::set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout)
+void chen::reactor::set(timer *ptr, callback cb)
 {
     // todo
 }

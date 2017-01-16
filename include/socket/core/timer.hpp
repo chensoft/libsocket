@@ -20,37 +20,28 @@ namespace chen
     public:
         /**
          * Invoke callback only once after a period of time
-         * @note timer is a steady clock, will not affected by the wall clock
          */
         void timeout(const std::chrono::nanoseconds &value);
 
         /**
          * Invoke callback repeatedly after a period of time
-         * @note timer is a steady clock, will not affected by the wall clock
          */
         void interval(const std::chrono::nanoseconds &value);
 
         /**
          * Invoke callback from now on after a period of time
-         * @note timer is a system clock, will affected by the wall clock
          */
         void future(const std::chrono::nanoseconds &value);
 
         /**
          * Invoke callback in a future calendar date
-         * @note timer is a system clock, will affected by the wall clock
          */
-        void future(const std::chrono::time_point<std::chrono::system_clock> &value);
+        void future(const std::chrono::system_clock::time_point &value);
 
     public:
         /**
          * Timer info
          */
-        bool steady() const
-        {
-            return this->_steady;
-        }
-
         bool repeat() const
         {
             return this->_repeat;
@@ -69,32 +60,42 @@ namespace chen
     public:
         /**
          * Native timer handle
-         * @note used by reactor only, valid under the Linux
+         * @note used by reactor only, fd is only valid under Linux
          */
-        basic_handle& handle();
+        basic_handle& handle()
+        {
+            return this->_handle;
+        }
 
         /**
-         * Update the timer
+         * Check if expire
          * @note used by reactor only, valid under non-Linux
          */
-        void update(const std::chrono::time_point<std::chrono::steady_clock> &value);
-        void update(const std::chrono::time_point<std::chrono::system_clock> &value);
+        bool expire(const std::chrono::system_clock::time_point &value) const;
+
+        /**
+         * Update timer
+         * @note used by reactor only, valid under non-Linux, must erase timer from set before call it
+         */
+        void update(const std::chrono::system_clock::time_point &value);
+
+        /**
+         * Comparator class
+         */
+        struct compare
+        {
+            bool operator()(const timer *a, const timer *b) const
+            {
+                return a->_target < b->_target;
+            }
+        };
 
     private:
-        bool _steady = false;
+        basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS
+
         bool _repeat = false;
 
-        std::chrono::nanoseconds _origin;  // origin time set by timeout, interval or future
-        std::chrono::nanoseconds _target;  // the next trigger time, it's a unix timestamp
-
-#ifdef __linux__
-
-        // Linux, use timerfd
-
-#else
-
-        // Unix, Windows, calculate the time manually
-
-#endif
+        std::chrono::nanoseconds _origin;  // origin timestamp or interval
+        std::chrono::nanoseconds _target;  // the next trigger timestamp
     };
 }

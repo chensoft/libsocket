@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <system_error>
 #include <vector>
+#include <set>
 
 namespace chen
 {
@@ -73,13 +74,6 @@ namespace chen
         static const int Writable;
         static const int Closed;
 
-        /**
-         * Event callback
-         * @note use bitwise and to check the event type, e.g: if (type & Readable)
-         * @note if you want to bind custom params to callback, you can use std::bind
-         */
-        typedef std::function<void (int type)> callback;
-
     public:
         reactor();
         reactor(short count);  // max events returned after a polling, it will be ignored on Windows
@@ -88,17 +82,19 @@ namespace chen
     public:
         /**
          * Monitor event
+         * @param cb you can use std::bind to bind custom param
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
+         * @note use bitwise and to check the event type, e.g: if (type & Readable)
          */
-        void set(basic_handle *ptr, callback cb, int mode, int flag);
+        void set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag);
 
         /**
          * Specific methods for socket, event, timer, and etc
          */
-        void set(basic_socket *ptr, callback cb, int mode, int flag);
-        void set(event *ptr, callback cb, int mode, int flag);
-        void set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout);
+        void set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag);
+        void set(event *ptr, std::function<void ()> cb, int flag);
+        void set(timer *ptr, std::function<void ()> cb);
 
         /**
          * Delete event
@@ -127,7 +123,7 @@ namespace chen
          * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
          * @note it's useful when you want to use it in your own runloop, you can use zero timeout and call it in every frame
          */
-        std::error_code poll(const std::chrono::nanoseconds &timeout);
+        std::error_code poll(std::chrono::nanoseconds timeout);
 
         /**
          * Stop the poll
@@ -147,9 +143,11 @@ namespace chen
         // Unix, use kqueue
         int type(int filter, int flags);
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
+        bool update();
 
         handle_t _kqueue = invalid_handle;
 
+        std::set<timer*, timer::compare> _timers;
         std::unordered_set<basic_handle*> _cache;
 
 #elif defined(__linux__)
@@ -166,11 +164,13 @@ namespace chen
 
         // Windows, use WSAPoll
         int type(int events);
+        bool update();
 
         chen::event _wakeup;
         chen::event _repoll;
 
         std::vector<struct ::pollfd> _events;
+        std::set<timer*, timer::compare> _timers;
         std::unordered_map<handle_t, basic_handle*> _cache;
 
 #endif

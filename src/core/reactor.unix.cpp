@@ -52,11 +52,15 @@ chen::reactor::~reactor()
     for (auto &ev : tmp)
         this->del(ev);
 
+    auto set = std::move(this->_timers);
+    for (auto *ptr : set)
+        this->del(ptr);
+
     ::close(this->_kqueue);
 }
 
 // modify
-void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
+void chen::reactor::set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag)
 {
     // register read or delete
     if ((this->alter(*ptr, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
@@ -73,19 +77,24 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     ptr->attach(this, std::move(cb), mode, flag);
 }
 
-void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
+void chen::reactor::set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag)
 {
     this->set(&ptr->handle(), std::move(cb), mode, flag);
 }
 
-void chen::reactor::set(event *ptr, callback cb, int mode, int flag)
+void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 {
-    this->set(&ptr->handle(), std::move(cb), mode, flag);
+    this->set(&ptr->handle(), [=] (int type) {
+        cb();
+    }, ModeRead, flag);
 }
 
-void chen::reactor::set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout)
+void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
-    // todo
+    this->_timers.insert(ptr);
+    ptr->handle().attach(this, [=] (int type) {
+        cb();
+    }, 0, 0);  // mode & flag is useless
 }
 
 void chen::reactor::del(basic_handle *ptr)
@@ -117,7 +126,8 @@ void chen::reactor::del(event *ptr)
 
 void chen::reactor::del(timer *ptr)
 {
-    // todo
+    ptr->handle().detach();
+    this->_timers.erase(ptr);
 }
 
 // run
@@ -132,13 +142,27 @@ std::error_code chen::reactor::poll()
     return this->poll(std::chrono::nanoseconds::min());
 }
 
-std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
+std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 {
+    // calculate the most recent time
+    auto zero = std::chrono::nanoseconds::zero();
+
+    if (!this->_timers.empty())
+    {
+        auto timer = *this->_timers.begin();
+        auto value = timer->target() - std::chrono::system_clock::now().time_since_epoch();
+
+        if (timeout < zero)
+            timeout = std::max(zero, value);
+        else
+            timeout = std::min(std::max(zero, value), timeout);
+    }
+
     // poll events
     struct ::kevent events[this->_count];  // VLA
     std::unique_ptr<::timespec> val;
 
-    if (timeout >= std::chrono::nanoseconds::zero())
+    if (timeout >= zero)
     {
         auto time = timeout.count();
 
@@ -149,15 +173,24 @@ std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
 
     int result = 0;
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) <= 0)
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) < 0)
     {
-        if (!result)
-            return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
-        else if (errno == EINTR)
+        if (errno == EINTR)
             return std::make_error_code(std::errc::interrupted);  // EINTR maybe triggered by debugger
         else
             throw std::system_error(sys::error(), "reactor: failed to poll event");
     }
+
+    if (!result)
+    {
+        if (this->update())
+            return {};  // success if a timer is triggered
+
+        return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
+    }
+
+    // update timer again after poll
+    this->update();
 
     // merge events, events on the same fd will be notified only once
     std::unordered_map<uintptr_t, struct ::kevent*> map;
@@ -241,6 +274,46 @@ int chen::reactor::alter(handle_t fd, int filter, int flags, int fflags, void *d
     struct ::kevent event{};
     EV_SET(&event, fd, filter, flags, fflags, 0, data);
     return ::kevent(this->_kqueue, &event, 1, nullptr, 0, nullptr);
+}
+
+bool chen::reactor::update()
+{
+    if (this->_timers.empty())
+        return false;
+
+    std::vector<timer*> tmp;
+
+    auto now = std::chrono::system_clock::now();
+
+    for (auto *ptr : this->_timers)
+    {
+        if (ptr->expire(now))
+            tmp.emplace_back(ptr);
+        else
+            break;
+    }
+
+    for (auto *ptr : tmp)
+    {
+        auto cb = ptr->handle().callback();
+
+        if (ptr->repeat())
+        {
+            // ptr need reorder because next trigger time is changed
+            this->_timers.erase(ptr);
+            ptr->update(now);
+            this->_timers.insert(ptr);
+        }
+        else
+        {
+            this->del(ptr);
+        }
+
+        if (cb)
+            cb(ModeRead);
+    }
+
+    return !tmp.empty();
 }
 
 #endif
