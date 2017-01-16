@@ -48,9 +48,9 @@ void chen::event::set()
 
 void chen::event::reset()
 {
-    char buf[512];
+    char dummy;
 
-    while (this->_write.recvfrom(buf, 512) >= 0)
+    while (::recvfrom(this->_handle, &dummy, 1, 0, nullptr, nullptr) >= 0)
         ;
 }
 
