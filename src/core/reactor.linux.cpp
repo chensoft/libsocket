@@ -48,7 +48,7 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
+void chen::reactor::set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag)
 {
     ::epoll_event event{};
 
@@ -75,19 +75,23 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     ptr->attach(this, cb, mode, flag);
 }
 
-void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
+void chen::reactor::set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag)
 {
-    this->set(&ptr->handle(), cb, mode, flag);
+    this->set(&ptr->handle(), std::move(cb), mode, flag);
 }
 
-void chen::reactor::set(event *ptr, callback cb, int flag)
+void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 {
-    this->set(&ptr->handle(), cb, ModeRead, flag);
+    this->set(&ptr->handle(), [=] (int type) {
+        cb();
+    }, ModeRead, flag);
 }
 
-void chen::reactor::set(timer *ptr, callback cb)
+void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
-    // todo
+    this->set(&ptr->handle(), [=] (int type) {
+        cb();
+    }, ModeRead, 0);
 }
 
 void chen::reactor::del(basic_handle *ptr)
@@ -115,7 +119,7 @@ void chen::reactor::del(event *ptr)
 
 void chen::reactor::del(timer *ptr)
 {
-    // todo
+    this->del(&ptr->handle());
 }
 
 // run
@@ -130,7 +134,7 @@ std::error_code chen::reactor::poll()
     return this->poll(std::chrono::nanoseconds::min());
 }
 
-std::error_code chen::reactor::poll(const std::chrono::nanoseconds &timeout)
+std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 {
     // poll events
     ::epoll_event events[this->_count];  // VLA

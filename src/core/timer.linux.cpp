@@ -8,17 +8,21 @@
 
 #include <socket/core/timer.hpp>
 #include <chen/sys/sys.hpp>
+#include <sys/timerfd.h>
 
 // -----------------------------------------------------------------------------
 // timer
 chen::timer::timer()
 {
+    auto fd = ::timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC | TFD_NONBLOCK);
+    if (fd < 0)
+        throw std::system_error(sys::error(), "timer: failed to create timerfd");
 
+    this->_handle.change(fd);
 }
 
 chen::timer::~timer()
 {
-
 }
 
 #endif
