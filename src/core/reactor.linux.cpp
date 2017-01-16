@@ -121,7 +121,7 @@ void chen::reactor::del(timer *ptr)
 // run
 void chen::reactor::run()
 {
-    for (std::error_code code; !code || (code == std::errc::interrupted); code = this->poll())
+    for (std::error_code code; !code || (code == std::errc::timed_out) || (code == std::errc::interrupted); code = this->poll())
         ;
 }
 
