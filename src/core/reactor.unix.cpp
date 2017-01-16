@@ -70,17 +70,17 @@ void chen::reactor::set(basic_handle *ptr, callback cb, int mode, int flag)
     this->_cache.insert(ptr);
 
     // associate callback
-    ptr->attach(this, cb, mode, flag);
+    ptr->attach(this, std::move(cb), mode, flag);
 }
 
 void chen::reactor::set(basic_socket *ptr, callback cb, int mode, int flag)
 {
-    this->set(&ptr->handle(), cb, mode, flag);
+    this->set(&ptr->handle(), std::move(cb), mode, flag);
 }
 
 void chen::reactor::set(event *ptr, callback cb, int mode, int flag)
 {
-    this->set(&ptr->handle(), cb, mode, flag);
+    this->set(&ptr->handle(), std::move(cb), mode, flag);
 }
 
 void chen::reactor::set(timer *ptr, callback cb, const std::chrono::nanoseconds &timeout)

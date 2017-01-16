@@ -51,7 +51,7 @@ void chen::basic_handle::attach(reactor *rt, std::function<void (int type)> cb, 
         this->_rt->del(this);
 
     this->_rt = rt;
-    this->_cb = cb;
+    this->_cb = std::move(cb);
 
     this->_mode = mode;
     this->_flag = flag;

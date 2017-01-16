@@ -42,14 +42,29 @@ namespace chen
          */
         void future(const std::chrono::time_point<std::chrono::system_clock> &value);
 
-        /**
-         * Reset timer state
-         */
-        void reset();
-
     public:
-        // todo allow retrieve original time
-        // todo allow retrieve interval time
+        /**
+         * Timer info
+         */
+        bool steady() const
+        {
+            return this->_steady;
+        }
+
+        bool repeat() const
+        {
+            return this->_repeat;
+        }
+
+        std::chrono::nanoseconds origin() const
+        {
+            return this->_origin;
+        }
+
+        std::chrono::nanoseconds target() const
+        {
+            return this->_target;
+        }
 
     public:
         /**
@@ -66,6 +81,12 @@ namespace chen
         void update(const std::chrono::time_point<std::chrono::system_clock> &value);
 
     private:
+        bool _steady = false;
+        bool _repeat = false;
+
+        std::chrono::nanoseconds _origin;  // origin time set by timeout, interval or future
+        std::chrono::nanoseconds _target;  // the next trigger time, it's a unix timestamp
+
 #ifdef __linux__
 
         // Linux, use timerfd
