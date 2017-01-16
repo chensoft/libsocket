@@ -29,14 +29,9 @@ namespace chen
         void interval(const std::chrono::nanoseconds &value);
 
         /**
-         * Invoke callback from now on after a period of time
-         */
-        void future(const std::chrono::nanoseconds &value);
-
-        /**
          * Invoke callback in a future calendar date
          */
-        void future(const std::chrono::system_clock::time_point &value);
+        void future(const std::chrono::high_resolution_clock::time_point &value);
 
     public:
         /**
@@ -44,17 +39,17 @@ namespace chen
          */
         bool repeat() const
         {
-            return this->_repeat;
+            return this->cycle() > std::chrono::nanoseconds::zero();
         }
 
-        std::chrono::nanoseconds origin() const
+        std::chrono::nanoseconds cycle() const
         {
-            return this->_origin;
+            return this->_cycle;
         }
 
-        std::chrono::nanoseconds target() const
+        std::chrono::high_resolution_clock::time_point alarm() const
         {
-            return this->_target;
+            return this->_alarm;
         }
 
     public:
@@ -68,16 +63,16 @@ namespace chen
         }
 
         /**
-         * Check if expire
+         * Check if expired
          * @note used by reactor only, valid under non-Linux
          */
-        bool expire(const std::chrono::system_clock::time_point &value) const;
+        bool expired(const std::chrono::high_resolution_clock::time_point &value) const;
 
         /**
          * Update timer
          * @note used by reactor only, valid under non-Linux, must erase timer from set before call it
          */
-        void update(const std::chrono::system_clock::time_point &value);
+        void update(const std::chrono::high_resolution_clock::time_point &value);
 
         /**
          * Comparator class
@@ -86,16 +81,14 @@ namespace chen
         {
             bool operator()(const timer *a, const timer *b) const
             {
-                return a->_target < b->_target;
+                return a->_alarm < b->_alarm;
             }
         };
 
     private:
         basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS
 
-        bool _repeat = false;
-
-        std::chrono::nanoseconds _origin;  // origin timestamp or interval
-        std::chrono::nanoseconds _target;  // the next trigger timestamp
+        std::chrono::nanoseconds _cycle;  // time interval if timer is repeated, otherwise is zero
+        std::chrono::high_resolution_clock::time_point _alarm;  // the next alarm time point
     };
 }

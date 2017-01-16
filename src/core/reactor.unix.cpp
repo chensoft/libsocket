@@ -150,7 +150,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     if (!this->_timers.empty())
     {
         auto timer = *this->_timers.begin();
-        auto value = timer->target() - std::chrono::system_clock::now().time_since_epoch();
+        auto value = std::chrono::duration_cast<std::chrono::nanoseconds>(timer->alarm() - std::chrono::high_resolution_clock::now());
 
         if (timeout < zero)
             timeout = std::max(zero, value);
@@ -283,11 +283,11 @@ bool chen::reactor::update()
 
     std::vector<timer*> tmp;
 
-    auto now = std::chrono::system_clock::now();
+    auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)
     {
-        if (ptr->expire(now))
+        if (ptr->expired(now))
             tmp.emplace_back(ptr);
         else
             break;
