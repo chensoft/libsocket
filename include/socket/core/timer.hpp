@@ -33,7 +33,30 @@ namespace chen
          */
         void future(const std::chrono::high_resolution_clock::time_point &value);
 
+        /**
+         * Native timer handle
+         * @note fd is only valid under Linux
+         */
+        basic_handle& handle()
+        {
+            return this->_handle;
+        }
+
     public:
+#ifdef __linux__
+
+        /**
+         * Reset timer state
+         */
+        void reset();
+
+        /**
+         * Read data from fd
+         */
+        void clear();
+
+#else
+
         /**
          * Timer property
          */
@@ -52,32 +75,18 @@ namespace chen
             return this->_alarm;
         }
 
-    public:
-        /**
-         * Native timer handle
-         * @note used by reactor only, fd is only valid under Linux
-         */
-        basic_handle& handle()
-        {
-            return this->_handle;
-        }
-
         /**
          * Check if expired
-         * @note used by reactor under non-Linux only
          */
         bool expired(const std::chrono::high_resolution_clock::time_point &value) const;
 
         /**
          * Update timer's alarm value
-         * @note used by reactor only
          */
         void update(const std::chrono::high_resolution_clock::time_point &value);
 
-    public:
         /**
          * Comparator class
-         * @note used by reactor only
          */
         struct compare
         {
@@ -86,6 +95,8 @@ namespace chen
                 return a->_alarm < b->_alarm;
             }
         };
+
+#endif
 
     private:
         basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS

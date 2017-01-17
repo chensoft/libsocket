@@ -89,14 +89,9 @@ void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 
 void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
-    ptr->update(std::chrono::high_resolution_clock::now());
+    ptr->reset();
     this->set(&ptr->handle(), [=] (int type) {
-        // todo
-        std::uint64_t dummy;
-
-        while (::read(ptr->handle(), &dummy, 8) >= 0)
-            ;
-
+        ptr->clear();
         cb();
     }, ModeRead, 0);
 }

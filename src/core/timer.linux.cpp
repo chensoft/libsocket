@@ -46,27 +46,15 @@ void chen::timer::future(const std::chrono::high_resolution_clock::time_point &v
     this->_alarm  = value.time_since_epoch();
 }
 
-bool chen::timer::expired(const std::chrono::high_resolution_clock::time_point &value) const
+void chen::timer::reset()
 {
-    // unused under Linux
-    return value.time_since_epoch() >= this->_alarm;
-}
-
-void chen::timer::update(const std::chrono::high_resolution_clock::time_point &value)
-{
-    // reset alarm to next timestamp
-    if (this->_repeat || (this->_alarm == std::chrono::nanoseconds::zero()))
-        this->_alarm = (value + this->_cycle).time_since_epoch();
-
-    // todo read data from fd
-
     auto zero = std::chrono::nanoseconds::zero();
     auto time = ::itimerspec{};
 
-    if (this->_value > zero)
+    if (this->_cycle > zero)
     {
         // timeout or interval
-        auto cycle = this->_value.count();
+        auto cycle = this->_cycle.count();
 
         time.it_value.tv_sec  = cycle / 1000000000;
         time.it_value.tv_nsec = cycle % 1000000000;
@@ -74,10 +62,10 @@ void chen::timer::update(const std::chrono::high_resolution_clock::time_point &v
         if (this->_repeat)
             time.it_interval = time.it_value;
     }
-    else if (this->_value == zero)
+    else if (this->_cycle == zero)
     {
         // future date
-        auto alarm = (this->_alarm.time_since_epoch() - value.time_since_epoch()).count();
+        auto alarm = this->_alarm.count() - std::chrono::high_resolution_clock::now().time_since_epoch().count();
 
         if (alarm > 0)
         {
@@ -93,6 +81,13 @@ void chen::timer::update(const std::chrono::high_resolution_clock::time_point &v
     // use relative time value
     if (::timerfd_settime(this->_handle, 0, &time, nullptr) < 0)
         throw std::system_error(sys::error(), "timer: failed to update time");
+}
+
+void chen::timer::clear()
+{
+    std::uint64_t dummy;
+    while (::read(this->handle(), &dummy, 8) >= 0)
+        ;
 }
 
 #endif
