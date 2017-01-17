@@ -4,7 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/base/basic_socket.hpp>
 #include <socket/inet/inet_address.hpp>
 #include <socket/core/reactor.hpp>
 #include <chen/mt/threadpool.hpp>

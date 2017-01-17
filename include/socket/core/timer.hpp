@@ -24,14 +24,14 @@ namespace chen
         void timeout(const std::chrono::nanoseconds &value);
 
         /**
-         * Invoke callback repeatedly after a period of time
-         */
-        void interval(const std::chrono::nanoseconds &value);
-
-        /**
          * Invoke callback only once in a future calendar date
          */
         void future(const std::chrono::high_resolution_clock::time_point &value);
+
+        /**
+         * Invoke callback repeatedly after a period of time
+         */
+        void interval(const std::chrono::nanoseconds &value);
 
         /**
          * Native timer handle

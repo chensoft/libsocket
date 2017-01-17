@@ -25,18 +25,18 @@ void chen::timer::timeout(const std::chrono::nanoseconds &value)
     this->_alarm  = std::chrono::nanoseconds::zero();
 }
 
-void chen::timer::interval(const std::chrono::nanoseconds &value)
-{
-    this->_repeat = true;
-    this->_cycle  = value;
-    this->_alarm  = std::chrono::nanoseconds::zero();
-}
-
 void chen::timer::future(const std::chrono::high_resolution_clock::time_point &value)
 {
     this->_repeat = false;
     this->_cycle  = std::chrono::nanoseconds::zero();
     this->_alarm  = value.time_since_epoch();
+}
+
+void chen::timer::interval(const std::chrono::nanoseconds &value)
+{
+    this->_repeat = true;
+    this->_cycle  = value;
+    this->_alarm  = std::chrono::nanoseconds::zero();
 }
 
 bool chen::timer::expired(const std::chrono::high_resolution_clock::time_point &value) const
