@@ -93,12 +93,12 @@ void chen::reactor::set(event *ptr, std::function<void()> cb, int flag)
 
 void chen::reactor::set(timer *ptr, std::function<void()> cb)
 {
-    this->_timers.insert(ptr);
-
     ptr->update(std::chrono::high_resolution_clock::now());
     ptr->handle().attach(this, [=](int type) {
         cb();
     }, 0, 0);  // mode & flag is useless
+
+    this->_timers.insert(ptr);
 
     // repoll if in polling
     this->_repoll.set();
