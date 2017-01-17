@@ -42,12 +42,12 @@ namespace chen
             return this->_repeat;
         }
 
-        std::chrono::nanoseconds value() const
+        std::chrono::nanoseconds cycle() const
         {
-            return this->_value;
+            return this->_cycle;
         }
 
-        std::chrono::high_resolution_clock::time_point alarm() const
+        std::chrono::nanoseconds alarm() const
         {
             return this->_alarm;
         }
@@ -64,18 +64,20 @@ namespace chen
 
         /**
          * Check if expired
-         * @note used by reactor and under non-Linux only
+         * @note used by reactor under non-Linux only
          */
         bool expired(const std::chrono::high_resolution_clock::time_point &value) const;
 
         /**
          * Update timer's alarm value
-         * @note used by reactor only, must delete this from set before call it if under non-Linux
+         * @note used by reactor only
          */
         void update(const std::chrono::high_resolution_clock::time_point &value);
 
+    public:
         /**
          * Comparator class
+         * @note used by reactor only
          */
         struct compare
         {
@@ -90,7 +92,7 @@ namespace chen
 
         bool _repeat = false;
 
-        std::chrono::nanoseconds _value;  // original time interval when call timeout or interval, otherwise is zero
-        std::chrono::high_resolution_clock::time_point _alarm;  // the next alarm time point
+        std::chrono::nanoseconds _cycle;  // value when call timeout or interval
+        std::chrono::nanoseconds _alarm;  // the next trigger unix timestamp val
     };
 }

@@ -49,7 +49,6 @@ void chen::event::set()
 void chen::event::reset()
 {
     char dummy;
-
     while (::recvfrom(this->_handle, &dummy, 1, 0, nullptr, nullptr) >= 0)
         ;
 }

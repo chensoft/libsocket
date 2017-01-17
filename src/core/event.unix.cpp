@@ -46,7 +46,6 @@ void chen::event::set()
 void chen::event::reset()
 {
     char buf[512];
-
     while (::read(this->_handle, buf, 512) >= 0)
         ;
 }

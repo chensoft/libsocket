@@ -28,32 +28,38 @@ chen::timer::~timer()
 void chen::timer::timeout(const std::chrono::nanoseconds &value)
 {
     this->_repeat = false;
-    this->_value  = value;
-    this->_alarm  = std::chrono::high_resolution_clock::time_point();
+    this->_cycle  = value;
+    this->_alarm  = std::chrono::nanoseconds::zero();
 }
 
 void chen::timer::interval(const std::chrono::nanoseconds &value)
 {
     this->_repeat = true;
-    this->_value  = value;
-    this->_alarm  = std::chrono::high_resolution_clock::time_point();
+    this->_cycle  = value;
+    this->_alarm  = std::chrono::nanoseconds::zero();
 }
 
 void chen::timer::future(const std::chrono::high_resolution_clock::time_point &value)
 {
     this->_repeat = false;
-    this->_value  = std::chrono::nanoseconds::zero();
-    this->_alarm  = value;
+    this->_cycle  = std::chrono::nanoseconds::zero();
+    this->_alarm  = value.time_since_epoch();
 }
 
 bool chen::timer::expired(const std::chrono::high_resolution_clock::time_point &value) const
 {
     // unused under Linux
-    return value >= this->_alarm;
+    return value.time_since_epoch() >= this->_alarm;
 }
 
 void chen::timer::update(const std::chrono::high_resolution_clock::time_point &value)
 {
+    // reset alarm to next timestamp
+    if (this->_repeat || (this->_alarm == std::chrono::nanoseconds::zero()))
+        this->_alarm = (value + this->_cycle).time_since_epoch();
+
+    // todo read data from fd
+
     auto zero = std::chrono::nanoseconds::zero();
     auto time = ::itimerspec{};
 
