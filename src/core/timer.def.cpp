@@ -20,20 +20,23 @@ chen::timer::~timer()
 
 void chen::timer::timeout(const std::chrono::nanoseconds &value)
 {
-    this->_cycle = std::chrono::nanoseconds::zero();
-    this->_alarm = std::chrono::high_resolution_clock::now() + value;
+    this->_repeat = false;
+    this->_value  = value;
+    this->_alarm  = std::chrono::high_resolution_clock::time_point();
 }
 
 void chen::timer::interval(const std::chrono::nanoseconds &value)
 {
-    this->_cycle = value;
-    this->_alarm = std::chrono::high_resolution_clock::now() + value;
+    this->_repeat = true;
+    this->_value  = value;
+    this->_alarm  = std::chrono::high_resolution_clock::time_point();
 }
 
 void chen::timer::future(const std::chrono::high_resolution_clock::time_point &value)
 {
-    this->_cycle = std::chrono::nanoseconds::zero();
-    this->_alarm = value;
+    this->_repeat = false;
+    this->_value  = std::chrono::nanoseconds::zero();
+    this->_alarm  = value;
 }
 
 bool chen::timer::expired(const std::chrono::high_resolution_clock::time_point &value) const
@@ -43,9 +46,9 @@ bool chen::timer::expired(const std::chrono::high_resolution_clock::time_point &
 
 void chen::timer::update(const std::chrono::high_resolution_clock::time_point &value)
 {
-    // reset target to next timestamp
-    if (this->_cycle > std::chrono::nanoseconds::zero())
-        this->_alarm = value + this->_cycle;
+    // reset alarm to next timestamp
+    if (this->_value > std::chrono::nanoseconds::zero())
+        this->_alarm = value + this->_value;
 }
 
 #endif

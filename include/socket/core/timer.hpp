@@ -29,22 +29,22 @@ namespace chen
         void interval(const std::chrono::nanoseconds &value);
 
         /**
-         * Invoke callback in a future calendar date
+         * Invoke callback only once in a future calendar date
          */
         void future(const std::chrono::high_resolution_clock::time_point &value);
 
     public:
         /**
-         * Timer info
+         * Timer property
          */
         bool repeat() const
         {
-            return this->cycle() > std::chrono::nanoseconds::zero();
+            return this->_repeat;
         }
 
-        std::chrono::nanoseconds cycle() const
+        std::chrono::nanoseconds value() const
         {
-            return this->_cycle;
+            return this->_value;
         }
 
         std::chrono::high_resolution_clock::time_point alarm() const
@@ -64,13 +64,13 @@ namespace chen
 
         /**
          * Check if expired
-         * @note used by reactor only, valid under non-Linux
+         * @note used by reactor and under non-Linux only
          */
         bool expired(const std::chrono::high_resolution_clock::time_point &value) const;
 
         /**
-         * Update timer
-         * @note used by reactor only, valid under non-Linux, must erase timer from set before call it
+         * Update timer's alarm value
+         * @note used by reactor only, must delete this from set before call it if under non-Linux
          */
         void update(const std::chrono::high_resolution_clock::time_point &value);
 
@@ -88,7 +88,9 @@ namespace chen
     private:
         basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS
 
-        std::chrono::nanoseconds _cycle;  // time interval if timer is repeated, otherwise is zero
+        bool _repeat = false;
+
+        std::chrono::nanoseconds _value;  // original time interval when call timeout or interval, otherwise is zero
         std::chrono::high_resolution_clock::time_point _alarm;  // the next alarm time point
     };
 }
