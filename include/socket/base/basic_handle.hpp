@@ -32,8 +32,18 @@ namespace chen
             return this->_fd;
         }
 
+        reactor* rt() const noexcept
+        {
+            return this->_rt;
+        }
+
+        std::function<void (int type)> cb() const noexcept
+        {
+            return this->_cb;
+        }
+
         /**
-         * Mode, Flag & Callback set by the reactor
+         * Mode & Flag set by the reactor
          */
         int mode() const noexcept
         {
@@ -43,11 +53,6 @@ namespace chen
         int flag() const noexcept
         {
             return this->_flag;
-        }
-
-        std::function<void (int type)> callback() const noexcept
-        {
-            return this->_cb;
         }
 
     public:
@@ -77,9 +82,8 @@ namespace chen
 
     private:
         /**
-         * Disable copy & move
-         * if you want to store object in container, you can
-         * use smart pointer like std::unique_ptr<basic_handle>
+         * Disable copy & move, if you want to store object in container
+         * you can use smart pointer like std::unique_ptr<basic_handle>
          */
         basic_handle(const basic_handle&) = delete;
         basic_handle& operator=(const basic_handle&) = delete;

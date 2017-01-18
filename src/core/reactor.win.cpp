@@ -295,7 +295,7 @@ bool chen::reactor::update()
 
     for (auto *ptr : tmp)
     {
-        auto cb = ptr->handle().callback();
+        auto cb = ptr->handle().cb();
 
         if (ptr->repeat())
         {

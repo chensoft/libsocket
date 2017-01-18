@@ -232,7 +232,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
         // normal callback
         if (ptr)
         {
-            auto cb = ptr->callback();
+            auto cb = ptr->cb();
 
             if ((item.filter & Closed) || (ptr->flag() & FlagOnce))
                 this->del(ptr);
@@ -297,7 +297,7 @@ bool chen::reactor::update()
 
     for (auto *ptr : tmp)
     {
-        auto cb = ptr->handle().callback();
+        auto cb = ptr->handle().cb();
 
         if (ptr->repeat())
         {

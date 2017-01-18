@@ -169,7 +169,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
         // normal callback
         if (ptr)
         {
-            auto cb = ptr->callback();
+            auto cb = ptr->cb();
             auto tp = this->type(item.events);
 
             if ((tp & Closed) || (ptr->flag() & FlagOnce))
