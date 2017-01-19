@@ -63,12 +63,12 @@ namespace chen
          * ---------------------------------------------------------------------
          * Closed: socket disconnected or connection refused
          * ---------------------------------------------------------------------
-         * @note in epoll, closed event is always be monitored, in kqueue and poll
-         * you must monitor the read event if you want to know the closed event
+         * @note in epoll, Closed event is always be monitored, in kqueue and poll
+         * you must monitor the Readable event if you want to know the Closed event
          * ---------------------------------------------------------------------
-         * @note you should read the rest of the data even if you received the closed
+         * @note you should read the rest of the data even if you received the Closed
          * event, server may send last message and then close the connection immediately
-         * the backend may report readable & closed event or only report the closed event
+         * the backend may report Readable & Closed event or only report the Closed event
          */
         static const int Readable;
         static const int Writable;
@@ -76,7 +76,7 @@ namespace chen
 
     public:
         reactor();
-        reactor(short count);  // max events returned after a polling, it will be ignored on Windows
+        reactor(short count);  // the maximum events returned after polling, it will be ignored on Windows
         ~reactor();
 
     public:
@@ -90,7 +90,7 @@ namespace chen
         void set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag);
 
         /**
-         * Specific methods for socket, event, timer, and etc
+         * Specific methods for socket, event, timer
          */
         void set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag);
         void set(event *ptr, std::function<void ()> cb, int flag);
@@ -113,23 +113,47 @@ namespace chen
 
         /**
          * Poll events and notify user via its callback
-         * @return empty if an event is handled, operation_canceled if stop, interrupted if interrupt
+         * @return empty if at least one event is handled, operation_canceled if stop, interrupted if interrupt
          */
         std::error_code poll();
 
         /**
          * Poll events with a timeout, time accuracy varies with different systems
-         * @param timeout use std::chrono::milliseconds, seconds and etc, return immediately if use zero as duration value
-         * @return empty if an event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
-         * @note it's useful when you want to use it in your own runloop, you can use zero timeout and call it in every frame
+         * @param timeout use std::chrono::milliseconds, seconds and etc, return immediately if use zero as timeout value
+         * @return empty if at least one event is handled, operation_canceled if stop, timed_out if timeout, interrupted if interrupt
+         * @note it's useful when you want to use it in your own runloop, you can use zero timeout and call this method in every frame
          */
         std::error_code poll(std::chrono::nanoseconds timeout);
+
+        /**
+         * Post events to queue
+         */
+        void post();
 
         /**
          * Stop the poll
          * @note you can call this method in callback or other thread to interrupt the poll
          */
         void stop();
+
+    public:
+        /**
+         * Update timer manually
+         * @note for advanced use only
+         */
+        void update();
+
+        /**
+         * Gather events from backend
+         * @note for advanced use only
+         */
+        void gather();
+
+        /**
+         * Notify events to user
+         * @note for advanced use only
+         */
+        void notify();
 
     private:
         reactor(const reactor&) = delete;
@@ -141,9 +165,9 @@ namespace chen
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use kqueue
+        // todo put these methods to cpp
         int type(int filter, int flags);
         int alter(handle_t fd, int filter, int flags, int fflags, void *data);
-        bool update();
 
         handle_t _kqueue = invalid_handle;
 

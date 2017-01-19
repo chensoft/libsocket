@@ -185,14 +185,14 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 
     if (!result)
     {
-        if (this->update())
-            return {};  // success if a timer is triggered
+//        if (this->update())
+//            return {};  // success if a timer is triggered
 
         return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
     }
 
     // update timer again after poll
-    this->update();
+//    this->update();
 
     // merge events, events on the same fd will be notified only once
     std::unordered_map<uintptr_t, struct ::kevent*> map;
@@ -278,44 +278,44 @@ int chen::reactor::alter(handle_t fd, int filter, int flags, int fflags, void *d
     return ::kevent(this->_kqueue, &event, 1, nullptr, 0, nullptr);
 }
 
-bool chen::reactor::update()
-{
-    if (this->_timers.empty())
-        return false;
-
-    std::vector<timer*> tmp;
-
-    auto now = std::chrono::high_resolution_clock::now();
-
-    for (auto *ptr : this->_timers)
-    {
-        if (ptr->expired(now))
-            tmp.emplace_back(ptr);
-        else
-            break;
-    }
-
-    for (auto *ptr : tmp)
-    {
-        auto cb = ptr->handle().cb();
-
-        if (ptr->repeat())
-        {
-            // ptr need reorder because next trigger time is changed
-            this->_timers.erase(ptr);
-            ptr->update(now);
-            this->_timers.insert(ptr);
-        }
-        else
-        {
-            this->del(ptr);
-        }
-
-        if (cb)
-            cb(ModeRead);
-    }
-
-    return !tmp.empty();
-}
+//bool chen::reactor::update()
+//{
+//    if (this->_timers.empty())
+//        return false;
+//
+//    std::vector<timer*> tmp;
+//
+//    auto now = std::chrono::high_resolution_clock::now();
+//
+//    for (auto *ptr : this->_timers)
+//    {
+//        if (ptr->expired(now))
+//            tmp.emplace_back(ptr);
+//        else
+//            break;
+//    }
+//
+//    for (auto *ptr : tmp)
+//    {
+//        auto cb = ptr->handle().cb();
+//
+//        if (ptr->repeat())
+//        {
+//            // ptr need reorder because next trigger time is changed
+//            this->_timers.erase(ptr);
+//            ptr->update(now);
+//            this->_timers.insert(ptr);
+//        }
+//        else
+//        {
+//            this->del(ptr);
+//        }
+//
+//        if (cb)
+//            cb(ModeRead);
+//    }
+//
+//    return !tmp.empty();
+//}
 
 #endif

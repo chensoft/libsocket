@@ -23,7 +23,7 @@ namespace chen
         void set();
 
         /**
-         * Reset to non-signaled state
+         * Change to non-signaled state
          */
         void reset();
 
