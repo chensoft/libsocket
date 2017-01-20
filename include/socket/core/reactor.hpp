@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <system_error>
 #include <vector>
+#include <queue>
 #include <set>
 
 namespace chen
@@ -76,7 +77,7 @@ namespace chen
 
     public:
         reactor();
-        reactor(short count);  // the maximum events returned after polling, it will be ignored on Windows
+        reactor(std::size_t count);  // the maximum events returned after polling, it will be ignored on Windows
         ~reactor();
 
     public:
@@ -128,7 +129,7 @@ namespace chen
         /**
          * Post events to queue
          */
-        void post();
+        void post(basic_handle *ptr, int type);
 
         /**
          * Stop the poll
@@ -141,13 +142,13 @@ namespace chen
          * Update timer manually
          * @note for advanced use only
          */
-        void update();
+        std::chrono::nanoseconds update();
 
         /**
          * Gather events from backend
          * @note for advanced use only
          */
-        void gather();
+        std::error_code gather(std::chrono::nanoseconds timeout);
 
         /**
          * Notify events to user
@@ -160,42 +161,47 @@ namespace chen
         reactor& operator=(const reactor&) = delete;
 
     private:
-        short _count = 0;
+        struct Data
+        {
+            Data(basic_handle *ptr, int type) : ptr(ptr), type(type) {}
+
+            basic_handle *ptr;
+            int type;
+        };
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use kqueue
-        // todo put these methods to cpp
-        int type(int filter, int flags);
-        int alter(handle_t fd, int filter, int flags, int fflags, void *data);
-
         handle_t _kqueue = invalid_handle;
 
+        std::vector<struct ::kevent> _events;
         std::set<timer*, timer::compare> _timers;
-        std::unordered_set<basic_handle*> _cache;
+
+        std::queue<Data> _pending;
+        std::unordered_set<basic_handle*> _handles;
 
 #elif defined(__linux__)
 
-        // Linux, use epoll
-        int type(int events);
-
-        handle_t _epoll = invalid_handle;
-
-        chen::event _wakeup;
-        std::unordered_set<basic_handle*> _cache;
+        //        // Linux, use epoll
+//        int type(int events);
+//
+//        handle_t _epoll = invalid_handle;
+//
+//        chen::event _wakeup;
+//        std::unordered_set<basic_handle*> _cache;
 
 #else
 
-        // Windows, use WSAPoll
-        int type(int events);
-        bool update();
-
-        chen::event _wakeup;
-        chen::event _repoll;
-
-        std::vector<struct ::pollfd> _events;
-        std::set<timer*, timer::compare> _timers;
-        std::unordered_map<handle_t, basic_handle*> _cache;
+//        // Windows, use WSAPoll
+//        int type(int events);
+//        bool update();
+//
+//        chen::event _wakeup;
+//        chen::event _repoll;
+//
+//        std::vector<struct ::pollfd> _events;
+//        std::set<timer*, timer::compare> _timers;
+//        std::unordered_map<handle_t, basic_handle*> _cache;
 
 #endif
     };

@@ -9,7 +9,37 @@
 #include <socket/core/reactor.hpp>
 #include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
-#include <memory>
+
+// -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    int kq_type(int filter, int flags)
+    {
+        if ((flags & EV_EOF) || (flags & EV_ERROR))
+            return chen::reactor::Closed;
+
+        switch (filter)
+        {
+            case EVFILT_READ:
+                return chen::reactor::Readable;
+
+            case EVFILT_WRITE:
+                return chen::reactor::Writable;
+
+            default:
+                throw std::runtime_error("reactor: unknown event detect");
+        }
+    }
+
+    int kq_alter(chen::handle_t kq, chen::handle_t fd, int filter, int flags, uint32_t fflags, intptr_t data, void *udata)
+    {
+        struct ::kevent event{};
+        EV_SET(&event, fd, filter, flags, fflags, data, udata);
+        return ::kevent(kq, &event, 1, nullptr, 0, nullptr);
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -28,7 +58,7 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 {
 }
 
-chen::reactor::reactor(short count) : _count(count)
+chen::reactor::reactor(std::size_t count) : _events(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
@@ -38,7 +68,7 @@ chen::reactor::reactor(short count) : _count(count)
 
     // register custom filter to recv wakeup message
     // ident's value is not important here, use zero is ok
-    if (this->alter(0, EVFILT_USER, EV_ADD, 0, nullptr) < 0)
+    if (kq_alter(this->_kqueue, 0, EVFILT_USER, EV_ADD, 0, 0, nullptr) < 0)
     {
         ::close(this->_kqueue);
         throw std::system_error(chen::sys::error(), "reactor: failed to create custom filter");
@@ -48,7 +78,7 @@ chen::reactor::reactor(short count) : _count(count)
 chen::reactor::~reactor()
 {
     // clear cache before destroy kqueue
-    auto tmp = std::move(this->_cache);
+    auto tmp = std::move(this->_handles);
     for (auto &ev : tmp)
         this->del(ev);
 
@@ -63,15 +93,15 @@ chen::reactor::~reactor()
 void chen::reactor::set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag)
 {
     // register read or delete
-    if ((this->alter(*ptr, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_kqueue, *ptr, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register write or delete
-    if ((this->alter(*ptr, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, ptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_kqueue, *ptr, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
-    // store event
-    this->_cache.insert(ptr);
+    // store handle
+    this->_handles.insert(ptr);
 
     // associate callback
     ptr->attach(this, std::move(cb), mode, flag);
@@ -104,15 +134,15 @@ void chen::reactor::del(basic_handle *ptr)
     // clear callback
     ptr->detach();
 
-    // clear event
-    this->_cache.erase(ptr);
+    // clear handle
+    this->_handles.erase(ptr);
 
     // delete read
-    if ((this->alter(*ptr, EVFILT_READ, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_kqueue, *ptr, EVFILT_READ, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 
     // delete write
-    if ((this->alter(*ptr, EVFILT_WRITE, EV_DELETE, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_kqueue, *ptr, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 }
 
@@ -146,140 +176,37 @@ std::error_code chen::reactor::poll()
 
 std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 {
-    // calculate the most recent time
+    // update timer
     auto zero = std::chrono::nanoseconds::zero();
+    auto near = this->update();
 
-    if (!this->_timers.empty())
-    {
-        auto timer = *this->_timers.begin();
-        auto value = timer->alarm() - std::chrono::high_resolution_clock::now().time_since_epoch();
+    if (near >= zero)
+        timeout = std::max(zero, std::min(near, timeout));
 
-        if (timeout < zero)
-            timeout = std::max(zero, value);
-        else
-            timeout = std::min(std::max(zero, value), timeout);
-    }
+    // pull events
+    auto error = this->gather(timeout);
 
-    // poll events
-    struct ::kevent events[this->_count];  // VLA
-    std::unique_ptr<::timespec> val;
+    // notify user
+    this->notify();
 
-    if (timeout >= zero)
-    {
-        auto time = timeout.count();
+    return error;
+}
 
-        val.reset(new ::timespec);
-        val->tv_sec  = static_cast<time_t>(time / 1000000000);
-        val->tv_nsec = static_cast<time_t>(time % 1000000000);
-    }
-
-    int result = 0;
-
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, events, this->_count, val.get())) < 0)
-    {
-        if (errno == EINTR)
-            return std::make_error_code(std::errc::interrupted);  // EINTR maybe triggered by debugger
-        else
-            throw std::system_error(sys::error(), "reactor: failed to poll event");
-    }
-
-    if (!result)
-    {
-//        if (this->update())
-//            return {};  // success if a timer is triggered
-
-        return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
-    }
-
-    // update timer again after poll
-//    this->update();
-
-    // merge events, events on the same fd will be notified only once
-    std::unordered_map<uintptr_t, struct ::kevent*> map;
-
-    for (int i = 0; i < result; ++i)
-    {
-        auto &item = events[i];
-
-        if (item.filter == EVFILT_USER)
-            continue;
-
-        auto find = map.find(item.ident);
-        auto type = this->type(item.filter, item.flags);
-
-        if (find != map.end())
-        {
-            item.udata = nullptr;  // set to null because we merge item's event to previous item
-            find->second->filter |= type;  // borrow 'filter' field for temporary use
-        }
-        else
-        {
-            map[item.ident] = &item;
-            item.filter = static_cast<std::int16_t>(type);  // filter is enough to store event type
-        }
-    }
-
-    // invoke callback
-    for (int i = 0; i < result; ++i)
-    {
-        auto &item = events[i];
-        auto   ptr = static_cast<basic_handle*>(item.udata);
-
-        // user request to stop
-        if (item.filter == EVFILT_USER)
-            return std::make_error_code(std::errc::operation_canceled);
-
-        // normal callback
-        if (ptr)
-        {
-            auto cb = ptr->cb();
-
-            if ((item.filter & Closed) || (ptr->flag() & FlagOnce))
-                this->del(ptr);
-
-            if (cb)
-                cb(item.filter);
-        }
-    }
-
-    return {};
+void chen::reactor::post(basic_handle *ptr, int type)
+{
+    this->_pending.emplace(ptr, type);
 }
 
 void chen::reactor::stop()
 {
     // notify wakeup message via custom filter
-    if (this->alter(0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER, nullptr) < 0)
+    if (kq_alter(this->_kqueue, 0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER, 0, nullptr) < 0)
         throw std::system_error(sys::error(), "reactor: failed to stop the kqueue");
 }
 
-// misc
-int chen::reactor::type(int filter, int flags)
+// phase
+std::chrono::nanoseconds chen::reactor::update()
 {
-    if ((flags & EV_EOF) || (flags & EV_ERROR))
-        return Closed;
-
-    switch (filter)
-    {
-        case EVFILT_READ:
-            return Readable;
-
-        case EVFILT_WRITE:
-            return Writable;
-
-        default:
-            throw std::runtime_error("reactor: unknown event detect");
-    }
-}
-
-int chen::reactor::alter(handle_t fd, int filter, int flags, int fflags, void *data)
-{
-    struct ::kevent event{};
-    EV_SET(&event, fd, filter, flags, fflags, 0, data);
-    return ::kevent(this->_kqueue, &event, 1, nullptr, 0, nullptr);
-}
-
-//bool chen::reactor::update()
-//{
 //    if (this->_timers.empty())
 //        return false;
 //
@@ -316,6 +243,64 @@ int chen::reactor::alter(handle_t fd, int filter, int flags, int fflags, void *d
 //    }
 //
 //    return !tmp.empty();
-//}
+    return std::chrono::nanoseconds::min();
+}
+
+std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
+{
+    std::unique_ptr<::timespec> time;
+
+    if (timeout >= std::chrono::nanoseconds::zero())
+    {
+        auto count = timeout.count();
+
+        time.reset(new ::timespec);
+        time->tv_sec  = static_cast<time_t>(count / 1000000000);
+        time->tv_nsec = static_cast<time_t>(count % 1000000000);
+    }
+
+    int result = 0;
+
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_events.data(), static_cast<int>(this->_events.size()), time.get())) <= 0)
+    {
+        if (!result)
+            return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
+        else if (errno == EINTR)
+            return std::make_error_code(std::errc::interrupted);  // EINTR maybe triggered by debugger
+        else
+            throw std::system_error(sys::error(), "reactor: failed to poll event");
+    }
+
+    for (int i = 0; i < result; ++i)
+    {
+        auto &item = this->_events[i];
+        auto   ptr = static_cast<basic_handle*>(item.udata);
+
+        // user request to stop
+        if (item.filter == EVFILT_USER)
+            return std::make_error_code(std::errc::operation_canceled);
+
+        this->post(ptr, kq_type(item.filter, item.flags));
+    }
+
+    return {};
+}
+
+void chen::reactor::notify()
+{
+    while (!this->_pending.empty())
+    {
+        auto &item = this->_pending.front();
+        auto  func = item.ptr->cb();
+        auto  type = item.type;
+
+        if ((type & Closed) || (item.ptr->flag() & FlagOnce))
+            this->del(item.ptr);
+
+        this->_pending.pop();
+
+        func(type);
+    }
+}
 
 #endif
