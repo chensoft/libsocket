@@ -121,12 +121,11 @@ void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 
 void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
-    ptr->update(std::chrono::high_resolution_clock::now());
     ptr->handle().attach(this, [=] (int type) {
         cb();
     }, 0, 0);  // mode & flag is useless
 
-    this->_timers.insert(ptr);
+    this->_timers.emplace_back(ptr);
 }
 
 void chen::reactor::del(basic_handle *ptr)
@@ -159,7 +158,9 @@ void chen::reactor::del(event *ptr)
 void chen::reactor::del(timer *ptr)
 {
     ptr->handle().detach();
-    this->_timers.erase(ptr);
+    std::remove_if(this->_timers.begin(), this->_timers.end(), [=] (timer *obj) {
+        return obj == ptr;
+    });
 }
 
 // run
@@ -207,43 +208,36 @@ void chen::reactor::stop()
 // phase
 std::chrono::nanoseconds chen::reactor::update()
 {
-//    if (this->_timers.empty())
-//        return false;
-//
-//    std::vector<timer*> tmp;
-//
-//    auto now = std::chrono::high_resolution_clock::now();
-//
-//    for (auto *ptr : this->_timers)
-//    {
-//        if (ptr->expired(now))
-//            tmp.emplace_back(ptr);
-//        else
-//            break;
-//    }
-//
-//    for (auto *ptr : tmp)
-//    {
-//        auto cb = ptr->handle().cb();
-//
-//        if (ptr->repeat())
-//        {
-//            // ptr need reorder because next trigger time is changed
-//            this->_timers.erase(ptr);
-//            ptr->update(now);
-//            this->_timers.insert(ptr);
-//        }
-//        else
-//        {
-//            this->del(ptr);
-//        }
-//
-//        if (cb)
-//            cb(ModeRead);
-//    }
-//
-//    return !tmp.empty();
-    return std::chrono::nanoseconds::min();
+    // todo
+    std::chrono::nanoseconds ret = std::chrono::nanoseconds::max();
+
+    if (this->_timers.empty())
+        return std::chrono::nanoseconds::min();
+
+    std::vector<timer*> tmp;
+
+    for (auto *ptr : this->_timers)
+    {
+        bool expired = ptr->update();
+
+        if (expired)
+        {
+            this->post(&ptr->handle(), 0);  // post std::function?
+
+            if (!ptr->repeat())
+            {
+                tmp.emplace_back(ptr);
+                continue;
+            }
+        }
+
+        ret = std::min(ret, ptr->alarm() - std::chrono::high_resolution_clock::now());
+    }
+
+    for (auto *ptr : tmp)
+        this->del(ptr);
+
+    return ret == std::chrono::nanoseconds::max() ? std::chrono::nanoseconds::min() : ret;
 }
 
 std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)

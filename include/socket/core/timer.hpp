@@ -43,67 +43,24 @@ namespace chen
         }
 
     public:
-#ifdef __linux__
+        /**
+         * Check timer property
+         */
+        bool repeat() const;
+
+        std::chrono::nanoseconds cycle() const;
+        std::chrono::high_resolution_clock::time_point alarm() const;
 
         /**
-         * Reset timer state
+         * Update timer value
+         * @return true if timer expired after update, otherwise false
          */
-        void reset();
-
-        /**
-         * Read data from fd
-         */
-        void clear();
-
-#else
-
-        /**
-         * Timer property
-         */
-        bool repeat() const
-        {
-            return this->_repeat;
-        }
-
-        std::chrono::nanoseconds cycle() const
-        {
-            return this->_cycle;
-        }
-
-        std::chrono::nanoseconds alarm() const
-        {
-            return this->_alarm;
-        }
-
-        /**
-         * Check if expired
-         */
-        bool expired(const std::chrono::high_resolution_clock::time_point &value) const;
-
-        /**
-         * Update timer's alarm value
-         */
-        void update(const std::chrono::high_resolution_clock::time_point &value);
-
-        /**
-         * Comparator class
-         */
-        struct compare
-        {
-            bool operator()(const timer *a, const timer *b) const
-            {
-                return a->_alarm < b->_alarm;
-            }
-        };
-
-#endif
+        bool update();
 
     private:
         basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS
 
-        bool _repeat = false;
-
         std::chrono::nanoseconds _cycle;  // value when call timeout or interval
-        std::chrono::nanoseconds _alarm;  // the next trigger unix timestamp val
+        std::chrono::high_resolution_clock::time_point _alarm;  // the next trigger time point
     };
 }

@@ -13,7 +13,6 @@
 #include <system_error>
 #include <vector>
 #include <queue>
-#include <set>
 
 namespace chen
 {
@@ -175,7 +174,7 @@ namespace chen
         handle_t _kqueue = invalid_handle;
 
         std::vector<struct ::kevent> _events;
-        std::set<timer*, timer::compare> _timers;
+        std::vector<timer*> _timers;  // todo use min heap?
 
         std::queue<Data> _pending;
         std::unordered_set<basic_handle*> _handles;
