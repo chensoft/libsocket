@@ -128,7 +128,7 @@ namespace chen
         /**
          * Post events to queue
          */
-        void post(basic_handle *ptr, int type);
+        void post(basic_handle *ptr, int type, timer *time);
 
         /**
          * Stop the poll
@@ -162,10 +162,11 @@ namespace chen
     private:
         struct Data
         {
-            Data(basic_handle *ptr, int type) : ptr(ptr), type(type) {}
+            Data(basic_handle *ptr, int type, timer *time) : ptr(ptr), type(type), time(time) {}
 
             basic_handle *ptr;
             int type;
+            timer *time;
         };
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)

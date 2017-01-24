@@ -158,9 +158,10 @@ void chen::reactor::del(event *ptr)
 void chen::reactor::del(timer *ptr)
 {
     ptr->handle().detach();
-    std::remove_if(this->_timers.begin(), this->_timers.end(), [=] (timer *obj) {
-        return obj == ptr;
-    });
+
+    auto it = std::remove(this->_timers.begin(), this->_timers.end(), ptr);
+    if (it != this->_timers.end())
+        this->_timers.erase(it);
 }
 
 // run
@@ -181,8 +182,8 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     auto zero = std::chrono::nanoseconds::zero();
     auto near = this->update();
 
-    if (near >= zero)
-        timeout = std::max(zero, std::min(near, timeout));
+    if ((near >= zero) && (timeout != zero))
+        timeout = (timeout > zero) ? std::min(near, timeout) : near;
 
     // pull events
     auto error = this->gather(timeout);
@@ -193,9 +194,9 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     return error;
 }
 
-void chen::reactor::post(basic_handle *ptr, int type)
+void chen::reactor::post(basic_handle *ptr, int type, timer *time)
 {
-    this->_pending.emplace(ptr, type);
+    this->_pending.emplace(ptr, type, time);
 }
 
 void chen::reactor::stop()
@@ -209,33 +210,25 @@ void chen::reactor::stop()
 std::chrono::nanoseconds chen::reactor::update()
 {
     // todo
-    std::chrono::nanoseconds ret = std::chrono::nanoseconds::max();
-
     if (this->_timers.empty())
         return std::chrono::nanoseconds::min();
 
-    std::vector<timer*> tmp;
+    std::chrono::nanoseconds ret = std::chrono::nanoseconds::max();
 
     for (auto *ptr : this->_timers)
     {
-        bool expired = ptr->update();
+        auto now = std::chrono::high_resolution_clock::now();
+        auto exp = ptr->update(now);
 
-        if (expired)
+        if (exp)
         {
-            this->post(&ptr->handle(), 0);  // post std::function?
-
-            if (!ptr->repeat())
-            {
-                tmp.emplace_back(ptr);
-                continue;
-            }
+            ret = std::chrono::nanoseconds::zero();
+            this->post(&ptr->handle(), ptr->repeat() ? Readable : Closed, ptr);
+            continue;
         }
 
-        ret = std::min(ret, ptr->alarm() - std::chrono::high_resolution_clock::now());
+        ret = std::min(ret, ptr->alarm() - now);
     }
-
-    for (auto *ptr : tmp)
-        this->del(ptr);
 
     return ret == std::chrono::nanoseconds::max() ? std::chrono::nanoseconds::min() : ret;
 }
@@ -274,7 +267,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         if (item.filter == EVFILT_USER)
             return std::make_error_code(std::errc::operation_canceled);
 
-        this->post(ptr, kq_type(item.filter, item.flags));
+        this->post(ptr, kq_type(item.filter, item.flags), nullptr);
     }
 
     return {};
@@ -289,7 +282,7 @@ void chen::reactor::notify()
         auto  type = item.type;
 
         if ((type & Closed) || (item.ptr->flag() & FlagOnce))
-            this->del(item.ptr);
+            item.time ? this->del(item.time) : this->del(item.ptr);
 
         this->_pending.pop();
 

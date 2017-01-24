@@ -113,9 +113,11 @@ void chen::reactor::del(basic_handle *ptr)
     this->_cache.erase(*ptr);
 
     // delete event
-    std::remove_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
+    auto it = std::remove_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
         return item.fd == *ptr;
     });
+    if (it != this->_events.end())
+        this->_events.erase(it);
 
     // repoll if in polling
     this->_repoll.set();

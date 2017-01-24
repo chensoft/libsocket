@@ -55,7 +55,7 @@ namespace chen
          * Update timer value
          * @return true if timer expired after update, otherwise false
          */
-        bool update();
+        bool update(const std::chrono::high_resolution_clock::time_point &now);
 
     private:
         basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS

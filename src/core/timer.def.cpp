@@ -38,7 +38,8 @@ void chen::timer::interval(const std::chrono::nanoseconds &value)
 
 bool chen::timer::repeat() const
 {
-    return (this->_cycle != std::chrono::nanoseconds::zero()) && (this->_alarm == std::chrono::high_resolution_clock::time_point::min());
+    // todo use single flag to represent repeat
+    return this->_cycle != std::chrono::nanoseconds::zero();
 }
 
 std::chrono::nanoseconds chen::timer::cycle() const
@@ -51,19 +52,24 @@ std::chrono::high_resolution_clock::time_point chen::timer::alarm() const
     return this->_alarm;
 }
 
-bool chen::timer::update()
+bool chen::timer::update(const std::chrono::high_resolution_clock::time_point &now)
 {
     if (this->_alarm == std::chrono::high_resolution_clock::time_point::min())
     {
-        this->_alarm = std::chrono::high_resolution_clock::now() + this->_cycle;
+        this->_alarm = now + this->_cycle;
         this->_cycle = std::chrono::nanoseconds::zero();
     }
-    else if (this->_cycle > std::chrono::nanoseconds::zero())
+    else if (this->_alarm == std::chrono::high_resolution_clock::time_point())
     {
-        this->_alarm = std::chrono::high_resolution_clock::now() + this->_cycle;
+        this->_alarm = now + this->_cycle;
     }
 
-    return this->_alarm <= std::chrono::high_resolution_clock::now();
+    auto ret = this->_alarm <= now;
+
+    if (ret && (this->_cycle > std::chrono::nanoseconds::zero()))
+        this->_alarm = now + this->_cycle;
+
+    return ret;
 }
 
 #endif
