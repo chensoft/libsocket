@@ -67,7 +67,7 @@ bool chen::timer::update(const std::chrono::high_resolution_clock::time_point &n
     auto ret = this->_alarm <= now;
 
     if (ret && (this->_cycle > std::chrono::nanoseconds::zero()))
-        this->_alarm = now + this->_cycle;
+        this->_alarm += this->_cycle;
 
     return ret;
 }
