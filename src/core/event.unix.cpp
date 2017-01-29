@@ -40,6 +40,8 @@ chen::event::~event()
 
 void chen::event::set()
 {
+    this->_signaled = true;
+
     ::write(this->_write, "\n", 1);
 }
 
@@ -48,6 +50,8 @@ void chen::event::reset()
     char buf[512];
     while (::read(this->_handle, buf, 512) >= 0)
         ;
+
+    this->_signaled = false;
 }
 
 chen::basic_handle& chen::event::handle()

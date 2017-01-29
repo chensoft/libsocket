@@ -174,6 +174,8 @@ namespace chen
         // Unix, use kqueue
         handle_t _kqueue = invalid_handle;
 
+        chen::event _wakeup;
+
         std::vector<struct ::kevent> _events;
         std::vector<timer*> _timers;  // todo use min heap?
 

@@ -66,13 +66,8 @@ chen::reactor::reactor(std::size_t count) : _events(count)
 
     ioctl::cloexec(this->_kqueue, true);
 
-    // register custom filter to recv wakeup message
-    // ident's value is not important here, use zero is ok
-    if (kq_alter(this->_kqueue, 0, EVFILT_USER, EV_ADD, 0, 0, nullptr) < 0)
-    {
-        ::close(this->_kqueue);
-        throw std::system_error(chen::sys::error(), "reactor: failed to create custom filter");
-    }
+    // create pipe to recv wakeup message
+    this->set(&this->_wakeup, nullptr, 0);
 }
 
 chen::reactor::~reactor()
@@ -178,6 +173,13 @@ std::error_code chen::reactor::poll()
 
 std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 {
+    // quickly stop
+    if (this->_wakeup.signaled())
+    {
+        this->_wakeup.reset();
+        return std::make_error_code(std::errc::operation_canceled);
+    }
+
     // update timer
     auto zero = std::chrono::nanoseconds::zero();
     auto near = this->update();
@@ -201,9 +203,8 @@ void chen::reactor::post(basic_handle *ptr, int type, timer *time)
 
 void chen::reactor::stop()
 {
-    // notify wakeup message via custom filter
-    if (kq_alter(this->_kqueue, 0, EVFILT_USER, EV_ENABLE, NOTE_TRIGGER, 0, nullptr) < 0)
-        throw std::system_error(sys::error(), "reactor: failed to stop the kqueue");
+    // notify wakeup message via pipe
+    this->_wakeup.set();
 }
 
 // phase
@@ -264,8 +265,11 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         auto   ptr = static_cast<basic_handle*>(item.udata);
 
         // user request to stop
-        if (item.filter == EVFILT_USER)
+        if (ptr == &this->_wakeup.handle())
+        {
+            this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
+        }
 
         this->post(ptr, kq_type(item.filter, item.flags), nullptr);
     }

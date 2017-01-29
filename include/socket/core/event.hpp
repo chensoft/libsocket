@@ -28,11 +28,21 @@ namespace chen
         void reset();
 
         /**
+         * Check if signaled
+         */
+        bool signaled() const
+        {
+            return this->_signaled;
+        }
+
+        /**
          * Native event handle
          */
         basic_handle& handle();
 
     private:
+        bool _signaled = false;
+
         basic_handle _handle;
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
