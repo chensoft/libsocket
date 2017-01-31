@@ -15,10 +15,10 @@ TEST(CoreReactorTest, Timer)
     int c1 = 0, c2 = 0, c3 = 0;
 
     timer t1;
-    t1.timeout(std::chrono::milliseconds(100));
+    t1.timeout(std::chrono::milliseconds(10));
 
     timer t2;
-    t2.future(std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(200));
+    t2.future(std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(20));
 
     timer t3;
     t3.interval(std::chrono::milliseconds(30));
@@ -34,7 +34,7 @@ TEST(CoreReactorTest, Timer)
     });
 
     r.set(&t3, [&] () {
-        if (++c3 == 10)
+        if (++c3 == 5)
             r.stop();
     });
 
@@ -42,5 +42,5 @@ TEST(CoreReactorTest, Timer)
 
     EXPECT_EQ(1, c1);
     EXPECT_EQ(1, c2);
-    EXPECT_EQ(10, c3);
+    EXPECT_EQ(5, c3);
 }

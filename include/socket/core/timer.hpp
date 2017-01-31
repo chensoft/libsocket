@@ -43,21 +43,39 @@ namespace chen
         }
 
     public:
+#ifndef __linux__
         /**
          * Check timer property
          */
-        bool repeat() const;
+        bool repeat() const
+        {
+            return this->_repeat;
+        }
 
-        std::chrono::nanoseconds cycle() const;
-        std::chrono::high_resolution_clock::time_point alarm() const;
+        std::chrono::nanoseconds cycle() const
+        {
+            return this->_cycle;
+        }
+
+        std::chrono::high_resolution_clock::time_point alarm() const
+        {
+            return this->_alarm;
+        }
+
+        /**
+         * Calculate init value
+         */
+        void adjust(const std::chrono::high_resolution_clock::time_point &now);
 
         /**
          * Update timer value
          * @return true if timer expired after update, otherwise false
          */
         bool update(const std::chrono::high_resolution_clock::time_point &now);
+#endif
 
     private:
+        bool _repeat = false;
         basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS
 
         std::chrono::nanoseconds _cycle;  // value when call timeout or interval

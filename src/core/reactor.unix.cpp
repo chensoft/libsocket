@@ -73,12 +73,12 @@ chen::reactor::reactor(std::size_t count) : _events(count)
 chen::reactor::~reactor()
 {
     // clear cache before destroy kqueue
-    auto tmp = std::move(this->_handles);
-    for (auto &ev : tmp)
-        this->del(ev);
+    auto handles = std::move(this->_handles);
+    for (auto &ptr : handles)
+        this->del(ptr);
 
-    auto set = std::move(this->_timers);
-    for (auto *ptr : set)
+    auto timers = std::move(this->_timers);
+    for (auto *ptr : timers)
         this->del(ptr);
 
     ::close(this->_kqueue);
@@ -116,11 +116,12 @@ void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 
 void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
+    ptr->adjust(std::chrono::high_resolution_clock::now());
     ptr->handle().attach(this, [=] (int type) {
         cb();
     }, 0, 0);  // mode & flag is useless
 
-    this->_timers.emplace_back(ptr);
+    this->_timers.insert(ptr);
 }
 
 void chen::reactor::del(basic_handle *ptr)
@@ -153,10 +154,7 @@ void chen::reactor::del(event *ptr)
 void chen::reactor::del(timer *ptr)
 {
     ptr->handle().detach();
-
-    auto it = std::remove(this->_timers.begin(), this->_timers.end(), ptr);
-    if (it != this->_timers.end())
-        this->_timers.erase(it);
+    this->_timers.erase(ptr);
 }
 
 // run
@@ -210,28 +208,32 @@ void chen::reactor::stop()
 // phase
 std::chrono::nanoseconds chen::reactor::update()
 {
-    // todo
     if (this->_timers.empty())
         return std::chrono::nanoseconds::min();
 
-    std::chrono::nanoseconds ret = std::chrono::nanoseconds::max();
+    auto ret = std::chrono::nanoseconds::zero();
+    auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)
     {
-        auto now = std::chrono::high_resolution_clock::now();
         auto exp = ptr->update(now);
 
         if (exp)
         {
-            ret = std::chrono::nanoseconds::zero();
-            this->post(&ptr->handle(), ptr->repeat() ? Readable : Closed, ptr);
-            continue;
-        }
+            if (ret != std::chrono::nanoseconds::zero())
+                ret = std::chrono::nanoseconds::zero();
 
-        ret = std::min(ret, ptr->alarm() - now);
+            this->post(&ptr->handle(), ptr->repeat() ? Readable : Closed, ptr);
+        }
+        else
+        {
+            auto off = ptr->alarm() - now;
+            if ((off >= std::chrono::nanoseconds::zero()) && (ret > off))
+                ret = off;
+        }
     }
 
-    return ret == std::chrono::nanoseconds::max() ? std::chrono::nanoseconds::min() : ret;
+    return ret;
 }
 
 std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)

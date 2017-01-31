@@ -177,7 +177,7 @@ namespace chen
         chen::event _wakeup;
 
         std::vector<struct ::kevent> _events;
-        std::vector<timer*> _timers;  // todo use min heap?
+        std::unordered_set<timer*> _timers;
 
         std::queue<Data> _pending;
         std::unordered_set<basic_handle*> _handles;
