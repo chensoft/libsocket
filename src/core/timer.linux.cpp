@@ -29,29 +29,29 @@ void chen::timer::timeout(const std::chrono::nanoseconds &value)
 {
     this->_repeat = false;
     this->_cycle  = value;
-    this->_alarm  = std::chrono::nanoseconds::zero();
+    this->_alarm  = std::chrono::high_resolution_clock::time_point();
 }
 
 void chen::timer::future(const std::chrono::high_resolution_clock::time_point &value)
 {
     this->_repeat = false;
     this->_cycle  = std::chrono::nanoseconds::zero();
-    this->_alarm  = value.time_since_epoch();
+    this->_alarm  = value;
 }
 
 void chen::timer::interval(const std::chrono::nanoseconds &value)
 {
     this->_repeat = true;
     this->_cycle  = value;
-    this->_alarm  = std::chrono::nanoseconds::zero();
+    this->_alarm  = std::chrono::high_resolution_clock::time_point();
 }
 
-void chen::timer::reset()
+void chen::timer::adjust(const std::chrono::high_resolution_clock::time_point &now)
 {
     auto zero = std::chrono::nanoseconds::zero();
     auto time = ::itimerspec{};
 
-    if (this->_cycle > zero)
+    if (this->_alarm.time_since_epoch() == zero)
     {
         // timeout or interval
         auto cycle = this->_cycle.count();
@@ -65,7 +65,7 @@ void chen::timer::reset()
     else if (this->_cycle == zero)
     {
         // future date
-        auto alarm = this->_alarm.count() - std::chrono::high_resolution_clock::now().time_since_epoch().count();
+        auto alarm = (this->_alarm - std::chrono::high_resolution_clock::now()).count();
 
         if (alarm > 0)
         {
@@ -74,7 +74,7 @@ void chen::timer::reset()
         }
         else
         {
-            time.it_value.tv_nsec = 1;  // just trigger it
+            time.it_value.tv_nsec = 1;  // just in order to trigger the timer
         }
     }
 

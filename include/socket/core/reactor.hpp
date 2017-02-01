@@ -175,7 +175,6 @@ namespace chen
         handle_t _kqueue = invalid_handle;
 
         chen::event _wakeup;
-
         std::vector<struct ::kevent> _events;
         std::unordered_set<timer*> _timers;
 
@@ -184,13 +183,14 @@ namespace chen
 
 #elif defined(__linux__)
 
-        //        // Linux, use epoll
-//        int type(int events);
-//
-//        handle_t _epoll = invalid_handle;
-//
-//        chen::event _wakeup;
-//        std::unordered_set<basic_handle*> _cache;
+        // Linux, use epoll
+        handle_t _epoll = invalid_handle;
+
+        chen::event _wakeup;
+        std::vector<struct ::epoll_event> _events;
+
+        std::queue<Data> _pending;
+        std::unordered_set<basic_handle*> _handles;
 
 #else
 

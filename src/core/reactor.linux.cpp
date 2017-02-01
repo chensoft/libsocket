@@ -8,7 +8,33 @@
 
 #include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
-#include <limits>
+
+// -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    int ep_type(int events)
+    {
+        // check events, multiple events may occur
+        if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
+        {
+            return chen::reactor::Closed;
+        }
+        else
+        {
+            int ret = 0;
+
+            if (events & EPOLLIN)
+                ret |= chen::reactor::Readable;
+
+            if (events & EPOLLOUT)
+                ret |= chen::reactor::Writable;
+
+            return ret;
+        }
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -27,7 +53,7 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 {
 }
 
-chen::reactor::reactor(short count) : _count(count)
+chen::reactor::reactor(std::size_t count) : _events(count)
 {
     // create epoll file descriptor
     if ((this->_epoll = ::epoll_create1(EPOLL_CLOEXEC)) < 0)
@@ -40,9 +66,9 @@ chen::reactor::reactor(short count) : _count(count)
 chen::reactor::~reactor()
 {
     // clear cache before destroy epoll
-    auto tmp = std::move(this->_cache);
-    for (auto &ev : tmp)
-        this->del(ev);
+    auto handles = std::move(this->_handles);
+    for (auto &ptr : handles)
+        this->del(ptr);
 
     ::close(this->_epoll);
 }
@@ -68,11 +94,11 @@ void chen::reactor::set(basic_handle *ptr, std::function<void (int type)> cb, in
             throw std::system_error(sys::error(), "reactor: failed to set event");
     }
 
-    // store event
-    this->_cache.insert(ptr);
+    // store handle
+    this->_handles.insert(ptr);
 
     // associate callback
-    ptr->attach(this, cb, mode, flag);
+    ptr->attach(this, std::move(cb), mode, flag);
 }
 
 void chen::reactor::set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag)
@@ -89,11 +115,11 @@ void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 
 void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
-    ptr->reset();
+    ptr->adjust(std::chrono::high_resolution_clock::now());
     this->set(&ptr->handle(), [=] (int type) {
         ptr->clear();
         cb();
-    }, ModeRead, 0);
+    }, ModeRead, FlagEdge);
 }
 
 void chen::reactor::del(basic_handle *ptr)
@@ -101,8 +127,8 @@ void chen::reactor::del(basic_handle *ptr)
     // clear callback
     ptr->detach();
 
-    // clear event
-    this->_cache.erase(ptr);
+    // clear handle
+    this->_handles.erase(ptr);
 
     // delete event
     if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, *ptr, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
@@ -138,9 +164,31 @@ std::error_code chen::reactor::poll()
 
 std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 {
-    // poll events
-    ::epoll_event events[this->_count];  // VLA
-    int result = ::epoll_wait(this->_epoll, events, this->_count, timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
+    // pull events
+    auto error = this->gather(timeout);
+
+    // notify user
+    this->notify();
+
+    return error;
+}
+
+void chen::reactor::post(basic_handle *ptr, int type, timer *time)
+{
+    this->_pending.emplace(ptr, type, time);
+}
+
+void chen::reactor::stop()
+{
+    // notify wakeup message via eventfd
+    this->_wakeup.set();
+}
+
+// phase
+std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
+{
+    // pull events
+    int result = ::epoll_wait(this->_epoll, this->_events.data(), static_cast<int>(this->_events.size()), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
     if (result <= 0)
     {
@@ -156,7 +204,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     // events on the same fd will be notified only once
     for (int i = 0; i < result; ++i)
     {
-        auto &item = events[i];
+        auto &item = this->_events[i];
         auto   ptr = static_cast<basic_handle*>(item.data.ptr);
 
         // user request to stop
@@ -166,48 +214,26 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        // normal callback
-        if (ptr)
-        {
-            auto cb = ptr->cb();
-            auto tp = this->type(item.events);
-
-            if ((tp & Closed) || (ptr->flag() & FlagOnce))
-                this->del(ptr);
-
-            if (cb)
-                cb(tp);
-        }
+        this->post(ptr, ep_type(item.events), nullptr);
     }
 
     return {};
 }
 
-void chen::reactor::stop()
+void chen::reactor::notify()
 {
-    // notify wakeup message via eventfd
-    this->_wakeup.set();
-}
-
-// misc
-int chen::reactor::type(int events)
-{
-    // check events, multiple events maybe occur
-    if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
+    while (!this->_pending.empty())
     {
-        return Closed;
-    }
-    else
-    {
-        int ret = 0;
+        auto &item = this->_pending.front();
+        auto  func = item.ptr->cb();
+        auto  type = item.type;
 
-        if (events & EPOLLIN)
-            ret |= Readable;
+        if ((type & Closed) || (item.ptr->flag() & FlagOnce))
+            item.time ? this->del(item.time) : this->del(item.ptr);
 
-        if (events & EPOLLOUT)
-            ret |= Writable;
+        this->_pending.pop();
 
-        return ret;
+        func(type);
     }
 }
 

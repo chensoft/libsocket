@@ -43,7 +43,17 @@ namespace chen
         }
 
     public:
-#ifndef __linux__
+        /**
+         * Calculate init value
+         */
+        void adjust(const std::chrono::high_resolution_clock::time_point &now);
+
+#ifdef __linux__
+        /**
+         * Clear the timer buffer
+         */
+        void clear();
+#else
         /**
          * Check timer property
          */
@@ -61,11 +71,6 @@ namespace chen
         {
             return this->_alarm;
         }
-
-        /**
-         * Calculate init value
-         */
-        void adjust(const std::chrono::high_resolution_clock::time_point &now);
 
         /**
          * Update timer value
