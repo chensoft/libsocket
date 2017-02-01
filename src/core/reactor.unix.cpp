@@ -211,7 +211,7 @@ std::chrono::nanoseconds chen::reactor::update()
     if (this->_timers.empty())
         return std::chrono::nanoseconds::min();
 
-    auto ret = std::chrono::nanoseconds::zero();
+    auto ret = std::chrono::nanoseconds::min();
     auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)
@@ -228,7 +228,7 @@ std::chrono::nanoseconds chen::reactor::update()
         else
         {
             auto off = ptr->alarm() - now;
-            if ((off >= std::chrono::nanoseconds::zero()) && (ret > off))
+            if ((off >= std::chrono::nanoseconds::zero()) && ((ret < std::chrono::nanoseconds::zero()) || (ret > off)))
                 ret = off;
         }
     }

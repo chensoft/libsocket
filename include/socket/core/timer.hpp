@@ -44,17 +44,6 @@ namespace chen
 
     public:
         /**
-         * Calculate init value
-         */
-        void adjust(const std::chrono::high_resolution_clock::time_point &now);
-
-#ifdef __linux__
-        /**
-         * Clear the timer buffer
-         */
-        void clear();
-#else
-        /**
          * Check timer property
          */
         bool repeat() const
@@ -73,15 +62,19 @@ namespace chen
         }
 
         /**
+         * Calculate init value
+         */
+        void adjust(const std::chrono::high_resolution_clock::time_point &now);
+
+        /**
          * Update timer value
          * @return true if timer expired after update, otherwise false
          */
         bool update(const std::chrono::high_resolution_clock::time_point &now);
-#endif
 
     private:
         bool _repeat = false;
-        basic_handle _handle;  // use timerfd on Linux, calculate manually on other OS
+        basic_handle _handle;  // calculate timer manually
 
         std::chrono::nanoseconds _cycle;  // value when call timeout or interval
         std::chrono::high_resolution_clock::time_point _alarm;  // the next trigger time point

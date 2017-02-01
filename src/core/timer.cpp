@@ -4,8 +4,6 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#ifndef __linux__
-
 #include <socket/core/timer.hpp>
 
 // -----------------------------------------------------------------------------
@@ -56,5 +54,3 @@ bool chen::timer::update(const std::chrono::high_resolution_clock::time_point &n
 
     return expired;
 }
-
-#endif
