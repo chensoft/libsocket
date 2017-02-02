@@ -116,7 +116,6 @@ void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
 
 void chen::reactor::set(timer *ptr, std::function<void ()> cb)
 {
-    ptr->adjust(std::chrono::high_resolution_clock::now());
     ptr->handle().attach(this, [=] (int type) {
         cb();
     }, 0, 0);  // mode & flag is useless
@@ -216,6 +215,8 @@ std::chrono::nanoseconds chen::reactor::update()
 
     for (auto *ptr : this->_timers)
     {
+        ptr->adjust(now);
+
         auto exp = ptr->update(now);
 
         if (exp)

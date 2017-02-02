@@ -41,8 +41,6 @@ void chen::timer::adjust(const std::chrono::high_resolution_clock::time_point &n
 {
     if (this->_alarm.time_since_epoch() == std::chrono::nanoseconds::zero())
         this->_alarm = now + this->_cycle;
-    else if (!this->_repeat && (this->_cycle == std::chrono::nanoseconds::zero()))
-        this->_cycle = this->_alarm - now;  // for sort in multiset
 }
 
 bool chen::timer::update(const std::chrono::high_resolution_clock::time_point &now)
