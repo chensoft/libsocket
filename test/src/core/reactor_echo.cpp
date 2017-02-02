@@ -40,9 +40,7 @@ void server_thread(basic_socket &s)
     std::vector<std::unique_ptr<basic_socket>> cache;
     reactor r;
 
-    auto handler_connection = [&] (std::size_t index, int type) {
-        auto &conn = cache[index];
-
+    auto handler_connection = [&](basic_socket *conn, int type) {
         // you should read the rest of the data even if you received the closed event
         EXPECT_TRUE((type & reactor::Readable) || (type & reactor::Closed));
 
@@ -65,7 +63,7 @@ void server_thread(basic_socket &s)
         EXPECT_EQ((chen::ssize_t)size, conn->send(text.data(), size));
     };
 
-    auto handler_server = [&] (int type) {
+    auto handler_server = [&](int type) {
         EXPECT_GT(type & reactor::Readable, 0);
 
         // accept new connection
@@ -75,7 +73,7 @@ void server_thread(basic_socket &s)
         cache.emplace_back(std::move(conn));  // prevent connection released
 
         // register event for conn
-        r.set(cache.back().get(), std::bind(handler_connection, cache.size() - 1, _1), reactor::ModeRead, 0);
+        r.set(cache.back().get(), std::bind(handler_connection, cache.back().get(), _1), reactor::ModeRead, 0);
     };
 
     r.set(&s, handler_server, reactor::ModeRead, 0);

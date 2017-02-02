@@ -160,14 +160,14 @@ namespace chen
         reactor& operator=(const reactor&) = delete;
 
     private:
-        struct Data
+        typedef struct Data
         {
             Data(basic_handle *ptr, int type, timer *time) : ptr(ptr), type(type), time(time) {}
 
             basic_handle *ptr;
             int type;
             timer *time;
-        };
+        } Data;
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
@@ -195,16 +195,15 @@ namespace chen
 
 #else
 
-//        // Windows, use WSAPoll
-//        int type(int events);
-//        bool update();
-//
-//        chen::event _wakeup;
-//        chen::event _repoll;
-//
-//        std::vector<struct ::pollfd> _events;
-//        std::set<timer*, timer::compare> _timers;
-//        std::unordered_map<handle_t, basic_handle*> _cache;
+        // Windows, use WSAPoll
+        chen::event _wakeup;
+        chen::event _repoll;
+
+        std::vector<struct ::pollfd> _events;
+        std::unordered_set<timer*> _timers;
+
+        std::queue<Data> _pending;
+        std::unordered_map<handle_t, basic_handle*> _handles;
 
 #endif
     };
