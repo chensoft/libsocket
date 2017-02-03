@@ -93,7 +93,7 @@ namespace
         ifr.ifr_addr.sa_family = AF_INET6;
         ::memcpy(ifr.ifr_name, ptr->ifa_name, IFNAMSIZ);
 
-        if (::ioctl(tmp.handle(), SIOCGIFMTU, &ifr) >= 0)
+        if (::ioctl(tmp.native(), SIOCGIFMTU, &ifr) >= 0)
             mtu = static_cast<std::uint32_t>((std::max)(0, ifr.ifr_mtu));
 
         // mac

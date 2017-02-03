@@ -6,15 +6,17 @@
  */
 #pragma once
 
-#include <socket/base/basic_handle.hpp>
+#include <socket/base/basic_event.hpp>
+#include <functional>
 #include <chrono>
 
 namespace chen
 {
-    class timer
+    class timer : public basic_event
     {
     public:
         timer();
+        timer(std::function<void ()> cb);
         ~timer();
 
     public:
@@ -33,18 +35,17 @@ namespace chen
          */
         void interval(const std::chrono::nanoseconds &value);
 
-        /**
-         * Native timer handle
-         * @note fd is only valid under Linux
-         */
-        basic_handle& handle()
-        {
-            return this->_handle;
-        }
-
     public:
         /**
-         * Check timer property
+         * Native handle value
+         */
+        virtual handle_t native() const
+        {
+            return invalid_handle;  // no use in timer
+        }
+
+        /**
+         * Timer properties
          */
         bool repeat() const
         {
@@ -72,9 +73,22 @@ namespace chen
          */
         bool update(const std::chrono::high_resolution_clock::time_point &now);
 
+    public:
+        /**
+         * Bind & Emit callback
+         */
+        void bind(std::function<void ()> cb);
+        void emit();
+
+    protected:
+        /**
+         * At least one event has occurred
+         */
+        virtual void onEvent(reactor &loop, int type);
+
     private:
         bool _repeat = false;
-        basic_handle _handle;  // calculate timer manually
+        std::function<void ()> _notify;
 
         std::chrono::nanoseconds _cycle;  // value when call timeout or interval
         std::chrono::high_resolution_clock::time_point _alarm;  // the next trigger time point

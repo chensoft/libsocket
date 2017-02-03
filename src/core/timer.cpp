@@ -12,10 +12,15 @@ chen::timer::timer()
 {
 }
 
+chen::timer::timer(std::function<void ()> cb) : _notify(cb)
+{
+}
+
 chen::timer::~timer()
 {
 }
 
+// config
 void chen::timer::timeout(const std::chrono::nanoseconds &value)
 {
     this->_repeat = false;
@@ -37,6 +42,7 @@ void chen::timer::interval(const std::chrono::nanoseconds &value)
     this->_alarm  = std::chrono::high_resolution_clock::time_point();
 }
 
+// update
 void chen::timer::adjust(const std::chrono::high_resolution_clock::time_point &now)
 {
     if (this->_alarm.time_since_epoch() == std::chrono::nanoseconds::zero())
@@ -51,4 +57,22 @@ bool chen::timer::update(const std::chrono::high_resolution_clock::time_point &n
         this->_alarm += this->_cycle;
 
     return expired;
+}
+
+// notify
+void chen::timer::bind(std::function<void ()> cb)
+{
+    this->_notify = cb;
+}
+
+void chen::timer::emit()
+{
+    if (this->_notify)
+        this->_notify();
+}
+
+// event
+void chen::timer::onEvent(reactor &loop, int type)
+{
+    this->emit();
 }

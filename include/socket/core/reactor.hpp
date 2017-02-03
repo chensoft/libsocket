@@ -54,27 +54,6 @@ namespace chen
         static const int FlagOnce;  // event occurs only once
 
     public:
-        /**
-         * Event type
-         * ---------------------------------------------------------------------
-         * Readable: you can read data from remote
-         * ---------------------------------------------------------------------
-         * Writable: you can write data to remote
-         * ---------------------------------------------------------------------
-         * Closed: socket disconnected or connection refused
-         * ---------------------------------------------------------------------
-         * @note in epoll, Closed event is always be monitored, in kqueue and poll
-         * you must monitor the Readable event if you want to know the Closed event
-         * ---------------------------------------------------------------------
-         * @note you should read the rest of the data even if you received the Closed
-         * event, server may send last message and then close the connection immediately
-         * the backend may report Readable & Closed event or only report the Closed event
-         */
-        static const int Readable;
-        static const int Writable;
-        static const int Closed;
-
-    public:
         reactor();
         reactor(std::size_t count);  // the maximum events returned after polling, it will be ignored on Windows
         ~reactor();
@@ -82,27 +61,17 @@ namespace chen
     public:
         /**
          * Monitor event
-         * @param cb you can use std::bind to bind custom param
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
-         * @note use bitwise and to check the event type, e.g: if (type & Readable)
          */
-        void set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag);
-
-        /**
-         * Specific methods for socket, event, timer
-         */
-        void set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag);
-        void set(event *ptr, std::function<void ()> cb, int flag);
-        void set(timer *ptr, std::function<void ()> cb);
+        void set(basic_event *ptr, int mode, int flag);
+        void set(timer *ptr);
 
         /**
          * Delete event
          * @note this method will be called automatically when object destroyed, event is Closed or flag is FlagOnce
          */
-        void del(basic_handle *ptr);
-        void del(basic_socket *ptr);
-        void del(event *ptr);
+        void del(basic_event *ptr);
         void del(timer *ptr);
 
     public:
@@ -128,7 +97,8 @@ namespace chen
         /**
          * Post events to queue
          */
-        void post(basic_handle *ptr, int type, timer *time);
+        void post(basic_event *ptr, int type);
+        void post(timer *ptr, int type);
 
         /**
          * Stop the poll
@@ -160,51 +130,46 @@ namespace chen
         reactor& operator=(const reactor&) = delete;
 
     private:
-        typedef struct Data
+        typedef struct
         {
-            Data(basic_handle *ptr, int type, timer *time) : ptr(ptr), type(type), time(time) {}
+            basic_event *ptr = nullptr;
 
-            basic_handle *ptr;
-            int type;
-            timer *time;
+            int mode = 0;
+            int flag = 0;
+            int type = 0;
+
+            bool timer = false;
         } Data;
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use kqueue
+        typedef struct ::kevent event_t;
+
         handle_t _kqueue = invalid_handle;
-
-        chen::event _wakeup;
-        std::vector<struct ::kevent> _events;
-        std::unordered_set<timer*> _timers;
-
-        std::queue<Data> _pending;
-        std::unordered_set<basic_handle*> _handles;
 
 #elif defined(__linux__)
 
         // Linux, use epoll
+        typedef struct ::epoll_event event_t;
+
         handle_t _epoll = invalid_handle;
-
-        chen::event _wakeup;
-        std::vector<struct ::epoll_event> _events;
-        std::unordered_set<timer*> _timers;
-
-        std::queue<Data> _pending;
-        std::unordered_set<basic_handle*> _handles;
 
 #else
 
         // Windows, use WSAPoll
-        chen::event _wakeup;
+        typedef struct ::pollfd event_t;
+
         chen::event _repoll;
 
-        std::vector<struct ::pollfd> _events;
+#endif
+
+        chen::event _wakeup;
+
+        std::vector<event_t> _events;
         std::unordered_set<timer*> _timers;
 
         std::queue<Data> _pending;
-        std::unordered_map<handle_t, basic_handle*> _handles;
-
-#endif
+        std::unordered_map<handle_t, Data> _handles;
     };
 }

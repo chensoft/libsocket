@@ -92,7 +92,7 @@ struct ::linger chen::basic_option::linger() const
 {
     struct ::linger val{};
     option_t len = sizeof(val);
-    return ::getsockopt(this->_socket.handle(), SOL_SOCKET, SO_LINGER, (char*)&val, &len), val;
+    return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_LINGER, (char*)&val, &len), val;
 }
 
 bool chen::basic_option::linger(int onoff, int value)
@@ -106,7 +106,7 @@ bool chen::basic_option::linger(int onoff, int value)
 
 bool chen::basic_option::linger(const struct ::linger &val)
 {
-    return !::setsockopt(this->_socket.handle(), SOL_SOCKET, SO_LINGER, (const char*)&val, sizeof(val));
+    return !::setsockopt(this->_socket.native(), SOL_SOCKET, SO_LINGER, (const char*)&val, sizeof(val));
 }
 
 // oobinline
@@ -169,7 +169,7 @@ struct ::timeval chen::basic_option::sndtimeo() const
 {
     ::timeval val{};
     option_t len = sizeof(val);
-    return ::getsockopt(this->_socket.handle(), SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len), val;
+    return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len), val;
 }
 
 bool chen::basic_option::sndtimeo(int sec, int usec)
@@ -183,7 +183,7 @@ bool chen::basic_option::sndtimeo(int sec, int usec)
 
 bool chen::basic_option::sndtimeo(const struct ::timeval &time)
 {
-    return !::setsockopt(this->_socket.handle(), SOL_SOCKET, SO_SNDTIMEO, (const char*)&time, sizeof(time));
+    return !::setsockopt(this->_socket.native(), SOL_SOCKET, SO_SNDTIMEO, (const char*)&time, sizeof(time));
 }
 
 // rcvtimeo
@@ -191,7 +191,7 @@ struct ::timeval chen::basic_option::rcvtimeo() const
 {
     ::timeval val{};
     option_t len = sizeof(val);
-    return ::getsockopt(this->_socket.handle(), SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len), val;
+    return ::getsockopt(this->_socket.native(), SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len), val;
 }
 
 bool chen::basic_option::rcvtimeo(int sec, int usec)
@@ -205,7 +205,7 @@ bool chen::basic_option::rcvtimeo(int sec, int usec)
 
 bool chen::basic_option::rcvtimeo(const struct ::timeval &time)
 {
-    return !::setsockopt(this->_socket.handle(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&time, sizeof(time));
+    return !::setsockopt(this->_socket.native(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&time, sizeof(time));
 }
 
 // error
@@ -225,10 +225,10 @@ int chen::basic_option::get(int level, int name) const
 {
     int val = 0;
     option_t len = sizeof(val);
-    return ::getsockopt(this->_socket.handle(), level, name, (char*)&val, &len), val;
+    return ::getsockopt(this->_socket.native(), level, name, (char*)&val, &len), val;
 }
 
 bool chen::basic_option::set(int level, int name, int val)
 {
-    return !::setsockopt(this->_socket.handle(), level, name, (const char*)&val, sizeof(val));
+    return !::setsockopt(this->_socket.native(), level, name, (const char*)&val, sizeof(val));
 }

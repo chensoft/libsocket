@@ -12,7 +12,11 @@
 
 // -----------------------------------------------------------------------------
 // event
-chen::event::event()
+chen::event::event() : event(nullptr)
+{
+}
+
+chen::event::event(std::function<void ()> cb) : _notify(cb)
 {
     handle_t pp[2]{};
 
@@ -30,33 +34,44 @@ chen::event::event()
     ioctl::cloexec(pp[1], true);
 
     this->_handle.change(pp[0]);  // read
-    this->_write = pp[1];  // write
+    this->_write.change(pp[1]);   // write
 }
 
 chen::event::~event()
 {
-    ::close(this->_write);
 }
 
 void chen::event::set()
 {
     this->_signaled = true;
-
-    ::write(this->_write, "\n", 1);
+    ::write(this->_write.native(), "\n", 1);
 }
 
 void chen::event::reset()
 {
     char buf[512];
-    while (::read(this->_handle, buf, 512) >= 0)
+    while (::read(this->_handle.native(), buf, 512) >= 0)
         ;
 
     this->_signaled = false;
 }
 
-chen::basic_handle& chen::event::handle()
+// notify
+void chen::event::bind(std::function<void ()> cb)
 {
-    return this->_handle;
+    this->_notify = cb;
+}
+
+void chen::event::emit()
+{
+    if (this->_notify)
+        this->_notify();
+}
+
+// event
+void chen::event::onEvent(reactor &loop, int type)
+{
+    this->emit();
 }
 
 #endif

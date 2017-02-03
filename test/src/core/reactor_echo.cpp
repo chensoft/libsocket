@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 
 using chen::reactor;
+using chen::basic_event;
 using chen::basic_socket;
 using chen::basic_address;
 
@@ -42,7 +43,7 @@ void server_thread(basic_socket &s)
 
     auto handler_connection = [&](basic_socket *conn, int type) {
         // you should read the rest of the data even if you received the closed event
-        EXPECT_TRUE((type & reactor::Readable) || (type & reactor::Closed));
+        EXPECT_TRUE((type & basic_event::Readable) || (type & basic_event::Closed));
 
         // read data from client
         auto size = conn->available();
@@ -64,19 +65,22 @@ void server_thread(basic_socket &s)
     };
 
     auto handler_server = [&](int type) {
-        EXPECT_GT(type & reactor::Readable, 0);
+        EXPECT_GT(type & basic_event::Readable, 0);
 
         // accept new connection
         std::unique_ptr<basic_socket> conn(new basic_socket);
         EXPECT_TRUE(!s.accept(*conn));
 
+        conn->bind(std::bind(handler_connection, conn.get(), _1));
+
         cache.emplace_back(std::move(conn));  // prevent connection released
 
         // register event for conn
-        r.set(cache.back().get(), std::bind(handler_connection, cache.back().get(), _1), reactor::ModeRead, 0);
+        r.set(cache.back().get(), reactor::ModeRead, 0);
     };
 
-    r.set(&s, handler_server, reactor::ModeRead, 0);
+    s.bind(handler_server);
+    r.set(&s, reactor::ModeRead, 0);
 
     r.run();
 }

@@ -1,21 +1,17 @@
 /**
  * Created by Jian Chen
- * @since  2017.01.11
+ * @since  2017.02.03
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
 #pragma once
 
 #include <socket/config.hpp>
-#include <functional>
 
 namespace chen
 {
-    class reactor;
-
     /**
-     * This class represent a handle value, classes that want
-     * to use in the reactor can add an instance of this class
+     * This class represent a handle value, fd will be closed in destructor automatically
      */
     class basic_handle
     {
@@ -25,45 +21,20 @@ namespace chen
 
     public:
         /**
-         * Native handle value, reactor will use this value to register events
+         * Native handle value
          */
-        operator chen::handle_t() const noexcept
+        handle_t native() const noexcept
         {
             return this->_fd;
         }
 
-        reactor* rt() const noexcept
-        {
-            return this->_rt;
-        }
-
-        std::function<void (int type)> cb() const noexcept
-        {
-            return this->_cb;
-        }
-
         /**
-         * Mode & Flag set by the reactor
-         */
-        int mode() const noexcept
-        {
-            return this->_mode;
-        }
-
-        int flag() const noexcept
-        {
-            return this->_flag;
-        }
-
-    public:
-        /**
-         * Change handle value, old fd will be removed from reactor
-         * note that new fd will NOT add to reactor automatically
+         * Change handle value
          */
         void change(handle_t fd) noexcept;
 
         /**
-         * Close the handle, fd will be removed from reactor
+         * Close the handle
          */
         void close() noexcept;
 
@@ -72,13 +43,6 @@ namespace chen
          * @note this method is dangerous, you may leak the handle if you forget to close it
          */
         handle_t transfer() noexcept;
-
-    public:
-        /**
-         * Used by reactor only, bind, clear and emit callback
-         */
-        void attach(reactor *rt, std::function<void (int type)> cb, int mode, int flag) noexcept;
-        void detach() noexcept;
 
     private:
         /**
@@ -89,11 +53,6 @@ namespace chen
         basic_handle& operator=(const basic_handle&) = delete;
 
     private:
-        int _mode = 0;
-        int _flag = 0;
-
         handle_t _fd = invalid_handle;
-        reactor *_rt = nullptr;
-        std::function<void (int type)> _cb;
     };
 }

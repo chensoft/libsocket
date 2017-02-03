@@ -10,10 +10,11 @@
 
 namespace chen
 {
-    class event
+    class event : public basic_event
     {
     public:
         event();
+        event(std::function<void ()> cb);
         ~event();
 
     public:
@@ -36,19 +37,36 @@ namespace chen
         }
 
         /**
-         * Native event handle
+         * Native handle value
          */
-        basic_handle& handle();
+        virtual handle_t native() const
+        {
+            return this->_handle.native();
+        }
+
+    public:
+        /**
+         * Bind & Emit callback
+         */
+        void bind(std::function<void ()> cb);
+        void emit();
+
+    protected:
+        /**
+         * At least one event has occurred
+         */
+        virtual void onEvent(reactor &loop, int type);
 
     private:
         bool _signaled = false;
 
         basic_handle _handle;
+        std::function<void ()> _notify;
 
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use pipe
-        handle_t _write = invalid_handle;
+        basic_handle _write;
 
 #elif defined(_WIN32)
 

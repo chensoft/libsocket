@@ -9,6 +9,8 @@
 #include <socket/base/basic_address.hpp>
 #include <socket/base/basic_option.hpp>
 #include <socket/base/basic_handle.hpp>
+#include <socket/base/basic_event.hpp>
+#include <functional>
 
 namespace chen
 {
@@ -16,7 +18,7 @@ namespace chen
      * BSD socket wrapper, usually you don't need to use it directly
      * use tcp_client, tcp_server, udp_client, udp_server instead
      */
-    class basic_socket
+    class basic_socket : public basic_event
     {
     public:
         enum class Shutdown {Read = 1, Write, Both};
@@ -158,6 +160,11 @@ namespace chen
         /**
          * Native socket handle
          */
+        virtual handle_t native() const noexcept
+        {
+            return this->_handle.native();
+        }
+
         basic_handle& handle() noexcept;
 
         /**
@@ -172,8 +179,22 @@ namespace chen
         int type() const noexcept;
         int protocol() const noexcept;
 
+    public:
+        /**
+         * Bind & Emit callback
+         */
+        void bind(std::function<void (int type)> cb) noexcept;
+        void emit(int type);
+
+    protected:
+        /**
+         * At least one event has occurred
+         */
+        virtual void onEvent(reactor &loop, int type);
+
     private:
         basic_handle _handle;  // socket descriptor
+        std::function<void (int type)> _notify;
 
         // used for reset socket
         // only type is valid if you construct from a socket descriptor
