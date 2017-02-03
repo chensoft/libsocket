@@ -17,13 +17,13 @@ namespace chen
     {
     public:
         basic_handle() = default;
-        ~basic_handle() noexcept;
+        ~basic_handle();
 
     public:
         /**
          * Native handle value
          */
-        handle_t native() const noexcept
+        handle_t native() const
         {
             return this->_fd;
         }
@@ -31,18 +31,18 @@ namespace chen
         /**
          * Change handle value
          */
-        void change(handle_t fd) noexcept;
+        void change(handle_t fd);
 
         /**
          * Close the handle
          */
-        void close() noexcept;
+        void close();
 
         /**
          * Transfer the handle to the outside, you must close the handle manually
          * @note this method is dangerous, you may leak the handle if you forget to close it
          */
-        handle_t transfer() noexcept;
+        handle_t transfer();
 
     private:
         /**

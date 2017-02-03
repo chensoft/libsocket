@@ -8,18 +8,18 @@
 
 // -----------------------------------------------------------------------------
 // basic_handle
-chen::basic_handle::~basic_handle() noexcept
+chen::basic_handle::~basic_handle()
 {
     this->close();
 }
 
-void chen::basic_handle::change(handle_t fd) noexcept
+void chen::basic_handle::change(handle_t fd)
 {
     this->close();
     this->_fd = fd;
 }
 
-void chen::basic_handle::close() noexcept
+void chen::basic_handle::close()
 {
     auto fd = this->transfer();
     if (fd == invalid_handle)
@@ -33,7 +33,7 @@ void chen::basic_handle::close() noexcept
 #endif
 }
 
-chen::handle_t chen::basic_handle::transfer() noexcept
+chen::handle_t chen::basic_handle::transfer()
 {
     auto temp = this->_fd;
     this->_fd = invalid_handle;

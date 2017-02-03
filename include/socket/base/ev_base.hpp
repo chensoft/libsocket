@@ -12,7 +12,7 @@ namespace chen
 {
     class reactor;
 
-    class basic_event
+    class ev_base
     {
     public:
         /**
@@ -36,8 +36,27 @@ namespace chen
         static const int Closed;
 
     public:
-        basic_event() = default;
-        virtual ~basic_event() = default;
+        ev_base() = default;
+        virtual ~ev_base() = default;
+
+    public:
+        /**
+         * Properties
+         */
+        reactor* evLoop()
+        {
+            return this->_ev_loop;
+        }
+
+        int evMode() const
+        {
+            return this->_ev_mode;
+        }
+
+        int evFlag() const
+        {
+            return this->_ev_flag;
+        }
 
     public:
         /**
@@ -45,21 +64,30 @@ namespace chen
          */
         virtual handle_t native() const = 0;
 
-    protected:
-        friend class reactor;
+        /**
+         * Notify that a reactor is attached or detached
+         */
+        virtual void onAttach(reactor *rt, int mode, int flag);
+        virtual void onDetach();
 
         /**
-         * Notify user that at least one event has occurred
+         * Notify that at least one event has occurred
          * @note use bitwise AND to check the event type, e.g: if (type & Readable)
          */
-        virtual void onEvent(reactor &loop, int type) = 0;
+        virtual void onEvent(int type) = 0;
 
     private:
         /**
          * Disable copy & move, if you want to store object in container
-         * you can use smart pointer like std::unique_ptr<basic_event>
+         * you can use smart pointer like std::unique_ptr<ev_base>
          */
-        basic_event(const basic_event&) = delete;
-        basic_event& operator=(const basic_event&) = delete;
+        ev_base(const ev_base&) = delete;
+        ev_base& operator=(const ev_base&) = delete;
+
+    protected:
+        reactor *_ev_loop = nullptr;
+
+        int _ev_mode = 0;
+        int _ev_flag = 0;
     };
 }
