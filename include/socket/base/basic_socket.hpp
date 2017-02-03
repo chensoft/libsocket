@@ -189,6 +189,9 @@ namespace chen
     protected:
         /**
          * At least one event has occurred
+         * @note you should read the rest of the data even if you received the Closed
+         * event, server may send last message and then close the connection immediately
+         * the backend may report Readable & Closed event or only report the Closed event
          */
         virtual void onEvent(reactor &loop, int type);
 

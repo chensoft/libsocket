@@ -12,6 +12,9 @@ namespace chen
 {
     class reactor;
 
+    /**
+     * The base class used in conjunction with the reactor
+     */
     class ev_base
     {
     public:
@@ -26,10 +29,6 @@ namespace chen
          * ---------------------------------------------------------------------
          * @note in epoll, Closed event is always be monitored, in kqueue and poll
          * you must monitor the Readable event if you want to know the Closed event
-         * ---------------------------------------------------------------------
-         * @note you should read the rest of the data even if you received the Closed
-         * event, server may send last message and then close the connection immediately
-         * the backend may report Readable & Closed event or only report the Closed event
          */
         static const int Readable;
         static const int Writable;
@@ -67,7 +66,7 @@ namespace chen
         /**
          * Notify that a reactor is attached or detached
          */
-        virtual void onAttach(reactor *rt, int mode, int flag);
+        virtual void onAttach(reactor *loop, int mode, int flag);
         virtual void onDetach();
 
         /**
