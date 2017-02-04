@@ -7,13 +7,13 @@
 #ifdef _WIN32
 
 #include <socket/inet/inet_address.hpp>
-#include <socket/core/event.hpp>
-#include <socket/core/ioctl.hpp>
+#include <socket/base/ev_event.hpp>
+#include <socket/core/reactor.hpp>
 #include <chen/sys/sys.hpp>
 
 // -----------------------------------------------------------------------------
-// event
-chen::event::event()
+// ev_event
+chen::ev_event::ev_event(std::function<void()> cb) : _notify(std::move(cb)), _write(AF_INET, SOCK_DGRAM)
 {
     // create read socket
     basic_socket tmp(AF_INET, SOCK_DGRAM);
@@ -24,38 +24,50 @@ chen::event::event()
     if (tmp.nonblocking(true))
         throw std::system_error(sys::error(), "event: failed to make nonblocking on read socket");
 
-    this->_handle.change(tmp.handle().transfer());
+    this->change(tmp.transfer());
 
     // create write socket
-    this->_write.reset(AF_INET, SOCK_DGRAM, 0);
-
     if (this->_write.nonblocking(true))
         throw std::system_error(sys::error(), "event: failed to make nonblocking on write socket");
 }
 
-chen::event::~event()
+chen::ev_event::~ev_event()
 {
 }
 
-void chen::event::set()
+void chen::ev_event::set()
 {
     basic_address a;
-    ::getsockname(this->_handle, (::sockaddr*)&a.addr, &a.size);
+    ::getsockname(this->native(), (::sockaddr*)&a.addr, &a.size);
 
     if (this->_write.sendto("\n", 1, a) != 1)
         throw std::system_error(sys::error(), "event: failed to set event");
 }
 
-void chen::event::reset()
+void chen::ev_event::reset()
 {
     char dummy;
-    while (::recvfrom(this->_handle, &dummy, 1, 0, nullptr, nullptr) >= 0)
+    while (::recvfrom(this->native(), &dummy, 1, 0, nullptr, nullptr) >= 0)
         ;
 }
 
-chen::basic_handle& chen::event::handle()
+// notify
+void chen::ev_event::attach(std::function<void()> cb)
 {
-    return this->_handle;
+    this->_notify = std::move(cb);
+}
+
+// event
+void chen::ev_event::onEvent(int type)
+{
+    auto loop = this->evLoop();
+    auto func = this->_notify;
+
+    if (loop && ((type & Closed) || (this->evFlag() & reactor::FlagOnce)))
+        loop->del(this);
+
+    if (func)
+        func();
 }
 
 #endif

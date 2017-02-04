@@ -6,8 +6,7 @@
  */
 #pragma once
 
-#include <socket/base/ev_handle.hpp>
-#include <functional>
+#include <socket/base/basic_socket.hpp>
 
 namespace chen
 {
