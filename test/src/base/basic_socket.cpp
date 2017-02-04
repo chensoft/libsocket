@@ -183,6 +183,10 @@ TEST(BasicSocketTest, UDP)
         {
             basic_socket client(AF_INET, SOCK_DGRAM);
 
+            // bind on a fixed port, otherwise you may not receive the
+            // server message because the random port may be released
+            EXPECT_TRUE(!client.bind(inet_address("127.0.0.1:0")));
+
             std::string text("hello, " + chen::num::str(i));
             EXPECT_EQ(static_cast<chen::ssize_t>(text.size()), client.sendto(text.data(), text.size(), addr));
 
