@@ -154,10 +154,10 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 
     // update timer
     auto zero = std::chrono::nanoseconds::zero();
-    auto near = this->update();
+    auto mini = this->update();
 
-    if ((near >= zero) && (timeout != zero))
-        timeout = (timeout > zero) ? std::min(near, timeout) : near;
+    if ((mini >= zero) && (timeout != zero))
+        timeout = (timeout > zero) ? std::min(mini, timeout) : mini;
 
     // pull events
     auto error = this->gather(timeout);
@@ -188,9 +188,9 @@ void chen::reactor::stop()
 std::chrono::nanoseconds chen::reactor::update()
 {
     if (this->_timers.empty())
-        return std::chrono::nanoseconds::min();
+        return (std::chrono::nanoseconds::min)();
 
-    auto ret = std::chrono::nanoseconds::min();
+    auto ret = (std::chrono::nanoseconds::min)();
     auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)

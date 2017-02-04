@@ -78,6 +78,7 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
 {
     auto fd = ptr->native();
 
+    // register event
     ::epoll_event event{};
 
     if (mode & ModeRead)
@@ -89,7 +90,6 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     event.events  |= flag | EPOLLRDHUP;
     event.data.ptr = ptr;
 
-    // register event
     if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
     {
         if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
@@ -153,10 +153,10 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 
     // update timer
     auto zero = std::chrono::nanoseconds::zero();
-    auto near = this->update();
+    auto mini = this->update();
 
-    if ((near >= zero) && (timeout != zero))
-        timeout = (timeout > zero) ? std::min(near, timeout) : near;
+    if ((mini >= zero) && (timeout != zero))
+        timeout = (timeout > zero) ? std::min(mini, timeout) : mini;
 
     // pull events
     auto error = this->gather(timeout);
@@ -187,9 +187,9 @@ void chen::reactor::stop()
 std::chrono::nanoseconds chen::reactor::update()
 {
     if (this->_timers.empty())
-        return std::chrono::nanoseconds::min();
+        return (std::chrono::nanoseconds::min)();
 
-    auto ret = std::chrono::nanoseconds::min();
+    auto ret = (std::chrono::nanoseconds::min)();
     auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)

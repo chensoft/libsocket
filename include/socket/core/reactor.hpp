@@ -8,6 +8,7 @@
 
 #include <socket/base/ev_event.hpp>
 #include <socket/base/ev_timer.hpp>
+#include <unordered_map>
 #include <unordered_set>
 #include <system_error>
 #include <vector>
@@ -135,6 +136,7 @@ namespace chen
         typedef struct ::kevent event_t;
 
         handle_t _kqueue = invalid_handle;
+        std::unordered_set<ev_base*> _objects;
 
 #elif defined(__linux__)
 
@@ -142,22 +144,22 @@ namespace chen
         typedef struct ::epoll_event event_t;
 
         handle_t _epoll = invalid_handle;
+        std::unordered_set<ev_base*> _objects;
 
 #else
 
         // Windows, use WSAPoll
         typedef struct ::pollfd event_t;
 
-        chen::event _repoll;
+        ev_event _repoll;
+        std::unordered_map<handle_t, ev_base*> _objects;
 
 #endif
 
-        chen::ev_event _wakeup;
+        ev_event _wakeup;
+        std::unordered_set<ev_timer*> _timers;
 
         std::vector<event_t> _cache;
         std::queue<std::pair<ev_base*, int>> _queue;
-
-        std::unordered_set<ev_base*> _objects;
-        std::unordered_set<ev_timer*> _timers;
     };
 }

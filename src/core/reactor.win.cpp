@@ -20,17 +20,17 @@ namespace
         // check events, multiple events maybe occur
         if ((events & POLLERR) || (events & POLLHUP))
         {
-            return chen::reactor::Closed;
+            return chen::ev_base::Closed;
         }
         else
         {
             int ret = 0;
 
             if (events & POLLIN)
-                ret |= chen::reactor::Readable;
+                ret |= chen::ev_base::Readable;
 
             if (events & POLLOUT)
-                ret |= chen::reactor::Writable;
+                ret |= chen::ev_base::Writable;
 
             return ret;
         }
@@ -47,28 +47,24 @@ const int chen::reactor::ModeRW    = ModeRead | ModeWrite;
 const int chen::reactor::FlagEdge = 0;
 const int chen::reactor::FlagOnce = 1;
 
-const int chen::reactor::Readable = 1 << 0;
-const int chen::reactor::Writable = 1 << 1;
-const int chen::reactor::Closed   = 1 << 2;
-
 chen::reactor::reactor() : reactor(0)  // ignored on Windows
 {
 }
 
-chen::reactor::reactor(std::size_t count) : _events(count)
+chen::reactor::reactor(std::size_t count)
 {
     // create udp to recv wakeup message
-    this->set(&this->_wakeup, nullptr, 0);
+    this->set(&this->_wakeup, ModeRead, 0);
 
     // create udp to allow repoll when user call set or del
-    this->set(&this->_repoll, nullptr, 0);
+    this->set(&this->_repoll, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
 {
-    // clear cache before destroy poll
-    auto handles = std::move(this->_handles);
-    for (auto &pair : handles)
+    // clear objects before destroy poll
+    auto objects = std::move(this->_objects);
+    for (auto &pair : objects)
         this->del(pair.second);
 
     auto timers = std::move(this->_timers);
@@ -77,17 +73,19 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(basic_handle *ptr, std::function<void(int type)> cb, int mode, int flag)
+void chen::reactor::set(ev_base *ptr, int mode, int flag)
 {
+    auto fd = ptr->native();
+
     // register event
-    auto find = std::find_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
-        return item.fd == *ptr;
+    auto find = std::find_if(this->_cache.begin(), this->_cache.end(), [&] (::pollfd &item) {
+        return item.fd == fd;
     });
 
-    if (find == this->_events.end())
-        find = this->_events.insert(this->_events.end(), ::pollfd());
+    if (find == this->_cache.end())
+        find = this->_cache.insert(this->_cache.end(), ::pollfd());
 
-    find->fd = *ptr;
+    find->fd = fd;
     find->events = 0;
 
     if (mode & ModeRead)
@@ -96,74 +94,50 @@ void chen::reactor::set(basic_handle *ptr, std::function<void(int type)> cb, int
     if (mode & ModeWrite)
         find->events |= POLLOUT;
 
-    // store handle
-    this->_handles[*ptr] = ptr;
+    // store object
+    this->_objects[fd] = ptr;
 
-    // associate callback
-    ptr->attach(this, cb, mode, flag);
+    // notify attach
+    ptr->onAttach(this, mode, flag);
 
     // repoll if in polling
     this->_repoll.set();
 }
 
-void chen::reactor::set(basic_socket *ptr, std::function<void(int type)> cb, int mode, int flag)
+void chen::reactor::set(ev_timer *ptr)
 {
-    this->set(&ptr->handle(), cb, mode, flag);
-}
-
-void chen::reactor::set(event *ptr, std::function<void()> cb, int flag)
-{
-    this->set(&ptr->handle(), [=](int type) {
-        cb();
-    }, ModeRead, flag);
-}
-
-void chen::reactor::set(timer *ptr, std::function<void()> cb)
-{
-    ptr->adjust(std::chrono::high_resolution_clock::now());
-    ptr->handle().attach(this, [=](int type) {
-        cb();
-    }, 0, 0);  // mode & flag is useless
-
     this->_timers.insert(ptr);
+    ptr->onAttach(this, 0, 0);  // mode & flag are useless
 
     // repoll if in polling
     this->_repoll.set();
 }
 
-void chen::reactor::del(basic_handle *ptr)
+void chen::reactor::del(ev_base *ptr)
 {
-    // clear callback
-    ptr->detach();
+    auto fd = ptr->native();
 
-    // clear handle
-    this->_handles.erase(*ptr);
+    // notify detach
+    ptr->onDetach();
+
+    // clear object
+    this->_objects.erase(fd);
 
     // delete event
-    auto it = std::find_if(this->_events.begin(), this->_events.end(), [&] (::pollfd &item) {
-        return item.fd == *ptr;
+    auto it = std::find_if(this->_cache.begin(), this->_cache.end(), [&] (::pollfd &item) {
+        return item.fd == fd;
     });
 
-    if (it != this->_events.end())
-        this->_events.erase(it);
+    if (it != this->_cache.end())
+        this->_cache.erase(it);
 
     // repoll if in polling
     this->_repoll.set();
 }
 
-void chen::reactor::del(basic_socket *ptr)
+void chen::reactor::del(ev_timer *ptr)
 {
-    this->del(&ptr->handle());
-}
-
-void chen::reactor::del(event *ptr)
-{
-    this->del(&ptr->handle());
-}
-
-void chen::reactor::del(timer *ptr)
-{
-    ptr->handle().detach();
+    ptr->onDetach();
     this->_timers.erase(ptr);
 
     // repoll if in polling
@@ -207,9 +181,14 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     return error;
 }
 
-void chen::reactor::post(basic_handle *ptr, int type, timer *time)
+void chen::reactor::post(ev_base *ptr, int type)
 {
-    this->_pending.emplace(ptr, type, time);
+    this->_queue.push(std::make_pair(ptr, type));
+}
+
+void chen::reactor::post(ev_timer *ptr, int type)
+{
+    this->post(static_cast<ev_base*>(ptr), type);
 }
 
 void chen::reactor::stop()
@@ -229,6 +208,8 @@ std::chrono::nanoseconds chen::reactor::update()
 
     for (auto *ptr : this->_timers)
     {
+        ptr->adjust(now);
+
         auto exp = ptr->update(now);
 
         if (exp)
@@ -236,7 +217,7 @@ std::chrono::nanoseconds chen::reactor::update()
             if (ret != std::chrono::nanoseconds::zero())
                 ret = std::chrono::nanoseconds::zero();
 
-            this->post(&ptr->handle(), ptr->repeat() ? Readable : Closed, ptr);
+            this->post(ptr, ptr->repeat() ? ev_base::Readable : ev_base::Closed);
         }
         else
         {
@@ -251,7 +232,7 @@ std::chrono::nanoseconds chen::reactor::update()
 
 std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 {
-    // WSAPoll only support millisecond precision and always returned in advance
+    // WSAPoll only support millisecond precision and always returned in advance, so we add a little time
     if (timeout > std::chrono::nanoseconds::zero())
         timeout += std::chrono::milliseconds(5);
 
@@ -263,16 +244,16 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         // reset repoll event
         this->_repoll.reset();
 
-        result = ::WSAPoll(this->_events.data(), this->_events.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
+        result = ::WSAPoll(this->_cache.data(), this->_cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
         // repoll if user call set or del when polling
         bool repoll = false;
 
         if (result == 1)
         {
-            for (auto it = this->_events.begin(); it != this->_events.end(); ++it)
+            for (auto it = this->_cache.begin(); it != this->_cache.end(); ++it)
             {
-                if (it->revents && (it->fd == this->_repoll.handle()))
+                if (it->revents && (it->fd == this->_repoll.native()))
                 {
                     repoll = true;
                     break;
@@ -290,24 +271,23 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         throw std::system_error(sys::error(), "reactor: failed to poll event");
 
     // events on the same fd will be notified only once
-    for (auto it = this->_events.begin(); it != this->_events.end(); ++it)
+    for (auto it = this->_cache.begin(); it != this->_cache.end(); ++it)
     {
         auto &item = *it;
-        auto   ptr = chen::map::find(this->_handles, item.fd);
+        auto   ptr = chen::map::find(this->_objects, item.fd);
 
         // continue if revents is 0
         if (!item.revents)
             continue;
 
         // user request to stop
-        if (item.fd == this->_wakeup.handle())
+        if (item.fd == this->_wakeup.native())
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        if (ptr)
-            this->post(ptr, po_type(item.events), nullptr);
+        this->post(ptr, po_type(item.events));
     }
 
     return {};
@@ -315,18 +295,12 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 
 void chen::reactor::notify()
 {
-    while (!this->_pending.empty())
+    while (!this->_queue.empty())
     {
-        auto &item = this->_pending.front();
-        auto  func = item.ptr->cb();
-        auto  type = item.type;
+        auto item = this->_queue.front();
+        this->_queue.pop();
 
-        if ((type & Closed) || (item.ptr->flag() & FlagOnce))
-            item.time ? this->del(item.time) : this->del(item.ptr);
-
-        this->_pending.pop();
-
-        func(type);
+        item.first->onEvent(item.second);
     }
 }
 
