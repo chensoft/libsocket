@@ -6,11 +6,14 @@
  */
 #pragma once
 
-#include <socket/base/ev_handle.hpp>
+#include <socket/base/ev_base.hpp>
 
 namespace chen
 {
-    class ev_event: public ev_handle
+    /**
+     * The base class that has a file descriptor
+     */
+    class ev_handle: public ev_base
     {
     public:
     };
