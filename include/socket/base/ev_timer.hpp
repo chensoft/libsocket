@@ -37,6 +37,11 @@ namespace chen
 
     public:
         /**
+         * Attach callback
+         */
+        void attach(std::function<void ()> cb);
+
+        /**
          * Native handle value
          */
         virtual handle_t native() const
@@ -44,6 +49,7 @@ namespace chen
             return invalid_handle;  // no use in timer
         }
 
+    public:
         /**
          * Timer properties
          */
@@ -72,13 +78,6 @@ namespace chen
          * @return true if timer expired after update, otherwise false
          */
         bool update(const std::chrono::high_resolution_clock::time_point &now);
-
-    public:
-        /**
-         * Bind & Emit callback
-         */
-        void bind(std::function<void ()> cb);
-        void emit();
 
     protected:
         /**

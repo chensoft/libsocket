@@ -8,6 +8,8 @@
 
 #include <socket/core/event.hpp>
 #include <socket/core/timer.hpp>
+#include <socket/base/ev_event.hpp>
+#include <socket/base/ev_timer.hpp>
 #include <unordered_set>
 #include <unordered_map>
 #include <system_error>
@@ -67,12 +69,18 @@ namespace chen
         void set(basic_event *ptr, int mode, int flag);
         void set(timer *ptr);
 
+        void set(ev_base *ptr, int mode, int flag);
+        void set(ev_timer *ptr);
+
         /**
          * Delete event
          * @note this method will be called automatically when object destroyed, event is Closed or flag is FlagOnce
          */
         void del(basic_event *ptr);
         void del(timer *ptr);
+
+        void del(ev_base *ptr);
+        void del(ev_timer *ptr);
 
     public:
         /**

@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/base/ev_timer.hpp>
+#include <socket/core/reactor.hpp>
 
 // -----------------------------------------------------------------------------
 // ev_timer
@@ -42,6 +43,12 @@ void chen::ev_timer::interval(const std::chrono::nanoseconds &value)
     this->_alarm  = std::chrono::high_resolution_clock::time_point();
 }
 
+// notify
+void chen::ev_timer::attach(std::function<void ()> cb)
+{
+    this->_notify = cb;
+}
+
 // update
 void chen::ev_timer::adjust(const std::chrono::high_resolution_clock::time_point &now)
 {
@@ -59,20 +66,15 @@ bool chen::ev_timer::update(const std::chrono::high_resolution_clock::time_point
     return expired;
 }
 
-// notify
-void chen::ev_timer::bind(std::function<void ()> cb)
-{
-    this->_notify = cb;
-}
-
-void chen::ev_timer::emit()
-{
-    if (this->_notify)
-        this->_notify();
-}
-
 // event
 void chen::ev_timer::onEvent(int type)
 {
-    this->emit();
+    auto loop = this->evLoop();
+    auto func = this->_notify;
+
+    if (loop && !this->repeat())
+        loop->del(this);
+
+    if (func)
+        func();
 }

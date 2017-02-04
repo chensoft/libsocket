@@ -273,7 +273,7 @@ void chen::reactor::notify()
     {
         auto item = this->_pending.front();
 
-        if ((item.type &  basic_event::Closed) || (item.flag & FlagOnce))
+        if ((item.type & basic_event::Closed) || (item.flag & FlagOnce))
             item.timer ? this->del(static_cast<timer*>(item.ptr)) : this->del(item.ptr);
 
         this->_pending.pop();

@@ -57,11 +57,13 @@ namespace chen
             return this->_ev_flag;
         }
 
-    public:
         /**
          * Native handle value
          */
         virtual handle_t native() const = 0;
+
+    protected:
+        friend class reactor;
 
         /**
          * Notify that a reactor is attached or detached
@@ -83,7 +85,7 @@ namespace chen
         ev_base(const ev_base&) = delete;
         ev_base& operator=(const ev_base&) = delete;
 
-    protected:
+    private:
         reactor *_ev_loop = nullptr;
 
         int _ev_mode = 0;
