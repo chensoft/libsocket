@@ -13,7 +13,7 @@
 
 // -----------------------------------------------------------------------------
 // ev_event
-chen::ev_event::ev_event(std::function<void ()> cb) : _notify(cb)
+chen::ev_event::ev_event(std::function<void ()> cb) : _notify(std::move(cb))
 {
     auto fd = ::eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
     if (fd < 0)
@@ -40,7 +40,7 @@ void chen::ev_event::reset()
 // notify
 void chen::ev_event::attach(std::function<void ()> cb)
 {
-    this->_notify = cb;
+    this->_notify = std::move(cb);
 }
 
 // event

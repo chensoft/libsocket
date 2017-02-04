@@ -9,7 +9,6 @@
 #include <socket/base/ev_event.hpp>
 #include <socket/base/ev_timer.hpp>
 #include <unordered_set>
-#include <unordered_map>
 #include <system_error>
 #include <vector>
 #include <queue>
@@ -130,17 +129,6 @@ namespace chen
         reactor& operator=(const reactor&) = delete;
 
     private:
-        typedef struct
-        {
-            ev_base *ptr = nullptr;
-
-            int mode = 0;
-            int flag = 0;
-            int type = 0;
-
-            bool timer = false;
-        } Data;
-
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
         // Unix, use kqueue
@@ -166,10 +154,10 @@ namespace chen
 
         chen::ev_event _wakeup;
 
-        std::vector<event_t> _events;
-        std::unordered_set<ev_timer*> _timers;
+        std::vector<event_t> _cache;
+        std::queue<std::pair<ev_base*, int>> _queue;
 
-        std::queue<Data> _pending;
-        std::unordered_map<handle_t, Data> _handles;
+        std::unordered_set<ev_base*> _objects;
+        std::unordered_set<ev_timer*> _timers;
     };
 }

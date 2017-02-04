@@ -13,7 +13,7 @@
 
 // -----------------------------------------------------------------------------
 // ev_event
-chen::ev_event::ev_event(std::function<void ()> cb) : _notify(cb)
+chen::ev_event::ev_event(std::function<void ()> cb) : _notify(std::move(cb))
 {
     handle_t pp[2]{};
 
@@ -57,7 +57,7 @@ void chen::ev_event::reset()
 // notify
 void chen::ev_event::attach(std::function<void ()> cb)
 {
-    this->_notify = cb;
+    this->_notify = std::move(cb);
 }
 
 // event

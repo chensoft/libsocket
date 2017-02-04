@@ -9,7 +9,7 @@
 
 // -----------------------------------------------------------------------------
 // ev_timer
-chen::ev_timer::ev_timer(std::function<void ()> cb) : _notify(cb)
+chen::ev_timer::ev_timer(std::function<void ()> cb) : _notify(std::move(cb))
 {
 }
 
@@ -38,7 +38,7 @@ void chen::ev_timer::interval(const std::chrono::nanoseconds &value)
 // notify
 void chen::ev_timer::attach(std::function<void ()> cb)
 {
-    this->_notify = cb;
+    this->_notify = std::move(cb);
 }
 
 // update

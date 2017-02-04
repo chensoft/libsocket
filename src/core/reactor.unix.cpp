@@ -54,7 +54,7 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 {
 }
 
-chen::reactor::reactor(std::size_t count) : _events(count)
+chen::reactor::reactor(std::size_t count) : _cache(count)
 {
     // create kqueue file descriptor
     if ((this->_kqueue = ::kqueue()) < 0)
@@ -68,10 +68,10 @@ chen::reactor::reactor(std::size_t count) : _events(count)
 
 chen::reactor::~reactor()
 {
-    // clear cache before destroy kqueue
-    auto handles = std::move(this->_handles);
-    for (auto &pair : handles)
-        this->del(pair.second.ptr);
+    // clear objects before destroy kqueue
+    auto objects = std::move(this->_objects);
+    for (auto &ptr : objects)
+        this->del(ptr);
 
     auto timers = std::move(this->_timers);
     for (auto *ptr : timers)
@@ -93,14 +93,8 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     if ((kq_alter(this->_kqueue, fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
-    // store handle
-    Data data;
-
-    data.ptr  = ptr;
-    data.mode = mode;
-    data.flag = flag;
-
-    this->_handles[fd] = data;
+    // store object
+    this->_objects.insert(ptr);
 
     // notify attach
     ptr->onAttach(this, mode, flag);
@@ -119,8 +113,8 @@ void chen::reactor::del(ev_base *ptr)
     // notify detach
     ptr->onDetach();
 
-    // clear handle
-    this->_handles.erase(fd);
+    // clear object
+    this->_objects.erase(ptr);
 
     // delete read
     if ((kq_alter(this->_kqueue, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
@@ -176,21 +170,12 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 
 void chen::reactor::post(ev_base *ptr, int type)
 {
-    auto data = this->_handles[ptr->native()];
-    data.type = type;
-
-    this->_pending.push(data);
+    this->_queue.push(std::make_pair(ptr, type));
 }
 
 void chen::reactor::post(ev_timer *ptr, int type)
 {
-    Data data;
-
-    data.ptr   = ptr;
-    data.type  = type;
-    data.timer = true;
-
-    this->_pending.push(data);
+    this->post(static_cast<ev_base*>(ptr), type);
 }
 
 void chen::reactor::stop()
@@ -247,7 +232,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 
     int result = 0;
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_events.data(), static_cast<int>(this->_events.size()), time.get())) <= 0)
+    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_cache.data(), static_cast<int>(this->_cache.size()), time.get())) <= 0)
     {
         if (!result)
             return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
@@ -259,11 +244,11 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 
     for (int i = 0; i < result; ++i)
     {
-        auto &item = this->_events[i];
+        auto &item = this->_cache[i];
         auto   ptr = static_cast<ev_base*>(item.udata);
 
         // user request to stop
-        if (ptr->native() == this->_wakeup.native())
+        if (ptr == &this->_wakeup)
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
@@ -277,13 +262,12 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 
 void chen::reactor::notify()
 {
-    while (!this->_pending.empty())
+    while (!this->_queue.empty())
     {
-        auto item = this->_pending.front();
+        auto item = this->_queue.front();
+        this->_queue.pop();
 
-        this->_pending.pop();
-
-        item.ptr->onEvent(item.type);
+        item.first->onEvent(item.second);
     }
 }
 

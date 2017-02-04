@@ -286,7 +286,7 @@ int chen::basic_socket::protocol() const noexcept
 // notify
 void chen::basic_socket::attach(std::function<void (int type)> cb) noexcept
 {
-    this->_notify = cb;
+    this->_notify = std::move(cb);
 }
 
 // event
