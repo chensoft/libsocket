@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include <socket/base/basic_socket.hpp>
+#include <socket/core/reactor.hpp>
 #include <socket/core/ioctl.hpp>
 #include <chen/sys/sys.hpp>
 
@@ -34,6 +35,11 @@ chen::basic_socket::basic_socket(handle_t fd, int family, int type, int protocol
     this->reset(fd, family, type, protocol);
 }
 
+chen::basic_socket::~basic_socket() noexcept
+{
+    this->shutdown();
+}
+
 // reset
 void chen::basic_socket::reset()
 {
@@ -41,9 +47,9 @@ void chen::basic_socket::reset()
         throw std::runtime_error("socket: reset failed because family is unknown");
 
 #ifdef __linux__
-    this->_handle.change(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
+    this->change(::socket(this->_family, this->_type | SOCK_CLOEXEC, this->_protocol));
 #else
-    this->_handle.change(::socket(this->_family, this->_type, this->_protocol));
+    this->change(::socket(this->_family, this->_type, this->_protocol));
     ioctl::cloexec(this->native(), true);
 #endif
 
@@ -73,7 +79,7 @@ void chen::basic_socket::reset(handle_t fd) noexcept
 
 void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) noexcept
 {
-    this->_handle.change(fd);
+    this->change(fd);
 
     this->_family   = family;
     this->_type     = type;
@@ -108,7 +114,7 @@ std::error_code chen::basic_socket::listen(int backlog) noexcept
 
 std::error_code chen::basic_socket::accept(basic_socket &s) noexcept
 {
-    handle_t fd;
+    handle_t fd = invalid_handle;
 
     if ((fd = ::accept(this->native(), nullptr, nullptr)) == invalid_handle)
         return sys::error();
@@ -219,7 +225,7 @@ void chen::basic_socket::shutdown(Shutdown type) noexcept
 
 void chen::basic_socket::close() noexcept
 {
-    this->_handle.close();
+    ev_handle::close();
 }
 
 // property
@@ -257,11 +263,6 @@ chen::basic_socket::operator bool() const noexcept
     return this->valid();
 }
 
-chen::basic_handle& chen::basic_socket::handle() noexcept
-{
-    return this->_handle;
-}
-
 std::size_t chen::basic_socket::available() const noexcept
 {
     return ioctl::available(this->native());
@@ -283,19 +284,20 @@ int chen::basic_socket::protocol() const noexcept
 }
 
 // notify
-void chen::basic_socket::bind(std::function<void (int type)> cb) noexcept
+void chen::basic_socket::attach(std::function<void (int type)> cb) noexcept
 {
     this->_notify = cb;
 }
 
-void chen::basic_socket::emit(int type)
-{
-    if (this->_notify)
-        this->_notify(type);
-}
-
 // event
-void chen::basic_socket::onEvent(reactor &loop, int type)
+void chen::basic_socket::onEvent(int type)
 {
-    this->emit(type);
+    auto loop = this->evLoop();
+    auto func = this->_notify;
+
+    if (loop && ((type & Closed) || (this->evFlag() & reactor::FlagOnce)))
+        loop->del(this);
+
+    if (func)
+        func(type);
 }

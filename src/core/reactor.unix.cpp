@@ -17,15 +17,15 @@ namespace
     int kq_type(int filter, int flags)
     {
         if ((flags & EV_EOF) || (flags & EV_ERROR))
-            return chen::basic_event::Closed;
+            return chen::ev_base::Closed;
 
         switch (filter)
         {
             case EVFILT_READ:
-                return chen::basic_event::Readable;
+                return chen::ev_base::Readable;
 
             case EVFILT_WRITE:
-                return chen::basic_event::Writable;
+                return chen::ev_base::Writable;
 
             default:
                 throw std::runtime_error("reactor: unknown event detect");
@@ -63,7 +63,7 @@ chen::reactor::reactor(std::size_t count) : _events(count)
     ioctl::cloexec(this->_kqueue, true);
 
     // create pipe to recv wakeup message
-    this->set(&this->_wakeup, 0, 0);
+    this->set(&this->_wakeup, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
@@ -81,7 +81,7 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(basic_event *ptr, int mode, int flag)
+void chen::reactor::set(ev_base *ptr, int mode, int flag)
 {
     auto fd = ptr->native();
 
@@ -101,16 +101,23 @@ void chen::reactor::set(basic_event *ptr, int mode, int flag)
     data.flag = flag;
 
     this->_handles[fd] = data;
+
+    // notify attach
+    ptr->onAttach(this, mode, flag);
 }
 
-void chen::reactor::set(timer *ptr)
+void chen::reactor::set(ev_timer *ptr)
 {
     this->_timers.insert(ptr);
+    ptr->onAttach(this, 0, 0);  // mode & flag are useless
 }
 
-void chen::reactor::del(basic_event *ptr)
+void chen::reactor::del(ev_base *ptr)
 {
     auto fd = ptr->native();
+
+    // notify detach
+    ptr->onDetach();
 
     // clear handle
     this->_handles.erase(fd);
@@ -124,8 +131,9 @@ void chen::reactor::del(basic_event *ptr)
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 }
 
-void chen::reactor::del(timer *ptr)
+void chen::reactor::del(ev_timer *ptr)
 {
+    ptr->onDetach();
     this->_timers.erase(ptr);
 }
 
@@ -166,7 +174,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     return error;
 }
 
-void chen::reactor::post(basic_event *ptr, int type)
+void chen::reactor::post(ev_base *ptr, int type)
 {
     auto data = this->_handles[ptr->native()];
     data.type = type;
@@ -174,7 +182,7 @@ void chen::reactor::post(basic_event *ptr, int type)
     this->_pending.push(data);
 }
 
-void chen::reactor::post(timer *ptr, int type)
+void chen::reactor::post(ev_timer *ptr, int type)
 {
     Data data;
 
@@ -211,7 +219,7 @@ std::chrono::nanoseconds chen::reactor::update()
             if (ret != std::chrono::nanoseconds::zero())
                 ret = std::chrono::nanoseconds::zero();
 
-            this->post(ptr, ptr->repeat() ? basic_event::Readable : basic_event::Closed);
+            this->post(ptr, ptr->repeat() ? ev_base::Readable : ev_base::Closed);
         }
         else
         {
@@ -252,7 +260,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = this->_events[i];
-        auto   ptr = static_cast<basic_event*>(item.udata);
+        auto   ptr = static_cast<ev_base*>(item.udata);
 
         // user request to stop
         if (ptr->native() == this->_wakeup.native())
@@ -273,12 +281,9 @@ void chen::reactor::notify()
     {
         auto item = this->_pending.front();
 
-        if ((item.type & basic_event::Closed) || (item.flag & FlagOnce))
-            item.timer ? this->del(static_cast<timer*>(item.ptr)) : this->del(item.ptr);
-
         this->_pending.pop();
 
-        item.ptr->onEvent(*this, item.type);
+        item.ptr->onEvent(item.type);
     }
 }
 

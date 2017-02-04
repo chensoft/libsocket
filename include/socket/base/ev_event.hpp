@@ -7,14 +7,14 @@
 #pragma once
 
 #include <socket/base/ev_handle.hpp>
+#include <functional>
 
 namespace chen
 {
     class ev_event: public ev_handle
     {
     public:
-        ev_event() = default;
-        ev_event(std::function<void ()> cb);
+        ev_event(std::function<void ()> cb = nullptr);
         ~ev_event();
 
     public:

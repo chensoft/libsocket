@@ -6,8 +6,6 @@
  */
 #pragma once
 
-#include <socket/core/event.hpp>
-#include <socket/core/timer.hpp>
 #include <socket/base/ev_event.hpp>
 #include <socket/base/ev_timer.hpp>
 #include <unordered_set>
@@ -66,9 +64,6 @@ namespace chen
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          */
-        void set(basic_event *ptr, int mode, int flag);
-        void set(timer *ptr);
-
         void set(ev_base *ptr, int mode, int flag);
         void set(ev_timer *ptr);
 
@@ -76,9 +71,6 @@ namespace chen
          * Delete event
          * @note this method will be called automatically when object destroyed, event is Closed or flag is FlagOnce
          */
-        void del(basic_event *ptr);
-        void del(timer *ptr);
-
         void del(ev_base *ptr);
         void del(ev_timer *ptr);
 
@@ -105,8 +97,8 @@ namespace chen
         /**
          * Post events to queue
          */
-        void post(basic_event *ptr, int type);
-        void post(timer *ptr, int type);
+        void post(ev_base *ptr, int type);
+        void post(ev_timer *ptr, int type);
 
         /**
          * Stop the poll
@@ -140,7 +132,7 @@ namespace chen
     private:
         typedef struct
         {
-            basic_event *ptr = nullptr;
+            ev_base *ptr = nullptr;
 
             int mode = 0;
             int flag = 0;
@@ -172,10 +164,10 @@ namespace chen
 
 #endif
 
-        chen::event _wakeup;
+        chen::ev_event _wakeup;
 
         std::vector<event_t> _events;
-        std::unordered_set<timer*> _timers;
+        std::unordered_set<ev_timer*> _timers;
 
         std::queue<Data> _pending;
         std::unordered_map<handle_t, Data> _handles;

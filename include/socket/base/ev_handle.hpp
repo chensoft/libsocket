@@ -7,7 +7,6 @@
 #pragma once
 
 #include <socket/base/ev_base.hpp>
-#include <functional>
 
 namespace chen
 {

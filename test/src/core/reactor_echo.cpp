@@ -5,12 +5,13 @@
  * @link   http://chensoft.com
  */
 #include <socket/inet/inet_address.hpp>
+#include <socket/base/basic_socket.hpp>
 #include <socket/core/reactor.hpp>
 #include <chen/mt/threadpool.hpp>
 #include <gtest/gtest.h>
 
 using chen::reactor;
-using chen::basic_event;
+using chen::ev_base;
 using chen::basic_socket;
 using chen::basic_address;
 
@@ -43,7 +44,7 @@ void server_thread(basic_socket &s)
 
     auto handler_connection = [&](basic_socket *conn, int type) {
         // you should read the rest of the data even if you received the closed event
-        EXPECT_TRUE((type & basic_event::Readable) || (type & basic_event::Closed));
+        EXPECT_TRUE((type & ev_base::Readable) || (type & ev_base::Closed));
 
         // read data from client
         auto size = conn->available();
@@ -65,13 +66,13 @@ void server_thread(basic_socket &s)
     };
 
     auto handler_server = [&](int type) {
-        EXPECT_GT(type & basic_event::Readable, 0);
+        EXPECT_GT(type & ev_base::Readable, 0);
 
         // accept new connection
         std::unique_ptr<basic_socket> conn(new basic_socket);
         EXPECT_TRUE(!s.accept(*conn));
 
-        conn->bind(std::bind(handler_connection, conn.get(), _1));
+        conn->attach(std::bind(handler_connection, conn.get(), _1));
 
         cache.emplace_back(std::move(conn));  // prevent connection released
 
@@ -79,7 +80,7 @@ void server_thread(basic_socket &s)
         r.set(cache.back().get(), reactor::ModeRead, 0);
     };
 
-    s.bind(handler_server);
+    s.attach(handler_server);
     r.set(&s, reactor::ModeRead, 0);
 
     r.run();

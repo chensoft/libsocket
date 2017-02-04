@@ -23,15 +23,14 @@ void chen::ev_handle::change(handle_t fd)
 
 void chen::ev_handle::close()
 {
-    auto fd = this->transfer();
-    if (fd == invalid_handle)
+    if (this->_fd == invalid_handle)
         return;
 
 #ifdef _WIN32
     // WSAPoll only support SOCKET, so use closesocket is correct
-    ::closesocket(fd);
+    ::closesocket(this->transfer());
 #else
-    ::close(fd);
+    ::close(this->transfer());
 #endif
 }
 

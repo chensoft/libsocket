@@ -7,8 +7,8 @@
 #include <socket/core/reactor.hpp>
 #include <gtest/gtest.h>
 
-using chen::timer;
 using chen::reactor;
+using chen::ev_timer;
 
 TEST(CoreReactorTest, Timer)
 {
@@ -16,17 +16,17 @@ TEST(CoreReactorTest, Timer)
 
     int c1 = 0, c2 = 0, c3 = 0;
 
-    timer t1([&] () {
+    ev_timer t1([&] () {
         ++c1;
     });
     t1.timeout(std::chrono::milliseconds(10));
 
-    timer t2([&] () {
+    ev_timer t2([&] () {
         ++c2;
     });
     t2.future(std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(20));
 
-    timer t3([&] () {
+    ev_timer t3([&] () {
         if (++c3 == 5)
             r.stop();
     });
