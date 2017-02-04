@@ -17,16 +17,9 @@ namespace chen
     class ev_handle: public ev_base
     {
     public:
-        ev_handle() = default;
-        ev_handle(std::function<void (int type)> cb);
         ~ev_handle();
 
     public:
-        /**
-         * Attach callback
-         */
-        void attach(std::function<void (int type)> cb);
-
         /**
          * Native handle value
          */
@@ -62,10 +55,9 @@ namespace chen
         /**
          * Notify that at least one event has occurred
          */
-        virtual void onEvent(int type);
+        virtual void onEvent(int type) = 0;
 
     private:
         handle_t _fd = invalid_handle;
-        std::function<void (int type)> _notify;
     };
 }

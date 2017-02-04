@@ -9,19 +9,9 @@
 
 // -----------------------------------------------------------------------------
 // ev_handle
-chen::ev_handle::ev_handle(std::function<void (int type)> cb) : _notify(cb)
-{
-}
-
 chen::ev_handle::~ev_handle()
 {
     this->close();
-}
-
-// notify
-void chen::ev_handle::attach(std::function<void (int type)> cb)
-{
-    this->_notify = cb;
 }
 
 // control
@@ -62,16 +52,4 @@ void chen::ev_handle::onAttach(reactor *loop, int mode, int flag)
         this->evLoop()->del(this);
 
     ev_base::onAttach(loop, mode, flag);
-}
-
-void chen::ev_handle::onEvent(int type)
-{
-    auto loop = this->evLoop();
-    auto func = this->_notify;
-
-    if (loop && ((type & Closed) || (this->evFlag() & reactor::FlagOnce)))
-        loop->del(this);
-
-    if (func)
-        func(type);
 }

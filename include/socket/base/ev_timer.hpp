@@ -15,9 +15,8 @@ namespace chen
     class ev_timer: public ev_base
     {
     public:
-        ev_timer();
+        ev_timer() = default;
         ev_timer(std::function<void ()> cb);
-        ~ev_timer();
 
     public:
         /**

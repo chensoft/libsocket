@@ -9,15 +9,7 @@
 
 // -----------------------------------------------------------------------------
 // ev_timer
-chen::ev_timer::ev_timer()
-{
-}
-
 chen::ev_timer::ev_timer(std::function<void ()> cb) : _notify(cb)
-{
-}
-
-chen::ev_timer::~ev_timer()
 {
 }
 
