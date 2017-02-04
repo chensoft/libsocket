@@ -18,17 +18,17 @@ namespace
         // check events, multiple events may occur
         if ((events & EPOLLRDHUP) || (events & EPOLLERR) || (events & EPOLLHUP))
         {
-            return chen::reactor::Closed;
+            return chen::ev_base::Closed;
         }
         else
         {
             int ret = 0;
 
             if (events & EPOLLIN)
-                ret |= chen::reactor::Readable;
+                ret |= chen::ev_base::Readable;
 
             if (events & EPOLLOUT)
-                ret |= chen::reactor::Writable;
+                ret |= chen::ev_base::Writable;
 
             return ret;
         }
@@ -45,10 +45,6 @@ const int chen::reactor::ModeRW    = ModeRead | ModeWrite;
 const int chen::reactor::FlagEdge = EPOLLET;
 const int chen::reactor::FlagOnce = EPOLLONESHOT;
 
-const int chen::reactor::Readable = 1 << 0;
-const int chen::reactor::Writable = 1 << 1;
-const int chen::reactor::Closed   = 1 << 2;
-
 chen::reactor::reactor() : reactor(64)  // 64 is enough
 {
 }
@@ -60,15 +56,15 @@ chen::reactor::reactor(std::size_t count) : _events(count)
         throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
     // create eventfd to recv wakeup message
-    this->set(&this->_wakeup, nullptr, 0);
+    this->set(&this->_wakeup, ModeRead, 0);
 }
 
 chen::reactor::~reactor()
 {
     // clear cache before destroy epoll
     auto handles = std::move(this->_handles);
-    for (auto &ptr : handles)
-        this->del(ptr);
+    for (auto &pair : handles)
+        this->del(pair.second.ptr);
 
     auto timers = std::move(this->_timers);
     for (auto *ptr : timers)
@@ -78,8 +74,10 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(basic_handle *ptr, std::function<void (int type)> cb, int mode, int flag)
+void chen::reactor::set(ev_base *ptr, int mode, int flag)
 {
+    auto fd = ptr->native();
+
     ::epoll_event event{};
 
     if (mode & ModeRead)
@@ -92,67 +90,49 @@ void chen::reactor::set(basic_handle *ptr, std::function<void (int type)> cb, in
     event.data.ptr = ptr;
 
     // register event
-    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, *ptr, &event) != 0)
+    if (::epoll_ctl(this->_epoll, EPOLL_CTL_MOD, fd, &event) != 0)
     {
-        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, *ptr, &event) != 0))
+        if ((errno != ENOENT) || (::epoll_ctl(this->_epoll, EPOLL_CTL_ADD, fd, &event) != 0))
             throw std::system_error(sys::error(), "reactor: failed to set event");
     }
 
     // store handle
-    this->_handles.insert(ptr);
+    Data data;
 
-    // associate callback
-    ptr->attach(this, std::move(cb), mode, flag);
+    data.ptr  = ptr;
+    data.mode = mode;
+    data.flag = flag;
+
+    this->_handles[fd] = data;
+
+    // notify attach
+    ptr->onAttach(this, mode, flag);
 }
 
-void chen::reactor::set(basic_socket *ptr, std::function<void (int type)> cb, int mode, int flag)
+void chen::reactor::set(ev_timer *ptr)
 {
-    this->set(&ptr->handle(), std::move(cb), mode, flag);
-}
-
-void chen::reactor::set(event *ptr, std::function<void ()> cb, int flag)
-{
-    this->set(&ptr->handle(), [=] (int type) {
-        cb();
-    }, ModeRead, flag);
-}
-
-void chen::reactor::set(timer *ptr, std::function<void ()> cb)
-{
-    ptr->adjust(std::chrono::high_resolution_clock::now());
-    ptr->handle().attach(this, [=] (int type) {
-        cb();
-    }, 0, 0);  // mode & flag is useless
-
     this->_timers.insert(ptr);
+    ptr->onAttach(this, 0, 0);  // mode & flag are useless
 }
 
-void chen::reactor::del(basic_handle *ptr)
+void chen::reactor::del(ev_base *ptr)
 {
-    // clear callback
-    ptr->detach();
+    auto fd = ptr->native();
+
+    // notify detach
+    ptr->onDetach();
 
     // clear handle
-    this->_handles.erase(ptr);
+    this->_handles.erase(fd);
 
     // delete event
-    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, *ptr, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
+    if ((::epoll_ctl(this->_epoll, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "reactor: failed to delete event");
 }
 
-void chen::reactor::del(basic_socket *ptr)
+void chen::reactor::del(ev_timer *ptr)
 {
-    this->del(&ptr->handle());
-}
-
-void chen::reactor::del(event *ptr)
-{
-    this->del(&ptr->handle());
-}
-
-void chen::reactor::del(timer *ptr)
-{
-    ptr->handle().detach();
+    ptr->onDetach();
     this->_timers.erase(ptr);
 }
 
@@ -193,9 +173,23 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     return error;
 }
 
-void chen::reactor::post(basic_handle *ptr, int type, timer *time)
+void chen::reactor::post(ev_base *ptr, int type)
 {
-    this->_pending.emplace(ptr, type, time);
+    auto data = this->_handles[ptr->native()];
+    data.type = type;
+
+    this->_pending.push(data);
+}
+
+void chen::reactor::post(ev_timer *ptr, int type)
+{
+    Data data;
+
+    data.ptr   = ptr;
+    data.type  = type;
+    data.timer = true;
+
+    this->_pending.push(data);
 }
 
 void chen::reactor::stop()
@@ -215,6 +209,8 @@ std::chrono::nanoseconds chen::reactor::update()
 
     for (auto *ptr : this->_timers)
     {
+        ptr->adjust(now);
+
         auto exp = ptr->update(now);
 
         if (exp)
@@ -222,7 +218,7 @@ std::chrono::nanoseconds chen::reactor::update()
             if (ret != std::chrono::nanoseconds::zero())
                 ret = std::chrono::nanoseconds::zero();
 
-            this->post(&ptr->handle(), ptr->repeat() ? Readable : Closed, ptr);
+            this->post(ptr, ptr->repeat() ? ev_base::Readable : ev_base::Closed);
         }
         else
         {
@@ -255,16 +251,16 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = this->_events[i];
-        auto   ptr = static_cast<basic_handle*>(item.data.ptr);
+        auto   ptr = static_cast<ev_base*>(item.data.ptr);
 
         // user request to stop
-        if (ptr == &this->_wakeup.handle())
+        if (ptr == &this->_wakeup)
         {
             this->_wakeup.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        this->post(ptr, ep_type(item.events), nullptr);
+        this->post(ptr, ep_type(item.events));
     }
 
     return {};
@@ -274,16 +270,11 @@ void chen::reactor::notify()
 {
     while (!this->_pending.empty())
     {
-        auto &item = this->_pending.front();
-        auto  func = item.ptr->cb();
-        auto  type = item.type;
-
-        if ((type & Closed) || (item.ptr->flag() & FlagOnce))
-            item.time ? this->del(item.time) : this->del(item.ptr);
+        auto item = this->_pending.front();
 
         this->_pending.pop();
 
-        func(type);
+        item.ptr->onEvent(item.type);
     }
 }
 

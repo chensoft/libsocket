@@ -43,8 +43,8 @@ TEST(BasicSocketTest, Create)
     EXPECT_NE(s1.native(), s2.native());  // handle is unique
 
     // create via handle
-    basic_socket s3(s1.handle().transfer());
-    basic_socket s4(s2.handle().transfer(), s2.family(), s2.type(), s2.protocol());
+    basic_socket s3(s1.transfer());
+    basic_socket s4(s2.transfer(), s2.family(), s2.type(), s2.protocol());
 
     EXPECT_FALSE(s1);  // s1, s2 already detached
     EXPECT_FALSE(s2);
