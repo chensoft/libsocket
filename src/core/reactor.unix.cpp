@@ -43,41 +43,19 @@ namespace
 
 // -----------------------------------------------------------------------------
 // reactor
-const int chen::reactor::ModeRead  = 1 << 0;
-const int chen::reactor::ModeWrite = 1 << 1;
-const int chen::reactor::ModeRW    = ModeRead | ModeWrite;
-
 const int chen::reactor::FlagEdge = EV_CLEAR;
 const int chen::reactor::FlagOnce = EV_ONESHOT;
-
-chen::reactor::reactor() : reactor(64)  // 64 is enough
-{
-}
 
 chen::reactor::reactor(std::size_t count) : _cache(count)
 {
     // create kqueue file descriptor
-    if ((this->_kqueue = ::kqueue()) < 0)
+    if ((this->_backend = ::kqueue()) < 0)
         throw std::system_error(sys::error(), "reactor: failed to create kqueue");
 
-    ioctl::cloexec(this->_kqueue, true);
+    ioctl::cloexec(this->_backend, true);
 
     // create pipe to recv wakeup message
     this->set(&this->_wakeup, ModeRead, 0);
-}
-
-chen::reactor::~reactor()
-{
-    // clear objects before destroy kqueue
-    auto objects = std::move(this->_objects);
-    for (auto &ptr : objects)
-        this->del(ptr);
-
-    auto timers = std::move(this->_timers);
-    for (auto *ptr : timers)
-        this->del(ptr);
-
-    ::close(this->_kqueue);
 }
 
 // modify
@@ -86,11 +64,11 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     auto fd = ptr->native();
 
     // register read or delete
-    if ((kq_alter(this->_kqueue, fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_backend, fd, EVFILT_READ, (mode & ModeRead) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // register write or delete
-    if ((kq_alter(this->_kqueue, fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_backend, fd, EVFILT_WRITE, (mode & ModeWrite) ? EV_ADD | flag : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to set event");
 
     // store object
@@ -117,11 +95,11 @@ void chen::reactor::del(ev_base *ptr)
     this->_objects.erase(ptr);
 
     // delete read
-    if ((kq_alter(this->_kqueue, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_backend, fd, EVFILT_READ, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 
     // delete write
-    if ((kq_alter(this->_kqueue, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
+    if ((kq_alter(this->_backend, fd, EVFILT_WRITE, EV_DELETE, 0, 0, nullptr) < 0) && (errno != ENOENT))
         throw std::system_error(chen::sys::error(), "reactor: failed to delete event");
 }
 
@@ -131,92 +109,7 @@ void chen::reactor::del(ev_timer *ptr)
     this->_timers.erase(ptr);
 }
 
-// run
-void chen::reactor::run()
-{
-    for (std::error_code code; !code || (code == std::errc::timed_out) || (code == std::errc::interrupted); code = this->poll())
-        ;
-}
-
-std::error_code chen::reactor::poll()
-{
-    return this->poll(std::chrono::nanoseconds::min());
-}
-
-std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
-{
-    // quickly stop
-    if (this->_wakeup.signaled())
-    {
-        this->_wakeup.reset();
-        return std::make_error_code(std::errc::operation_canceled);
-    }
-
-    // update timer
-    auto zero = std::chrono::nanoseconds::zero();
-    auto mini = this->update();
-
-    if ((mini >= zero) && (timeout != zero))
-        timeout = (timeout > zero) ? std::min(mini, timeout) : mini;
-
-    // pull events
-    auto error = this->gather(timeout);
-
-    // notify user
-    this->notify();
-
-    return error;
-}
-
-void chen::reactor::post(ev_base *ptr, int type)
-{
-    this->_queue.push(std::make_pair(ptr, type));
-}
-
-void chen::reactor::post(ev_timer *ptr, int type)
-{
-    this->post(static_cast<ev_base*>(ptr), type);
-}
-
-void chen::reactor::stop()
-{
-    // notify wakeup message via pipe
-    this->_wakeup.set();
-}
-
 // phase
-std::chrono::nanoseconds chen::reactor::update()
-{
-    if (this->_timers.empty())
-        return (std::chrono::nanoseconds::min)();
-
-    auto ret = (std::chrono::nanoseconds::min)();
-    auto now = std::chrono::high_resolution_clock::now();
-
-    for (auto *ptr : this->_timers)
-    {
-        ptr->adjust(now);
-
-        auto exp = ptr->update(now);
-
-        if (exp)
-        {
-            if (ret != std::chrono::nanoseconds::zero())
-                ret = std::chrono::nanoseconds::zero();
-
-            this->post(ptr, ptr->repeat() ? ev_base::Readable : ev_base::Closed);
-        }
-        else
-        {
-            auto off = ptr->alarm() - now;
-            if ((off >= std::chrono::nanoseconds::zero()) && ((ret < std::chrono::nanoseconds::zero()) || (ret > off)))
-                ret = off;
-        }
-    }
-
-    return ret;
-}
-
 std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 {
     std::unique_ptr<::timespec> time;
@@ -232,7 +125,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 
     int result = 0;
 
-    if ((result = ::kevent(this->_kqueue, nullptr, 0, this->_cache.data(), static_cast<int>(this->_cache.size()), time.get())) <= 0)
+    if ((result = ::kevent(this->_backend, nullptr, 0, this->_cache.data(), static_cast<int>(this->_cache.size()), time.get())) <= 0)
     {
         if (!result)
             return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
@@ -258,17 +151,6 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     }
 
     return {};
-}
-
-void chen::reactor::notify()
-{
-    while (!this->_queue.empty())
-    {
-        auto item = this->_queue.front();
-        this->_queue.pop();
-
-        item.first->onEvent(item.second);
-    }
 }
 
 #endif

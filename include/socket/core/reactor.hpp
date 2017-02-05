@@ -135,7 +135,7 @@ namespace chen
         // Unix, use kqueue
         typedef struct ::kevent event_t;
 
-        handle_t _kqueue = invalid_handle;
+        handle_t _backend = invalid_handle;
         std::unordered_set<ev_base*> _objects;
 
 #elif defined(__linux__)
@@ -143,7 +143,7 @@ namespace chen
         // Linux, use epoll
         typedef struct ::epoll_event event_t;
 
-        handle_t _epoll = invalid_handle;
+        handle_t _backend = invalid_handle;
         std::unordered_set<ev_base*> _objects;
 
 #else
