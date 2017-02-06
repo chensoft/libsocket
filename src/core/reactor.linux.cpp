@@ -81,12 +81,6 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     ptr->onAttach(this, mode, flag);
 }
 
-void chen::reactor::set(ev_timer *ptr)
-{
-    this->_timers.insert(ptr);
-    ptr->onAttach(this, 0, 0);  // mode & flag are useless
-}
-
 void chen::reactor::del(ev_base *ptr)
 {
     auto fd = ptr->native();
@@ -100,12 +94,6 @@ void chen::reactor::del(ev_base *ptr)
     // delete event
     if ((::epoll_ctl(this->_backend, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
         throw std::system_error(sys::error(), "reactor: failed to delete event");
-}
-
-void chen::reactor::del(ev_timer *ptr)
-{
-    ptr->onDetach();
-    this->_timers.erase(ptr);
 }
 
 // phase

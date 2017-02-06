@@ -84,15 +84,6 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     this->_repoll.set();
 }
 
-void chen::reactor::set(ev_timer *ptr)
-{
-    this->_timers.insert(ptr);
-    ptr->onAttach(this, 0, 0);  // mode & flag are useless
-
-    // repoll if in polling
-    this->_repoll.set();
-}
-
 void chen::reactor::del(ev_base *ptr)
 {
     auto fd = ptr->native();
@@ -110,15 +101,6 @@ void chen::reactor::del(ev_base *ptr)
 
     if (it != this->_cache.end())
         this->_cache.erase(it);
-
-    // repoll if in polling
-    this->_repoll.set();
-}
-
-void chen::reactor::del(ev_timer *ptr)
-{
-    ptr->onDetach();
-    this->_timers.erase(ptr);
 
     // repoll if in polling
     this->_repoll.set();
@@ -142,21 +124,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         result = ::WSAPoll(this->_cache.data(), this->_cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
         // repoll if user call set or del when polling
-        bool repoll = false;
-
-        if (result == 1)
-        {
-            for (auto it = this->_cache.begin(); it != this->_cache.end(); ++it)
-            {
-                if (it->revents && (it->fd == this->_repoll.native()))
-                {
-                    repoll = true;
-                    break;
-                }
-            }
-        }
-
-        if (!repoll)
+        if ((result == 1) && this->_repoll.signaled())
             break;
     }
 
