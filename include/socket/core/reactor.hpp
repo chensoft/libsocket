@@ -13,6 +13,7 @@
 #include <system_error>
 #include <vector>
 #include <queue>
+#include <set>
 
 namespace chen
 {
@@ -157,7 +158,7 @@ namespace chen
 #endif
 
         ev_event _wakeup;
-        std::unordered_set<ev_timer*> _timers;
+        std::multiset<ev_timer*, ev_timer::Compare> _timers;
 
         std::vector<event_t> _cache;
         std::queue<std::pair<ev_base*, int>> _queue;

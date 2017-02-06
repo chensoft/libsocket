@@ -42,20 +42,21 @@ void chen::ev_timer::attach(std::function<void ()> cb)
 }
 
 // update
-void chen::ev_timer::adjust(const std::chrono::high_resolution_clock::time_point &now)
+void chen::ev_timer::setup(const std::chrono::high_resolution_clock::time_point &now)
 {
     if (this->_alarm.time_since_epoch() == std::chrono::nanoseconds::zero())
         this->_alarm = now + this->_cycle;
 }
 
-bool chen::ev_timer::update(const std::chrono::high_resolution_clock::time_point &now)
+bool chen::ev_timer::expire(const std::chrono::high_resolution_clock::time_point &now) const
 {
-    auto expired = this->_alarm <= now;
+    return this->_alarm <= now;
+}
 
-    if (expired && this->_repeat)
+void chen::ev_timer::update(const std::chrono::high_resolution_clock::time_point &now)
+{
+    if (this->_repeat)
         this->_alarm += this->_cycle;
-
-    return expired;
 }
 
 // event

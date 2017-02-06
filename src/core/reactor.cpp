@@ -35,6 +35,9 @@ chen::reactor::~reactor()
 // modify
 void chen::reactor::set(ev_timer *ptr)
 {
+    // initialize the alarm value, timers with the same cycle will have
+    // different alarm values because the now clock is slight different
+    ptr->setup(std::chrono::high_resolution_clock::now());
     this->_timers.insert(ptr);
     ptr->onAttach(this, 0, 0);  // mode & flag are useless
 
@@ -114,17 +117,20 @@ std::chrono::nanoseconds chen::reactor::update()
     if (this->_timers.empty())
         return (std::chrono::nanoseconds::min)();  // use bracket because Windows defines 'min' as a macro
 
+    std::vector<ev_timer*> tmp;
+
     auto ret = (std::chrono::nanoseconds::min)();
     auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)
     {
-        ptr->adjust(now);
-
-        auto exp = ptr->update(now);
-
-        if (exp)
+        // the front is the nearest timer
+        if (ptr->expire(now))
         {
+            if (ptr->repeat())
+                tmp.emplace_back(ptr);
+
+            // don't wait for the next backend event if we have a callback need to notify
             if (ret != std::chrono::nanoseconds::zero())
                 ret = std::chrono::nanoseconds::zero();
 
@@ -132,10 +138,18 @@ std::chrono::nanoseconds chen::reactor::update()
         }
         else
         {
-            auto off = ptr->alarm() - now;
-            if ((off >= std::chrono::nanoseconds::zero()) && ((ret < std::chrono::nanoseconds::zero()) || (ret > off)))
-                ret = off;
+            if (ret != std::chrono::nanoseconds::zero())
+                ret = ptr->alarm() - now;
+
+            break;
         }
+    }
+
+    for (auto *ptr : tmp)
+    {
+        this->_timers.erase(ptr);
+        ptr->update(now);
+        this->_timers.insert(ptr);
     }
 
     return ret;
