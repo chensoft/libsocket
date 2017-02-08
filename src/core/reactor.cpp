@@ -37,12 +37,9 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(ev_timer *ptr)
+void chen::reactor::set(ev_timer *ptr, std::chrono::high_resolution_clock::time_point init)
 {
-    // todo
-    // initialize the alarm value, timers with the same cycle will have
-    // different alarm values because the now clock is slight different
-    ptr->setup(std::chrono::high_resolution_clock::now());
+    ptr->setup(init);
     this->_timers.insert(ptr);
     ptr->onAttach(this, 0, 0);  // mode & flag are useless
 

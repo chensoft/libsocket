@@ -14,8 +14,8 @@
 namespace chen
 {
     /**
-     * BSD socket wrapper, usually you don't need to use it directly
-     * use tcp_client, tcp_server, udp_client, udp_server instead
+     * BSD socket wrapper, usually you don't need to use it directly, use
+     * classes like tcp_client, tcp_server, udp_client, udp_server instead
      */
     class basic_socket : public ev_handle
     {
