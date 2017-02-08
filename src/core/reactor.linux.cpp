@@ -99,7 +99,7 @@ void chen::reactor::del(ev_base *ptr)
 // phase
 std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
 {
-    // pull events
+    // poll events
     int result = ::epoll_wait(this->_backend, this->_cache.data(), static_cast<int>(this->_cache.size()), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
     if (result <= 0)

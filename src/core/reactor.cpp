@@ -19,22 +19,27 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 chen::reactor::~reactor()
 {
     // clear objects before destroy backend
+#ifdef _WIN32
     auto objects = std::move(this->_objects);
-    for (auto &ptr : objects)
-        this->del(ptr);
+    for (auto &item : objects)
+        this->del(item.second);
+#else
+    auto objects = std::move(this->_objects);
+    for (auto &item : objects)
+        this->del(item);
 
-    auto timers = std::move(this->_timers);
-    for (auto *ptr : timers)
-        this->del(ptr);
-
-#ifndef _WIN32
     ::close(this->_backend);
 #endif
+
+    auto timers = std::move(this->_timers);
+    for (auto *item : timers)
+        this->del(item);
 }
 
 // modify
 void chen::reactor::set(ev_timer *ptr)
 {
+    // todo
     // initialize the alarm value, timers with the same cycle will have
     // different alarm values because the now clock is slight different
     ptr->setup(std::chrono::high_resolution_clock::now());
@@ -86,7 +91,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     if ((mini >= zero) && (timeout != zero))
         timeout = (timeout > zero) ? std::min(mini, timeout) : mini;
 
-    // pull events
+    // poll events
     auto error = this->gather(timeout);
 
     // notify user
@@ -97,7 +102,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 
 void chen::reactor::post(ev_base *ptr, int type)
 {
-    this->_queue.push(std::make_pair(ptr, type));
+    this->_queue.emplace(ptr, type);
 }
 
 void chen::reactor::post(ev_timer *ptr, int type)
@@ -115,11 +120,11 @@ void chen::reactor::stop()
 std::chrono::nanoseconds chen::reactor::update()
 {
     if (this->_timers.empty())
-        return (std::chrono::nanoseconds::min)();  // use bracket because Windows defines 'min' as a macro
+        return std::chrono::nanoseconds::min();
 
     std::vector<ev_timer*> tmp;
 
-    auto ret = (std::chrono::nanoseconds::min)();
+    auto ret = std::chrono::nanoseconds::min();
     auto now = std::chrono::high_resolution_clock::now();
 
     for (auto *ptr : this->_timers)

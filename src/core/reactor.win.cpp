@@ -113,7 +113,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     if (timeout > std::chrono::nanoseconds::zero())
         timeout += std::chrono::milliseconds(5);
 
-    // pull events
+    // poll events
     int result = 0;
 
     while (true)
