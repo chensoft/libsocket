@@ -124,7 +124,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         result = ::WSAPoll(this->_cache.data(), this->_cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
         // repoll if user call set or del when polling
-        if ((result == 1) && this->_repoll.signaled())
+        if ((result != 1) || !this->_repoll.signaled())
             break;
     }
 
