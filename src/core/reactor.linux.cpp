@@ -52,7 +52,7 @@ chen::reactor::reactor(std::size_t count) : _cache(count)
 }
 
 // modify
-void chen::reactor::set(ev_base *ptr, int mode, int flag)
+void chen::reactor::set(ev_handle *ptr, int mode, int flag)
 {
     auto fd = ptr->native();
 
@@ -74,22 +74,22 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
             throw std::system_error(sys::error(), "reactor: failed to set event");
     }
 
-    // store object
-    this->_objects.insert(ptr);
+    // store handle
+    this->_handles.insert(ptr);
 
     // notify attach
     ptr->onAttach(this, mode, flag);
 }
 
-void chen::reactor::del(ev_base *ptr)
+void chen::reactor::del(ev_handle *ptr)
 {
     auto fd = ptr->native();
 
     // notify detach
     ptr->onDetach();
 
-    // clear object
-    this->_objects.erase(ptr);
+    // clear handle
+    this->_handles.erase(ptr);
 
     // delete event
     if ((::epoll_ctl(this->_backend, EPOLL_CTL_DEL, fd, nullptr) != 0) && (errno != ENOENT) && (errno != EBADF))
@@ -117,7 +117,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     for (int i = 0; i < result; ++i)
     {
         auto &item = this->_cache[i];
-        auto   ptr = static_cast<ev_base*>(item.data.ptr);
+        auto   ptr = static_cast<ev_handle*>(item.data.ptr);
 
         // user request to stop
         if (ptr == &this->_wakeup)

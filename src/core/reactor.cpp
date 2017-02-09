@@ -18,14 +18,14 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 
 chen::reactor::~reactor()
 {
-    // clear objects before destroy backend
+    // clear handles before destroy backend
 #ifdef _WIN32
-    auto objects = std::move(this->_objects);
-    for (auto &item : objects)
+    auto handles = std::move(this->_handles);
+    for (auto &item : handles)
         this->del(item.second);
 #else
-    auto objects = std::move(this->_objects);
-    for (auto &item : objects)
+    auto handles = std::move(this->_handles);
+    for (auto &item : handles)
         this->del(item);
 
     ::close(this->_backend);
@@ -97,7 +97,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     return error;
 }
 
-void chen::reactor::post(ev_base *ptr, int type)
+void chen::reactor::post(ev_handle *ptr, int type)
 {
     this->_queue.emplace(ptr, type);
 }

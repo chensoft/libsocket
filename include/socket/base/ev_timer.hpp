@@ -39,14 +39,6 @@ namespace chen
          */
         void attach(std::function<void ()> cb);
 
-        /**
-         * Native handle value
-         */
-        virtual handle_t native() const
-        {
-            return invalid_handle;  // no use in timer
-        }
-
     public:
         /**
          * Timer properties

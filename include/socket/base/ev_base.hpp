@@ -6,8 +6,6 @@
  */
 #pragma once
 
-#include <socket/config.hpp>
-
 namespace chen
 {
     class reactor;
@@ -56,11 +54,6 @@ namespace chen
         {
             return this->_ev_flag;
         }
-
-        /**
-         * Native handle value
-         */
-        virtual handle_t native() const = 0;
 
     protected:
         friend class reactor;

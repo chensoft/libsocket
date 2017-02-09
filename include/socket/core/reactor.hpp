@@ -65,14 +65,14 @@ namespace chen
          * @param mode ModeRead, ModeWrite and etc
          * @param flag FlagOnce, FlagEdge and etc
          */
-        void set(ev_base *ptr, int mode, int flag);
+        void set(ev_handle *ptr, int mode, int flag);
         void set(ev_timer *ptr, std::chrono::high_resolution_clock::time_point init = std::chrono::high_resolution_clock::now());
 
         /**
          * Delete event
          * @note this method will be called automatically when object destroyed, event is Closed or flag is FlagOnce
          */
-        void del(ev_base *ptr);
+        void del(ev_handle *ptr);
         void del(ev_timer *ptr);
 
     public:
@@ -98,7 +98,7 @@ namespace chen
         /**
          * Post events to queue
          */
-        void post(ev_base *ptr, int type);
+        void post(ev_handle *ptr, int type);
         void post(ev_timer *ptr);
 
         /**
@@ -137,7 +137,7 @@ namespace chen
         typedef struct ::kevent event_t;
 
         handle_t _backend = invalid_handle;
-        std::unordered_set<ev_base*> _objects;
+        std::unordered_set<ev_handle*> _handles;
 
 #elif defined(__linux__)
 
@@ -145,7 +145,7 @@ namespace chen
         typedef struct ::epoll_event event_t;
 
         handle_t _backend = invalid_handle;
-        std::unordered_set<ev_base*> _objects;
+        std::unordered_set<ev_handle*> _handles;
 
 #else
 
@@ -153,7 +153,7 @@ namespace chen
         typedef struct ::pollfd event_t;
 
         ev_event _repoll;
-        std::unordered_map<handle_t, ev_base*> _objects;
+        std::unordered_map<handle_t, ev_handle*> _handles;
 
 #endif
 

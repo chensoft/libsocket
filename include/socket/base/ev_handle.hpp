@@ -7,6 +7,7 @@
 #pragma once
 
 #include <socket/base/ev_base.hpp>
+#include <socket/config.hpp>
 
 namespace chen
 {
@@ -46,6 +47,8 @@ namespace chen
         handle_t transfer();
 
     protected:
+        friend class reactor;
+
         /**
          * Notify that a reactor is attached or detached
          */

@@ -53,7 +53,7 @@ chen::reactor::reactor(std::size_t count)  // count is ignored on Windows
 }
 
 // modify
-void chen::reactor::set(ev_base *ptr, int mode, int flag)
+void chen::reactor::set(ev_handle *ptr, int mode, int flag)
 {
     auto fd = ptr->native();
 
@@ -74,8 +74,8 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     if (mode & ModeWrite)
         find->events |= POLLOUT;
 
-    // store object
-    this->_objects[fd] = ptr;
+    // store handle
+    this->_handles[fd] = ptr;
 
     // notify attach
     ptr->onAttach(this, mode, flag);
@@ -84,15 +84,15 @@ void chen::reactor::set(ev_base *ptr, int mode, int flag)
     this->_repoll.set();
 }
 
-void chen::reactor::del(ev_base *ptr)
+void chen::reactor::del(ev_handle *ptr)
 {
     auto fd = ptr->native();
 
     // notify detach
     ptr->onDetach();
 
-    // clear object
-    this->_objects.erase(fd);
+    // clear handle
+    this->_handles.erase(fd);
 
     // delete event
     auto it = std::find_if(this->_cache.begin(), this->_cache.end(), [&] (::pollfd &item) {
@@ -137,7 +137,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     for (auto it = this->_cache.begin(); it != this->_cache.end(); ++it)
     {
         auto &item = *it;
-        auto   ptr = chen::map::find(this->_objects, item.fd);
+        auto   ptr = chen::map::find(this->_handles, item.fd);
 
         // continue if revents is 0
         if (!item.revents)
