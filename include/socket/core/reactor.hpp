@@ -99,7 +99,7 @@ namespace chen
          * Post events to queue
          */
         void post(ev_base *ptr, int type);
-        void post(ev_timer *ptr, int type);
+        void post(ev_timer *ptr);
 
         /**
          * Stop the poll

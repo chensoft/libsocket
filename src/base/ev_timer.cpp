@@ -50,7 +50,7 @@ void chen::ev_timer::setup(const std::chrono::high_resolution_clock::time_point 
 
 bool chen::ev_timer::expire(const std::chrono::high_resolution_clock::time_point &now) const
 {
-    return this->_alarm <= now;
+    return now >= this->_alarm;
 }
 
 void chen::ev_timer::update(const std::chrono::high_resolution_clock::time_point &now)

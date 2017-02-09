@@ -102,9 +102,9 @@ void chen::reactor::post(ev_base *ptr, int type)
     this->_queue.emplace(ptr, type);
 }
 
-void chen::reactor::post(ev_timer *ptr, int type)
+void chen::reactor::post(ev_timer *ptr)
 {
-    this->post(static_cast<ev_base*>(ptr), type);
+    this->_queue.emplace(ptr, 0);
 }
 
 void chen::reactor::stop()
@@ -136,7 +136,7 @@ std::chrono::nanoseconds chen::reactor::update()
             if (ret != std::chrono::nanoseconds::zero())
                 ret = std::chrono::nanoseconds::zero();
 
-            this->post(ptr, ptr->repeat() ? ev_base::Readable : ev_base::Closed);
+            this->post(ptr);
         }
         else
         {

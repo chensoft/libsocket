@@ -54,7 +54,7 @@ namespace chen
     public:
         /**
          * Reset socket by stored family, type and protocol
-         * @note if you construct from a socket fd, this method will throw error because it didn't know how to create new socket
+         * @note if you construct from a socket fd, this method will throw error because we didn't know how to create new socket
          */
         void reset();
 
@@ -95,7 +95,7 @@ namespace chen
 
     public:
         /**
-         * Receive data from connected host, used in stream socket
+         * Receive data from connected host, mainly used in stream socket
          */
         ssize_t recv(void *data, std::size_t size) noexcept;
         ssize_t recv(void *data, std::size_t size, int flags) noexcept;
@@ -108,7 +108,7 @@ namespace chen
         ssize_t recvfrom(void *data, std::size_t size, basic_address &addr, int flags) noexcept;
 
         /**
-         * Send data to connected host, used in stream socket
+         * Send data to connected host, mainly used in stream socket
          */
         ssize_t send(const void *data, std::size_t size) noexcept;
         ssize_t send(const void *data, std::size_t size, int flags) noexcept;
@@ -153,7 +153,7 @@ namespace chen
 
         /**
          * Check socket is valid
-         * @note zero is a valid file descriptor
+         * @note note that 0 is a valid file descriptor number
          */
         bool valid() const noexcept;
         operator bool() const noexcept;

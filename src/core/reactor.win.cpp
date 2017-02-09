@@ -43,7 +43,7 @@ namespace
 const int chen::reactor::FlagEdge = 0;
 const int chen::reactor::FlagOnce = 1;
 
-chen::reactor::reactor(std::size_t count)  // count ignored on Windows
+chen::reactor::reactor(std::size_t count)  // count is ignored on Windows
 {
     // create udp to recv wakeup message
     this->set(&this->_wakeup, ModeRead, 0);
