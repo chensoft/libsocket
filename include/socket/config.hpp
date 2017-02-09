@@ -86,9 +86,30 @@ namespace chen
 #define EPOLLRDHUP 0x00002000
 #endif
 
+#ifndef EPOLL_CLOEXEC
+#define EPOLL_CLOEXEC O_CLOEXEC
+
 // Android lacks the declaration of this function
 // epoll_create1 was added to the kernel in 2.6.27
-int epoll_create1(int flags);
+inline int epoll_create1(int flags)
+{
+    auto fd = ::epoll_create(1);  // 1 is just a hint
+
+    if (flags & EPOLL_CLOEXEC)
+        ::ioctl(fd, FIOCLEX);
+
+    return fd;
+}
+
+#endif
+
+#ifndef SOCK_CLOEXEC
+#define SOCK_CLOEXEC O_CLOEXEC
+#endif
+
+#ifndef SOCK_NONBLOCK
+#define SOCK_NONBLOCK O_NONBLOCK
+#endif
 
 #endif
 
