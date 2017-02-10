@@ -31,21 +31,6 @@ chen::inet_address::inet_address(const ip_address &addr, const std::string &serv
 {
 }
 
-chen::inet_address::inet_address(const basic_address &addr)
-{
-    this->assign(addr);
-}
-
-chen::inet_address::inet_address(const basic_address &addr, std::uint16_t port)
-{
-    this->assign(addr, port);
-}
-
-chen::inet_address::inet_address(const basic_address &addr, const std::string &service)
-{
-    this->assign(addr, service);
-}
-
 chen::inet_address::inet_address(const struct ::sockaddr *addr)
 {
     this->assign(addr);
@@ -152,44 +137,9 @@ void chen::inet_address::assign(const ip_address &addr, const std::string &servi
     this->_port = inet_resolver::service(service);
 }
 
-void chen::inet_address::assign(const basic_address &addr)
-{
-    this->assign((::sockaddr*)&addr.addr);
-}
-
-void chen::inet_address::assign(const basic_address &addr, std::uint16_t port)
-{
-    this->assign((::sockaddr*)&addr.addr, port);
-}
-
-void chen::inet_address::assign(const basic_address &addr, const std::string &service)
-{
-    this->assign((::sockaddr*)&addr.addr, service);
-}
-
 void chen::inet_address::assign(const struct ::sockaddr *addr)
 {
-    switch (addr->sa_family)
-    {
-        case AF_INET:
-        {
-            auto in = (::sockaddr_in*)addr;
-            this->_addr = ip_version4(num::swap(in->sin_addr.s_addr));
-            this->_port = num::swap(in->sin_port);
-        }
-            break;
-
-        case AF_INET6:
-        {
-            auto in = (::sockaddr_in6*)addr;
-            this->_addr = ip_version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
-            this->_port = num::swap(in->sin6_port);
-        }
-            break;
-
-        default:
-            throw std::runtime_error("address: unknown bsd address provided");
-    }
+    this->sockaddr(addr);
 }
 
 void chen::inet_address::assign(const struct ::sockaddr *addr, std::uint16_t port)
@@ -222,56 +172,10 @@ chen::inet_address& chen::inet_address::operator=(const std::string &mixed)
     return *this;
 }
 
-chen::inet_address& chen::inet_address::operator=(const basic_address &addr)
-{
-    this->assign(addr);
-    return *this;
-}
-
 chen::inet_address& chen::inet_address::operator=(const struct ::sockaddr *addr)
 {
     this->assign(addr);
     return *this;
-}
-
-// conversion
-chen::inet_address::operator chen::basic_address() const
-{
-    basic_address ret;
-
-    switch (this->_addr.type())
-    {
-        case ip_address::Type::IPv4:
-        {
-            auto in = (::sockaddr_in*)&ret.addr;
-
-            in->sin_family      = AF_INET;
-            in->sin_port        = chen::num::swap(this->_port);
-            in->sin_addr.s_addr = chen::num::swap(this->_addr.v4().addr());
-
-            ret.size = sizeof(*in);
-        }
-            break;
-
-        case ip_address::Type::IPv6:
-        {
-            auto in = (::sockaddr_in6*)&ret.addr;
-
-            in->sin6_family   = AF_INET6;
-            in->sin6_port     = chen::num::swap(this->_port);
-            in->sin6_scope_id = this->_addr.v6().scope();
-
-            ::memcpy(in->sin6_addr.s6_addr, this->_addr.v6().addr().data(), 16);
-
-            ret.size = sizeof(*in);
-        }
-            break;
-
-        default:
-            break;
-    }
-
-    return ret;
 }
 
 // comparison
@@ -303,4 +207,80 @@ bool chen::inet_address::operator<=(const inet_address &o) const
 bool chen::inet_address::operator>=(const inet_address &o) const
 {
     return o <= *this;
+}
+
+// override
+socklen_t chen::inet_address::socklen() const
+{
+    switch (this->_addr.type())
+    {
+        case ip_address::Type::IPv4:
+            return sizeof(::sockaddr_in);
+
+        case ip_address::Type::IPv6:
+            return sizeof(::sockaddr_in6);
+
+        default:
+            return 0;
+    }
+}
+
+struct ::sockaddr_storage chen::inet_address::sockaddr() const
+{
+    ::sockaddr_storage ret{};
+
+    switch (this->_addr.type())
+    {
+        case ip_address::Type::IPv4:
+        {
+            auto in = (::sockaddr_in*)&ret;
+
+            in->sin_family      = AF_INET;
+            in->sin_port        = chen::num::swap(this->_port);
+            in->sin_addr.s_addr = chen::num::swap(this->_addr.v4().addr());
+        }
+            break;
+
+        case ip_address::Type::IPv6:
+        {
+            auto in = (::sockaddr_in6*)&ret;
+
+            in->sin6_family   = AF_INET6;
+            in->sin6_port     = chen::num::swap(this->_port);
+            in->sin6_scope_id = this->_addr.v6().scope();
+
+            ::memcpy(in->sin6_addr.s6_addr, this->_addr.v6().addr().data(), 16);
+        }
+            break;
+
+        default:
+            break;
+    }
+
+    return ret;
+}
+
+void chen::inet_address::sockaddr(const struct ::sockaddr *addr)
+{
+    switch (addr->sa_family)
+    {
+        case AF_INET:
+        {
+            auto in = (::sockaddr_in*)addr;
+            this->_addr = ip_version4(num::swap(in->sin_addr.s_addr));
+            this->_port = num::swap(in->sin_port);
+        }
+            break;
+
+        case AF_INET6:
+        {
+            auto in = (::sockaddr_in6*)addr;
+            this->_addr = ip_version6(in->sin6_addr.s6_addr, 128, in->sin6_scope_id);
+            this->_port = num::swap(in->sin6_port);
+        }
+            break;
+
+        default:
+            throw std::runtime_error("address: unknown bsd address provided");
+    }
 }

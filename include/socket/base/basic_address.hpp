@@ -11,15 +11,23 @@
 namespace chen
 {
     /**
-     * BSD socket address wrapper, you don't need to use it directly
+     * The base class for socket address
      */
     class basic_address
     {
     public:
-        basic_address() = default;
+        virtual ~basic_address() = default;
 
     public:
-        socklen_t size = sizeof(addr);  // use sockaddr_storage's size as initialization value
-        struct ::sockaddr_storage addr{};
+        /**
+         * Underlying socket address length
+         */
+        virtual socklen_t socklen() const = 0;
+
+        /**
+         * Underlying socket address struct
+         */
+        virtual struct ::sockaddr_storage sockaddr() const = 0;
+        virtual void sockaddr(const struct ::sockaddr *addr) = 0;
     };
 }

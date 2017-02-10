@@ -25,3 +25,5 @@
 -) support set max connections limit in tcp, udp server socket
 
 -) add sendfile, TransmitFile, use method name: transmit
+
+-) async dns resolve

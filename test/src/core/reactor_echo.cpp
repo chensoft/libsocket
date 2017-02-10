@@ -12,24 +12,24 @@
 
 using chen::reactor;
 using chen::ev_base;
+using chen::inet_address;
 using chen::basic_socket;
-using chen::basic_address;
 
 void server_thread(basic_socket &s);
-void client_thread(basic_address a);
+void client_thread(inet_address a);
 
 TEST(CoreReactorTest, Echo)
 {
     // server
     basic_socket s(AF_INET, SOCK_STREAM);
 
-    EXPECT_TRUE(!s.bind(chen::inet_address("127.0.0.1:0")));  // bind on a random port
+    EXPECT_TRUE(!s.bind(inet_address("127.0.0.1:0")));  // bind on a random port
     EXPECT_TRUE(!s.listen());
 
     std::thread t_server(std::bind(&server_thread, std::ref(s)));
 
     // client
-    std::thread t_client(std::bind(&client_thread, s.sock()));
+    std::thread t_client(std::bind(&client_thread, s.sock<inet_address>()));
 
     t_server.join();
     t_client.join();
@@ -86,7 +86,7 @@ void server_thread(basic_socket &s)
     r.run();
 }
 
-void client_thread(basic_address a)
+void client_thread(inet_address a)
 {
     // send each message to server, server
     // will invert the string and send back

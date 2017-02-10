@@ -67,7 +67,7 @@ TEST(BasicSocketTest, TCP)
 
         EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
         EXPECT_TRUE(!server.listen());
-        EXPECT_GT(port = inet_address(server.sock()).port(), 0);  // retrieve random port number
+        EXPECT_GT(port = server.sock<inet_address>().port(), 0);  // retrieve random port number
 
         // notify client to connect
         sem.post();
@@ -79,7 +79,7 @@ TEST(BasicSocketTest, TCP)
             EXPECT_TRUE(!server.accept(conn));
 
             // remote address
-            EXPECT_EQ("127.0.0.1", inet_address(conn.peer()).addr().str());
+            EXPECT_EQ("127.0.0.1", conn.peer<inet_address>().addr().str());
 
             // retrieve available bytes to read
             EXPECT_GE(conn.available(), 0u);
@@ -149,7 +149,7 @@ TEST(BasicSocketTest, UDP)
         basic_socket server(AF_INET, SOCK_DGRAM);
 
         EXPECT_TRUE(!server.bind(inet_address("127.0.0.1:0")));  // bind on a random port
-        EXPECT_GT(port = inet_address(server.sock()).port(), 0);  // retrieve random port number
+        EXPECT_GT(port = server.sock<inet_address>().port(), 0);  // retrieve random port number
 
         // notify client to send message
         sem.post();
@@ -157,7 +157,7 @@ TEST(BasicSocketTest, UDP)
         // wait for new messages to arrive
         while (true)
         {
-            basic_address addr;
+            inet_address addr;
 
             char buff[512]{};
             auto size = server.recvfrom(buff, 511, addr);

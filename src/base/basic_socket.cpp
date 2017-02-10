@@ -94,12 +94,14 @@ void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) 
 // connection
 std::error_code chen::basic_socket::connect(const basic_address &addr) noexcept
 {
-    return !::connect(this->native(), (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
+    auto storage = addr.sockaddr();
+    return !::connect(this->native(), (::sockaddr*)&storage, addr.socklen()) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
 {
-    return !::bind(this->native(), (::sockaddr*)&addr.addr, addr.size) ? std::error_code() : sys::error();
+    auto storage = addr.sockaddr();
+    return !::bind(this->native(), (::sockaddr*)&storage, addr.socklen()) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::listen() noexcept
@@ -165,7 +167,14 @@ chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_a
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::recvfrom(this->native(), (char*)data, size, flags, (::sockaddr*)&addr.addr, &addr.size);
+    ::sockaddr_storage tmp{};
+    socklen_t len = sizeof(tmp);
+
+    auto ret = ::recvfrom(this->native(), (char*)data, size, flags, (::sockaddr*)&tmp, &len);
+    if (ret >= 0)
+        addr.sockaddr((::sockaddr*)&tmp);
+
+    return ret;
 }
 
 chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size) noexcept
@@ -195,7 +204,8 @@ chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, con
     flags |= MSG_NOSIGNAL;
 #endif
 
-    return ::sendto(this->native(), (char*)data, size, flags, (::sockaddr*)&addr.addr, addr.size);
+    auto storage = addr.sockaddr();
+    return ::sendto(this->native(), (char*)data, size, flags, (::sockaddr*)&storage, addr.socklen());
 }
 
 // cleanup
@@ -229,18 +239,28 @@ void chen::basic_socket::close() noexcept
 }
 
 // property
-chen::basic_address chen::basic_socket::peer() const noexcept
+std::error_code chen::basic_socket::peer(basic_address &addr) const noexcept
 {
-    basic_address addr;
-    ::getpeername(this->native(), (::sockaddr*)&addr.addr, &addr.size);
-    return addr;
+    ::sockaddr_storage tmp{};
+    socklen_t len = sizeof(tmp);
+
+    if (::getpeername(this->native(), (::sockaddr*)&tmp, &len) < 0)
+        return sys::error();
+
+    addr.sockaddr((::sockaddr*)&tmp);
+    return {};
 }
 
-chen::basic_address chen::basic_socket::sock() const noexcept
+std::error_code chen::basic_socket::sock(basic_address &addr) const noexcept
 {
-    basic_address addr;
-    ::getsockname(this->native(), (::sockaddr*)&addr.addr, &addr.size);
-    return addr;
+    ::sockaddr_storage tmp{};
+    socklen_t len = sizeof(tmp);
+
+    if (::getsockname(this->native(), (::sockaddr*)&tmp, &len) < 0)
+        return sys::error();
+
+    addr.sockaddr((::sockaddr*)&tmp);
+    return {};
 }
 
 std::error_code chen::basic_socket::nonblocking(bool enable) noexcept

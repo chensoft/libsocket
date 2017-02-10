@@ -134,8 +134,24 @@ namespace chen
         /**
          * Peer & Local address
          */
-        basic_address peer() const noexcept;
-        basic_address sock() const noexcept;
+        template <typename R>
+        R peer() const noexcept
+        {
+            R ret;
+            this->peer(ret);
+            return ret;
+        }
+
+        template <typename R>
+        R sock() const noexcept
+        {
+            R ret;
+            this->sock(ret);
+            return ret;
+        }
+
+        std::error_code peer(basic_address &addr) const noexcept;
+        std::error_code sock(basic_address &addr) const noexcept;
 
         /**
          * Non-blocking mode

@@ -11,7 +11,7 @@
 
 namespace chen
 {
-    class inet_address
+    class inet_address : public basic_address
     {
     public:
         /**
@@ -50,10 +50,6 @@ namespace chen
         /**
          * Construct by raw bsd address
          */
-        inet_address(const basic_address &addr);
-        inet_address(const basic_address &addr, std::uint16_t port);
-        inet_address(const basic_address &addr, const std::string &service);
-
         inet_address(const struct ::sockaddr *addr);
         inet_address(const struct ::sockaddr *addr, std::uint16_t port);
         inet_address(const struct ::sockaddr *addr, const std::string &service);
@@ -98,10 +94,6 @@ namespace chen
         void assign(const ip_address &addr, std::uint16_t port);
         void assign(const ip_address &addr, const std::string &service);
 
-        void assign(const basic_address &addr);
-        void assign(const basic_address &addr, std::uint16_t port);
-        void assign(const basic_address &addr, const std::string &service);
-
         void assign(const struct ::sockaddr *addr);
         void assign(const struct ::sockaddr *addr, std::uint16_t port);
         void assign(const struct ::sockaddr *addr, const std::string &service);
@@ -109,13 +101,7 @@ namespace chen
         inet_address& operator=(std::nullptr_t);
         inet_address& operator=(const char *mixed);
         inet_address& operator=(const std::string &mixed);
-        inet_address& operator=(const basic_address &addr);
         inet_address& operator=(const struct ::sockaddr *addr);
-
-        /**
-         * Conversion
-         */
-        operator chen::basic_address() const;
 
         /**
          * Comparison
@@ -128,6 +114,18 @@ namespace chen
 
         bool operator<=(const inet_address &o) const;
         bool operator>=(const inet_address &o) const;
+
+    public:
+        /**
+         * Underlying socket address length
+         */
+        virtual socklen_t socklen() const;
+
+        /**
+         * Underlying socket address struct
+         */
+        virtual struct ::sockaddr_storage sockaddr() const;
+        virtual void sockaddr(const struct ::sockaddr *addr);
 
     private:
         ip_address _addr;
