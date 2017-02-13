@@ -37,10 +37,12 @@ chen::ev_event::~ev_event()
 
 void chen::ev_event::set()
 {
-    basic_address a;
-    ::getsockname(this->native(), (::sockaddr*)&a.addr, &a.size);
+    ::sockaddr_storage tmp{};
+    socklen_t len = sizeof(tmp);
 
-    if (this->_write.sendto("\n", 1, a) != 1)
+    ::getsockname(this->native(), (::sockaddr*)&tmp, &len);
+
+    if (this->_write.sendto("\n", 1, inet_address((::sockaddr*)&tmp)) != 1)
         throw std::system_error(sys::error(), "event: failed to set event");
 }
 
