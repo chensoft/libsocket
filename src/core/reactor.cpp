@@ -63,7 +63,8 @@ void chen::reactor::del(ev_timer *ptr)
 // run
 void chen::reactor::run()
 {
-    for (std::error_code code; !code || (code == std::errc::timed_out) || (code == std::errc::interrupted); code = this->poll())
+    // quit if no events to monitor or operation canceled
+    for (std::error_code code; ((this->_handles.size() > 1) || !this->_timers.empty()) && (code != std::errc::operation_canceled); code = this->poll())
         ;
 }
 

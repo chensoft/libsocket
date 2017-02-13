@@ -77,7 +77,7 @@ namespace chen
 
     public:
         /**
-         * Run loop forever, unless user request to stop
+         * Run the loop until no events to monitor or user request to stop
          */
         void run();
 
