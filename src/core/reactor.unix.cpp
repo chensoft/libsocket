@@ -123,6 +123,27 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
             throw std::system_error(sys::error(), "reactor: failed to poll event");
     }
 
+    // merge events, events on the same fd will be notified only once
+    std::unordered_map<uintptr_t, struct ::kevent*> map;
+
+    for (int i = 0; i < result; ++i)
+    {
+        auto &item = this->_cache[i];
+        auto  find = map.find(item.ident);
+        auto  type = kq_type(item.filter, item.flags);
+
+        if (find != map.end())
+        {
+            item.udata = nullptr;  // set to null because we merge item's event to previous item
+            find->second->filter |= type;  // borrow 'filter' field for temporary use
+        }
+        else
+        {
+            map[item.ident] = &item;
+            item.filter = static_cast<std::int16_t>(type);  // filter is enough to store event type
+        }
+    }
+
     for (int i = 0; i < result; ++i)
     {
         auto &item = this->_cache[i];
@@ -135,7 +156,8 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        this->post(ptr, kq_type(item.filter, item.flags));
+        if (ptr)
+            this->post(ptr, item.filter);
     }
 
     return {};
