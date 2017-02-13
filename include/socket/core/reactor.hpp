@@ -151,8 +151,6 @@ namespace chen
 
         // Windows, use WSAPoll
         typedef struct ::pollfd event_t;
-
-        ev_event _repoll;
         std::unordered_map<handle_t, ev_handle*> _handles;
 
 #endif

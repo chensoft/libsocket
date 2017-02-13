@@ -42,22 +42,12 @@ void chen::reactor::set(ev_timer *ptr, std::chrono::high_resolution_clock::time_
     ptr->setup(init);
     this->_timers.insert(ptr);
     ptr->onAttach(this, 0, 0);  // mode & flag are useless
-
-#ifdef _WIN32
-    // repoll if in polling
-    this->_repoll.set();
-#endif
 }
 
 void chen::reactor::del(ev_timer *ptr)
 {
     ptr->onDetach();
     this->_timers.erase(ptr);
-
-#ifdef _WIN32
-    // repoll if in polling
-    this->_repoll.set();
-#endif
 }
 
 // run

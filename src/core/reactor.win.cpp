@@ -47,9 +47,6 @@ chen::reactor::reactor(std::size_t count)  // count is ignored on Windows
 {
     // create udp to recv wakeup message
     this->set(&this->_wakeup, ModeRead, 0);
-
-    // create udp to allow repoll when user call set or del
-    this->set(&this->_repoll, ModeRead, 0);
 }
 
 // modify
@@ -79,9 +76,6 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
 
     // notify attach
     ptr->onAttach(this, mode, flag);
-
-    // repoll if in polling
-    this->_repoll.set();
 }
 
 void chen::reactor::del(ev_handle *ptr)
@@ -101,9 +95,6 @@ void chen::reactor::del(ev_handle *ptr)
 
     if (it != this->_cache.end())
         this->_cache.erase(it);
-
-    // repoll if in polling
-    this->_repoll.set();
 }
 
 // phase
@@ -114,19 +105,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         timeout += std::chrono::milliseconds(5);
 
     // poll events
-    int result = 0;
-
-    while (true)
-    {
-        // reset repoll event
-        this->_repoll.reset();
-
-        result = ::WSAPoll(this->_cache.data(), this->_cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
-
-        // repoll if user call set or del when polling
-        if ((result != 1) || !this->_repoll.signaled())
-            break;
-    }
+    int result = ::WSAPoll(this->_cache.data(), this->_cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
     if (!result)
         return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
