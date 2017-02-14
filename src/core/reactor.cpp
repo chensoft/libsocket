@@ -65,13 +65,6 @@ std::error_code chen::reactor::poll()
 
 std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 {
-    // quickly stop
-    if (this->_wakeup.signaled())
-    {
-        this->_wakeup.reset();
-        return std::make_error_code(std::errc::operation_canceled);
-    }
-
     // update timer
     auto zero = std::chrono::nanoseconds::zero();
     auto mini = this->update();
@@ -84,6 +77,13 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
 
     // notify user
     this->notify();
+
+    // quickly stop
+    if (this->_wakeup.signaled())
+    {
+        this->_wakeup.reset();
+        return std::make_error_code(std::errc::operation_canceled);
+    }
 
     return error;
 }
