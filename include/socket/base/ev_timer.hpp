@@ -75,13 +75,15 @@ namespace chen
 
         /**
          * Comparator, used in conjunction with multiset
-         * @note if alarm value is changed, you should re-add timer to multiset
+         * @note if the cycle or alarm value changes, you should re-add the timer to multiset
          */
         struct Compare
         {
             bool operator()(const ev_timer *a, const ev_timer *b) const
             {
-                return a->alarm() < b->alarm();
+                auto alarm_a = a->alarm();
+                auto alarm_b = b->alarm();
+                return alarm_a == alarm_b ? a->cycle() < b->cycle() : alarm_a < alarm_b;
             }
         };
 
