@@ -35,7 +35,7 @@ namespace chen
         /**
          * SO_REUSEPORT(allow multiple sockets bind to the same port, you can listen on multiple threads)
          * @note on Linux require kernel version 3.9+
-         * @note on Windows, I use SO_REUSEADDR to implement reuseport, because SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT on Windows
+         * @note on Windows, you can use SO_REUSEADDR instead of SO_REUSEPORT, because SO_REUSEADDR means SO_REUSEADDR + SO_REUSEPORT on Windows
          * @link http://stackoverflow.com/questions/14388706/socket-options-so-reuseaddr-and-so-reuseport-how-do-they-differ-do-they-mean-t/14388707#14388707
          */
         bool reuseport() const;
