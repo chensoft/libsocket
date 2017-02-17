@@ -1,4 +1,3 @@
-coverage:
-    ignore:
-      - test/*
-      - sample/*
+ignore:
+  - "test/"
+  - "sample/"
