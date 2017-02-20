@@ -37,7 +37,7 @@ chen::reactor::~reactor()
 }
 
 // modify
-void chen::reactor::set(ev_timer *ptr, std::chrono::high_resolution_clock::time_point init)
+void chen::reactor::set(ev_timer *ptr, std::chrono::steady_clock::time_point init)
 {
     ptr->setup(init);
     this->_timers.insert(ptr);
@@ -111,7 +111,7 @@ std::chrono::nanoseconds chen::reactor::update()
         return std::chrono::nanoseconds::min();
 
     auto ret = std::chrono::nanoseconds::min();
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::steady_clock::now();
 
     for (auto *ptr : this->_timers)
     {

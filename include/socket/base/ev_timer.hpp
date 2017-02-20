@@ -30,7 +30,7 @@ namespace chen
          * Invoke callback only once in a future calendar date
          */
         void future(const std::chrono::nanoseconds &value);
-        void future(const std::chrono::high_resolution_clock::time_point &value);
+        void future(const std::chrono::steady_clock::time_point &value);
 
         /**
          * Invoke callback repeatedly after a period of time
@@ -57,7 +57,7 @@ namespace chen
             return this->_time;
         }
 
-        std::chrono::high_resolution_clock::time_point when() const
+        std::chrono::steady_clock::time_point when() const
         {
             return this->_when;
         }
@@ -65,12 +65,12 @@ namespace chen
         /**
          * Calculate init value
          */
-        void setup(const std::chrono::high_resolution_clock::time_point &now);
+        void setup(const std::chrono::steady_clock::time_point &now);
 
         /**
          * Check if timer expire
          */
-        bool expire(const std::chrono::high_resolution_clock::time_point &now) const
+        bool expire(const std::chrono::steady_clock::time_point &now) const
         {
             return now >= this->_when;
         }
@@ -78,7 +78,7 @@ namespace chen
         /**
          * Update timer value
          */
-        void update(const std::chrono::high_resolution_clock::time_point &now)
+        void update(const std::chrono::steady_clock::time_point &now)
         {
             if (this->_flag == Flag::Repeat)
                 this->_when = now + this->_time;
@@ -106,7 +106,7 @@ namespace chen
         Flag _flag = Flag::Normal;
 
         std::chrono::nanoseconds _time;  // the interval between two trigger points
-        std::chrono::high_resolution_clock::time_point _when;  // the next trigger point
+        std::chrono::steady_clock::time_point _when;  // the next trigger point
 
         std::function<void ()> _notify;
     };

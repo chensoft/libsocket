@@ -66,7 +66,7 @@ namespace chen
          * @param flag FlagOnce, FlagEdge and etc
          */
         void set(ev_handle *ptr, int mode, int flag);
-        void set(ev_timer *ptr, std::chrono::high_resolution_clock::time_point init = std::chrono::high_resolution_clock::now());
+        void set(ev_timer *ptr, std::chrono::steady_clock::time_point init = std::chrono::steady_clock::now());
 
         /**
          * Delete event

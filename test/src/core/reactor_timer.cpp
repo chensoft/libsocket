@@ -24,7 +24,7 @@ TEST(CoreReactorTest, Timer)
     ev_timer t2([&] () {
         ++c2;
     });
-    t2.future(std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(20));
+    t2.future(std::chrono::steady_clock::now() + std::chrono::milliseconds(20));
 
     ev_timer t3([&] () {
         if (++c3 == 5)

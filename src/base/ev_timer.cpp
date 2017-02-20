@@ -18,15 +18,15 @@ void chen::ev_timer::timeout(const std::chrono::nanoseconds &value)
 {
     this->_flag = Flag::Normal;
     this->_time = value;
-    this->_when = std::chrono::high_resolution_clock::time_point();
+    this->_when = std::chrono::steady_clock::time_point();
 }
 
 void chen::ev_timer::future(const std::chrono::nanoseconds &value)
 {
-    this->future(std::chrono::high_resolution_clock::now() + value);
+    this->future(std::chrono::steady_clock::now() + value);
 }
 
-void chen::ev_timer::future(const std::chrono::high_resolution_clock::time_point &value)
+void chen::ev_timer::future(const std::chrono::steady_clock::time_point &value)
 {
     this->_flag = Flag::Future;
     this->_time = std::chrono::nanoseconds::zero();
@@ -37,7 +37,7 @@ void chen::ev_timer::interval(const std::chrono::nanoseconds &value)
 {
     this->_flag = Flag::Repeat;
     this->_time = value;
-    this->_when = std::chrono::high_resolution_clock::time_point();
+    this->_when = std::chrono::steady_clock::time_point();
 }
 
 // notify
@@ -47,7 +47,7 @@ void chen::ev_timer::attach(std::function<void ()> cb)
 }
 
 // update
-void chen::ev_timer::setup(const std::chrono::high_resolution_clock::time_point &now)
+void chen::ev_timer::setup(const std::chrono::steady_clock::time_point &now)
 {
     if (this->_flag == Flag::Future)
         this->_time = this->_when - now;  // in order to compare in multiset, no other use
