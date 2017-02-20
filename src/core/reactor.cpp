@@ -118,7 +118,7 @@ std::chrono::nanoseconds chen::reactor::update()
         // the front is the nearest timer
         if (ptr->expire(now))
         {
-            if (ptr->repeat())
+            if (ptr->flag() == ev_timer::Flag::Repeat)
                 ptr->update(now);
 
             // don't wait for the following backend event if we have a callback need to notify
@@ -130,7 +130,7 @@ std::chrono::nanoseconds chen::reactor::update()
         else
         {
             if (ret.count())
-                ret = ptr->alarm() - now;
+                ret = ptr->when() - now;
 
             break;
         }

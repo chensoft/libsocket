@@ -15,6 +15,9 @@ namespace chen
     class ev_timer: public ev_base
     {
     public:
+        enum class Flag {Normal, Future, Repeat};
+
+    public:
         ev_timer(std::function<void ()> cb = nullptr);
 
     public:
@@ -26,6 +29,7 @@ namespace chen
         /**
          * Invoke callback only once in a future calendar date
          */
+        void future(const std::chrono::nanoseconds &value);
         void future(const std::chrono::high_resolution_clock::time_point &value);
 
         /**
@@ -43,19 +47,19 @@ namespace chen
         /**
          * Timer properties
          */
-        bool repeat() const
+        Flag flag() const
         {
-            return this->_repeat;
+            return this->_flag;
         }
 
-        std::chrono::nanoseconds cycle() const
+        std::chrono::nanoseconds time() const
         {
-            return this->_cycle;
+            return this->_time;
         }
 
-        std::chrono::high_resolution_clock::time_point alarm() const
+        std::chrono::high_resolution_clock::time_point when() const
         {
-            return this->_alarm;
+            return this->_when;
         }
 
         /**
@@ -68,7 +72,7 @@ namespace chen
          */
         bool expire(const std::chrono::high_resolution_clock::time_point &now) const
         {
-            return now >= this->_alarm;
+            return now >= this->_when;
         }
 
         /**
@@ -76,8 +80,8 @@ namespace chen
          */
         void update(const std::chrono::high_resolution_clock::time_point &now)
         {
-            if (this->_repeat)
-                this->_alarm = now + this->_cycle;
+            if (this->_flag == Flag::Repeat)
+                this->_when = now + this->_time;
         }
 
         /**
@@ -88,7 +92,7 @@ namespace chen
         {
             bool operator()(const ev_timer *a, const ev_timer *b) const
             {
-                return a->cycle() < b->cycle();
+                return a->time() < b->time();
             }
         };
 
@@ -99,10 +103,11 @@ namespace chen
         virtual void onEvent(int type);
 
     private:
-        bool _repeat = false;
-        std::function<void ()> _notify;
+        Flag _flag = Flag::Normal;
 
-        std::chrono::nanoseconds _cycle;  // value when call timeout or interval
-        std::chrono::high_resolution_clock::time_point _alarm;  // the next trigger time point
+        std::chrono::nanoseconds _time;  // the interval between two trigger points
+        std::chrono::high_resolution_clock::time_point _when;  // the next trigger point
+
+        std::function<void ()> _notify;
     };
 }
