@@ -110,8 +110,6 @@ std::chrono::nanoseconds chen::reactor::update()
     if (this->_timers.empty())
         return std::chrono::nanoseconds::min();
 
-    std::vector<ev_timer*> tmp;
-
     auto ret = std::chrono::nanoseconds::min();
     auto now = std::chrono::high_resolution_clock::now();
 
@@ -121,28 +119,21 @@ std::chrono::nanoseconds chen::reactor::update()
         if (ptr->expire(now))
         {
             if (ptr->repeat())
-                tmp.emplace_back(ptr);
+                ptr->update(now);
 
-            // don't wait for the next backend event if we have a callback need to notify
-            if (ret != std::chrono::nanoseconds::zero())
+            // don't wait for the following backend event if we have a callback need to notify
+            if (ret.count())
                 ret = std::chrono::nanoseconds::zero();
 
             this->post(ptr);
         }
         else
         {
-            if (ret != std::chrono::nanoseconds::zero())
+            if (ret.count())
                 ret = ptr->alarm() - now;
 
             break;
         }
-    }
-
-    for (auto *ptr : tmp)
-    {
-        this->_timers.erase(ptr);
-        ptr->update(now);
-        this->_timers.insert(ptr);
     }
 
     return ret;

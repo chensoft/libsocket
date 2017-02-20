@@ -66,24 +66,29 @@ namespace chen
         /**
          * Check if timer expire
          */
-        bool expire(const std::chrono::high_resolution_clock::time_point &now) const;
+        bool expire(const std::chrono::high_resolution_clock::time_point &now) const
+        {
+            return now >= this->_alarm;
+        }
 
         /**
          * Update timer value
          */
-        void update(const std::chrono::high_resolution_clock::time_point &now);
+        void update(const std::chrono::high_resolution_clock::time_point &now)
+        {
+            if (this->_repeat)
+                this->_alarm = now + this->_cycle;
+        }
 
         /**
          * Comparator, used in conjunction with multiset
-         * @note if the cycle or alarm value changes, you should re-add the timer to multiset
+         * @note if the cycle value changes, you should re-add the timer to multiset
          */
         struct Compare
         {
             bool operator()(const ev_timer *a, const ev_timer *b) const
             {
-                auto alarm_a = a->alarm();
-                auto alarm_b = b->alarm();
-                return alarm_a == alarm_b ? a->cycle() < b->cycle() : alarm_a < alarm_b;
+                return a->cycle() < b->cycle();
             }
         };
 
