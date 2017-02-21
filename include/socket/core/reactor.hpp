@@ -125,6 +125,13 @@ namespace chen
          */
         void notify();
 
+    public:
+        /**
+         * Inform the reactor timers should be reordered
+         * @note only called by the timer itself
+         */
+        void reorder(ev_timer *ptr);
+
     private:
         reactor(const reactor&) = delete;
         reactor& operator=(const reactor&) = delete;

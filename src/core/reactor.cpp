@@ -195,3 +195,9 @@ void chen::reactor::notify()
         item.first->onEvent(item.second);
     }
 }
+
+void chen::reactor::reorder(ev_timer *ptr)
+{
+    ptr->setup(std::chrono::steady_clock::now());
+    this->_sorted = false;
+}

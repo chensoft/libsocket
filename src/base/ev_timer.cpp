@@ -19,6 +19,9 @@ void chen::ev_timer::timeout(const std::chrono::nanoseconds &value)
     this->_flag = Flag::Normal;
     this->_time = value;
     this->_when = std::chrono::steady_clock::time_point();
+
+    if (this->evLoop())
+        this->evLoop()->reorder(this);
 }
 
 void chen::ev_timer::future(const std::chrono::nanoseconds &value)
@@ -31,6 +34,9 @@ void chen::ev_timer::future(const std::chrono::steady_clock::time_point &value)
     this->_flag = Flag::Future;
     this->_time = std::chrono::nanoseconds::zero();
     this->_when = value;
+
+    if (this->evLoop())
+        this->evLoop()->reorder(this);
 }
 
 void chen::ev_timer::interval(const std::chrono::nanoseconds &value)
@@ -41,6 +47,9 @@ void chen::ev_timer::interval(const std::chrono::nanoseconds &value)
     this->_flag = Flag::Repeat;
     this->_time = value;
     this->_when = std::chrono::steady_clock::time_point();
+
+    if (this->evLoop())
+        this->evLoop()->reorder(this);
 }
 
 // notify
