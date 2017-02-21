@@ -5,6 +5,20 @@
  * @link   http://chensoft.com
  */
 #include <socket/core/reactor.hpp>
+#include <algorithm>
+
+// -----------------------------------------------------------------------------
+// helper
+namespace
+{
+    inline bool compare(const chen::ev_timer *t1, const chen::ev_timer *t2)
+    {
+        // we need a min heap here, but std::make_heap make
+        // a max heap by default, so we use the > operator
+        return t1->when() > t2->when();
+    }
+}
+
 
 // -----------------------------------------------------------------------------
 // reactor
@@ -40,14 +54,26 @@ chen::reactor::~reactor()
 void chen::reactor::set(ev_timer *ptr, std::chrono::steady_clock::time_point init)
 {
     ptr->setup(init);
-    this->_timers.insert(ptr);
+
+    this->_timers.emplace_back(ptr);  // will be sorted later
+    this->_sorted = false;
+
     ptr->onAttach(this, 0, 0);  // mode & flag are useless
 }
 
 void chen::reactor::del(ev_timer *ptr)
 {
+    // naturally terminated timer should not call this method
+    // this method is only used for early termination of the timer
     ptr->onDetach();
-    this->_timers.erase(ptr);
+
+    auto it = std::find(this->_timers.begin(), this->_timers.end(), ptr);
+
+    if (it != this->_timers.end())
+    {
+        this->_timers.erase(it);
+        this->_sorted = false;
+    }
 }
 
 // run
@@ -110,16 +136,34 @@ std::chrono::nanoseconds chen::reactor::update()
     if (this->_timers.empty())
         return std::chrono::nanoseconds::min();
 
+    if (!this->_sorted)
+        std::make_heap(this->_timers.begin(), this->_timers.end(), compare);
+
     auto ret = std::chrono::nanoseconds::min();
     auto now = std::chrono::steady_clock::now();
+    auto all = this->_timers.size();
+    auto num = std::size_t();
 
-    for (auto *ptr : this->_timers)
+    while (all > num)
     {
-        // the front is the nearest timer
+        auto *ptr = this->_timers.front();  // the front is the nearest timer
+
         if (ptr->expire(now))
         {
+            std::pop_heap(this->_timers.begin(), this->_timers.end() - num, compare);
+
             if (ptr->flag() == ev_timer::Flag::Repeat)
+            {
+                ++num;
                 ptr->update(now);
+            }
+            else
+            {
+                --all;
+                ptr->onDetach();
+
+                this->_timers.erase(this->_timers.end() - num - 1);
+            }
 
             // don't wait for the following backend event if we have a callback need to notify
             if (ret.count())
@@ -135,6 +179,8 @@ std::chrono::nanoseconds chen::reactor::update()
             break;
         }
     }
+
+    this->_sorted = !num;
 
     return ret;
 }

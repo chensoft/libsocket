@@ -81,20 +81,8 @@ namespace chen
         void update(const std::chrono::steady_clock::time_point &now)
         {
             if (this->_flag == Flag::Repeat)
-                this->_when = now + this->_time;
+                this->_when += this->_time;
         }
-
-        /**
-         * Comparator, used in conjunction with multiset
-         * @note if the cycle value changes, you should re-add the timer to multiset
-         */
-        struct Compare
-        {
-            bool operator()(const ev_timer *a, const ev_timer *b) const
-            {
-                return a->time() < b->time();
-            }
-        };
 
     protected:
         /**

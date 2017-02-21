@@ -35,6 +35,9 @@ void chen::ev_timer::future(const std::chrono::steady_clock::time_point &value)
 
 void chen::ev_timer::interval(const std::chrono::nanoseconds &value)
 {
+    if (value.count() <= 0)
+        throw std::invalid_argument("timer: interval value should be greater than zero");
+
     this->_flag = Flag::Repeat;
     this->_time = value;
     this->_when = std::chrono::steady_clock::time_point();
@@ -49,21 +52,16 @@ void chen::ev_timer::attach(std::function<void ()> cb)
 // update
 void chen::ev_timer::setup(const std::chrono::steady_clock::time_point &now)
 {
-    if (this->_flag == Flag::Future)
-        this->_time = this->_when - now;  // in order to compare in multiset, no other use
-    else
+    if (this->_flag != Flag::Future)
         this->_when = now + this->_time;
 }
 
 // event
 void chen::ev_timer::onEvent(int type)
 {
-    auto loop = this->evLoop();
+    // we don't need to call loop's del method here, naturally
+    // terminated timer will be removed by reactor automatically
     auto func = this->_notify;
-
-    if (loop && (this->_flag != Flag::Repeat))
-        loop->del(this);
-
     if (func)
         func();
 }
