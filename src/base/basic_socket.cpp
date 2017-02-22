@@ -140,7 +140,11 @@ chen::ssize_t chen::basic_socket::recv(void *data, std::size_t size, int flags) 
     flags |= MSG_NOSIGNAL;
 #endif
 
+#ifdef _WIN32
+    return ::recv(this->native(), (char*)data, static_cast<int>(size), flags);
+#else
     return ::recv(this->native(), (char*)data, size, flags);
+#endif
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcept
@@ -152,7 +156,11 @@ chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size) noexcep
     flags |= MSG_NOSIGNAL;
 #endif
 
+#ifdef _WIN32
+    return ::recvfrom(this->native(), (char*)data, static_cast<int>(size), flags, nullptr, nullptr);
+#else
     return ::recvfrom(this->native(), (char*)data, size, flags, nullptr, nullptr);
+#endif
 }
 
 chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_address &addr) noexcept
@@ -170,7 +178,12 @@ chen::ssize_t chen::basic_socket::recvfrom(void *data, std::size_t size, basic_a
     ::sockaddr_storage tmp{};
     socklen_t len = sizeof(tmp);
 
+#ifdef _WIN32
+    auto ret = ::recvfrom(this->native(), (char*)data, static_cast<int>(size), flags, (::sockaddr*)&tmp, &len);
+#else
     auto ret = ::recvfrom(this->native(), (char*)data, size, flags, (::sockaddr*)&tmp, &len);
+#endif
+
     if (ret >= 0)
         addr.sockaddr((::sockaddr*)&tmp);
 
@@ -189,7 +202,11 @@ chen::ssize_t chen::basic_socket::send(const void *data, std::size_t size, int f
     flags |= MSG_NOSIGNAL;
 #endif
 
+#ifdef _WIN32
+    return ::send(this->native(), (char*)data, static_cast<int>(size), flags);
+#else
     return ::send(this->native(), (char*)data, size, flags);
+#endif
 }
 
 chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, const basic_address &addr) noexcept
@@ -205,7 +222,12 @@ chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, con
 #endif
 
     auto storage = addr.sockaddr();
+
+#ifdef _WIN32
+    return ::sendto(this->native(), (char*)data, static_cast<int>(size), flags, (::sockaddr*)&storage, addr.socklen());
+#else
     return ::sendto(this->native(), (char*)data, size, flags, (::sockaddr*)&storage, addr.socklen());
+#endif
 }
 
 // cleanup

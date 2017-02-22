@@ -28,4 +28,4 @@ build:
 test_script:
   - pwd
   - ls
-  - test\%configuration%\libsocket.exe
+  - test\%configuration%\libsocket_test.exe
