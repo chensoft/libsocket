@@ -1,4 +1,6 @@
 .idea
 .DS_Store
+.xcworkspace
+xcuserdata
 build
 lib/libchen/.git

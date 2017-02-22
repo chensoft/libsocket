@@ -1,0 +1,22 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      script:
+        - mkdir build
+        - cd build
+        - cmake -DLIBSOCKET_CODE_COVERAGE=ON ..
+        - make
+        - test/libsocket_test
+        - bash <(curl -s https://codecov.io/bash)
+
+    - os: osx
+      osx_image: xcode8.2
+      script:
+        - mkdir build
+        - cd build
+        - cmake -G Xcode ..
+        - xcodebuild -target libsocket_test -project libsocket.xcodeproj -configuration Release
+        - test/Release/libsocket_test
