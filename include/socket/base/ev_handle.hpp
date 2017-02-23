@@ -44,7 +44,7 @@ namespace chen
          * Transfer the handle to the outside, you must close the handle manually
          * @note this method is dangerous, you may leak the handle if you forget to close it
          */
-        handle_t transfer();
+        virtual handle_t transfer();
 
     protected:
         friend class reactor;

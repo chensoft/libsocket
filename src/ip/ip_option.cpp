@@ -7,29 +7,30 @@
 #include <socket/ip/ip_option.hpp>
 
 // -----------------------------------------------------------------------------
-// option
-chen::ip_option::ip_option(basic_socket &s) : basic_option(s)
-{
-}
+// ip_option4
 
 // ttl
-int chen::ip_option::ttl() const
+int chen::ip_option4::ttl(handle_t fd)
 {
-    return basic_option::get(IPPROTO_IP, IP_TTL);
+    return basic_option::get(fd, IPPROTO_IP, IP_TTL);
 }
 
-bool chen::ip_option::ttl(int val)
+bool chen::ip_option4::ttl(handle_t fd, int val)
 {
-    return basic_option::set(IPPROTO_IP, IP_TTL, val);
+    return basic_option::set(fd, IPPROTO_IP, IP_TTL, val);
 }
+
+
+// -----------------------------------------------------------------------------
+// ip_option6
 
 // v6only
-bool chen::ip_option::v6only() const
+bool chen::ip_option6::v6only(handle_t fd)
 {
-    return basic_option::get(IPPROTO_IPV6, IPV6_V6ONLY) != 0;
+    return basic_option::get(fd, IPPROTO_IPV6, IPV6_V6ONLY) != 0;
 }
 
-bool chen::ip_option::v6only(bool enable)
+bool chen::ip_option6::v6only(handle_t fd, bool enable)
 {
-    return basic_option::set(IPPROTO_IPV6, IPV6_V6ONLY, enable);
+    return basic_option::set(fd, IPPROTO_IPV6, IPV6_V6ONLY, enable);
 }

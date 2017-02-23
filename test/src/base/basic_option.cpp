@@ -5,7 +5,6 @@
  * @link   http://chensoft.com
  */
 #include <socket/base/basic_socket.hpp>
-#include <socket/base/basic_option.hpp>
 #include <gtest/gtest.h>
 
 using chen::basic_socket;
@@ -15,82 +14,80 @@ using chen::basic_address;
 TEST(BasicOptionTest, TCP)
 {
     basic_socket s(AF_INET, SOCK_STREAM);
-    basic_option o = s.option();
 
     // error
-    EXPECT_TRUE(!o.error());
+    EXPECT_TRUE(!basic_option::error(s.native()));
 
     // type
-    EXPECT_EQ(s.type(), o.type());
+    EXPECT_EQ(s.type(), basic_option::type(s.native()));
 
     // debug
-    EXPECT_FALSE(o.debug());
-    EXPECT_NO_THROW(o.debug(true));  // system may not allowed
-    EXPECT_NO_THROW(o.debug());
+    EXPECT_FALSE(basic_option::debug(s.native()));
+    EXPECT_NO_THROW(basic_option::debug(s.native(), true));  // system may not allowed
+    EXPECT_NO_THROW(basic_option::debug(s.native()));
 
     // reuseaddr
-    EXPECT_FALSE(o.reuseaddr());
-    EXPECT_TRUE(o.reuseaddr(true));
-    EXPECT_TRUE(o.reuseaddr());
+    EXPECT_FALSE(basic_option::reuseaddr(s.native()));
+    EXPECT_TRUE(basic_option::reuseaddr(s.native(), true));
+    EXPECT_TRUE(basic_option::reuseaddr(s.native()));
 
     // reuseport
 #ifndef _WIN32
-    EXPECT_FALSE(o.reuseport());
-    EXPECT_TRUE(o.reuseport(true));
-    EXPECT_TRUE(o.reuseport());
+    EXPECT_FALSE(basic_option::reuseport(s.native()));
+    EXPECT_TRUE(basic_option::reuseport(s.native(), true));
+    EXPECT_TRUE(basic_option::reuseport(s.native()));
 #endif
 
     // keepalive
-    EXPECT_FALSE(o.keepalive());
-    EXPECT_TRUE(o.keepalive(true));
-    EXPECT_TRUE(o.keepalive());
+    EXPECT_FALSE(basic_option::keepalive(s.native()));
+    EXPECT_TRUE(basic_option::keepalive(s.native(), true));
+    EXPECT_TRUE(basic_option::keepalive(s.native()));
 
     // dontroute
-    EXPECT_FALSE(o.dontroute());
-    EXPECT_TRUE(o.dontroute(true));
-    EXPECT_TRUE(o.dontroute());
+    EXPECT_FALSE(basic_option::dontroute(s.native()));
+    EXPECT_TRUE(basic_option::dontroute(s.native(), true));
+    EXPECT_TRUE(basic_option::dontroute(s.native()));
 
     // linger
-    EXPECT_TRUE(o.linger(1, 100));
-    EXPECT_NO_THROW(o.linger());  // may not allowed
+    EXPECT_TRUE(basic_option::linger(s.native(), 1, 100));
+    EXPECT_NO_THROW(basic_option::linger(s.native()));  // may not allowed
 
     // oobinline
-    EXPECT_FALSE(o.oobinline());
-    EXPECT_TRUE(o.oobinline(true));
-    EXPECT_TRUE(o.oobinline());
+    EXPECT_FALSE(basic_option::oobinline(s.native()));
+    EXPECT_TRUE(basic_option::oobinline(s.native(), true));
+    EXPECT_TRUE(basic_option::oobinline(s.native()));
 
     // sndbuf
-    EXPECT_GT(o.sndbuf(), 0);
-    EXPECT_TRUE(o.sndbuf(1024));  // just a hint
+    EXPECT_GT(basic_option::sndbuf(s.native()), 0);
+    EXPECT_TRUE(basic_option::sndbuf(s.native(), 1024));  // just a hint
 
     // rcvbuf
-    EXPECT_GT(o.rcvbuf(), 0);
-    EXPECT_TRUE(o.rcvbuf(1024));  // just a hint
+    EXPECT_GT(basic_option::rcvbuf(s.native()), 0);
+    EXPECT_TRUE(basic_option::rcvbuf(s.native(), 1024));  // just a hint
 
     // sndlowat
-    EXPECT_GE(o.sndlowat(), 0);
-    EXPECT_NO_THROW(o.sndlowat(1024));  // may not allowed
+    EXPECT_GE(basic_option::sndlowat(s.native()), 0);
+    EXPECT_NO_THROW(basic_option::sndlowat(s.native(), 1024));  // may not allowed
 
     // rcvlowat
-    EXPECT_GE(o.rcvlowat(), 0);
-    EXPECT_NO_THROW(o.rcvlowat(1024));  // may not allowed
+    EXPECT_GE(basic_option::rcvlowat(s.native()), 0);
+    EXPECT_NO_THROW(basic_option::rcvlowat(s.native(), 1024));  // may not allowed
 
     // sndtimeo
-    EXPECT_TRUE(o.sndtimeo(100, 4000));  // just a hint
-    EXPECT_NO_THROW(o.sndtimeo());
+    EXPECT_TRUE(basic_option::sndtimeo(s.native(), 100, 4000));  // just a hint
+    EXPECT_NO_THROW(basic_option::sndtimeo(s.native()));
 
     // rcvtimeo
-    EXPECT_TRUE(o.rcvtimeo(100, 4000));  // just a hint
-    EXPECT_NO_THROW(o.rcvtimeo());
+    EXPECT_TRUE(basic_option::rcvtimeo(s.native(), 100, 4000));  // just a hint
+    EXPECT_NO_THROW(basic_option::rcvtimeo(s.native()));
 }
 
 TEST(BasicOptionTest, UDP)
 {
     basic_socket s(AF_INET, SOCK_DGRAM);
-    basic_option o = s.option();
 
     // broadcast
-    EXPECT_FALSE(o.broadcast());
-    EXPECT_TRUE(o.broadcast(true));
-    EXPECT_TRUE(o.broadcast());
+    EXPECT_FALSE(basic_option::broadcast(s.native()));
+    EXPECT_TRUE(basic_option::broadcast(s.native(), true));
+    EXPECT_TRUE(basic_option::broadcast(s.native()));
 }

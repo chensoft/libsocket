@@ -7,8 +7,8 @@
 #pragma once
 
 #include <socket/base/basic_address.hpp>
-#include <socket/base/basic_option.hpp>
 #include <socket/base/ev_handle.hpp>
+#include <socket/ip/ip_option.hpp>
 #include <functional>
 
 namespace chen
@@ -157,15 +157,6 @@ namespace chen
          * Non-blocking mode
          */
         std::error_code nonblocking(bool enable) noexcept;
-
-        /**
-         * Get/Set socket option
-         * Usage:
-         * >> auto opt = socket.option();
-         * >> opt.reuseaddr(true);           // set option
-         * >> bool reuse = opt.reuseaddr();  // get option
-         */
-        basic_option option() noexcept;
 
         /**
          * Check socket is valid

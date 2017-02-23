@@ -105,7 +105,7 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         timeout += std::chrono::milliseconds(5);
 
     // poll events
-    int result = ::WSAPoll(this->_cache.data(), this->_cache.size(), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
+    int result = ::WSAPoll(this->_cache.data(), static_cast<ULONG>(this->_cache.size()), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
 
     if (!result)
         return std::make_error_code(std::errc::timed_out);  // timeout if result is zero

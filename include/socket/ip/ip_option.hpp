@@ -10,23 +10,36 @@
 
 namespace chen
 {
+    // -------------------------------------------------------------------------
+    // Base
     class ip_option : public basic_option
     {
-    public:
-        ip_option(basic_socket &s);
+    };
 
+
+    // -------------------------------------------------------------------------
+    // IPv4
+    class ip_option4 : public ip_option
+    {
     public:
         /**
          * IP_TTL(IP packet's ttl value)
          */
-        int ttl() const;
-        bool ttl(int val);
+        static int ttl(handle_t fd);
+        static bool ttl(handle_t fd, int val);
+    };
 
+
+    // -------------------------------------------------------------------------
+    // IPv6
+    class ip_option6 : public ip_option
+    {
+    public:
         /**
          * IPV6_V6ONLY(Restricted to sending and receiving IPv6 packets only)
          * normally you can send or recv from both IPv4 and IPv6 address if you use AF_INET6
          */
-        bool v6only() const;
-        bool v6only(bool enable);
+        static bool v6only(handle_t fd);
+        static bool v6only(handle_t fd, bool enable);
     };
 }

@@ -58,7 +58,7 @@ void chen::basic_socket::reset()
 
 #ifdef SO_NOSIGPIPE
     // this macro is defined on Unix to prevent SIGPIPE on this socket
-    this->option().set(SOL_SOCKET, SO_NOSIGPIPE, 1);
+    basic_option::set(this->native(), SOL_SOCKET, SO_NOSIGPIPE, 1);
 #endif
 }
 
@@ -74,7 +74,7 @@ void chen::basic_socket::reset(int family, int type, int protocol)
 void chen::basic_socket::reset(handle_t fd) noexcept
 {
     this->reset(fd, 0, 0, 0);
-    this->_type = this->option().type();
+    this->_type = basic_option::type(fd);
 }
 
 void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) noexcept
@@ -87,7 +87,7 @@ void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) 
 
 #ifdef SO_NOSIGPIPE
     // this macro is defined on Unix to prevent SIGPIPE on this socket
-    this->option().set(SOL_SOCKET, SO_NOSIGPIPE, 1);
+    basic_option::set(fd, SOL_SOCKET, SO_NOSIGPIPE, 1);
 #endif
 }
 
@@ -288,11 +288,6 @@ std::error_code chen::basic_socket::sock(basic_address &addr) const noexcept
 std::error_code chen::basic_socket::nonblocking(bool enable) noexcept
 {
     return ioctl::nonblocking(this->native(), enable);
-}
-
-chen::basic_option chen::basic_socket::option() noexcept
-{
-    return basic_option(*this);
 }
 
 bool chen::basic_socket::valid() const noexcept
