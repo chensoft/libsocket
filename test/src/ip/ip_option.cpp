@@ -21,6 +21,6 @@ TEST(IPOptionTest, General)
     EXPECT_TRUE(ip_option4::ttl(s4.native(), 10));
 
     // v6only
-    EXPECT_FALSE(ip_option6::v6only(s6.native()));
+    EXPECT_NO_THROW(ip_option6::v6only(s6.native()));  // default is true on Windows, otherwise false
     EXPECT_TRUE(ip_option6::v6only(s6.native(), true));
 }
