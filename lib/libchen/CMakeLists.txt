@@ -11,9 +11,9 @@ include(cmake/ChenInit.cmake)
 include(cmake/ChenUtil.cmake)
 
 # code coverage
-option(LIBCHEN_CODE_COVERAGE "Enable libchen code coverage." OFF)
+option(CHEN_CODE_COVERAGE "Enable libchen code coverage." OFF)
 
-if(LIBCHEN_CODE_COVERAGE)
+if(CHEN_CODE_COVERAGE)
     # debug, no optimization, enable coverage
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
 endif()
@@ -35,8 +35,8 @@ chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${INC_CHEN}")
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${SRC_CHEN}")
 
 # enable unit test for libchen
-option(LIBCHEN_ENABLE_UNIT_TEST "Enable libchen unit test." ON)
+option(CHEN_ENABLE_UNIT_TEST "Enable libchen unit test." ON)
 
-if(LIBCHEN_ENABLE_UNIT_TEST)
+if(CHEN_ENABLE_UNIT_TEST)
     add_subdirectory(test)
 endif()

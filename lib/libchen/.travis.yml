@@ -7,7 +7,7 @@ matrix:
       script:
         - mkdir build
         - cd build
-        - cmake -DLIBCHEN_CODE_COVERAGE=ON ..
+        - cmake -DCHEN_CODE_COVERAGE=ON ..
         - make
         - test/libchen_test --data=../test/data
         - bash <(curl -s https://codecov.io/bash)
