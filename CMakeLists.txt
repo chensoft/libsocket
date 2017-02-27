@@ -11,9 +11,9 @@ include(lib/libchen/cmake/ChenInit.cmake)
 include(lib/libchen/cmake/ChenUtil.cmake)
 
 # code coverage
-option(LIBSOCKET_CODE_COVERAGE "Enable libsocket code coverage." OFF)
+option(SOCKET_CODE_COVERAGE "Enable libsocket code coverage." OFF)
 
-if(LIBSOCKET_CODE_COVERAGE)
+if(SOCKET_CODE_COVERAGE)
     # debug, no optimization, enable coverage
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
 endif()
@@ -51,8 +51,8 @@ chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${INC_SOCKET}")
 chen_group_files(${CMAKE_CURRENT_SOURCE_DIR} "${SRC_SOCKET}")
 
 # enable unit test for libsocket
-option(LIBSOCKET_ENABLE_UNIT_TEST "Enable libsocket unit test." ON)
+option(SOCKET_ENABLE_UNIT_TEST "Enable libsocket unit test." ON)
 
-if(LIBSOCKET_ENABLE_UNIT_TEST)
+if(SOCKET_ENABLE_UNIT_TEST)
     add_subdirectory(test)
 endif()

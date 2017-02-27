@@ -7,7 +7,7 @@ matrix:
       script:
         - mkdir build
         - cd build
-        - cmake -DLIBSOCKET_CODE_COVERAGE=ON ..
+        - cmake -DSOCKET_CODE_COVERAGE=ON ..
         - make
         - test/libsocket_test
         - bash <(curl -s https://codecov.io/bash)
