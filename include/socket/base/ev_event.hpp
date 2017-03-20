@@ -45,7 +45,7 @@ namespace chen
         /**
          * At least one event has occurred
          */
-        virtual void onEvent(int type);
+        virtual void onEvent(int type) override;
 
     private:
         bool _signaled = false;

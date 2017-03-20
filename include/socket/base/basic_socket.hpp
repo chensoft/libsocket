@@ -128,7 +128,7 @@ namespace chen
         /**
          * Close the socket, the socket will disconnect immediately
          */
-        void close() noexcept;
+        virtual void close() noexcept override;
 
     public:
         /**
@@ -190,7 +190,7 @@ namespace chen
          * event, server may send last message and then close the connection immediately
          * the backend may report Readable & Closed event or only report the Closed event
          */
-        virtual void onEvent(int type);
+        virtual void onEvent(int type) override;
 
     private:
         // used for reset socket

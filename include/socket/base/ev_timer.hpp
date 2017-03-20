@@ -88,7 +88,7 @@ namespace chen
         /**
          * At least one event has occurred
          */
-        virtual void onEvent(int type);
+        virtual void onEvent(int type) override;
 
     private:
         Flag _flag = Flag::Normal;

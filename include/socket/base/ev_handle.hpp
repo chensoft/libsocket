@@ -52,12 +52,12 @@ namespace chen
         /**
          * Notify that a reactor is attached or detached
          */
-        virtual void onAttach(reactor *loop, int mode, int flag);
+        virtual void onAttach(reactor *loop, int mode, int flag) override;
 
         /**
          * Notify that at least one event has occurred
          */
-        virtual void onEvent(int type) = 0;
+        virtual void onEvent(int type) override = 0;
 
     private:
         handle_t _fd = invalid_handle;

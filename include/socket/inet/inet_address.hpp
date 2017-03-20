@@ -119,13 +119,13 @@ namespace chen
         /**
          * Underlying socket address length
          */
-        virtual socklen_t socklen() const;
+        virtual socklen_t socklen() const override;
 
         /**
          * Underlying socket address struct
          */
-        virtual struct ::sockaddr_storage sockaddr() const;
-        virtual void sockaddr(const struct ::sockaddr *addr);
+        virtual struct ::sockaddr_storage sockaddr() const override;
+        virtual void sockaddr(const struct ::sockaddr *addr) override;
 
     private:
         ip_address _addr;
