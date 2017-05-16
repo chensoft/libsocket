@@ -6,7 +6,7 @@
  */
 #ifndef _WIN32
 
-#include <chen/sys/sys.hpp>
+#include "chen/sys/sys.hpp"
 
 // -----------------------------------------------------------------------------
 // sys

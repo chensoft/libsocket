@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/sys/sys.hpp>
-#include <gtest/gtest.h>
+#include "chen/sys/sys.hpp"
+#include "gtest/gtest.h"
 
 TEST(SysSysTest, General)
 {

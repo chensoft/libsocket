@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/vector.hpp>
-#include <gtest/gtest.h>
+#include "chen/base/vector.hpp"
+#include "gtest/gtest.h"
 
 TEST(BaseVectorTest, General)
 {

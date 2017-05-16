@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/chen.hpp>
-#include <gtest/gtest.h>
+#include "chen/chen.hpp"
+#include "gtest/gtest.h"
 #include "conf.hpp"
 
 int main(int argc, char *argv[])

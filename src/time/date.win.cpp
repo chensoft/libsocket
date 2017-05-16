@@ -6,7 +6,7 @@
  */
 #ifdef _WIN32
 
-#include <chen/time/date.hpp>
+#include "chen/time/date.hpp"
 
 // -----------------------------------------------------------------------------
 // date

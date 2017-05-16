@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/num.hpp>
-#include <chen/base/str.hpp>
+#include "chen/base/num.hpp"
+#include "chen/base/str.hpp"
 #include <random>
 
 // -----------------------------------------------------------------------------

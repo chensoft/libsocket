@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/mt/threadpool.hpp>
+#include "chen/mt/threadpool.hpp"
 
 // ------------------------------------------------------------------
 // threadpool

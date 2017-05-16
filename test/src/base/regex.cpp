@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/regex.hpp>
-#include <gtest/gtest.h>
+#include "chen/base/regex.hpp"
+#include "gtest/gtest.h"
 #include "../conf.hpp"
 
 TEST(BaseRegexTest, General)

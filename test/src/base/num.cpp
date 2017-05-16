@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/num.hpp>
-#include <gtest/gtest.h>
+#include "chen/base/num.hpp"
+#include "gtest/gtest.h"
 
 TEST(BaseNumTest, General)
 {
