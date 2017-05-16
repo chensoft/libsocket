@@ -6,8 +6,8 @@
  */
 #ifdef __linux__
 
-#include <socket/core/reactor.hpp>
-#include <chen/sys/sys.hpp>
+#include "socket/core/reactor.hpp"
+#include "chen/sys/sys.hpp"
 
 // -----------------------------------------------------------------------------
 // helper

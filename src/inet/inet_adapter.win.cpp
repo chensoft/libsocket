@@ -6,9 +6,9 @@
  */
 #ifdef _WIN32
 
-#include <socket/inet/inet_adapter.hpp>
-#include <chen/base/str.hpp>
-#include <chen/base/num.hpp>
+#include "socket/inet/inet_adapter.hpp"
+#include "chen/base/str.hpp"
+#include "chen/base/num.hpp"
 #include <Iphlpapi.h>
 #include <functional>
 #include <codecvt>

@@ -6,8 +6,8 @@
  */
 #ifdef _WIN32
 
-#include <socket/core/ioctl.hpp>
-#include <chen/sys/sys.hpp>
+#include "socket/core/ioctl.hpp"
+#include "chen/sys/sys.hpp"
 
 // -----------------------------------------------------------------------------
 // ioctl

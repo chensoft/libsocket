@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/core/reactor.hpp>
-#include <gtest/gtest.h>
+#include "socket/core/reactor.hpp"
+#include "gtest/gtest.h"
 
 using chen::reactor;
 using chen::ev_timer;

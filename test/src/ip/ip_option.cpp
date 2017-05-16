@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/base/basic_socket.hpp>
-#include <gtest/gtest.h>
+#include "socket/base/basic_socket.hpp"
+#include "gtest/gtest.h"
 
 using chen::ip_option4;
 using chen::ip_option6;

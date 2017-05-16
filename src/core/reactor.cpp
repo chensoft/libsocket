@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/core/reactor.hpp>
+#include "socket/core/reactor.hpp"
 #include <algorithm>
 
 // -----------------------------------------------------------------------------

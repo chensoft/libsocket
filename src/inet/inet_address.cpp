@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/inet/inet_resolver.hpp>
-#include <chen/base/num.hpp>
+#include "socket/inet/inet_resolver.hpp"
+#include "chen/base/num.hpp"
 #include <cstring>
 
 // -----------------------------------------------------------------------------

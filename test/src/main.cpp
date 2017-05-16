@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/socket.hpp>
-#include <gtest/gtest.h>
+#include "socket/socket.hpp"
+#include "gtest/gtest.h"
 
 int main(int argc, char *argv[])
 {

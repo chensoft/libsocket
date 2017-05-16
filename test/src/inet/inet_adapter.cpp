@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <socket/inet/inet_adapter.hpp>
-#include <gtest/gtest.h>
+#include "socket/inet/inet_adapter.hpp"
+#include "gtest/gtest.h"
 
 using chen::inet_adapter;
 

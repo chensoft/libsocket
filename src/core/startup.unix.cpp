@@ -6,7 +6,7 @@
  */
 #if defined(__unix__) || defined(__APPLE__)
 
-#include <socket/core/startup.hpp>
+#include "socket/core/startup.hpp"
 #include <csignal>
 
 // -----------------------------------------------------------------------------
