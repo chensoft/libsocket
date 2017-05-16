@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/map.hpp>
-#include <gtest/gtest.h>
+#include "chen/base/map.hpp"
+#include "gtest/gtest.h"
 
 TEST(BaseMapTest, General)
 {

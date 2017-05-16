@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/str.hpp>
-#include <gtest/gtest.h>
+#include "chen/base/str.hpp"
+#include "gtest/gtest.h"
 
 TEST(BaseStrTest, General)
 {

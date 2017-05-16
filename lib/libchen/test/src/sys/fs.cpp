@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/sys/fs.hpp>
-#include <gtest/gtest.h>
+#include "chen/sys/fs.hpp"
+#include "gtest/gtest.h"
 
 TEST(SysFsTest, General)
 {

@@ -4,8 +4,8 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/tool/cmd.hpp>
-#include <gtest/gtest.h>
+#include "chen/tool/cmd.hpp"
+#include "gtest/gtest.h"
 
 TEST(ToolCmdTest, General)
 {

@@ -4,7 +4,7 @@
  * @author Jian Chen <admin@chensoft.com>
  * @link   http://chensoft.com
  */
-#include <chen/base/utf8.hpp>
+#include "chen/base/utf8.hpp"
 #include <stdexcept>
 
 // -----------------------------------------------------------------------------

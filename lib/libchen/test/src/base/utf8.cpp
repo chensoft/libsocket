@@ -4,9 +4,9 @@
   * @author Jian Chen <admin@chensoft.com>
   * @link   http://chensoft.com
   */
-#include <chen/base/utf8.hpp>
-#include <chen/sys/fs.hpp>
-#include <gtest/gtest.h>
+#include "chen/base/utf8.hpp"
+#include "chen/sys/fs.hpp"
+#include "gtest/gtest.h"
 #include "../conf.hpp"
 
 TEST(BaseUtf8Test, General)

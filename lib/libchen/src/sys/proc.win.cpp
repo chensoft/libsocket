@@ -6,7 +6,7 @@
  */
 #ifdef _WIN32
 
-#include <chen/sys/proc.hpp>
+#include "chen/sys/proc.hpp"
 #include <Windows.h>
 
 // -----------------------------------------------------------------------------
