@@ -16,6 +16,11 @@ namespace chen
     {
     public:
         /**
+         * Set resource limit to max
+         */
+        static std::error_code rlimit();
+
+        /**
          * Add or remove close on exec
          * @note no effect on Windows
          */

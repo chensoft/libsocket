@@ -11,6 +11,22 @@
 
 // -----------------------------------------------------------------------------
 // ioctl
+std::error_code chen::ioctl::rlimit()
+{
+    struct ::rlimit rl{};
+
+    if (::getrlimit(RLIMIT_NOFILE, &rl) < 0)
+        return sys::error();
+
+#if defined(__APPLE__) && defined(OPEN_MAX)
+    rl.rlim_cur = (rl.rlim_max == RLIM_INFINITY) ? OPEN_MAX : rl.rlim_max;
+#else
+    rl.rlim_cur = rl.rlim_max;
+#endif
+
+    return ::setrlimit(RLIMIT_NOFILE, &rl) < 0 ? sys::error() : std::error_code();
+}
+
 std::error_code chen::ioctl::cloexec(handle_t fd, bool enable)
 {
     return ::ioctl(fd, enable ? FIOCLEX : FIONCLEX) < 0 ? sys::error() : std::error_code();

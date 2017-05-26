@@ -11,6 +11,12 @@
 
 // -----------------------------------------------------------------------------
 // ioctl
+std::error_code chen::ioctl::rlimit()
+{
+    // nothing to do
+    return {};
+}
+
 std::error_code chen::ioctl::cloexec(handle_t fd, bool enable)
 {
     // nothing to do
