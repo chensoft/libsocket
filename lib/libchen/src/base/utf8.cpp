@@ -22,15 +22,15 @@ std::size_t chen::utf8::count(const std::string &text)
     {
         if ((ptr[pos] & 0x80) == 0x00)       // 1Bytes
             step = 1;
-        else if ((ptr[pos] & 0xE0) == 0xC0)  // 2Bytes
+        else if ((ptr[pos] & 0xe0) == 0xc0)  // 2Bytes
             step = 2;
-        else if ((ptr[pos] & 0xF0) == 0xE0)  // 3Bytes
+        else if ((ptr[pos] & 0xf0) == 0xe0)  // 3Bytes
             step = 3;
-        else if ((ptr[pos] & 0xF8) == 0xF0)  // 4Bytes
+        else if ((ptr[pos] & 0xf8) == 0xf0)  // 4Bytes
             step = 4;
-        else if ((ptr[pos] & 0xFC) == 0xF8)  // 5Bytes
+        else if ((ptr[pos] & 0xfc) == 0xf8)  // 5Bytes
             step = 5;
-        else if ((ptr[pos] & 0xFE) == 0xFC)  // 6Bytes
+        else if ((ptr[pos] & 0xfe) == 0xfc)  // 6Bytes
             step = 6;
         else
             break;
@@ -60,15 +60,15 @@ std::string chen::utf8::substr(const std::string &text, std::size_t start, std::
     {
         if ((ptr[pos] & 0x80) == 0x00)       // 1Bytes
             step = 1;
-        else if ((ptr[pos] & 0xE0) == 0xC0)  // 2Bytes
+        else if ((ptr[pos] & 0xe0) == 0xc0)  // 2Bytes
             step = 2;
-        else if ((ptr[pos] & 0xF0) == 0xE0)  // 3Bytes
+        else if ((ptr[pos] & 0xf0) == 0xe0)  // 3Bytes
             step = 3;
-        else if ((ptr[pos] & 0xF8) == 0xF0)  // 4Bytes
+        else if ((ptr[pos] & 0xf8) == 0xf0)  // 4Bytes
             step = 4;
-        else if ((ptr[pos] & 0xFC) == 0xF8)  // 5Bytes
+        else if ((ptr[pos] & 0xfc) == 0xf8)  // 5Bytes
             step = 5;
-        else if ((ptr[pos] & 0xFE) == 0xFC)  // 6Bytes
+        else if ((ptr[pos] & 0xfe) == 0xfc)  // 6Bytes
             step = 6;
         else
             return ret;
@@ -89,9 +89,9 @@ std::string chen::utf8::substr(const std::string &text, std::size_t start, std::
 bool chen::utf8::bom(const std::string &text)
 {
     return (text.size() >= 3) &&
-           (static_cast<unsigned char>(text[0]) == 0xEF) &&
-           (static_cast<unsigned char>(text[1]) == 0xBB) &&
-           (static_cast<unsigned char>(text[2]) == 0xBF);
+           (static_cast<unsigned char>(text[0]) == 0xef) &&
+           (static_cast<unsigned char>(text[1]) == 0xbb) &&
+           (static_cast<unsigned char>(text[2]) == 0xbf);
 }
 
 std::string chen::utf8::convert(std::uint32_t ch)

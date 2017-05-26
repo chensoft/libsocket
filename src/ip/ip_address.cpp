@@ -538,7 +538,7 @@ chen::ip_address chen::ip_address::loopback(Type type)
     {
         case Type::IPv4:
             ret._type = Type::IPv4;
-            ret._impl.v4.assign(0x7F000001);
+            ret._impl.v4.assign(0x7f000001);
             break;
 
         case Type::IPv6:

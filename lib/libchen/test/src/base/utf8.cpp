@@ -30,6 +30,6 @@ TEST(BaseUtf8Test, General)
     EXPECT_FALSE(utf8::bom(plain));
 
     EXPECT_EQ("a", utf8::convert(0x0061));
-    EXPECT_EQ("©", utf8::convert(0x00A9));
+    EXPECT_EQ("©", utf8::convert(0x00a9));
     EXPECT_EQ(code, utf8::convert(0x9648));
 }

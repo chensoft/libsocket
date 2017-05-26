@@ -49,7 +49,7 @@ TEST(InetAddressTest, General)
 
     p4->sin_family = AF_INET;
     p4->sin_port   = chen::num::swap(static_cast<std::uint16_t>(80));
-    p4->sin_addr.s_addr = chen::num::swap(static_cast<std::uint32_t>(0x7F000001));
+    p4->sin_addr.s_addr = chen::num::swap(static_cast<std::uint32_t>(0x7f000001));
 
     EXPECT_EQ("127.0.0.1:80", inet_address((::sockaddr*)&v4).str());
     EXPECT_EQ("127.0.0.1:443", inet_address((::sockaddr*)&v4, 443).str());
@@ -107,7 +107,7 @@ TEST(InetAddressTest, Assignment)
 
     p4->sin_family = AF_INET;
     p4->sin_port   = chen::num::swap(static_cast<std::uint16_t>(80));
-    p4->sin_addr.s_addr = chen::num::swap(static_cast<std::uint32_t>(0x7F000001));
+    p4->sin_addr.s_addr = chen::num::swap(static_cast<std::uint32_t>(0x7f000001));
 
     addr = (::sockaddr*)&empty;
     EXPECT_EQ("127.0.0.1:80", addr.str());

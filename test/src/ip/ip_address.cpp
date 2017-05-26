@@ -65,12 +65,12 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ(ip_address("127.1"), ip_address("127.0.0.1"));
     EXPECT_EQ(ip_address("192.168.1"), ip_address("192.168.0.1"));
 
-    EXPECT_EQ(ip_address(ip_version4(0x7F000001)), ip_address("127.0.0.1"));
-    EXPECT_EQ(ip_address(ip_version4(0x7F000001, 8)), ip_address("127.0.0.1/8"));
-    EXPECT_EQ(ip_address(ip_version4(0x7F000001, "255.0.0.0")), ip_address("127.0.0.1/8"));
+    EXPECT_EQ(ip_address(ip_version4(0x7f000001)), ip_address("127.0.0.1"));
+    EXPECT_EQ(ip_address(ip_version4(0x7f000001, 8)), ip_address("127.0.0.1/8"));
+    EXPECT_EQ(ip_address(ip_version4(0x7f000001, "255.0.0.0")), ip_address("127.0.0.1/8"));
 
     EXPECT_THROW(ip_address("127.0.0.1", 33), std::runtime_error);
-    EXPECT_THROW(ip_address(ip_version4(0x7F000001, 33)), std::runtime_error);
+    EXPECT_THROW(ip_address(ip_version4(0x7f000001, 33)), std::runtime_error);
 
     ip_address v4("127");
     EXPECT_TRUE(v4.isIPv4());
@@ -84,7 +84,7 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ("192.168.1.1/24", v4.str(true));
     EXPECT_EQ(24, v4.cidr());
 
-    v4 = ip_version4(0x7F000001);
+    v4 = ip_version4(0x7f000001);
     EXPECT_EQ("127.0.0.1", v4.str());
     EXPECT_EQ(32, v4.cidr());
 
@@ -92,11 +92,11 @@ TEST(IPAddressTest, IPv4)
     EXPECT_EQ("127.0.0.1", ip_address("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1", ip_address("127.0.1").str());
     EXPECT_EQ("127.0.0.1", ip_address("127.1").str());
-    EXPECT_EQ("127.0.0.1", ip_address(ip_version4(0x7F000001)).str());
+    EXPECT_EQ("127.0.0.1", ip_address(ip_version4(0x7f000001)).str());
 
     EXPECT_EQ("127.0.0.1", ip_address("127.0.0.1").str());
     EXPECT_EQ("127.0.0.1/8", ip_address("127.0.0.1/8").str(true));
-    EXPECT_EQ("127.0.0.1/8", ip_address(ip_version4(0x7F000001, 8)).str(true));
+    EXPECT_EQ("127.0.0.1/8", ip_address(ip_version4(0x7f000001, 8)).str(true));
     EXPECT_EQ("192.168.1.1/30", ip_address("192.168.1.1", 30).str(true));
 
     // network

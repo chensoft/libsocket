@@ -127,10 +127,10 @@ std::string chen::ip_version4::str(bool cidr) const
 std::vector<std::uint8_t> chen::ip_version4::bytes() const
 {
     return std::vector<std::uint8_t>{
-            static_cast<std::uint8_t>(this->_addr >> 24 & 0xFF),
-            static_cast<std::uint8_t>(this->_addr >> 16 & 0xFF),
-            static_cast<std::uint8_t>(this->_addr >> 8 & 0xFF),
-            static_cast<std::uint8_t>(this->_addr & 0xFF)
+            static_cast<std::uint8_t>(this->_addr >> 24 & 0xff),
+            static_cast<std::uint8_t>(this->_addr >> 16 & 0xff),
+            static_cast<std::uint8_t>(this->_addr >> 8 & 0xff),
+            static_cast<std::uint8_t>(this->_addr & 0xff)
     };
 }
 
@@ -150,7 +150,7 @@ void chen::ip_version4::addr(std::uint32_t value)
 std::uint32_t chen::ip_version4::netmask() const
 {
     // @see rfc1878
-    return 0xFFFFFFFFu << (32 - this->_cidr);
+    return 0xffffffffu << (32 - this->_cidr);
 }
 
 std::uint32_t chen::ip_version4::wildcard() const
@@ -171,7 +171,7 @@ chen::ip_version4 chen::ip_version4::minhost() const
 
 chen::ip_version4 chen::ip_version4::maxhost() const
 {
-    return ip_version4((this->_addr | this->wildcard()) & 0xFFFFFFFE, this->_cidr);
+    return ip_version4((this->_addr | this->wildcard()) & 0xfffffffe, this->_cidr);
 }
 
 chen::ip_version4 chen::ip_version4::broadcast() const
@@ -191,7 +191,7 @@ bool chen::ip_version4::isReserved() const
 
     // 0.0.0.0/8
     // @see rfc1700, page 4
-    if ((this->_addr & 0xFF000000) == 0)
+    if ((this->_addr & 0xff000000) == 0)
         return true;
 
     // loopback
@@ -204,27 +204,27 @@ bool chen::ip_version4::isReserved() const
 
     // 192.0.0.0/24, it's reserved, not private network according to its rfc
     // @see rfc5736, section 2
-    if ((this->_addr & 0xFFFFFF00) == 0xC0000000)
+    if ((this->_addr & 0xffffff00) == 0xc0000000)
         return true;
 
     // 192.0.2.0/24
     // @see rfc5737, section 3
-    if ((this->_addr & 0xFFFFFF00) == 0xC0000200)
+    if ((this->_addr & 0xffffff00) == 0xc0000200)
         return true;
 
     // 192.88.99.0/24
     // @see rfc3068, section 2.3
-    if ((this->_addr & 0xFFFFFF00) == 0xC0586300)
+    if ((this->_addr & 0xffffff00) == 0xc0586300)
         return true;
 
     // 198.51.100.0/24
     // @see rfc5737, section 3
-    if ((this->_addr & 0xFFFFFF00) == 0xC6336400)
+    if ((this->_addr & 0xffffff00) == 0xc6336400)
         return true;
 
     // 203.0.113.0/24
     // @see rfc5737, section 3
-    if ((this->_addr & 0xFFFFFF00) == 0xCB007100)
+    if ((this->_addr & 0xffffff00) == 0xcb007100)
         return true;
 
     // class D & E
@@ -239,41 +239,41 @@ bool chen::ip_version4::isPrivate() const
 {
     // 10.0.0.0/8
     // @see rfc1918, section 3
-    if ((this->_addr & 0xFF000000) == 0x0A000000)
+    if ((this->_addr & 0xff000000) == 0x0a000000)
         return true;
 
     // 100.64.0.0/10
     // @see rfc6598, section 7
-    if ((this->_addr & 0xFFC00000) == 0x64400000)
+    if ((this->_addr & 0xffc00000) == 0x64400000)
         return true;
 
     // 172.16.0.0/12
     // @see rfc1918, section 3
-    if ((this->_addr & 0xFFF00000) == 0xAC100000)
+    if ((this->_addr & 0xfff00000) == 0xac100000)
         return true;
 
     // 192.168.0.0/16
     // @see rfc1918, section 3
-    if ((this->_addr & 0xFFFF0000) == 0xC0A80000)
+    if ((this->_addr & 0xffff0000) == 0xc0a80000)
         return true;
 
     // 198.18.0.0/15
     // @see rfc2544
-    return (this->_addr & 0xFFFE0000) == 0xC6120000;
+    return (this->_addr & 0xfffe0000) == 0xc6120000;
 }
 
 bool chen::ip_version4::isLoopback() const
 {
     // 127.0.0.0/8
     // @see rfc990 & rfc6890, section 2.2.2
-    return (this->_addr & 0xFF000000) == 0x7F000000;
+    return (this->_addr & 0xff000000) == 0x7f000000;
 }
 
 bool chen::ip_version4::isLinkLocal() const
 {
     // 169.254.0.0/16
     // @see rfc3927
-    return (this->_addr & 0xFFFF0000) == 0xA9FE0000;
+    return (this->_addr & 0xffff0000) == 0xa9fe0000;
 }
 
 bool chen::ip_version4::isMulticast() const
@@ -299,28 +299,28 @@ bool chen::ip_version4::isClassB() const
 {
     // leading: 10, network: 16, range: 128.0.0.0 ~ 191.255.255.255
     // @see rfc791, section 3.2
-    return (this->_addr & 0xC0000000) == 0x80000000;
+    return (this->_addr & 0xc0000000) == 0x80000000;
 }
 
 bool chen::ip_version4::isClassC() const
 {
     // leading: 110, network: 24, range: 192.0.0.0 ~ 223.255.255.255
     // @see rfc791, section 3.2
-    return (this->_addr & 0xE0000000) == 0xC0000000;
+    return (this->_addr & 0xe0000000) == 0xc0000000;
 }
 
 bool chen::ip_version4::isClassD() const
 {
     // leading: 1110, range: 224.0.0.0 ~ 239.255.255.255
     // @see rfc1112, section 4
-    return (this->_addr & 0xF0000000) == 0xE0000000;
+    return (this->_addr & 0xf0000000) == 0xe0000000;
 }
 
 bool chen::ip_version4::isClassE() const
 {
     // leading: 1111, range: 240.0.0.0 ~ 255.255.255.255
     // @see rfc1112, section 4
-    return (this->_addr & 0xF0000000) == 0xF0000000;
+    return (this->_addr & 0xf0000000) == 0xf0000000;
 }
 
 // operator
@@ -358,10 +358,10 @@ bool chen::ip_version4::operator>=(const ip_version4 &o) const
 std::string chen::ip_version4::toString(std::uint32_t addr)
 {
     return str::format("%u.%u.%u.%u",
-                       addr >> 24 & 0xFF,
-                       addr >> 16 & 0xFF,
-                       addr >> 8 & 0xFF,
-                       addr & 0xFF);
+                       addr >> 24 & 0xff,
+                       addr >> 16 & 0xff,
+                       addr >> 8 & 0xff,
+                       addr & 0xff);
 }
 
 std::string chen::ip_version4::toString(std::uint32_t addr, std::uint8_t cidr)
@@ -398,7 +398,7 @@ std::uint32_t chen::ip_version4::toInteger(const std::string &addr, std::uint8_t
             ++cur;
 
         // check if valid
-        if (num[i] > 0xFF)
+        if (num[i] > 0xff)
             throw std::runtime_error("ipv4: addr number must between 0 and 255");
     }
 
@@ -744,10 +744,10 @@ std::array<std::uint8_t, 16> chen::ip_version6::netmask() const
     auto i = 0;
 
     for (; i < len; ++i)
-        ret[i] = 0xFF;
+        ret[i] = 0xff;
 
     if (mod)
-        ret[i] = static_cast<std::uint8_t>(0xFF << (8 - mod));
+        ret[i] = static_cast<std::uint8_t>(0xff << (8 - mod));
 
     return ret;
 };
@@ -764,11 +764,11 @@ std::array<std::uint8_t, 16> chen::ip_version6::wildcard() const
     if (mod)
     {
         ++it;
-        ret[len] = static_cast<std::uint8_t>(~(0xFF << (8 - mod)));
+        ret[len] = static_cast<std::uint8_t>(~(0xff << (8 - mod)));
     }
 
     for (; it != ret.end(); ++it)
-        *it = 0xFF;
+        *it = 0xff;
 
     return ret;
 };
@@ -830,21 +830,21 @@ bool chen::ip_version6::isGlobalUnicast() const
 {
     // first 3 bits are 001
     // @see rfc3587, section 3
-    return (this->_addr[0] & 0xE0) == 0x20;
+    return (this->_addr[0] & 0xe0) == 0x20;
 }
 
 bool chen::ip_version6::isLinkLocalUnicast() const
 {
     // first 10 bits are 1111111010
     // @see rfc4291, section 2.5.6
-    return ((this->_addr[0] == 0xFE) && ((this->_addr[1] & 0xC0) == 0x80));
+    return ((this->_addr[0] == 0xfe) && ((this->_addr[1] & 0xc0) == 0x80));
 }
 
 bool chen::ip_version6::isSiteLocalUnicast() const
 {
     // first 10 bits are 1111111011
     // @see rfc4291, section 2.5.7
-    return ((this->_addr[0] == 0xFE) && ((this->_addr[1] & 0xC0) == 0xC0));
+    return ((this->_addr[0] == 0xfe) && ((this->_addr[1] & 0xc0) == 0xc0));
 }
 
 bool chen::ip_version6::isIPv4Compatible() const
@@ -867,14 +867,14 @@ bool chen::ip_version6::isIPv4Mapped() const
     if (!ret)
         return false;
 
-    return (this->_addr[10] == 0xFF) && (this->_addr[11] == 0xFF);
+    return (this->_addr[10] == 0xff) && (this->_addr[11] == 0xff);
 }
 
 bool chen::ip_version6::isMulticast() const
 {
-    // first 8 bits is 0xFF
+    // first 8 bits is 0xff
     // @see rfc4291, section 2.7
-    return this->_addr[0] == 0xFF;
+    return this->_addr[0] == 0xff;
 }
 
 // NAT64
@@ -882,7 +882,7 @@ bool chen::ip_version6::isIPv4EmbeddedWellKnown() const
 {
     // "64:ff9b::/96"
     // @see rfc6052, section 2.1
-    if ((this->_addr[0] != 0) || (this->_addr[1] != 0x64) || (this->_addr[2] != 0xFF) || (this->_addr[3] != 0x9b))
+    if ((this->_addr[0] != 0) || (this->_addr[1] != 0x64) || (this->_addr[2] != 0xff) || (this->_addr[3] != 0x9b))
         return false;
 
     return std::all_of(this->_addr.begin() + 4, this->_addr.begin() + 12, [] (const std::uint8_t &ch) -> bool {

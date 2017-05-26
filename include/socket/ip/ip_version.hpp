@@ -69,11 +69,11 @@ namespace chen
 
         /**
          * Assign by IPv4 integer and CIDR prefix
-         * e.g: "127.0.0.1" is 0x7F000001, also is 2130706433
+         * e.g: "127.0.0.1" is 0x7f000001, also is 2130706433
          * :-) ip_version4(2130706433)
-         * :-) ip_version4(0x7F000001)
-         * :-) ip_version4(0x7F000001, 8)
-         * :-) ip_version4(0x7F000001, "255.0.0.0")
+         * :-) ip_version4(0x7f000001)
+         * :-) ip_version4(0x7f000001, 8)
+         * :-) ip_version4(0x7f000001, "255.0.0.0")
          * @note default CIDR prefix will be 32 if you don't provide
          */
         void assign(std::uint32_t addr);
