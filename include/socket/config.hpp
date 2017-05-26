@@ -57,9 +57,9 @@ namespace chen
 // OS X, *BSD
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
 
-#include <sys/syslimits.h>  // OPEN_MAX
-#include <sys/resource.h>   // rlimit
-#include <sys/event.h>      // kqueue
+#include <sys/resource.h>  // rlimit
+#include <sys/event.h>     // kqueue
+#include <limits.h>        // OPEN_MAX
 
 #endif
 
