@@ -25,7 +25,7 @@ namespace chen
         static std::string substr(const std::string &text, std::size_t start, std::size_t count);
 
         /**
-         * Check the BOM: 0xEF, 0xBB, 0xBF
+         * Check the BOM: 0xef, 0xbb, 0xbf
          */
         static bool bom(const std::string &text);
 

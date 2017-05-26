@@ -29,7 +29,7 @@ std::string chen::sys::uuid()
             continue;
 
         auto r = (int)(((float)rd() / std::random_device::max()) * 16) | 0;
-        auto v = c == 'x' ? r : ((r & 0x3) | 0x8);
+        auto v = c == 'x' ? r : ((r & 0x03) | 0x08);
 
         ss.str("");
         ss << std::hex << std::uppercase << v;
