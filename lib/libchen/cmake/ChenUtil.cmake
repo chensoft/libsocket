@@ -35,17 +35,17 @@ function(chen_build_system)
     if(APPLE)
         execute_process(
                 COMMAND bash -c "system_profiler SPSoftwareDataType | perl -0 -pe 's/^.*System Version: ([^\n]+).*$/\\1/s'"
-                OUTPUT_VARIABLE version
+                OUTPUT_VARIABLE system
                 OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-        add_definitions(-DCHEN_BUILD_SYSTEM="${version}")
+        add_definitions(-DCHEN_BUILD_SYSTEM="${system}")
     elseif(UNIX AND lsb_release)
         execute_process(
-                COMMAND lsb_release -d -s
-                OUTPUT_VARIABLE version
+                COMMAND bash -c "lsb_release -d -s | perl -0 -pe 's/^\"(.*)\"$/\\1/s'"
+                OUTPUT_VARIABLE system
                 OUTPUT_STRIP_TRAILING_WHITESPACE
         )
-        add_definitions(-DCHEN_BUILD_SYSTEM="${version}")
+        add_definitions(-DCHEN_BUILD_SYSTEM="${system}")
     else()
         add_definitions(-DCHEN_BUILD_SYSTEM="${CMAKE_SYSTEM}")
     endif()
