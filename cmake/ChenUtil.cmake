@@ -30,16 +30,17 @@ endfunction()
 
 # generate definitions about build information
 function(chen_build_system)
+    find_program(perl "perl")
     find_program(lsb_release "lsb_release")
 
-    if(APPLE)
+    if(APPLE AND perl)
         execute_process(
                 COMMAND bash -c "system_profiler SPSoftwareDataType | perl -0 -pe 's/^.*System Version: ([^\n]+).*$/\\1/s'"
                 OUTPUT_VARIABLE system
                 OUTPUT_STRIP_TRAILING_WHITESPACE
         )
         add_definitions(-DCHEN_BUILD_SYSTEM="${system}")
-    elseif(UNIX AND lsb_release)
+    elseif(UNIX AND lsb_release AND perl)
         execute_process(
                 COMMAND bash -c "lsb_release -d -s | perl -0 -pe 's/^\"(.*)\"$/\\1/s'"
                 OUTPUT_VARIABLE system
