@@ -10,18 +10,23 @@
 
 // -----------------------------------------------------------------------------
 // date
-struct ::tm chen::date::gmtime(std::time_t time)
+chen::date::date(bool utc)
 {
-    ::tm now{};
-    ::gmtime_s(&now, &time);
-    return now;
 }
 
-struct ::tm chen::date::localtime(std::time_t time)
-{
-    ::tm now{};
-    ::localtime_s(&now, &time);
-    return now;
-}
+// todo
+//struct ::tm chen::date::gmtime(std::time_t time)
+//{
+//    ::tm now{};
+//    ::gmtime_s(&now, &time);
+//    return now;
+//}
+//
+//struct ::tm chen::date::localtime(std::time_t time)
+//{
+//    ::tm now{};
+//    ::localtime_s(&now, &time);
+//    return now;
+//}
 
 #endif

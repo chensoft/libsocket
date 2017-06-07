@@ -2,11 +2,8 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
-### Added
-- date: support add timezone string on time method.
-
 ### Changed
-- date: set utc to false by default, use current timezone is more reasonable.
+- date: change the class to store date info.
 
 ### Fixed
 - fs: resize string if user provide a large length to read.

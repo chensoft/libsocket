@@ -58,16 +58,18 @@ std::string chen::log::format(const std::string &text, log::Level level)
             {Level::Fatal, "F"},
     };
 
-    std::string out(date::stamp());
-
-    out += " ";
-    out += date::time(":", true, true);
-    out += " UTC [";
-    out += map[level];
-    out += "] ";
-    out += text;
-
-    return out;
+    // todo
+    return "";
+//    std::string out(date::stamp());
+//
+//    out += "T";
+//    out += date::time(":", false, true, true);
+//    out += " [";
+//    out += map[level];
+//    out += "] ";
+//    out += text;
+//
+//    return out;
 }
 
 void chen::log::output(const std::string &text, log::Level level)

@@ -6,29 +6,22 @@
  */
 #pragma once
 
-#include <string>
-#include <ctime>
-
 namespace chen
 {
     class date
     {
     public:
-        /**
-         * GMT & Local time
-         * @thread-safe
-         */
-        static struct ::tm gmtime(std::time_t time);
-        static struct ::tm localtime(std::time_t time);
+        explicit date(bool utc = false);
 
-        /**
-         * Date stamp
-         */
-        static std::string stamp(const std::string &sep = "-", bool utc = false);
-
-        /**
-         * Time string
-         */
-        static std::string time(const std::string &sep = ":", bool utc = false, bool microseconds = false, bool timezone = false);
+    public:
+        int microsecond = 0;  // range from 0 ~ 999999
+        int second      = 0;  // range from 0 ~ 59
+        int minute      = 0;  // range from 0 ~ 59
+        int hour        = 0;  // range from 0 ~ 23
+        int day         = 0;  // range from 1 ~ 31
+        int wday        = 0;  // 0: Sunday, 1: Monday ~ 6: Saturday
+        int month       = 0;  // 1: January ~ 12: December
+        int year        = 0;  // the true year value, e.g: 2017
+        long zone       = 0;  // timezone offset in seconds
     };
 }
