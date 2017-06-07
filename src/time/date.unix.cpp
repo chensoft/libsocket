@@ -8,6 +8,7 @@
 
 #include "chen/time/date.hpp"
 #include <sys/time.h>
+#include <time.h>
 
 // -----------------------------------------------------------------------------
 // date

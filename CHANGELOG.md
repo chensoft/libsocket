@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file(see http://k
 
 ## [Unreleased]
 ### Changed
-- date: change the class to store date info.
+- date: change the class interface, store current date only.
 
 ### Fixed
 - fs: resize string if user provide a large length to read.
