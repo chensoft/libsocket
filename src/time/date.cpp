@@ -22,7 +22,7 @@ std::string chen::date::stamp(const std::string &sep, bool utc)
     return str::format("%d%s%02d%s%02d", year, sep.c_str(), month, sep.c_str(), day);
 }
 
-std::string chen::date::time(const std::string &sep, bool utc, bool microseconds)
+std::string chen::date::time(const std::string &sep, bool utc, bool microseconds, bool timezone)
 {
     auto high = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     auto last = high - high / 1000000 * 1000000;
@@ -34,8 +34,18 @@ std::string chen::date::time(const std::string &sep, bool utc, bool microseconds
     auto minute = now.tm_min;
     auto second = now.tm_sec;
 
+    std::string ret;
+
     if (microseconds)
-        return str::format("%02d%s%02d%s%02d.%06lld", hour, sep.c_str(), minute, sep.c_str(), second, last);
+        ret = str::format("%02d%s%02d%s%02d.%06lld", hour, sep.c_str(), minute, sep.c_str(), second, last);
     else
-        return str::format("%02d%s%02d%s%02d", hour, sep.c_str(), minute, sep.c_str(), second);
+        ret = str::format("%02d%s%02d%s%02d", hour, sep.c_str(), minute, sep.c_str(), second);
+
+    if (timezone)
+    {
+        ret += now.tm_gmtoff >= 0 ? '+' : '-';
+        ret += str::format("%02d:%02d", ::labs(now.tm_gmtoff) / 3600, ::labs(now.tm_gmtoff) / 60 % 60);
+    }
+
+    return ret;
 }

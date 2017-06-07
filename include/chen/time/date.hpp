@@ -29,6 +29,6 @@ namespace chen
         /**
          * Time string
          */
-        static std::string time(const std::string &sep = ":", bool utc = false, bool microseconds = false);
+        static std::string time(const std::string &sep = ":", bool utc = false, bool microseconds = false, bool timezone = false);
     };
 }
