@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Changed
 - date: change the class interface, store current date only.
+- log: use iso date format for logging.
 
 ### Fixed
 - fs: resize string if user provide a large length to read.

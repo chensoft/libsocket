@@ -49,27 +49,30 @@ void chen::log::demote()
 
 std::string chen::log::format(const std::string &text, log::Level level)
 {
-    static std::map<log::Level, std::string> map = {
-            {Level::Trace, "T"},
-            {Level::Debug, "D"},
-            {Level::Info,  "I"},
-            {Level::Warn,  "W"},
-            {Level::Error, "E"},
-            {Level::Fatal, "F"},
+    static std::map<log::Level, char> map = {
+            {Level::Trace, 'T'},
+            {Level::Debug, 'D'},
+            {Level::Info,  'I'},
+            {Level::Warn,  'W'},
+            {Level::Error, 'E'},
+            {Level::Fatal, 'F'},
     };
 
-    // todo
-    return "";
-//    std::string out(date::stamp());
-//
-//    out += "T";
-//    out += date::time(":", false, true, true);
-//    out += " [";
-//    out += map[level];
-//    out += "] ";
-//    out += text;
-//
-//    return out;
+    date d;
+    auto r = str::format("%d-%02d-%02dT%02d:%02d:%02d.%06d%c%02ld:%02ld [%c] ",
+                         d.year,
+                         d.month,
+                         d.day,
+                         d.hour,
+                         d.minute,
+                         d.second,
+                         d.microsecond,
+                         d.zone >= 0 ? '+' : '-',
+                         ::labs(d.zone) / 3600,
+                         ::labs(d.zone) / 60 % 60,
+                         map[level]);
+
+    return r + text;
 }
 
 void chen::log::output(const std::string &text, log::Level level)
