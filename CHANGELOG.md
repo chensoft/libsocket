@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- time: set utc to false by default, use current timezone is more reasonable.
+
 ### Fixed
 - fs: resize string if user provide a large length to read.
 - threadpool: all jobs should be done before exit.

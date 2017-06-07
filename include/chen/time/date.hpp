@@ -24,11 +24,11 @@ namespace chen
         /**
          * Date stamp
          */
-        static std::string stamp(const std::string &sep = "-", bool utc = true);
+        static std::string stamp(const std::string &sep = "-", bool utc = false);
 
         /**
          * Time string
          */
-        static std::string time(const std::string &sep = ":", bool utc = true, bool microseconds = false);
+        static std::string time(const std::string &sep = ":", bool utc = false, bool microseconds = false);
     };
 }
