@@ -7,21 +7,28 @@
 #ifdef _WIN32
 
 #include "chen/time/date.hpp"
+#include <Windows.h>
 
 // -----------------------------------------------------------------------------
 // date
-struct ::tm chen::date::gmtime(std::time_t time)
+chen::date::date(bool utc)
 {
-    ::tm now{};
-    ::gmtime_s(&now, &time);
-    return now;
-}
+	::SYSTEMTIME st{};
+	utc ? ::GetSystemTime(&st) : ::GetLocalTime(&st);
 
-struct ::tm chen::date::localtime(std::time_t time)
-{
-    ::tm now{};
-    ::localtime_s(&now, &time);
-    return now;
+	this->microsecond = st.wMilliseconds * 1000;
+	this->second      = st.wSecond;
+	this->minute      = st.wMinute;
+	this->hour        = st.wHour;
+	this->day         = st.wDay;
+	this->wday        = st.wDayOfWeek;
+	this->month       = st.wMonth;
+	this->year        = st.wYear;
+
+	::TIME_ZONE_INFORMATION zone;
+	::GetTimeZoneInformation(&zone);
+
+	this->zone = -zone.Bias * 60;
 }
 
 #endif
