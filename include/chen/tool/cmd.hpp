@@ -103,7 +103,7 @@ namespace chen
         /**
          * Parse the command line
          */
-        void parse(int argc, const char *const argv[]);
+        void parse(int argc, char *argv[]);
 
     public:
         /**
@@ -114,7 +114,7 @@ namespace chen
             return this->_argc;
         }
 
-        const char *const *argv() const
+        char** argv() const
         {
             return this->_argv;
         }
@@ -235,8 +235,8 @@ namespace chen
         const option& opt(const std::string &name) const;
 
     protected:
-        int _argc = 0;
-        const char *const *_argv = nullptr;
+        int    _argc = 0;
+        char **_argv = nullptr;
 
         std::string _app;  // app name
 
