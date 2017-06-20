@@ -109,12 +109,12 @@ namespace chen
         /**
          * App info
          */
-        int argc()
+        int argc() const
         {
             return this->_argc;
         }
 
-        const char *const *argv()
+        const char *const *argv() const
         {
             return this->_argv;
         }
