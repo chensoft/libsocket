@@ -12,6 +12,10 @@ endif()
 # libraries
 set(gtest_force_shared_crt ON CACHE BOOL "Use /MD in googletest")
 
+if(NOT CHEN_ENABLE_UNIT_TEST)
+    add_subdirectory(../lib/libchen/test/lib/googletest/googletest googletest)
+endif()
+
 # include path
 include_directories(../lib/libchen/test/lib/googletest/googletest/include)
 
