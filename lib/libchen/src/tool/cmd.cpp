@@ -108,7 +108,7 @@ bool chen::cmd::exist(const std::string &action, const std::string &option) cons
 }
 
 // parse
-void chen::cmd::parse(int argc, const char *const argv[])
+void chen::cmd::parse(int argc, char *argv[])
 {
     // argc must greater than 0
     if (argc < 1)

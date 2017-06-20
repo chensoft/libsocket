@@ -46,117 +46,124 @@ TEST(ToolCmdTest, General)
     cmd.suggest("edition", "version");
 
     // simulate -> version
-    std::vector<const char*> argv = {
-            "app",
-            "version"
-    };
+    char param_app[] = "app";
+    char param_version[] = "version";
 
-    cmd.parse(static_cast<int>(argv.size()), &argv[0]);
+    {
+        char *argv[] = {param_app, param_version, nullptr};
 
-    EXPECT_EQ(static_cast<int>(argv.size()), cmd.argc());
-    EXPECT_EQ(&argv[0], cmd.argv());
-    EXPECT_EQ("app", cmd.app());
-    EXPECT_EQ("version", cmd.current());
+        cmd.parse(sizeof(argv) / sizeof(argv[0]) - 1, &argv[0]);
 
-    // simulate -> start
-    argv = {
-            "app",
-            "start"
-    };
-
-    cmd.parse(static_cast<int>(argv.size()), &argv[0]);
-
-    EXPECT_EQ("start", cmd.current());
-    EXPECT_EQ(80, cmd.intVal("port"));
-    EXPECT_EQ("0.0.0.0", cmd.strVal("addr"));
-
-    EXPECT_FALSE(cmd.isSet("daemon"));
-    EXPECT_FALSE(cmd.boolVal("daemon"));
+        EXPECT_EQ(static_cast<int>(sizeof(argv) / sizeof(argv[0])) - 1, cmd.argc());
+        EXPECT_EQ(&argv[0], cmd.argv());
+        EXPECT_EQ("app", cmd.app());
+        EXPECT_EQ("version", cmd.current());
+    }
 
     // simulate -> start
-    argv = {
-            "app",
-            "start",
-            "--port=8888",
-            "-a=127.0.0.1",
-            "--thread",
-            "4",
-            "-s",
-            "100",
-            "127.0.0.1"
-    };
+    char param_start[] = "start";
 
-    cmd.parse(static_cast<int>(argv.size()), &argv[0]);
+    {
+        char *argv[] = {param_app, param_start, nullptr};
 
-    EXPECT_EQ("start", cmd.current());
-    EXPECT_EQ(8888, cmd.intVal("port"));
-    EXPECT_EQ("127.0.0.1", cmd.strVal("addr"));
+        cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]);
 
-    EXPECT_THROW(cmd.strVal("x"), chen::cmd::error);
-    EXPECT_THROW(cmd.strVal("color"), chen::cmd::error);
+        EXPECT_EQ("start", cmd.current());
+        EXPECT_EQ(80, cmd.intVal("port"));
+        EXPECT_EQ("0.0.0.0", cmd.strVal("addr"));
 
-    EXPECT_TRUE(cmd.isSet("port"));
-    EXPECT_FALSE(cmd.objects().empty());
+        EXPECT_FALSE(cmd.isSet("daemon"));
+        EXPECT_FALSE(cmd.boolVal("daemon"));
+    }
+
+    // simulate -> start
+    char param_port[]   = "--port=8888";
+    char param_addr[]   = "-a=127.0.0.1";
+    char param_thread[] = "--thread";
+    char param_four[]   = "4";
+    char param_s[]      = "-s";
+    char param_100[]    = "100";
+    char param_ip[]     = "127.0.0.1";
+
+    {
+        char *argv[] = {param_app, param_start, param_port, param_addr, param_thread, param_four, param_s, param_100, param_ip, nullptr};
+
+        cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]);
+
+        EXPECT_EQ("start", cmd.current());
+        EXPECT_EQ(8888, cmd.intVal("port"));
+        EXPECT_EQ("127.0.0.1", cmd.strVal("addr"));
+
+        EXPECT_THROW(cmd.strVal("x"), chen::cmd::error);
+        EXPECT_THROW(cmd.strVal("color"), chen::cmd::error);
+
+        EXPECT_TRUE(cmd.isSet("port"));
+        EXPECT_FALSE(cmd.objects().empty());
+    }
 
     // simulate -> sub-action
-    argv = {
-            "app",
-            "module",
-            "update",
-    };
+    char param_module[] = "module";
+    char param_update[] = "update";
 
-    cmd.parse(static_cast<int>(argv.size()), &argv[0]);
+    {
+        char *argv[] = {param_app, param_module, param_update, nullptr};
 
-    EXPECT_EQ("module.update", cmd.current());
+        cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]);
+
+        EXPECT_EQ("module.update", cmd.current());
+    }
 
     // simulate -> exception
-    argv = {
-            "app",
-            "start",
-            "--a"  // it's not a long option name
-    };
+    char param_a[] = "--a";  // it's not a long option name
 
-    EXPECT_THROW(cmd.parse(static_cast<int>(argv.size()), &argv[0]), chen::cmd::error);
-
-    argv = {
-            "app",
-            "start",
-            "--speedx"  // long option not exist
-    };
-
-    EXPECT_THROW(cmd.parse(static_cast<int>(argv.size()), &argv[0]), chen::cmd::error);
-
-    argv = {
-            "app",
-            "start",
-            "-x"  // short option not exist
-    };
-
-    EXPECT_THROW(cmd.parse(static_cast<int>(argv.size()), &argv[0]), chen::cmd::error);
-
-    argv = {
-            "app",
-            "editi"
-    };
-
-    try
     {
-        cmd.parse(static_cast<int>(argv.size()), &argv[0]);
-    }
-    catch (const chen::cmd::error_parse &error)
-    {
-        cmd.usage(error);
+        char *argv[] = {param_app, param_start, param_a, nullptr};
+
+        EXPECT_THROW(cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]), chen::cmd::error);
     }
 
-    // just call
-    cmd.usage();
-    cmd.usage("start");
-    cmd.usage("start", "");
-    cmd.usage("start", "port");
+    char param_speedx[] = "--speedx";  // long option not exist
 
-    cmd.visit([] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
-    });
+    {
+        char *argv[] = {param_app, param_start, param_speedx, nullptr};
 
-    cmd.visit("start", [] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
-    });
+        EXPECT_THROW(cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]), chen::cmd::error);
+    }
+
+    char param_x[] =  "-x";  // short option not exist
+
+    {
+        char *argv[] = {param_app, param_start, param_x, nullptr};
+
+        EXPECT_THROW(cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]), chen::cmd::error);
+    }
+
+
+    char param_editi[] = "editi";
+
+    {
+        char *argv[] = {param_app, param_editi, nullptr};
+
+        try
+        {
+            cmd.parse(static_cast<int>(sizeof(argv) / sizeof(argv[0]) - 1), &argv[0]);
+            EXPECT_NO_THROW(throw "should not reach here");
+        }
+        catch (const chen::cmd::error_parse &error)
+        {
+            cmd.usage(error);
+        }
+
+        // just call
+        cmd.usage();
+        cmd.usage("start");
+        cmd.usage("start", "");
+        cmd.usage("start", "port");
+
+        cmd.visit([] (const chen::cmd::action &action, std::size_t idx, std::size_t len) {
+        });
+
+        cmd.visit("start", [] (const chen::cmd::option &option, std::size_t idx, std::size_t len) {
+        });
+    }
 }

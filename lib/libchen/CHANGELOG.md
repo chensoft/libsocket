@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file(see http://k
 ### Changed
 - date: change the class interface, store current date only.
 - log: use iso date format for logging.
+- cmd: make the method prototype equal to main function.
 
 ### Fixed
 - fs: resize string if user provide a large length to read.
