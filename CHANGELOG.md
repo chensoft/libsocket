@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file(see http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- cmd: store app start info.
+
 ### Changed
 - date: change the class interface, store current date only.
 - log: use iso date format for logging.

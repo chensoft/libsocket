@@ -53,6 +53,8 @@ TEST(ToolCmdTest, General)
 
     cmd.parse(static_cast<int>(argv.size()), &argv[0]);
 
+    EXPECT_EQ(static_cast<int>(argv.size()), cmd.argc());
+    EXPECT_EQ(&argv[0], cmd.argv());
     EXPECT_EQ("app", cmd.app());
     EXPECT_EQ("version", cmd.current());
 

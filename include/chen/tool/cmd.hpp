@@ -107,9 +107,25 @@ namespace chen
 
     public:
         /**
+         * App info
+         */
+        int argc()
+        {
+            return this->_argc;
+        }
+
+        const char *const *argv()
+        {
+            return this->_argv;
+        }
+
+        /**
          * App name
          */
-        std::string app() const;
+        std::string app() const
+        {
+            return this->_app;
+        }
 
         /**
          * Current resolved action name
@@ -219,6 +235,9 @@ namespace chen
         const option& opt(const std::string &name) const;
 
     protected:
+        int _argc = 0;
+        const char *const *_argv = nullptr;
+
         std::string _app;  // app name
 
         std::unique_ptr<action> _action;  // resolved action

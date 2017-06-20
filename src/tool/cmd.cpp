@@ -114,6 +114,9 @@ void chen::cmd::parse(int argc, const char *const argv[])
     if (argc < 1)
         return;
 
+    this->_argc = argc;
+    this->_argv = argv;
+
     // set app name if it's empty
     if (this->_app.empty())
         this->_app = fs::basename(argv[0]);
@@ -293,12 +296,6 @@ void chen::cmd::parse(int argc, const char *const argv[])
     auto &bind = this->_action->bind;
     if (bind)
         bind(*this);
-}
-
-// app
-std::string chen::cmd::app() const
-{
-    return this->_app;
 }
 
 // current
