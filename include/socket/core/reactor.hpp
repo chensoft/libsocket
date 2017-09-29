@@ -55,7 +55,7 @@ namespace chen
 
     public:
         reactor();
-        reactor(std::size_t count);  // the maximum events returned after polling, it will be ignored on Windows
+        explicit reactor(std::size_t count);  // the maximum events returned after polling, it will be ignored on Windows
         ~reactor();
 
     public:
@@ -132,9 +132,11 @@ namespace chen
          */
         void reorder(ev_timer *ptr);
 
-    private:
+    public:
         reactor(const reactor&) = delete;
         reactor& operator=(const reactor&) = delete;
+
+        // todo, need define move to delete?
 
     private:
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
