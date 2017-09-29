@@ -1,0 +1,22 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      script:
+        - mkdir build
+        - cd build
+        - cmake -DCHEN_CODE_COVERAGE=ON ..
+        - make
+        - test/libchen_test --data=../test/data
+        - bash <(curl -s https://codecov.io/bash)
+
+    - os: osx
+      osx_image: xcode8.2
+      script:
+        - mkdir build
+        - cd build
+        - cmake -G Xcode ..
+        - xcodebuild -target libchen_test -project libchen.xcodeproj -configuration Release
+        - test/Release/libchen_test --data=../test/data
