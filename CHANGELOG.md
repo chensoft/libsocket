@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Added
 - cmd: store app start info.
+- threadpool: allow fast exit when pool destroyed.
 
 ### Changed
 - date: change the class interface, store current date only.

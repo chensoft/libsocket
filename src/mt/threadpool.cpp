@@ -8,7 +8,7 @@
 
 // ------------------------------------------------------------------
 // threadpool
-chen::threadpool::threadpool(std::size_t count) : _exit(false)
+chen::threadpool::threadpool(std::size_t count, bool fast) : _exit(false), _fast(fast)
 {
     if (!count)
         count = std::max(1u, std::thread::hardware_concurrency());
@@ -46,7 +46,7 @@ void chen::threadpool::run()
 
         std::unique_lock<std::mutex> lock(this->_mutex);
 
-        if (!this->_queue.empty())
+        if (!this->_queue.empty() && (!this->_fast || !this->_exit))
         {
             auto task = std::move(this->_queue.front());
             this->_queue.pop();

@@ -25,7 +25,7 @@ namespace chen
         /**
          * Construct with thread count
          */
-        explicit threadpool(std::size_t count = 0);
+        explicit threadpool(std::size_t count = 0, bool fast = false);
         ~threadpool();
 
     public:
@@ -70,11 +70,12 @@ namespace chen
         std::queue<callable> _queue;
 
         std::atomic<bool> _exit;
+        std::atomic<bool> _fast;
         std::vector<std::thread> _pool;
 
         semaphore _semaphore;
 
-    private:
+    public:
         threadpool(const threadpool&) = delete;
         threadpool& operator=(const threadpool&) = delete;
     };
