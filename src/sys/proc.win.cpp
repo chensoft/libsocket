@@ -16,6 +16,23 @@ bool chen::proc::daemon()
     return false;
 }
 
+std::string chen::proc::exec(const std::string &command)
+{
+    FILE *pipe = ::_popen(command.c_str(), "r");
+    if (!pipe)
+        throw std::runtime_error("proc: open command failed");
+
+    char buffer[128]{};
+    std::string result;
+
+    while (!::feof(pipe) && (::fgets(buffer, 128, pipe) != nullptr))
+        result += buffer;
+
+    ::_pclose(pipe);
+
+    return result;
+}
+
 std::string chen::proc::path(int argc, const char *const argv[])
 {
     CHAR buf[MAX_PATH] = { 0 };
