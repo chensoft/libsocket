@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Added
 - cmd: store app start info.
+- proc: run a command and get its output
 - threadpool: allow fast exit when pool destroyed.
 
 ### Changed

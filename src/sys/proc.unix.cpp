@@ -11,7 +11,7 @@
 #include "chen/base/str.hpp"
 #include <sys/stat.h>
 #include <unistd.h>
-#include <signal.h>
+#include <csignal>
 #include <cstring>
 #include <cstdlib>
 
@@ -50,6 +50,23 @@ bool chen::proc::daemon()
     ::close(STDERR_FILENO);
 
     return true;
+}
+
+std::string chen::proc::exec(const std::string &command)
+{
+    FILE *pipe = ::popen(command.c_str(), "r");
+    if (!pipe)
+        throw std::runtime_error("proc: open command failed");
+
+    char buffer[128]{};
+    std::string result;
+
+    while (!::feof(pipe) && (::fgets(buffer, 128, pipe) != nullptr))
+        result += buffer;
+
+    ::pclose(pipe);
+
+    return result;
 }
 
 std::string chen::proc::path(int argc, const char *const argv[])
