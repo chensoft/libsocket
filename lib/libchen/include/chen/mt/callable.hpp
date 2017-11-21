@@ -60,7 +60,7 @@ namespace chen
             F f;
         };
 
-    private:
+    public:
         callable(const callable &o) = delete;
         callable& operator=(const callable &o) = delete;
 

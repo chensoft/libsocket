@@ -130,7 +130,7 @@ namespace chen
          */
         virtual void output(const std::string &text, log::Level level);
 
-    private:
+    public:
         log(const log&) = delete;
         log& operator=(const log&) = delete;
 

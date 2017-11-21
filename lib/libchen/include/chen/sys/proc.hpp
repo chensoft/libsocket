@@ -25,6 +25,13 @@ namespace chen
         static bool daemon();
 
         /**
+         * Run a command and get its output
+         * @caution grab stdout only, you can redirect stderr to stdout by appending "2>&1" to the command
+         * @link https://stackoverflow.com/questions/478898/how-to-execute-a-command-and-get-output-of-command-within-c-using-posix
+         */
+        static std::string exec(const std::string &command);
+
+        /**
          * Current executable path
          */
         static std::string path(int argc, const char *const argv[]);

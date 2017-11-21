@@ -21,7 +21,7 @@ namespace chen
         void post();
         void wait();
 
-    private:
+    public:
         semaphore(const semaphore&) = delete;
         semaphore& operator=(const semaphore&) = delete;
 

@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file(see http://k
 ## [Unreleased]
 ### Added
 - cmd: store app start info.
+- proc: run a command and get its output.
+- threadpool: allow fast exit when pool destroyed.
 
 ### Changed
 - date: change the class interface, store current date only.
 - log: use iso date format for logging.
 - cmd: make the method prototype equal to main function.
+- daemon: avoid the standard file descriptors to be reused.
 
 ### Fixed
 - fs: resize string if user provide a large length to read.

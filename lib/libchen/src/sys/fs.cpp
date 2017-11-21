@@ -402,7 +402,7 @@ std::string chen::fs::read(const std::string &file, std::streamoff start, std::s
     if (in && !in.eof())
     {
         std::string ret(static_cast<std::size_t>(length), '\0');
-        in.read(&ret[0], length);
+        in.read(&ret[0], static_cast<std::streamsize>(length));
         ret.resize(static_cast<std::size_t>(in.gcount()));
 
         return ret;

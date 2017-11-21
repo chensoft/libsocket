@@ -11,7 +11,8 @@
 #include "chen/base/str.hpp"
 #include <sys/stat.h>
 #include <unistd.h>
-#include <signal.h>
+#include <fcntl.h>
+#include <csignal>
 #include <cstring>
 #include <cstdlib>
 
@@ -20,8 +21,8 @@
 bool chen::proc::daemon()
 {
     // Note:
-    // code is copied from http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html, thanks to its author
-    // forking the parent process
+    // code is copied from http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
+    // thanks to its author forking the parent process
     pid_t pid = ::fork();
 
     // pid less than zero means error
@@ -44,12 +45,40 @@ bool chen::proc::daemon()
     if (::chdir("/") < 0)
         std::exit(EXIT_FAILURE);
 
-    // closing standard file descriptors
+    // Note:
+    // http://www.microhowto.info/howto/cause_a_process_to_become_a_daemon_in_c.html
+    // closing standard file descriptors and avoid these file descriptors to be reused
     ::close(STDIN_FILENO);
     ::close(STDOUT_FILENO);
     ::close(STDERR_FILENO);
 
+    if (::open("/dev/null", O_RDONLY) < 0)
+        std::exit(EXIT_FAILURE);
+
+    if (::open("/dev/null", O_WRONLY) < 0)
+        std::exit(EXIT_FAILURE);
+
+    if (::open("/dev/null", O_RDWR) < 0)
+        std::exit(EXIT_FAILURE);
+
     return true;
+}
+
+std::string chen::proc::exec(const std::string &command)
+{
+    FILE *pipe = ::popen(command.c_str(), "r");
+    if (!pipe)
+        throw std::runtime_error("proc: open command failed");
+
+    char buffer[128]{};
+    std::string result;
+
+    while (!::feof(pipe) && (::fgets(buffer, 128, pipe) != nullptr))
+        result += buffer;
+
+    ::pclose(pipe);
+
+    return result;
 }
 
 std::string chen::proc::path(int argc, const char *const argv[])
