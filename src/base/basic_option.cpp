@@ -88,7 +88,8 @@ struct ::linger chen::basic_option::linger(handle_t fd)
 {
     struct ::linger val{};
     option_t len = sizeof(val);
-    return ::getsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&val, &len), val;
+    ::getsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&val, &len);
+    return val;
 }
 
 bool chen::basic_option::linger(handle_t fd, int onoff, int value)
@@ -165,7 +166,8 @@ struct ::timeval chen::basic_option::sndtimeo(handle_t fd)
 {
     ::timeval val{};
     option_t len = sizeof(val);
-    return ::getsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len), val;
+    ::getsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len);
+    return val;
 }
 
 bool chen::basic_option::sndtimeo(handle_t fd, int sec, int usec)
@@ -187,7 +189,8 @@ struct ::timeval chen::basic_option::rcvtimeo(handle_t fd)
 {
     ::timeval val{};
     option_t len = sizeof(val);
-    return ::getsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len), val;
+    ::getsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len);
+    return val;
 }
 
 bool chen::basic_option::rcvtimeo(handle_t fd, int sec, int usec)
@@ -221,7 +224,8 @@ int chen::basic_option::get(handle_t fd, int level, int name)
 {
     int val = 0;
     option_t len = sizeof(val);
-    return ::getsockopt(fd, level, name, (char*)&val, &len), val;
+    ::getsockopt(fd, level, name, (char*)&val, &len);
+    return val;
 }
 
 bool chen::basic_option::set(handle_t fd, int level, int name, int val)
