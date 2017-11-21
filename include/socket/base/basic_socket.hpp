@@ -84,8 +84,8 @@ namespace chen
          * Listen for request
          * @param backlog maximum queue length for pending connections
          */
-        std::error_code listen() noexcept;
         std::error_code listen(int backlog) noexcept;
+        std::error_code listen() noexcept;
 
         /**
          * Accept new request and create a new socket

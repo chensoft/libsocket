@@ -104,14 +104,14 @@ std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
     return !::bind(this->native(), (::sockaddr*)&storage, addr.socklen()) ? std::error_code() : sys::error();
 }
 
-std::error_code chen::basic_socket::listen() noexcept
-{
-    return this->listen(SOMAXCONN);
-}
-
 std::error_code chen::basic_socket::listen(int backlog) noexcept
 {
     return !::listen(this->native(), backlog) ? std::error_code() : sys::error();
+}
+
+std::error_code chen::basic_socket::listen() noexcept
+{
+    return this->listen(SOMAXCONN);
 }
 
 std::error_code chen::basic_socket::accept(basic_socket &s) noexcept
