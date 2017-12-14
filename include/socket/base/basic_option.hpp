@@ -39,6 +39,9 @@ namespace chen
 
         /**
          * SO_KEEPALIVE(enable keepalive on connection-oriented socket)
+         * @note keepalive option works only for the server side
+         * @note keepalive will detect only when there is no data transfer
+         * @note keepalive may not be accurate because a proxy server may exist
          */
         static bool keepalive(handle_t fd);
         static bool keepalive(handle_t fd, bool val);
