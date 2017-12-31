@@ -31,3 +31,5 @@
 -) detect file changes using reactor
 
 -) reactor accept base class ref instead of fd
+
+-) librector only provide io, timer, signal and so on, sockets move to another library
