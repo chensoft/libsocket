@@ -33,3 +33,7 @@
 -) reactor accept base class ref instead of fd
 
 -) librector only provide io, timer, signal and so on, sockets move to another library
+
+-) Windows support AF_UNIX https://blogs.msdn.microsoft.com/commandline/2017/12/19/af_unix-comes-to-windows/
+
+-) support socketpair
