@@ -27,3 +27,7 @@
 -) add sendfile, TransmitFile, use method name: transmit
 
 -) async dns resolve
+
+-) detect file changes using reactor
+
+-) reactor accept base class ref instead of fd
