@@ -37,3 +37,5 @@
 -) Windows support AF_UNIX https://blogs.msdn.microsoft.com/commandline/2017/12/19/af_unix-comes-to-windows/
 
 -) support socketpair
+
+-）support signal, file
