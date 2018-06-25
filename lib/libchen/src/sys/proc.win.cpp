@@ -37,7 +37,7 @@ std::string chen::proc::path(int argc, const char *const argv[])
 {
     CHAR buf[MAX_PATH] = { 0 };
 
-    if (::GetModuleFileName(NULL, buf, sizeof(buf)))
+    if (::GetModuleFileNameA(NULL, buf, sizeof(buf)))
         return std::string(buf);
     else
         return "";

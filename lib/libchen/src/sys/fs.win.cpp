@@ -23,7 +23,7 @@ std::string chen::fs::root()
 {
     CHAR buf[MAX_PATH] = { 0 };
 
-    if (::GetSystemWindowsDirectory(buf, sizeof(buf)) >= 3)
+    if (::GetSystemWindowsDirectoryA(buf, sizeof(buf)) >= 3)
         return std::string(buf, 3);
     else
         return "";
@@ -38,7 +38,7 @@ std::string chen::fs::home()
         return "";
 
     DWORD size = sizeof(buf);
-    BOOL    ok = ::GetUserProfileDirectory(token, buf, &size);
+    BOOL    ok = ::GetUserProfileDirectoryA(token, buf, &size);
 
     ::CloseHandle(token);
 
@@ -49,7 +49,7 @@ std::string chen::fs::temp()
 {
     CHAR buf[MAX_PATH] = { 0 };
 
-    if (::GetTempPath(sizeof(buf), buf))
+    if (::GetTempPathA(sizeof(buf), buf))
         return buf;
     else
         return "";
@@ -59,7 +59,7 @@ std::string chen::fs::current()
 {
     CHAR buf[MAX_PATH] = { 0 };
 
-    if (::GetCurrentDirectory(sizeof(buf), buf))
+    if (::GetCurrentDirectoryA(sizeof(buf), buf))
         return buf;
     else
         return "";
@@ -90,7 +90,7 @@ std::string chen::fs::realpath(const std::string &path)
     CHAR buf[MAX_PATH] = { 0 };
     DWORD size = sizeof(buf);
 
-    if (::GetFullPathName(fs::absolute(path).c_str(), size, buf, NULL))
+    if (::GetFullPathNameA(fs::absolute(path).c_str(), size, buf, NULL))
     {
         std::string ret(buf);
         return fs::isExist(ret) ? ret : "";
@@ -104,19 +104,19 @@ std::string chen::fs::realpath(const std::string &path)
 // exist
 bool chen::fs::isExist(const std::string &path)
 {
-    DWORD attr = ::GetFileAttributes(path.c_str());
+    DWORD attr = ::GetFileAttributesA(path.c_str());
     return attr != INVALID_FILE_ATTRIBUTES;
 }
 
 bool chen::fs::isDir(const std::string &path, bool strict)
 {
-    DWORD attr = ::GetFileAttributes(path.c_str());
+    DWORD attr = ::GetFileAttributesA(path.c_str());
     return (attr != INVALID_FILE_ATTRIBUTES) && (attr & FILE_ATTRIBUTE_DIRECTORY);
 }
 
 bool chen::fs::isFile(const std::string &path, bool strict)
 {
-    DWORD attr = ::GetFileAttributes(path.c_str());
+    DWORD attr = ::GetFileAttributesA(path.c_str());
     return (attr != INVALID_FILE_ATTRIBUTES) && !(attr & FILE_ATTRIBUTE_DIRECTORY);
 }
 
@@ -140,7 +140,7 @@ bool chen::fs::isWritable(const std::string &path)
 bool chen::fs::isExecutable(const std::string &path)
 {
     DWORD type = 0;
-    return ::GetBinaryType(path.c_str(), &type) == TRUE;
+    return ::GetBinaryTypeA(path.c_str(), &type) == TRUE;
 }
 
 // create
@@ -197,11 +197,11 @@ std::error_code chen::fs::create(const std::string &dir, std::uint16_t mode, boo
             if (!dirname.empty())
                 success = !fs::create(dirname, mode, recursive) && success;
 
-            return (::CreateDirectory(dir.c_str(), NULL) == TRUE) && success ? std::error_code() : sys::error();
+            return (::CreateDirectoryA(dir.c_str(), NULL) == TRUE) && success ? std::error_code() : sys::error();
         }
         else
         {
-            return ::CreateDirectory(dir.c_str(), NULL) == TRUE ? std::error_code() : sys::error();
+            return ::CreateDirectoryA(dir.c_str(), NULL) == TRUE ? std::error_code() : sys::error();
         }
     }
     else
@@ -214,12 +214,12 @@ std::error_code chen::fs::remove(const std::string &path)
 {
     if (fs::isFile(path))
     {
-        return ::DeleteFile(path.c_str()) == TRUE ? std::error_code() : sys::error();
+        return ::DeleteFileA(path.c_str()) == TRUE ? std::error_code() : sys::error();
     }
     else
     {
-        WIN32_FIND_DATA data;
-        HANDLE find = ::FindFirstFile((path + "\\*").c_str(), &data);
+        WIN32_FIND_DATAA data;
+        HANDLE find = ::FindFirstFileA((path + "\\*").c_str(), &data);
 
         if (find == INVALID_HANDLE_VALUE)
             return {};  // treat file not found as success
@@ -240,14 +240,14 @@ std::error_code chen::fs::remove(const std::string &path)
             if (fs::isDir(full))
                 ok = !fs::remove(full) && ok;
             else
-                ok = (::DeleteFile(full.c_str()) == TRUE) && ok;
-        } while (::FindNextFile(find, &data));
+                ok = (::DeleteFileA(full.c_str()) == TRUE) && ok;
+        } while (::FindNextFileA(find, &data));
 
         ::FindClose(find);
 
         // remove itself
         if (ok)
-            ok = ::RemoveDirectory(path.c_str()) == TRUE;
+            ok = ::RemoveDirectoryA(path.c_str()) == TRUE;
 
         return ok ? std::error_code() : sys::error();
     }
@@ -256,7 +256,7 @@ std::error_code chen::fs::remove(const std::string &path)
 // change
 std::error_code chen::fs::change(const std::string &directory)
 {
-    return ::SetCurrentDirectory(directory.c_str()) == TRUE ? std::error_code() : sys::error();
+    return ::SetCurrentDirectoryA(directory.c_str()) == TRUE ? std::error_code() : sys::error();
 }
 
 // visit
@@ -264,8 +264,8 @@ void chen::fs::visit(const std::string &directory,
                      std::function<void (const std::string &path, bool &stop)> callback,
                      bool recursive)
 {
-    WIN32_FIND_DATA data;
-    HANDLE find = ::FindFirstFile((directory + "\\*").c_str(), &data);
+    WIN32_FIND_DATAA data;
+    HANDLE find = ::FindFirstFileA((directory + "\\*").c_str(), &data);
 
     if (find == INVALID_HANDLE_VALUE)
         return;
@@ -288,7 +288,7 @@ void chen::fs::visit(const std::string &directory,
 
         if (recursive && fs::isDir(full))
             fs::visit(full, callback, recursive);
-    } while (::FindNextFile(find, &data));
+    } while (::FindNextFileA(find, &data));
 
     ::FindClose(find);
 }
