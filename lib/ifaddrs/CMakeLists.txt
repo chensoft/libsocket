@@ -12,8 +12,8 @@ include(../libchen/cmake/ChenUtil.cmake)
 include_directories(.)
 
 # source codes
-file(GLOB INC_IFADDRS *.h)
-file(GLOB SRC_IFADDRS *.c)
+file(GLOB INC_IFADDRS *.hpp)
+file(GLOB SRC_IFADDRS *.cpp)
 
 # generate lib, build static library by default
 # use -DBUILD_SHARED_LIBS=ON if you want to build a shared library

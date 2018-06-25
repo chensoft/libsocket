@@ -23,7 +23,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifdef __ANDROID__
 
-#include "ifaddrs.h"
+#include "ifaddrs.hpp"
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
