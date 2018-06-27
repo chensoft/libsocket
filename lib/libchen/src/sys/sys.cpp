@@ -28,7 +28,7 @@ std::string chen::sys::uuid()
         if ((c != 'x') && (c != 'y'))
             continue;
 
-        auto r = (int)(((float)rd() / std::random_device::max()) * 16) | 0;
+        auto r = (int)(((float)rd() / (std::random_device::max)()) * 16) | 0;
         auto v = c == 'x' ? r : ((r & 0x03) | 0x08);
 
         ss.str("");

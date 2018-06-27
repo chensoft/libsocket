@@ -11,7 +11,7 @@
 chen::threadpool::threadpool(std::size_t count, bool fast) : _exit(false), _fast(fast)
 {
     if (!count)
-        count = std::max(1u, std::thread::hardware_concurrency());
+        count = (std::max)(1u, std::thread::hardware_concurrency());
 
     try
     {

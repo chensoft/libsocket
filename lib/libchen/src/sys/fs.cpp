@@ -58,15 +58,16 @@ std::string chen::fs::normalize(const std::string &path)
     if (path.empty())
         return "";
 
-    auto abs = fs::drive(path);
+    auto top = fs::drive(path);
     auto sep = fs::separator(path);
+    auto abs = fs::isAbsolute(path);
 
     std::size_t ptr = 0;  // current segment cursor
     std::size_t len = 0;  // current segment length
 
     std::vector<std::pair<std::size_t, std::size_t>> store;  // segments cache
 
-    for (std::size_t i = abs.size(), l = path.size(); (i < l) || len; ++i)
+    for (std::size_t i = top.size(), l = path.size(); (i < l) || len; ++i)
     {
         if ((i == l) || (path[i] == sep))
         {
@@ -77,7 +78,7 @@ std::string chen::fs::normalize(const std::string &path)
                 {
                     if (!store.empty() && !str::equal(&path[store.back().first], store.back().second, "..", 2))
                         store.pop_back();
-                    else
+                    else if (!store.empty() || !abs)
                         store.emplace_back(std::make_pair(ptr, len));
                 }
                 else if (!str::equal(&path[ptr], len, ".", 1))
@@ -103,7 +104,7 @@ std::string chen::fs::normalize(const std::string &path)
     }
 
     // concat
-    std::string ret(abs);
+    std::string ret(top);
 
     for (std::size_t i = 0, l = store.size(); i < l; ++i)
     {
@@ -122,11 +123,11 @@ std::string chen::fs::dirname(const std::string &path)
     if (path.empty())
         return "";
 
-    auto abs = fs::drive(path);
+    auto top = fs::drive(path);
     auto sep = fs::separator(path);
 
     auto beg = path.rbegin();
-    auto end = path.rend() - abs.size();
+    auto end = path.rend() - top.size();
     auto idx = beg;
 
     auto flag = false;
@@ -153,26 +154,26 @@ std::string chen::fs::dirname(const std::string &path)
     {
         if (idx != end)
         {
-            return path.substr(0, static_cast<std::size_t>(end - idx) + abs.size());
+            return path.substr(0, static_cast<std::size_t>(end - idx) + top.size());
         }
         else
         {
-            return !abs.empty() ? abs : ".";  // using root directory or current directory
+            return !top.empty() ? top : ".";  // using root directory or current directory
         }
     }
     else
     {
-        return abs;  // all chars are sep
+        return top;  // all chars are sep
     }
 }
 
 std::string chen::fs::basename(const std::string &path, const std::string &suffix)
 {
-    auto abs = fs::drive(path);
+    auto top = fs::drive(path);
     auto sep = fs::separator(path);
 
     auto beg = path.rbegin();
-    auto end = path.rend() - abs.size();
+    auto end = path.rend() - top.size();
 
     auto flag_a = end;  // before
     auto flag_b = end;  // after
@@ -195,7 +196,7 @@ std::string chen::fs::basename(const std::string &path, const std::string &suffi
 
     if (flag_b != end)
     {
-        auto ret = path.substr(static_cast<std::size_t>(end - flag_a) + abs.size(), static_cast<std::size_t>(flag_a - flag_b));
+        auto ret = path.substr(static_cast<std::size_t>(end - flag_a) + top.size(), static_cast<std::size_t>(flag_a - flag_b));
         return suffix.empty() || !str::suffix(ret, suffix) ? ret : ret.substr(0, ret.size() - suffix.size());
     }
     else

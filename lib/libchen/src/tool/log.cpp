@@ -68,8 +68,8 @@ std::string chen::log::format(const std::string &text, log::Level level)
                          d.second,
                          d.microsecond,
                          d.zone >= 0 ? '+' : '-',
-                         ::labs(d.zone) / 3600,
-                         ::labs(d.zone) / 60 % 60,
+                         std::abs(d.zone) / 3600,
+                         std::abs(d.zone) / 60 % 60,
                          map[level]);
 
     return r + text;

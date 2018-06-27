@@ -86,7 +86,7 @@ void chen::reactor::run()
 
 std::error_code chen::reactor::poll()
 {
-    return this->poll(std::chrono::nanoseconds::min());
+    return this->poll((std::chrono::nanoseconds::min)());
 }
 
 std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
@@ -96,7 +96,7 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     auto mini = this->update();
 
     if ((mini >= zero) && (timeout != zero))
-        timeout = (timeout > zero) ? std::min(mini, timeout) : mini;
+        timeout = (timeout > zero) ? (std::min)(mini, timeout) : mini;
 
     // poll events
     auto error = this->gather(timeout);
@@ -134,12 +134,12 @@ void chen::reactor::stop()
 std::chrono::nanoseconds chen::reactor::update()
 {
     if (this->_timers.empty())
-        return std::chrono::nanoseconds::min();
+        return (std::chrono::nanoseconds::min)();
 
     if (!this->_sorted)
         std::make_heap(this->_timers.begin(), this->_timers.end(), compare);
 
-    auto ret = std::chrono::nanoseconds::min();
+    auto ret = (std::chrono::nanoseconds::min)();
     auto now = std::chrono::steady_clock::now();
     auto all = this->_timers.size();
     auto num = std::size_t();

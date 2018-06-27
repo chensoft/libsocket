@@ -370,7 +370,7 @@ std::string chen::cmd::usage() const
         std::size_t max = 0;  // max width
 
         this->visit([&max] (const cmd::action &action, std::size_t idx, std::size_t len) {
-            max = std::max(max, action.name.size());
+            max = (std::max)(max, action.name.size());
         });
 
         std::string fmt("  %-" + num::str(max + 2) + "s%s");  // action + spacing
@@ -398,7 +398,7 @@ std::string chen::cmd::usage(const std::string &action) const
     std::size_t full = 0;  // full name width
 
     this->visit(action, [&full] (const cmd::option &option, std::size_t idx, std::size_t len) {
-        full = std::max(full, option.name.size());
+        full = (std::max)(full, option.name.size());
     });
 
     std::string fmt("--%-" + num::str(full + 2) + "s%s");
@@ -450,7 +450,7 @@ std::string chen::cmd::usage(const std::string &action, const std::string &optio
 
                 // try levenshtein algorithm
                 std::size_t size = action.size();
-                std::size_t cost = std::numeric_limits<std::size_t>::max();
+                std::size_t cost = (std::numeric_limits<std::size_t>::max)();
 
                 for (auto &p : this->_define)
                 {
@@ -462,7 +462,7 @@ std::string chen::cmd::usage(const std::string &action, const std::string &optio
                                                         p.first.c_str(),
                                                         p.first.size());
 
-                    if (temp < std::max(size, p.first.size()))
+                    if (temp < (std::max)(size, p.first.size()))
                     {
                         if (temp < cost)
                         {
@@ -486,7 +486,7 @@ std::string chen::cmd::usage(const std::string &action, const std::string &optio
                                                         p.first.c_str(),
                                                         p.first.size());
 
-                    if (temp < std::max(size, p.first.size()))
+                    if (temp < (std::max)(size, p.first.size()))
                     {
                         if (temp < cost)
                         {
