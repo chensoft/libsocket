@@ -8,8 +8,6 @@
 
 #include "socket/core/ioctl.hpp"
 #include "chen/sys/sys.hpp"
-#include <sys/resource.h>
-#include <sys/ioctl.h>
 
 // -----------------------------------------------------------------------------
 // ioctl

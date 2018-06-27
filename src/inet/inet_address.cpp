@@ -8,12 +8,6 @@
 #include "chen/base/num.hpp"
 #include <cstring>
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif
-
 // -----------------------------------------------------------------------------
 // address
 chen::inet_address::inet_address(std::nullptr_t)
@@ -216,7 +210,7 @@ bool chen::inet_address::operator>=(const inet_address &o) const
 }
 
 // override
-std::size_t chen::inet_address::socklen() const
+socklen_t chen::inet_address::socklen() const
 {
     switch (this->_addr.type())
     {
@@ -231,16 +225,15 @@ std::size_t chen::inet_address::socklen() const
     }
 }
 
-std::unique_ptr<struct ::sockaddr_storage> chen::inet_address::sockaddr() const
+struct ::sockaddr_storage chen::inet_address::sockaddr() const
 {
-    std::unique_ptr<struct ::sockaddr_storage> ret(new struct ::sockaddr_storage);
-    ::memset(ret.get(), 0, sizeof(struct ::sockaddr_storage));
+    ::sockaddr_storage ret{};
 
     switch (this->_addr.type())
     {
         case ip_address::Type::IPv4:
         {
-            auto in = (::sockaddr_in*)ret.get();
+            auto in = (::sockaddr_in*)&ret;
 
             in->sin_family      = AF_INET;
             in->sin_port        = chen::num::swap(this->_port);
@@ -250,7 +243,7 @@ std::unique_ptr<struct ::sockaddr_storage> chen::inet_address::sockaddr() const
 
         case ip_address::Type::IPv6:
         {
-            auto in = (::sockaddr_in6*)ret.get();
+            auto in = (::sockaddr_in6*)&ret;
 
             in->sin6_family   = AF_INET6;
             in->sin6_port     = chen::num::swap(this->_port);

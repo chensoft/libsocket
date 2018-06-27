@@ -119,12 +119,12 @@ namespace chen
         /**
          * Underlying socket address length
          */
-        virtual std::size_t socklen() const override;
+        virtual socklen_t socklen() const override;
 
         /**
          * Underlying socket address struct
          */
-        virtual std::unique_ptr<struct ::sockaddr_storage> sockaddr() const override;
+        virtual struct ::sockaddr_storage sockaddr() const override;
         virtual void sockaddr(const struct ::sockaddr *addr) override;
 
     private:

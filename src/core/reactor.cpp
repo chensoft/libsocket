@@ -30,6 +30,26 @@ chen::reactor::reactor() : reactor(64)  // 64 is enough
 {
 }
 
+chen::reactor::~reactor()
+{
+    // clear handles before destroy backend
+#ifdef _WIN32
+    auto handles = std::move(this->_handles);
+    for (auto &item : handles)
+        this->del(item.second);
+#else
+    auto handles = std::move(this->_handles);
+    for (auto &item : handles)
+        this->del(item);
+
+    ::close(this->_backend);
+#endif
+
+    auto timers = std::move(this->_timers);
+    for (auto *item : timers)
+        this->del(item);
+}
+
 // modify
 void chen::reactor::set(ev_timer *ptr, std::chrono::steady_clock::time_point init)
 {
@@ -57,6 +77,13 @@ void chen::reactor::del(ev_timer *ptr)
 }
 
 // run
+void chen::reactor::run()
+{
+    // quit if no events to monitor or operation canceled
+    for (std::error_code code; ((this->_handles.size() > 1) || !this->_timers.empty()) && (code != std::errc::operation_canceled); code = this->poll())
+        ;
+}
+
 std::error_code chen::reactor::poll()
 {
     return this->poll((std::chrono::nanoseconds::min)());

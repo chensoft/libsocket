@@ -10,23 +10,10 @@
 #include "socket/base/ev_event.hpp"
 #include "socket/core/reactor.hpp"
 #include "chen/sys/sys.hpp"
-#include <ws2tcpip.h>
-
-// -----------------------------------------------------------------------------
-// ev_event_impl
-namespace chen
-{
-    struct ev_event_impl
-    {
-        ev_event_impl() : write(AF_INET, SOCK_DGRAM) {}
-        basic_socket write;
-    };
-}
-
 
 // -----------------------------------------------------------------------------
 // ev_event
-chen::ev_event::ev_event(std::function<void()> cb) : _notify(std::move(cb)), _impl(new ev_event_impl)
+chen::ev_event::ev_event(std::function<void()> cb) : _notify(std::move(cb)), _write(AF_INET, SOCK_DGRAM)
 {
     // create read socket
     basic_socket tmp(AF_INET, SOCK_DGRAM);
@@ -40,7 +27,7 @@ chen::ev_event::ev_event(std::function<void()> cb) : _notify(std::move(cb)), _im
     this->change(tmp.transfer());
 
     // create write socket
-    if (this->_impl->write.nonblocking(true))
+    if (this->_write.nonblocking(true))
         throw std::system_error(sys::error(), "event: failed to make nonblocking on write socket");
 }
 
@@ -55,7 +42,7 @@ void chen::ev_event::set()
 
     ::getsockname(this->native(), (::sockaddr*)&tmp, &len);
 
-    if (this->_impl->write.sendto("\n", 1, inet_address((::sockaddr*)&tmp)) != 1)
+    if (this->_write.sendto("\n", 1, inet_address((::sockaddr*)&tmp)) != 1)
         throw std::system_error(sys::error(), "event: failed to set event");
 }
 

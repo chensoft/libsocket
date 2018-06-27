@@ -10,12 +10,6 @@
 #include <cstring>
 #include <cctype>
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#else
-#include <netdb.h>
-#endif
-
 // -----------------------------------------------------------------------------
 // resolver
 std::vector<chen::inet_address> chen::inet_resolver::resolve(const std::string &mixed, int family)
@@ -59,7 +53,7 @@ std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_addr
     char serv[NI_MAXSERV]{};
 
     auto tmp = addr.sockaddr();
-    auto ret = ::getnameinfo((const ::sockaddr*)tmp.get(), addr.socklen(), host, NI_MAXHOST, serv, NI_MAXSERV, 0);
+    auto ret = ::getnameinfo((const ::sockaddr*)&tmp, addr.socklen(), host, NI_MAXHOST, serv, NI_MAXSERV, 0);
 
     return !ret ? std::make_pair(std::string(host), std::string(serv)) : std::pair<std::string, std::string>();
 }
@@ -122,7 +116,7 @@ std::pair<std::string, std::string> chen::inet_resolver::extract(const std::stri
     else
     {
         // IPv4:Port or Domain:Port
-        auto sep = (std::min)(len, mixed.rfind(':', len - 1));
+        auto sep = std::min(len, mixed.rfind(':', len - 1));
 
         if (sep)
         {

@@ -36,7 +36,7 @@ namespace chen
          * :-) inet_resolve("[fe80::1%lo0]:80")
          * :-) inet_resolve("[fe80::1%lo0]:http")
          */
-        static std::vector<inet_address> resolve(const std::string &mixed, int family = 0);
+        static std::vector<inet_address> resolve(const std::string &mixed, int family = AF_UNSPEC);
 
         /**
          * Reverse resolve address to host and service

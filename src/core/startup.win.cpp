@@ -9,7 +9,6 @@
 #include "socket/core/startup.hpp"
 #include "socket/config.hpp"
 #include "chen/sys/sys.hpp"
-#include <WinSock2.h>
 
 // -----------------------------------------------------------------------------
 // library

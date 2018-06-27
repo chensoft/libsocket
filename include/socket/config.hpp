@@ -10,8 +10,14 @@
 // Unix-like
 #if defined(__unix__) || defined(__APPLE__)
 
+#include <netinet/in.h>   // IPv4 & IPv6
+#include <netinet/tcp.h>  // TCP macros
 #include <sys/socket.h>   // socket
 #include <sys/types.h>    // types
+#include <sys/ioctl.h>    // ioctl
+#include <unistd.h>       // close
+#include <netdb.h>        // getaddrinfo
+#include <fcntl.h>        // non-blocking
 
 namespace chen
 {
@@ -29,14 +35,41 @@ namespace chen
 // Windows
 #ifdef _WIN32
 
+#define NOMINMAX
+
+#include <winsock2.h>  // socket
+#include <ws2tcpip.h>  // getaddrinfo
+#include <windows.h>
+
 namespace chen
 {
-    typedef long          ssize_t;  // ssize_t type
-    typedef unsigned int handle_t;  // handle type
-    typedef int          option_t;  // socket option size
+    typedef SSIZE_T ssize_t;  // ssize_t type
+    typedef SOCKET handle_t;  // handle type
+    typedef int    option_t;  // socket option size
 
-    constexpr handle_t invalid_handle = handle_t(~0);  // invalid socket value
+    constexpr handle_t invalid_handle = INVALID_SOCKET;  // invalid socket value
 }
+
+#endif
+
+
+// -----------------------------------------------------------------------------
+// OS X, *BSD
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
+
+#include <sys/resource.h>  // rlimit
+#include <sys/event.h>     // kqueue
+#include <limits.h>        // OPEN_MAX
+
+#endif
+
+
+// -----------------------------------------------------------------------------
+// Linux
+#ifdef __linux__
+
+#include <sys/resource.h>  // rlimit
+#include <sys/epoll.h>     // epoll
 
 #endif
 

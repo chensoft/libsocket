@@ -11,14 +11,11 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <system_error>
-#include <memory>
 #include <vector>
 #include <queue>
 
 namespace chen
 {
-    struct reactor_impl;
-
     /**
      * Reactor implements a reactor event loop, note that only the stop method is thread-safe
      * @link https://en.wikipedia.org/wiki/Reactor_pattern
@@ -142,13 +139,36 @@ namespace chen
         // todo, need define move to delete?
 
     private:
-        std::unique_ptr<struct reactor_impl> _impl;
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
+
+        // Unix, use kqueue
+        typedef struct ::kevent event_t;
+
+        handle_t _backend = invalid_handle;
+        std::unordered_set<ev_handle*> _handles;
+
+#elif defined(__linux__)
+
+        // Linux, use epoll
+        typedef struct ::epoll_event event_t;
+
+        handle_t _backend = invalid_handle;
+        std::unordered_set<ev_handle*> _handles;
+
+#else
+
+        // Windows, use WSAPoll
+        typedef struct ::pollfd event_t;
+        std::unordered_map<handle_t, ev_handle*> _handles;
+
+#endif
 
         ev_event _wakeup;
 
         bool _sorted = true;
         std::vector<ev_timer*> _timers;
 
+        std::vector<event_t> _cache;
         std::queue<std::pair<ev_base*, int>> _queue;
     };
 }

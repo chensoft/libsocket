@@ -10,8 +10,6 @@
 #include "socket/base/basic_socket.hpp"
 #include "chen/base/num.hpp"
 #include "chen/base/str.hpp"
-#include <netinet/in.h>
-#include <sys/ioctl.h>
 #include <functional>
 #include <algorithm>
 #include <ifaddrs.h>
