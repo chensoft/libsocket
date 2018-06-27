@@ -7,6 +7,9 @@
 #pragma once
 
 #include "socket/config.hpp"
+#include <memory>
+
+struct sockaddr_storage;
 
 namespace chen
 {
@@ -27,7 +30,7 @@ namespace chen
         /**
          * Underlying socket address struct
          */
-        virtual struct ::sockaddr_storage sockaddr() const = 0;
+        virtual std::unique_ptr<struct ::sockaddr_storage> sockaddr() const = 0;
         virtual void sockaddr(const struct ::sockaddr *addr) = 0;
     };
 }

@@ -124,7 +124,7 @@ namespace chen
         /**
          * Underlying socket address struct
          */
-        virtual struct ::sockaddr_storage sockaddr() const override;
+        virtual std::unique_ptr<struct ::sockaddr_storage> sockaddr() const override;
         virtual void sockaddr(const struct ::sockaddr *addr) override;
 
     private:

@@ -231,15 +231,16 @@ socklen_t chen::inet_address::socklen() const
     }
 }
 
-struct ::sockaddr_storage chen::inet_address::sockaddr() const
+std::unique_ptr<struct ::sockaddr_storage> chen::inet_address::sockaddr() const
 {
-    ::sockaddr_storage ret{};
+    std::unique_ptr<struct ::sockaddr_storage> ret(new struct ::sockaddr_storage);
+    ::memset(ret.get(), 0, sizeof(struct ::sockaddr_storage));
 
     switch (this->_addr.type())
     {
         case ip_address::Type::IPv4:
         {
-            auto in = (::sockaddr_in*)&ret;
+            auto in = (::sockaddr_in*)ret.get();
 
             in->sin_family      = AF_INET;
             in->sin_port        = chen::num::swap(this->_port);
@@ -249,7 +250,7 @@ struct ::sockaddr_storage chen::inet_address::sockaddr() const
 
         case ip_address::Type::IPv6:
         {
-            auto in = (::sockaddr_in6*)&ret;
+            auto in = (::sockaddr_in6*)ret.get();
 
             in->sin6_family   = AF_INET6;
             in->sin6_port     = chen::num::swap(this->_port);

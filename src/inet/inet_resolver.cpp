@@ -59,7 +59,7 @@ std::pair<std::string, std::string> chen::inet_resolver::reverse(const inet_addr
     char serv[NI_MAXSERV]{};
 
     auto tmp = addr.sockaddr();
-    auto ret = ::getnameinfo((const ::sockaddr*)&tmp, addr.socklen(), host, NI_MAXHOST, serv, NI_MAXSERV, 0);
+    auto ret = ::getnameinfo((const ::sockaddr*)tmp.get(), addr.socklen(), host, NI_MAXHOST, serv, NI_MAXSERV, 0);
 
     return !ret ? std::make_pair(std::string(host), std::string(serv)) : std::pair<std::string, std::string>();
 }
