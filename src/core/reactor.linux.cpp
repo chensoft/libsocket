@@ -8,6 +8,8 @@
 
 #include "socket/core/reactor.hpp"
 #include "chen/sys/sys.hpp"
+#include <sys/epoll.h>
+#include <unistd.h>
 
 // -----------------------------------------------------------------------------
 // helper

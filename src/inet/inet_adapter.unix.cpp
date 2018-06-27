@@ -10,6 +10,8 @@
 #include "socket/base/basic_socket.hpp"
 #include "chen/base/num.hpp"
 #include "chen/base/str.hpp"
+#include <netinet/in.h>
+#include <sys/ioctl.h>
 #include <functional>
 #include <algorithm>
 #include <ifaddrs.h>
@@ -21,9 +23,7 @@
 #ifdef __linux__
 #define AF_LINK AF_PACKET
 #else
-#include <netinet/in.h>
 #include <net/if_dl.h>
-#include <sys/ioctl.h>
 #endif
 
 // -----------------------------------------------------------------------------

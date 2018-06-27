@@ -45,16 +45,6 @@ namespace chen
 
 
 // -----------------------------------------------------------------------------
-// Linux
-#ifdef __linux__
-
-#include <sys/resource.h>  // rlimit
-#include <sys/epoll.h>     // epoll
-
-#endif
-
-
-// -----------------------------------------------------------------------------
 // Android
 #ifdef __ANDROID__
 
