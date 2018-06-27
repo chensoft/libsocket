@@ -7,7 +7,12 @@
 #include "socket/inet/inet_address.hpp"
 #include "chen/base/num.hpp"
 #include "gtest/gtest.h"
+
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
 #include <netinet/in.h>
+#endif
 
 using chen::ip_address;
 using chen::ip_version6;

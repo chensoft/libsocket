@@ -9,8 +9,13 @@
 #include "chen/mt/semaphore.hpp"
 #include "chen/base/num.hpp"
 #include "gtest/gtest.h"
-#include <netinet/in.h>
 #include <thread>
+
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
+#include <netinet/in.h>
+#endif
 
 using chen::basic_socket;
 using chen::inet_address;

@@ -9,6 +9,11 @@
 #include "socket/core/ioctl.hpp"
 #include "chen/sys/sys.hpp"
 
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#endif // _WIN32
+
+
 // -----------------------------------------------------------------------------
 // basic_socket
 const int chen::basic_socket::FlagOutOfBand  = MSG_OOB;

@@ -119,7 +119,7 @@ namespace chen
         /**
          * Underlying socket address length
          */
-        virtual socklen_t socklen() const override;
+        virtual int socklen() const override;
 
         /**
          * Underlying socket address struct

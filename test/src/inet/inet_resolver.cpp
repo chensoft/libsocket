@@ -7,6 +7,10 @@
 #include "socket/inet/inet_resolver.hpp"
 #include "gtest/gtest.h"
 
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#endif
+
 using chen::ip_address;
 using chen::inet_resolver;
 

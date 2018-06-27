@@ -10,6 +10,7 @@
 #include "socket/base/ev_event.hpp"
 #include "socket/core/reactor.hpp"
 #include "chen/sys/sys.hpp"
+#include <ws2tcpip.h>
 
 // -----------------------------------------------------------------------------
 // ev_event_impl

@@ -7,7 +7,7 @@
 #include "socket/ip/ip_option.hpp"
 
 #ifdef _WIN32
-#include <winsock2.h>
+#include <ws2tcpip.h>
 #else
 #include <netinet/in.h>
 #endif
