@@ -6,8 +6,13 @@
  */
 #include "socket/inet/inet_resolver.hpp"
 #include "chen/base/num.hpp"
-#include <netinet/in.h>
 #include <cstring>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <netinet/in.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // address

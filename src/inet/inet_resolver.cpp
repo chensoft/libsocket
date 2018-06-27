@@ -6,10 +6,15 @@
  */
 #include "socket/inet/inet_resolver.hpp"
 #include "chen/base/num.hpp"
-#include <netdb.h>
 #include <cstdlib>
 #include <cstring>
 #include <cctype>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
+#include <netdb.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // resolver
@@ -117,7 +122,7 @@ std::pair<std::string, std::string> chen::inet_resolver::extract(const std::stri
     else
     {
         // IPv4:Port or Domain:Port
-        auto sep = std::min(len, mixed.rfind(':', len - 1));
+        auto sep = (std::min)(len, mixed.rfind(':', len - 1));
 
         if (sep)
         {

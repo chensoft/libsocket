@@ -5,7 +5,12 @@
  * @link   http://chensoft.com
  */
 #include "socket/ip/ip_option.hpp"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <netinet/in.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // ip_option4

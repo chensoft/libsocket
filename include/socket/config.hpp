@@ -29,16 +29,13 @@ namespace chen
 // Windows
 #ifdef _WIN32
 
-#include <winsock2.h>  // socket
-#include <ws2tcpip.h>  // getaddrinfo
-
 namespace chen
 {
-    typedef SSIZE_T ssize_t;  // ssize_t type
-    typedef SOCKET handle_t;  // handle type
-    typedef int    option_t;  // socket option size
+    typedef long          ssize_t;  // ssize_t type
+    typedef unsigned int handle_t;  // handle type
+    typedef int          option_t;  // socket option size
 
-    constexpr handle_t invalid_handle = INVALID_SOCKET;  // invalid socket value
+    constexpr handle_t invalid_handle = handle_t(~0);  // invalid socket value
 }
 
 #endif
