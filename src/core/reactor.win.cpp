@@ -9,7 +9,7 @@
 #include "socket/core/reactor.hpp"
 #include "chen/base/map.hpp"
 #include "chen/sys/sys.hpp"
-#include <WinSock2.h>
+#include <winsock.h>
 #include <algorithm>
 
 // -----------------------------------------------------------------------------

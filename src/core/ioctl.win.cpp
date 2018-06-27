@@ -8,7 +8,7 @@
 
 #include "socket/core/ioctl.hpp"
 #include "chen/sys/sys.hpp"
-#include <WinSock2.h>
+#include <winsock.h>
 
 // -----------------------------------------------------------------------------
 // ioctl

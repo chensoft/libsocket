@@ -7,7 +7,7 @@
 #include "socket/base/basic_option.hpp"
 
 #ifdef _WIN32
-#include <Winsock2.h>
+#include <winsock.h>
 #endif // _WIN32
 
 // -----------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 #include "socket/core/reactor.hpp"
 
 #ifdef _WIN32
-#include <winsock2.h>
+#include <winsock.h>
 #else
 #include <unistd.h>
 #endif
