@@ -10,6 +10,7 @@
 #include "socket/core/reactor.hpp"
 #include "socket/core/ioctl.hpp"
 #include "chen/sys/sys.hpp"
+#include <unistd.h>
 
 // -----------------------------------------------------------------------------
 // ev_event_impl

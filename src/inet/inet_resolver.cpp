@@ -6,6 +6,7 @@
  */
 #include "socket/inet/inet_resolver.hpp"
 #include "chen/base/num.hpp"
+#include <netdb.h>
 #include <cstdlib>
 #include <cstring>
 #include <cctype>

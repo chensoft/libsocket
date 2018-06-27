@@ -11,12 +11,12 @@
 
 namespace chen
 {
-    class ev_event_impl;
+    struct ev_event_impl;
 
     class ev_event: public ev_handle
     {
     public:
-        ev_event(std::function<void ()> cb = nullptr);
+        explicit ev_event(std::function<void ()> cb = nullptr);
         ~ev_event();
 
     public:
@@ -59,7 +59,7 @@ namespace chen
 #else
         // Unix, use pipe
         // Windows, use socket
-        std::unique_ptr<ev_event_impl> _impl;
+        std::unique_ptr<struct ev_event_impl> _impl;
 #endif
     };
 }

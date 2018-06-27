@@ -7,6 +7,7 @@
 #include "socket/inet/inet_address.hpp"
 #include "chen/base/num.hpp"
 #include "gtest/gtest.h"
+#include <netinet/in.h>
 
 using chen::ip_address;
 using chen::ip_version6;

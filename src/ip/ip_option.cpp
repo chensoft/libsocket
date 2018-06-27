@@ -5,6 +5,7 @@
  * @link   http://chensoft.com
  */
 #include "socket/ip/ip_option.hpp"
+#include <netinet/in.h>
 
 // -----------------------------------------------------------------------------
 // ip_option4

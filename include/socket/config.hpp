@@ -10,14 +10,8 @@
 // Unix-like
 #if defined(__unix__) || defined(__APPLE__)
 
-#include <netinet/in.h>   // IPv4 & IPv6
-#include <netinet/tcp.h>  // TCP macros
 #include <sys/socket.h>   // socket
 #include <sys/types.h>    // types
-#include <sys/ioctl.h>    // ioctl
-#include <unistd.h>       // close
-#include <netdb.h>        // getaddrinfo
-#include <fcntl.h>        // non-blocking
 
 namespace chen
 {

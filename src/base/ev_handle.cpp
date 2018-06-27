@@ -6,6 +6,7 @@
  */
 #include "socket/base/ev_handle.hpp"
 #include "socket/core/reactor.hpp"
+#include <unistd.h>
 
 // -----------------------------------------------------------------------------
 // ev_handle

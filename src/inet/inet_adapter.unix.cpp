@@ -21,7 +21,9 @@
 #ifdef __linux__
 #define AF_LINK AF_PACKET
 #else
+#include <netinet/in.h>
 #include <net/if_dl.h>
+#include <sys/ioctl.h>
 #endif
 
 // -----------------------------------------------------------------------------
