@@ -6,6 +6,10 @@
  */
 #include "socket/base/basic_option.hpp"
 
+#ifdef _WIN32
+#include <Winsock2.h>
+#endif // _WIN32
+
 // -----------------------------------------------------------------------------
 // basic_option
 

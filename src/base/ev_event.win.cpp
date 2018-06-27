@@ -39,7 +39,7 @@ chen::ev_event::ev_event(std::function<void()> cb) : _notify(std::move(cb)), _im
     this->change(tmp.transfer());
 
     // create write socket
-    if (this->_impl->write->nonblocking(true))
+    if (this->_impl->write.nonblocking(true))
         throw std::system_error(sys::error(), "event: failed to make nonblocking on write socket");
 }
 
@@ -54,7 +54,7 @@ void chen::ev_event::set()
 
     ::getsockname(this->native(), (::sockaddr*)&tmp, &len);
 
-    if (this->_impl->write->sendto("\n", 1, inet_address((::sockaddr*)&tmp)) != 1)
+    if (this->_impl->write.sendto("\n", 1, inet_address((::sockaddr*)&tmp)) != 1)
         throw std::system_error(sys::error(), "event: failed to set event");
 }
 

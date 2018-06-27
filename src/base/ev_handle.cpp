@@ -6,7 +6,12 @@
  */
 #include "socket/base/ev_handle.hpp"
 #include "socket/core/reactor.hpp"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <unistd.h>
+#endif
 
 // -----------------------------------------------------------------------------
 // ev_handle
