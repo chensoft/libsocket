@@ -95,13 +95,13 @@ void chen::basic_socket::reset(handle_t fd, int family, int type, int protocol) 
 std::error_code chen::basic_socket::connect(const basic_address &addr) noexcept
 {
     auto storage = addr.sockaddr();
-    return !::connect(this->native(), (::sockaddr*)&storage, addr.socklen()) ? std::error_code() : sys::error();
+    return !::connect(this->native(), (::sockaddr*)storage.get(), addr.socklen()) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::bind(const basic_address &addr) noexcept
 {
     auto storage = addr.sockaddr();
-    return !::bind(this->native(), (::sockaddr*)&storage, addr.socklen()) ? std::error_code() : sys::error();
+    return !::bind(this->native(), (::sockaddr*)storage.get(), addr.socklen()) ? std::error_code() : sys::error();
 }
 
 std::error_code chen::basic_socket::listen(int backlog) noexcept
@@ -224,9 +224,9 @@ chen::ssize_t chen::basic_socket::sendto(const void *data, std::size_t size, con
     auto storage = addr.sockaddr();
 
 #ifdef _WIN32
-    return ::sendto(this->native(), (char*)data, static_cast<int>(size), flags, (::sockaddr*)&storage, addr.socklen());
+    return ::sendto(this->native(), (char*)data, static_cast<int>(size), flags, (::sockaddr*)storage.get(), addr.socklen());
 #else
-    return ::sendto(this->native(), (char*)data, size, flags, (::sockaddr*)&storage, addr.socklen());
+    return ::sendto(this->native(), (char*)data, size, flags, (::sockaddr*)storage.get(), addr.socklen());
 #endif
 }
 
