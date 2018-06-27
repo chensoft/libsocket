@@ -10,10 +10,6 @@
 #include "chen/mt/threadpool.hpp"
 #include "gtest/gtest.h"
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#endif
-
 using chen::reactor;
 using chen::ev_base;
 using chen::inet_address;

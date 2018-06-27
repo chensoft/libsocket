@@ -8,12 +8,6 @@
 #include "chen/base/num.hpp"
 #include "gtest/gtest.h"
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#else
-#include <netinet/in.h>
-#endif
-
 using chen::ip_address;
 using chen::ip_version6;
 using chen::inet_address;
@@ -76,9 +70,9 @@ TEST(InetAddressTest, General)
     auto c4 = inet_address((::sockaddr*)&v4).sockaddr();
     auto c6 = inet_address((::sockaddr*)&v6).sockaddr();
 
-    EXPECT_TRUE(c->ss_family == 0);
-    EXPECT_TRUE(::memcmp(&v4, c4.get(), sizeof(::sockaddr_in)) == 0);
-    EXPECT_TRUE(::memcmp(&v6, c6.get(), sizeof(::sockaddr_in6)) == 0);
+    EXPECT_TRUE(c.ss_family == 0);
+    EXPECT_TRUE(::memcmp(&v4, &c4, sizeof(::sockaddr_in)) == 0);
+    EXPECT_TRUE(::memcmp(&v6, &c6, sizeof(::sockaddr_in6)) == 0);
 }
 
 TEST(InetAddressTest, Assignment)

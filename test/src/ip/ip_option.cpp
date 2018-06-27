@@ -7,10 +7,6 @@
 #include "socket/base/basic_socket.hpp"
 #include "gtest/gtest.h"
 
-#ifdef _WIN32
-#include <ws2tcpip.h>
-#endif
-
 using chen::ip_option4;
 using chen::ip_option6;
 using chen::basic_socket;
