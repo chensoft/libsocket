@@ -9,6 +9,7 @@
 #include "socket/core/reactor.hpp"
 #include "socket/core/ioctl.hpp"
 #include "chen/sys/sys.hpp"
+#include <sys/event.h>
 #include <unistd.h>
 
 // -----------------------------------------------------------------------------
