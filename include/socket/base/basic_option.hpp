@@ -58,12 +58,12 @@ namespace chen
         static bool broadcast(handle_t fd);
         static bool broadcast(handle_t fd, bool val);
 
-        /**
-         * SO_LINGER(close and shutdown will not return until data has been sent or timeout)
-         */
-        static struct ::linger linger(handle_t fd);
-        static bool linger(handle_t fd, int onoff, int value);
-        static bool linger(handle_t fd, const struct ::linger &val);
+//        /**
+//         * SO_LINGER(close and shutdown will not return until data has been sent or timeout)
+//         */
+//        static struct ::linger linger(handle_t fd);
+//        static bool linger(handle_t fd, int onoff, int value);
+//        static bool linger(handle_t fd, const struct ::linger &val);
 
         /**
          * SO_OOBINLINE(leave received OOB data in line)
@@ -95,19 +95,19 @@ namespace chen
         static int rcvlowat(handle_t fd);
         static bool rcvlowat(handle_t fd, int val);
 
-        /**
-         * SO_SNDTIMEO(sending timeout)
-         */
-        static struct ::timeval sndtimeo(handle_t fd);
-        static bool sndtimeo(handle_t fd, int sec, int usec);
-        static bool sndtimeo(handle_t fd, const struct ::timeval &time);
-
-        /**
-         * SO_RCVTIMEO(receiving timeout)
-         */
-        static struct ::timeval rcvtimeo(handle_t fd);
-        static bool rcvtimeo(handle_t fd, int sec, int usec);
-        static bool rcvtimeo(handle_t fd, const struct ::timeval &time);
+//        /**
+//         * SO_SNDTIMEO(sending timeout)
+//         */
+//        static struct ::timeval sndtimeo(handle_t fd);
+//        static bool sndtimeo(handle_t fd, int sec, int usec);
+//        static bool sndtimeo(handle_t fd, const struct ::timeval &time);
+//
+//        /**
+//         * SO_RCVTIMEO(receiving timeout)
+//         */
+//        static struct ::timeval rcvtimeo(handle_t fd);
+//        static bool rcvtimeo(handle_t fd, int sec, int usec);
+//        static bool rcvtimeo(handle_t fd, const struct ::timeval &time);
 
         /**
          * SO_ERROR(read-only, socket error)

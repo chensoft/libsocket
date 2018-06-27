@@ -83,28 +83,28 @@ bool chen::basic_option::broadcast(handle_t fd, bool val)
     return basic_option::set(fd, SOL_SOCKET, SO_BROADCAST, val);
 }
 
-// linger
-struct ::linger chen::basic_option::linger(handle_t fd)
-{
-    struct ::linger val{};
-    option_t len = sizeof(val);
-    ::getsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&val, &len);
-    return val;
-}
-
-bool chen::basic_option::linger(handle_t fd, int onoff, int value)
-{
-    struct ::linger val{};
-    val.l_onoff  = onoff;
-    val.l_linger = value;
-
-    return basic_option::linger(fd, val);
-}
-
-bool chen::basic_option::linger(handle_t fd, const struct ::linger &val)
-{
-    return !::setsockopt(fd, SOL_SOCKET, SO_LINGER, (const char*)&val, sizeof(val));
-}
+//// linger
+//struct ::linger chen::basic_option::linger(handle_t fd)
+//{
+//    struct ::linger val{};
+//    option_t len = sizeof(val);
+//    ::getsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&val, &len);
+//    return val;
+//}
+//
+//bool chen::basic_option::linger(handle_t fd, int onoff, int value)
+//{
+//    struct ::linger val{};
+//    val.l_onoff  = onoff;
+//    val.l_linger = value;
+//
+//    return basic_option::linger(fd, val);
+//}
+//
+//bool chen::basic_option::linger(handle_t fd, const struct ::linger &val)
+//{
+//    return !::setsockopt(fd, SOL_SOCKET, SO_LINGER, (const char*)&val, sizeof(val));
+//}
 
 // oobinline
 bool chen::basic_option::oobinline(handle_t fd)
@@ -161,51 +161,51 @@ bool chen::basic_option::rcvlowat(handle_t fd, int val)
     return basic_option::set(fd, SOL_SOCKET, SO_RCVLOWAT, val);
 }
 
-// sndtimeo
-struct ::timeval chen::basic_option::sndtimeo(handle_t fd)
-{
-    ::timeval val{};
-    option_t len = sizeof(val);
-    ::getsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len);
-    return val;
-}
-
-bool chen::basic_option::sndtimeo(handle_t fd, int sec, int usec)
-{
-    ::timeval val{};
-    val.tv_sec  = sec;
-    val.tv_usec = usec;
-
-    return basic_option::sndtimeo(fd, val);
-}
-
-bool chen::basic_option::sndtimeo(handle_t fd, const struct ::timeval &time)
-{
-    return !::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (const char*)&time, sizeof(time));
-}
-
-// rcvtimeo
-struct ::timeval chen::basic_option::rcvtimeo(handle_t fd)
-{
-    ::timeval val{};
-    option_t len = sizeof(val);
-    ::getsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len);
-    return val;
-}
-
-bool chen::basic_option::rcvtimeo(handle_t fd, int sec, int usec)
-{
-    ::timeval val{};
-    val.tv_sec  = sec;
-    val.tv_usec = usec;
-
-    return basic_option::rcvtimeo(fd, val);
-}
-
-bool chen::basic_option::rcvtimeo(handle_t fd, const struct ::timeval &time)
-{
-    return !::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&time, sizeof(time));
-}
+//// sndtimeo
+//struct ::timeval chen::basic_option::sndtimeo(handle_t fd)
+//{
+//    ::timeval val{};
+//    option_t len = sizeof(val);
+//    ::getsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&val, &len);
+//    return val;
+//}
+//
+//bool chen::basic_option::sndtimeo(handle_t fd, int sec, int usec)
+//{
+//    ::timeval val{};
+//    val.tv_sec  = sec;
+//    val.tv_usec = usec;
+//
+//    return basic_option::sndtimeo(fd, val);
+//}
+//
+//bool chen::basic_option::sndtimeo(handle_t fd, const struct ::timeval &time)
+//{
+//    return !::setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (const char*)&time, sizeof(time));
+//}
+//
+//// rcvtimeo
+//struct ::timeval chen::basic_option::rcvtimeo(handle_t fd)
+//{
+//    ::timeval val{};
+//    option_t len = sizeof(val);
+//    ::getsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&val, &len);
+//    return val;
+//}
+//
+//bool chen::basic_option::rcvtimeo(handle_t fd, int sec, int usec)
+//{
+//    ::timeval val{};
+//    val.tv_sec  = sec;
+//    val.tv_usec = usec;
+//
+//    return basic_option::rcvtimeo(fd, val);
+//}
+//
+//bool chen::basic_option::rcvtimeo(handle_t fd, const struct ::timeval &time)
+//{
+//    return !::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&time, sizeof(time));
+//}
 
 // error
 std::error_code chen::basic_option::error(handle_t fd)

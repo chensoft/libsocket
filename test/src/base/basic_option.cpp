@@ -48,9 +48,9 @@ TEST(BasicOptionTest, TCP)
     EXPECT_TRUE(basic_option::dontroute(s.native(), true));
     EXPECT_TRUE(basic_option::dontroute(s.native()));
 
-    // linger
-    EXPECT_TRUE(basic_option::linger(s.native(), 1, 100));
-    EXPECT_NO_THROW(basic_option::linger(s.native()));  // may not allowed
+//    // linger
+//    EXPECT_TRUE(basic_option::linger(s.native(), 1, 100));
+//    EXPECT_NO_THROW(basic_option::linger(s.native()));  // may not allowed
 
     // oobinline
     EXPECT_FALSE(basic_option::oobinline(s.native()));
@@ -73,13 +73,13 @@ TEST(BasicOptionTest, TCP)
     EXPECT_GE(basic_option::rcvlowat(s.native()), 0);
     EXPECT_NO_THROW(basic_option::rcvlowat(s.native(), 1024));  // may not allowed
 
-    // sndtimeo
-    EXPECT_TRUE(basic_option::sndtimeo(s.native(), 100, 4000));  // just a hint
-    EXPECT_NO_THROW(basic_option::sndtimeo(s.native()));
-
-    // rcvtimeo
-    EXPECT_TRUE(basic_option::rcvtimeo(s.native(), 100, 4000));  // just a hint
-    EXPECT_NO_THROW(basic_option::rcvtimeo(s.native()));
+//    // sndtimeo
+//    EXPECT_TRUE(basic_option::sndtimeo(s.native(), 100, 4000));  // just a hint
+//    EXPECT_NO_THROW(basic_option::sndtimeo(s.native()));
+//
+//    // rcvtimeo
+//    EXPECT_TRUE(basic_option::rcvtimeo(s.native(), 100, 4000));  // just a hint
+//    EXPECT_NO_THROW(basic_option::rcvtimeo(s.native()));
 }
 
 TEST(BasicOptionTest, UDP)
