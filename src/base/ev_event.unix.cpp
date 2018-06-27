@@ -12,8 +12,19 @@
 #include "chen/sys/sys.hpp"
 
 // -----------------------------------------------------------------------------
+// ev_event_impl
+namespace chen
+{
+    struct ev_event_impl
+    {
+        handle_t write;
+    };
+}
+
+
+// -----------------------------------------------------------------------------
 // ev_event
-chen::ev_event::ev_event(std::function<void ()> cb) : _notify(std::move(cb))
+chen::ev_event::ev_event(std::function<void ()> cb) : _notify(std::move(cb)), _impl(new ev_event_impl)
 {
     handle_t pp[2]{};
 
@@ -31,18 +42,18 @@ chen::ev_event::ev_event(std::function<void ()> cb) : _notify(std::move(cb))
     ioctl::cloexec(pp[1], true);
 
     this->change(pp[0]);   // read
-    this->_write = pp[1];  // write
+    this->_impl->write = pp[1];  // write
 }
 
 chen::ev_event::~ev_event()
 {
-    ::close(this->_write);
+    ::close(this->_impl->write);
 }
 
 void chen::ev_event::set()
 {
     this->_signaled = true;
-    ::write(this->_write, "\n", 1);
+    ::write(this->_impl->write, "\n", 1);
 }
 
 void chen::ev_event::reset()

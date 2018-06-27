@@ -7,9 +7,12 @@
 #pragma once
 
 #include "socket/base/basic_socket.hpp"
+#include <memory>
 
 namespace chen
 {
+    class ev_event_impl;
+
     class ev_event: public ev_handle
     {
     public:
@@ -51,20 +54,12 @@ namespace chen
         bool _signaled = false;
         std::function<void ()> _notify;
 
-#if (defined(__unix__) || defined(__APPLE__)) && !defined(__linux__)
-
-        // Unix, use pipe
-        handle_t _write;
-
-#elif defined(_WIN32)
-
-        // Windows, use udp
-        basic_socket _write;
-
-#else
-
+#ifdef __linux__
         // Linux, use eventfd
-
+#else
+        // Unix, use pipe
+        // Windows, use socket
+        std::unique_ptr<ev_event_impl> _impl;
 #endif
     };
 }
