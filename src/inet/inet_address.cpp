@@ -216,7 +216,7 @@ bool chen::inet_address::operator>=(const inet_address &o) const
 }
 
 // override
-socklen_t chen::inet_address::socklen() const
+std::size_t chen::inet_address::socklen() const
 {
     switch (this->_addr.type())
     {

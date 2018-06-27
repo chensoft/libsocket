@@ -26,7 +26,7 @@ namespace chen
         /**
          * Underlying socket address length
          */
-        virtual int socklen() const = 0;
+        virtual std::size_t socklen() const = 0;
 
         /**
          * Underlying socket address struct
