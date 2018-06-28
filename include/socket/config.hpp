@@ -35,11 +35,8 @@ namespace chen
 // Windows
 #ifdef _WIN32
 
-#define NOMINMAX
-
-#include <winsock2.h>  // socket
-#include <ws2tcpip.h>  // getaddrinfo
-#include <windows.h>
+#include <WinSock2.h>  // socket
+#include <WS2tcpip.h>  // getaddrinfo
 
 namespace chen
 {

@@ -294,7 +294,7 @@ std::size_t chen::str::levenshtein(const char *s, std::size_t len_s, const char 
         cost = 1;
 
     // return minimum of delete char from s, delete char from t, and delete char from both
-    return std::min({str::levenshtein(s, len_s - 1, t, len_t    ) + 1,
-                     str::levenshtein(s, len_s    , t, len_t - 1) + 1,
-                     str::levenshtein(s, len_s - 1, t, len_t - 1) + cost});
+    return (std::min)({str::levenshtein(s, len_s - 1, t, len_t    ) + 1,
+                       str::levenshtein(s, len_s    , t, len_t - 1) + 1,
+                       str::levenshtein(s, len_s - 1, t, len_t - 1) + cost});
 }
