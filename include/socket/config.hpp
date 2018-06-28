@@ -35,6 +35,10 @@ namespace chen
 // Windows
 #ifdef _WIN32
 
+#ifdef _WINSOCKAPI_
+#pragma message("warning: we only support WinSock2, please do not include winsock.h")
+#endif
+
 #include <WinSock2.h>  // socket
 #include <WS2tcpip.h>  // getaddrinfo
 
