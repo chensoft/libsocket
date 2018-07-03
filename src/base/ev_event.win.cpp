@@ -37,6 +37,8 @@ chen::ev_event::~ev_event()
 
 void chen::ev_event::set()
 {
+    this->_signaled = true;
+
     ::sockaddr_storage tmp{};
     socklen_t len = sizeof(tmp);
 
@@ -51,6 +53,8 @@ void chen::ev_event::reset()
     char dummy;
     while (::recvfrom(this->native(), &dummy, 1, 0, nullptr, nullptr) >= 0)
         ;
+
+    this->_signaled = false;
 }
 
 // notify
