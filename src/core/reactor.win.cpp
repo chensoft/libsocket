@@ -84,6 +84,28 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
     this->_wake.set();
 }
 
+void chen::reactor::mod(ev_handle *ptr, int mode, bool enable)
+{
+    auto fd = ptr->native();
+
+    // register event
+    auto find = std::find_if(this->_cache.begin(), this->_cache.end(), [&] (::pollfd &item) {
+        return item.fd == fd;
+    });
+
+    find->fd = fd;
+    find->events = 0;
+
+    if ((mode & ModeRead) && enable)
+        find->events |= POLLIN;
+
+    if ((mode & ModeWrite) && enable)
+        find->events |= POLLOUT;
+
+    // wake poll
+    this->_wake.set();
+}
+
 void chen::reactor::del(ev_handle *ptr)
 {
     auto fd = ptr->native();

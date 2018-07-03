@@ -68,6 +68,11 @@ namespace chen
         void set(ev_timer *ptr, std::chrono::steady_clock::time_point init = std::chrono::steady_clock::now());
 
         /**
+         * Modify event
+         */
+        void mod(ev_handle *ptr, int mode, bool enable);
+
+        /**
          * Delete event
          * @note this method will be called automatically when object destroyed, event is Closed or flag is FlagOnce
          */

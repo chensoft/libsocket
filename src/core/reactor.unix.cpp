@@ -78,6 +78,19 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
     ptr->onAttach(this, mode, flag);
 }
 
+void chen::reactor::mod(ev_handle *ptr, int mode, bool enable)
+{
+    auto fd = ptr->native();
+
+    // register read or delete
+    if ((mode & ModeRead) && (kq_alter(this->_backend, fd, EVFILT_READ, enable ? EV_ADD : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "reactor: failed to set event");
+
+    // register write or delete
+    if ((mode & ModeWrite) && (kq_alter(this->_backend, fd, EVFILT_WRITE,enable ? EV_ADD : EV_DELETE, 0, 0, ptr) < 0) && (errno != ENOENT))
+        throw std::system_error(chen::sys::error(), "reactor: failed to set event");
+}
+
 void chen::reactor::del(ev_handle *ptr)
 {
     auto fd = ptr->native();
