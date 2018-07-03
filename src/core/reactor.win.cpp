@@ -45,6 +45,9 @@ const int chen::reactor::FlagOnce = 1;
 
 chen::reactor::reactor(std::size_t count)  // count is ignored on Windows
 {
+    // create udp to recv wake message
+    this->set(&this->_wake, ModeRead, 0);
+
     // create udp to recv exit message
     this->set(&this->_exit, ModeRead, 0);
 }
@@ -76,6 +79,9 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
 
     // notify attach
     ptr->onAttach(this, mode, flag);
+
+    // wake poll
+    this->_wake.set();
 }
 
 void chen::reactor::del(ev_handle *ptr)
@@ -95,6 +101,9 @@ void chen::reactor::del(ev_handle *ptr)
 
     if (it != this->_cache.end())
         this->_cache.erase(it);
+
+    // wake poll
+    this->_wake.set();
 }
 
 // phase
@@ -104,13 +113,27 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
     if (timeout > std::chrono::nanoseconds::zero())
         timeout += std::chrono::milliseconds(5);
 
-    // poll events
-    int result = ::WSAPoll(this->_cache.data(), static_cast<ULONG>(this->_cache.size()), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
+    int result = 0;
 
-    if (!result)
-        return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
-    else if (result < 0)
-        throw std::system_error(sys::error(), "reactor: failed to poll event");
+    do
+    {
+        // reset wake
+        if (this->_wake.signaled())
+        {
+            this->_wake.reset();
+
+            if (result > 1)
+                break;
+        }
+
+        // poll events
+        result = ::WSAPoll(this->_cache.data(), static_cast<ULONG>(this->_cache.size()), timeout < std::chrono::nanoseconds::zero() ? -1 : static_cast<int>(timeout.count() / 1000000));
+
+        if (!result)
+            return std::make_error_code(std::errc::timed_out);  // timeout if result is zero
+        else if (result < 0)
+            throw std::system_error(sys::error(), "reactor: failed to poll event");
+    } while (this->_wake.signaled());
 
     // events on the same fd will be notified only once
     for (auto it = this->_cache.begin(); it != this->_cache.end(); ++it)
