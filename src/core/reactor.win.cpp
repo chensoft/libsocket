@@ -159,7 +159,8 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
             return std::make_error_code(std::errc::operation_canceled);
         }
 
-        this->post(ptr, po_type(item.revents));
+        if (ptr)
+            this->post(ptr, po_type(item.revents));
     }
 
     return {};
