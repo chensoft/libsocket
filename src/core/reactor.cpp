@@ -105,9 +105,9 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     this->notify();
 
     // quickly stop
-    if (this->_wakeup.signaled())
+    if (this->_exit.signaled())
     {
-        this->_wakeup.reset();
+        this->_exit.reset();
         return std::make_error_code(std::errc::operation_canceled);
     }
 
@@ -126,8 +126,8 @@ void chen::reactor::post(ev_timer *ptr)
 
 void chen::reactor::stop()
 {
-    // notify wakeup message
-    this->_wakeup.set();
+    // notify exit message
+    this->_exit.set();
 }
 
 // phase

@@ -45,8 +45,8 @@ const int chen::reactor::FlagOnce = 1;
 
 chen::reactor::reactor(std::size_t count)  // count is ignored on Windows
 {
-    // create udp to recv wakeup message
-    this->set(&this->_wakeup, ModeRead, 0);
+    // create udp to recv exit message
+    this->set(&this->_exit, ModeRead, 0);
 }
 
 // modify
@@ -123,9 +123,9 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
             continue;
 
         // user request to stop
-        if (item.fd == this->_wakeup.native())
+        if (item.fd == this->_exit.native())
         {
-            this->_wakeup.reset();
+            this->_exit.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 

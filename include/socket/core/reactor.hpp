@@ -163,7 +163,7 @@ namespace chen
 
 #endif
 
-        ev_event _wakeup;
+        ev_event _exit;
 
         bool _sorted = true;
         std::vector<ev_timer*> _timers;

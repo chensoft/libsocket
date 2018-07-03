@@ -54,8 +54,8 @@ chen::reactor::reactor(std::size_t count) : _cache(count)
 
     ioctl::cloexec(this->_backend, true);
 
-    // create pipe to recv wakeup message
-    this->set(&this->_wakeup, ModeRead, 0);
+    // create pipe to recv exit message
+    this->set(&this->_exit, ModeRead, 0);
 }
 
 // modify
@@ -150,9 +150,9 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         auto   ptr = static_cast<ev_handle*>(item.udata);
 
         // user request to stop
-        if (ptr == &this->_wakeup)
+        if (ptr == &this->_exit)
         {
-            this->_wakeup.reset();
+            this->_exit.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 

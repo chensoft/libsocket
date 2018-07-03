@@ -47,8 +47,8 @@ chen::reactor::reactor(std::size_t count) : _cache(count)
     if ((this->_backend = ::epoll_create1(EPOLL_CLOEXEC)) < 0)
         throw std::system_error(sys::error(), "reactor: failed to create epoll");
 
-    // create eventfd to recv wakeup message
-    this->set(&this->_wakeup, ModeRead, 0);
+    // create eventfd to recv exit message
+    this->set(&this->_exit, ModeRead, 0);
 }
 
 // modify
@@ -120,9 +120,9 @@ std::error_code chen::reactor::gather(std::chrono::nanoseconds timeout)
         auto   ptr = static_cast<ev_handle*>(item.data.ptr);
 
         // user request to stop
-        if (ptr == &this->_wakeup)
+        if (ptr == &this->_exit)
         {
-            this->_wakeup.reset();
+            this->_exit.reset();
             return std::make_error_code(std::errc::operation_canceled);
         }
 
