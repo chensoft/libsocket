@@ -74,31 +74,14 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
             throw std::system_error(sys::error(), "reactor: failed to set event");
     }
 
-    // store handle
-    this->_handles.insert(ptr);
+    if (this->_handles.find(ptr) == this->_handles.end())
+    {
+        // store handle
+        this->_handles.insert(ptr);
 
-    // notify attach
-    ptr->onAttach(this, mode, flag);
-}
-
-void chen::reactor::mod(ev_handle *ptr, int mode, bool enable)
-{
-    auto fd = ptr->native();
-
-    // register event
-    ::epoll_event event{};
-
-    if ((mode & ModeRead) && enable)
-        event.events |= EPOLLIN;
-
-    if ((mode & ModeWrite) && enable)
-        event.events |= EPOLLOUT;
-
-    event.events  |= EPOLLRDHUP;
-    event.data.ptr = ptr;
-
-    if (::epoll_ctl(this->_backend, EPOLL_CTL_MOD, fd, &event) != 0)
-        throw std::system_error(sys::error(), "reactor: failed to set event");
+        // notify attach
+        ptr->onAttach(this, mode, flag);
+    }
 }
 
 void chen::reactor::del(ev_handle *ptr)

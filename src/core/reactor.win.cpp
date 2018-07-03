@@ -58,12 +58,16 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
     auto fd = ptr->native();
 
     // register event
+    bool emit = false;
     auto find = std::find_if(this->_cache.begin(), this->_cache.end(), [&] (::pollfd &item) {
         return item.fd == fd;
     });
 
     if (find == this->_cache.end())
+    {
+        emit = true;
         find = this->_cache.insert(this->_cache.end(), ::pollfd());
+    }
 
     find->fd = fd;
     find->events = 0;
@@ -74,33 +78,14 @@ void chen::reactor::set(ev_handle *ptr, int mode, int flag)
     if (mode & ModeWrite)
         find->events |= POLLOUT;
 
-    // store handle
-    this->_handles[fd] = ptr;
+    if (emit)
+    {
+        // store handle
+        this->_handles[fd] = ptr;
 
-    // notify attach
-    ptr->onAttach(this, mode, flag);
-
-    // wake poll
-    this->_wake.set();
-}
-
-void chen::reactor::mod(ev_handle *ptr, int mode, bool enable)
-{
-    auto fd = ptr->native();
-
-    // register event
-    auto find = std::find_if(this->_cache.begin(), this->_cache.end(), [&] (::pollfd &item) {
-        return item.fd == fd;
-    });
-
-    find->fd = fd;
-    find->events = 0;
-
-    if ((mode & ModeRead) && enable)
-        find->events |= POLLIN;
-
-    if ((mode & ModeWrite) && enable)
-        find->events |= POLLOUT;
+        // notify attach
+        ptr->onAttach(this, mode, flag);
+    }
 
     // wake poll
     this->_wake.set();
