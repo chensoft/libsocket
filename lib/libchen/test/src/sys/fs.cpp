@@ -41,7 +41,7 @@ TEST(SysFsTest, General)
     EXPECT_EQ("C:\\a", fs::normalize("C:\\a"));
     EXPECT_EQ("C:\\a", fs::normalize("C:\\.\\a"));
     EXPECT_EQ("C:\\a\\...\\b", fs::normalize("C:\\a\\...\\b"));
-    EXPECT_EQ("C:\\..\\b", fs::normalize("C:\\a\\..\\..\\b"));
+    EXPECT_EQ("C:\\b", fs::normalize("C:\\a\\..\\..\\b"));
     EXPECT_EQ("C:\\b", fs::normalize("C:\\a\\..\\b"));
 
     // dirname
