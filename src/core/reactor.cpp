@@ -98,10 +98,13 @@ std::error_code chen::reactor::poll(std::chrono::nanoseconds timeout)
     if ((mini >= zero) && (timeout != zero))
         timeout = (timeout > zero) ? (std::min)(mini, timeout) : mini;
 
+    // notify timer events
+    this->notify();
+
     // poll events
     auto error = this->gather(timeout);
 
-    // notify user
+    // notify socket events
     this->notify();
 
     // quickly stop
